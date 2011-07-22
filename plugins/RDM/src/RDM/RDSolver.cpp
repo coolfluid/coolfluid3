@@ -57,6 +57,10 @@ RDSolver::RDSolver ( const std::string& name  ) :
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
+  m_options.add_option(OptionComponent<CAction>::create( "setup_fields", &m_setup_fields))
+      ->set_description("Action to setup the fields")
+			->set_pretty_name("Setup Fields");
+
   m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
       ->set_pretty_name("Mesh")
@@ -171,19 +175,20 @@ void RDSolver::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
+  // ensure physcial model has already been configured
+ 
   Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
   if( is_null( physmodel ) )
     throw SetupError(FromHere(), "Physical model not yet set for RDM solver [" + uri().string() + "]" );
 
-  CAction& setup = create_component<SetupFields>("SetupFields");
+  // setup the fields
+ 
+  if( m_setup_fields.expired() )
+    throw SetupError(FromHere(), "No action to setup fields in RDM solver [" + uri().string() + "]" );
+		
+	m_setp_fields.lock()->execute();
 
-  setup.configure_option( RDM::Tags::solver(), uri() );
-  setup.configure_option( RDM::Tags::mesh(), mesh.uri() );
-  setup.configure_option( RDM::Tags::physical_model(), physmodel->uri() );
-
-  setup.execute();
-
-  remove_component(setup);
+  // configure all other subcomponentscomponents with the mesh
 
   boost_foreach( Component& comp, find_components(*this) )
     comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
@@ -192,9 +197,7 @@ void RDSolver::config_mesh()
 
 void RDSolver::mesh_loaded(CMesh& mesh)
 {
-  // this triggers the config_mesh() function
-
-  configure_option( RDM::Tags::mesh(), mesh.uri() );
+  configure_option( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
 }
 
 

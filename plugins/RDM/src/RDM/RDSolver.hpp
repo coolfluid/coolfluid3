@@ -110,6 +110,8 @@ private: // data
 
   boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
+  boost::weak_ptr<CAction>                m_setup_fields;          ///< subcomponent that setups the fields
+
   boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
 
   boost::weak_ptr<Mesh::CMesh> m_mesh; ///< mesh which this solver operates

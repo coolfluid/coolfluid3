@@ -102,6 +102,13 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
   solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
 
+  // what to set up here
+
+  // (1) remove  norm from the IterativeSolver
+
+  // (2)
+
+
   /* these should be set in the cfscript */
 
   solver.time_stepping().configure_option_recursively( "time_step", Real(0) );

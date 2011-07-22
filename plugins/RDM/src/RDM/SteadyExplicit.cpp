@@ -24,6 +24,7 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/FwdEuler.hpp"
+#include "RDM/SetupFields.hpp"
 
 // supported physical models
 
@@ -70,39 +71,60 @@ SteadyExplicit::~SteadyExplicit() {}
 
 CModel& SteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
-  // create the model
+  // (1) create the model
 
   CModel& model = Common::Core::instance().root().create_component<CModelSteady>( model_name );
 
-  // create the domain
+  // (2) create the domain
 
   CDomain& domain = model.create_domain( "Domain" );
 
-  // create the Physical Model
+  // (3) create the Physical Model
 
   PhysModel& pm = model.create_physics( physics_builder );
 
   pm.mark_basic();
 
-  // setup iterative solver
+  // (4) setup solver
 
   CF::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
 
   solver.mark_basic();
 
-  // explicit time stepping  - forward euler
+  solver.time_stepping().configure_option_recursively( "maxiter",   1u);
+
+  // (4a) setup iterative solver cleanup action
+
+	Cleanup::Ptr cleanup  = allocate_component<Cleanup>("Zero");
+	solver.iterative_solver().pre_actions().append( cleanup );
+
+  std::vector<URI> cleanup_fields;
+  cleanup_fields.push_back( RDM::Tags::residual() );
+  cleanup_fields.push_back( RDM::Tags::wave_speed() );
+  cleanup->configure_option("FieldTags", cleanup_fields);
+
+  // (4b) setup iterative solver compute norm
+
+  post_actions().get_child("ComputeNorm")
+      .configure_option("FieldTags", mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
+
+  // (4c) setup iterative solver explicit time stepping  - forward euler
 
   solver.iterative_solver().update()
       .append( allocate_component<FwdEuler>("Step") );
 
+  // (4d) setup solver fields
+
+  SetupFields::Ptr setup = allocate_component<SetupFields>("SetupFields");
+	solver.actions().add_component( setup );
+	
+	solver.configure_option("setup_fields", setup->uri());
+
+  // (5) configure domain, physical model and solver in all subcomponents
+
   solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
   solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
-
-//  solver.time_stepping().configure_option_recursively( "time_step", Real(0) );
-//  solver.time_stepping().configure_option_recursively( "end_time",  Real(0) );
-
-  solver.time_stepping().configure_option_recursively( "maxiter",   1u);
 
   return model;
 }

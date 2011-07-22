@@ -43,6 +43,7 @@ public: // functions
 private: // helper functions
 
   void config_fields();
+  void config_field_tags();
 
 private: // data
 

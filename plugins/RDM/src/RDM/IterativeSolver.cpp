@@ -47,6 +47,10 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 {
   mark_basic();
 
+  // properties
+
+  m_properties.add_property( "iteration", Uint(0) );
+
   // static components
 
   m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
@@ -55,11 +59,7 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
 
-  // dynamic components
-
-  Cleanup::Ptr cleanup  = m_pre_actions->create_component_ptr<Cleanup>("Zero");
-
-  m_pre_actions->append( cleanup );
+  // dynamic components 
 
   CCriterionMaxIterations& maxiter =
       create_component<CCriterionMaxIterations>( "MaxIterations" );
@@ -67,15 +67,10 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
   CComputeLNorm& cnorm =
       m_post_actions->create_component<CComputeLNorm>( "ComputeNorm" );
 
-  m_post_actions->append( cnorm );
+  post_aciotns().append( cnorm );
 
   cnorm.configure_option("Scale", true);
   cnorm.configure_option("Order", 2u);
-
-  // properties
-
-  m_properties.add_property( "iteration", Uint(0) );
-
 }
 
 bool IterativeSolver::stop_condition()
@@ -91,24 +86,11 @@ void IterativeSolver::execute()
 {
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 
-  //----------------------------------------------------------------------------------------
-
   /// @todo this configuration sould be in constructor but does not work there
 
   get_child("MaxIterations").configure_option( "iterator", this->uri() );
 
-  std::vector<URI> cleanup_fields;
-  cleanup_fields.push_back( mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
-  cleanup_fields.push_back( mysolver.fields().get_child( RDM::Tags::wave_speed()).follow()->uri() );
-
-  m_pre_actions->get_child("Zero").configure_option("Fields", cleanup_fields);
-
-  m_post_actions->get_child("ComputeNorm")
-      .configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
-
-  //----------------------------------------------------------------------------------------
-
-  CFinfo << "[RDM] iterative solve" << CFendl;
+  // access components (out of loop)
 
   CActionDirector& boundary_conditions =
       access_component( "cpath:../BoundaryConditions" ).as_type<CActionDirector>();
@@ -118,7 +100,7 @@ void IterativeSolver::execute()
 
   CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
 
-  Component& cnorm = m_post_actions->get_child("ComputeNorm");
+  Component& cnorm = post_actions().get_child("ComputeNorm");
 
   // iteration loop
 
@@ -130,7 +112,7 @@ void IterativeSolver::execute()
   {
     // (1) the pre actions - cleanup residual, pre-process something, etc
 
-    m_pre_actions->execute();
+    pre_actions().execute();
 
     // (2) domain discretization
 
@@ -142,7 +124,7 @@ void IterativeSolver::execute()
 
     // (4) update
 
-    m_update->execute();
+    update().execute();
 
     // (5) update
 
@@ -150,7 +132,7 @@ void IterativeSolver::execute()
 
     // (6) the post actions - compute norm, post-process something, etc
 
-    m_post_actions->execute();
+    post_actions().execute();
 
     // output convergence info
 

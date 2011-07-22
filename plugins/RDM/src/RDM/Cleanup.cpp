@@ -32,10 +32,15 @@ Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
 {
   mark_basic();
 
-  std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy)
+  std::vector< URI > dummy0;
+  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy0)
       ->set_description("Fields to cleanup")
       ->attach_trigger ( boost::bind ( &Cleanup::config_fields,   this ) );
+
+  std::vector< std::string > dummy1;
+  m_options.add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
+      ->set_description("Tags of the field for which to apply the action")
+      ->attach_trigger ( boost::bind ( &Cleanup::config_field_tags,   this ) );
 }
 
 
@@ -56,6 +61,24 @@ void Cleanup::config_fields()
     else
       throw ValueNotFound ( FromHere(), "Could not find field with path [" + field_path.path() +"]" );
   }
+}
+
+
+void Cleanup::config_field_tags()
+{
+  std::vector<std::string> vec; option("FieldTags").put_value(vec);
+
+	RDSolver& mysolver = solver().as_type<RDSolver>();
+
+  boost_foreach(const std::string tag, vec)
+    boost_foreach( CLink& link, find_components_with_tag<CLink>(mysolver.fields()) )
+    {
+			if( CField::Ptr field = link.follow()->as_ptr<CField>() )
+			{
+        boost::weak_ptr<CField> wptr = field;
+        m_fields.push_back( wptr );
+			}
+	  }	
 }
 
 

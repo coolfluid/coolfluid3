@@ -57,7 +57,7 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 
 void CComputeLNorm::execute()
 {
-  if (m_field.expired()) throw SetupError(FromHere(), "Field was not set");
+  if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
 
   CTable<Real>& table = m_field.lock()->data();
   CTable<Real>::ArrayT& array =  table.array();
