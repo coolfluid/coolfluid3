@@ -23,6 +23,8 @@ list( APPEND coolfluid_rdm_files
   SetupFields.hpp
   SetupFields.cpp
 # wizards
+  UnsteadyExplicit.hpp
+  UnsteadyExplicit.cpp
   SteadyExplicit.hpp
   SteadyExplicit.cpp
   MySim.cpp
@@ -47,6 +49,8 @@ list( APPEND coolfluid_rdm_files
 # time stepping
   FwdEuler.hpp
   FwdEuler.cpp
+  RK.hpp
+  RK.cpp
 )
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_physics coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
