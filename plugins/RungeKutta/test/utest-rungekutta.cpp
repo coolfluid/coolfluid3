@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( test_RK )
   CAction& rk4 = Core::instance().root().create_component("RK4","CF.RungeKutta.RK").as_type<CAction>();
   rk4.configure_option("stages",4u);
   rk4.configure_option_recursively("mesh",mesh.uri());
-  rk4.configure_option_recursively("time",time.uri());
+  rk4.configure_option_recursively("ctime",time.uri());
   rk4.configure_option("solution",solution.uri());
   rk4.configure_option("residual",residual.uri());
   rk4.configure_option("update_coeff",update_coeff.uri());
