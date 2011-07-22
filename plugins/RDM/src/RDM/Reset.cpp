@@ -78,8 +78,6 @@ void Reset::config_field_tags()
   boost_foreach(const std::string tag, vec)
     boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
     {
-      CF_DEBUG_OBJ(link.uri().string());
-
       if( CField::Ptr field = link.follow()->as_ptr<CField>() )
       {
         boost::weak_ptr<CField> wptr = field;
