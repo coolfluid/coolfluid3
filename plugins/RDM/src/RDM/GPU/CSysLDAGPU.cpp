@@ -15,6 +15,7 @@
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
 
 #include "RDM/CellLoop.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
@@ -28,11 +29,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLDAGPU, RDM::DomainTerm, LibSchemes > CSysLDAGPU_Builder;
+Common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSysLDAGPU::CSysLDAGPU ( const std::string& name ) : RDM::DomainTerm(name)
+CSysLDAGPU::CSysLDAGPU ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }

@@ -1,0 +1,61 @@
+### Global settings
+
+configure //Root/Environment assertion_throws:bool=false   \
+                             assertion_backtrace:bool=true \
+                             exception_backtrace:bool=true \
+                             exception_aborts:bool=true    \
+                             exception_outputs:bool=true   \
+                             log_level:unsigned=4          \
+                             regist_signal_handlers:bool=false
+
+### create model
+
+create Wizard CF.RDM.SteadyExplicit
+
+call Wizard/create_model  model_name:string=Model \
+                          physical_model:string=CF.Physics.NavierStokes.NavierStokes2D
+
+### read mesh
+
+call Model/Domain/load_mesh file:uri=file:trapezium1x1-tg-p1-508.msh
+
+### solver
+
+configure Model/RDSolver                                update_vars:string=Cons2D
+
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=250
+configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
+
+### initial conditions
+
+call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+
+configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+
+### boundary conditions
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+     Name:string=INLET \
+     Type:string=CF.RDM.WeakDirichlet \
+     Regions:array[uri]=\
+//Root/Model/Domain/mesh/topology/bottom,\
+//Root/Model/Domain/mesh/topology/left,\
+//Root/Model/Domain/mesh/topology/right
+
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+
+### domain discretization
+
+call Model/RDSolver/DomainDiscretization/create_cell_term \
+     Name:string=INTERNAL \
+     Type:string=CF.RDM.GPU.CSysLDAGPU
+
+### simulate and write the result
+
+call Model/RDSolver/InitialConditions
+
+call Model/Domain/write_mesh file:uri=atest-rdm-euler2d-gpu-initial.msh
+
+call Model/simulate
+
+call Model/Domain/write_mesh file:uri=atest-rdm-euler2d-gpu-solution.msh

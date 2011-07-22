@@ -7,7 +7,7 @@
 #ifndef CF_RDM_CSysLDAGPU_hpp
 #define CF_RDM_CSysLDAGPU_hpp
 
-#include "RDM/DomainTerm.hpp"
+#include "RDM/CellTerm.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -19,7 +19,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysLDAGPU : public RDM::DomainTerm {
+class RDM_SCHEMES_API CSysLDAGPU : public RDM::CellTerm {
 
 public: // typedefs
 

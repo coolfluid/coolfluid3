@@ -7,17 +7,16 @@
 #ifndef CF_RDM_LDAGPU_hpp
 #define CF_RDM_LDAGPU_hpp
 
-#include "RDM/DomainTerm.hpp"
+#include "RDM/CellTerm.hpp"
 #include "RDM/GPU/LibGPU.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_GPU_API LDAGPU : public RDM::DomainTerm {
+class RDM_GPU_API LDAGPU : public RDM::CellTerm {
 
   template < typename PHYS > struct ElementLoop;
 
@@ -47,7 +46,5 @@ public: // functions
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Mesh_LDAGPU_hpp

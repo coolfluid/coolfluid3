@@ -35,7 +35,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDAGPU, RDM::DomainTerm, LibGPU > LDAGPU_Builder;
+Common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ struct LDAGPU::ElementLoop
 
 //////////////////////////////////////////////////////////////////////////////
 
-LDAGPU::LDAGPU ( const std::string& name ) : RDM::DomainTerm(name)
+LDAGPU::LDAGPU ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }
