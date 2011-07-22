@@ -34,13 +34,11 @@ CLink::CLink ( const std::string& name) : Component ( name )
     ->pretty_name("Change target");
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CLink::~CLink()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 Component::Ptr CLink::follow()
 {
@@ -54,16 +52,14 @@ Component::ConstPtr CLink::follow() const
   return m_link_component.lock();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 bool CLink::is_linked () const
 {
   return !m_link_component.expired();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-void CLink::link_to ( Component::Ptr lnkto )
+CLink& CLink::link_to ( Component::Ptr lnkto )
 {
   if ( is_null(lnkto) )
     throw BadValue(FromHere(), "Cannot link to null component");
@@ -72,29 +68,29 @@ void CLink::link_to ( Component::Ptr lnkto )
     throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
 
   m_link_component = lnkto;
+  return *this;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-void CLink::link_to ( Component& lnkto )
+CLink& CLink::link_to ( Component& lnkto )
 {
   if (lnkto.is_link())
     throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
 
   m_link_component = lnkto.self();
+  return *this;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-void CLink::link_to ( Component const& lnkto )
+CLink& CLink::link_to ( Component const& lnkto )
 {
   if (lnkto.is_link())
     throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
 
   m_link_component = boost::const_pointer_cast<Component>(lnkto.self());
+  return *this;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void CLink::change_link( SignalArgs & args )
 {
