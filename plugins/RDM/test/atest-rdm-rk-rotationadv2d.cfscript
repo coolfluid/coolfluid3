@@ -1,0 +1,62 @@
+### Global settings
+
+configure //Root/Environment assertion_throws:bool=false   \
+                             assertion_backtrace:bool=true \
+                             exception_backtrace:bool=true \
+                             exception_aborts:bool=true    \
+                             exception_outputs:bool=true   \
+                             log_level:unsigned=4          \
+                             regist_signal_handlers:bool=false
+
+### create model
+
+create Wizard CF.RDM.SteadyExplicit
+
+call Wizard/create_model  model_name:string=Model \
+                          physical_model:string=CF.Physics.Scalar.Scalar2D
+
+configure Wizard  rkorder:unsigned=2
+
+### read mesh
+
+call Model/Domain/load_mesh file:uri=file:square2x2-tg-p1.msh
+
+### solver
+
+configure Model/RDSolver  update_vars:string=RotationAdv2D
+
+configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=3000
+configure Model/RDSolver/TimeStepping/TimeLimit time:real=0.0 time_step:real=0.001 end_time:real=0.1
+
+configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
+
+### initial conditions
+
+call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]=0.
+
+### boundary conditions
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+     Name:string=AROUND \
+     Type:string=CF.RDM.BcDirichlet \
+     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
+
+configure Model/RDSolver/BoundaryConditions/AROUND functions:array[string]=0
+
+### domain discretization
+
+call Model/RDSolver/DomainDiscretization/create_cell_term \
+     Name:string=INTERNAL \
+     Type:string=CF.RDM.Schemes.RKLDA
+
+### simulate and write the result
+
+call Model/RDSolver/InitialConditions
+
+call Model/Domain/write_mesh file:uri=atest-rdm-rk-rotationadv2d-initial.msh
+
+call Model/simulate
+
+call Model/Domain/write_mesh file:uri=atest-rdm-rk-rotationadv2d-solution.msh

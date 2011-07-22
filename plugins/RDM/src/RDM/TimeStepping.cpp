@@ -9,6 +9,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/EventHandler.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -41,6 +42,10 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 {
   mark_basic();
 
+  // properties
+
+  m_properties.add_property( "iteration", Uint(0) );
+
   // static components
 
   m_time  = create_static_component_ptr<CTime>("Time");
@@ -49,21 +54,7 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
 
-  // properties
-
-  m_properties.add_property( "iteration", Uint(0) );
-
-  // options
-
-  m_options.add_option< OptionT<Uint> >( "iteration", 1 )
-      ->set_description("Current time iteration")
-      ->set_pretty_name("Time Iteration");
-
   // dyanmic components
-
-/// @todo this component will be added by the Wizard
-//  CCriterionTime& maxtime =
-//      create_component<CCriterionTime>( "TimeLimit" );
 
   CCriterionMaxIterations& maxiter =
       create_component<CCriterionMaxIterations>( "MaxIterations" );
@@ -111,7 +102,7 @@ void TimeStepping::execute()
 
     // raise event of time_step done
 
-		raise_timestep_done();
+    raise_timestep_done();
 
     // advance time & iteration
 
@@ -124,15 +115,15 @@ void TimeStepping::execute()
 
 void TimeStepping::raise_timestep_done()
 {
-	SignalOptions opts;
-	
-	opts.add_option< OptionT<Uint> >( "time",  m_time->current_time() );
-	opts.add_option< OptionT<Uint> >( "dt",  m_time->dt() );
-	opts.add_option< OptionT<Uint> >( "iteration", properties().value<Uint>("iteration") );
-	
-	SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
+  SignalOptions opts;
 
-	Common::Core::instance().event_handler().raise_event( "timestep_done", frame);
+  opts.add_option< OptionT<Uint> >( "time",  m_time->current_time() );
+  opts.add_option< OptionT<Uint> >( "dt",  m_time->dt() );
+  opts.add_option< OptionT<Uint> >( "iteration", properties().value<Uint>("iteration") );
+
+  SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
+
+  Common::Core::instance().event_handler().raise_event( "timestep_done", frame);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 

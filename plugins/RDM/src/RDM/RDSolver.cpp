@@ -26,7 +26,7 @@
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/RDSolver.hpp"
-#include "RDM/SetupFields.hpp"
+#include "RDM/SetupSingleSolution.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -56,10 +56,6 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
-
-  m_options.add_option(OptionComponent<CAction>::create( "setup_fields", &m_setup_fields))
-      ->set_description("Action to setup the fields")
-			->set_pretty_name("Setup Fields");
 
   m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->set_description("Mesh the Discretization Method will be applied to")
@@ -91,6 +87,9 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   m_time_stepping->append( *m_iterative_solver );
 
+  m_prepare_mesh =
+      create_static_component_ptr< CActionDirector >( "SetupFields" );
+
   // for storing links to fields
 
   m_fields  = create_static_component_ptr< CGroup >( RDM::Tags::fields()  );
@@ -115,6 +114,8 @@ DomainDiscretization& RDSolver::domain_discretization()  { return *m_domain_disc
 IterativeSolver&      RDSolver::iterative_solver()       { return *m_iterative_solver; }
 
 TimeStepping&         RDSolver::time_stepping()          { return *m_time_stepping; }
+
+CActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
 Common::CGroup& RDSolver::actions() { return *m_actions; }
 
@@ -176,19 +177,18 @@ void RDSolver::config_mesh()
   CMesh& mesh = *(m_mesh.lock());
 
   // ensure physcial model has already been configured
- 
+
   Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
   if( is_null( physmodel ) )
     throw SetupError(FromHere(), "Physical model not yet set for RDM solver [" + uri().string() + "]" );
 
   // setup the fields
- 
-  if( m_setup_fields.expired() )
-    throw SetupError(FromHere(), "No action to setup fields in RDM solver [" + uri().string() + "]" );
-		
-	m_setp_fields.lock()->execute();
 
-  // configure all other subcomponentscomponents with the mesh
+  prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
+
+  prepare_mesh().execute();
+
+  // configure all other subcomponents with the mesh
 
   boost_foreach( Component& comp, find_components(*this) )
     comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );

@@ -72,6 +72,8 @@ public: // functions
   IterativeSolver&      iterative_solver();
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping();
+  /// @return subcomponent to prepare mesh for solving
+  CActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
   Common::CGroup& actions();
@@ -110,7 +112,7 @@ private: // data
 
   boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
-  boost::weak_ptr<CAction>                m_setup_fields;          ///< subcomponent that setups the fields
+  boost::shared_ptr<CActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
 
   boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
 

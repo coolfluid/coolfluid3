@@ -20,8 +20,10 @@ list( APPEND coolfluid_rdm_files
   TimeStepping.cpp
   IterativeSolver.hpp
   IterativeSolver.cpp
-  SetupFields.hpp
-  SetupFields.cpp
+  SetupSingleSolution.hpp
+  SetupSingleSolution.cpp
+  SetupMultipleSolutions.hpp
+  SetupMultipleSolutions.cpp
 # wizards
   UnsteadyExplicit.hpp
   UnsteadyExplicit.cpp
@@ -30,8 +32,8 @@ list( APPEND coolfluid_rdm_files
   MySim.cpp
   MySim.hpp
 # actions
-  Cleanup.hpp
-  Cleanup.cpp
+  Reset.hpp
+  Reset.cpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
   CellTerm.hpp

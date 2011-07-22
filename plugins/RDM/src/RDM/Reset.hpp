@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Cleanup_hpp
-#define CF_RDM_Cleanup_hpp
+#ifndef CF_RDM_Reset_hpp
+#define CF_RDM_Reset_hpp
 
 #include "Solver/Action.hpp"
 
@@ -18,24 +18,24 @@ namespace Mesh { class CField; }
 namespace RDM {
 
 
-class RDM_API Cleanup : public CF::Solver::Action {
+class RDM_API Reset : public CF::Solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<Cleanup> Ptr;
-  typedef boost::shared_ptr<Cleanup const> ConstPtr;
+  typedef boost::shared_ptr<Reset> Ptr;
+  typedef boost::shared_ptr<Reset const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  Cleanup ( const std::string& name );
+  Reset ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~Cleanup() {}
+  virtual ~Reset() {}
 
   /// Get the class name
-  static std::string type_name () { return "Cleanup"; }
+  static std::string type_name () { return "Reset"; }
 
   /// execute the action
   virtual void execute ();
@@ -57,4 +57,4 @@ private: // data
 } // RDM
 } // CF
 
-#endif // CF_RDM_Cleanup_hpp
+#endif // CF_RDM_Reset_hpp

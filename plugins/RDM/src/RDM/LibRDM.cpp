@@ -10,6 +10,7 @@
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/SteadyExplicit.hpp"
+#include "RDM/UnsteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
 
 namespace CF {
@@ -24,35 +25,28 @@ CF::Common::RegistLibrary<LibRDM> LibRDM;
 
 void LibRDM::initiate_impl()
 {
-  CGroup::Ptr rdm_group =
-    Common::Core::instance().root()
-      .get_child_ptr("Tools")
-      ->create_component_ptr<CGroup>( "RDM" );
-  rdm_group->mark_basic();
+  CGroup& rdm_group =
+      Common::Core::instance().tools().create_component<CGroup>( "RDM" );
+  rdm_group.mark_basic();
 
-  rdm_group->create_component_ptr<RDM::SteadyExplicit>( "Setup_RD_Steady_Explicit" )
-      ->mark_basic();
-  rdm_group->create_component_ptr<RDM::MySim>( "Setup_RD_My_Sim" )
-      ->mark_basic();
+  rdm_group.create_component<RDM::SteadyExplicit>("Steady_Explicit_Wizard").mark_basic();
+  rdm_group.create_component<RDM::UnsteadyExplicit>("Unsteady_Explicit_Wizard").mark_basic();
+  rdm_group.create_component<RDM::MySim>( "MySim_Wizard" ).mark_basic();
 }
 
 void LibRDM::terminate_impl()
 {
-  Common::Core::instance().root()
-      .get_child_ptr("Tools")
-      ->get_child_ptr("RDM")
-      ->remove_component( "Setup_RD_Steady_Explicit" );
-  Common::Core::instance().root()
-      .get_child_ptr("Tools")
-      ->get_child_ptr("RDM")
-      ->remove_component( "Setup_RD_My_Sim" );
-  Common::Core::instance().root()
-      .get_child_ptr("Tools")
-      ->remove_component("RDM");
+  CGroup& rdm_group =
+      Common::Core::instance().tools().get_child("RDM").as_type<CGroup>();
+
+  rdm_group.remove_component( "Steady_Explicit_Wizard" );
+  rdm_group.remove_component( "Unsteady_Explicit_Wizard" );
+  rdm_group.remove_component( "MySim_Wizard" );
+
+  Common::Core::instance().tools().remove_component("RDM");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
 
 } // RDM
 } // CF

@@ -16,7 +16,9 @@
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
-#include "RDM/RK.hpp"
+#include "RDM/IterativeSolver.hpp"
+
+#include "RK.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -63,7 +65,7 @@ void RK::execute()
 
   const Real CFL = options().option("cfl").value<Real>();
 
-	const Uint k = mysolver().iterative_solver().properties().value<Uint>("iteration");
+  const Uint k = mysolver.iterative_solver().properties().value<Uint>("iteration");
 
   // implementation of the RungeKutta update step
 

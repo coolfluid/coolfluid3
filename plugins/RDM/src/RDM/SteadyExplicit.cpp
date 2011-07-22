@@ -19,12 +19,12 @@
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"
 
-#include "RDM/SteadyExplicit.hpp"
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
 #include "RDM/FwdEuler.hpp"
-#include "RDM/SetupFields.hpp"
+#include "RDM/SetupSingleSolution.hpp"
+#include "RDM/Reset.hpp"
 
 // supported physical models
 
@@ -32,6 +32,9 @@
 #include "Physics/Scalar/ScalarSys2D.hpp"
 #include "Physics/Scalar/Scalar3D.hpp"
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
+
+
+#include "SteadyExplicit.hpp"
 
 namespace CF {
 namespace RDM {
@@ -64,7 +67,6 @@ SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
   signal("create_model")->signature( boost::bind( &SteadyExplicit::signature_create_model, this, _1));
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::~SteadyExplicit() {}
 
@@ -93,20 +95,15 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   solver.time_stepping().configure_option_recursively( "maxiter",   1u);
 
-  // (4a) setup iterative solver cleanup action
+  // (4a) setup iterative solver reset action
 
-	Cleanup::Ptr cleanup  = allocate_component<Cleanup>("Zero");
-	solver.iterative_solver().pre_actions().append( cleanup );
+  Reset::Ptr reset  = allocate_component<Reset>("Reset");
+  reset->configure_option( Tags::solver(), solver.uri() );
+  solver.iterative_solver().pre_actions().append( reset );
 
-  std::vector<URI> cleanup_fields;
-  cleanup_fields.push_back( RDM::Tags::residual() );
-  cleanup_fields.push_back( RDM::Tags::wave_speed() );
-  cleanup->configure_option("FieldTags", cleanup_fields);
-
-  // (4b) setup iterative solver compute norm
-
-  post_actions().get_child("ComputeNorm")
-      .configure_option("FieldTags", mysolver.fields().get_child( RDM::Tags::residual()).follow()->uri() );
+  std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
+                                                              ( RDM::Tags::wave_speed() );
+  reset->configure_option("FieldTags", reset_tags);
 
   // (4c) setup iterative solver explicit time stepping  - forward euler
 
@@ -115,10 +112,8 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (4d) setup solver fields
 
-  SetupFields::Ptr setup = allocate_component<SetupFields>("SetupFields");
-	solver.actions().add_component( setup );
-	
-	solver.configure_option("setup_fields", setup->uri());
+  SetupSingleSolution::Ptr setup = allocate_component<SetupSingleSolution>("SetupFields");
+  solver.prepare_mesh().append(setup);
 
   // (5) configure domain, physical model and solver in all subcomponents
 
@@ -140,7 +135,7 @@ void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   create_model( model_name, phys );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
 
 void SteadyExplicit::signature_create_model( SignalArgs& node )
 {

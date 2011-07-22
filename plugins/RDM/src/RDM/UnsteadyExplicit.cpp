@@ -16,21 +16,26 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/WriteMesh.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CSolver.hpp"
-
-#include "RDM/UnsteadyExplicit.hpp"
-#include "RDM/RDSolver.hpp"
-#include "RDM/IterativeSolver.hpp"
-#include "RDM/TimeStepping.hpp"
-#include "RDM/RKRD.hpp"
-
 // supported physical models
 
 #include "Physics/Scalar/Scalar2D.hpp"
 #include "Physics/Scalar/ScalarSys2D.hpp"
 #include "Physics/Scalar/Scalar3D.hpp"
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
+
+#include "Solver/CModelUnsteady.hpp"
+#include "Solver/CTime.hpp"
+
+#include "Solver/Actions/CCriterionTime.hpp"
+
+#include "RDM/RDSolver.hpp"
+#include "RDM/IterativeSolver.hpp"
+#include "RDM/TimeStepping.hpp"
+#include "RDM/Reset.hpp"
+#include "RDM/RK.hpp"
+#include "RDM/SetupMultipleSolutions.hpp"
+
+#include "UnsteadyExplicit.hpp"
 
 namespace CF {
 namespace RDM {
@@ -40,14 +45,23 @@ using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
+using namespace CF::Solver::Actions;
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < UnsteadyExplicit, CF::Solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
   CF::Solver::CWizard ( name )
 {
+  // options
+
+  m_options.add_option< OptionT<Uint> >( "rkorder", 1u )
+      ->set_description("Order of the explicit time stepping")
+      ->set_pretty_name("Time Step Order");
+
   // signals
 
   regist_signal( "create_model" )
@@ -63,57 +77,75 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
   signal("create_model")->signature( boost::bind( &UnsteadyExplicit::signature_create_model, this, _1));
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 UnsteadyExplicit::~UnsteadyExplicit() {}
 
 
 CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std::string& physics_builder )
 {
-  // create the model
+
+  const Uint rkorder = option("rkorder").value<Uint>();
+
+  // (1) create the model
 
   CModel& model = Common::Core::instance().root().create_component<CModelUnsteady>( model_name );
 
-  // create the domain
+  // (2) create the domain
 
   CDomain& domain = model.create_domain( "Domain" );
 
-  // create the Physical Model
+  // (3) create the Physical Model
 
   PhysModel& pm = model.create_physics( physics_builder );
 
   pm.mark_basic();
 
-  // setup iterative solver
+  // (4) setup solver
 
   CF::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
 
   solver.mark_basic();
 
-  // explicit time stepping  - forward euler
+  // (4a) setup time step stop condition
 
-	RKRD::Ptr rkrd = allocate_component<RKRD>("Step");
-  solver.iterative_solver().update()
-      .append( rkrd );
+  CCriterionTime& time_limit = solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
 
-  rkrd.configure_option("maxiter") = 2; // for RKRD(2)
+  time_limit.configure_option( Tags::time(), solver.time_stepping().time().uri() );
+
+  // (4b) setup iterative solver reset action
+
+  Reset::Ptr reset  = allocate_component<Reset>("Reset");
+  solver.iterative_solver().pre_actions().append( reset );
+
+  /// @todo this reset configuation must be corrected
+
+  std::vector<URI> reset_fields;
+  reset_fields.push_back( RDM::Tags::residual() );
+  reset_fields.push_back( RDM::Tags::wave_speed() );
+  reset->configure_option("FieldTags", reset_fields);
+
+  // (4c) setup iterative solver explicit time stepping  - RK
+
+  RK::Ptr rk = allocate_component<RK>("Step");
+  solver.iterative_solver().update().append( rk );
+
+  rk->configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
+
+  // (4d) setup solver fields
+
+  /// @todo add here any other actions to allocte more fields or storage
+
+  SetupMultipleSolutions::Ptr setup = allocate_component<SetupMultipleSolutions>("SetupFields");
+  solver.prepare_mesh().append(setup);
+
+  setup->configure_option( "nb_levels", rkorder );
+
+
+  // (5) configure domain, physical model and solver in all subcomponents
 
   solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
   solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
   solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
-
-  // what to set up here
-
-  // (1) remove  norm from the IterativeSolver
-
-  // (2)
-
-
-  /* these should be set in the cfscript */
-
-  solver.time_stepping().configure_option_recursively( "time_step", Real(0) );
-  solver.time_stepping().configure_option_recursively( "end_time",  Real(0) );
-  solver.time_stepping().configure_option_recursively( "maxiter",   1u);
 
   return model;
 }
@@ -129,7 +161,6 @@ void UnsteadyExplicit::signal_create_model ( Common::SignalArgs& node )
   create_model( model_name, phys );
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void UnsteadyExplicit::signature_create_model( SignalArgs& node )
 {
@@ -151,7 +182,7 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ->restricted_list() = models;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

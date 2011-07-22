@@ -16,7 +16,8 @@
 #include "Physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
-#include "RDM/SetupFields.hpp"
+
+#include "SetupMultipleSolutions.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,15 +30,15 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupFields, CAction, LibRDM > SetupFields_Builder;
+Common::ComponentBuilder < SetupMultipleSolutions, CAction, LibRDM > SetupMultipleSolutions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupFields::SetupFields ( const std::string& name ) : CF::Solver::Action(name)
+SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : CF::Solver::Action(name)
 {
 }
 
-void SetupFields::execute()
+void SetupMultipleSolutions::execute()
 {
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 

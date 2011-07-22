@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp" // temporary
+
 #include "Common/CBuilder.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
@@ -11,7 +13,9 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 
-#include "RDM/Cleanup.hpp"
+#include "RDM/RDSolver.hpp"
+
+#include "Reset.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,28 +28,28 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Cleanup, CAction, LibRDM > Cleanup_Builder;
+Common::ComponentBuilder < Reset, CAction, LibRDM > Reset_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Cleanup::Cleanup ( const std::string& name ) : Solver::Action(name)
+Reset::Reset ( const std::string& name ) : Solver::Action(name)
 {
   mark_basic();
 
   std::vector< URI > dummy0;
   m_options.add_option< OptionArrayT < URI > > ("Fields", dummy0)
       ->set_description("Fields to cleanup")
-      ->attach_trigger ( boost::bind ( &Cleanup::config_fields,   this ) );
+      ->attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
 
   std::vector< std::string > dummy1;
   m_options.add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
       ->set_description("Tags of the field for which to apply the action")
-      ->attach_trigger ( boost::bind ( &Cleanup::config_field_tags,   this ) );
+      ->attach_trigger ( boost::bind ( &Reset::config_field_tags,   this ) );
 }
 
 
 
-void Cleanup::config_fields()
+void Reset::config_fields()
 {
   std::vector<URI> vec; option("Fields").put_value(vec);
 
@@ -55,6 +59,8 @@ void Cleanup::config_fields()
 
     if ( CField::Ptr field = comp.as_ptr<CField>() )
     {
+      CFinfo << "Will be reseting [" << field->uri().string() << "]" << CFendl;
+
       boost::weak_ptr<CField> wptr = field;
       m_fields.push_back( wptr );
     }
@@ -64,31 +70,45 @@ void Cleanup::config_fields()
 }
 
 
-void Cleanup::config_field_tags()
+void Reset::config_field_tags()
 {
   std::vector<std::string> vec; option("FieldTags").put_value(vec);
 
-	RDSolver& mysolver = solver().as_type<RDSolver>();
+  CF_DEBUG_POINT;
+
+  RDSolver& mysolver = solver().as_type<RDSolver>();
 
   boost_foreach(const std::string tag, vec)
-    boost_foreach( CLink& link, find_components_with_tag<CLink>(mysolver.fields()) )
+  {
+    CF_DEBUG_OBJ(tag);
+
+    boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
     {
-			if( CField::Ptr field = link.follow()->as_ptr<CField>() )
-			{
+      CF_DEBUG_OBJ(link.uri().string());
+
+      if( CField::Ptr field = link.follow()->as_ptr<CField>() )
+      {
+        CFinfo << "Will be reseting [" << field->uri().string() << "]" << CFendl;
+
         boost::weak_ptr<CField> wptr = field;
         m_fields.push_back( wptr );
-			}
-	  }	
+      }
+    }
+  }
 }
 
 
 
-void Cleanup::execute()
+void Reset::execute()
 {
   // loop over fields to cleanup
   boost_foreach(boost::weak_ptr<CField> ptr, m_fields)
   {
+    CFinfo << "Trying to reset [" << ptr.lock()->uri().string() << "]" << CFendl;
+
     if( ptr.expired() ) continue; // skip if pointer invalid
+
+    CFinfo << "Reseting [" << ptr.lock()->uri().string() << "]" << CFendl;
 
     CTable<Real>& field = ptr.lock()->data();
 

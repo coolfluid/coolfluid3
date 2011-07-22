@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SetupFields_hpp
-#define CF_RDM_SetupFields_hpp
+#ifndef CF_RDM_SetupMultipleSolutions_hpp
+#define CF_RDM_SetupMultipleSolutions_hpp
 
 #include "Solver/Action.hpp"
 
@@ -20,25 +20,25 @@ namespace Mesh { class CField; }
 namespace RDM {
 
 
-class RDM_API SetupFields : public CF::Solver::Action {
+class RDM_API SetupMultipleSolutions : public CF::Solver::Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<SetupFields> Ptr;
-  typedef boost::shared_ptr<SetupFields const> ConstPtr;
+  typedef boost::shared_ptr<SetupMultipleSolutions> Ptr;
+  typedef boost::shared_ptr<SetupMultipleSolutions const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  SetupFields ( const std::string& name );
+  SetupMultipleSolutions ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~SetupFields() {}
+  virtual ~SetupMultipleSolutions() {}
 
   /// Get the class name
-  static std::string type_name () { return "SetupFields"; }
+  static std::string type_name () { return "SetupMultipleSolutions"; }
 
   /// execute the action
   virtual void execute ();
@@ -51,4 +51,4 @@ public: // functions
 } // RDM
 } // CF
 
-#endif // CF_RDM_SetupFields_hpp
+#endif // CF_RDM_SetupMultipleSolutions_hpp

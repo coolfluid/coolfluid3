@@ -18,6 +18,11 @@ coolfluid_add_acceptance_test( atest-rdm-sinusbump atest-rdm-sinusbump.cfscript 
 coolfluid_add_acceptance_test( atest-rdm-linearadvsys2d atest-rdm-linearadvsys2d.cfscript )
 
 ##########################################################################
+# RK atests
+
+coolfluid_add_acceptance_test( atest-rdm-rk-rotationadv2d atest-rdm-rk-rotationadv2d.cfscript )
+
+##########################################################################
 # GPU  acceptance tests
 
 if(CF_ENABLE_GPU AND OPENCL_FOUND)

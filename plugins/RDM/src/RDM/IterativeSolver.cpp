@@ -22,7 +22,7 @@
 #include "Solver/Actions/CComputeLNorm.hpp"
 
 #include "RDM/RDSolver.hpp"
-#include "RDM/Cleanup.hpp"
+#include "RDM/Reset.hpp"
 
 #include "IterativeSolver.hpp"
 
@@ -59,15 +59,12 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
 
-  // dynamic components 
+  // dynamic components
 
-  CCriterionMaxIterations& maxiter =
-      create_component<CCriterionMaxIterations>( "MaxIterations" );
+  create_component<CCriterionMaxIterations>( "MaxIterations" );
 
-  CComputeLNorm& cnorm =
-      m_post_actions->create_component<CComputeLNorm>( "ComputeNorm" );
-
-  post_aciotns().append( cnorm );
+  CComputeLNorm& cnorm = post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
+  post_actions().append( cnorm );
 
   cnorm.configure_option("Scale", true);
   cnorm.configure_option("Order", 2u);
@@ -101,6 +98,7 @@ void IterativeSolver::execute()
   CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
 
   Component& cnorm = post_actions().get_child("ComputeNorm");
+  cnorm.configure_option("Field", mysolver.fields().get_child( Tags::residual() ).follow()->uri() );
 
   // iteration loop
 
@@ -149,7 +147,7 @@ void IterativeSolver::execute()
 
     // raise signal that iteration is done
 
-		raise_iteration_done();
+    raise_iteration_done();
 
     // increment iteration
 
@@ -158,14 +156,14 @@ void IterativeSolver::execute()
   }
 }
 
-void ItertiveSolver::raise_iteration_done()
+void IterativeSolver::raise_iteration_done()
 {
-	SignalOptions opts;
-	const Uint iter = properties().value<Uint>("iteration");
-	opts.add_option< OptionT<Uint> >( "iteration", iter );
-	SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
+  SignalOptions opts;
+  const Uint iter = properties().value<Uint>("iteration");
+  opts.add_option< OptionT<Uint> >( "iteration", iter );
+  SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
-	Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+  Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
