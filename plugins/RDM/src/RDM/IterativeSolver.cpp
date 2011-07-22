@@ -154,7 +154,7 @@ void IterativeSolver::execute()
 
     // output convergence info
 
-    /// @todo move current rhs as a property of the iterate or solver components
+    /// @todo move current rhs as a prpoerty of the iterate or solver components
     {
       Real rhs_norm = cnorm.properties().value<Real>("Norm");
       std::cout << " Iter [" << std::setw(4) << iter << "]"
@@ -167,14 +167,7 @@ void IterativeSolver::execute()
 
     // raise signal that iteration is done
 
-    /// @todo move this to an Action and/or separate function in base class
-    {
-      SignalOptions opts; SignalFrame frame;
-      opts.add_option< OptionT<Uint> >( "iteration", iter );
-      frame = opts.create_frame("iteration_done", uri(), URI());
-
-      Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
-    }
+		raise_iteration_done();
 
     // increment iteration
 
@@ -183,8 +176,17 @@ void IterativeSolver::execute()
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+void ItertiveSolver::raise_iteration_done()
+{
+	SignalOptions opts;
+	const Uint iter = properties().value<Uint>("iteration");
+	opts.add_option< OptionT<Uint> >( "iteration", iter );
+	SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
+	Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

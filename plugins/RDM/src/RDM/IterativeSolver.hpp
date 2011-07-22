@@ -52,6 +52,8 @@ private: // functions
 
   /// @returns true if any of the stop criteria is achieved
   bool stop_condition();
+  /// raises the event when iteration done
+  void raise_iteration_done();
 
 private: // data
 
