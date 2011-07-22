@@ -16,7 +16,7 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Action.hpp"
 #include "Solver/CSolver.hpp"
-
+#include "Solver/Tags.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -33,28 +33,28 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( OptionComponent<CSolver>::create("solver", &m_solver))
+  m_options.add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh))
+  m_options.add_option( OptionComponent<CMesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CTime>::create("ctime", &m_time))
+  m_options.add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
       ->pretty_name("Time")
       ->mark_basic();
 
   std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT<URI> > ("regions", dummy)
+  m_options.add_option< OptionArrayT<URI> > (Tags::regions(), dummy)
       ->description("Regions this action is applied to")
       ->pretty_name("Regions")
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
@@ -113,7 +113,7 @@ ComponentIteratorRange<CRegion> Action::regions()
 
 void Action::config_regions()
 {
-  std::vector<URI> vec; option("regions").put_value(vec);
+  std::vector<URI> vec; option(Tags::regions()).put_value(vec);
 
   boost_foreach(const URI region_path, vec)
   {

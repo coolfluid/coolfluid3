@@ -33,6 +33,7 @@
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 namespace Solver {
@@ -180,7 +181,7 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
   add_component(pm);
   m_implementation->m_physics = pm;
 
-  configure_option_recursively("physical_model", pm->uri());
+  configure_option_recursively(Tags::physical_model(), pm->uri());
 
   return *pm;
 }

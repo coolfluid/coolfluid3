@@ -26,6 +26,7 @@
 
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -103,7 +104,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("mesh",root.get_child("mesh").uri());
+  solver.configure_option(Solver::Tags::mesh(),root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
@@ -148,7 +149,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("mesh",root.get_child("mesh").uri());
+  solver.configure_option(Solver::Tags::mesh(),root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("mesh",root.get_child("mesh").uri());
+  solver.configure_option(Solver::Tags::mesh(),root.get_child("mesh").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 

@@ -15,6 +15,8 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 
+#include "Solver/Tags.hpp"
+
 //#include "Mesh/Actions/CInitFieldFunction.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -102,9 +104,9 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   }
   ic->configure_option("regions" , regions);
 
-  ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  ic->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  ic->configure_option( Solver::Tags::mesh(), m_mesh.lock()->uri());
+  ic->configure_option( Solver::Tags::solver() , m_solver.lock()->uri());
+  ic->configure_option( Solver::Tags::physical_model() , m_physical_model.lock()->uri());
 }
 
 

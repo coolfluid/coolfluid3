@@ -17,6 +17,7 @@
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
@@ -145,7 +146,7 @@ BOOST_AUTO_TEST_CASE( ProtoStokesArtificialDissipation )
     const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<CRegion>(mesh.topology(), "left").uri())
                                                           (find_component_recursively_with_name<CRegion>(mesh.topology(), "right").uri());
                                                           
-    solver.boundary_conditions().get_child("ParabolicBC").configure_option("regions", in_out);
+    solver.boundary_conditions().get_child("ParabolicBC").configure_option(Solver::Tags::regions(), in_out);
 
     // Configure timings
     CTime& time = model.create_time();

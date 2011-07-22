@@ -20,6 +20,7 @@
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 namespace Solver {
@@ -78,7 +79,7 @@ CTime& CModelUnsteady::create_time(const std::string& name)
   CTime::Ptr time = create_component_ptr<CTime>(name);
   m_implementation->m_time = time;
 
-  configure_option_recursively("time_component", time->uri());
+  configure_option_recursively(Tags::time(), time->uri());
 
   return *time;
 }

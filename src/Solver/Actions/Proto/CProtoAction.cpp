@@ -13,6 +13,8 @@
 
 #include "Physics/PhysModel.hpp"
 
+#include "Solver/Tags.hpp"
+
 #include "CProtoAction.hpp"
 #include "Expression.hpp"
 
@@ -33,7 +35,7 @@ struct CProtoAction::Implementation
     m_component(comp),
     m_physical_model(physical_model)
   {
-    m_component.option("physical_model").attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
+    m_component.option(Tags::physical_model()).attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
   }
 
   void trigger_physical_model()

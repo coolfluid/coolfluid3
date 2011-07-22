@@ -11,6 +11,7 @@
 #include "Mesh/CNodes.hpp"
 
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 #include "TimeLoop.hpp"
 
@@ -25,7 +26,7 @@ struct TimeLoop::Implementation
   Implementation(Component& comp) :
    m_component(comp)
   {
-    m_component.options().add_option( OptionComponent<CTime>::create("time_component", &m_time))
+    m_component.options().add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_time))
     ->pretty_name("Time")
     ->description("Component that keeps track of time for this simulation");
   }

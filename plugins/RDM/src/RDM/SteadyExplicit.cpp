@@ -18,6 +18,7 @@
 
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"
+#include "Solver/Tags.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -98,7 +99,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
   // (4a) setup iterative solver reset action
 
   Reset::Ptr reset  = allocate_component<Reset>("Reset");
-  reset->configure_option( Tags::solver(), solver.uri() );
+  reset->configure_option( Solver::Tags::solver(), solver.uri() );
   solver.iterative_solver().pre_actions().append( reset );
 
   std::vector<std::string> reset_tags = boost::assign::list_of( RDM::Tags::residual() )
@@ -117,9 +118,9 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (5) configure domain, physical model and solver in all subcomponents
 
-  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
-  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
-  solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
+  solver.configure_option_recursively( Solver::Tags::domain(),         domain.uri() );
+  solver.configure_option_recursively( Solver::Tags::physical_model(), pm.uri() );
+  solver.configure_option_recursively( Solver::Tags::solver(),         solver.uri() );
 
   return model;
 }

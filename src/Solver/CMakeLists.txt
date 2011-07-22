@@ -31,6 +31,8 @@ list( APPEND coolfluid_solver_files
   FlowSolver.cpp
   LibSolver.hpp
   LibSolver.cpp
+  Tags.hpp
+  Tags.cpp
 )
 
 set( coolfluid_solver_kernellib TRUE )

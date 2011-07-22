@@ -52,7 +52,7 @@ public: // functions
     public:
     static const char * physical_model() { return "physical_model"; }
     static const char * mesh()           { return "mesh"; }
-    static const char * time()           { return "ctime"; }
+    static const char * time()           { return Tags::time(); }
 
     static const char * bc()             { return "bc"; }
     static const char * inner()          { return "inner"; }

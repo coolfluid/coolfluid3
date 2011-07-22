@@ -17,6 +17,7 @@
 
 #include "Solver/CreateFields.hpp"
 #include "Solver/CSimpleSolver.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 namespace Solver {
@@ -28,7 +29,7 @@ using namespace Mesh;
 
 CSimpleSolver::CSimpleSolver(const std::string& name) : CSolver(name)
 {
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physics) )
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physics) )
               ->pretty_name("Physical Model")
               ->description("Physical Model");
 }

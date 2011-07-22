@@ -15,6 +15,7 @@
 #include "Solver/CTime.hpp"
 #include "Solver/ActionDirector.hpp"
 #include "Solver/CSolver.hpp"
+#include "Solver/Tags.hpp"
 
 
 using namespace CF::Common;
@@ -32,7 +33,7 @@ ActionDirector::ActionDirector ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( OptionComponent<CSolver>::create("solver", &m_solver))
+  m_options.add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
@@ -42,12 +43,12 @@ ActionDirector::ActionDirector ( const std::string& name ) :
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CTime>::create("ctime", &m_time))
+  m_options.add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
       ->pretty_name("Time")
       ->mark_basic();

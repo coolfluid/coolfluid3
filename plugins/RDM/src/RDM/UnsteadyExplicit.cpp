@@ -25,6 +25,7 @@
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 #include "Solver/Actions/CCriterionTime.hpp"
 
@@ -110,7 +111,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   CCriterionTime& time_limit = solver.time_stepping().create_component<CCriterionTime>("TimeLimit");
 
-  time_limit.configure_option( Tags::time(), solver.time_stepping().time().uri() );
+  time_limit.configure_option( Solver::Tags::time(), solver.time_stepping().time().uri() );
 
   // (4b) setup iterative solver reset action
 
@@ -143,9 +144,9 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (5) configure domain, physical model and solver in all subcomponents
 
-  solver.configure_option_recursively( RDM::Tags::domain(),         domain.uri() );
-  solver.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
-  solver.configure_option_recursively( RDM::Tags::solver(),         solver.uri() );
+  solver.configure_option_recursively( Solver::Tags::domain(),         domain.uri() );
+  solver.configure_option_recursively( Solver::Tags::physical_model(), pm.uri() );
+  solver.configure_option_recursively( Solver::Tags::solver(),         solver.uri() );
 
   return model;
 }

@@ -21,6 +21,7 @@
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
+#include "Solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"
 
@@ -42,13 +43,13 @@ struct BoundaryConditions::Implementation
     m_proxy(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
               ->pretty_name("LSS")
               ->description("The referenced linear system solver")),
-            *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model) )
+            *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create(Solver::Tags::physical_model(), &m_physical_model) )
               ->pretty_name("Physical Model")
               ->description("Physical Model"))
            ),
     dirichlet(m_proxy)
   {
-    m_component.options().add_option< OptionArrayT < URI > > ("regions")
+    m_component.options().add_option< OptionArrayT < URI > > (Solver::Tags::regions())
       ->pretty_name("Regions")
       ->description("Regions the boundary condition applies to")
       ->link_to(&m_region_uris);
@@ -151,8 +152,8 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
     }
   }
 
-  result->configure_option("regions", bc_regions);
-  result->configure_option("physical_model", m_implementation->m_physical_model);
+  result->configure_option(Solver::Tags::regions(), bc_regions);
+  result->configure_option(Solver::Tags::physical_model(), m_implementation->m_physical_model);
 }
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)

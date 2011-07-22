@@ -35,6 +35,7 @@
 #include "Solver/Actions/Proto/Transforms.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "Solver/Tags.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -187,7 +188,7 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   CProtoAction& action = Core::instance().root().create_component<CProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
   action.configure_option("physical_model", model.physics().uri());
-  action.configure_option("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
+  action.configure_option(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   
   // Create the fields
   create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
@@ -220,7 +221,7 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
   solver << create_proto_action( "SetTemp",     nodes_expression(T = 288.) )
          << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
   
-  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
+  solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
   
@@ -262,8 +263,8 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
   
   CustomProtoSolver& solver = model.create_component<CustomProtoSolver>("CustomSolver");
-  solver.configure_option_recursively("regions", std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
-  solver.configure_option_recursively("physical_model", model.physics().uri());
+  solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
+  solver.configure_option_recursively(Solver::Tags::physical_model(), model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
   
   // Run the actions

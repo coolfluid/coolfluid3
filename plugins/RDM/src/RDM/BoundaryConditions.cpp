@@ -17,6 +17,7 @@
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CSolver.hpp"
+#include "Solver/Tags.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
@@ -86,9 +87,9 @@ RDM::BoundaryTerm& BoundaryConditions::create_boundary_condition( const std::str
 
   bterm->configure_option("regions" , regions);
 
-  bterm->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
-  bterm->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
-  bterm->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
+  bterm->configure_option( Solver::Tags::mesh(), m_mesh.lock()->uri());
+  bterm->configure_option( Solver::Tags::solver() , m_solver.lock()->uri());
+  bterm->configure_option( Solver::Tags::physical_model() , m_physical_model.lock()->uri());
 
   return *bterm;
 }

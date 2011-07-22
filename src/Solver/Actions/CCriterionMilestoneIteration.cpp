@@ -8,6 +8,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 #include "Solver/Actions/CCriterionMilestoneIteration.hpp"
 
 namespace CF {
@@ -28,7 +29,7 @@ CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& n
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<CTime>::create("ctime", &m_time))
+  m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
       ->pretty_name("Time")
       ->mark_basic()

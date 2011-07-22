@@ -12,6 +12,7 @@
 #include "Mesh/CDomain.hpp"
 
 #include "Solver/CSolver.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 namespace Solver {
@@ -73,7 +74,7 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionURI > ("domain", URI("cpath:../Domain"))
+  m_options.add_option< OptionURI > (Tags::domain(), URI("cpath:../Domain"))
       ->description("Domain to solve")
       ->pretty_name("Domain")
       ->link_to(&m_implementation->m_domain_uri)

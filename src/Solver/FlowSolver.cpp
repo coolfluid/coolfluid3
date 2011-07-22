@@ -31,6 +31,7 @@
 
 #include "Solver/CTime.hpp"
 #include "Solver/FlowSolver.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 namespace Solver {
@@ -210,7 +211,7 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
     regions_uri.push_back(region->uri());
 
   CAction& bc_action = m_bc.lock()->create_component(name,builder_name).as_type<CAction>();
-  bc_action.configure_option("regions",regions_uri);
+  bc_action.configure_option(Solver::Tags::regions(),regions_uri);
   auto_config(bc_action);
   return bc_action;
 }
@@ -236,7 +237,7 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
     regions_uri.push_back(region->uri());
 
   CAction& inner_action = m_inner.lock()->create_component(name,builder_name).as_type<CAction>();
-  inner_action.configure_option("regions",regions_uri);
+  inner_action.configure_option(Solver::Tags::regions(),regions_uri);
   auto_config(inner_action);
   return inner_action;
 }
@@ -258,7 +259,7 @@ void FlowSolver::signal_create_bc_action( SignalArgs& node )
 
   std::string name = options.value<std::string>("name");
   std::string builder = options.value<std::string>("builder");
-  std::vector<URI> regions_uri = options.array<URI>("regions");
+  std::vector<URI> regions_uri = options.array<URI>(Solver::Tags::regions());
   std::vector<CRegion::ConstPtr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
   {
@@ -293,7 +294,7 @@ void FlowSolver::signature_create_bc_action( SignalArgs& node )
       ->description("Builder name of boundary condition computation");
 
   // regions
-  options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>() )
+  options.add_option< OptionArrayT<URI> >(Solver::Tags::regions(), std::vector<URI>() )
       ->description("Regions where to apply the boundary condition");
 
 }
@@ -306,7 +307,7 @@ void FlowSolver::signal_create_inner_action( SignalArgs& node )
 
   std::string name = options.value<std::string>("name");
   std::string builder = options.value<std::string>("builder");
-  std::vector<URI> regions_uri = options.array<URI>("regions");
+  std::vector<URI> regions_uri = options.array<URI>(Solver::Tags::regions());
   std::vector<CRegion::ConstPtr> regions(regions_uri.size());
   for (Uint i=0; i<regions_uri.size(); ++i)
   {
@@ -330,7 +331,7 @@ void FlowSolver::signature_create_inner_action( SignalArgs& node )
       ->description("Builder name of inner action");
 
   // regions
-  options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>())
+  options.add_option< OptionArrayT<URI> >(Solver::Tags::regions(), std::vector<URI>())
       ->description("Regions where to apply the boundary condition");
 
 }

@@ -19,6 +19,7 @@
 #include "Physics/Variables.hpp"
 
 #include "Solver/Actions/CSynchronizeFields.hpp"
+#include "Solver/Tags.hpp"
 
 #include "RDM/InitialConditions.hpp"
 #include "RDM/BoundaryConditions.hpp"
@@ -57,12 +58,12 @@ RDSolver::RDSolver ( const std::string& name  ) :
   m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  m_options.add_option(OptionComponent<CMesh>::create( Solver::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create( RDM::Tags::physical_model(), &m_physical_model))
+  m_options.add_option( OptionComponent<Physics::PhysModel>::create( Solver::Tags::physical_model(), &m_physical_model))
       ->description("Physical model to discretize")
       ->pretty_name("Physics")
       ->mark_basic()
@@ -159,7 +160,7 @@ void RDSolver::config_physics()
     pm.create_variables( user_vars, RDM::Tags::update_vars() );
 
   boost_foreach( Component& comp, find_components(*this) )
-    comp.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+    comp.configure_option_recursively( Solver::Tags::physical_model(), pm.uri() );
 
   // load the library which has the correct RDM physics
 
@@ -184,20 +185,20 @@ void RDSolver::config_mesh()
 
   // setup the fields
 
-  prepare_mesh().configure_option_recursively( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
+  prepare_mesh().configure_option_recursively( Solver::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
 
   prepare_mesh().execute();
 
   // configure all other subcomponents with the mesh
 
   boost_foreach( Component& comp, find_components(*this) )
-    comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
+    comp.configure_option_recursively( Solver::Tags::mesh(), mesh.uri() );
 }
 
 
 void RDSolver::mesh_loaded(CMesh& mesh)
 {
-  configure_option( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
+  configure_option( Solver::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
 }
 
 

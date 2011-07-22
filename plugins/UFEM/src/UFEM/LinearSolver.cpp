@@ -9,16 +9,18 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 
+#include "Mesh/CDomain.hpp"
 #include "Mesh/CNodes.hpp"
 
 #include "Solver/CEigenLSS.hpp"
+#include "Solver/Tags.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/VariableManager.hpp"
 
 #include "LinearSolver.hpp"
-#include <Mesh/CDomain.hpp>
+
 
 namespace CF {
 namespace UFEM {
@@ -60,7 +62,7 @@ struct LinearSolver::Implementation
    m_solver(comp.create_static_component<CSolveSystem>("LSSSolveAction")),
    m_bc(comp.create_static_component<BoundaryConditions>("BoundaryConditions")),
    m_zero_action(comp.create_static_component<ZeroAction>("ZeroLSS")),
-   m_proxy(m_solver.option("lss"), m_component.option("physical_model")),
+   m_proxy(m_solver.option("lss"), m_component.option(Solver::Tags::physical_model())),
    system_matrix(m_proxy),
    system_rhs(m_proxy),
    dirichlet(m_proxy),
@@ -122,7 +124,7 @@ void LinearSolver::mesh_loaded(CMesh& mesh)
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
-  configure_option_recursively("regions", root_regions);
+  configure_option_recursively(Solver::Tags::regions(), root_regions);
 }
 
 CAction& LinearSolver::zero_action()
