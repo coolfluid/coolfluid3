@@ -91,12 +91,12 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   option("domain").attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
 
   m_options.add_option(OptionURI::create("physical_model", "cpath:../Physics", URI::Scheme::CPATH))
-      ->set_description("Physical Model")
+      ->description("Physical Model")
       ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
 
   m_options.add_option(OptionURI::create("ctime", "cpath:../Time", URI::Scheme::CPATH))
-      ->set_description("Time tracking component")
-      ->set_pretty_name("Time")
+      ->description("Time tracking component")
+      ->pretty_name("Time")
       ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_time, this ) );
 
   // Signals
@@ -360,7 +360,7 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
 
   // name
   options.add_option< OptionT<std::string> >("name", std::string())
-      ->set_description("Name for created boundary term");
+      ->description("Name for created boundary term");
 
   // type
   CFactory::Ptr bc_factory = Common::Core::instance().factories().get_factory<BC>();
@@ -372,14 +372,14 @@ void FiniteVolumeSolver::signature_create_bc( SignalArgs& node )
 
   // create de value and add the restricted list
   options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->set_description("Choose BC")
+      ->description("Choose BC")
       ->restricted_list().push_back( bcs );
 
   // regions
   std::vector<URI> dummy;
   // create here the list of restricted surface regions
   options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->set_description("Regions where to apply the boundary condition");
+      ->description("Regions where to apply the boundary condition");
 
 }
 

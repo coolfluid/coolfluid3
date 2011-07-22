@@ -44,24 +44,24 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
   mark_basic();
 
   m_options.add_option<OptionArrayT<Uint> >("nb_cells", m_nb_cells)
-      ->set_description("Vector of number of cells in each direction")
-      ->set_pretty_name("Number of Cells")
+      ->description("Vector of number of cells in each direction")
+      ->pretty_name("Number of Cells")
       ->link_to(&m_nb_cells)
       ->mark_basic();
 
   m_options.add_option<OptionArrayT<Real> >("lengths", m_lengths)
-      ->set_description("Vector of lengths each direction")
-      ->set_pretty_name("Lengths")
+      ->description("Vector of lengths each direction")
+      ->pretty_name("Lengths")
       ->link_to(&m_lengths)
       ->mark_basic();
 
   m_options.add_option(OptionT<Uint>::create("nb_parts", mpi::PE::instance().size()))
-      ->set_description("Total number of partitions (e.g. number of processors)")
-      ->set_pretty_name("Number of Partitions");
+      ->description("Total number of partitions (e.g. number of processors)")
+      ->pretty_name("Number of Partitions");
 
   m_options.add_option(OptionT<bool>::create("bdry", true))
-      ->set_description("Generate Boundary")
-      ->set_pretty_name("Boundary");
+      ->description("Generate Boundary")
+      ->pretty_name("Boundary");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

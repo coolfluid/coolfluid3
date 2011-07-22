@@ -45,13 +45,13 @@ CIterate::CIterate( const std::string& name  ) :
   m_properties["description"] = description;
 
   m_options.add_option( OptionT<bool>::create("verbose", m_verbose))
-      ->set_description("Print iteration number")
-      ->set_pretty_name("Verbose")
+      ->description("Print iteration number")
+      ->pretty_name("Verbose")
       ->link_to(&m_verbose);
 
   m_options.add_option< OptionT<Uint> >("max_iter", m_max_iter)
-      ->set_description("Maximal number of iterations")
-      ->set_pretty_name("Max Iterations")
+      ->description("Maximal number of iterations")
+      ->pretty_name("Max Iterations")
       ->link_to(&m_max_iter);
 }
 

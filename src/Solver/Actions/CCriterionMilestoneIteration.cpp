@@ -29,15 +29,15 @@ CCriterionMilestoneIteration::CCriterionMilestoneIteration( const std::string& n
   m_properties["description"] = description;
 
   m_options.add_option(OptionComponent<CTime>::create("ctime", &m_time))
-      ->set_description("Time tracking component")
-      ->set_pretty_name("Time")
+      ->description("Time tracking component")
+      ->pretty_name("Time")
       ->mark_basic()
       ->add_tag("time");
 
   Uint def = 1;
   m_options.add_option(OptionT<Uint>::create("milestone_rate", def))
-      ->set_description("Defines the checkpoints for the criterion")
-      ->set_pretty_name("Milestone Rate")
+      ->description("Defines the checkpoints for the criterion")
+      ->pretty_name("Milestone Rate")
       ->mark_basic();
 
 }

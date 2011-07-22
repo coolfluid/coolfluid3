@@ -54,7 +54,7 @@ CJournal::CJournal (const std::string & name)
   signal("list_journal")->hidden(true);
 
   m_options.add_option< OptionT<bool> >("RecordReplies", false)
-      ->set_description("If true, both signal and reply frames are recorded. If "
+      ->description("If true, both signal and reply frames are recorded. If "
                         "false, only signal frames are recorded.\nRecording replies "
                         "will significantly increase the journal size and the memory used.");
 

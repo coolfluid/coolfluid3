@@ -1040,11 +1040,11 @@ void Component::signature_create_component( SignalArgs& args )
   SignalOptions options( args );
 
   options.add_option< OptionT<std::string> >("name", std::string("untitled") )
-      ->set_description("Name for created component.");
+      ->description("Name for created component.");
   options.add_option< OptionT<std::string> >("type", std::string("CF.Common.CGroup") )
-      ->set_description("Concrete type of the component.");
+      ->description("Concrete type of the component.");
   options.add_option< OptionT<bool> >("basic_mode", true )
-      ->set_description("Component will be visible in basic mode.");
+      ->description("Component will be visible in basic mode.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1054,7 +1054,7 @@ void Component::signature_rename_component( SignalArgs& args )
   SignalOptions options( args );
 
   options.add_option< OptionT<std::string> >("name", std::string() )
-      ->set_description("Component new name.");
+      ->description("Component new name.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1064,7 +1064,7 @@ void Component::signature_move_component( SignalArgs& args )
   SignalOptions options( args );
 
   options.add_option< OptionT<std::string> >("path", std::string() )
-      ->set_description("Path to the new component to which this one will move to.");
+      ->description("Path to the new component to which this one will move to.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

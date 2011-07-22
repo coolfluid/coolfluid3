@@ -73,15 +73,15 @@ CModel::CModel( const std::string& name  ) :
   std::string cwd = boost::filesystem::current_path().string();
 
    m_options.add_option< OptionURI >("WorkingDir", URI( cwd ) )
-       ->set_description("Your working directory")
+       ->description("Your working directory")
        ->mark_basic();
 
    m_options.add_option< OptionURI >("ResultsDir", URI( cwd ) )
-       ->set_description("Directory to store the output files")
+       ->description("Directory to store the output files")
        ->mark_basic();
 
    m_options.add_option< OptionT<Uint> >("CPUs", 1u )
-       ->set_description("Number of cpus to use in simulation")
+       ->description("Number of cpus to use in simulation")
        ->mark_basic();
 
   // properties
@@ -227,7 +227,7 @@ void CModel::signature_create_physics ( Common::SignalArgs& node )
 
   // create de value and add the restricted list
   options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->set_description("Choose solver")
+      ->description("Choose solver")
       ->restricted_list() = pms;
 }
 
@@ -273,7 +273,7 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
 
   // create de value and add the restricted list
   options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->set_description("Choose solver")
+      ->description("Choose solver")
       ->restricted_list() = solvers;
 }
 
@@ -300,12 +300,12 @@ void CModel::signature_setup(SignalArgs& node)
   SignalOptions options( node );
 
   options.add_option< OptionT<std::string> >("solver_builder")
-    ->set_pretty_name("Solver Builder")
-    ->set_description("Builder name");
+    ->pretty_name("Solver Builder")
+    ->description("Builder name");
 
   options.add_option< OptionT<std::string> >("physics_builder")
-    ->set_pretty_name("Physics Builder")
-    ->set_description("Builder name for the physics");
+    ->pretty_name("Physics Builder")
+    ->description("Builder name for the physics");
 }
 
 void CModel::signal_setup(SignalArgs& node)

@@ -50,11 +50,11 @@ CLinearInterpolator::CLinearInterpolator( const std::string& name )
 
 
   m_options.add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
-      ->set_description("The approximate amount of elements that are stored in a structured");
+      ->description("The approximate amount of elements that are stored in a structured");
 
   std::vector<Uint> dummy;
   m_options.add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
-      ->set_description("The number of divisions in each direction of the comb. "
+      ->description("The number of divisions in each direction of the comb. "
                         "Takes precedence over \"ApproximateNbElementsPerCell\". ");
 
   m_elements = create_component_ptr<CUnifiedData>("elements");

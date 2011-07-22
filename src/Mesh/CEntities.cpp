@@ -37,8 +37,8 @@ CEntities::CEntities ( const std::string& name ) :
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
   m_options.add_option(OptionT<std::string>::create("element_type", std::string("")))
-      ->set_description("Element type")
-      ->set_pretty_name("Element type")
+      ->description("Element type")
+      ->pretty_name("Element type")
       ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
   m_global_numbering = create_static_component_ptr<CList<Uint> >(Mesh::Tags::global_elem_indices());
@@ -278,10 +278,10 @@ void CEntities::signature_create_space ( SignalArgs& node)
 {
   XML::SignalOptions options( node );
   options.add_option< OptionT<std::string> >("name" , std::string("space["+to_str(m_spaces.size())+"]") )
-      ->set_description("Name to add to space");
+      ->description("Name to add to space");
 
   options.add_option< OptionT<std::string> >("shape_function" , std::string("CF.Mesh.SF.SFLineP0Lagrange") )
-      ->set_description("Shape Function to add as space");
+      ->description("Shape Function to add as space");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

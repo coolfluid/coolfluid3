@@ -41,8 +41,8 @@ Reconstruct::Reconstruct( const std::string& name )
   from_to[0] = "e.g. CF.SFDM.SF.LineSolutionP2";
   from_to[1] = "e.g. CF.SFDM.SF.LineFluxP3";
   m_options.add_option( OptionArrayT<std::string>::create("from_to", from_to ) )
-      ->set_description("Shape function points from where the states are known")
-      ->set_pretty_name("From and To Shape Function")
+      ->description("Shape function points from where the states are known")
+      ->pretty_name("From and To Shape Function")
       ->mark_basic()
       ->attach_trigger( boost::bind ( &Reconstruct::configure_from_to , this ) );
 

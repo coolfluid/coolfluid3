@@ -25,28 +25,28 @@ CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
   m_options.add_option(OptionComponent<CField>::create("source", &m_source))
-      ->set_description("Field to interpolate from")
-      ->set_pretty_name("Source Field")
+      ->description("Field to interpolate from")
+      ->pretty_name("Source Field")
       ->mark_basic();
 
   m_options.add_option(OptionComponent<CField>::create("target", &m_target))
-      ->set_description("Field to interpolate to")
-      ->set_pretty_name("TargetField")
+      ->description("Field to interpolate to")
+      ->pretty_name("TargetField")
       ->mark_basic();
 
   m_options.add_option(OptionT<bool>::create("store", true))
-      ->set_description("Flag to store weights and stencils used for faster interpolation")
-      ->set_pretty_name("Store");
+      ->description("Flag to store weights and stencils used for faster interpolation")
+      ->pretty_name("Store");
 
   m_options.add_option(OptionT<std::string>::create("stencil_computer", std::string("stencilcomputer")))
-      ->set_description("Builder name of the stencil computer")
-      ->set_pretty_name("Stencil Computer")
+      ->description("Builder name of the stencil computer")
+      ->pretty_name("Stencil Computer")
       ->attach_trigger( boost::bind( &CInterpolator::configure_stencil_computer, this ) )
       ->mark_basic();
 
   m_options.add_option(OptionT<std::string>::create("function", std::string("function")))
-      ->set_description("Builder name of the interpolator function")
-      ->set_pretty_name("Interpolator Function")
+      ->description("Builder name of the interpolator function")
+      ->pretty_name("Interpolator Function")
       ->attach_trigger( boost::bind( &CInterpolator::configure_interpolator_function, this ) )
       ->mark_basic();
 }

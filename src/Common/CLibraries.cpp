@@ -200,7 +200,7 @@ void CLibraries::signature_load_libraries ( SignalArgs& args )
   std::vector<URI> dummy;
 
   options.add_option< OptionArrayT<URI> >("libs", dummy)
-      ->set_description("Libraries to load");
+      ->description("Libraries to load");
       //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
 }

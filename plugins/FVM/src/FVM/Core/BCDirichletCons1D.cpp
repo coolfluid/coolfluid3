@@ -41,8 +41,8 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
   mark_basic();
   // options
   m_options.add_option(OptionURI::create("solution", "cpath:/", URI::Scheme::CPATH))
-      ->set_description("Cell based solution")
-      ->set_pretty_name("Solution")
+      ->description("Cell based solution")
+      ->pretty_name("Solution")
       ->attach_trigger ( boost::bind ( &BCDirichletCons1D::config_solution, this ));
 
   m_options["Elements"].attach_trigger ( boost::bind ( &BCDirichletCons1D::trigger_elements,   this ) );
@@ -52,9 +52,9 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
   m_p=101300;
   m_gm1 = 0.4;
 
-  m_options.add_option< OptionT<Real> >("rho", m_rho)->set_description("density")->mark_basic();
-  m_options.add_option< OptionT<Real> >("u", m_u)->set_description("velocity")->mark_basic();
-  m_options.add_option< OptionT<Real> >("p", m_p)->set_description("pressure")->mark_basic();
+  m_options.add_option< OptionT<Real> >("rho", m_rho)->description("density")->mark_basic();
+  m_options.add_option< OptionT<Real> >("u", m_u)->description("velocity")->mark_basic();
+  m_options.add_option< OptionT<Real> >("p", m_p)->description("pressure")->mark_basic();
 
   m_options["rho"].link_to(&m_rho);
   m_options["u"].link_to(&m_u);

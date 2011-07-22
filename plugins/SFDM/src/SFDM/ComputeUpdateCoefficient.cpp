@@ -44,46 +44,46 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
   mark_basic();
   // options
   m_options.add_option< OptionT<bool> > ("time_accurate", m_time_accurate)
-    ->set_description("Time Accurate")
-    ->set_pretty_name("Time Accurate")
+    ->description("Time Accurate")
+    ->pretty_name("Time Accurate")
     ->mark_basic()
     ->link_to(&m_time_accurate)
     ->add_tag("time_accurate");
 
   m_options.add_option< OptionT<Real> > ("cfl", m_CFL)
-    ->set_description("Courant Number")
-    ->set_pretty_name("CFL")
+    ->description("Courant Number")
+    ->pretty_name("CFL")
     ->mark_basic()
     ->link_to(&m_CFL)
     ->add_tag("cfl");
 
   m_options.add_option(OptionURI::create(FlowSolver::Tags::update_coeff(), URI("cpath:"), URI::Scheme::CPATH))
-    ->set_description("Update coefficient to multiply with residual")
-    ->set_pretty_name("Update Coefficient")
+    ->description("Update coefficient to multiply with residual")
+    ->pretty_name("Update Coefficient")
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_update_coeff,   this ) );
 
   m_options.add_option(OptionURI::create(FlowSolver::Tags::wave_speed(), URI("cpath:"), URI::Scheme::CPATH))
-    ->set_description("WaveSpeed needed")
-    ->set_pretty_name("Wave Speed")
+    ->description("WaveSpeed needed")
+    ->pretty_name("Wave Speed")
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_wave_speed,   this ) );
 
   m_options.add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
-    ->set_description("Volume needed for time accurate simulations")
-    ->set_pretty_name("Volume")
+    ->description("Volume needed for time accurate simulations")
+    ->pretty_name("Volume")
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_volume,   this ) );
 
   m_options.add_option(OptionURI::create(FlowSolver::Tags::time(), URI("cpath:"), URI::Scheme::CPATH))
-    ->set_description("Time Tracking component")
-    ->set_pretty_name("Time")
+    ->description("Time Tracking component")
+    ->pretty_name("Time")
     ->attach_trigger ( boost::bind ( &ComputeUpdateCoefficient::config_time,   this ) );
 
   m_options.add_option(OptionT<Real>::create("milestone_dt", 0.))
-    ->set_description("Limits time-steps to fall on milestones")
-    ->set_pretty_name("Milestone Time Step");
+    ->description("Limits time-steps to fall on milestones")
+    ->pretty_name("Milestone Time Step");
 
   m_options.add_option(OptionT<bool>::create("freeze_update_coeff", m_freeze))
-    ->set_description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
-    ->set_pretty_name("Freeze Update Coefficient")
+    ->description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
+    ->pretty_name("Freeze Update Coefficient")
     ->link_to(&m_freeze);
 }
 

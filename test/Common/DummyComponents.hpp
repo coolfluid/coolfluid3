@@ -61,9 +61,9 @@ public: // functions
     // options
     URI def_path("cpath://");
     m_options.add_option< OptionURI > ( "MyRelativeFriend", def_path  )
-        ->set_description("a path to another component");
+        ->description("a path to another component");
     m_options.add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
-        ->set_description("a path to another component");
+        ->description("a path to another component");
   }
 
   /// Virtual destructor

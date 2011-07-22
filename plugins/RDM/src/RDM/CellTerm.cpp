@@ -30,13 +30,13 @@ CellTerm::CellTerm ( const std::string& name ) :
   mark_basic();
 
   m_options.add_option(OptionComponent<CField>::create( Tags::solution(), &m_solution))
-      ->set_pretty_name("Solution Field");
+      ->pretty_name("Solution Field");
 
   m_options.add_option(OptionComponent<CField>::create( Tags::wave_speed(), &m_wave_speed))
-      ->set_pretty_name("Wave Speed Field");
+      ->pretty_name("Wave Speed Field");
 
   m_options.add_option(OptionComponent<CField>::create( Tags::residual(), &m_residual))
-      ->set_pretty_name("Residual Field");
+      ->pretty_name("Residual Field");
 }
 
 CellTerm::~CellTerm() {}

@@ -33,8 +33,8 @@ CSolveSystem::CSolveSystem( const std::string& name  ) :
   properties()["description"] = description;
 
   options().add_option( OptionComponent<CEigenLSS>::create("lss", &m_lss))
-      ->set_description("Linear System solver that gets executed")
-      ->set_pretty_name("LSS")
+      ->description("Linear System solver that gets executed")
+      ->pretty_name("LSS")
       ->mark_basic();
 }
 

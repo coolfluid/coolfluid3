@@ -115,7 +115,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   // name
 
   options.add_option< OptionT<std::string> >("Name", std::string() )
-      ->set_description("Name for created initial condition" );
+      ->description("Name for created initial condition" );
 
   // regions
 
@@ -124,7 +124,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
   /// @todo create here the list of restricted regions, both volume and surface
 
   options.add_option< OptionArrayT<URI> >("Regions", dummy )
-      ->set_description("Regions where to apply the initial condition [optional]");
+      ->description("Regions where to apply the initial condition [optional]");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

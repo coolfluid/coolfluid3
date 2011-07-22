@@ -74,8 +74,8 @@ CSolver::CSolver ( const std::string& name  ) :
   // options
 
   m_options.add_option< OptionURI > ("domain", URI("cpath:../Domain"))
-      ->set_description("Domain to solve")
-      ->set_pretty_name("Domain")
+      ->description("Domain to solve")
+      ->pretty_name("Domain")
       ->link_to(&m_implementation->m_domain_uri)
       ->attach_trigger(boost::bind(&Implementation::trigger_domain, m_implementation.get()));
 

@@ -41,8 +41,8 @@ CreateSpace::CreateSpace( const std::string& name )
   m_properties["description"] = std::string("The polynomial order \"P\" of the solution is configurable, default: P = 0");
 
   m_options.add_option( OptionT<Uint>::create("P", 0u) )
-    ->set_description("The order of the polynomial of the solution")
-    ->set_pretty_name("Polynomial Order");
+    ->description("The order of the polynomial of the solution")
+    ->pretty_name("Polynomial Order");
 }
 
 /////////////////////////////////////////////////////////////////////////////

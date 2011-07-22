@@ -86,13 +86,13 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   option("domain").attach_trigger ( boost::bind ( &SFDSolver::trigger_domain,   this ) );
 
   m_options.add_option(OptionURI::create("physical_model", "cpath:../Physics",URI::Scheme::CPATH))
-    ->set_description("Physical Model")
-    ->set_pretty_name("Physical Model")   
+    ->description("Physical Model")
+    ->pretty_name("Physical Model")   
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_physical_model, this ) );
 
   m_options.add_option(OptionURI::create("time", "cpath:../Time", URI::Scheme::CPATH))
-    ->set_description("Time tracking component")
-    ->set_pretty_name("Time")
+    ->description("Time tracking component")
+    ->pretty_name("Time")
     ->attach_trigger( boost::bind ( &SFDSolver::trigger_time, this ) );
 
   // Signals

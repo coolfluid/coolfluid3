@@ -41,18 +41,18 @@ Notifier::Notifier ( const std::string& name ) :
   }
 
   m_options.add_option( OptionT<int>::create("priority", m_priority) )
-      ->set_description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
-      ->set_pretty_name("Priority")
+      ->description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
+      ->pretty_name("Priority")
       ->link_to(&m_priority);
 
   m_options.add_option( OptionT<std::string>::create("application_name", m_application_name) )
-      ->set_description("Name of the application")
-      ->set_pretty_name("Application Name")
+      ->description("Name of the application")
+      ->pretty_name("Application Name")
       ->link_to(&m_application_name);
 
   m_options.add_option( OptionT<std::string>::create("api_key", m_api_key) )
-      ->set_description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
-      ->set_pretty_name("API key")
+      ->description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
+      ->pretty_name("API key")
       ->link_to(&m_api_key)
       ->mark_basic();
 
@@ -113,10 +113,10 @@ void Notifier::signature_notify ( SignalArgs& node)
   SignalOptions options( node );
 
   options.add_option< OptionT<std::string> >("event", "new_event")
-      ->set_description("Event name");
+      ->description("Event name");
 
   options.add_option< OptionT<std::string> >("description" , " ")
-      ->set_description("Description of the event" );
+      ->description("Description of the event" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

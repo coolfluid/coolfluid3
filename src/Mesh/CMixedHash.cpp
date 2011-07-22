@@ -32,17 +32,17 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size())
 {
   m_options.add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
-      ->set_description("Total number of objects of each subhash. Subhashes will "
+      ->description("Total number of objects of each subhash. Subhashes will "
                         "be created upon configuration with names hash_0 hash_1, ...")
-      ->set_pretty_name("Number of Objects");
+      ->pretty_name("Number of Objects");
 
   m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
-      ->set_description("Total number of partitions (e.g. number of processors)")
-      ->set_pretty_name("Number of Partitions");
+      ->description("Total number of partitions (e.g. number of processors)")
+      ->pretty_name("Number of Partitions");
 
   m_options.add_option<OptionT <Uint> >("base", m_base)
-      ->set_description("Start index for global numbering")
-      ->set_pretty_name("Base");
+      ->description("Start index for global numbering")
+      ->pretty_name("Base");
 
   m_options["nb_parts"].attach_trigger( boost::bind ( &CMixedHash::config_nb_parts , this) );
   m_options["base"].link_to( &m_base );

@@ -43,13 +43,13 @@ BCReflectCons1D::BCReflectCons1D ( const std::string& name ) :
   mark_basic();
   // options
   m_options.add_option(OptionURI::create("solution", "cpath:/", URI::Scheme::CPATH))
-      ->set_description("Cell based solution")
-      ->set_pretty_name("Solution")
+      ->description("Cell based solution")
+      ->pretty_name("Solution")
       ->attach_trigger ( boost::bind ( &BCReflectCons1D::config_solution, this ) );
 
   m_options.add_option(OptionURI::create(Mesh::Tags::normal(), URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Unit normal to the face, outward from left cell")
-      ->set_pretty_name("Face Normal")
+      ->description("Unit normal to the face, outward from left cell")
+      ->pretty_name("Face Normal")
       ->attach_trigger ( boost::bind ( &BCReflectCons1D::config_normal,   this ) );
 
   m_options["Elements"].attach_trigger ( boost::bind ( &BCReflectCons1D::trigger_elements,   this ) );

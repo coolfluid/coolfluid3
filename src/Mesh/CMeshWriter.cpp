@@ -30,20 +30,20 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
 
   std::vector<URI> fields;
   m_options.add_option< OptionArrayT<URI> >("fields",fields)
-      ->set_description("Fields to ouptut")
+      ->description("Fields to ouptut")
       ->mark_basic()
       ->attach_trigger( boost::bind( &CMeshWriter::config_fields, this ) );
 
   // Path to the mesh to write
   m_options.add_option( OptionURI::create("mesh", URI(), URI::Scheme::CPATH) )
-      ->set_description("Mesh to write")
-      ->set_pretty_name("Mesh")
+      ->description("Mesh to write")
+      ->pretty_name("Mesh")
       ->mark_basic();
 
   // Output file path
   m_options.add_option( OptionURI::create("file", URI("mesh", URI::Scheme::FILE), URI::Scheme::FILE) )
-      ->set_description("File to write")
-      ->set_pretty_name("File")
+      ->description("File to write")
+      ->pretty_name("File")
       ->mark_basic();
 
   // signal for writing the mesh

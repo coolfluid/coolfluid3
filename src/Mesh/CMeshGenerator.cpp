@@ -24,13 +24,13 @@ CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
   mark_basic();
 
   m_options.add_option(OptionComponent<Component>::create("parent", &m_parent))
-      ->set_description("Where the mesh will be generated into")
-      ->set_pretty_name("Parent")
+      ->description("Where the mesh will be generated into")
+      ->pretty_name("Parent")
       ->mark_basic();
 
   m_options.add_option<OptionT<std::string> >("name", m_name)
-      ->set_description("Name of the mesh that will be generated")
-      ->set_pretty_name("Name")
+      ->description("Name of the mesh that will be generated")
+      ->pretty_name("Name")
       ->link_to(&m_name)
       ->mark_basic();
 

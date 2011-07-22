@@ -39,8 +39,8 @@ FwdEuler::FwdEuler ( const std::string& name ) :
   mark_basic();
 
   m_options.add_option< OptionT<Real> >( "cfl", 1.0 )
-      ->set_pretty_name("CFL")
-      ->set_description("Courant-Fredrichs-Levy stability number");
+      ->pretty_name("CFL")
+      ->description("Courant-Fredrichs-Levy stability number");
 
 }
 

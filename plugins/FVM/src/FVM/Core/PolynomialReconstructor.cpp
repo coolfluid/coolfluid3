@@ -44,12 +44,12 @@ PolynomialReconstructor::PolynomialReconstructor ( const std::string& name ) :
 {
   // options
   m_options.add_option(OptionT<Uint>::create("order", 1))
-      ->set_description("PolynomialReconstructor order")
-      ->set_pretty_name("Order");
+      ->description("PolynomialReconstructor order")
+      ->pretty_name("Order");
 
   m_options.add_option(OptionT<Uint>::create("dimension", 2))
-      ->set_description("Dimension of PolynomialReconstructor")
-      ->set_pretty_name("Dimension");
+      ->description("Dimension of PolynomialReconstructor")
+      ->pretty_name("Dimension");
 
   m_stencil_computer = create_static_component_ptr<CStencilComputerRings>("stencil_computer");
 }

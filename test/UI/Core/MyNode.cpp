@@ -19,13 +19,13 @@ MyNode::MyNode(const std::string & name)
   : CNode(name, "MyNode", CNode::DEBUG_NODE)
 {
   m_options.add_option< OptionT<int> >("theAnswer", 42)
-      ->set_description("The answer to the ultimate question of Life, the Universe, and Everything");
+      ->description("The answer to the ultimate question of Life, the Universe, and Everything");
 
   m_options.add_option< OptionT<bool> >("someBool", true)
-      ->set_description("The bool value");
+      ->description("The bool value");
 
   m_options.add_option< OptionT<std::string> >("myString", std::string("This is a string") )
-      ->set_description("A string");
+      ->description("A string");
 
   m_properties.add_property("someProp", Real(3.14));
 

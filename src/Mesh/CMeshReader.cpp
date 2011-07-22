@@ -220,11 +220,11 @@ void CMeshReader::read_signature( SignalArgs& node )
   std::vector<URI> dummy;
 
   options.add_option< OptionURI >("location", URI() )
-      ->set_description("Component to load mesh into")
+      ->description("Component to load mesh into")
       ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
   options.add_option< OptionURI >("files", URI("", URI::Scheme::FILE) )
-      ->set_description("Files to read")
+      ->description("Files to read")
       ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::FILE );
 }
 

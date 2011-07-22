@@ -50,8 +50,8 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
 
   Option::Ptr option(new Common::OptionT<TYPE>(name, value));
 
-  option->set_description( descr );
-  option->set_pretty_name( pretty_name );
+  option->description( descr );
+  option->pretty_name( pretty_name );
 
   if(restr_node.is_valid())
   {
@@ -60,7 +60,7 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
 
     typename std::vector<TYPE>::iterator it;
 
-    option->set_separator(delimiter);
+    option->separator(delimiter);
 
 //    option->restricted_list().push_back( value );
 
@@ -92,9 +92,9 @@ typename OptionArrayT<TYPE>::Ptr make_option_array_t(const std::string & name,
 
   typename OptionArrayT<TYPE>::Ptr option(new OptionArrayT<TYPE>(name, value));
 
-  option->set_description( descr );
-  option->set_pretty_name( pretty_name );
-  option->set_separator(delimiter);
+  option->description( descr );
+  option->pretty_name( pretty_name );
+  option->separator(delimiter);
 
   XmlNode restr_node = Map(node.content->parent()).find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
@@ -188,8 +188,8 @@ Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
       // create the option
       option_uri = OptionURI::Ptr (new Common::OptionURI(key_str, value));
 
-      option_uri->set_description( descr_str );
-      option_uri->set_pretty_name( pretty_name );
+      option_uri->description( descr_str );
+      option_uri->pretty_name( pretty_name );
 
       // add the list of restricted values (if present)
       if( restr_node.is_valid() )

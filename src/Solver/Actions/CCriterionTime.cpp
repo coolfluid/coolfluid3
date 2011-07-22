@@ -30,8 +30,8 @@ CCriterionTime::CCriterionTime( const std::string& name  ) :
   m_properties["description"] = description;
 
   m_options.add_option(OptionComponent<CTime>::create( "ctime", &m_time))
-      ->set_description("Time tracking component")
-      ->set_pretty_name("Time")
+      ->description("Time tracking component")
+      ->pretty_name("Time")
       ->mark_basic()
       ->add_tag("time");
 }

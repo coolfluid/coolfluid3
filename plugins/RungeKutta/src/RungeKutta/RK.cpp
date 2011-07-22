@@ -40,8 +40,8 @@ RK::RK ( const std::string& name  )
   properties()["description"] = std::string("Solves the differential equation using Runge Kutta method");
 
   m_options.add_option(OptionT<Uint>::create("stages", m_stages))
-      ->set_description("Number of stages used in the multistage method")
-      ->set_pretty_name("Stages")
+      ->description("Number of stages used in the multistage method")
+      ->pretty_name("Stages")
       ->link_to(&m_stages)
       ->attach_trigger( boost::bind( &RK::config_stages, this) )
       ->mark_basic();
@@ -49,16 +49,16 @@ RK::RK ( const std::string& name  )
   config_stages();
 
   m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(), &m_solution))
-      ->set_description("Solution")
-      ->set_pretty_name("Solution");
+      ->description("Solution")
+      ->pretty_name("Solution");
 
   m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
-      ->set_description("Residual")
-      ->set_pretty_name("Residual");
+      ->description("Residual")
+      ->pretty_name("Residual");
 
   m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(), &m_update_coeff))
-      ->set_description("Update Coefficient")
-      ->set_pretty_name("Update Coefficient");
+      ->description("Update Coefficient")
+      ->pretty_name("Update Coefficient");
 
   m_for_each_stage = create_static_component_ptr<CGroup>("1_for_each_stage");
   m_for_each_stage->mark_basic();

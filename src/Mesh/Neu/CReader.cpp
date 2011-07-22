@@ -49,19 +49,19 @@ CReader::CReader( const std::string& name )
 {
   // options
   m_options.add_option<OptionT <bool> >("read_groups" ,true)
-      ->set_description("Reads Neu Groups and splits the mesh in these subgroups")
-      ->set_pretty_name("Unified Zones");
+      ->description("Reads Neu Groups and splits the mesh in these subgroups")
+      ->pretty_name("Unified Zones");
 
   m_options.add_option<OptionT <Uint> >("part", mpi::PE::instance().rank())
-      ->set_description("Number of the part of the mesh to read. (e.g. rank of processor)")
-      ->set_pretty_name("Part");
+      ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
+      ->pretty_name("Part");
 
   m_options.add_option<OptionT <Uint> >("nb_parts", mpi::PE::instance().size())
-      ->set_description("Total nb_partitions. (e.g. number of processors)");
+      ->description("Total nb_partitions. (e.g. number of processors)");
 
   m_options.add_option<OptionT <bool> >("read_boundaries", true)
-      ->set_description("Read the surface elements for the boundary")
-      ->set_pretty_name("Read Boundaries");
+      ->description("Read the surface elements for the boundary")
+      ->pretty_name("Read Boundaries");
 
   m_properties["brief"] = std::string("Neutral file mesh reader component");
 

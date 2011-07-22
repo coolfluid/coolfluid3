@@ -42,7 +42,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
 
   options().add_option< OptionT<bool> >("face_building_algorithm", m_face_building_algorithm)
       ->link_to(&m_face_building_algorithm)
-      ->set_description("Improves efficiency for face building algorithm");
+      ->description("Improves efficiency for face building algorithm");
 
   m_used_components = create_static_component_ptr<CGroup>("used_components");
   m_connectivity = create_static_component_ptr<CTable<Uint> >(Mesh::Tags::connectivity_table());

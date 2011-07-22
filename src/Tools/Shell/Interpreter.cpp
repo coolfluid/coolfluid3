@@ -57,7 +57,7 @@ Interpreter::Interpreter(const commands_description& desc) :
   m_prompt(default_prompt),
   m_desc("Basic Commands")
 {
-  set_description(desc);
+  description(desc);
 
   m_handle_unrecognized_commands.push_back(&BasicCommands::unrecognized);
   m_handle_unrecognized_commands.push_back(boost::bind(&Interpreter::interpret_alias,this,_1));
@@ -69,12 +69,12 @@ Interpreter::Interpreter(const commands_description& desc,
   m_prompt(prompt),
   m_desc("Basic Commands")
 {
-  set_description(desc);
+  description(desc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Interpreter::set_description(const commands_description& desc)
+void Interpreter::description(const commands_description& desc)
 {
   m_desc.add_options()
   ("help,h", value< std::vector<std::string> >()->multitoken()->zero_tokens(), "show help")

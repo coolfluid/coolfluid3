@@ -70,13 +70,13 @@ CGlobalNumbering::CGlobalNumbering( const std::string& name )
   m_properties["description"] = desc;
 
   m_options.add_option<OptionT<bool> >("debug", m_debug)
-      ->set_description("Perform checks on validity")
-      ->set_pretty_name("Debug")
+      ->description("Perform checks on validity")
+      ->pretty_name("Debug")
       ->link_to(&m_debug);
 
   m_options.add_option<OptionT<bool> >("combined", true)
-      ->set_description("Combine nodes and elements in one global numbering")
-      ->set_pretty_name("Combined");
+      ->description("Combine nodes and elements in one global numbering")
+      ->pretty_name("Combined");
 }
 
 /////////////////////////////////////////////////////////////////////////////

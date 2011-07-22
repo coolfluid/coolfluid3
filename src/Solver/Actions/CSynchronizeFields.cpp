@@ -35,7 +35,7 @@ CSynchronizeFields::CSynchronizeFields ( const std::string& name ) : Solver::Act
 
   std::vector< URI > dummy;
   m_options.add_option< OptionArrayT < URI > > ("Fields", dummy)
-      ->set_description("Fields to cleanup")
+      ->description("Fields to cleanup")
       ->attach_trigger ( boost::bind ( &CSynchronizeFields::config_fields,   this ) );
 }
 

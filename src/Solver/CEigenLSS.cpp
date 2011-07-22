@@ -56,8 +56,8 @@ CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigen
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
   m_options.add_option< OptionURI >("config_file", URI())
-      ->set_description("Solver config file")
-      ->set_pretty_name("Config File")
+      ->description("Solver config file")
+      ->pretty_name("Config File")
       ->mark_basic()
       ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 

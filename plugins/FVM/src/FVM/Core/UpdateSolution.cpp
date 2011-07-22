@@ -33,16 +33,16 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
   // options
 
   m_options.add_option(OptionComponent<CField>::create("solution", &m_solution))
-      ->set_description("Solution to update")
-      ->set_pretty_name("Solution");
+      ->description("Solution to update")
+      ->pretty_name("Solution");
 
   m_options.add_option(OptionComponent<CField>::create("update_coeff", &m_update_coeff))
-      ->set_description("Update coefficient")
-      ->set_pretty_name("Update coefficient");
+      ->description("Update coefficient")
+      ->pretty_name("Update coefficient");
 
   m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
-      ->set_description("Residual")
-      ->set_pretty_name("Residual");
+      ->description("Residual")
+      ->pretty_name("Residual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

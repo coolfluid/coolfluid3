@@ -53,8 +53,8 @@ CBuildFaces::CBuildFaces( const std::string& name )
   m_properties["description"] = desc;
 
   m_options.add_option( OptionT<bool>::create("store_cell2face", m_store_cell2face) )
-      ->set_description("Optionally store Cell to Face connectivity")
-      ->set_pretty_name("Store Cell to Face")
+      ->description("Optionally store Cell to Face connectivity")
+      ->pretty_name("Store Cell to Face")
       ->mark_basic()
       ->link_to(&m_store_cell2face);
 }

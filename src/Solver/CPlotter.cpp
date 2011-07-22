@@ -82,10 +82,10 @@ void CPlotter::signature_create_xyplot(SignalArgs &args)
   SignalOptions options( args );
 
   options.add_option< OptionT<std::string> >("Plot name", std::string() )
-      ->set_description("Name for the new plot");
+      ->description("Name for the new plot");
 
   options.add_option< OptionURI >("Parent", Core::instance().root().uri() )
-      ->set_description("Parent of the new component")
+      ->description("Parent of the new component")
       ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 }
 

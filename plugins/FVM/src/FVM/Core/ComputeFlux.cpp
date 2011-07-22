@@ -49,28 +49,28 @@ ComputeFlux::ComputeFlux ( const std::string& name ) :
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Cell based solution")
-      ->set_pretty_name("Solution")
+      ->description("Cell based solution")
+      ->pretty_name("Solution")
       ->attach_trigger ( boost::bind ( &ComputeFlux::config_solution,   this ) );
 
   m_options.add_option(OptionURI::create("residual", URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Residual to compute")
-      ->set_pretty_name("Residual")
+      ->description("Residual to compute")
+      ->pretty_name("Residual")
       ->attach_trigger ( boost::bind ( &ComputeFlux::config_residual,   this ) );
 
   m_options.add_option(OptionURI::create("wave_speed", URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Wave Speed to compute")
-      ->set_pretty_name("Wave Speed")
+      ->description("Wave Speed to compute")
+      ->pretty_name("Wave Speed")
       ->attach_trigger ( boost::bind ( &ComputeFlux::config_wave_speed,   this ) );
 
   m_options.add_option(OptionURI::create(Tags::area(), URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Face area")
-      ->set_pretty_name("area")
+      ->description("Face area")
+      ->pretty_name("area")
       ->attach_trigger ( boost::bind ( &ComputeFlux::config_area,   this ) );
 
   m_options.add_option(OptionURI::create(Tags::normal(), URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Unit normal to the face, outward from left cell")
-      ->set_pretty_name("FaceNormal")
+      ->description("Unit normal to the face, outward from left cell")
+      ->pretty_name("FaceNormal")
       ->attach_trigger ( boost::bind ( &ComputeFlux::config_normal,   this ) );
 
   m_options["Elements"].attach_trigger ( boost::bind ( &ComputeFlux::trigger_elements,   this ) );

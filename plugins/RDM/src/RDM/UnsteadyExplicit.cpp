@@ -59,8 +59,8 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
   // options
 
   m_options.add_option< OptionT<Uint> >( "rkorder", 1u )
-      ->set_description("Order of the explicit time stepping")
-      ->set_pretty_name("Time Step Order");
+      ->description("Order of the explicit time stepping")
+      ->pretty_name("Time Step Order");
 
   // signals
 
@@ -167,8 +167,8 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
   SignalOptions options( node );
 
   options.add_option< OptionT<std::string> >("model_name", std::string() )
-      ->set_description("Name for created model" )
-      ->set_pretty_name("Model Name");
+      ->description("Name for created model" )
+      ->pretty_name("Model Name");
 
   std::vector<boost::any> models = boost::assign::list_of
       ( Scalar::Scalar2D::type_name() )
@@ -177,8 +177,8 @@ void UnsteadyExplicit::signature_create_model( SignalArgs& node )
       ( NavierStokes::NavierStokes2D::type_name() ) ;
 
   options.add_option< OptionT<std::string> >("physical_model", std::string() )
-      ->set_description("Name of the Physical Model")
-      ->set_pretty_name("Physical Model Type")
+      ->description("Name of the Physical Model")
+      ->pretty_name("Physical Model Type")
       ->restricted_list() = models;
 }
 

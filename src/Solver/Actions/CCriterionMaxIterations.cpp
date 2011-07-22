@@ -31,12 +31,12 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
   m_properties["description"] = description;
 
   m_options.add_option(OptionComponent<Component>::create("iterator", &m_iter_comp))
-      ->set_description("Component performing iterations")
-      ->set_pretty_name("Iterative component");
+      ->description("Component performing iterations")
+      ->pretty_name("Iterative component");
 
   m_options.add_option< OptionT<Uint> >( "maxiter", 1u )
-      ->set_description("Maximum number of iterations (0 will perform none)")
-      ->set_pretty_name("Maximum number");
+      ->description("Maximum number of iterations (0 will perform none)")
+      ->pretty_name("Maximum number");
 
 }
 

@@ -74,53 +74,53 @@ SFDWizard::SFDWizard( const std::string& name )
   m_properties["description"] = std::string("MISSING");
 
   m_options.add_option( OptionT<std::string>::create("model", "SFD_simulation") )
-    ->set_description("Name to give to the simulation model")
-    ->set_pretty_name("Model Name")
+    ->description("Name to give to the simulation model")
+    ->pretty_name("Model Name")
     ->mark_basic();
 
   m_options.add_option( OptionT<Uint>::create("dim", 1u) )
-    ->set_description("Dimension of the simulation")
-    ->set_pretty_name("Dimension")
+    ->description("Dimension of the simulation")
+    ->pretty_name("Dimension")
     ->mark_basic();
 
   //options().add_option( OptionT<std::string>::create("physics", "CF.") )
-  //  ->set_description("Builder name for the physical model")
-  //  ->set_pretty_name("Physics")
+  //  ->description("Builder name for the physical model")
+  //  ->pretty_name("Physics")
   //  ->mark_basic();
 
   m_options.add_option( OptionT<std::string>::create("solution_state", "CF.Euler.Cons1D") )
-    ->set_description("Solution state builder")
-    ->set_pretty_name("Solution State")
+    ->description("Solution state builder")
+    ->pretty_name("Solution State")
     ->mark_basic();
 
   m_options.add_option( OptionT<std::string>::create("roe_state", "CF.Euler.Roe1D") )
-    ->set_description("Roe state builder")
-    ->set_pretty_name("Roe State")
+    ->description("Roe state builder")
+    ->pretty_name("Roe State")
     ->mark_basic();
 
   m_options.add_option( OptionT<Uint>::create("P", 0u) )
-    ->set_description("The order of the polynomial of the solution")
-    ->set_pretty_name("Polynomial Order")
+    ->description("The order of the polynomial of the solution")
+    ->pretty_name("Polynomial Order")
     ->mark_basic();
 
   m_options.add_option( OptionT<Uint>::create("RK_stages", 2u) )
-    ->set_description("The number of Runge Kutta stages")
-    ->set_pretty_name("Runge Kutta stages")
+    ->description("The number of Runge Kutta stages")
+    ->pretty_name("Runge Kutta stages")
     ->mark_basic();
 
   m_options.add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(), 1.) )
-    ->set_description("The Courant-Friedrichs-Lax Number")
-    ->set_pretty_name("CFL")
+    ->description("The Courant-Friedrichs-Lax Number")
+    ->pretty_name("CFL")
     ->mark_basic();
 
   m_options.add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(), true) )
-    ->set_description("Time accurate or steady state")
-    ->set_pretty_name("Time Accurate")
+    ->description("Time accurate or steady state")
+    ->pretty_name("Time Accurate")
     ->mark_basic();
 
   m_options.add_option( OptionT<bool>::create("output_file", "mesh_t${time}.msh") )
-    ->set_description("File to write")
-    ->set_pretty_name("Output File")
+    ->description("File to write")
+    ->pretty_name("Output File")
     ->mark_basic();
 
   regist_signal( "create_simulation" )
@@ -299,7 +299,7 @@ void SFDWizard::signature_initialize_solution( SignalArgs& node )
   SignalOptions options( node );
 
   options.add_option< OptionArrayT<std::string> >("functions", std::vector<std::string>() )
-     ->set_description("Analytical functions (x,y,z)");
+     ->description("Analytical functions (x,y,z)");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -335,11 +335,11 @@ void SFDWizard::signature_start_simulation( SignalArgs& node )
   // name
   CTime& time = m_model_link->follow()->as_type<CModelUnsteady>().time();
   options.add_option< OptionT<Real> >("current_time", time.time())
-     ->set_description("Current Time" );
+     ->description("Current Time" );
   options.add_option< OptionT<Real> >("end_time", time.option("end_time").value<Real>())
-     ->set_description("End Time" );
+     ->description("End Time" );
   options.add_option< OptionT<Real> >("time_step", time.option("time_step").value<Real>())
-     ->set_description("Time Step" );
+     ->description("Time Step" );
 }
 
 //////////////////////////////////////////////////////////////////////////////

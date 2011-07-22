@@ -48,8 +48,8 @@ LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
   m_implementation( new Implementation() )
 {
   m_options.add_option( OptionComponent<CTime>::create("time_component", &m_implementation->m_time))
-    ->set_pretty_name("Time")
-    ->set_description("Component that keeps track of time for this simulation")
+    ->pretty_name("Time")
+    ->description("Component that keeps track of time for this simulation")
     ->attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()));
 }
 

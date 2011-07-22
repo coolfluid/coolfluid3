@@ -34,7 +34,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 {
   // options
   m_options.add_option(OptionURI::create("Volume", URI("cpath:"), URI::Scheme::CPATH))
-      ->set_description("Field to set")
+      ->description("Field to set")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
       ->add_tag(Mesh::Tags::volume());

@@ -58,13 +58,13 @@ RDSolver::RDSolver ( const std::string& name  ) :
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
   m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
-      ->set_description("Mesh the Discretization Method will be applied to")
-      ->set_pretty_name("Mesh")
+      ->description("Mesh the Discretization Method will be applied to")
+      ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
   m_options.add_option( OptionComponent<Physics::PhysModel>::create( RDM::Tags::physical_model(), &m_physical_model))
-      ->set_description("Physical model to discretize")
-      ->set_pretty_name("Physics")
+      ->description("Physical model to discretize")
+      ->pretty_name("Physics")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 

@@ -49,11 +49,11 @@ struct CDomain::Implementation
 
 
     options.add_option< OptionURI >("file", URI() )
-        ->set_description("Location of the file holding the mesh")
+        ->description("Location of the file holding the mesh")
         ->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
     options.add_option< OptionT<std::string> >("name", std::string() )
-        ->set_description("Name for the mesh to load");
+        ->description("Name for the mesh to load");
   }
 
   void signature_write_mesh( Common::SignalArgs& node )
@@ -64,7 +64,7 @@ struct CDomain::Implementation
     schemes[0] = URI::Scheme::FILE;
 
     options.add_option< OptionURI >("file", URI() )
-        ->set_description("Location of the file holding the mesh")
+        ->description("Location of the file holding the mesh")
         ->cast_to<OptionURI>()->set_supported_protocols(schemes);
   }
 

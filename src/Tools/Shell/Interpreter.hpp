@@ -70,7 +70,7 @@ public:
   /// Output the prompt
   void write_prompt();
   
-  void set_description(const commands_description& desc);
+  void description(const commands_description& desc);
   
   void notify(boost::program_options::variables_map& vm);
   

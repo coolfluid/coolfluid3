@@ -217,18 +217,18 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
   }
 
   options.add_option<OptionURI>("location", URI() )
-      ->set_description("Path to the component to hold the mesh");
+      ->description("Path to the component to hold the mesh");
 
   options.add_option< OptionT<std::string> >("name", std::string("mesh") )
-      ->set_description("Name of the mesh");
+      ->description("Name of the mesh");
 
   // create de value and add the restricted list
   options.add_option< OptionT<std::string> >( "readers", boost::any_cast<std::string>(readers[0]) )
-      ->set_description("Available readers" )
+      ->description("Available readers" )
       ->restricted_list() = readers ;
 
   options.add_option< OptionArrayT<URI> >( "files", dummy )
-      ->set_description( "Files to read" );
+      ->description( "Files to read" );
 }
 
 } // Mesh

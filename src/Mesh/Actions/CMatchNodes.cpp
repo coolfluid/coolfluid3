@@ -58,7 +58,7 @@ CMatchNodes::CMatchNodes( const std::string& name )
 
 
   m_options.add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
-      ->set_description("Regions to match nodes of");
+      ->description("Regions to match nodes of");
 }
 
 /////////////////////////////////////////////////////////////////////////////

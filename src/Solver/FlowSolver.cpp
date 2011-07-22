@@ -53,42 +53,42 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
   // Properties
 
   m_options.add_option(OptionComponent<CMesh>::create(Tags::mesh(), &m_mesh))
-      ->set_description("Mesh")
-      ->set_pretty_name("Mesh")
+      ->description("Mesh")
+      ->pretty_name("Mesh")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
   m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(), &m_physical_model))
-      ->set_description("Mesh")
-      ->set_pretty_name("Mesh")
+      ->description("Mesh")
+      ->pretty_name("Mesh")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
   m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
-      ->set_description("Time tracking component")
-      ->set_pretty_name("Time")
+      ->description("Time tracking component")
+      ->pretty_name("Time")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
   m_options.add_option(OptionComponent<CAction>::create(Tags::setup(), &m_setup))
-      ->set_description("Setup action for the solver")
-      ->set_pretty_name("Setup")
+      ->description("Setup action for the solver")
+      ->pretty_name("Setup")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
   m_options.add_option(OptionComponent<CAction>::create(Tags::solve(), &m_solve))
-      ->set_description("Action that executes the \"solve\"")
-      ->set_pretty_name("Solve")
+      ->description("Action that executes the \"solve\"")
+      ->pretty_name("Solve")
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this) )
       ->mark_basic();
 
   m_options.add_option(OptionComponent<CAction>::create(Tags::inner(), &m_inner))
-      ->set_description("Action to execute inner domain computations. Tag component with \"inner\" for automatic detection")
-      ->set_pretty_name("Inner Domain");
+      ->description("Action to execute inner domain computations. Tag component with \"inner\" for automatic detection")
+      ->pretty_name("Inner Domain");
 
   m_options.add_option(OptionComponent<CAction>::create(Tags::bc(), &m_bc))
-      ->set_description("Action to execute boundary conditions. Tag component with \"bc\" for automatic detection")
-      ->set_pretty_name("Boundary Conditions");
+      ->description("Action to execute boundary conditions. Tag component with \"bc\" for automatic detection")
+      ->pretty_name("Boundary Conditions");
 
   // Signals
   regist_signal( "create_bc_action" )
@@ -286,15 +286,15 @@ void FlowSolver::signature_create_bc_action( SignalArgs& node )
 
   // name
   options.add_option< OptionT<std::string> >("name", std::string())
-      ->set_description("Name for created boundary condition" );
+      ->description("Name for created boundary condition" );
 
   // builder
   options.add_option< OptionT<std::string> >( "builder", std::string() )
-      ->set_description("Builder name of boundary condition computation");
+      ->description("Builder name of boundary condition computation");
 
   // regions
   options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>() )
-      ->set_description("Regions where to apply the boundary condition");
+      ->description("Regions where to apply the boundary condition");
 
 }
 
@@ -323,15 +323,15 @@ void FlowSolver::signature_create_inner_action( SignalArgs& node )
 
   // name
   options.add_option< OptionT<std::string> >("name", std::string())
-      ->set_description("Name for created inner action" );
+      ->description("Name for created inner action" );
 
   // builder
   options.add_option< OptionT<std::string> >( "builder", std::string())
-      ->set_description("Builder name of inner action");
+      ->description("Builder name of inner action");
 
   // regions
   options.add_option< OptionArrayT<URI> >("regions", std::vector<URI>())
-      ->set_description("Regions where to apply the boundary condition");
+      ->description("Regions where to apply the boundary condition");
 
 }
 

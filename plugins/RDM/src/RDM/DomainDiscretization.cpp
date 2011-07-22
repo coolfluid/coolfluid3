@@ -162,7 +162,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
   // name
 
   options.add_option< OptionT<std::string> >("Name", std::string() )
-      ->set_description("Name for created volume term");
+      ->description("Name for created volume term");
 
   // type
 
@@ -180,7 +180,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
   /// @todo create here the list of restricted volume regions
 
   options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->set_description("Regions where to apply the domain term");
+      ->description("Regions where to apply the domain term");
 }
 
 
@@ -191,7 +191,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
   // name
 
   options.add_option< OptionT<std::string> >("Name", std::string() )
-      ->set_description("Name for created volume term");
+      ->description("Name for created volume term");
 
   // type
 
@@ -209,7 +209,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
   /// @todo create here the list of restricted face regions
 
   options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->set_description("Regions where to apply the domain term");
+      ->description("Regions where to apply the domain term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

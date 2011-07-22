@@ -45,20 +45,20 @@ void create_constant_scalar_field(CMesh& mesh, const std::string& field_name, co
 FieldGenerator::FieldGenerator(const std::string& name) : Component(name)
 {
   Option::Ptr mesh_path = m_options.add_option<OptionURI>("Mesh", std::string());
-  mesh_path->set_description("Mesh to add the field to");
+  mesh_path->description("Mesh to add the field to");
   mesh_path->mark_basic();
   mesh_path->cast_to<OptionURI>()->supported_protocol(CF::Common::URI::Scheme::CPATH);
 
   m_options.add_option< OptionT<std::string> >("FieldName", "")
-      ->set_description("Name of the field to create")
+      ->description("Name of the field to create")
       ->mark_basic();
 
   m_options.add_option< OptionT<std::string> >("VariableName", "")
-      ->set_description("Name of the variable to create")
+      ->description("Name of the variable to create")
       ->mark_basic();
 
   m_options.add_option< OptionT<Real> >("Value", 0.)
-      ->set_description("Value for every node in the field")
+      ->description("Value for every node in the field")
       ->mark_basic();
 
   regist_signal( "update" )

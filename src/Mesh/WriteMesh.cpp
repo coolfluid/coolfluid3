@@ -50,19 +50,19 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
 
 
   m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh) )
-      ->set_description("Mesh to write")
-      ->set_pretty_name("Mesh")
+      ->description("Mesh to write")
+      ->pretty_name("Mesh")
       ->mark_basic();
 
   m_options.add_option( OptionURI::create("file", m_file, URI::Scheme::FILE) )
-      ->set_description("File to write")
-      ->set_pretty_name("File")
+      ->description("File to write")
+      ->pretty_name("File")
       ->mark_basic()
       ->link_to(&m_file);
 
   m_options.add_option( OptionArrayT<URI>::create("fields", m_fields) )
-      ->set_description("Fields to write")
-      ->set_pretty_name("Fields")
+      ->description("Fields to write")
+      ->pretty_name("Fields")
       ->mark_basic()
       ->link_to(&m_fields);
 
@@ -251,16 +251,16 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
   }
 
   options.add_option<OptionURI>("mesh", URI() )
-      ->set_description("Path to the mesh")
+      ->description("Path to the mesh")
       ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
   // create the value and add the restricted list
   options.add_option< OptionT<std::string> >( "Available writers", std::string() )
-      ->set_description("Available writers")
+      ->description("Available writers")
       ->restricted_list() = writers;
 
   options.add_option< OptionT<std::string> >("file", std::string() )
-      ->set_description("File to write");
+      ->description("File to write");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

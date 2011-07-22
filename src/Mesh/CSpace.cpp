@@ -32,8 +32,8 @@ CSpace::CSpace ( const std::string& name ) :
   m_properties["description"] = std::string("");
 
   m_options.add_option(OptionT<std::string>::create("shape_function", std::string("")))
-      ->set_description("Shape Function defined in this space")
-      ->set_pretty_name("Shape Function")
+      ->description("Shape Function defined in this space")
+      ->pretty_name("Shape Function")
       ->attach_trigger(boost::bind(&CSpace::configure_shape_function, this))
       ->mark_basic();
 }

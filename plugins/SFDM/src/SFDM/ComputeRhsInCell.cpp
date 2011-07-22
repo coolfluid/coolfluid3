@@ -50,38 +50,38 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
-    ->set_description("Solution to calculate RHS for")
-    ->set_pretty_name("Solution")
+    ->description("Solution to calculate RHS for")
+    ->pretty_name("Solution")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_solution,   this ) );
 
   m_options.add_option(OptionURI::create("residual", URI("cpath:"),URI::Scheme::CPATH))
-    ->set_description("Residual to be calculated")
-    ->set_pretty_name("Residual")
+    ->description("Residual to be calculated")
+    ->pretty_name("Residual")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_residual,   this ) );
 
   m_options.add_option(OptionURI::create("wave_speed", URI("cpath:"),URI::Scheme::CPATH))
-    ->set_description("Wave speed to be calculated. Used for stability condition.")
-    ->set_pretty_name("Wave Speed")
+    ->description("Wave speed to be calculated. Used for stability condition.")
+    ->pretty_name("Wave Speed")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_wavespeed,   this ) );
 
   m_options.add_option(OptionURI::create("jacobian_determinant", URI("cpath:"),URI::Scheme::CPATH))
-    ->set_description("Jacobian Determinant of the Transformation to mapped space")
-    ->set_pretty_name("Jacobian Determinant")
+    ->description("Jacobian Determinant of the Transformation to mapped space")
+    ->pretty_name("Jacobian Determinant")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
   m_options.add_option( OptionT<std::string>::create("riemann_solver", "CF.RiemannSolvers.Roe") )
-    ->set_description("The component to solve the Rieman Problem on cell-faces")
-    ->set_pretty_name("Riemann Solver")
+    ->description("The component to solve the Rieman Problem on cell-faces")
+    ->pretty_name("Riemann Solver")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
   m_options.add_option( OptionComponent<Solver::State>::create("solution_state", &m_sol_state) )
-    ->set_description("The component describing the solution state")
-    ->set_pretty_name("Solution State")
+    ->description("The component describing the solution state")
+    ->pretty_name("Solution State")
     ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
 
 

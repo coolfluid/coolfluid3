@@ -40,17 +40,17 @@ struct BoundaryConditions::Implementation
     m_component(comp),
     m_physical_model(),
     m_proxy(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
-              ->set_pretty_name("LSS")
-              ->set_description("The referenced linear system solver")),
+              ->pretty_name("LSS")
+              ->description("The referenced linear system solver")),
             *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physical_model) )
-              ->set_pretty_name("Physical Model")
-              ->set_description("Physical Model"))
+              ->pretty_name("Physical Model")
+              ->description("Physical Model"))
            ),
     dirichlet(m_proxy)
   {
     m_component.options().add_option< OptionArrayT < URI > > ("regions")
-      ->set_pretty_name("Regions")
-      ->set_description("Regions the boundary condition applies to")
+      ->pretty_name("Regions")
+      ->description("Regions the boundary condition applies to")
       ->link_to(&m_region_uris);
   }
 
@@ -75,10 +75,10 @@ struct BoundaryConditions::Implementation
     SignalOptions options( node );
 
     options.add_option< OptionT<std::string> >("region_name", std::string())
-        ->set_description("Default region name for this BC");
+        ->description("Default region name for this BC");
 
     options.add_option< OptionT<std::string> >("variable_name", std::string())
-        ->set_description("Variable name for this BC");
+        ->description("Variable name for this BC");
   }
 
   // Checked access to the physical model

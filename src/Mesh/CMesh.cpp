@@ -49,8 +49,8 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("dimensionality",Uint(0));
 
   m_options.add_option< OptionT<Uint> >("dimension", Uint(0))
-      ->set_description("Dimension of the mesh (set automatically)")
-      ->set_pretty_name("Dimension")
+      ->description("Dimension of the mesh (set automatically)")
+      ->pretty_name("Dimension")
       ->link_to(&m_dimension); //TODO: Hide this, or make properties with triggers?
 
   mark_basic(); // by default meshes are visible
@@ -255,12 +255,12 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
   SignalOptions options( node );
 
   options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
-      ->set_description("File to write" );
+      ->description("File to write" );
 
   boost_foreach (CField& field, find_components<CField>(*this))
   {
     options.add_option< OptionT<bool> >(field.name(), false )
-        ->set_description("Mark if field gets to be written");
+        ->description("Mark if field gets to be written");
   }
 }
 

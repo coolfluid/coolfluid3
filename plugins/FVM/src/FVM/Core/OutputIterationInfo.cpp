@@ -42,12 +42,12 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
   // options
 
   m_options.add_option(OptionComponent<CTime>::create("ctime", &m_time))
-      ->set_description("Time tracking component")
-      ->set_pretty_name("Time");
+      ->description("Time tracking component")
+      ->pretty_name("Time");
 
   m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
-      ->set_description("Residual")
-      ->set_pretty_name("Residual");
+      ->description("Residual")
+      ->pretty_name("Residual");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -45,8 +45,8 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
     m_nb_parts(mpi::PE::instance().size())
 {
   m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
-      ->set_description("Total number of partitions (e.g. number of processors)")
-      ->set_pretty_name("Number of Partitions")
+      ->description("Total number of partitions (e.g. number of processors)")
+      ->pretty_name("Number of Partitions")
       ->link_to(&m_nb_parts)
       ->mark_basic();
 
@@ -100,7 +100,7 @@ void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
   SignalOptions options( node );
 
   options.add_option<OptionURI>("mesh", URI())
-      ->set_description("Mesh to load balance");
+      ->description("Mesh to load balance");
 }
 
 //////////////////////////////////////////////////////////////////////

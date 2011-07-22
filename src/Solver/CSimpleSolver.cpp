@@ -29,8 +29,8 @@ using namespace Mesh;
 CSimpleSolver::CSimpleSolver(const std::string& name) : CSolver(name)
 {
   m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model", &m_physics) )
-              ->set_pretty_name("Physical Model")
-              ->set_description("Physical Model");
+              ->pretty_name("Physical Model")
+              ->description("Physical Model");
 }
 
 CSimpleSolver::~CSimpleSolver()

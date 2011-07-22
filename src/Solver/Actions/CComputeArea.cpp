@@ -34,8 +34,8 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 {
   // options
   m_options.add_option(OptionURI::create(Mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
-      ->set_description("Field to set")
-      ->set_pretty_name("Area")
+      ->description("Field to set")
+      ->pretty_name("Area")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
       ->add_tag(Mesh::Tags::area());

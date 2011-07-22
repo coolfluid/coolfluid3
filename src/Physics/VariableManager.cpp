@@ -29,8 +29,8 @@ struct VariableManager::Implementation
     m_nbdofs(0u)
   {
     m_component.options().add_option<OptionT <Uint> >("dimensions", 0)
-      ->set_pretty_name("Dimensions")
-      ->set_description("Dimensionality of the problem, i.e. the number of components for the spatial coordinates")
+      ->pretty_name("Dimensions")
+      ->description("Dimensionality of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
       ->link_to(&m_dim)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
@@ -90,13 +90,13 @@ struct VariableManager::Implementation
       
       // Add options for changing the variable name and field name
       m_component.options().add_option< OptionT<std::string> >(field_property_name(name), field_name)
-        ->set_pretty_name(name + std::string(" Field Name"))
-        ->set_description("Field name for variable " + name)
+        ->pretty_name(name + std::string(" Field Name"))
+        ->description("Field name for variable " + name)
         ->link_to(&field_name);
 
       m_component.options().add_option< OptionT<std::string> >(variable_property_name(name), symbol)
-        ->set_pretty_name(name + std::string(" Variable Name"))
-        ->set_description("Variable name for variable " + name)
+        ->pretty_name(name + std::string(" Variable Name"))
+        ->description("Variable name for variable " + name)
         ->link_to(&symbol);
     }
     else

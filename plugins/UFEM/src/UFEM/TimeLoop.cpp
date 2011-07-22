@@ -26,8 +26,8 @@ struct TimeLoop::Implementation
    m_component(comp)
   {
     m_component.options().add_option( OptionComponent<CTime>::create("time_component", &m_time))
-    ->set_pretty_name("Time")
-    ->set_description("Component that keeps track of time for this simulation");
+    ->pretty_name("Time")
+    ->description("Component that keeps track of time for this simulation");
   }
   
   Component& m_component;

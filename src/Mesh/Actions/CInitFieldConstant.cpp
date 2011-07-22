@@ -44,13 +44,13 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
   m_properties["description"] = desc;
 
   m_options.add_option(OptionComponent<CField>::create("field", &m_field))
-      ->set_description("Field to initialize")
-      ->set_pretty_name("Field")
+      ->description("Field to initialize")
+      ->pretty_name("Field")
       ->mark_basic();
 
   m_options.add_option< OptionT<Real> > ("constant", m_constant)
-      ->set_description("Constant applied as initial field")
-      ->set_pretty_name("Constant")
+      ->description("Constant applied as initial field")
+      ->pretty_name("Constant")
       ->link_to( &m_constant )
       ->mark_basic();
 }

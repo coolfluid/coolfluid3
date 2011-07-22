@@ -27,7 +27,7 @@ ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
   m_options.add_option< OptionArrayT<std::string> >("ActionOrder", std::vector<std::string>())
-      ->set_description("Names of the actions to execute in sequence");
+      ->description("Names of the actions to execute in sequence");
 }
 
 void CActionDirector::execute()

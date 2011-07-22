@@ -79,7 +79,7 @@ public:
     {
       const std::string& name = it->first;
       Common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<Real> >(name, it->second);
-      option.set_description(m_constant_values.descriptions[name]);
+      option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
     }
 
@@ -88,7 +88,7 @@ public:
     {
       const std::string& name = it->first;
       Common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<RealVector> >(name, it->second);
-      option.set_description(m_constant_values.descriptions[name]);
+      option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
     }
   }

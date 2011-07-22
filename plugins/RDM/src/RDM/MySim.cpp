@@ -198,7 +198,7 @@ void MySim::signature_create_model( SignalArgs& node )
   SignalOptions options( node );
 
   options.add_option< OptionT<std::string> >("model_name", std::string())
-      ->set_description("Name for created model");
+      ->description("Name for created model");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

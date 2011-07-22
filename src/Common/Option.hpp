@@ -68,9 +68,9 @@ namespace Common {
 
   /// @author Tiago Quintino
   /// @author Quentin Gasper
-  class Common_API Option : public boost::enable_shared_from_this<Option>,
-      public TaggedObject
-  {
+  class Common_API Option :
+      public boost::enable_shared_from_this<Option>,
+      public TaggedObject {
 
   public:
 
@@ -84,24 +84,14 @@ namespace Common {
     typedef std::vector< Trigger_t >    TriggerStorage_t;
 
     /// Constructor.
-
     /// @param name Option name.
     /// @param def Default value.
     Option(const std::string & name, boost::any def);
 
-    /// Constructor.
-
-    /// @param name Option name.
-    /// @param pretty_name Option pretty name.
-    /// @param desc Option description.
-    /// @param def Default value.
-    //Option(const std::string & name, const std::string& pretty_name, const std::string & desc, boost::any def);
-
     /// Desctructor.
     virtual ~Option();
 
-    /// Casts the value to the provided TYPE
-
+    /// @brief Casts the value to the provided TYPE
     /// @return Returns the cast value.
     /// @throw CastingFailed if the value could not be cast.
     template<typename TYPE>
@@ -157,25 +147,22 @@ namespace Common {
 
     //@} END VIRTUAL FUNCTIONS
 
-    /// Sets the option pretty name.
-
+    /// @brief Sets the option pretty name.
     /// @param pretty_name The option pretty name.
     /// @return Returns a reference to this object.
-    Ptr set_pretty_name( const std::string & pretty_name );
+    Ptr pretty_name( const std::string & pretty_name );
 
-    /// Sets the option description.
-
+    /// @brief Sets the option description.
     /// @param pretty_name The option description.
     /// @return Returns a reference to this object.
-    Ptr set_description( const std::string & description );
+    Ptr description( const std::string & description );
 
-    /// Sets the option operator.
-
+    /// @brief Sets the option operator.
     /// The separator is used in some convertions to string to separate items,
     /// i.e. the restricted list of values or the option value if it is an array.
     /// @param pretty_name The option description.
     /// @return Returns a reference to this object.
-    Ptr set_separator( const std::string & separator );
+    Ptr separator( const std::string & separator );
 
     /// configure this option using the passed xml node
     void configure_option ( XML::XmlNode & node );
@@ -329,11 +316,9 @@ namespace Common {
 
   }; // class Option
 
-  //////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
-
-////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_Option_hpp

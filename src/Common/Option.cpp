@@ -116,7 +116,7 @@ std::string Option::type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::set_description ( const std::string & description )
+Option::Ptr Option::description ( const std::string & description )
 {
   m_description = description;
   return shared_from_this();
@@ -124,7 +124,7 @@ Option::Ptr Option::set_description ( const std::string & description )
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::set_pretty_name ( const std::string & pretty_name )
+Option::Ptr Option::pretty_name ( const std::string & pretty_name )
 {
   m_pretty_name = pretty_name;
   return shared_from_this();
@@ -132,7 +132,7 @@ Option::Ptr Option::set_pretty_name ( const std::string & pretty_name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-Option::Ptr Option::set_separator ( const std::string & separator )
+Option::Ptr Option::separator ( const std::string & separator )
 {
   m_separator = separator;
   return shared_from_this();

@@ -39,13 +39,13 @@ Init::Init ( const std::string& name ) :
   mark_basic();
 
   m_options.add_option(OptionComponent<CField>::create( "field", &m_field ))
-      ->set_pretty_name("Field")
-      ->set_description("The field to Initialize");
+      ->pretty_name("Field")
+      ->description("The field to Initialize");
 
   // options
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->set_description("Math function applied as Dirichlet boundary condition (vars x,y)")
+      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
 

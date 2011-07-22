@@ -52,7 +52,7 @@ CExtract::CExtract( const std::string& name )
 : CMeshTransformer(name)
 {
   m_options.add_option<OptionArrayT<std::string> >("Regions", std::vector<std::string>())
-      ->set_description("Regions to extract, can be regular expression matched with the full path")
+      ->description("Regions to extract, can be regular expression matched with the full path")
       ->mark_basic();
 }
 
