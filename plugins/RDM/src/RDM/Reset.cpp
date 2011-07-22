@@ -76,9 +76,6 @@ void Reset::config_field_tags()
   RDSolver& mysolver = solver().as_type<RDSolver>();
 
   boost_foreach(const std::string tag, vec)
-  {
-    CF_DEBUG_OBJ(tag);
-
     boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
     {
       CF_DEBUG_OBJ(link.uri().string());
@@ -89,7 +86,6 @@ void Reset::config_field_tags()
         m_fields.push_back( wptr );
       }
     }
-  }
 }
 
 
