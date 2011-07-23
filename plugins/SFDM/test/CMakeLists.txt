@@ -25,13 +25,18 @@ list( APPEND utest-sfdm-wizard_files  utest-sfdm-wizard.cpp )
 coolfluid_add_unit_test( utest-sfdm-wizard )
 
 
-# coolfluid_add_acceptance_test( atest-sfdm-linear-advection atest-sfdm-linear_advection.cfscript )
+# coolfluid_add_acceptance_test( NAME atest-sfdm-linear-advection
+#                                SCRIPT  atest-sfdm-linear_advection.cfscript )
 
-# coolfluid_add_acceptance_test( atest-sfdm-euler1D-shocktube-P0 atest-sfdm-euler1D-shocktube-P0.cfscript )
+# coolfluid_add_acceptance_test( NAME atest-sfdm-euler1D-shocktube-P0
+#                                SCRIPT  atest-sfdm-euler1D-shocktube-P0.cfscript )
 
-# coolfluid_add_acceptance_test( atest-sfdm-euler2D-shocktube-P0 atest-sfdm-euler2D-shocktube-P0.cfscript )
+# coolfluid_add_acceptance_test( NAME atest-sfdm-euler2D-shocktube-P0
+#                                SCRIPT  atest-sfdm-euler2D-shocktube-P0.cfscript )
 
-# coolfluid_add_acceptance_test( atest-sfdm-euler1D-pulse atest-sfdm-euler1D-pulse.cfscript )
+# coolfluid_add_acceptance_test( NAME atest-sfdm-euler1D-pulse
+#                                SCRIPT  atest-sfdm-euler1D-pulse.cfscript )
 
-# coolfluid_add_acceptance_test( atest-sfdm-euler2D-pulse atest-sfdm-euler2D-pulse.cfscript )
+# coolfluid_add_acceptance_test( NAME atest-sfdm-euler2D-pulse
+#                                SCRIPT  atest-sfdm-euler2D-pulse.cfscript )
 

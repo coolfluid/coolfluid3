@@ -48,6 +48,7 @@ set_source_files_properties(
   PROPERTIES COMPILE_FLAGS "-g0")
 
 set( UFEM_LSS_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
-set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ) 
+set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
-coolfluid_add_acceptance_test( atest-ufem-heat-steady atest-ufem-heat-steady.cfscript )
+coolfluid_add_acceptance_test( NAME    atest-ufem-heat-steady
+                               SCRIPT  atest-ufem-heat-steady.cfscript )
