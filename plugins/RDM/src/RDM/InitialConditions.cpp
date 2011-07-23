@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -52,13 +51,12 @@ InitialConditions::InitialConditions ( const std::string& name ) :
       ->signature( boost::bind( &InitialConditions::signature_signal_create_initial_condition, this, _1))
       ->description("creates an initial condition for the solution")
       ->pretty_name("Create Initial Condition");
-
 }
+
+
 
 void InitialConditions::execute()
 {
-  CFinfo << "[RDM] applying initial conditions" << CFendl;
-
   // apply all registered actions
 
   CActionDirector::execute();
