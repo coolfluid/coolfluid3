@@ -29,13 +29,13 @@ CellTerm::CellTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<CField>::create( Tags::solution(), &m_solution))
+  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution Field");
 
-  m_options.add_option(OptionComponent<CField>::create( Tags::wave_speed(), &m_wave_speed))
+  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::wave_speed(), &m_wave_speed))
       ->pretty_name("Wave Speed Field");
 
-  m_options.add_option(OptionComponent<CField>::create( Tags::residual(), &m_residual))
+  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::residual(), &m_residual))
       ->pretty_name("Residual Field");
 }
 
@@ -46,15 +46,15 @@ void CellTerm::link_fields()
 {
   if( is_null( m_solution.lock() ) )
     m_solution = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( Tags::solution() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
 
   if( is_null( m_wave_speed.lock() ) )
     m_wave_speed = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
 
   if( is_null( m_residual.lock() ) )
     m_residual = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( Tags::residual() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
 }
 
 ElementLoop& CellTerm::access_element_loop( const std::string& type_name )

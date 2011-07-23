@@ -12,7 +12,7 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
 
-#include "RDM/LibRDM.hpp"
+#include "RDM/Tags.hpp"
 
 namespace CF {
 

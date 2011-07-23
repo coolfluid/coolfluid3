@@ -14,7 +14,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Solver/Tags.hpp"
+#include "RDM/Tags.hpp"
 
 //#include "Mesh/Actions/CInitFieldFunction.hpp"
 
@@ -33,11 +33,11 @@ namespace CF {
 namespace RDM {
 
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
   CF::Solver::ActionDirector(name)
@@ -87,7 +87,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   append( ic );
 
 
-  URI solution_uri = solver().as_type< RDSolver >().fields().get_child( Tags::solution() ).follow()->uri();
+  URI solution_uri = solver().as_type< RDSolver >().fields().get_child( RDM::Tags::solution() ).follow()->uri();
 
   ic->configure_option( "field", solution_uri );
 
@@ -102,9 +102,9 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   }
   ic->configure_option("regions" , regions);
 
-  ic->configure_option( Solver::Tags::mesh(), m_mesh.lock()->uri());
-  ic->configure_option( Solver::Tags::solver() , m_solver.lock()->uri());
-  ic->configure_option( Solver::Tags::physical_model() , m_physical_model.lock()->uri());
+  ic->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  ic->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  ic->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
 }
 
 
@@ -127,7 +127,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
       ->description("Regions where to apply the initial condition [optional]");
 }
 
-///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 
 } // RDM

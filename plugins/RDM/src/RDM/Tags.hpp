@@ -4,22 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibRDM_hpp
-#error  Header RDM/Tags.hpp shouldnt be included directly, include LibRDM.hpp
-#endif
+#include "Solver/Tags.hpp"
+
+#include "RDM/LibRDM.hpp"
 
 #ifndef CF_RDM_Tags_hpp
 #define CF_RDM_Tags_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace RDM {
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the tags for the RDM components
 /// @author Tiago Quintino
-class RDM_API Tags : public NonInstantiable<Tags> {
+class RDM_API Tags : public Solver::Tags {
 public:
 
   static const char * fields()         { return "Fields";  }
@@ -33,6 +32,7 @@ public:
 
 }; // Tags
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

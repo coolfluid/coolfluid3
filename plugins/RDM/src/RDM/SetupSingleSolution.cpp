@@ -66,7 +66,7 @@ void SetupSingleSolution::execute()
     solution =
         mesh.create_field( RDM::Tags::solution(),CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
 
-    solution->add_tag(Tags::solution());
+    solution->add_tag(RDM::Tags::solution());
   }
 
   /// @todo here we should check if space() order is correct,

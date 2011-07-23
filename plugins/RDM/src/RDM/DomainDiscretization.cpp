@@ -18,7 +18,7 @@
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CSolver.hpp"
-#include "Solver/Tags.hpp"
+#include "RDM/Tags.hpp"
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/FaceTerm.hpp"
@@ -88,9 +88,9 @@ RDM::CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
 
   term->configure_option("regions" , regions);
 
-  term->configure_option( Solver::Tags::mesh(), m_mesh.lock()->uri());
-  term->configure_option( Solver::Tags::solver() , m_solver.lock()->uri());
-  term->configure_option( Solver::Tags::physical_model() , m_physical_model.lock()->uri());
+  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
 
   return *term;
 }
@@ -105,9 +105,9 @@ RDM::FaceTerm& DomainDiscretization::create_face_term( const std::string& type,
 
   term->configure_option("regions" , regions);
 
-  term->configure_option( Solver::Tags::mesh(), m_mesh.lock()->uri());
-  term->configure_option( Solver::Tags::solver() , m_solver.lock()->uri());
-  term->configure_option( Solver::Tags::physical_model() , m_physical_model.lock()->uri());
+  term->configure_option( RDM::Tags::mesh(), m_mesh.lock()->uri());
+  term->configure_option( RDM::Tags::solver() , m_solver.lock()->uri());
+  term->configure_option( RDM::Tags::physical_model() , m_physical_model.lock()->uri());
 
   return *term;
 }

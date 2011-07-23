@@ -98,7 +98,7 @@ void IterativeSolver::execute()
   CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
 
   Component& cnorm = post_actions().get_child("ComputeNorm");
-  cnorm.configure_option("Field", mysolver.fields().get_child( Tags::residual() ).follow()->uri() );
+  cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
 
   // iteration loop
 

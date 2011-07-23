@@ -64,7 +64,7 @@ void Init::execute()
 {
   if( is_null( m_field.lock() ) )
     m_field = solver().as_type<RDM::RDSolver>().fields()
-        .get_child( Tags::solution() ).as_ptr_checked<CField>();
+        .get_child( RDM::Tags::solution() ).as_ptr_checked<CField>();
 
   CField& field = *m_field.lock();
 
