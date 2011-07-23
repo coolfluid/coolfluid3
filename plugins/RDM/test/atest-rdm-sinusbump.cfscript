@@ -40,13 +40,13 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=INLET  Type:string=CF.RDM.SubsonicInFlowWeakBc \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubInlet
 
-configure Model/RDSolver/BoundaryConditions/INLET rho_in:real=1.204751547 vel_in:array[real]=171.570881,0
+configure Model/RDSolver/BoundaryConditions/INLET rho_in:string=1.204751547 vel_in:array[string]=171.570881,0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=OUTLET  Type:string=CF.RDM.SubsonicOutFlowWeakBc \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubOutlet
 
-configure Model/RDSolver/BoundaryConditions/OUTLET p_out:real=101325.0
+configure Model/RDSolver/BoundaryConditions/OUTLET p_out:string=101325.0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=WALLS  Type:string=CF.RDM.SubsonicOutFlowWeakBc \
