@@ -34,7 +34,7 @@ public: // functions
   BCDirichletCons1D ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BCDirichletCons1D() {};
+  virtual ~BCDirichletCons1D() {}
 
   /// Get the class name
   static std::string type_name () { return "BCDirichletCons1D"; }
@@ -47,13 +47,13 @@ private: // helper functions
   void config_solution();
 
   void trigger_elements();
-  
+
 private: // data
-  
+
   enum {FIRST=0};
-  
+
   Mesh::CConnectedFieldView m_connected_solution;
-  
+
   Real m_rho;
   Real m_u;
   Real m_p;

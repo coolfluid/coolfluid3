@@ -33,7 +33,7 @@ public: // functions
   PolynomialReconstructor ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~PolynomialReconstructor() {};
+  virtual ~PolynomialReconstructor() {}
 
   /// Get the class name
   static std::string type_name () { return "PolynomialReconstructor"; }

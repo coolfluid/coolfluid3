@@ -62,7 +62,7 @@ public:
   CFactoryT(const std::string& name) : CFactory(name) {}
 
   /// @brief Virtual destructor.
-  virtual ~CFactoryT() {};
+  virtual ~CFactoryT() {}
 
   /// @returns the class name
   static std::string type_name() { return "CFactoryT<" + TYPE::type_name() + ">"; }

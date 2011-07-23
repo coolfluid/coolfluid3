@@ -36,7 +36,7 @@ public: // functions
   CDummyLoopOperation ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CDummyLoopOperation() {};
+  virtual ~CDummyLoopOperation() {}
 
   /// Get the class name
   static std::string type_name () { return "CDummyLoopOperation"; }

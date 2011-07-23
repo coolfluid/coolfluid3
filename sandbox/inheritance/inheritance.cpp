@@ -33,7 +33,7 @@ public:
 
   Component( const std::string& name ) : m_name(name) {}
 
-  virtual ~Component() {};
+  virtual ~Component() {}
 
   std::string name() const { return m_name; };
 
@@ -51,7 +51,7 @@ struct B : public Derive< B, Component, LibCommon >
 {
   B( const std::string& name ) : Derive<B,Component,LibCommon>(name) {}
 
-  virtual ~B() {};
+  virtual ~B() {}
 
   virtual void pure_virtual_function()
     { std::cout << name() << " -> B::pure_virtual_function()" << std::endl; };
@@ -63,7 +63,7 @@ struct A : public Derive< A, B, LibCore >
 {
   A( const std::string& name ) : Derive<A,B,LibCore>(name) {}
 
-  virtual ~A() {};
+  virtual ~A() {}
 
   virtual void virtual_function()
     { std::cout << name() << " -> A::virtual_function()" << std::endl; };

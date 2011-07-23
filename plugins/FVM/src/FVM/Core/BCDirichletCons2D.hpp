@@ -34,7 +34,7 @@ public: // functions
   BCDirichletCons2D ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BCDirichletCons2D() {};
+  virtual ~BCDirichletCons2D() {}
 
   /// Get the class name
   static std::string type_name () { return "BCDirichletCons2D"; }

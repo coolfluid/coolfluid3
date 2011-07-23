@@ -39,7 +39,7 @@ public: // functions
   CSetFieldValues ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSetFieldValues() {};
+  virtual ~CSetFieldValues() {}
 
   /// Get the class name
   static std::string type_name () { return "CSetFieldValues"; }

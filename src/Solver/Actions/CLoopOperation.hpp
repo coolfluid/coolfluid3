@@ -38,7 +38,7 @@ public: // functions
   CLoopOperation ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CLoopOperation() {};
+  virtual ~CLoopOperation() {}
 
   /// Get the class name
   static std::string type_name () { return "CLoopOperation"; }

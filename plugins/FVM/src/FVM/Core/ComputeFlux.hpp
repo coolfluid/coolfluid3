@@ -36,7 +36,7 @@ public: // functions
   ComputeFlux ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ComputeFlux() {};
+  virtual ~ComputeFlux() {}
 
   /// Get the class name
   static std::string type_name () { return "ComputeFlux"; }

@@ -35,7 +35,7 @@ public: // functions
   BCReflectCons1D ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BCReflectCons1D() {};
+  virtual ~BCReflectCons1D() {}
 
   /// Get the class name
   static std::string type_name () { return "BCReflectCons1D"; }

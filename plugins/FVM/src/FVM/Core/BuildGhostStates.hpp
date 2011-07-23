@@ -31,7 +31,7 @@ public: // functions
   BuildGhostStates ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~BuildGhostStates() {};
+  virtual ~BuildGhostStates() {}
 
   /// Get the class name
   static std::string type_name () { return "BuildGhostStates"; }

@@ -32,7 +32,7 @@ public: // functions
   ComputeUpdateCoefficient ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~ComputeUpdateCoefficient() {};
+  virtual ~ComputeUpdateCoefficient() {}
 
   /// Get the class name
   static std::string type_name () { return "ComputeUpdateCoefficient"; }

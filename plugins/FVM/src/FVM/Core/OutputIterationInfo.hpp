@@ -32,7 +32,7 @@ public: // functions
   OutputIterationInfo ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~OutputIterationInfo() {};
+  virtual ~OutputIterationInfo() {}
 
   /// Get the class name
   static std::string type_name () { return "OutputIterationInfo"; }
