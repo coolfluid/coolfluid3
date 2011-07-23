@@ -36,7 +36,7 @@ function( coolfluid_add_acceptance_test  )
 
   if( CF_ENABLE_ACCEPTANCE_TESTS AND coolfluid-command_builds AND _GATHER_CONDITION )
 
-    coolfluid_log( " ADDED ATEST [${_PAR_NAME}]" )
+    coolfluid_log_file( " ADDED ATEST [${_PAR_NAME}]" )
 
     set( TESTDIR ${CMAKE_CURRENT_BINARY_DIR} )
 
@@ -50,7 +50,7 @@ function( coolfluid_add_acceptance_test  )
     add_test( NAME ${_PAR_NAME}
               COMMAND coolfluid-command -f ${_PAR_SCRIPT} )
   else()
-    coolfluid_log( " SKIPPED ATEST [${_PAR_NAME}]" )
+    coolfluid_log_file( " SKIPPED ATEST [${_PAR_NAME}]" )
   endif()
 
 
