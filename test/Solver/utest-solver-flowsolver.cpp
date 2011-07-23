@@ -137,15 +137,15 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("solve",solve.uri());
+  solver.configure_option(FlowSolver::Tags::solve(),solve.uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("setup",setup.uri());
+  solver.configure_option(FlowSolver::Tags::setup(),setup.uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option( FlowSolver::Tags::physical_model(),root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("time",root.get_child("time").uri());
+  solver.configure_option( FlowSolver::Tags::time(),root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.execute());
@@ -163,10 +163,10 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
   CF_CHECK_THROW(solver.create_inner_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()), SetupError );
 
   CAction& bc = solver.create_component<CGroupActions>("compute_bc");
-  solver.configure_option("bc",bc.uri());
+  solver.configure_option( FlowSolver::Tags::bc(),bc.uri());
 
   CAction& inner = solver.create_component<CGroupActions>("compute_inner");
-  solver.configure_option("inner",bc.uri());
+  solver.configure_option( FlowSolver::Tags::inner(),bc.uri());
 
   BOOST_CHECK_NO_THROW(solver.create_bc_action("compute_convective_terms","CF.Solver.Echo",root.get_child("mesh").as_type<CMesh>().topology()));
 
@@ -194,15 +194,15 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("solve",solve.uri());
+  solver.configure_option(FlowSolver::Tags::solve(),solve.uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("setup",setup.uri());
+  solver.configure_option(FlowSolver::Tags::setup(),setup.uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option(FlowSolver::Tags::physical_model(),root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("time",root.get_child("time").uri());
+  solver.configure_option(FlowSolver::Tags::time(),root.get_child("time").uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.execute());
