@@ -11,7 +11,7 @@
 
 #include "Solver/CSolver.hpp"
 
-#include "Solver/LibSolver.hpp"
+#include "Solver/Tags.hpp"
 
 namespace CF {
 
@@ -47,12 +47,9 @@ public: // typedefs
 
 public: // functions
 
-  class Solver_API Tags : public NonInstantiable<Tags>
+  class Solver_API Tags : public Solver::Tags
   {
     public:
-    static const char * physical_model() { return "physical_model"; }
-    static const char * mesh()           { return "mesh"; }
-    static const char * time()           { return Tags::time(); }
 
     static const char * bc()             { return "bc"; }
     static const char * inner()          { return "inner"; }
@@ -78,6 +75,9 @@ public: // functions
   static std::string type_name () { return "FlowSolver"; }
 
   virtual void solve();
+
+  /// overriding the default behaviour of CSolver::execute()
+  virtual void execute();
 
   /// @name SIGNALS
   //@{

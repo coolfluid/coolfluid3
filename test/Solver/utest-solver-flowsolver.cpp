@@ -7,6 +7,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for CF::Solver::FlowSolver"
 
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
@@ -72,12 +74,11 @@ class Solver_API Echo : public CAction
 
 ComponentBuilder<Echo,CAction,LibSolver> Echo_builder;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( PhysicsSuite )
+BOOST_AUTO_TEST_SUITE( flow_solver_suite )
 
-//////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 {
@@ -91,8 +92,8 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
   CMesh& mesh = root.create_component<CMesh>("mesh");
   CTime& time = root.create_component<CTime>("time");
 
-
   FlowSolver& solver = root.create_component<FlowSolver>("flowsolver");
+
   CAction& setup = solver.create_component<Echo>("setup");
   setup.configure_option("echo",std::string("setup called"));
   CAction& solve = solver.create_component<Echo>("solve");
@@ -100,7 +101,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );  // physical model not set
 
-  solver.configure_option("physical_model",root.get_child("physical_model").uri());
+  solver.configure_option(Solver::Tags::physical_model(),root.get_child("physical_model").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
@@ -108,19 +109,18 @@ BOOST_AUTO_TEST_CASE( test_solver_setup1 )
 
   CF_CHECK_THROW( solver.execute() , SetupError );
 
-  solver.configure_option("time",root.get_child("time").uri());
+  solver.configure_option(Solver::Tags::time() ,root.get_child("time").uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError ); // setup not set
 
-  solver.configure_option("setup",setup.uri());
+  solver.configure_option( FlowSolver::Tags::setup(), setup.uri());
 
   CF_CHECK_THROW( solver.execute() , SetupError ); // setup not set
 
-  solver.configure_option("solve",solve.uri());
+  solver.configure_option( FlowSolver::Tags::solve(),solve.uri());
 
   // Finally enough configured to solve
   BOOST_CHECK_NO_THROW(solver.execute());
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( test_solver_setup2 )
   CFinfo << solver.tree() << CFendl;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_solver_setup3 )
 {
@@ -226,9 +226,6 @@ BOOST_AUTO_TEST_CASE( test_solver_setup3 )
   CFinfo << solver.options().list_options() << CFendl;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
-
-////////////////////////////////////////////////////////////////////////////////
-

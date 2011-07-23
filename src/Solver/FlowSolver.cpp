@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <iomanip>
+#include <iostream>
 
 #include <boost/assign/list_of.hpp>
 
@@ -42,16 +43,20 @@ using namespace Mesh;
 using namespace Physics;
 using namespace Solver;
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 Common::ComponentBuilder < FlowSolver, CSolver, LibSolver > FlowSolver_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
 {
+  // properties
+
   m_properties["brief"] = std::string("Basic Flow Solver component");
   m_properties["description"] = std::string("");
 
-  // Properties
+  // options
 
   m_options.add_option(OptionComponent<CMesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh")
@@ -91,26 +96,26 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
       ->description("Action to execute boundary conditions. Tag component with \"bc\" for automatic detection")
       ->pretty_name("Boundary Conditions");
 
-  // Signals
+  // signals
+
   regist_signal( "create_bc_action" )
-    ->connect( boost::bind( &FlowSolver::signal_create_bc_action, this, _1 ) )
-    ->description("Create Boundary Condition")
-    ->pretty_name("Create Boundary Condition");
+      ->connect( boost::bind( &FlowSolver::signal_create_bc_action, this, _1 ) )
+      ->signature( boost::bind( &FlowSolver::signature_create_bc_action, this, _1 ) )
+      ->description("Create Boundary Condition")
+      ->pretty_name("Create Boundary Condition");
 
   regist_signal( "create_inner_action" )
-    ->connect( boost::bind( &FlowSolver::signal_create_inner_action, this, _1 ) )
-    ->description("Create Inner Domain action")
-    ->pretty_name("Create Inner Domain action");
-
+      ->connect( boost::bind( &FlowSolver::signal_create_inner_action, this, _1 ) )
+      ->signature( boost::bind( &FlowSolver::signature_create_inner_action, this, _1 ) )
+      ->description("Create Inner Domain action")
+      ->pretty_name("Create Inner Domain action");
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 FlowSolver::~FlowSolver()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::setup()
 {
@@ -157,7 +162,6 @@ void FlowSolver::setup()
   }
 }
 
-//////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::auto_config(Component& component)
 {
@@ -169,7 +173,6 @@ void FlowSolver::auto_config(Component& component)
     component.configure_option_recursively(field.name(), field.uri());
 }
 
-//////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::solve()
 {
@@ -182,7 +185,11 @@ void FlowSolver::solve()
   m_solve.lock()->execute();
 }
 
-////////////////////////////////////////////////////////////////////////////////
+void FlowSolver::execute()
+{
+  solve();
+}
+
 
 CAction& FlowSolver::create_solve(const std::string& name, const std::string& solve_builder_name)
 {
@@ -191,7 +198,6 @@ CAction& FlowSolver::create_solve(const std::string& name, const std::string& so
   return *m_solve.lock();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CAction& FlowSolver::create_setup(const std::string& name, const std::string& setup_builder_name)
 {
@@ -199,7 +205,6 @@ CAction& FlowSolver::create_setup(const std::string& name, const std::string& se
   return *m_setup.lock();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CAction& FlowSolver::create_bc_action(const std::string& name, const std::string& builder_name, const std::vector<CRegion::ConstPtr>& regions)
 {
@@ -216,7 +221,6 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
   return bc_action;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CAction& FlowSolver::create_bc_action(const std::string& name, const std::string& builder_name, const CRegion& region)
 {
@@ -225,7 +229,6 @@ CAction& FlowSolver::create_bc_action(const std::string& name, const std::string
                           std::vector<CRegion::ConstPtr>(1,region.as_ptr<CRegion>()));
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CAction& FlowSolver::create_inner_action(const std::string& name, const std::string& builder_name, const std::vector<CRegion::ConstPtr>& regions)
 {
@@ -242,7 +245,6 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
   return inner_action;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CAction& FlowSolver::create_inner_action(const std::string& name, const std::string& builder_name, const CRegion& region)
 {
@@ -251,7 +253,6 @@ CAction& FlowSolver::create_inner_action(const std::string& name, const std::str
                              std::vector<CRegion::ConstPtr>(1,region.as_ptr<CRegion>()));
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::signal_create_bc_action( SignalArgs& node )
 {
@@ -268,7 +269,6 @@ void FlowSolver::signal_create_bc_action( SignalArgs& node )
   create_bc_action(name,builder,regions);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::signature_create_bc_action( SignalArgs& node )
 {
@@ -299,7 +299,6 @@ void FlowSolver::signature_create_bc_action( SignalArgs& node )
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::signal_create_inner_action( SignalArgs& node )
 {
@@ -316,7 +315,6 @@ void FlowSolver::signal_create_inner_action( SignalArgs& node )
   create_bc_action(name,builder,regions);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FlowSolver::signature_create_inner_action( SignalArgs& node )
 {
@@ -336,7 +334,7 @@ void FlowSolver::signature_create_inner_action( SignalArgs& node )
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
 } // CF
