@@ -22,8 +22,8 @@ namespace CF {
 namespace TestActions {
 
 /// Class defines the initialization and termination of the library Actions
-class LibTestActions : public Common::CLibrary
-{
+class LibTestActions : public Common::CLibrary {
+
 public:
 
   typedef boost::shared_ptr<LibTestActions> Ptr;

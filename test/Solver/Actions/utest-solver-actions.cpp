@@ -59,18 +59,21 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   // Read mesh from file
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_mesh_into("rotation-tg-p1.neu",*mesh);
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/default_id1084/inlet"))
-                                    (URI("cpath://Root/mesh/topology/default_id1084/outlet"));
+
+  std::cout << root->tree() <<std::endl;
+
+  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/rotation/inlet"))
+                                    (URI("cpath://Root/mesh/topology/rotation/outlet"));
 
 
-	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
-	node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
-	node_loop2->configure_option("regions",regions);
-	CFinfo << "\n\n\nNode loop 2 " << CFendl;
-	node_loop2->execute();
+  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+  CLoop::Ptr node_loop2 = root->create_component_ptr< CForAllNodes2 >("node_loop");
+  node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+  node_loop2->configure_option("regions",regions);
+  CFinfo << "\n\n\nNode loop 2 " << CFendl;
+  node_loop2->execute();
 
-	BOOST_CHECK(true);
+  BOOST_CHECK(true);
 
 }
 
@@ -90,14 +93,14 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMeshTransformer::Ptr facebuilder = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
   //facebuilder->transform(mesh);
 
-	// Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
-	CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
-	face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
-	face_loop->configure_option("regions",regions);
-	CFinfo << "\n\n\nFace loop" << CFendl;
-	face_loop->execute();
+  // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
+  CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
+  face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+  face_loop->configure_option("regions",regions);
+  CFinfo << "\n\n\nFace loop" << CFendl;
+  face_loop->execute();
 
-	BOOST_CHECK(true);
+  BOOST_CHECK(true);
 
   CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
@@ -126,8 +129,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
 
-	CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
-	node_loop->configure_option("regions",regions);
+  CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
+  node_loop->configure_option("regions",regions);
 
   node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
   node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_option("Field",field.uri());
@@ -149,7 +152,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CComputeVolume::Ptr compute_volume = root.create_component_ptr<CComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  CElements& elems = root.access_component("//Root/mesh/topology/default_id1084/fluid/Triag").as_type<CElements>();
+  CElements& elems = root.access_component("//Root/mesh/topology/rotation/fluid/Triag").as_type<CElements>();
   BOOST_CHECK(true);
   compute_volume->configure_option("Volume",volumes.uri());
   BOOST_CHECK(true);

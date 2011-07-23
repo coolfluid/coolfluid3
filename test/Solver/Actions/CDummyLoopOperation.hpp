@@ -22,8 +22,8 @@ namespace TestActions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class CDummyLoopOperation : public Solver::Actions::CLoopOperation
-{
+class CDummyLoopOperation : public Solver::Actions::CLoopOperation {
+
 public: // typedefs
 
   /// pointers
@@ -40,18 +40,18 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CDummyLoopOperation"; }
-	
+
   /// execute the action
   virtual void execute ();
-	
-		
+
+
 private: // data
 
 };
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 } // TestActions
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_TestActions_CDummyLoopOperation_hpp

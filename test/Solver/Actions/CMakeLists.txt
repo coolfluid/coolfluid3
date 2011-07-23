@@ -1,17 +1,17 @@
 ################################################################################
 # test Component CAction
 
-list( APPEND utest-actions_cflibs coolfluid_solver_actions coolfluid_mesh_actions coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neu)
-list( APPEND utest-actions_files
+list( APPEND utest-solver-actions_cflibs coolfluid_solver_actions coolfluid_mesh_actions coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neu)
+list( APPEND utest-solver-actions_files
   CDummyLoopOperation.hpp
   CDummyLoopOperation.cpp
-  utest-actions.cpp )
+  utest-solver-actions.cpp )
 
-coolfluid_add_unit_test( utest-actions )
+coolfluid_add_unit_test( utest-solver-actions )
 
 list( APPEND mesh_files  rotation-tg-p1.neu  rotation-qd-p1.neu  )
 foreach( mfile ${mesh_files} )
-  add_custom_command(TARGET utest-actions
+  add_custom_command(TARGET utest-solver-actions
                      POST_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/${mfile} ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                     )
