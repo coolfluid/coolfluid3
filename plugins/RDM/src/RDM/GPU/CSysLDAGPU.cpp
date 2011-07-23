@@ -18,7 +18,7 @@
 #include "Physics/Variables.hpp"
 
 #include "RDM/Tags.hpp"
-#include "RDM/CellLoop.hpp"
+#include "RDM/GPU/CellLoopGPU.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
 using namespace CF::Common;
