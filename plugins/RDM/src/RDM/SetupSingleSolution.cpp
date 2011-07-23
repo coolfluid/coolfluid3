@@ -106,7 +106,11 @@ void SetupSingleSolution::execute()
 
   /// @todo fix parallelization is not working
 
-//  solution->parallelize();
+  solution->parallelize();
+
+  std::vector<URI> sync_fields;
+  sync_fields.push_back( solution->uri() );
+  mysolver.actions().get_child("Synchronize").configure_option("Fields", sync_fields);
 
 }
 

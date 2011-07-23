@@ -11,6 +11,7 @@
 #include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/EventHandler.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMeshTransformer.hpp"
@@ -40,6 +41,7 @@ struct CDomain::Implementation
   {
   }
 
+
   void signature_load_mesh( Common::SignalArgs& node )
   {
     SignalOptions options( node );
@@ -56,6 +58,7 @@ struct CDomain::Implementation
         ->description("Name for the mesh to load");
   }
 
+
   void signature_write_mesh( Common::SignalArgs& node )
   {
     SignalOptions options( node );
@@ -68,8 +71,10 @@ struct CDomain::Implementation
         ->cast_to<OptionURI>()->set_supported_protocols(schemes);
   }
 
+
   Component& m_component;
   boost::weak_ptr<WriteMesh> m_write_mesh;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -100,6 +105,7 @@ CDomain::CDomain( const std::string& name  ) :
 }
 
 
+
 CDomain::~CDomain() {}
 
 
@@ -112,14 +118,25 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
       find_component<LoadMesh>( tools );
 
   CMesh::Ptr mesh = create_component_ptr<CMesh>(name);
+
   mesh_loader.load_mesh_into(file, *mesh);
 
   // rebalance the mesh if necessary and create global idx and ranks
-// not working ? //   tools.get_child("LoadBalancer").as_type<CMeshTransformer>().transform( mesh );
 
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
       ->transform(mesh);
-  
+
+  // raise an event to indicate that a mesh was rebalanced (changed)
+  // in serial it is important still to raise the event
+  // considering it like a rebalance that had no effect
+
+  SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh->uri());
+  options.add_option< OptionT<bool> >("mesh_rebalanced", true);
+
+  SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_changed", f );
+
   return *mesh;
 }
 

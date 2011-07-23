@@ -93,8 +93,8 @@ private: // helper functions
   /// Triggered when the mesh is configured
   void config_mesh();
 
-  /// Called when a mesh changed
-  virtual void mesh_loaded(Mesh::CMesh& mesh);
+  /// Triggered when the event mesh_changed
+  void on_mesh_changed_event( Common::SignalArgs& args );
 
 private: // data
 

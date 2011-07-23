@@ -12,6 +12,9 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/LibLoader.hpp"
+#include "Common/EventHandler.hpp"
+
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -19,8 +22,8 @@
 #include "Physics/Variables.hpp"
 
 #include "Solver/Actions/CSynchronizeFields.hpp"
-#include "RDM/Tags.hpp"
 
+#include "RDM/Tags.hpp"
 #include "RDM/InitialConditions.hpp"
 #include "RDM/BoundaryConditions.hpp"
 #include "RDM/DomainDiscretization.hpp"
@@ -30,6 +33,7 @@
 #include "RDM/SetupSingleSolution.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Physics;
 using namespace CF::Solver;
@@ -101,6 +105,10 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   m_actions->create_component_ptr<CSynchronizeFields>("Synchronize");
 
+  // listen to mesh_updated events, emitted by the domain
+
+  Core::instance().event_handler().connect_to_event("mesh_changed", this, &RDSolver::on_mesh_changed_event);
+
 }
 
 
@@ -126,8 +134,6 @@ Common::CGroup& RDSolver::fields()  { return *m_fields; }
 
 void RDSolver::execute()
 {
-  CFinfo << "[RDM] solver" << CFendl;
-
   m_time_stepping->execute();
 }
 
@@ -195,10 +201,13 @@ void RDSolver::config_mesh()
     comp.configure_option_recursively( RDM::Tags::mesh(), mesh.uri() );
 }
 
-
-void RDSolver::mesh_loaded(CMesh& mesh)
+void RDSolver::on_mesh_changed_event( SignalArgs& args )
 {
-  configure_option( RDM::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
+  SignalOptions options( args );
+
+  URI mesh_uri = options.value<URI>("mesh_uri");
+
+  configure_option( RDM::Tags::mesh(), mesh_uri ); // trigger config_mesh()
 }
 
 

@@ -52,6 +52,8 @@ public: // functions
 
   /// Called when a mesh is loaded into the domain that is associated with this solver
   virtual void mesh_loaded(Mesh::CMesh& mesh);
+  /// Called when a mesh is changed into the domain that is associated with this solver
+  virtual void mesh_changed(Mesh::CMesh& mesh);
 
 protected:
 
