@@ -104,6 +104,8 @@ void SetupSingleSolution::execute()
 
   // parallelize the solution if not yet done
 
+  /// @todo fix parallelization is not working
+
 //  solution->parallelize();
 
 }
