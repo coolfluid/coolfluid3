@@ -7,23 +7,22 @@
 #ifndef CF_RDM_CellLoopGPU_hpp
 #define CF_RDM_CellLoopGPU_hpp
 
-#include "RDM/ElementLoop.hpp"
+#include "RDM/CellLoop.hpp"
 #include "RDM/SupportedCells.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace RDM {
 
-//------------------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
 
 /// CellLoopGPU defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism over Cells.
 template < typename ACTION, typename PHYS>
-struct CellLoopGPU : public ElementLoop
+struct CellLoopGPU : public CellLoop
 {
   /// Constructor
-  CellLoopGPU( const std::string& name ) : ElementLoop(name) {  regist_typeinfo(this); }
+  CellLoopGPU( const std::string& name ) : CellLoop(name) {  regist_typeinfo(this); }
 
   /// Get the class name
   static std::string type_name () { return "CellLoopGPU<" + ACTION::type_name() + "," + PHYS::type_name() + ">"; }
@@ -67,11 +66,9 @@ struct CellLoopGPU : public ElementLoop
 
 }; // CellLoopGPU
 
-//------------------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_CellLoopGPU_hpp

@@ -53,7 +53,7 @@ void CSysLDAGPU::execute()
                         .as_type<Physics::Variables>()
                         .type();
 
-      loop = build_component_abstract_type_reduced< CellLoopGPU >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");
+      loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");
       add_component(loop);
   }
   else
