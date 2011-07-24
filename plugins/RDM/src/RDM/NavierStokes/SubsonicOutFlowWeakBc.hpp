@@ -7,8 +7,6 @@
 #ifndef CF_RDM_SubsonicOutFlowWeakBc_hpp
 #define CF_RDM_SubsonicOutFlowWeakBc_hpp
 
-#include <iostream> // to remove
-
 #include "Math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"

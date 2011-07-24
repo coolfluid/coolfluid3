@@ -7,8 +7,6 @@
 #ifndef CF_RDM_WallEdwinBc_hpp
 #define CF_RDM_WallEdwinBc_hpp
 
-#include <iostream> // to remove
-
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 

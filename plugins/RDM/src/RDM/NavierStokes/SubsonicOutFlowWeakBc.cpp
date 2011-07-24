@@ -26,20 +26,22 @@ using namespace CF::Solver;
 namespace CF {
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SubsonicOutFlowWeakBc, RDM::BoundaryTerm, LibRDM > SubsonicOutFlowWeakBc_Builder;
+Common::ComponentBuilder < SubsonicOutFlowWeakBc,
+                           RDM::BoundaryTerm,
+                           LibRDM > SubsonicOutFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > SubsonicOutFlowWeakBc_Euler2D_Builder;
+Common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>,
+                           RDM::FaceLoop,
+                           LibRDM > SubsonicOutFlowWeakBc_Euler2D_Builder;
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
   RDM::BoundaryTerm(name)
 {
   regist_typeinfo(this);
-
-  std::cout << FromHere().short_str() << std::endl;
 
   // options
 
@@ -48,23 +50,14 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
       ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
       ->mark_basic();
 
-  std::cout << FromHere().short_str() << std::endl;
-
   pressure_function.variables("x,y,z");
-
-  std::cout << FromHere().short_str() << std::endl;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void SubsonicOutFlowWeakBc::config_pressure_function()
 {
-  std::cout << FromHere().short_str() << std::endl;
-
   pressure_function.functions( m_options["p_out"].value< std::string >() );
   pressure_function.parse();
-
-  std::cout << FromHere().short_str() << std::endl;
 }
 
 
@@ -76,14 +69,9 @@ void SubsonicOutFlowWeakBc::execute()
 
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-
-//    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;
-
     loop.select_region( region );
 
-    // loop all elements of this region
-
-    loop.execute();
+    loop.execute(); // loop all elements of this region
   }
 }
 

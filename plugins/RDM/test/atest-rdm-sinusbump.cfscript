@@ -24,7 +24,7 @@ call Model/Domain/load_mesh file:uri=file:sinusbump-tg-p1-1344.msh
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=10
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.01
 
 ### initial conditions
@@ -49,7 +49,7 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
 configure Model/RDSolver/BoundaryConditions/OUTLET p_out:string=101325.0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=WALLS  Type:string=CF.RDM.SubsonicOutFlowWeakBc \
+     Name:string=WALLS  Type:string=CF.RDM.WallWeakBc \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/LowerWall,//Root/Model/Domain/mesh/topology/UpperWall
 
 ### domain discretization
