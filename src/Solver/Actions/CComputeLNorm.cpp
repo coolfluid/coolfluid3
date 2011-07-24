@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-#include "Common/Log.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -18,7 +18,6 @@
 
 #include "Solver/Actions/CComputeLNorm.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -27,11 +26,71 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void compute_L2( CTable<Real>::ArrayT& array, Real& norm )
+{
+  const int size = 1; // sum 1 value in each processor
+
+  Real loc_norm = 0.; // norm on local processor
+  Real glb_norm = 0.; // norm summed over all processors
+
+  boost_foreach(CTable<Real>::ConstRow row, array )
+      loc_norm += row[0]*row[0];
+
+  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+
+  norm = std::sqrt(glb_norm);
+}
+
+void compute_L1( CTable<Real>::ArrayT& array, Real& norm )
+{
+  const int size = 1; // sum 1 value in each processor
+
+  Real loc_norm = 0.; // norm on local processor
+  Real glb_norm = 0.; // norm summed over all processors
+
+  boost_foreach(CTable<Real>::ConstRow row, array )
+      loc_norm += std::abs( row[0] );
+
+  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+}
+
+void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
+{
+  const int size = 1; // sum 1 value in each processor
+
+  Real loc_norm = 0.; // norm on local processor
+  Real glb_norm = 0.; // norm summed over all processors
+
+  boost_foreach(CTable<Real>::ConstRow row, array )
+      loc_norm = std::max( std::abs(row[0]), loc_norm );
+
+  mpi::PE::instance().all_reduce( mpi::max(), &loc_norm, size, &glb_norm );
+
+  norm = glb_norm;
+}
+
+void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
+{
+  const int size = 1; // sum 1 value in each processor
+
+  Real loc_norm = 0.; // norm on local processor
+  Real glb_norm = 0.; // norm summed over all processors
+
+  boost_foreach(CTable<Real>::ConstRow row, array )
+    loc_norm += std::pow( std::abs(row[0]), (int)order ) ;
+
+  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+
+  norm = std::pow(glb_norm, 1./order );
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CComputeLNorm, CAction, LibActions > CComputeLNorm_Builder;
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 {
@@ -53,7 +112,6 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
       ->description("Field for which to compute the norm");
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void CComputeLNorm::execute()
 {
@@ -69,27 +127,21 @@ void CComputeLNorm::execute()
   Real norm = 0.;
 
   const Uint order = m_options.option("Order").value<Uint>();
-  switch(order)
-  {
-  case 2: // L2
-    boost_foreach(CTable<Real>::ConstRow row, array )
-        norm += row[0]*row[0];
-    norm = std::sqrt(norm);
-    break;
-  case 1: // L1
-    boost_foreach(CTable<Real>::ConstRow row, array )
-        norm += std::abs( row[0] );
-    break;
-  case 0: // treat as Linf
-    boost_foreach(CTable<Real>::ConstRow row, array )
-        norm += std::max( std::abs(row[0]), norm );
-    break;
-  default: // Lp
-    boost_foreach(CTable<Real>::ConstRow row, array )
-        norm += std::abs( pow(row[0], order) );
-    norm = std::pow(norm, 1./order );
-    break;
+
+  // sum of all processors
+
+  switch(order) {
+
+  case 2:  compute_L2( array, norm );    break;
+
+  case 1:  compute_L1( array, norm );    break;
+
+  case 0:  compute_Linf( array, norm );  break; // consider order 0 as Linf
+
+  default: compute_Lp( array, norm, order );    break;
+
   }
+
 
   if( m_options.option("Scale").value<bool>() && order )
     norm /= nbrows;
@@ -102,6 +154,3 @@ void CComputeLNorm::execute()
 } // Actions
 } // Solver
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////////
-

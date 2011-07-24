@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
@@ -67,7 +66,6 @@ void CSynchronizeFields::execute()
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 
-    CFinfo << " synchronizing field [" << ptr.lock()->uri().string() << "]" << CFendl;
     ptr.lock()->synchronize();
   }
 }
