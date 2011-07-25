@@ -326,13 +326,13 @@ void CNodeTest::test_modifyOptions()
 
 void CNodeTest::test_listProperties()
 {
-  MyNode node("MyNode");
-  PropertyList& list = node.properties();
-  int itemCount = list.store.size() + node.options().store.size();
+  MyNode::Ptr node( new MyNode("MyNode") );
+  PropertyList& list = node->properties();
+  int itemCount = list.store.size() + node->options().store.size();
   QMap<QString, QString> map;
   PropertyList::PropertyStorage_t::iterator it = list.begin();
 
-  node.listProperties(map);
+  node->listProperties( map );
 
   QCOMPARE( itemCount, map.size() );
 

@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QMutex>
-#include <QDebug>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -594,8 +593,6 @@ void NTree::list_tree_reply(SignalArgs & args)
 
 
   //QMutexLocker locker(m_mutex);
-
-  qDebug() << "updating tree...";
   emit beginResetModel();
 
   try
