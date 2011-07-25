@@ -17,7 +17,7 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:rotation-tg.msh
+call Model/Domain/load_mesh file:uri=file:rotation-tg-p1.neu
 
 ### solver
 
