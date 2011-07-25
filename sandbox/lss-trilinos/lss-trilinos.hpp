@@ -117,17 +117,22 @@ public:
 
     // blockmap
     int nmyglobalelements=0;
+    int maxrowentries=0;
     std::vector<int> myglobalelements(0);
-    std::vector<int> elementsizelist(0);
+    std::vector<int> rowelements(0);
     for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     {
       if (cp.isUpdatable()[i])
       {
         ++nmyglobalelements;
         myglobalelements.push_back((int)gid[i]);
-        elementsizelist.push_back((int)(starting_indices[i+1]-starting_indices[i]));
+        rowelements.push_back((int)(starting_indices[i+1]-starting_indices[i]));
+        maxrowentries=maxrowentries<(starting_indices[i+1]-starting_indices[i])?(starting_indices[i+1]-starting_indices[i]):maxrowentries;
       }
     }
+    std::vector<int> elementsizelist(nmyglobalelements,3);
+    std::vector<double>dummy_entries(maxrowentries*9,0.);
+    std::vector<int>global_columns(maxrowentries);
 
     Epetra_BlockMap bm(-1,nmyglobalelements,&myglobalelements[0],&elementsizelist[0],0,m_comm);
     myglobalelements.resize(0);
@@ -138,10 +143,25 @@ public:
 //PEProcessSortedExecute(-1,bm.Print(std::cout););
 
     // matrix
-    //m_matrix=new Epetra_FEVbrMatrix();
+    m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,bm,&elementsizelist[0]));
+    bm.~Epetra_BlockMap();
 
+    for(int i=0; i<(const int)nmyglobalelements; i++)
+    {
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[node_connectivity[j]];
+      m_matrix->BeginInsertGlobalValues(gid[i],rowelements[i],&global_columns[0]);
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
+      {
+        m_matrix->SubmitBlockEntry(&dummy_entries[0],0,1,1);
+      }
+      m_matrix->EndSubmitEntries();
+    }
+    m_matrix->FillComplete();
+
+//PEProcessSortedExecute(-1,m_matrix->Print(std::cout););
 
   }
+
 
   //@} END CREATION AND DESTRUCTION
 
@@ -216,14 +236,6 @@ public: // for testing purposes and direct access of trilinos own debug
 
   /// the actual matrix wrapped into teuchos's smart pointer
   Teuchos::RCP<Epetra_FEVbrMatrix> m_matrix;
-
-  /// sparsity pattern of the block
-  RealMatrix block_sparsity;
-
-  /// row-wise sum of the nonzero
-  RealVector block_sparsity_count;
-
-
 
 }; // end of class LSSTrilinosMatrix
 
