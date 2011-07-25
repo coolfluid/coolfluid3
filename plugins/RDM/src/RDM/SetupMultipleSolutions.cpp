@@ -19,14 +19,12 @@
 
 #include "SetupMultipleSolutions.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -87,6 +85,15 @@ void SetupMultipleSolutions::execute()
     wave_speed->add_tag(Tags::wave_speed());
   }
 
+  // configure phi_k
+
+//  CField::Ptr phi_k = find_component_ptr_with_tag<CField>( mesh, "phi_k");
+//  if ( is_null( phi_k ) )
+//  {
+//    phi_k = mesh.create_field( "phi_k", CField::CELL_BASED ).as_ptr<CField>();
+//    phi_k->add_tag("phi_k");
+//  }
+
   // place link to the fields in the Fields group
 
   if( ! fields.get_child_ptr( RDM::Tags::solution() ) )
@@ -101,7 +108,11 @@ void SetupMultipleSolutions::execute()
 
   // parallelize the solution if not yet done
 
-//  solution->parallelize();
+  solution->parallelize();
+
+  std::vector<URI> sync_fields;
+  sync_fields.push_back( solution->uri() );
+  mysolver.actions().get_child("Synchronize").configure_option("Fields", sync_fields);
 
 }
 

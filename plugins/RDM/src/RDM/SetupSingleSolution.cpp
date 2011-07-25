@@ -19,14 +19,12 @@
 
 #include "SetupSingleSolution.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
 
 namespace CF {
 namespace RDM {
-
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,8 +101,6 @@ void SetupSingleSolution::execute()
   /// @todo apply here the bubble insertion if needed
 
   // parallelize the solution if not yet done
-
-  /// @todo fix parallelization is not working
 
   solution->parallelize();
 
