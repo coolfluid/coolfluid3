@@ -112,9 +112,17 @@ int main(int argc, char *argv[])
       CCore::Ptr sk = ServerRoot::core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-      sk->listenToPort(port);
+      sk->listenToPort(port); // start listening to the network
 
-      message = message.arg(hostInfo.addresses().at(0).toString())
+      QList<QHostAddress> addrs = hostInfo.addresses();
+      QString ip;
+
+      if( addrs.isEmpty() )
+        ip = "<unknown IP address>";
+      else
+        ip = hostInfo.addresses().at(0).toString();
+
+      message = message.arg(ip)
                 .arg(QHostInfo::localHostName())
                 .arg(port);
 
