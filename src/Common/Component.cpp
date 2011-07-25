@@ -77,7 +77,7 @@ Component::Component ( const std::string& name ) :
       ->connect( boost::bind( &Component::signal_list_options, this, _1 ) )
       ->hidden(true)
       ->description("lists the options of this component")
-      ->pretty_name("List properties");
+      ->pretty_name("List options");
 
   regist_signal( "list_signals" )
       ->connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
