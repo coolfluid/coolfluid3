@@ -56,7 +56,7 @@ Signal* Signal::read_only( bool is )
 
 Signal* Signal::hidden( bool is )
 {
-  m_is_read_only = is;
+  m_is_hidden = is;
   return this;
 }
 
