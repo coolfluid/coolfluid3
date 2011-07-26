@@ -37,12 +37,17 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=0.0
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=INLET \
      Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=\
-//Root/Model/Domain/mesh/topology/bottom,\
-//Root/Model/Domain/mesh/topology/left,\
-//Root/Model/Domain/mesh/topology/right
+     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
 
-configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
+configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+     Name:string=FARFIELD \
+     Type:string=CF.RDM.BcDirichlet \
+     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/farfield
+
+configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.
+
 ### domain discretization
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
@@ -53,8 +58,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rotationadv2d-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-rotationadv2d-gpu-initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rotationadv2d-solution.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-rotationadv2d-gpu-solution.msh
