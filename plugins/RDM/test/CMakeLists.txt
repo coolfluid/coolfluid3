@@ -30,8 +30,8 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-lineardiff2d
 ##########################################################################
 # RK atests
 
-coolfluid_add_acceptance_test( NAME    atest-rdm-rk-rotationadv2d
-                               SCRIPT  atest-rdm-rk-rotationadv2d.cfscript )
+coolfluid_add_acceptance_test( NAME    atest-rdm-rk-lineuler2d
+                               SCRIPT  atest-rdm-rk-lineuler2d.cfscript )
 
 ##########################################################################
 # GPU  acceptance tests

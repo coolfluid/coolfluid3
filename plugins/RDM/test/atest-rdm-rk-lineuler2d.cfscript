@@ -10,10 +10,10 @@ configure //Root/Environment assertion_throws:bool=false   \
 
 ### create model
 
-create Wizard CF.RDM.SteadyExplicit
+create Wizard CF.RDM.UnsteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.Scalar.Scalar2D
+                          physical_model:string=CF.Physics.LinEuler.LinEuler2D
 
 configure Wizard  rkorder:unsigned=2
 
@@ -23,7 +23,7 @@ call Model/Domain/load_mesh file:uri=file:square2x2-tg-p1.msh
 
 ### solver
 
-configure Model/RDSolver  update_vars:string=RotationAdv2D
+configure Model/RDSolver  update_vars:string=Cons2D
 
 configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=3000
 configure Model/RDSolver/TimeStepping/TimeLimit time:real=0.0 time_step:real=0.001 end_time:real=0.1
@@ -55,8 +55,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rk-rotationadv2d-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-rk-lineuler2d-initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rk-rotationadv2d-solution.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-rk-lineuler2d-solution.msh
