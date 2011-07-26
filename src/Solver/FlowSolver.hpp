@@ -58,6 +58,7 @@ public: // functions
 
     static const char * solution()       { return "solution"; }
     static const char * residual()       { return "residual"; }
+    /// @todo Willem, wavespeed is only specific for a few problem type. (Th)
     static const char * wave_speed()     { return "wave_speed"; }
     static const char * update_coeff()   { return "update_coeff"; }
     static const char * cfl()            { return "cfl"; }
