@@ -1,6 +1,7 @@
 list( APPEND coolfluid_rdm_schemes_files
   LibSchemes.cpp
   LibSchemes.hpp
+  # steady RD schemes
   CSysLDA.hpp
   CSysLDA.cpp
   CSysLF.hpp
@@ -11,6 +12,9 @@ list( APPEND coolfluid_rdm_schemes_files
   CSysB.cpp
   CSysSUPG.hpp
   CSysSUPG.cpp
+  # unsteady RKRD schemes
+  RKLDA.hpp
+  RKLDA.cpp
 )
 
 list( APPEND coolfluid_rdm_schemes_cflibs coolfluid_rdm )

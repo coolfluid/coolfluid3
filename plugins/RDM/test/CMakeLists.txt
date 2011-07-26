@@ -27,12 +27,8 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-linearadvsys2d
 ##########################################################################
 # RK atests
 
-set( RK_TEST FALSE ) # not yet working
-
 coolfluid_add_acceptance_test( NAME    atest-rdm-rk-rotationadv2d
-                               SCRIPT  atest-rdm-rk-rotationadv2d.cfscript
-                               CONDITIONS RK_TEST )
-
+                               SCRIPT  atest-rdm-rk-rotationadv2d.cfscript )
 
 ##########################################################################
 # GPU  acceptance tests

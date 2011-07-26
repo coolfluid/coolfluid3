@@ -40,6 +40,9 @@ call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
 configure Model/RDSolver/InitialConditions/INIT functions:array[string]=x*x+y*y
 
+# configure Model/RDSolver/InitialConditions use_strong_bcs:bool=true
+
+
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \

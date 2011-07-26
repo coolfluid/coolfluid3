@@ -4,52 +4,47 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_LinEuler_LibLinEuler_hpp
-#define CF_Physics_LinEuler_LibLinEuler_hpp
+#ifndef CF_RDM_LibLinEuler_hpp
+#define CF_RDM_LibLinEuler_hpp
 
+////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLibrary.hpp"
 
-/// Define the macro LinEuler_API
-/// @note build system defines COOLFLUID_PHYSICS_LINEULER_EXPORTS when compiling LinEuler files
-#ifdef COOLFLUID_PHYSICS_LINEULER_EXPORTS
-#   define LinEuler_API      CF_EXPORT_API
-#   define TEMPLATE
+////////////////////////////////////////////////////////////////////////////////
+
+/// Define the macro RDM_LINEULER_API
+/// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
+/// RDM files
+#ifdef COOLFLUID_RDM_LINEULER_EXPORTS
+#   define RDM_LINEULER_API      CF_EXPORT_API
+#   define RDM_TEMPLATE
 #else
-#   define LinEuler_API      CF_IMPORT_API
-#   define LinEuler_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_LINEULER_API      CF_IMPORT_API
+#   define RDM_LINEULER_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
-
 namespace CF {
-namespace Physics {
+namespace RDM {
 
-/// @brief %Linearized Euler equations for sound propagation
-///
-/// LinEuler library
+////////////////////////////////////////////////////////////////////////////////
+
+/// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-namespace LinEuler {
+class RDM_LINEULER_API LibLinEuler : public Common::CLibrary {
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-/// Class defines the LinEuler library
-/// @author Tiago Quintino
-class LinEuler_API LibLinEuler : public Common::CLibrary
-{
 public:
 
   typedef boost::shared_ptr<LibLinEuler> Ptr;
   typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
 
   /// Constructor
-  LibLinEuler ( const std::string& name) : Common::CLibrary(name) { }
-
-  virtual ~LibLinEuler() { }
+  LibLinEuler ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.LinEuler"; }
+  static std::string library_namespace() { return "CF.RDM.LinEuler"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
@@ -62,7 +57,7 @@ public: // functions
 
   static std::string library_description()
   {
-    return "This library implements linearized Euler equations for acoustic propagation";
+    return "This library implements RDM LinEuler terms.";
   }
 
   /// Gets the Class name
@@ -78,11 +73,9 @@ protected:
 
 }; // end LibLinEuler
 
-////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-} // LinEuler
-} // Physics
+} // RDM
 } // CF
 
-#endif // CF_Physics_LinEuler_LibLinEuler_hpp
-
+#endif // CF_RDM_LibLinEuler_hpp

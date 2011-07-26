@@ -12,7 +12,7 @@
 #include "Math/Defs.hpp"
 #include "Math/MatrixTypes.hpp"
 
-#include "LinEuler/LibLinEuler.hpp"
+#include "LibLinEuler.hpp"
 
 namespace CF {
 namespace Physics {

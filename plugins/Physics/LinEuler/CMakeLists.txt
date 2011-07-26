@@ -5,6 +5,8 @@ list( APPEND coolfluid_physics_lineuler_files
   LibLinEuler.hpp
   LinEuler2D.cpp
   LinEuler2D.hpp
+  Cons2D.hpp
+  Cons2D.cpp
 )
 
 list( APPEND coolfluid_physics_lineuler_cflibs coolfluid_physics )
