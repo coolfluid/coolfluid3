@@ -275,7 +275,7 @@ boost::thread & CPEManager::listening_thread()
 void CPEManager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const char * cmd = "../../Tools/Solver/coolfluid-solver";
+  const char * cmd = "../Tools/Solver/coolfluid-solver";
 
   Uint nb_workers = options.value<Uint>("Workers Count");
   std::string name = options.value<std::string>("Name");

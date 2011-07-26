@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     {
       mpi::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<mpi::CPEManager>();
 
-      mgr->spawn_group("Workers", nb_workers, "../../Tools/Solver/coolfluid-solver");
+      mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
     }
 
     // check if the port number is valid and launch the network connection if so
