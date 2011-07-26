@@ -65,3 +65,7 @@ add_subdirectory( lss-trilinos )
 ###############################################################################
 ### inheritance metadata
 add_subdirectory( inheritance )
+
+###############################################################################
+### test the MPI solver spawning 
+add_subdirectory( mpi-solvers-spawning )

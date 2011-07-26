@@ -77,11 +77,11 @@ int main(int argc, char ** argv)
   }
 
   Logger::instance().getStream( INFO ).setFilterRankZero(false);
-  CFinfo << "Worker[" << rank << "] -> " << "Syncing with the parent..." << CFendl;
+  CFinfo << "Worker[" << rank << "] -> " << getpid() << " Syncing with the parent..." << CFendl;
 //  PE::instance().get_parent()->barrier();
   PE::instance().barrier();
   MPI_Barrier( parent_comm );
-  CFinfo << "Worker[" << rank << "] -> " << "Synced with the parent!" << CFendl;
+  CFinfo << "Worker[" << rank << "] -> " << getpid() << " Synced with the parent!" << CFendl;
 
   mgr->listening_thread().join();
 

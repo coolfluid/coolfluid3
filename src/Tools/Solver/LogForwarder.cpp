@@ -43,6 +43,8 @@ void LogForwarder::message(const std::string &data)
   options.add_option< OptionT<std::string> >("message", data);
 //  frame.set_option<std::string>("message", data);
 
+  options.flush();
+
   m_manager->send_to_parent( frame );
 }
 

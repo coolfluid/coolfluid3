@@ -277,9 +277,9 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
   SignalOptions options( args );
   const char * cmd = "../Tools/Solver/coolfluid-solver";
 
-  Uint nb_workers = options.value<Uint>("Workers Count");
-  std::string name = options.value<std::string>("Name");
-  std::string forward = options.value<std::string>("Log Forwarding");
+  Uint nb_workers = options.value<Uint>("count");
+  std::string name = options.value<std::string>("name");
+  std::string forward = options.value<std::string>("log_forwarding");
 
   if(forward == "None")
     forward = "none";
@@ -298,7 +298,7 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
 void CPEManager::signal_kill_group ( SignalArgs & args )
 {
   SignalOptions options(args);
-  std::string group_name = options.value<std::string>("Group to kill");
+  std::string group_name = options.value<std::string>("group");
 
   kill_group( group_name );
 }
@@ -318,7 +318,7 @@ void CPEManager::signal_message ( SignalArgs & args )
 
   std::string msg = options.value<std::string>("message");
 
-  CFinfo << msg << CFendl;
+//  CFinfo << msg << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -345,13 +345,16 @@ void CPEManager::signature_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("Name", std::string())
-      ->description("Name of the new group") ;
+  options.add_option< OptionT<std::string> >("name", std::string())
+      ->pretty_name("Name")
+      ->description("Name of the new group");
 
-  options.add_option< OptionT<Uint> >("Workers Count", Uint(1))
+  options.add_option< OptionT<Uint> >("count", Uint(1))
+      ->pretty_name("Workers Count")
       ->description("Number of workers to spawn.");
 
-  options.add_option< OptionT<std::string> >("Log Forwarding", std::string("None") )
+  options.add_option< OptionT<std::string> >("log_forwarding", std::string("None") )
+      ->pretty_name("Log Forwarding")
       ->description("Defines the way the log is forwarded from the workers.")
       ->restricted_list() += std::string("Only rank 0"), std::string("All ranks");
 
@@ -371,7 +374,8 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
   for(int i = 0 ; it != m_groups.end() ; ++it, ++i )
     groups[i] = it->first;
 
-  options.add_option< OptionT<std::string> >("Group to kill", m_groups.begin()->first )
+  options.add_option< OptionT<std::string> >("group", m_groups.begin()->first )
+      ->pretty_name("Group to kill")
       ->description("Processes belonging to the selected group will be exited.")
       ->restricted_list() = groups;
 }
