@@ -107,6 +107,8 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   solver.mark_basic();
 
+  solver.properties().add_property("rkorder", rkorder); // place it somewhere for other components to access
+
   // (4a) setup time step stop condition
 
   CCriterionTime& time_limit = solver.time_stepping().create_component<CCriterionTime>("TimeLimit");

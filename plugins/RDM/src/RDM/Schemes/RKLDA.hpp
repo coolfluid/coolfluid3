@@ -7,6 +7,10 @@
 #ifndef CF_RDM_Schemes_RKLDA_hpp
 #define CF_RDM_Schemes_RKLDA_hpp
 
+#include "RDM/RDSolver.hpp"
+#include "RDM/IterativeSolver.hpp"
+#include "RDM/TimeStepping.hpp"
+
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
 
@@ -70,6 +74,21 @@ public: // functions
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
+
+    m_options["Elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
+
+    // definition of the alpha and beta coefficients of RK method
+
+    /// @warning RKLDA only supports up to RK4
+
+    #define RK_MAX 4
+
+    rkalphas(RK_MAX,RK_MAX);
+
+    rkalphas(0,0) = 1.0;
+
+    rkbetas (RK_MAX);
+
   }
 
   /// Get the class name
@@ -78,7 +97,24 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+protected: // helper function
+
+  void config_coeffs()
+  {
+    RDSolver& mysolver = parent().as_type<CellTerm>().solver().as_type<RDSolver>();
+    rkorder = mysolver.properties().template value<Uint>("rkorder");
+    step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
+    dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
+  }
+
 protected: // data
+
+  Uint rkorder; ///< order of the RK method
+  Uint step;    ///< current RK step
+  Real dt;      ///< time step size
+
+  RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
+  RealVector rkbetas;   ///< matrix with beta  coefficients of RK method
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
