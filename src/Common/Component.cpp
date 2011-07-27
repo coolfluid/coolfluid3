@@ -439,6 +439,11 @@ Component& Component::get_child(const std::string& name)
   return * get_child_ptr_checked(name);
 }
 
+const Component& Component::get_child(const std::string& name) const
+{
+  return * get_child_ptr_checked(name);
+}
+
 Component::Ptr Component::get_child_ptr(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
@@ -458,6 +463,15 @@ Component::ConstPtr Component::get_child_ptr(const std::string& name) const
 Component::Ptr Component::get_child_ptr_checked(const std::string& name)
 {
   const CompStorage_t::iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return found->second;
+  else
+    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
+}
+
+Component::ConstPtr Component::get_child_ptr_checked(const std::string& name) const
+{
+  const CompStorage_t::const_iterator found = m_components.find(name);
   if(found != m_components.end())
     return found->second;
   else

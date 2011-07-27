@@ -13,6 +13,7 @@
 
 #include "Common/EnumT.hpp"
 #include "Common/Component.hpp"
+#include "Common/FindComponents.hpp"
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CUnifiedData.hpp"
 
@@ -110,10 +111,16 @@ public: // functions
 
   boost::iterator_range< Common::ComponentIterator<CEntities> > elements_range();
 
+  Common::ComponentIteratorRange<Field> fields();
+
+  Field& field(const std::string& name);
+
+  const Field& field(const std::string& name) const;
+
   CUnifiedData& elements_lookup() { return *m_elements_lookup; }
 
-  void create_continuous_data();
-  
+  void create_connectivity_in_space();
+
 private: // functions
 
   void config_space();

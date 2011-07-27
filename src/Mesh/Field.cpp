@@ -228,6 +228,29 @@ CRegion& Field::topology()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Field::set_field_group(FieldGroup& field_group)
+{
+  m_field_group = field_group.as_ptr<FieldGroup>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const FieldGroup& Field::field_group() const
+{
+  cf_assert(m_field_group.expired() == false);
+  return *m_field_group.lock();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& Field::field_group()
+{
+  cf_assert(m_field_group.expired() == false);
+  return *m_field_group.lock();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void Field::resize(const Uint size)
 {
   Uint row_size(0);

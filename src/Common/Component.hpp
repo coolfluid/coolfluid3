@@ -250,6 +250,10 @@ public: // functions
   Component& get_child(const std::string& name);
 
   /// Gets the named child component from the list of direct subcomponents.
+  /// @return reference to the component
+  const Component& get_child(const std::string& name) const;
+
+  /// Gets the named child component from the list of direct subcomponents.
   /// @post pointer may be null
   /// @return shared pointer to the component
   Ptr get_child_ptr(const std::string& name);
@@ -264,6 +268,12 @@ public: // functions
   /// @post pointer is never null
   /// @return shared pointer to the component
   Ptr get_child_ptr_checked(const std::string& name);
+
+  /// Gets the named child component from the list of direct subcomponents.
+  /// @throws ValueNotFound in case a component with given name is not found
+  /// @post pointer is never null
+  /// @return shared pointer to the component
+  ConstPtr get_child_ptr_checked(const std::string& name) const;
 
   /// returns an iterator range with the children of this component
   boost::iterator_range<iterator> children();

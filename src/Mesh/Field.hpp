@@ -81,6 +81,12 @@ public: // functions
 
   CRegion& topology();
 
+  void set_field_group(FieldGroup& field_group);
+
+  const FieldGroup& field_group() const;
+
+  FieldGroup& field_group();
+
   virtual void resize(const Uint size);
 
 private:
@@ -96,6 +102,7 @@ private:
 protected:
 
   boost::weak_ptr<CRegion> m_topology;
+  boost::weak_ptr<FieldGroup> m_field_group;
 
 };
 

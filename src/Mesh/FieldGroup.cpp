@@ -238,6 +238,7 @@ Field& FieldGroup::create_field(const std::string &name, const std::string &vari
   }
 
   Field& field = create_component<Field>(name);
+  field.set_field_group(*this);
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.configure_option("var_names",names);
@@ -274,6 +275,27 @@ boost::iterator_range< Common::ComponentIterator<CEntities> > FieldGroup::elemen
   ComponentIterator<CEntities> begin_iter(elements_vec,0);
   ComponentIterator<CEntities> end_iter(elements_vec,elements_vec.size());
   return boost::make_iterator_range(begin_iter,end_iter);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentIteratorRange<Field> FieldGroup::fields()
+{
+  return find_components<Field>(*this);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Field& FieldGroup::field(const std::string& name) const
+{
+  return get_child(name).as_type<Field>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::field(const std::string& name)
+{
+  return get_child(name).as_type<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -343,7 +365,14 @@ void FieldGroup::update()
   }
   else
   {
-    /// @todo build nodes size in case of POINT_BASED
+    if (m_space != CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES))
+    {
+      boost_foreach(CEntities& entities, find_components_recursively<CEntities>(topology()))
+      {
+        entities.space(m_space).connectivity().resize(0);
+      }
+      create_connectivity_in_space();
+    }
   }
 
   check_sanity();
@@ -363,7 +392,7 @@ std::size_t hash_value(const RealMatrix& coords)
   return seed;
 }
 
-void FieldGroup::create_continuous_data()
+void FieldGroup::create_connectivity_in_space()
 {
   if (m_topology->is_linked() == false)
     throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
