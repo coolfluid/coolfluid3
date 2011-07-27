@@ -127,7 +127,7 @@ void SignatureDialog::btOkClicked()
     }
     else
     {
-      QStringList value = options[it.key()].split("@@");
+      QStringList value = options[it.key()].split(";");
       QStringList::iterator itValue = value.begin();
 
       std::string delim(optionNode.content->first_attribute( Protocol::Tags::attr_array_delimiter() )->value());
