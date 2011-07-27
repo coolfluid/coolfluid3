@@ -105,7 +105,116 @@ protected: // data
 template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
-  // get element connectivity
+#if 0
+  // get:
+    // - current k step (kstep)
+    // - the total nb_steps (nb_steps)
+    // - time step dt (dt)
+    // - RK alpha coef matrix (alpha)
+    // - Rk beta coef matrix (beta)
+
+    // initialize things
+
+    //compute delta u_s
+
+    for ( Uint s = 0 ; s < nb_states ; ++s) // nb_states = number of solution points
+    {
+
+        for ( Uint p = 0 ; p < nb_steps ; ++p)
+        {
+
+            for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
+            {
+                du[s][eq] += beta(p,kstep) * kstates ( eq , p );
+            }
+        }
+    }
+
+    // loop over each quadrature point
+
+    // get element connectivity
+
+    const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+
+    B::interpolate( nodes_idx );
+
+    // L(N)+ @ each quadrature point
+
+    for(Uint q = 0 ; q < QD::nb_points ; ++q)
+    {
+        // add mass matrix contribution
+            // there isn't a way to compute it automatically, yet
+
+        // compute the contributions to phi_i
+        B::sol_gradients_at_qdpoint(q);
+
+        PHYS::compute_properties(B::X_q.row(q),
+                                 B::U_q.row(q),
+                                 B::dUdXq,
+                                 B::phys_props);
+
+        for( Uint n = 0 ; n < SF::nb_nodes ; ++n)
+        {
+          B::dN[XX] = B::dNdX[XX](q,n);
+          B::dN[YY] = B::dNdX[YY](q,n);
+
+          PHYS::flux_jacobian_eigen_structure(B::phys_props,
+                                         B::dN,
+                                         Rv,
+                                         Lv,
+                                         Dv );
+
+          // diagonal matrix of positive eigen values
+
+          DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+
+          Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+        }
+
+        // compute L(u)
+
+        PHYS::residual(B::phys_props,
+                 B::dFdU,
+                 B::LU );
+
+        // compute L(N)+
+
+        sumLplus = Ki_n[0];
+        for(Uint n = 1 ; n < SF::nb_nodes ; ++n) Ki_n[n];
+          sumLplus += Ki_n[n];
+
+          // invert the sum L plus
+
+        InvKi_n = sumLplus.inverse();
+
+        // compute the phi_i LDA integral
+
+        LUwq = InvKi_n * B::LU * B::wj[q];
+
+        for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+          B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // save the phi_i
+            // save B::Phi_n.row
+            Phin.row() += Phi_n.row(n) ;
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // compute contribution to wave_speed
+
+        for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+          (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
+
+    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // update the residual (according to k)
+    for ( Uint r = 0 ; r <= kstep ; ++r )
+    {
+        residual += alpha(r,kstep) * dt * Phin(); // because we added the mass*du contribution before
+    }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+#endif
+
+#if 0
+    // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
@@ -178,7 +287,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);
 
-
+#endif
   // debug
 
   //  std::cout << "LDA ELEM [" << idx() << "]" << std::endl;
