@@ -334,9 +334,11 @@ set( utest-mesh-simplemeshgenerator_mpi_nprocs 2 )
 coolfluid_add_unit_test( utest-mesh-simplemeshgenerator )
 
 ##########################################################################
-# test simple mesh generator
+# test parallel overlap
+
 list( APPEND utest-mesh-parallel-overlap_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_actions coolfluid_mesh_zoltan coolfluid_mesh_gmsh coolfluid_mesh_neu coolfluid_mesh_tecplot )
 list( APPEND utest-mesh-parallel-overlap_files  utest-mesh-parallel-overlap.cpp )
+list( APPEND utest-mesh-parallel-overlap_resources ${CF_RESOURCE_DIR}/sinusbump-tg-p1.msh ${CF_RESOURCE_DIR}/rotation-tg-p1.neu )
 
 set( utest-mesh-parallel-overlap_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-mesh-parallel-overlap_mpi_test   TRUE)
