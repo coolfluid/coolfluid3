@@ -9,23 +9,21 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Component.hpp"
-#include "Common/CLink.hpp"
-
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldGroup.hpp"
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CDynTable.hpp"
 
 namespace CF {
 namespace Mesh {
+
+template <typename T> class CDynTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// CNodes component class
 /// This class stores information about the nodes of the mesh
 /// @author Willem Deconinck
-class Mesh_API CNodes : public Common::Component {
+class Mesh_API CNodes : public Mesh::FieldGroup {
 
 public: // typedefs
 
@@ -44,38 +42,22 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CNodes"; }
 
-  CTable<Real>& coordinates() { return *m_coordinates; }
-  const CTable<Real>& coordinates() const { return *m_coordinates; }
-
-  CList<Uint>& rank() { return *m_rank; }
-  const CList<Uint>& rank() const { return *m_rank; }
+  virtual Field& coordinates() { return *m_coordinates; }
+  virtual const Field& coordinates() const { return *m_coordinates; }
 
   CDynTable<Uint>& glb_elem_connectivity() { return *m_glb_elem_connectivity; }
   const CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
-  CList<Uint>& glb_idx() { return *m_global_numbering; }
-  const CList<Uint>& glb_idx() const { return *m_global_numbering; }
-
-  virtual void resize(const Uint size);
-
-  /// The number of nodes in the mesh
-  Uint size() const { return coordinates().size(); }
-
   /// The dimension for the coordinates of the mesh
   Uint dim() const { return coordinates().row_size(); }
 
-  bool is_ghost(const Uint idx) const;
+  virtual Uint size() const { return coordinates().size(); cf_assert(m_size == coordinates().size()); }
 
 private: // data
 
-  boost::shared_ptr<CTable<Real> > m_coordinates;
+  boost::shared_ptr<Field> m_coordinates;
 
   boost::shared_ptr<CDynTable<Uint> > m_glb_elem_connectivity;
-
-  boost::shared_ptr<CList<Uint> > m_rank;
-
-  boost::shared_ptr<CList<Uint> > m_global_numbering;
-
 };
 
 ////////////////////////////////////////////////////////////////////////////////

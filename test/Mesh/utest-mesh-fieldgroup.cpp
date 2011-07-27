@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_SUITE( FieldGroupTests_TestSuite, FieldGroupTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
-  CSimpleMeshGenerator::create_rectangle(*m_mesh,10.,10.,10u,10u);
+  CSimpleMeshGenerator::create_rectangle(*m_mesh,5.,5.,5u,5u);
 //  Core::instance().root().add_component(m_mesh);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,11 +70,43 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 {
   CMesh& mesh = *m_mesh;
 
-  FieldGroup& fields = mesh.create_component<FieldGroup>("mesh_fields");
+  BOOST_CHECK_NO_THROW(mesh.nodes().check_sanity());
 
-  fields.configure_option("space",std::string("default"));
-  fields.configure_option("type", FieldGroup::Basis::to_str(FieldGroup::Basis::ELEMENT_BASED));
-  fields.configure_option("topology",mesh.topology().uri());
+  FieldGroup& elem_fields =      mesh.create_field_group("elements_P0", FieldGroup::Basis::ELEMENT_BASED, CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
+  FieldGroup& cell_fields = mesh.create_field_group("cells_P0",    FieldGroup::Basis::CELL_BASED,    CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
+  FieldGroup& face_fields = mesh.create_field_group("faces_P0",    FieldGroup::Basis::FACE_BASED,    CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
+
+  BOOST_CHECK_EQUAL( elem_fields.size() , 45);
+  BOOST_CHECK_EQUAL( cell_fields.size() , 25);
+  BOOST_CHECK_EQUAL( face_fields.size() , 20);
+
+  Field& solution = elem_fields.create_field("solution","rho[1],V[2],p[1]");
+  Field& volume   = cell_fields.create_field("volume");
+
+  BOOST_CHECK_EQUAL(solution.size() , elem_fields.size());
+  BOOST_CHECK_EQUAL(solution.row_size() , 4);
+  BOOST_CHECK_EQUAL(solution.array().num_elements() , solution.size()*solution.row_size());
+  BOOST_CHECK_EQUAL(volume.size() , cell_fields.size());
+
+//  CFinfo << elem_fields.tree() << CFendl;
+//  CFinfo << cell_fields.tree() << CFendl;
+//  CFinfo << face_fields.tree() << CFendl;
+
+  boost_foreach(CEntities& elements, find_components_recursively<CEntities>(mesh.topology()))
+  {
+    elements.create_space("P1","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP1");
+    elements.create_space("P2","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP2");
+  }
+
+
+  FieldGroup& point_P1_fields = mesh.create_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "P1");
+  FieldGroup& point_P2_fields = mesh.create_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "P2");
+
+  point_P1_fields.create_continuous_data();
+  BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.nodes().size() );
+
+  point_P2_fields.create_continuous_data();
+  BOOST_CHECK_EQUAL ( point_P2_fields.size() , 121u );
 
   CFinfo << mesh.tree() << CFendl;
 

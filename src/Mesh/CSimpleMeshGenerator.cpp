@@ -187,8 +187,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
       xpos_rank[0] = part;
     }
   }
-  mesh.elements().update();
-  mesh.update_statistics();
+  mesh_loaded(mesh);
 
   Core::instance().root().remove_component(hash);
 }
@@ -443,9 +442,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       }
     }
   }
-  mesh.elements().update();
-  mesh.update_statistics();
-
+  mesh_loaded(mesh);
 
 
   // sanity checks

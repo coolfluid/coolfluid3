@@ -6,36 +6,27 @@
 
 
 #include "Common/CBuilder.hpp"
-#include "Common/MPI/PE.hpp"
 
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
+#include "Mesh/CDynTable.hpp"
 
 namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::mpi;
 
 Common::ComponentBuilder < CNodes, Component, LibMesh > CNodes_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CNodes::CNodes ( const std::string& name ) :
-  Component ( name )
+  FieldGroup ( name )
 {
-  m_coordinates = create_static_component_ptr< CTable<Real> >(Mesh::Tags::coordinates());
+  m_coordinates = create_static_component_ptr< Field >(Mesh::Tags::coordinates());
   m_coordinates->add_tag(Mesh::Tags::coordinates());
 
   m_glb_elem_connectivity = create_static_component_ptr< CDynTable<Uint> >("glb_elem_connectivity");
   m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
-
-  m_rank = create_static_component_ptr< CList<Uint> >("rank");
-  m_rank->add_tag("rank");
-
-  m_global_numbering = create_static_component_ptr< CList<Uint> >(Mesh::Tags::global_node_indices());
-  m_global_numbering->add_tag(Mesh::Tags::global_node_indices());
 
   add_tag(Mesh::Tags::nodes());
 }
@@ -44,22 +35,6 @@ CNodes::CNodes ( const std::string& name ) :
 
 CNodes::~CNodes()
 {
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-void CNodes::resize(const Uint size)
-{
-  coordinates().resize(size);
-  rank().resize(size);
-}
-
-bool CNodes::is_ghost(const Uint idx) const
-{
-  cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
-  cf_assert(size() == m_rank->size());
-  cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != PE::instance().rank();
 }
 
 //////////////////////////////////////////////////////////////////////////////

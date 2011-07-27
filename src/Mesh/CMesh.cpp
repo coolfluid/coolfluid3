@@ -53,11 +53,11 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
 
-  m_options.add_option< OptionT<Uint> >("dimension", Uint(0))
+  m_options.add_option< OptionT<Uint> >("dimension", m_dimension)
       ->description("Dimension of the mesh")
       ->pretty_name("Dimension")
       ->link_to(&m_dimension)
-      ->attach_trigger( boost::bind(&CMesh::configure_dimension, this) );
+      ->attach_trigger( boost::bind(&CMesh::configure_nodes, this) );
   option("dimension").restricted_list() = boost::assign::list_of(0u)(1u)(2u)(3u);
 
   m_elements   = create_static_component_ptr<CMeshElements>("elements");
@@ -67,13 +67,10 @@ CMesh::CMesh ( const std::string& name  ) :
   regist_signal ( "write_mesh" )
       ->description( "Write mesh, guessing automatically the format" )
       ->pretty_name("Write Mesh" )
-      ->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) )
-      ->signature(boost::bind(&CMesh::signature_write_mesh, this, _1));
+      ->connect   ( boost::bind ( &CMesh::signal_write_mesh,    this, _1 ) )
+      ->signature ( boost::bind ( &CMesh::signature_write_mesh, this, _1 ) );
 
-
-  /// @todo nodes have to be created in CMesh
-
-  m_nodes = create_static_component_ptr<FieldGroup>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<CNodes>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
 
 }
@@ -86,9 +83,14 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::configure_dimension()
+void CMesh::configure_nodes()
 {
-  nodes().coordinates().set_row_size(m_dimension);
+  cf_assert(m_dimension > 0);
+  nodes().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
+  nodes().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
+  nodes().configure_option("topology",topology().uri());
+  nodes().coordinates().configure_option("var_names",std::vector<std::string>(1,std::string("coord")));
+  nodes().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(m_dimension)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +100,29 @@ void CMesh::update_statistics()
   option("dimension").change_value(nodes().coordinates().row_size());
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CMesh::create_field_group( const std::string& name,
+                                       const FieldGroup::Basis::Type base,
+                                       const std::string& space )
+{
+  return create_field_group ( name, base, space, topology() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CMesh::create_field_group( const std::string& name,
+                                       const FieldGroup::Basis::Type base,
+                                       const std::string& space,
+                                       const CRegion& topology )
+{
+  FieldGroup& field_group = create_component<FieldGroup>(name);
+  field_group.configure_option("type",FieldGroup::Basis::to_str(base));
+  field_group.configure_option("space",space);
+  field_group.configure_option("topology",topology.uri());
+  return field_group;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

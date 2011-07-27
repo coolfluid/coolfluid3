@@ -9,9 +9,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/EnumT.hpp"
+#include <boost/range.hpp>
 
-#include "Mesh/CNodes.hpp"
+#include "Common/EnumT.hpp"
+#include "Common/Component.hpp"
+#include "Mesh/LibMesh.hpp"
+#include "Mesh/CUnifiedData.hpp"
 
 namespace CF {
 namespace Common
@@ -19,16 +22,16 @@ namespace Common
   class CLink;
 }
 namespace Mesh {
-
+  class Field;
   class CRegion;
+  class CEntities;
   template <typename T> class CList;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Component that holds CFields of the same type (topology and space)
+/// Component that holds Fields of the same type (topology and space)
 /// @author Willem Deconinck
-/// @todo dont make FieldGroup inherit from CNodes
-class Mesh_API FieldGroup : public CNodes {
+class Mesh_API FieldGroup : public Common::Component {
 
 public: // typedefs
 
@@ -76,29 +79,51 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "FieldGroup"; }
 
+  /// Create a new field in this group
+  Field& create_field( const std::string& name, const std::string& variables = "scalar_same_name");
+
   const CRegion& topology() const;
 
   CRegion& topology();
 
-//  Uint size() const { return m_size; }
+  virtual Uint size() const { return m_size; }
 
-//  void resize(const Uint size);
+  void resize(const Uint size);
 
   const std::string& space() const { return m_space; }
 
-//  const CList<Uint>& glb_idx() const { return *m_glb_idx; }
+  const CList<Uint>& glb_idx() const { return *m_glb_idx; }
 
-//  CList<Uint>& glb_idx() { return *m_glb_idx; }
+  CList<Uint>& glb_idx() { return *m_glb_idx; }
 
-//  const CList<Uint>& rank() const { return *m_rank; }
+  const CList<Uint>& rank() const { return *m_rank; }
 
-//  CList<Uint>& rank() { return *m_rank; }
+  CList<Uint>& rank() { return *m_rank; }
 
+  bool is_ghost(const Uint idx) const;
+
+  /// @brief Check if all fields are compatible sanity of this group
+  /// @throws Common::InvalidStructure
+  void check_sanity();
+
+  void update();
+
+  boost::iterator_range< Common::ComponentIterator<CEntities> > elements_range();
+
+  CUnifiedData& elements_lookup() { return *m_elements_lookup; }
+
+  void create_continuous_data();
+  
 private: // functions
+
+  void config_space();
 
   void config_topology();
 
   void config_type();
+
+  /// Triggered when the event mesh_changed
+  void on_mesh_changed_event( Common::SignalArgs& args );
 
 protected:
 
@@ -106,13 +131,12 @@ protected:
 
   std::string m_space;
 
-//  Uint m_size;
+  Uint m_size;
 
   boost::shared_ptr<Common::CLink> m_topology;
-
-//  boost::shared_ptr<CList<Uint> > m_glb_idx;
-
-//  boost::shared_ptr<CList<Uint> > m_rank;
+  boost::shared_ptr<CList<Uint> > m_glb_idx;
+  boost::shared_ptr<CList<Uint> > m_rank;
+  boost::shared_ptr<CUnifiedData> m_elements_lookup;
 
 };
 

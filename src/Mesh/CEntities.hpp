@@ -107,6 +107,8 @@ public: // functions
 
   const CSpace& space (const Uint space_idx) const;
 
+  CSpace& space (const std::string& space_name);
+
   const CSpace& space (const std::string& space_name) const;
 
   CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name);

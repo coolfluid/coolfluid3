@@ -23,6 +23,8 @@ list( APPEND coolfluid_mesh_files
   CFaces.cpp
   CField.hpp
   CField.cpp
+  Field.hpp
+  Field.cpp
   CFieldView.hpp
   CFieldView.cpp
   FieldGroup.hpp

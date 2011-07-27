@@ -6,8 +6,15 @@
 
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/Core.hpp"
+#include "Common/EventHandler.hpp"
+
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshGenerator.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CMeshElements.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -34,6 +41,21 @@ CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
       ->link_to(&m_name)
       ->mark_basic();
 
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMeshGenerator::mesh_loaded(CMesh& mesh)
+{
+  mesh.update_statistics();
+  mesh.elements().update();
+
+  // Raise an event to indicate that a mesh was loaded happened
+  SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+
+  SignalArgs f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -251,6 +251,13 @@ const CSpace& CEntities::space (const Uint space_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CSpace& CEntities::space (const std::string& space_name)
+{
+  return m_spaces_group->get_child(space_name).as_type<CSpace>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const CSpace& CEntities::space (const std::string& space_name) const
 {
   return m_spaces_group->get_child(space_name).as_type<CSpace>();

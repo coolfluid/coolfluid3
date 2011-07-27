@@ -12,6 +12,7 @@
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CField.hpp"
+#include "Mesh/FieldGroup.hpp"
 
 namespace CF {
   namespace Common {
@@ -23,7 +24,6 @@ namespace Mesh {
   class CRegion;
   class CMeshElements;
   class MeshMetadata;
-  class FieldGroup;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,6 +58,9 @@ public: // functions
 
   /// @return the geometry topology
   CRegion& topology() { return *m_topology; }
+
+  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space);
+  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion&);
 
   /// Create a field
   /// @param name       Name for the field component
@@ -118,7 +121,7 @@ public: // functions
 private: // functions
 
   /// will among others set the coordinate dimension for the nodes
-  void configure_dimension();
+  void configure_nodes();
 
 private: // data
 
@@ -132,7 +135,7 @@ private: // data
 
   boost::shared_ptr<CRegion> m_topology;
 
-  boost::shared_ptr<FieldGroup> m_nodes;
+  boost::shared_ptr<CNodes> m_nodes;
 
 };
 

@@ -87,7 +87,7 @@ public: // functions
 
   /// Resize the array to the given number of rows
   /// @param[in] nb_rows The number of rows after resizing
-  void resize(const Uint nb_rows)
+  virtual void resize(const Uint nb_rows)
   {
     m_array.resize(boost::extents[nb_rows][row_size()]);
   }

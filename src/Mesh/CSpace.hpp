@@ -54,16 +54,13 @@ public: // functions
   /// The number of nodes or states this element shape function provides
   Uint nb_states() const { return shape_function().nb_nodes(); }
 
-  /// Create a continuous node-connectivity, such that nodes are shared between multiple elements
-  //CSpace& create_continuous_node_connectivity(FieldGroup& );
+  /// Return the node_connectivity table
+  /// @pre node connectivity must have been created beforehand
+  CConnectivity& connectivity() { return *m_connectivity; }
 
   /// Return the node_connectivity table
   /// @pre node connectivity must have been created beforehand
-  CConnectivity& connectivity() { cf_assert(is_not_null(m_connectivity)); return *m_connectivity; }
-
-  /// Return the node_connectivity table
-  /// @pre node connectivity must have been created beforehand
-  const CConnectivity& connectivity() const { cf_assert(is_not_null(m_connectivity)); return *m_connectivity; }
+  const CConnectivity& connectivity() const { return *m_connectivity; }
 
 private: // functions
 

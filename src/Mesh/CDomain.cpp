@@ -133,9 +133,8 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   SignalOptions options;
   options.add_option< OptionURI >("mesh_uri", mesh->uri());
   options.add_option< OptionT<bool> >("mesh_rebalanced", true);
-
-  SignalFrame f= options.create_frame();
-  Core::instance().event_handler().raise_event( "mesh_changed", f );
+  SignalArgs args = options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_changed", args);
 
   return *mesh;
 }

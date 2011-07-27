@@ -52,12 +52,14 @@ public: // functions
   /// execute
   virtual void execute() =0;
 
+  static void mesh_loaded(CMesh& mesh);
+
 protected: // data
 
   boost::weak_ptr<Component> m_parent;
   std::string m_name;
-  
-  
+
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
