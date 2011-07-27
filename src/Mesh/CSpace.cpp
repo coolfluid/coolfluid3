@@ -13,6 +13,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
+#include "Mesh/CConnectivity.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -36,6 +37,8 @@ CSpace::CSpace ( const std::string& name ) :
       ->pretty_name("Shape Function")
       ->attach_trigger(boost::bind(&CSpace::configure_shape_function, this))
       ->mark_basic();
+
+  m_connectivity = create_static_component_ptr<CConnectivity>("connectivity");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

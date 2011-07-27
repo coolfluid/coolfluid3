@@ -107,8 +107,9 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   num_obj[ELEMS] = x_segments;
   hash.configure_option("nb_obj",num_obj);
 
+  mesh.configure_option("dimension",(Uint)DIM_1D);
   CRegion& region = mesh.topology().create_region("fluid");
-  CNodes& nodes = mesh.topology().create_nodes(DIM_1D);
+  CNodes& nodes = mesh.nodes();
   nodes.resize(hash.subhash(ELEMS).nb_objects_in_part(part) + 1);
 
   CCells& cells = region.create_component<CCells>("Line");
@@ -205,8 +206,9 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   num_obj[ELEMS] = x_segments*y_segments;
   hash.configure_option("nb_obj",num_obj);
 
+  mesh.configure_option("dimension",(Uint)DIM_2D);
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = region.create_nodes(DIM_2D);
+  CNodes& nodes = mesh.nodes();
 
 
   // find ghost nodes

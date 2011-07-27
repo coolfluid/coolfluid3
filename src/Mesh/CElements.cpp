@@ -34,11 +34,6 @@ CElements::CElements ( const std::string& name ) :
   properties()["brief"] = std::string("Holds information of elements of one type");
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
-  
-  m_node_connectivity = create_static_component_ptr<CConnectivity>(Mesh::Tags::connectivity_table());
-  m_node_connectivity->add_tag(Mesh::Tags::connectivity_table());
-  m_node_connectivity->properties()["brief"] = std::string("The connectivity table specifying for each element the nodes in the coordinates table");
-  
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,20 +49,28 @@ void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
   CEntities::initialize(element_type_name,nodes);
   node_connectivity().set_row_size(m_element_type->nb_nodes());
   node_connectivity().create_lookup().add(nodes);
+
+  CSpace& node_space = space(MeshSpaces::MESH_NODES);
+  node_space.connectivity().set_row_size(node_space.nb_states());
+  //node_space.connectivity().create_lookup().add(nodes);
+
+  CSpace& element_space = space(MeshSpaces::MESH_ELEMENTS);
+  element_space.connectivity().set_row_size(element_space.nb_states());
+  cf_assert(element_space.nb_states() == 1); // P0 discontinuous space has 1 point (the element itself)
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 CConnectivity& CElements::node_connectivity()
 {
-  return *m_node_connectivity;
+  return space(MeshSpaces::MESH_NODES).connectivity();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 const CConnectivity& CElements::node_connectivity() const
 {
-  return *m_node_connectivity;
+  return space(MeshSpaces::MESH_NODES).connectivity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +83,7 @@ RealMatrix CElements::get_coordinates(const Uint elem_idx) const
   const Uint nb_nodes=elem_nodes.size();
   const Uint dim=coords_table.row_size();
   RealMatrix elem_coords(nb_nodes,dim);
-  
+
   for(Uint node = 0; node != nb_nodes; ++node)
     for (Uint d=0; d<dim; ++d)
       elem_coords(node,d) = coords_table[elem_nodes[node]][d];
@@ -97,8 +100,8 @@ void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) co
 
   const Uint nb_nodes=elem_coords.rows();
   const Uint dim=elem_coords.cols();
- 
-  
+
+
   for(Uint node = 0; node != nb_nodes; ++node)
     for (Uint d=0; d<dim; ++d)
       elem_coords(node,d) = coords_table[elem_nodes[node]][d];

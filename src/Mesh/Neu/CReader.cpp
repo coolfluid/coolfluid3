@@ -108,6 +108,8 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   // Read mesh information
   read_headerData();
 
+  m_mesh->configure_option("dimension",m_headerData.NDFCD);
+
   // Create a hash
   m_hash = create_component_ptr<CMixedHash>("hash");
   std::vector<Uint> num_obj(2);
@@ -277,9 +279,10 @@ void CReader::read_coordinates()
   m_file.seekg(m_nodal_coordinates_position,std::ios::beg);
 
   // Create the nodes
-  m_nodes = m_region->create_nodes(m_headerData.NDFCD).as_ptr<CNodes>();
 
-  m_nodes->resize(m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  CNodes& nodes = m_mesh->nodes();
+
+  nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -300,13 +303,13 @@ void CReader::read_coordinates()
     getline(m_file,line);
     if (m_hash->subhash(NODES).owns(node_idx-1))
     {
-      m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
+      nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
       m_node_to_coord_idx[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
       ss >> nodeNumber;
       for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
-        ss >> m_nodes->coordinates()[coord_idx][dim];
+        ss >> nodes.coordinates()[coord_idx][dim];
       coord_idx++;
     }
     else
@@ -314,13 +317,13 @@ void CReader::read_coordinates()
       if (m_ghost_nodes.find(node_idx) != not_found)
       {
         // add global node index
-        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
+        nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx-1);
         m_node_to_coord_idx[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
         ss >> nodeNumber;
         for (Uint dim=0; dim<m_headerData.NDFCD; ++dim)
-          ss >> m_nodes->coordinates()[coord_idx][dim];
+          ss >> nodes.coordinates()[coord_idx][dim];
         coord_idx++;
       }
     }
@@ -333,12 +336,13 @@ void CReader::read_coordinates()
 
 void CReader::read_connectivity()
 {
+  CNodes& nodes = m_mesh->nodes();
   m_tmp = m_region->create_region("main").as_ptr<CRegion>();
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
-  std::map<std::string,CElements::Ptr> elements = create_cells_in_region(*m_tmp,*m_nodes,m_supported_types);
+  std::map<std::string,CElements::Ptr> elements = create_cells_in_region(*m_tmp,nodes,m_supported_types);
   std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
   // skip next line
@@ -401,7 +405,7 @@ void CReader::read_connectivity()
 
 void CReader::read_groups()
 {
-
+  CNodes& nodes = m_mesh->nodes();
   cf_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -474,7 +478,7 @@ void CReader::read_groups()
 
     //CFinfo << "region " << region.uri().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
-    std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,*m_nodes,m_supported_types);
+    std::map<std::string,CElements::Ptr> elements = create_cells_in_region(region,nodes,m_supported_types);
     std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
     // Copy elements from tmp_region in the correct region
@@ -522,9 +526,10 @@ void CReader::read_boundaries()
     }
 
     CRegion& bc_region = m_region->create_region(NAME);
+    CNodes& nodes = m_mesh->nodes();
 
     // create all kind of element type regions
-    std::map<std::string,CElements::Ptr> elements = create_faces_in_region (bc_region,*m_nodes,m_supported_types);
+    std::map<std::string,CElements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);
     std::map<std::string,CConnectivity::Buffer::Ptr> buffer = create_connectivity_buffermap (elements);
 
     // read boundary elements connectivity

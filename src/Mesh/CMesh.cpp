@@ -7,6 +7,8 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/assign/std/vector.hpp>
 
 #include "Common/CBuilder.hpp"
 #include "Common/CLink.hpp"
@@ -23,6 +25,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/FieldGroup.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CField.hpp"
@@ -44,18 +47,19 @@ CMesh::CMesh ( const std::string& name  ) :
   m_dimension(0u),
   m_dimensionality(0u)
 {
+  mark_basic(); // by default meshes are visible
+
   m_properties.add_property("nb_cells",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
 
   m_options.add_option< OptionT<Uint> >("dimension", Uint(0))
-      ->description("Dimension of the mesh (set automatically)")
+      ->description("Dimension of the mesh")
       ->pretty_name("Dimension")
-      ->link_to(&m_dimension); //TODO: Hide this, or make properties with triggers?
+      ->link_to(&m_dimension)
+      ->attach_trigger( boost::bind(&CMesh::configure_dimension, this) );
+  option("dimension").restricted_list() = boost::assign::list_of(0u)(1u)(2u)(3u);
 
-  mark_basic(); // by default meshes are visible
-
-  m_nodes_link = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
   m_elements   = create_static_component_ptr<CMeshElements>("elements");
   m_topology   = create_static_component_ptr<CRegion>("topology");
   m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
@@ -65,12 +69,26 @@ CMesh::CMesh ( const std::string& name  ) :
       ->pretty_name("Write Mesh" )
       ->connect ( boost::bind ( &CMesh::signal_write_mesh, this, _1 ) )
       ->signature(boost::bind(&CMesh::signature_write_mesh, this, _1));
+
+
+  /// @todo nodes have to be created in CMesh
+
+  m_nodes = create_static_component_ptr<FieldGroup>(Mesh::Tags::nodes());
+  m_nodes->add_tag(Mesh::Tags::nodes());
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CMesh::~CMesh()
 {
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::configure_dimension()
+{
+  nodes().coordinates().set_row_size(m_dimension);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -222,16 +240,14 @@ CField& CMesh::create_field(const std::string& name, const CField::Basis::Type b
 
 CNodes& CMesh::nodes()
 {
-  cf_assert( is_not_null(m_nodes_link->follow()) );
-  return *m_nodes_link->follow()->as_ptr<CNodes>();
+  return *m_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const CNodes& CMesh::nodes() const
 {
-  cf_assert( is_not_null(m_nodes_link->follow()) );
-  return *m_nodes_link->follow()->as_ptr<CNodes>();
+  return *m_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

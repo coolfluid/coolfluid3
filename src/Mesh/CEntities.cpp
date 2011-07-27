@@ -6,6 +6,7 @@
 
 #include <set>
 
+#include <boost/assign/list_of.hpp>
 #include "Common/CLink.hpp"
 
 #include "Common/FindComponents.hpp"
@@ -25,6 +26,21 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
+
+////////////////////////////////////////////////////////////////////////////////
+
+CEntities::MeshSpaces::Convert::Convert()
+{
+  all_fwd = boost::assign::map_list_of
+      ( CEntities::MeshSpaces::SPACE0,    "space[0]" )
+      ( CEntities::MeshSpaces::MESH_NODES,    "mesh_nodes" )
+      ( CEntities::MeshSpaces::MESH_ELEMENTS, "mesh_elements" );
+
+  all_rev = boost::assign::map_list_of
+      ("space[0]",       CEntities::MeshSpaces::SPACE0 )
+      ("mesh_nodes",     CEntities::MeshSpaces::MESH_NODES )
+      ("mesh_elements",  CEntities::MeshSpaces::MESH_ELEMENTS );
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -90,12 +106,34 @@ void CEntities::configure_element_type()
   m_element_type->rename(m_element_type->derived_type_name());
   add_component( m_element_type );
 
-  if (exists_space(0))
-    find_component_recursively_with_tag(*this,"space0").configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+  if (exists_space(MeshSpaces::SPACE0))
+    m_spaces[MeshSpaces::SPACE0]->configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   else
   {
-    CSpace& space0 = create_space("space[0]",element_type().shape_function().derived_type_name());
-    space0.add_tag("space0");
+    CSpace& space0 = create_space(MeshSpaces::to_str(MeshSpaces::SPACE0),element_type().shape_function().derived_type_name());
+    space0.add_tag(MeshSpaces::to_str(MeshSpaces::SPACE0));
+
+  }
+
+
+  if ( exists_space(MeshSpaces::MESH_NODES) )
+  {
+    m_spaces[MeshSpaces::MESH_NODES]->configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+  }
+  else
+  {
+    CSpace& mesh_nodes = create_space(MeshSpaces::to_str(MeshSpaces::MESH_NODES),element_type().shape_function().derived_type_name());
+    mesh_nodes.add_tag(MeshSpaces::to_str(MeshSpaces::MESH_NODES));
+  }
+
+  if ( exists_space(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS)) )
+  {
+    m_spaces[MeshSpaces::MESH_NODES]->configure_option("shape_function",std::string("CF.Mesh.SF.SF"+element_type().shape_function().shape_name()+"LagrangeP0"));
+  }
+  else
+  {
+    CSpace& mesh_nodes = create_space(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS),"CF.Mesh.SF.SF"+element_type().shape_function().shape_name()+"LagrangeP0");
+    mesh_nodes.add_tag(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS));
   }
 }
 

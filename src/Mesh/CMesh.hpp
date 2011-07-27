@@ -23,6 +23,7 @@ namespace Mesh {
   class CRegion;
   class CMeshElements;
   class MeshMetadata;
+  class FieldGroup;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,19 +115,24 @@ public: // functions
 
   Uint dimensionality() const { return m_dimensionality; }
 
-private:
+private: // functions
+
+  /// will among others set the coordinate dimension for the nodes
+  void configure_dimension();
+
+private: // data
 
   Uint m_dimension;
 
   Uint m_dimensionality;
-
-  boost::shared_ptr<Common::CLink> m_nodes_link;
 
   boost::shared_ptr<CMeshElements> m_elements;
 
   boost::shared_ptr<MeshMetadata> m_metadata;
 
   boost::shared_ptr<CRegion> m_topology;
+
+  boost::shared_ptr<FieldGroup> m_nodes;
 
 };
 

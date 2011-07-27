@@ -15,7 +15,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -120,7 +120,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh->topology().create_region("superRegion");
-  CNodes& nodes = superRegion.create_nodes(dim);
+  mesh->configure_option("dimension",dim);
+  CNodes& nodes = mesh->nodes();
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
 
@@ -227,16 +228,14 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  CMesh::Ptr mesh = allocate_component<CMesh>  ( "mesh" );
 
   root->add_component( mesh );
 
-  // create a mesh pointer
-  CMesh::Ptr p_mesh = boost::dynamic_pointer_cast<CMesh>(mesh);
-
   // create regions
-  CRegion& superRegion = p_mesh->topology().create_region("superRegion");
-  CNodes& nodes = superRegion.create_nodes(dim);
+  CRegion& superRegion = mesh->topology().create_region("superRegion");
+  mesh->configure_option("dimension",dim);
+  CNodes& nodes = mesh->nodes();
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);
 
@@ -358,7 +357,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
 
 	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-	meshwriter->write_from_to(*p_mesh,"p2-mesh.msh");
+	meshwriter->write_from_to(*mesh,"p2-mesh.msh");
 
 }
 

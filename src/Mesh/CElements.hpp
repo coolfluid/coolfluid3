@@ -38,13 +38,13 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CElements ( const std::string& name );
-  
+
   /// Initialize the CElements using the given type
   //void initialize(const std::string& element_type_name, CTable<Real>& coordinates);
 
   /// Initialize the CElements using the given type
   virtual void initialize(const std::string& element_type_name, CNodes& nodes);
-    
+
   /// Virtual destructor
   virtual ~CElements();
 
@@ -53,7 +53,7 @@ public: // functions
 
   /// Mutable access to the connectivity table
   CConnectivity& node_connectivity();
-  
+
   /// Const access to the connectivity table
   const CConnectivity& node_connectivity() const;
 
@@ -61,17 +61,13 @@ public: // functions
   virtual Uint size() const { return node_connectivity().size(); }
 
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
-  
+
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 
   virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
-protected: // data
-
-  CConnectivity::Ptr m_node_connectivity;
-
 };
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

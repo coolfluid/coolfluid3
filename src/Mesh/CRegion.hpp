@@ -62,10 +62,6 @@ public: // functions
   /// @param nodes  location of the nodes the elements are linked with
   CElements& create_elements (const std::string& element_type_name, CNodes& nodes);
 
-  /// create a nodes component, initialized with the coordinate dimension
-  /// @param dim dimension of the node coordinates
-  CNodes& create_nodes(const Uint& dim);
-
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;
 

@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/EnumT.hpp"
+
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -33,6 +35,28 @@ public: // typedefs
 
   typedef boost::shared_ptr<CEntities> Ptr;
   typedef boost::shared_ptr<CEntities const> ConstPtr;
+
+  class Mesh_API MeshSpaces
+  {
+  public:
+
+    /// Enumeration of the default created Spaces in CF
+    /// @todo SPACE0 to be renamed to MESH_NODES, and decrease number by 1
+    enum Type { INVALID=-1, SPACE0=0, MESH_NODES=1, MESH_ELEMENTS=2 };
+
+    struct Mesh_API Convert : public Common::EnumT< MeshSpaces >
+    {
+      /// constructor where all the converting maps are built
+      Convert();
+
+      /// get the unique instance of the converter class
+      static Convert& instance() { static Convert instance; return instance; }
+    };
+
+    static std::string to_str(Type type)         { return Convert::instance().to_str(type); }
+
+    static Type to_enum(const std::string& type) { return Convert::instance().to_enum(type); }
+  };
 
 public: // functions
 
@@ -79,11 +103,13 @@ public: // functions
 
   virtual CTable<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
 
+  CSpace& space (const Uint space_idx) { return *m_spaces[space_idx]; }
+
   const CSpace& space (const Uint space_idx) const;
 
   const CSpace& space (const std::string& space_name) const;
 
-  CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name );
+  CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
 
   bool exists_space(const Uint space_idx) const;
 

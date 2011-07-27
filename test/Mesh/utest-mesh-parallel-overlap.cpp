@@ -343,7 +343,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create or read the mesh
 
-#define GMSH
+#define GEN
 
 #ifdef GEN
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
@@ -374,8 +374,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #ifdef GMSH
   CMeshReader::Ptr meshreader =
       build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
-//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
+//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
+  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
 //  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
   CMesh& mesh = *mesh_ptr;
 #endif

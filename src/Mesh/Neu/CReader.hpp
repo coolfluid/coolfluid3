@@ -53,7 +53,7 @@ public: // functions
 
 private: // functions
 
-  void config_repartition();
+	void config_repartition();
 
 	void read_headerData();
 
@@ -84,7 +84,6 @@ private: // data
   boost::filesystem::fstream m_file;
   CMesh::Ptr m_mesh;
   CRegion::Ptr m_region;
-  CNodes::Ptr m_nodes;
   CRegion::Ptr m_tmp;
 
 	std::set<Uint> m_ghost_nodes;

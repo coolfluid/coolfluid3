@@ -69,25 +69,6 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
 
 //////////////////////////////////////////////////////////////////////////////
 
-CNodes& CRegion::create_nodes(const Uint& dim)
-{
-  /// @todo nodes have to be created in CMesh
-  CNodes::Ptr nodes = find_component_ptr_with_tag<CNodes>(*this,Mesh::Tags::nodes());
-  if ( is_null(nodes) )
-  {
-    nodes = create_component_ptr<CNodes>(Mesh::Tags::nodes());
-    nodes->coordinates().set_row_size(dim);
-
-    /// @todo when nodes in CMesh created, this can be linked inside CMesh
-    find_component_with_name<CLink>(find_parent_component<CMesh>(*this),Mesh::Tags::nodes()).link_to(nodes);
-  }
-  cf_assert(nodes->coordinates().row_size() == dim);
-
-  return *nodes;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 Uint CRegion::recursive_elements_count() const
 {
   Uint elem_count = 0;

@@ -18,6 +18,7 @@ namespace Mesh {
 
   class ElementType;
   class CElements;
+  class CConnectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +37,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CSpace ( const std::string& name );
-  
+
   /// Virtual destructor
   virtual ~CSpace();
 
@@ -44,18 +45,38 @@ public: // functions
   static std::string type_name () { return "CSpace"; }
 
   /// return the elementType
+  /// @pre the shape function must be configured first
   const ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
   const ElementType& element_type() const { return parent().as_type<CEntities>().element_type(); }
 
+  /// The number of nodes or states this element shape function provides
   Uint nb_states() const { return shape_function().nb_nodes(); }
-  
-protected: // data
 
+  /// Create a continuous node-connectivity, such that nodes are shared between multiple elements
+  //CSpace& create_continuous_node_connectivity(FieldGroup& );
+
+  /// Return the node_connectivity table
+  /// @pre node connectivity must have been created beforehand
+  CConnectivity& connectivity() { cf_assert(is_not_null(m_connectivity)); return *m_connectivity; }
+
+  /// Return the node_connectivity table
+  /// @pre node connectivity must have been created beforehand
+  const CConnectivity& connectivity() const { cf_assert(is_not_null(m_connectivity)); return *m_connectivity; }
+
+private: // functions
+
+  /// Configuration option trigger for the shape function
   void configure_shape_function();
 
+protected: // data
+
+  /// Shape function of this space
   boost::shared_ptr<ShapeFunction> m_shape_function;
+
+  /// node_connectivity or state_connectivity for this space
+  boost::shared_ptr<CConnectivity> m_connectivity;
 
 };
 

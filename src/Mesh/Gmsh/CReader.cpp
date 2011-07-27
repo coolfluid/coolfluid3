@@ -116,7 +116,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   // Read file once and store positions
   get_file_positions();
 
-
+  m_mesh->configure_option("dimension",m_mesh_dimension);
 
   find_ghost_nodes();
 
@@ -380,12 +380,11 @@ void CReader::read_coordinates()
      master_region++;
   }
 
-  // Create the coordinates array
-  m_nodes = m_region->create_nodes(m_mesh_dimension).as_ptr<CNodes>();
+  CNodes& nodes = m_mesh->nodes();
 
   Uint part = option("part").value<Uint>();
-  Uint nodes_start_idx = m_nodes->size();
-  m_nodes->resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(part) + m_ghost_nodes.size());
+  Uint nodes_start_idx = nodes.size();
+  nodes.resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(part) + m_ghost_nodes.size());
 
   std::string line;
   //Skip the line with keyword '$Nodes':
@@ -412,13 +411,13 @@ void CReader::read_coordinates()
 
     if (m_hash->subhash(NODES).owns(node_idx))
     {
-      m_nodes->rank()[coord_idx] = part;
+      nodes.rank()[coord_idx] = part;
       m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
       std::stringstream ss(line);
       Uint nodeNumber;
       ss >> nodeNumber;
       for (Uint dim=0; dim<m_mesh_dimension; ++dim)
-        ss >> m_nodes->coordinates()[coord_idx][dim];
+        ss >> nodes.coordinates()[coord_idx][dim];
       if(m_mesh_dimension < DIM_3D) getline(ss,line); //Gmsh always stores 3 coordinates, even for 2D meshes
       coord_idx++;
     }
@@ -428,15 +427,15 @@ void CReader::read_coordinates()
       if (it != m_ghost_nodes.end())
       {
         // add global node index
-        m_nodes->rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx);
+        nodes.rank()[coord_idx] = m_hash->subhash(NODES).part_of_obj(node_idx);
         m_node_idx_gmsh_to_cf[node_idx]=coord_idx;
         std::stringstream ss(line);
         Uint nodeNumber;
         ss >> nodeNumber;
 //        CFinfo << "reading ghostnode " << nodeNumber;
         for (Uint dim=0; dim<m_mesh_dimension; ++dim)
-        ss >> m_nodes->coordinates()[coord_idx][dim];
-//        CFinfo << "    (" << m_nodes->coordinates()[coord_idx][0] << " , " << m_nodes->coordinates()[coord_idx][1] << ")" << CFendl;
+        ss >> nodes.coordinates()[coord_idx][dim];
+//        CFinfo << "    (" << nodes.coordinates()[coord_idx][0] << " , " << nodes.coordinates()[coord_idx][1] << ")" << CFendl;
         if(m_mesh_dimension < DIM_3D) getline(ss, line);
 
         coord_idx++;
@@ -459,7 +458,7 @@ void CReader::read_coordinates()
       CFinfo << "\t";
       for(Uint dim = 0; dim < m_mesh_dimension; ++dim)
         {
-            CFinfo << m_nodes->coordinates()[i][dim] << " ";
+            CFinfo << nodes.coordinates()[i][dim] << " ";
         }
       CFinfo << CFendl;
   }
@@ -472,6 +471,8 @@ void CReader::read_coordinates()
 
 void CReader::read_connectivity()
 {
+
+  CNodes& nodes = m_mesh->nodes();
 
 
   Uint part = option("part").value<Uint>();
@@ -518,10 +519,10 @@ void CReader::read_connectivity()
        else
          elements = build_component_abstract_type<CEntities>("CF.Mesh.CCells",allocated_type->shape_name());
       region->add_component(elements);
-      elements->initialize(cf_elem_name,*m_nodes);
+      elements->initialize(cf_elem_name,nodes);
 
       // Celements& elements = region->create_component_ptr<CElements>(cf_elem_name);
-      // elements.initialize(cf_elem_name,*m_nodes);
+      // elements.initialize(cf_elem_name,nodes);
 
        CConnectivity& elem_table = elements->as_ptr<CElements>()->node_connectivity();
        elem_table.set_row_size(Shared::m_nodes_in_gmsh_elem[etype]);

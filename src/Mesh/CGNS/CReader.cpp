@@ -44,9 +44,6 @@ CReader::CReader(const std::string& name)
       ->description("Treat Sections of lower dimensionality as BC. "
                         "This means no BCs from cgns will be read");
 
-  m_options.add_option< OptionT<bool> >( "SharedCoordinates", true )
-      ->description("Store all the coordinates in 1 table. "
-                        "This means that there will be no coordinates per region");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -258,7 +255,9 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 {
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
-  CNodes& nodes = parent_region.create_nodes(m_zone.coord_dim);
+
+  m_mesh->configure_option("dimension",(Uint)m_zone.coord_dim);
+  CNodes& nodes = m_mesh->nodes();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -316,7 +315,8 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
 void CReader::read_coordinates_structured(CRegion& parent_region)
 {
-  CNodes& nodes = parent_region.create_nodes(m_zone.coord_dim);
+  m_mesh->configure_option("dimension",(Uint)m_zone.coord_dim);
+  CNodes& nodes = m_mesh->nodes();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -472,14 +472,7 @@ void CReader::read_section(CRegion& parent_region)
     const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
-    if (option("SharedCoordinates").value<bool>())
-      this_region.create_elements(etype_CF,all_nodes);
-    else
-    {
-      // Create coordinates component in this region for this CF element type
-      CNodes& section_nodes = this_region.create_nodes(m_zone.coord_dim);
-      this_region.create_elements(etype_CF,section_nodes); // no second argument defaults to the coordinates in this_region
-    }
+    this_region.create_elements(etype_CF,all_nodes);
 
     CElements& element_region= *this_region.get_child_ptr("elements_"+etype_CF)->as_ptr<CElements>();
 

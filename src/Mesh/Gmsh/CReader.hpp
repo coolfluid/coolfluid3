@@ -87,7 +87,6 @@ private: // data
   boost::shared_ptr<CRegion> m_region;
   boost::shared_ptr<CRegion> m_tmp;
 
-  boost::shared_ptr<CNodes> m_nodes;
   std::string m_file_basename;
 
   struct RegionData
