@@ -63,43 +63,54 @@ void SetupMultipleSolutions::execute()
    if( i != nbdofs-1 ) vars += ",";
   }
 
-  // configure 1st solution
 
-  std::vector< CField::Ptr > solution_fields;
+  // configure 1st solution
 
   CField::Ptr solution = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
     solution =
-        mesh.create_field( RDM::Tags::solution() + to_str(0) ,CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
+        mesh.create_field( RDM::Tags::solution() + to_str(0),
+                           CField::Basis::POINT_BASED,
+                           "space[0]",
+                           vars)
+        .as_ptr<CField>();
+
     solution->add_tag(Tags::solution());
   }
 
-  solution_fields.push_back(solution);
+  if( ! fields.get_child_ptr( solution->name() ) )
+    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
+
+
 
   // create the other solutions based on the first solution field
 
-  for(Uint k = 1; k < nb_levels; ++k)
+  std::vector< CField::Ptr > rk_steps;
+
+  for(Uint k = 0; k < nb_levels; ++k)
   {
     CField::Ptr solution_k = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() + to_str(k));
     if ( is_null( solution_k ) )
     {
       solution_k = mesh.create_field(Tags::solution() + to_str(k), *solution ).as_ptr<CField>();
-      solution_k->add_tag(Tags::solution());
+      solution_k->add_tag("rksteps");
     }
 
-    solution_fields.push_back(solution_k);
+    rk_steps.push_back(solution_k);
   }
 
-  for( Uint k = 0; k < solution_fields.size(); ++k)
+  for( Uint k = 0; k < rk_steps.size(); ++k)
   {
-    if( ! fields.get_child_ptr( solution_fields[k]->name() ) )
-      fields.create_component<CLink>( solution_fields[k]->name() ).link_to(solution).add_tag(RDM::Tags::solution());
+    if( ! fields.get_child_ptr( rk_steps[k]->name() ) )
+      fields.create_component<CLink>( rk_steps[k]->name() ).link_to(solution).add_tag("rksteps");
   }
 
 
   /// @todo here we should check if space() order is correct,
   ///       if not the change space() by enriching or other appropriate action
+
+
 
   // configure residual
 
@@ -154,10 +165,10 @@ void SetupMultipleSolutions::execute()
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );
 
-  for(Uint k = 1; k < nb_levels; ++k)
+  for(Uint k = 0; k < nb_levels; ++k)
   {
-    solution_fields[k]->parallelize_with( pattern );
-    parallel_fields.push_back( solution_fields[k]->uri() );
+    rk_steps[k]->parallelize_with( pattern );
+    parallel_fields.push_back( rk_steps[k]->uri() );
   }
 
   mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);

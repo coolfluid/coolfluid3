@@ -37,7 +37,7 @@ Init::Init ( const std::string& name ) :
   mark_basic();
 
   m_options.add_option(OptionComponent<CField>::create( "field", &m_field ))
-      ->pretty_name("Field")
+      ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
   // options
