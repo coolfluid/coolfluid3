@@ -20,7 +20,6 @@
 
 #include "RK.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -44,9 +43,12 @@ RK::RK ( const std::string& name ) :
       ->pretty_name("CFL")
       ->description("Courant-Fredrichs-Levy stability number");
 
+  m_options.add_option< OptionT<Real> >( "rkorder", 1u )
+      ->pretty_name("RK Order")
+      ->description("Order of the Runge-Kutta step");
+
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void RK::execute()
 {
@@ -96,6 +98,3 @@ void RK::execute()
 
 } // RDM
 } // CF
-
-///////////////////////////////////////////////////////////////////////////////
-

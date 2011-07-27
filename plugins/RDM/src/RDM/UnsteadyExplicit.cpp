@@ -120,7 +120,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   /// @todo this reset configuation must be corrected
 
-  std::vector<URI> reset_fields;
+  std::vector<std::string> reset_fields;
   reset_fields.push_back( RDM::Tags::residual() );
   reset_fields.push_back( RDM::Tags::wave_speed() );
   reset->configure_option("FieldTags", reset_fields);
@@ -130,7 +130,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
   RK::Ptr rk = allocate_component<RK>("Step");
   solver.iterative_solver().update().append( rk );
 
-  rk->configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
+  solver.iterative_solver().get_child("MaxIterations").configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
   // (4d) setup solver fields
 

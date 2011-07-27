@@ -9,7 +9,9 @@
 
 #include "Math/VectorialFunction.hpp"
 
-#include "RDM/BoundaryTerm.hpp"
+#include "Solver/Action.hpp"
+
+#include "RDM/LibRDM.hpp"
 
 namespace CF {
 
@@ -17,7 +19,7 @@ namespace Mesh { class CMesh; class CField; }
 
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 class RDM_API Init : public CF::Solver::Action {
 
@@ -49,12 +51,11 @@ private: // data
 
   boost::weak_ptr<Mesh::CField> m_field;  ///< access to the field to initialize
 
-  /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  m_function;
+  Math::VectorialFunction  m_function;    ///< function parser for the math formula
 
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

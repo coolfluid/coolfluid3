@@ -148,14 +148,19 @@ void SetupMultipleSolutions::execute()
 
   // parallelize the solution if not yet done
 
+
   PECommPattern& pattern = solution->parallelize();
+
+  std::vector<URI> parallel_fields;
+  parallel_fields.push_back( solution->uri() );
 
   for(Uint k = 1; k < nb_levels; ++k)
   {
     solution_fields[k]->parallelize_with( pattern );
+    parallel_fields.push_back( solution_fields[k]->uri() );
   }
 
-  mysolver.actions().get_child("Synchronize").configure_option("Fields", solution_fields);
+  mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);
 
 }
 

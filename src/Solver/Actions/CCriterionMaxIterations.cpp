@@ -24,11 +24,15 @@ ComponentBuilder< CCriterionMaxIterations, CCriterion, LibActions > CCriterionMa
 CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
   CCriterion ( name )
 {
+  // properties
+
   m_properties["brief"] = std::string("Maximum Iterations Criterion object");
   std::string description =
       m_properties.value<std::string>("description")+
       "Returns true if a the maximum number of iterations is achived\n";
   m_properties["description"] = description;
+
+  // options
 
   m_options.add_option(OptionComponent<Component>::create("iterator", &m_iter_comp))
       ->description("Component performing iterations")
@@ -42,7 +46,6 @@ CCriterionMaxIterations::CCriterionMaxIterations( const std::string& name  ) :
 
 CCriterionMaxIterations::~CCriterionMaxIterations() {}
 
-////////////////////////////////////////////////////////////////////////////////
 
 bool CCriterionMaxIterations::operator()()
 {
