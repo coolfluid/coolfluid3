@@ -169,6 +169,7 @@ void NRemoteFSBrowser::openDir ( const QString & path )
   options.add_option< OptionT<bool> >("includeNoExtensions", m_includeNoExtensions);
   options.add_option< OptionArrayT<std::string> >("extensions", vect);
 
+  options.flush();
   ThreadManager::instance().network().send(frame);
 }
 
