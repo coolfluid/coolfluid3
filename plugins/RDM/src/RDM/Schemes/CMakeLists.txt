@@ -12,6 +12,9 @@ list( APPEND coolfluid_rdm_schemes_files
   CSysB.cpp
   CSysSUPG.hpp
   CSysSUPG.cpp
+  # standalone diffusion term
+  CDiffGalerkin.hpp
+  CDiffGalerkin.cpp
   # unsteady RKRD schemes
   RKLDA.hpp
   RKLDA.cpp
