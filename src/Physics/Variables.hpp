@@ -99,7 +99,7 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Template class that provides a dyanmic wrapper around a static implemented
+/// Template class that provides a dynamic wrapper around a static implemented
 /// variables class
 /// @author Tiago Quintino
 template < typename PHYS >
