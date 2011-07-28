@@ -101,7 +101,7 @@ protected: // helper function
 
   void config_coeffs()
   {
-    RDSolver& mysolver = parent().as_type<CellTerm>().solver().as_type<RDSolver>();
+    RDSolver& mysolver = this->parent().as_type<CellTerm>().solver().as_type<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
     dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
