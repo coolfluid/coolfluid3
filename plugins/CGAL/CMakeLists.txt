@@ -43,4 +43,4 @@ if( CF_PLUGIN_CGAL )
   # add dir with CGAL sandbox
   add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 
-endif( CF_PLUGIN_CGAL )
+endif()

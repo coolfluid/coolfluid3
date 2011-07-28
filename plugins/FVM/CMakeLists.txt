@@ -18,6 +18,6 @@ if( CF_PLUGIN_FVM )
 
   add_subdirectory( test ) # testing tree
 
-endif( CF_PLUGIN_FVM )
+endif()
 
 
