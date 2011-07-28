@@ -3,16 +3,12 @@
 set( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
 set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
-set( Boost_FIND_VERSION        ON   )
-set( Boost_FIND_VERSION_MAJOR  "1"  )
-set( Boost_FIND_VERSION_MINOR  "42" )
-set( Boost_FIND_VERSION_PATCH  "0"  )
-# older cmakes dont have these versions
-set( Boost_ADDITIONAL_VERSIONS "1.45" "1.45.0" "1.44" "1.44.0" "1.43" "1.43.0" "1.42" "1.42.0" )
+set( CF_Boost_MINIMAL_VERSION "1.46.1" )
+
 # components to search for
 list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options )
 
-find_package( Boost COMPONENTS ${CF_Boost_COMPONENTS} QUIET )
+find_package( Boost ${CF_Boost_MINIMAL_VERSION} COMPONENTS ${CF_Boost_COMPONENTS} QUIET )
 
 coolfluid_log_file( "Boost version      [${Boost_LIB_VERSION}]" )
 coolfluid_log_file( "Boost include path [${Boost_INCLUDE_DIR}]" )
