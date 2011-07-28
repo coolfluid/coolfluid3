@@ -11,6 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
@@ -39,8 +40,9 @@ using namespace CF::Common;
 struct Nodes_Fixture
 {
   /// common setup for each test case
-  Nodes_Fixture() : mesh2d(allocate_component<CMesh>  ( "mesh2d" ))
+  Nodes_Fixture()
   {
+     mesh2d = Core::instance().root().create_component_ptr<CMesh>  ( "mesh2d" );
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
@@ -126,8 +128,9 @@ BOOST_AUTO_TEST_CASE( Construct_CNodes )
   nodes->resize(10);
   BOOST_CHECK_EQUAL(nodes->coordinates().size() , 10u);
   BOOST_CHECK_EQUAL(nodes->rank().size() , 10u);
+  BOOST_CHECK_EQUAL(nodes->glb_idx().size() , 10u);
   BOOST_CHECK_EQUAL(nodes->glb_elem_connectivity().size() , 0u);
-  BOOST_CHECK_EQUAL(nodes->glb_idx().size() , 0u);
+
 
 
 }
