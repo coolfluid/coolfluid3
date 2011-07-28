@@ -40,6 +40,14 @@ struct FieldTests_Fixture
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
+
+    m_mesh = Core::instance().root().create_component_ptr<CMesh>("mesh") ;
+
+    CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+
+    // the mesh to store in
+    meshreader->read_mesh_into("quadtriag.neu",*m_mesh);
+
   }
 
   /// common tear-down for each test case
@@ -55,25 +63,14 @@ CMesh::Ptr FieldTests_Fixture::m_mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( FieldTests_TestSuite, FieldTests_Fixture )
+BOOST_GLOBAL_FIXTURE(FieldTests_Fixture)
+BOOST_AUTO_TEST_SUITE( FieldTests_TestSuite )
 
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( MeshCreation )
-{
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-
-  // the mesh to store in
-  m_mesh = meshreader->create_mesh_from("quadtriag.neu");
-
-  Core::instance().root().add_component(m_mesh);
-
-}
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
 {
-  CMesh& mesh = *m_mesh;
+  CMesh& mesh = *FieldTests_Fixture::m_mesh;
 
   std::vector<std::string> names;
   std::vector<std::string> types;
@@ -112,7 +109,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
 
 BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
 {
-  CMesh& mesh = *m_mesh;
+  CMesh& mesh = *FieldTests_Fixture::m_mesh;
 
   std::vector<std::string> names;
   std::vector<std::string> types;
@@ -154,7 +151,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
 
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
-  CMesh& mesh = *m_mesh;
+  CMesh& mesh = *FieldTests_Fixture::m_mesh;
 
   std::vector<std::string> names;
   std::vector<std::string> types;
