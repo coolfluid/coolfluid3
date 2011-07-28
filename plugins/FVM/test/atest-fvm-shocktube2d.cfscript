@@ -6,7 +6,7 @@ call //Root/Libraries/load_libraries \
 # or in bash: export COOLFLUID_PLUGINS=path/to/libcoolfluid_fvm.dylib
 
 configure //Root/Environment \
-  assertion_to_exception:bool=false \
+  assertion_throws:bool=false \
   exception_outputs:bool=true \
   exception_backtrace:bool=true \
   exception_aborts:bool=true
