@@ -97,7 +97,7 @@ void CMesh::configure_nodes()
 
 void CMesh::update_statistics()
 {
-  option("dimension").change_value(nodes().coordinates().row_size());
+  cf_assert( option("dimension").value<Uint>() == nodes().coordinates().row_size() );
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 }

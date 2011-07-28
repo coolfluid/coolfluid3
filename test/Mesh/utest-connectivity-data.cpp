@@ -11,9 +11,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
- 
+
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -43,8 +44,11 @@ typedef MeshSourceGlobalFixture<1000> MeshSource;
 struct NeuFixture
 {
   /// common setup for each test case
-  NeuFixture() : mesh2d(allocate_component<CMesh>  ( "mesh2d" )), mesh3d(allocate_component<CMesh>  ( "mesh3d" ))
+  NeuFixture()
   {
+    mesh2d = Core::instance().root().create_component_ptr<CMesh>("mesh2d");
+    mesh3d = Core::instance().root().create_component_ptr<CMesh>("mesh3d");
+
     // Read the a .neu mesh as 2D mixed mesh
     CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 

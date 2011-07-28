@@ -305,23 +305,14 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
   Common::XML::SignalOptions options( args );
 
   URI mesh_uri = options.value<URI>("mesh_uri");
-  CMesh& mesh = access_component(mesh_uri).as_type<CMesh>();
+  CMesh& mesh_arg = access_component(mesh_uri).as_type<CMesh>();
 
-  if (m_topology->is_linked() == false)
-    throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
+  CMesh& this_mesh = find_parent_component<CMesh>(*this);
 
-  bool topology_found=false;
-  boost_foreach(CRegion& region, find_components_recursively<CRegion>(mesh))
+  if (&this_mesh == &mesh_arg)
   {
-    if (region.uri() == topology().uri())
-    {
-      topology_found=true;
-      break;
-    }
-  }
-
-  if (topology_found)
-  {
+    if (m_topology->is_linked() == false)
+      throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
     if (m_basis == Basis::INVALID)
       throw SetupError(FromHere(), "type of field_group ["+uri().string()+"] not configured");
     if (m_space == "invalid")
