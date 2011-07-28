@@ -12,8 +12,11 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-rotationadv2d
 coolfluid_add_acceptance_test( NAME    atest-rdm-burgers2d
                                SCRIPT  atest-rdm-burgers2d.cfscript )
 
-coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d
-                               SCRIPT  atest-rdm-euler2d.cfscript )
+coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d-uniform-flow
+                               SCRIPT  atest-rdm-euler2d-uniform-flow.cfscript )
+
+coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d-riemann
+                               SCRIPT  atest-rdm-euler2d-riemann.cfscript )
 
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv3d
                                SCRIPT  atest-rdm-linearadv3d.cfscript )
