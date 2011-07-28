@@ -79,15 +79,68 @@ public: // functions
 
     // definition of the alpha and beta coefficients of RK method
 
-    /// @warning RKLDA only supports up to RK4
+    /// @warning RKLDA only supports up to RK3
 
-    #define RK_MAX 4
+    #define RK_MAX 3
 
-    rkalphas(RK_MAX,RK_MAX);
+    rkalphas(RK_MAX,RK_MAX-1);
 
-    rkalphas(0,0) = 1.0;
+    rkbetas(RK_MAX,RK_MAX);
 
-    rkbetas (RK_MAX);
+    rkcoeff(RK_MAX-1,RK_MAX-1);
+
+    switch( RK_MAX )
+    {
+    case 1: /// @todo Forward Euler
+
+      rkbetas (0,0) = 0.;
+
+      break;
+
+    case 2:
+
+      rkalphas(0,0) =  0.5;
+      rkalphas(1,0) =  0.5;
+
+      rkcoeff(0,0) =   1.0;
+
+      rkbetas (0,0) =  0.0;
+      rkbetas (0,1) = -1.0;
+      rkbetas (1,0) =  0.0;
+      rkbetas (1,1) =  1.0;
+
+      break;
+
+    case 3:
+
+      rkalphas(0,0) = 0.25  ;
+      rkalphas(1,0) = 0.25  ;
+      rkalphas(2,0) = 0.    ;
+      rkalphas(0,1) = 1./6. ;
+      rkalphas(1,1) = 1./6. ;
+      rkalphas(2,1) = 2./3. ;
+
+      rkcoeff(0,0) =    1.0 ;
+      rkcoeff(1,0) =    0.0 ;
+      rkcoeff(0,1) =    0.5 ;
+      rkcoeff(1,1) =    2.0 ;
+
+      rkbetas(0,0) = 0.  ;
+      rkbetas(0,1) = -0.5 ;
+      rkbetas(0,2) = -2. ;
+      rkbetas(1,0) = 0. ;
+      rkbetas(1,1) = 0. ;
+      rkbetas(1,2) = 0. ;
+      rkbetas(2,0) = 0. ;
+      rkbetas(2,1) = 0.5 ;
+      rkbetas(2,2) = 2. ;
+
+      break ;
+
+//    default:
+
+    }
+
 
   }
 
@@ -114,7 +167,8 @@ protected: // data
   Real dt;      ///< time step size
 
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
-  RealVector rkbetas;   ///< matrix with beta  coefficients of RK method
+  RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
+  RealMatrix rkcoeff;   ///< matrix with the coefficients that multiply du_s
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
@@ -142,111 +196,117 @@ template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
 #if 0
-  // get:
-    // - current k step (kstep)
-    // - the total nb_steps (nb_steps)
-    // - time step dt (dt)
-    // - RK alpha coef matrix (alpha)
-    // - Rk beta coef matrix (beta)
-
-    // initialize things
-
     //compute delta u_s
 
     for ( Uint s = 0 ; s < nb_states ; ++s) // nb_states = number of solution points
     {
-
-        for ( Uint p = 0 ; p < nb_steps ; ++p)
-        {
-
+        du[s] = 0. ;
+        for ( Uint r = 0 ; r < rkorder ; ++r)
             for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
+                du[s][eq] += rkbetas(r,step) * kstates ( eq , r );
+    }
+
+    // add mass matrix contribution
+    for (Uint n=0; n<SF::nb_nodes; ++n)
+    {
+        for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
+        {
+            for ( Uint p=0; p<PHYS::MODEL::_neqs ; ++p)
             {
-                du[s][eq] += beta(p,kstep) * kstates ( eq , p );
+                if ( p==eq )
+                {
+                    (*B::residual)[nodes_idx[n]][eq] += volume / 12. * 2. * du[eq] * rkcoeff(step - 2 , rkorder - 2);
+                }
+                else
+                {
+                    (*B::residual)[nodes_idx[n]][eq] += volume / 12. * 1. * du[eq] * rkcoeff(step - 2 , rkorder - 2);
+                }
             }
         }
     }
+        // there isn't a way to compute it automatically, yet
+        // it's necessary to define s
+        /// @todo lumped and not lumped in the same line
 
-    // loop over each quadrature point
-
-    // get element connectivity
-
-    const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
-
-    B::interpolate( nodes_idx );
-
-    // L(N)+ @ each quadrature point
-
-    for(Uint q = 0 ; q < QD::nb_points ; ++q)
+    for ( Uint r = 0 ; r < step ; ++r)
     {
-        // add mass matrix contribution
-            // there isn't a way to compute it automatically, yet
 
-        // compute the contributions to phi_i
-        B::sol_gradients_at_qdpoint(q);
+        // get element connectivity
 
-        PHYS::compute_properties(B::X_q.row(q),
-                                 B::U_q.row(q),
-                                 B::dUdXq,
-                                 B::phys_props);
+        const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
-        for( Uint n = 0 ; n < SF::nb_nodes ; ++n)
+        B::interpolate( nodes_idx );
+
+        // L(N)+ @ each quadrature point
+
+        for(Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
         {
-          B::dN[XX] = B::dNdX[XX](q,n);
-          B::dN[YY] = B::dNdX[YY](q,n);
+            // compute the contributions to phi_i
+            B::sol_gradients_at_qdpoint(q);
 
-          PHYS::flux_jacobian_eigen_structure(B::phys_props,
-                                         B::dN,
-                                         Rv,
-                                         Lv,
-                                         Dv );
+            PHYS::compute_properties(B::X_q.row(q),
+                                     B::U_q.row(q),
+                                     B::dUdXq,
+                                     B::phys_props);
 
-          // diagonal matrix of positive eigen values
+            for( Uint n = 0 ; n < SF::nb_nodes ; ++n)
+            {
+              B::dN[XX] = B::dNdX[XX](q,n);
+              B::dN[YY] = B::dNdX[YY](q,n);
 
-          DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+              PHYS::flux_jacobian_eigen_structure(B::phys_props,
+                                             B::dN,
+                                             Rv,
+                                             Lv,
+                                             Dv );
 
-          Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+              // diagonal matrix of positive eigen values
+
+              DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+
+              Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+            }
+
+            // compute L(u)
+
+            PHYS::residual(B::phys_props,
+                     B::dFdU,
+                     B::LU );
+
+            // compute L(N)+
+
+            sumLplus = Ki_n[0];
+            for(Uint n = 1 ; n < SF::nb_nodes ; ++n) Ki_n[n];
+              sumLplus += Ki_n[n];
+
+              // invert the sum L plus
+
+            InvKi_n = sumLplus.inverse();
+
+            // compute the phi_i LDA integral
+
+            LUwq = InvKi_n * B::LU * B::wj[q];
+
+            for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+              B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // save the phi_i
+                // save B::Phi_n.row
+                //Phin.row() += Phi_n.row(n) ;
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // compute contribution to wave_speed
+
+            for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+              (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
         }
-
-        // compute L(u)
-
-        PHYS::residual(B::phys_props,
-                 B::dFdU,
-                 B::LU );
-
-        // compute L(N)+
-
-        sumLplus = Ki_n[0];
-        for(Uint n = 1 ; n < SF::nb_nodes ; ++n) Ki_n[n];
-          sumLplus += Ki_n[n];
-
-          // invert the sum L plus
-
-        InvKi_n = sumLplus.inverse();
-
-        // compute the phi_i LDA integral
-
-        LUwq = InvKi_n * B::LU * B::wj[q];
-
-        for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-          B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // save the phi_i
-            // save B::Phi_n.row
-            Phin.row() += Phi_n.row(n) ;
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // compute contribution to wave_speed
-
-        for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-          (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
-
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        // update the residual (according to k)
+        for (Uint n=0; n<SF::nb_nodes; ++n)
+          for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
+            (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 2) * dt * B::Phi_n(n,eq);
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // update the residual (according to k)
-    for ( Uint r = 0 ; r <= kstep ; ++r )
-    {
-        residual += alpha(r,kstep) * dt * Phin(); // because we added the mass*du contribution before
-    }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+}
 #endif
 
 #if 0
