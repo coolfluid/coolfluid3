@@ -12,6 +12,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
@@ -73,22 +74,20 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // Create root and mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<CMesh> p_mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  CMesh& mesh = root->create_component<CMesh>( "mesh" ) ;
 
-  root->add_component( p_mesh );
-
-  BOOST_CHECK_EQUAL ( p_mesh->name() , "mesh" );
-  BOOST_CHECK_EQUAL ( p_mesh->uri().base_path().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( p_mesh->uri().string() , "cpath://root/mesh" );
+  BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
+  BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath://root" );
+  BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath://root/mesh" );
 
   // Create one region inside mesh
-  CRegion& region1 = p_mesh->topology().create_region("region1");
+  CRegion& region1 = mesh.topology().create_region("region1");
   BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath://root/mesh/topology/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
-  CRegion& region2 = p_mesh->topology().create_region("region2");
+  CRegion& region2 = mesh.topology().create_region("region2");
 
-  CFinfo << p_mesh->tree() << CFendl;
+  CFinfo << mesh.tree() << CFendl;
   region2.create_region("subregion1");
   CRegion& subregion = region2.create_region("subregion2");
   BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath://root/mesh/topology/region2/subregion2" );
@@ -102,8 +101,8 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
-  p_mesh->create_component_ptr<CTable<Real> >("coordinates");
-  BOOST_CHECK_EQUAL ( find_component_with_name(*p_mesh, "coordinates").uri().string() , "cpath://root/mesh/coordinates" );
+  mesh.create_component_ptr<CTable<Real> >("coordinates");
+  BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath://root/mesh/coordinates" );
 
   find_component_with_name<CRegion>(region2, "subregion1").create_region("subsubregion1");
   find_component_with_name<CRegion>(region2, "subregion1").create_region("subsubregion2");
@@ -240,15 +239,13 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   // Create mesh component
   boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
 
-  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
-
-  root->add_component( mesh );
+  CMesh& mesh = root->create_component<CMesh>  ( "mesh" ) ;
 
   // Create one region inside mesh
-  CRegion& region = mesh->topology().create_region("region");
+  CRegion& region = mesh.topology().create_region("region");
 
   // Create connectivity table inside the region
-  CTable<Uint>& connTable = *region.create_component_ptr<CTable<Uint> >("connTable");
+  CTable<Uint>& connTable = region.create_component<CTable<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -342,8 +339,8 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh::Ptr mesh = root->create_component_ptr<CMesh>("mesh");
-  CRegion& regions = mesh->topology().create_region("regions");
+  CMesh& mesh = root->create_component<CMesh>("mesh");
+  CRegion& regions = mesh.topology().create_region("regions");
 
   CRegion& subregion1 = regions.create_region("subregion1");
   BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
@@ -691,15 +688,15 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
-  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
-  CRegion& region = mesh->topology().create_region("region");
-  CNodes& nodes = mesh->nodes();
-  mesh->configure_option("dimension",(Uint)DIM_3D);
+  CRoot::Ptr root = CRoot::create("root");
+  CMesh& mesh = root->create_component<CMesh>("mesh");
+  CRegion& region = mesh.topology().create_region("region");
+  CNodes& nodes = mesh.nodes();
+  mesh.configure_option("dimension",(Uint)DIM_3D);
   nodes.resize(2);
+  BOOST_CHECK_EQUAL(mesh.nodes().coordinates().row_size() , (Uint) DIM_3D);
 
-  BOOST_CHECK_EQUAL(mesh->nodes().coordinates().row_size() , (Uint) DIM_3D);
-
-  BOOST_CHECK_EQUAL(&mesh->nodes(), &region.nodes() );
+  BOOST_CHECK_EQUAL(&mesh.nodes(), &region.nodes() );
 
 }
 
