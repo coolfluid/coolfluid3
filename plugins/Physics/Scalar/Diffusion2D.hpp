@@ -67,8 +67,10 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
+#if 0 // compilation error
     flux(0,XX)   = p.mu * p.grad_vars.col(XX);
     flux(0,YY)   = p.mu * p.grad_vars.col(YY);
+#endif
   }
 
   /// compute the eigen values of the flux jacobians
