@@ -93,7 +93,9 @@ public: // functions
     {
     case 1: /// @todo Forward Euler
 
-      rkbetas (0,0) = 0.;
+      rkalphas(0,0) = 1.;
+
+      rkbetas(0,0) =  0.;
 
       break;
 
@@ -195,31 +197,42 @@ protected: // data
 template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
+
+// get element connectivity
+
+const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+
 #if 0
     //compute delta u_s
 
-    for ( Uint s = 0 ; s < nb_states ; ++s) // nb_states = number of solution points
+    for ( Uint s = 0 ; s < SF::nb_nodes ; ++s) // nb_states = number of solution points
     {
         du[s] = 0. ;
         for ( Uint r = 0 ; r < rkorder ; ++r)
+        {
             for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
                 du[s][eq] += rkbetas(r,step) * kstates ( eq , r );
+        }
     }
+#endif
 
-    // add mass matrix contribution
-    for (Uint n=0; n<SF::nb_nodes; ++n)
+    if (step > 1)
     {
-        for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
+        // add mass matrix contribution
+        for (Uint n=0; n<SF::nb_nodes; ++n)
         {
-            for ( Uint p=0; p<PHYS::MODEL::_neqs ; ++p)
+            for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
             {
-                if ( p==eq )
+                for ( Uint p=0; p<PHYS::MODEL::_neqs ; ++p)
                 {
-                    (*B::residual)[nodes_idx[n]][eq] += volume / 12. * 2. * du[eq] * rkcoeff(step - 2 , rkorder - 2);
-                }
-                else
-                {
-                    (*B::residual)[nodes_idx[n]][eq] += volume / 12. * 1. * du[eq] * rkcoeff(step - 2 , rkorder - 2);
+                    if ( p==eq )
+                    {
+                        (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff(step - 2 , rkorder - 2);// * du[eq];
+                    }
+                    else
+                    {
+                        (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff(step - 2 , rkorder - 2);// * du[eq];
+                    }
                 }
             }
         }
@@ -231,9 +244,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     for ( Uint r = 0 ; r < step ; ++r)
     {
 
-        // get element connectivity
-
-        const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+        // change current solution pointer
 
         B::interpolate( nodes_idx );
 
@@ -276,7 +287,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
             // compute L(N)+
 
             sumLplus = Ki_n[0];
-            for(Uint n = 1 ; n < SF::nb_nodes ; ++n) Ki_n[n];
+            for(Uint n = 1 ; n < SF::nb_nodes ; ++n)
               sumLplus += Ki_n[n];
 
               // invert the sum L plus
@@ -301,13 +312,18 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
         }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // update the residual (according to k)
-        for (Uint n=0; n<SF::nb_nodes; ++n)
-          for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
-            (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 2) * dt * B::Phi_n(n,eq);
+        if ( step > 1)
+        {
+            for (Uint n=0; n<SF::nb_nodes; ++n)
+            {
+              for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
+                (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 2) * dt * B::Phi_n(n,eq);
+            }
+        }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     }
 }
-#endif
+//#endif
 
 #if 0
     // get element connectivity
@@ -423,7 +439,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   //    if( idx() > 2 ) exit(0);
 
-}
+
 
 /////////////////////////////////////////////////////////////////////////////////////
 
