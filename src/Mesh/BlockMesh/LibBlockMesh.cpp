@@ -16,11 +16,11 @@ CF::Common::RegistLibrary<LibBlockMesh> libBlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibBlockMesh::initiate()
+void LibBlockMesh::initiate_impl()
 {
 }
 
-void LibBlockMesh::terminate()
+void LibBlockMesh::terminate_impl()
 {
 }
 

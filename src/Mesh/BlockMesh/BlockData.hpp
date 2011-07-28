@@ -16,7 +16,6 @@ namespace CF {
 namespace Mesh {
 
 class CMesh;
-struct SimpleCommunicationPattern;
 
 namespace BlockMesh {
 
@@ -63,8 +62,10 @@ struct BlockMesh_API BlockData
   bool operator== (const BlockData& other) const;
 };
 
-/// Using the given block data, construct the mesh
-void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh, std::vector<Uint>& nodes_dist);
+/// Using the given block data, construct the mesh. Global node indices are generated as well, so there is no need for a separate global ID generation
+/// @param block_data Description of the structured blocks that make up the grid
+/// @param mesh Stores the generated mesh
+void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks

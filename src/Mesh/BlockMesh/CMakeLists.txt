@@ -11,6 +11,4 @@ list( APPEND coolfluid_mesh_block_cflibs coolfluid_mesh coolfluid_mesh_sf )
 
 set( coolfluid_mesh_block_kernellib TRUE )
 
-set( coolfluid_mesh_block_condition ${CF_TMP_HAVE_SIMPLECOMM})
-
 coolfluid_add_library( coolfluid_mesh_block )

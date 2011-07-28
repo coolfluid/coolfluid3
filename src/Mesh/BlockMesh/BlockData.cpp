@@ -53,7 +53,8 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
 {
   // root region and coordinates
   CRegion& block_mesh_region = mesh.topology().create_region("block_mesh_region");
-  CNodes& block_nodes = block_mesh_region.create_nodes(DIM_3D);
+  mesh.configure_option("dimension",static_cast<Uint>(DIM_3D));
+  CNodes& block_nodes = mesh.nodes();
   
   // Fill the coordinates array
   const Uint nb_nodes = block_data.points.size();
@@ -484,7 +485,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nodes_dist)
+void build_mesh(const BlockData& block_data, CMesh& mesh)
 {
   const Uint nb_procs = mpi::PE::instance().size();
   const Uint rank = mpi::PE::instance().rank();
@@ -493,11 +494,11 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh::Ptr block_mesh(allocate_component<CMesh>("block_mesh"));
+  CMesh& block_mesh = mesh.create_component<CMesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
-  detail::create_block_mesh(block_data, *block_mesh, patch_types);
+  detail::create_block_mesh(block_data, block_mesh, patch_types);
   
-  const CElements& block_elements = find_component_recursively_with_name<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
+  const CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const CTable<Real>& block_coordinates = block_elements.nodes().coordinates();
   
@@ -524,7 +525,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
   detail::NodeIndices nodes(volume_to_face_connectivity, block_data);
   
   // Distribution of the nodes among CPUs
-  nodes_dist.clear();
+  std::vector<Uint> nodes_dist;
   nodes_dist.reserve(nb_procs+1);
   nodes_dist.push_back(0);
   for(Uint proc = 0; proc != nb_procs; ++proc)
@@ -542,11 +543,21 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
   const std::pair<Uint,Uint> dims = detail::dimensionality(block_data.block_distribution.back(), volume_to_face_connectivity, patch_types);
   
   // 3D helper mesh in case we have a non-3D problem
-  CMesh::Ptr tmp_mesh3d = dims.first == DIM_3D ? CMesh::Ptr() : allocate_component<CMesh>("tmp_mesh3d");
+  CMesh::Ptr tmp_mesh3d;
+  if(dims.first == DIM_2D)
+  {
+    tmp_mesh3d = mesh.create_component_ptr<CMesh>("tmp_mesh3d");
+    tmp_mesh3d->configure_option("dimension",static_cast<Uint>(DIM_3D));
+    mesh.configure_option("dimension",static_cast<Uint>(DIM_2D));
+  }
+  else
+  {
+    mesh.configure_option("dimension",static_cast<Uint>(DIM_3D));
+  }
   
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->topology().create_region("root_region") : mesh.topology().create_region("root_region");
-  CNodes& mesh_nodes_comp = root_region.create_nodes(DIM_3D);
+  CNodes& mesh_nodes_comp = root_region.nodes();
   CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
   mesh_nodes_comp.resize(nodes_end - nodes_begin);
   
@@ -646,7 +657,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
   // Create the boundary elements
   std::map<std::string, std::vector<Uint> > patch_first_elements;
   std::map<std::string, std::vector<Uint> > patch_elements_counts;
-  const CRegion& block_mesh_region = find_component<CRegion>(block_mesh->topology());
+  const CRegion& block_mesh_region = find_component<CRegion>(block_mesh.topology());
   BOOST_FOREACH(const CElements& patch_block, find_components_recursively_with_filter<CElements>(block_mesh_region, IsElementsSurface()))
   {
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
@@ -740,7 +751,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
     // Create the 2D mesh
     // Create the node coordinates
     CRegion& root_region_2d = mesh.topology().create_region("root_region");
-    CNodes& mesh_nodes_comp_2d = root_region_2d.create_nodes(DIM_3D);
+    CNodes& mesh_nodes_comp_2d = root_region_2d.nodes();
     CTable<Real>::ArrayT& mesh_coords_2d = mesh_nodes_comp_2d.coordinates().array();
     
     // Create the volume cells connectivity
@@ -929,6 +940,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh, std::vector<Uint>& nod
           element[i] = node_index_map[element[i]];
       }
     }
+    mesh.remove_component(*tmp_mesh3d);
   }
 }
 
