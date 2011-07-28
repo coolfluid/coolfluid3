@@ -146,6 +146,8 @@ protected: // data
  FluxMT Fu_g;
  /// ghost solution vector
  SolutionVT u_g;
+ /// average solution vector between u_h and u_g
+ SolutionVT u_avg;
 
  /// diagonal matrix with eigen values
  typename B::PhysicsVT Dv;
@@ -199,6 +201,33 @@ public: // functions
 
    U_q = Ni * U_n;
 
+#if 0
+
+   const Real jacob = std::sqrt( dX_q(0,XX)*dX_q(0,XX)+dX_q(0,YY)*dX_q(0,YY) );
+
+   dN[XX] =  dX_q(0,YY)/jacob;
+   dN[YY] = -dX_q(0,XX)/jacob;
+
+   //   if ( X_q.row(0)[XX] > 0.5 && X_q.row(0)[XX] < 1. && X_q.row(0)[YY] < 0.25  )
+   //   {
+   //       std::cout << "Xq       : " << X_q.row(0) << std::endl;
+   //       std::cout << "dN[XX]   : " << dN[XX]     << std::endl;
+   //       std::cout << "dN[YY]   : " << dN[YY]     << std::endl;
+   //   }
+
+   // modify directly the residual
+
+   for (Uint n=0; n < SF::nb_nodes; ++n)
+   {
+     const Real un = (*B::residual)[nodes_idx[n]][1] * dN[XX]
+                   + (*B::residual)[nodes_idx[n]][2] * dN[YY];
+
+     (*B::residual)[nodes_idx[n]][1] += un * dN[XX];
+     (*B::residual)[nodes_idx[n]][2] += un * dN[YY];
+   }
+
+#else
+
    // zero element residuals
 
    Phi_n.setZero();
@@ -222,6 +251,10 @@ public: // functions
     dN[XX] =  dX_q(q,YY)/jacob;
     dN[YY] = -dX_q(q,XX)/jacob;
 
+//    std::cout << "Xq       : " << X_q.row(q) << std::endl;
+//    std::cout << "dN[XX]   : " << dN[XX] << std::endl;
+//    std::cout << "dN[YY]   : " << dN[YY] << std::endl;
+
     // compute the flux F(u_h) and its correction F(u_g)
 
     PHYS::compute_properties(X_q.row(q),
@@ -234,11 +267,18 @@ public: // functions
     // compute the ghost state and correction - Mario:
     const Real u_n = B::phys_props.u*dN[XX] + B::phys_props.v*dN[YY];
 
+#if 1
     u_g[0] = B::phys_props.rho;
-    u_g[1] = B::phys_props.u - u_n*dN[XX];
-    u_g[2] = B::phys_props.v - u_n*dN[YY];
+    u_g[1] = B::phys_props.rho  * ( B::phys_props.u - 2 * u_n*dN[XX] );
+    u_g[2] = B::phys_props.rho  * ( B::phys_props.v - 2 * u_n*dN[YY] );
+    u_g[3] = B::phys_props.rhoE; // - 0.5 * B::phys_props.rho * u_n * u_n;
+#else
+    u_g[0] = B::phys_props.rho;
+    u_g[1] = B::phys_props.rho  * ( B::phys_props.u - u_n*dN[XX] );
+    u_g[2] = B::phys_props.rho  * ( B::phys_props.v - u_n*dN[YY] );
     u_g[3] = B::phys_props.rhoE - 0.5 * B::phys_props.rho * u_n * u_n;
-//    u_g[3] = B::phys_props.rhoE;
+#endif
+
 
     PHYS::compute_properties(X_q.row(q),
                              u_g,
@@ -247,17 +287,24 @@ public: // functions
 
     PHYS::flux(B::phys_props, Fu_g);
 
+    // compute eigen structure in average state
+
+    u_avg = 0.5 * ( U_q.row(q).transpose() + u_g );
+
+    PHYS::compute_properties(X_q.row(q),
+                             u_avg,
+                             dUdXq,
+                             B::phys_props);
+
     PHYS::flux_jacobian_eigen_structure(B::phys_props,dN,Rv,Lv,Dv);
 
-    for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
     {
-      if(Dv[dim] < 0.0) Dv[dim] = 1.0;
-      else
-      {
-        Dv[dim]  = 0.0;
-        Lv.row(dim).setZero();
-      }
+      std::cout << "identity? " << Rv*Lv << std::endl;
     }
+
+    for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
+      if(Dv[dim] >= 0.0)
+        Lv.row(dim).setZero();
 
     P = Rv*Lv;
 
@@ -293,7 +340,7 @@ public: // functions
       Phi_n.row(n) += ( P * dF * Ni(q,n) * wj[q] );
     }
 
-
+#if 0
     // compute the wave_speed for scaling the update
 
     PHYS::flux_jacobian_eigen_values(B::phys_props,
@@ -304,6 +351,7 @@ public: // functions
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       (*B::wave_speed)[nodes_idx[n]][0] += DvPlus.array().maxCoeff() * wj[q];
+#endif
 
 
    } //Loop over quadrature points
@@ -313,6 +361,8 @@ public: // functions
    for (Uint n=0; n<SF::nb_nodes; ++n)
      for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
        (*B::residual)[nodes_idx[n]][v] += Phi_n(n,v);
+
+#endif
 
  }
 
