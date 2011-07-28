@@ -11,6 +11,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/MPI/debug.hpp"
 #include "Common/MPI/PE.hpp"
 
@@ -54,7 +55,7 @@ struct TestCGlobalConnectivity_Fixture
   static CMesh::Ptr mesh;
 };
 
-CMesh::Ptr TestCGlobalConnectivity_Fixture::mesh = allocate_component<CMesh>("mesh");
+CMesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 

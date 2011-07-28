@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
- 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -69,13 +70,15 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr mesh = meshreader->create_mesh_from("quadtriag.neu");
+
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("quadtriag");
+  meshreader->read_mesh_into("quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 
   // create and setup node to elements connectivity
-  CNodeElementConnectivity::Ptr c = mesh->create_component_ptr<CNodeElementConnectivity>("node_elem_connectivity");
-  c->setup( find_component<CRegion>(*mesh) );
+  CNodeElementConnectivity::Ptr c = mesh.create_component_ptr<CNodeElementConnectivity>("node_elem_connectivity");
+  c->setup( find_component<CRegion>(mesh) );
 
   BOOST_CHECK( true );
 

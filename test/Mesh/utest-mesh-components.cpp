@@ -692,8 +692,7 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   CMesh& mesh = root->create_component<CMesh>("mesh");
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = mesh.nodes();
-  mesh.configure_option("dimension",(Uint)DIM_3D);
-  nodes.resize(2);
+  mesh.initialize_nodes(2,DIM_3D);
   BOOST_CHECK_EQUAL(mesh.nodes().coordinates().row_size() , (Uint) DIM_3D);
 
   BOOST_CHECK_EQUAL(&mesh.nodes(), &region.nodes() );

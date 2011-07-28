@@ -653,22 +653,24 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
 
   // the mesh to store in
-  CMesh::Ptr mesh = meshreader->create_mesh_from("grid_c.cgns");
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("grid_c");
+  meshreader->read_mesh_into("grid_c.cgns",mesh);
 
   // Write to Gmsh
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(*mesh,"grid_c.msh");
+  gmsh_writer->write_from_to(mesh,"grid_c.msh");
 
   // Write to Neu
   CMeshWriter::Ptr neu_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
-  neu_writer->write_from_to(*mesh,"grid_c.neu");
+  neu_writer->write_from_to(mesh,"grid_c.neu");
 
   // Read from Neu
   CMeshReader::Ptr neu_reader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr mesh_from_neu = neu_reader->create_mesh_from("grid_c.neu");
+  CMesh& mesh_from_neu = Core::instance().root().create_component<CMesh>("mesh_from_neu");
+  neu_reader->read_mesh_into("grid_c.neu",mesh_from_neu);
 
   // Write to Gmsh
-  gmsh_writer->write_from_to(*mesh_from_neu,"cgns2neu2gmsh.msh");
+  gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh.msh");
 
 
   //CFinfo << mesh_from_neu->tree() << CFendl;
@@ -683,27 +685,29 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
 
   // the mesh to store in
-  CMesh::Ptr mesh = meshreader->create_mesh_from("grid_str_2zones.cgns");
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("grid_str_2zones");
+  meshreader->read_mesh_into("grid_str_2zones.cgns",mesh);
 
   CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   info->transform(mesh);
   // Write to Gmsh
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(*mesh,"grid_str_2zones.msh");
+  gmsh_writer->write_from_to(mesh,"grid_str_2zones.msh");
 
   // Write to Neu
   CMeshWriter::Ptr neu_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
-  neu_writer->write_from_to(*mesh,"grid_str_2zones.neu");
+  neu_writer->write_from_to(mesh,"grid_str_2zones.neu");
 
   // Read from Neu
   CMeshReader::Ptr neu_reader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr mesh_from_neu = neu_reader->create_mesh_from("grid_str_2zones.neu");
+  CMesh& mesh_from_neu = Core::instance().root().create_component<CMesh>("grid_str_2zones_from_neu");
+  neu_reader->read_mesh_into("grid_str_2zones.neu",mesh_from_neu);
 
   // Write to Gmsh
-  gmsh_writer->write_from_to(*mesh_from_neu,"cgns2neu2gmsh_str_2zondes.msh");
+  gmsh_writer->write_from_to(mesh_from_neu,"cgns2neu2gmsh_str_2zondes.msh");
 
 
-  CFinfo << mesh_from_neu->tree() << CFendl;
+  CFinfo << mesh_from_neu.tree() << CFendl;
   BOOST_CHECK(true);
 
 }
@@ -718,13 +722,13 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 
 
   // the mesh to store in
-  CMesh::Ptr mesh (new CMesh("mesh"), Deleter<CMesh>());
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh_multiple");
 
   for (Uint count=0; count<4; ++count)
   {
-    meshreader->read_mesh_into("grid_c.cgns",*mesh);
+    meshreader->read_mesh_into("grid_c.cgns",mesh);
     //info->transform(mesh);
-    BOOST_CHECK_EQUAL(find_component<CRegion>(*mesh).recursive_elements_count(), (1+count)*3776);
+    BOOST_CHECK_EQUAL(find_component<CRegion>(mesh).recursive_elements_count(), (1+count)*3776);
   }
   info->transform(mesh);
 
@@ -739,20 +743,22 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 
 
   // the mesh to store in
-  CMesh::Ptr mesh = meshreader->create_mesh_from("grid_c.cgns");
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("grid_c_unstr");
+  meshreader->read_mesh_into("grid_c.cgns",mesh);
 
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
 
-  meshwriter->write_from_to(*mesh,"grid_c2cgns.cgns");
+  meshwriter->write_from_to(mesh,"grid_c2cgns.cgns");
 
-  CMesh::Ptr mesh2 = meshreader->create_mesh_from("grid_c2cgns.cgns");
+  CMesh& mesh2 = Core::instance().root().create_component<CMesh>("grid_c2cgns");
+  meshreader->read_mesh_into("grid_c2cgns.cgns",mesh2);
 
   CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
 
   // Write to Gmsh
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(*mesh2,"grid_c2cgns2gmsh.msh");
+  gmsh_writer->write_from_to(mesh2,"grid_c2cgns2gmsh.msh");
   BOOST_CHECK(true);
 
 }
@@ -764,22 +770,24 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   CMeshReader::Ptr neu_reader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   // the mesh to store in
-  CMesh::Ptr mesh = neu_reader->create_mesh_from("quadtriag.neu");
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("quadtriag_mixed");
+  neu_reader->read_mesh_into("quadtriag.neu",mesh);
 
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
 
-  meshwriter->write_from_to(*mesh,"quadtriag2cgns.cgns");
+  meshwriter->write_from_to(mesh,"quadtriag2cgns.cgns");
 
   CMeshReader::Ptr cgns_reader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","meshreader");
 
-  CMesh::Ptr mesh2 = cgns_reader->create_mesh_from("quadtriag2cgns.cgns");
+  CMesh& mesh2 = Core::instance().root().create_component<CMesh>("quadtriag2cgns");
+  cgns_reader->read_mesh_into("quadtriag2cgns.cgns",mesh2);
 
   CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   //info->transform(mesh2);
 
   // Write to Gmsh
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(*mesh2,"quadtriag2cgns2gmsh.msh");
+  gmsh_writer->write_from_to(mesh2,"quadtriag2cgns2gmsh.msh");
   BOOST_CHECK(true);
 
 }

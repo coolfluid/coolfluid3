@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
- 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -73,13 +74,13 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( create_mesh )
 {
-     
+
  // create meshreader
  // CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
  // boost::filesystem::path fp_source ("quadtriag.neu");
  // m_mesh = meshreader->create_mesh_from(fp_source);
- 
-  m_mesh = allocate_component<CMesh>("mesh");
+
+  m_mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
   Uint scale = 2;
   CSimpleMeshGenerator::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
   BOOST_CHECK(true);
@@ -89,12 +90,12 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 BOOST_AUTO_TEST_CASE( face_elem_connectivity )
 {
 
-  // create and setup node to elements connectivity  
+  // create and setup node to elements connectivity
   CFaceCellConnectivity::Ptr c = m_mesh->create_component_ptr<CFaceCellConnectivity>("face_cell_connectivity");
   c->setup( find_component<CRegion>(*m_mesh) );
 
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
-  
+
   CFinfo << "nodes of face 0 : ";
   boost_foreach(const Uint node, c->face_nodes(0) )
     CFinfo << "  " << node;

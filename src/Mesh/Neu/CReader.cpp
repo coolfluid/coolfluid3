@@ -108,7 +108,9 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   // Read mesh information
   read_headerData();
 
-  m_mesh->configure_option("dimension",m_headerData.NDFCD);
+  m_mesh->initialize_nodes(0, m_headerData.NDFCD);
+
+  cf_assert(m_mesh->nodes().coordinates().row_size() == m_headerData.NDFCD);
 
   // Create a hash
   m_hash = create_component_ptr<CMixedHash>("hash");
@@ -148,15 +150,15 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
     }
   }
 
-  // update the number of cells and nodes in the mesh
-//  m_mesh->options()["nb_cells"] = m_headerData.NELEM;
-//  m_mesh->options()["nb_nodes"] = m_headerData.NUMNP;
 
   // close the file
   m_file.close();
 
   m_mesh->elements().update();
   m_mesh->update_statistics();
+
+  cf_assert(m_mesh->nodes().coordinates().row_size() == m_headerData.NDFCD);
+  cf_assert(m_mesh->properties().value<Uint>("dimension") == m_headerData.NDFCD);
 }
 
 //////////////////////////////////////////////////////////////////////////////

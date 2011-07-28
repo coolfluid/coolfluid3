@@ -54,9 +54,8 @@ void mesh_loaded(CMesh& mesh)
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
   CRegion& region = mesh.topology().create_region("fluid");
-  mesh.configure_option("dimension",(Uint)DIM_1D);
   CNodes& nodes = mesh.nodes();
-  nodes.resize(x_segments+1);
+  mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
   {
@@ -95,9 +94,8 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
-  mesh.configure_option("dimension",(Uint)DIM_2D);
   CNodes& nodes = mesh.nodes();
-  nodes.resize((x_segments+1)*(y_segments+1));
+  mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
   const Real y_step = y_len / static_cast<Real>(y_segments);
@@ -202,9 +200,8 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
-  mesh.configure_option("dimension",(Uint)DIM_2D);
   CNodes& nodes = mesh.nodes();
-  nodes.resize((x_segments+1)*(y_segments+1));
+  mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
   const Real y_step = y_len / static_cast<Real>(y_segments);
@@ -359,7 +356,6 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
 void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   CRegion& region = mesh.topology().create_region("region");
-  mesh.configure_option("dimension",(Uint)DIM_2D);
   CNodes& nodes = mesh.nodes();
 
   CFaces::Ptr cells = region.create_component_ptr<CFaces>("Faces");
@@ -368,7 +364,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
 
   const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*pi()) < eps();
 
-  nodes.resize(segments + Uint(!closed));
+  mesh.initialize_nodes(segments + Uint(!closed) , DIM_2D);
   connectivity.resize(segments);
 
   for(Uint u = 0; u != segments; ++u)

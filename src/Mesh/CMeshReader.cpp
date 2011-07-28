@@ -114,17 +114,17 @@ void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMesh::Ptr CMeshReader::create_mesh_from(const URI& file)
-{
-  // Create the mesh
-  CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
+//CMesh::Ptr CMeshReader::create_mesh_from(const URI& file)
+//{
+//  // Create the mesh
+//  CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
 
-  // Call implementation
-  do_read_mesh_into(file,*mesh);
+//  // Call implementation
+//  do_read_mesh_into(file,*mesh);
 
-  // return the mesh
-  return mesh;
-}
+//  // return the mesh
+//  return mesh;
+//}
 
 //////////////////////////////////////////////////////////////////////////////
 

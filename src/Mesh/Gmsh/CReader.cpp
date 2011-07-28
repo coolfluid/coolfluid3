@@ -116,7 +116,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   // Read file once and store positions
   get_file_positions();
 
-  m_mesh->configure_option("dimension",m_mesh_dimension);
+  m_mesh->initialize_nodes(0, m_mesh_dimension);
 
   find_ghost_nodes();
 

@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
- 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -71,14 +72,15 @@ BOOST_AUTO_TEST_CASE( data_location )
 
   BOOST_CHECK( true );
 
-  CMesh::Ptr mesh = meshreader->create_mesh_from("quadtriag.neu");
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
+  meshreader->read_mesh_into("quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 
   CUnifiedData::Ptr unified_elems = allocate_component<CUnifiedData>("unified_elems");
 
 
-  boost_foreach(CElements& elements, find_components_recursively<CElements>(*mesh))
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh))
     unified_elems->add(elements);
 
 
@@ -98,7 +100,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   }
 
   CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
-  boost_foreach(CNodes& nodes, find_components_recursively<CNodes>(*mesh))
+  boost_foreach(CNodes& nodes, find_components_recursively<CNodes>(mesh))
     unified_nodes->add(nodes);
 
   Component::Ptr nodes;

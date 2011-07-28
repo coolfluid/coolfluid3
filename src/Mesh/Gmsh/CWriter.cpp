@@ -116,13 +116,20 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   }
 
   // must be in correct order!
+  std::cout << "1" << std::endl;
   write_header(file);
+  std::cout << "2" << std::endl;
   m_cf_2_gmsh_node->clear();
   m_cf_2_gmsh_node->reserve(CElements::used_nodes(*m_mesh->topology().as_non_const()).size());
+  std::cout << "3" << std::endl;
   write_coordinates(file);
+  std::cout << "4" << std::endl;
   write_connectivity(file);
+  std::cout << "5" << std::endl;
   write_elem_nodal_data(file);
+  std::cout << "6" << std::endl;
   write_nodal_data(file);
+  std::cout << "7" << std::endl;
   //write_element_data(file);
   file.close();
   m_cf_2_gmsh_node->clear();
@@ -276,11 +283,13 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 
   boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
   {
+    std::cout << "1" << std::endl;
     CField& elementbased_field = *field_ptr.lock();
     if (elementbased_field.basis() == CField::Basis::ELEMENT_BASED ||
         elementbased_field.basis() == CField::Basis::CELL_BASED    ||
         elementbased_field.basis() == CField::Basis::FACE_BASED    )
     {
+      std::cout << "2" << std::endl;
       const Real field_time = 0;//elementbased_field.option("time").value<Real>();
       const Uint field_iter = 0;//elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
@@ -295,7 +304,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
           nb_elements += elements.size();
         }
       }
-
+std::cout << "3" << std::endl;
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
@@ -326,17 +335,19 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
         file << 1 << "\n" << field_time << "\n";
         file << 3 << "\n" << field_iter << "\n" << datasize << "\n" << nb_elements <<"\n";
 
-
+std::cout << "4" << std::endl;
         boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
         {
           if (elementbased_field.exists_for_entities(elements))
           {
+            std::cout << "5" << std::endl;
             CMultiStateFieldView field_view("field_view");
             field_view.initialize(elementbased_field,elements.as_ptr<CEntities>());
             Uint elm_number = m_element_start_idx[&elements];
             Uint local_nb_elms = elements.size();
 
             const Uint nb_states = field_view.space().nb_states();
+            std::cout << "nb_states = " << nb_states << std::endl;
             RealMatrix field_data (field_view.space().nb_states(),var_type);
 
             const Uint nb_nodes = elements.element_type().nb_nodes();
@@ -344,6 +355,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
             /// write element
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
+              std::cout << "6" << std::endl;
               file << ++elm_number << " " << nb_nodes << " ";
 
               /// set field data
@@ -355,6 +367,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
                   field_data(iState,j) = data_view[iState][row_idx+j];
               }
 
+              std::cout << "7" << std::endl;
               for (Uint iNode=0; iNode<nb_nodes; ++iNode)
               {
                 /// get element_node local coordinates
@@ -365,6 +378,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
                 cf_assert(node_data.size() == var_type);
 
 
+                std::cout << "8" << std::endl;
                 if (var_type==CField::TENSOR_2D)
                 {
                   data[0]=node_data[0];

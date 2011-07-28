@@ -255,12 +255,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
 
 void CLinearInterpolator::create_bounding_box()
 {
-  m_dim=0;
-
-  boost_foreach(const CElements& elements, find_components_recursively<CElements>(*m_source_mesh))
-  {
-    m_dim = std::max(elements.element_type().dimensionality() , m_dim);
-  }
+  m_dim=m_source_mesh->dimension();
 
   // find bounding box coordinates for region 1 and region 2
   m_bounding[MIN].setConstant(Real_max());
@@ -289,8 +284,7 @@ void CLinearInterpolator::create_octtree()
     V*=L[d];
   }
 
-  m_nb_elems = m_source_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
-
+  m_nb_elems = m_source_mesh->properties().value<Uint>("nb_cells");
 
   if (option("Divisions").value<std::vector<Uint> >().size() > 0)
   {

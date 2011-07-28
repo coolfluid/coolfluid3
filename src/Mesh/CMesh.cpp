@@ -31,6 +31,8 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/WriteMesh.hpp"
 #include "Mesh/MeshMetadata.hpp"
+#include "Mesh/CCells.hpp"
+#include "Mesh/CFaces.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -50,15 +52,10 @@ CMesh::CMesh ( const std::string& name  ) :
   mark_basic(); // by default meshes are visible
 
   m_properties.add_property("nb_cells",Uint(0));
+  m_properties.add_property("nb_faces",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
-
-  m_options.add_option< OptionT<Uint> >("dimension", m_dimension)
-      ->description("Dimension of the mesh")
-      ->pretty_name("Dimension")
-      ->link_to(&m_dimension)
-      ->attach_trigger( boost::bind(&CMesh::configure_nodes, this) );
-  option("dimension").restricted_list() = boost::assign::list_of(0u)(1u)(2u)(3u);
+  m_properties.add_property("dimension",Uint(0));
 
   m_elements   = create_static_component_ptr<CMeshElements>("elements");
   m_topology   = create_static_component_ptr<CRegion>("topology");
@@ -83,23 +80,45 @@ CMesh::~CMesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::configure_nodes()
+void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
-  cf_assert(m_dimension > 0);
+  cf_assert(dimension > 0);
+
   nodes().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
   nodes().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
   nodes().configure_option("topology",topology().uri());
   nodes().coordinates().configure_option("var_names",std::vector<std::string>(1,std::string("coord")));
-  nodes().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(m_dimension)));
+  nodes().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(dimension)));
+  nodes().resize(nb_nodes);
+
+  cf_assert(nodes().size() == nb_nodes);
+  cf_assert(nodes().coordinates().row_size() == dimension);
+  m_dimension = dimension;
+  property("dimension") = m_dimension;
+  property("nb_nodes")  = nodes().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMesh::update_statistics()
 {
-  cf_assert( option("dimension").value<Uint>() == nodes().coordinates().row_size() );
+  cf_assert(m_dimension == nodes().coordinates().row_size() );
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
+
+  Uint nb_cells = 0;
+  boost_foreach ( CCells& elements, find_components_recursively<CCells>(topology()) )
+    nb_cells += elements.size();
+
+  Uint nb_faces = 0;
+  boost_foreach ( CFaces& elements, find_components_recursively<CFaces>(topology()) )
+    nb_faces += elements.size();
+
+  property("dimension") = m_dimension;
+  property("dimensionality")= m_dimensionality;
+  property("nb_cells") = nb_cells;
+  property("nb_faces") = nb_faces;
+  property("nb_nodes") = nodes().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

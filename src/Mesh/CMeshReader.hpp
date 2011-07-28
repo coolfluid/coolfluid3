@@ -77,10 +77,10 @@ public: // functions
   /// @param [in,out] mesh  the mesh to write to
   void read_mesh_into(const Common::URI& path, CMesh& mesh);
 
-  /// Read a given file and create a mesh
-  /// @param [in]   path    the file to read in
-  /// @return mesh          the created mesh
-  CMesh::Ptr create_mesh_from(const Common::URI& path);
+//  /// Read a given file and create a mesh
+//  /// @param [in]   path    the file to read in
+//  /// @return mesh          the created mesh
+//  CMesh::Ptr create_mesh_from(const Common::URI& path);
 
 protected: // functions
 

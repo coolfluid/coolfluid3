@@ -118,10 +118,8 @@ public: // functions
 
   Uint dimensionality() const { return m_dimensionality; }
 
-private: // functions
-
   /// will among others set the coordinate dimension for the nodes
-  void configure_nodes();
+  void initialize_nodes(const Uint nb_nodes, const Uint dimension);
 
 private: // data
 

@@ -107,10 +107,9 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   num_obj[ELEMS] = x_segments;
   hash.configure_option("nb_obj",num_obj);
 
-  mesh.configure_option("dimension",(Uint)DIM_1D);
   CRegion& region = mesh.topology().create_region("fluid");
   CNodes& nodes = mesh.nodes();
-  nodes.resize(hash.subhash(ELEMS).nb_objects_in_part(part) + 1);
+  mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   CCells& cells = region.create_component<CCells>("Line");
   cells.initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
@@ -205,7 +204,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   num_obj[ELEMS] = x_segments*y_segments;
   hash.configure_option("nb_obj",num_obj);
 
-  mesh.configure_option("dimension",(Uint)DIM_2D);
   CRegion& region = mesh.topology().create_region("region");
   CNodes& nodes = mesh.nodes();
 
@@ -246,7 +244,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
   }
 
-  nodes.resize(hash.subhash(NODES).nb_objects_in_part(part)+ghost_nodes_loc.size());
+  mesh.initialize_nodes(hash.subhash(NODES).nb_objects_in_part(part)+ghost_nodes_loc.size(), DIM_2D);
   Uint glb_node_start_idx = hash.subhash(NODES).start_idx_in_part(part);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -269,7 +267,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       }
     }
   }
-
   // add ghost nodes
   Uint glb_ghost_node_start_idx = hash.subhash(NODES).nb_objects_in_part(part);
   Uint loc_node_idx = glb_ghost_node_start_idx;
@@ -285,7 +282,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     row[YY] = static_cast<Real>(j) * y_step;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
-
   CCells::Ptr cells = region.create_component_ptr<CCells>("Quad");
   cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
 

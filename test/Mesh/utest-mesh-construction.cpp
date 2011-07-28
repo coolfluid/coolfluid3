@@ -120,10 +120,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  mesh.configure_option("dimension",dim);
   CNodes& nodes = mesh.nodes();
-  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , 0u);
-  nodes.resize(0);
+  mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
@@ -236,10 +234,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  mesh.configure_option("dimension",dim);
   CNodes& nodes = mesh.nodes();
-  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , 0u);
-  nodes.resize(0);
+  mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);

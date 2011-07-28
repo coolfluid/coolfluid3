@@ -256,7 +256,6 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
 
-  m_mesh->configure_option("dimension",(Uint)m_zone.coord_dim);
   CNodes& nodes = m_mesh->nodes();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
@@ -279,7 +278,8 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
   }
 
-  nodes.resize(m_zone.total_nbVertices);
+  m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
+
   CTable<Real>& coords = nodes.coordinates();
   CList<Uint>& rank = nodes.rank();
   //  CTable<Real>::Buffer buffer = nodes.coordinates().create_buffer();
@@ -315,7 +315,6 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
 void CReader::read_coordinates_structured(CRegion& parent_region)
 {
-  m_mesh->configure_option("dimension",(Uint)m_zone.coord_dim);
   CNodes& nodes = m_mesh->nodes();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
@@ -343,8 +342,7 @@ void CReader::read_coordinates_structured(CRegion& parent_region)
   }
 
   CTable<Real>& coords = nodes.coordinates();
-  nodes.resize(m_zone.total_nbVertices);
-
+  m_mesh->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
   Uint n(0);
   switch (m_zone.coord_dim)
   {

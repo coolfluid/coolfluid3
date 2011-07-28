@@ -87,19 +87,17 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK( true );
 
-  CMesh::Ptr source = meshreader->create_mesh_from("hextet.neu");
-  Core::instance().root().add_component(source);
-
+  CMesh& source = Core::instance().root().create_component<CMesh>("hextet");
+  meshreader->read_mesh_into("hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
-  BOOST_CHECK( true );
+  BOOST_CHECK_EQUAL( source.nodes().coordinates().row_size() , (Uint)DIM_3D );
 
-  CMesh::Ptr target = meshreader->create_mesh_from("quadtriag.neu");
-  Core::instance().root().add_component(target);
+  CMesh& target = Core::instance().root().create_component<CMesh>("quadtriag");
+  meshreader->read_mesh_into("quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
-
-  BOOST_CHECK( true );
+  BOOST_CHECK_EQUAL( target.nodes().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
 //	CMeshReader::Ptr cgns_meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
@@ -114,30 +112,30 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   //interpolator->configure_option("Divisions", divisions );
 
   // Create the honeycomb
-  interpolator->construct_internal_storage(*source);
+  interpolator->construct_internal_storage(source);
 
   BOOST_CHECK(true);
 
-	std::string nvars = "rho_n[1] , V_n[3] , p_n[1]";
-	std::string nvars_2;
-	std::string evars;
-	std::string evars_2;
+  std::string nvars = "rho_n[1] , V_n[3] , p_n[1]";
+  std::string nvars_2;
+  std::string evars;
+  std::string evars_2;
 
-	nvars_2 = "rho_n_2[1] , V_n_2[3] , p_n_2[1]";
-	evars =   "rho_e[1] , V_e[3] , p_e[1]";
-	evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
+  nvars_2 = "rho_n_2[1] , V_n_2[3] , p_n_2[1]";
+  evars =   "rho_e[1] , V_e[3] , p_e[1]";
+  evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
   // Create empty fields
-  CField& s_nodebased   = source->create_field( "nodebased",    CField::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
-  CField& s_elembased   = source->create_field( "elementbased", CField::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  CField& s_nodebased   = source.create_field( "nodebased",    CField::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
+  CField& s_elembased   = source.create_field( "elementbased", CField::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-  CField& t_nodebased   = target->create_field( "nodebased",    CField::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
-  CField& t_nodebased_2 = target->create_field( "nodebased_2",  CField::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
-  CField& t_elembased   = target->create_field( "elementbased", CField::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  CField& t_nodebased   = target.create_field( "nodebased",    CField::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
+  CField& t_nodebased_2 = target.create_field( "nodebased_2",  CField::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
+  CField& t_elembased   = target.create_field( "elementbased", CField::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-//	target->create_field( "nodebased_2",    nvars_2, CField::Basis::POINT_BASED    );
-//	target->create_field( "elementbased",   evars,   CField::Basis::ELEMENT_BASED );
-//	target->create_field( "elementbased_2", evars_2, CField::Basis::ELEMENT_BASED );
+//  target.create_field( "nodebased_2",    nvars_2, CField::Basis::POINT_BASED    );
+//  target.create_field( "elementbased",   evars,   CField::Basis::ELEMENT_BASED );
+//  target.create_field( "elementbased_2", evars_2, CField::Basis::ELEMENT_BASED );
 
   BOOST_CHECK(true);
 
@@ -147,13 +145,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
     CTable<Real>::Row data = s_nodebased[idx];
 
-		data[0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
-		data[1]=coords[XX];
-		data[2]=coords[YY];
-		data[3]=7.0;
-		data[4]=coords[XX];
+    data[0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
+    data[1]=coords[XX];
+    data[2]=coords[YY];
+    data[3]=7.0;
+    data[4]=coords[XX];
 
-	}
+  }
 
   CFieldView s_elembased_view("s_elembased_view");
   s_elembased_view.set_field(s_elembased);
@@ -203,21 +201,23 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   std::vector<CField::Ptr> s_fields;
-  boost_foreach(CField& field, find_components_recursively<CField>(*source))
+  boost_foreach(CField& field, find_components_recursively<CField>(source))
     s_fields.push_back(field.as_ptr<CField>());
 
-	meshwriter->set_fields(s_fields);
-	meshwriter->write_from_to(*source,"source.msh");
-	BOOST_CHECK(true);
+  meshwriter->set_fields(s_fields);
+
+  BOOST_CHECK(true);
+  meshwriter->write_from_to(source,"source.msh");
+  BOOST_CHECK(true);
 
 
   std::vector<CField::Ptr> t_fields;
-  boost_foreach(CField& field, find_components_recursively<CField>(*target))
+  boost_foreach(CField& field, find_components_recursively<CField>(target))
     t_fields.push_back(field.as_ptr<CField>());
 
-	meshwriter->set_fields(t_fields);
-	meshwriter->write_from_to(*target,"interpolated.msh");
-	BOOST_CHECK(true);
+  meshwriter->set_fields(t_fields);
+  meshwriter->write_from_to(target,"interpolated.msh");
+  BOOST_CHECK(true);
 
 }
 
