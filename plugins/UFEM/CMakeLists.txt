@@ -8,10 +8,14 @@ project( UFEM CXX )
 
 coolfluid_define_plugin( UFEM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-coolfluid_find_orphan_files()
+if( CF_PLUGIN_UFEM )
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
+  coolfluid_find_orphan_files()
 
-add_subdirectory( src )  # library sources
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
-add_subdirectory( test ) # testing tree
+  add_subdirectory( src )  # library sources
+
+  add_subdirectory( test ) # testing tree
+
+endif()

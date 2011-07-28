@@ -35,12 +35,16 @@ project( RDM CXX )
 
 coolfluid_define_plugin( RDM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-coolfluid_find_orphan_files()
+if( CF_PLUGIN_RDM )
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
+  coolfluid_find_orphan_files()
 
-add_subdirectory( src )  # sources
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
 
-add_subdirectory( test ) # unit and acceptance tests
+  add_subdirectory( src )  # sources
 
-add_subdirectory( resources ) # resources : test case meshes, etc
+  add_subdirectory( test ) # unit and acceptance tests
+
+  add_subdirectory( resources ) # resources : test case meshes, etc
+
+endif()

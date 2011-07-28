@@ -8,21 +8,23 @@ project( CGAL CXX )
 
 coolfluid_define_plugin( CGAL ${CMAKE_CURRENT_SOURCE_DIR} )
 
-find_package(CGAL)
+if( CF_PLUGIN_CGAL )
 
-# disable optimizations to avoid enormous compilation times and memory usage
-option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
+  find_package(CGAL)
 
-# avoid a conflict between boost and CGAL
-add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
+  # disable optimizations to avoid enormous compilation times and memory usage
+  option(CF_STRIP_CGAL_COMPILE_FLAGS "Strip optimization and compile flags for CGAL, to avoid the long compilation" ON)
 
-coolfluid_find_orphan_files()
+  # avoid a conflict between boost and CGAL
+  add_definitions(-DCGAL_CFG_NO_TR1_ARRAY -DCGAL_CFG_NO_TR1_TUPLE)
 
-include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
+  coolfluid_find_orphan_files()
 
-set( coolfluid_cgal_COMPILE_FLAGS "" )
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CMAKE_COMPILER_IS_GNUCC )
+  set( coolfluid_cgal_COMPILE_FLAGS "" )
+
+  if( CMAKE_COMPILER_IS_GNUCC )
 
     set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -frounding-math")
 
@@ -30,13 +32,15 @@ if( CMAKE_COMPILER_IS_GNUCC )
       set(coolfluid_cgal_COMPILE_FLAGS "${coolfluid_cgal_COMPILE_FLAGS} -g0 -O0")
     endif()
 
-endif()
+  endif()
 
-# add dir with CGAL sources
-add_subdirectory( CGAL )
+  # add dir with CGAL sources
+  add_subdirectory( CGAL )
 
-# add dir with CGAL unit tests
-add_subdirectory( test )
+  # add dir with CGAL unit tests
+  add_subdirectory( test )
 
-# add dir with CGAL sandbox
-add_subdirectory( sandbox EXCLUDE_FROM_ALL )
+  # add dir with CGAL sandbox
+  add_subdirectory( sandbox EXCLUDE_FROM_ALL )
+
+endif( CF_PLUGIN_CGAL )
