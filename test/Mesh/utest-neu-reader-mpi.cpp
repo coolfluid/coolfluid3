@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -74,24 +75,24 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->configure_option("read_groups",true);
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("quadtriag");
 
-  meshreader->read_mesh_into("quadtriag.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag.neu",mesh);
 
 
-  CFinfo << "elements count = " << find_component<CRegion>(*mesh).recursive_elements_count() << CFendl;
-  CFinfo << "nodes count    = " << find_component<CRegion>(*mesh).recursive_nodes_count() << CFendl;
+  CFinfo << "elements count = " << find_component<CRegion>(mesh).recursive_elements_count() << CFendl;
+  CFinfo << "nodes count    = " << find_component<CRegion>(mesh).recursive_nodes_count() << CFendl;
 
   Uint nb_ghosts=0;
 
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
+  gmsh_writer->write_from_to(mesh,"quadtriag.msh");
 
   BOOST_CHECK(true);
 
-  CFinfo << mesh->tree() << CFendl;
+  CFinfo << mesh.tree() << CFendl;
 
-  CNodes& nodes = find_component_recursively<CNodes>(*mesh);
+  CNodes& nodes = find_component_recursively<CNodes>(mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
