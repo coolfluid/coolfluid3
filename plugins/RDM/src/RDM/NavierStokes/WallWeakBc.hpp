@@ -7,6 +7,8 @@
 #ifndef CF_RDM_WallWeakBc_hpp
 #define CF_RDM_WallWeakBc_hpp
 
+#include <iostream>
+
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
