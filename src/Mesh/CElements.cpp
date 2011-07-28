@@ -111,6 +111,7 @@ void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) co
 
 CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx) const
 {
+  cf_assert_desc( to_str(elem_idx)+ ">="+to_str(node_connectivity().size()) , elem_idx < node_connectivity().size() );
   return node_connectivity()[elem_idx];
 //  CTable<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
 //  return std::vector<Uint> (elem_nodes.begin(),elem_nodes.end());

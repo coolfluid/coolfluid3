@@ -116,12 +116,16 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   // Create root and mesh component
   CRoot& root = Core::instance().root();
 
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>( "mesh" ) ;
+  CMesh& mesh = root.create_component<CMesh>( "mesh" ) ;
 
   // create regions
-  CRegion& superRegion = mesh->topology().create_region("superRegion");
-  mesh->configure_option("dimension",dim);
-  CNodes& nodes = mesh->nodes();
+  CRegion& superRegion = mesh.topology().create_region("superRegion");
+  mesh.configure_option("dimension",dim);
+  CNodes& nodes = mesh.nodes();
+  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , 0u);
+  nodes.resize(0);
+  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
+
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
 
@@ -213,7 +217,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //  }
 
 	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-	meshwriter->write_from_to(*mesh,"p1-mesh.msh");
+	meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 }
 
@@ -228,14 +232,15 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   // Create root and mesh component
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  CMesh::Ptr mesh = allocate_component<CMesh>  ( "mesh" );
-
-  root->add_component( mesh );
+  CMesh& mesh = root->create_component<CMesh>( "mesh" );
 
   // create regions
-  CRegion& superRegion = mesh->topology().create_region("superRegion");
-  mesh->configure_option("dimension",dim);
-  CNodes& nodes = mesh->nodes();
+  CRegion& superRegion = mesh.topology().create_region("superRegion");
+  mesh.configure_option("dimension",dim);
+  CNodes& nodes = mesh.nodes();
+  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , 0u);
+  nodes.resize(0);
+  BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
   CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);
 
@@ -357,7 +362,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
 
 	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-	meshwriter->write_from_to(*mesh,"p2-mesh.msh");
+	meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }
 
