@@ -13,27 +13,24 @@ configure //Root/Environment assertion_throws:bool=false   \
 create Wizard CF.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.Scalar.ScalarSys2D
+                          physical_model:string=CF.Physics.Scalar.Scalar2D
 
 ### read mesh
 
 call Model/Domain/load_mesh file:uri=file:rectangle2x1-tg-p1-953.msh
-# "file:rectangle2x1-tg-p2-3689.msh"
-# "file:rectangle2x1-qd-p1-861.msh"
-# "file:rectangle2x1-qd-p2-3321.msh"
 
 ### solver
 
-configure Model/RDSolver                                update_vars:string=LinearAdvSys2D
+configure Model/RDSolver                                update_vars:string=LinearAdv2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=250
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=10000
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT functions:array[string]="x*x+y*y,0"
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]=1.777
 
 ### boundary conditions
 
@@ -44,7 +41,7 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
 //Root/Model/Domain/mesh/topology/bottom,\
 //Root/Model/Domain/mesh/topology/left
 
-configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="2.0*cos(2*3.141592*(x+y)),3.0*cos(2*3.141592*(x+y))"
+configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=1.777
 
 ### domain discretization
 

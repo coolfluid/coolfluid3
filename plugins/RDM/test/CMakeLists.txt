@@ -6,6 +6,9 @@ set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTE
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d
                                SCRIPT  atest-rdm-linearadv2d.cfscript )
 
+coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d-uniform
+                               SCRIPT  atest-rdm-linearadv2d-uniform.cfscript )
+
 coolfluid_add_acceptance_test( NAME    atest-rdm-rotationadv2d
                                SCRIPT  atest-rdm-rotationadv2d.cfscript )
 
