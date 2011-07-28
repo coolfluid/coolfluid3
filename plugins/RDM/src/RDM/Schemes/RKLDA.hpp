@@ -160,6 +160,13 @@ protected: // helper function
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
     dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
+
+    ksolutions.clear();
+    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<CField>() );
+    for ( Uint k = 1; k <= rkorder; ++k)
+    {
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<CField>() );
+    }
   }
 
 protected: // data
@@ -171,6 +178,8 @@ protected: // data
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
   RealMatrix rkcoeff;   ///< matrix with the coefficients that multiply du_s
+
+  std::vector< CField::Ptr > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i

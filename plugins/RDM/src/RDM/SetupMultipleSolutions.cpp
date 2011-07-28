@@ -88,7 +88,9 @@ void SetupMultipleSolutions::execute()
 
   std::vector< CField::Ptr > rk_steps;
 
-  for(Uint k = 0; k < nb_levels; ++k)
+  rk_steps.push_back(solution);
+
+  for(Uint k = 1; k <= nb_levels; ++k)
   {
     CField::Ptr solution_k = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() + to_str(k));
     if ( is_null( solution_k ) )
@@ -100,7 +102,7 @@ void SetupMultipleSolutions::execute()
     rk_steps.push_back(solution_k);
   }
 
-  for( Uint k = 0; k < rk_steps.size(); ++k)
+  for( Uint k = 1; k <= rk_steps.size(); ++k)
   {
     if( ! fields.get_child_ptr( rk_steps[k]->name() ) )
       fields.create_component<CLink>( rk_steps[k]->name() ).link_to(solution).add_tag("rksteps");
@@ -165,7 +167,7 @@ void SetupMultipleSolutions::execute()
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );
 
-  for(Uint k = 0; k < nb_levels; ++k)
+  for(Uint k = 1; k <= nb_levels; ++k)
   {
     rk_steps[k]->parallelize_with( pattern );
     parallel_fields.push_back( rk_steps[k]->uri() );
