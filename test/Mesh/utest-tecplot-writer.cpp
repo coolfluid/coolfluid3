@@ -10,7 +10,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
- 
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -69,16 +70,16 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->configure_option("read_groups",true);
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  CMesh& mesh = Core::instance().root().create_component<CMesh>( "mesh" );
 
-  meshreader->read_mesh_into("quadtriag.neu",*mesh);
+  meshreader->read_mesh_into("quadtriag.neu",mesh);
 
 
 
   Uint nb_ghosts=0;
 
   CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
-  tec_writer->write_from_to(*mesh,"quadtriag.plt");
+  tec_writer->write_from_to(mesh,"quadtriag.plt");
 
   BOOST_CHECK(true);
 
