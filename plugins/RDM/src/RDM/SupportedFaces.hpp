@@ -65,7 +65,7 @@ template<> struct FaceTypes<DIM_3D>
 template <>
 struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP1, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Line2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 777, Mesh::SF::Line2DLagrangeP1::shape> type;
 };
 
 /// Partial specialization for P2 lines
