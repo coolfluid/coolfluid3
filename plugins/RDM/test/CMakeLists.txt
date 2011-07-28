@@ -21,6 +21,9 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv3d
 coolfluid_add_acceptance_test( NAME    atest-rdm-sinusbump
                                SCRIPT  atest-rdm-sinusbump.cfscript )
 
+coolfluid_add_acceptance_test( NAME    atest-rdm-ramp2d
+                               SCRIPT  atest-rdm-ramp2d.cfscript )
+
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadvsys2d
                                SCRIPT  atest-rdm-linearadvsys2d.cfscript )
 

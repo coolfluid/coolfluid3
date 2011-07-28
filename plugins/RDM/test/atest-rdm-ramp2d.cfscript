@@ -17,40 +17,36 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:sinusbump-tg-p1-1344.msh
-# file:sinusbump-tg-p1-90.msh
+call Model/Domain/load_mesh file:uri=file:ramp-tg-p1-6506.msh
 
 ### solver
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
 configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=500
-configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.01
+configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.2
 
 ### initial conditions
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT functions:array[string]=1.204751547,206.7002847,0.0,271044.375
+configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+# "functions:array[string]= 0.5, 1.67332, 0.0, 3.425"
 # corresponding pressure 101325.0
 
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=INLET  Type:string=CF.RDM.SubsonicInFlowWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubInlet
+     Name:string=INLET \
+     Type:string=CF.RDM.BcDirichlet \
+     Regions:array[uri]=\
+//Root/Model/Domain/mesh/topology/left
 
-configure Model/RDSolver/BoundaryConditions/INLET rho_in:string=1.204751547 vel_in:array[string]=171.570881,0
-
-call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=OUTLET  Type:string=CF.RDM.SubsonicOutFlowWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubOutlet
-
-configure Model/RDSolver/BoundaryConditions/OUTLET p_out:string=101325.0
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=WALLS  Type:string=CF.RDM.WallWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/LowerWall,//Root/Model/Domain/mesh/topology/UpperWall
+     Name:string=WALLS  Type:string=CF.RDM.WallEdwinBc \
+     Regions:array[uri]=//Root/Model/Domain/mesh/topology/bottom,//Root/Model/Domain/mesh/topology/top
 
 ### domain discretization
 
@@ -62,9 +58,10 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-sinusbump-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-ramp2d-initial.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-ramp2d-initial.plt
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-sinusbump-solution.msh
-call Model/Domain/write_mesh file:uri=atest-rdm-sinusbump-solution.plt
+call Model/Domain/write_mesh file:uri=atest-rdm-ramp2d-solution.msh
+call Model/Domain/write_mesh file:uri=atest-rdm-ramp2d-solution.plt
