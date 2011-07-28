@@ -63,9 +63,13 @@ void BoundaryConditions::execute()
 
   // apply first weak bcs, since they do not set any value directly
 
+//  CFinfo << "[RDM] weak bcs " << CFendl;
+
   m_weak_bcs->execute();
 
   // strong bcs need to be updated last
+
+//  CFinfo << "[RDM] strong bcs " << CFendl;
 
   m_strong_bcs->execute();
 }
