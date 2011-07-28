@@ -12,6 +12,8 @@ list( APPEND coolfluid_physics_scalar_files
   RotationAdv2D.cpp
   Burgers2D.hpp
   Burgers2D.cpp
+  Diffusion2D.hpp
+  Diffusion2D.cpp
 # scalar 3D
   LinearAdv3D.hpp
   LinearAdv3D.cpp
