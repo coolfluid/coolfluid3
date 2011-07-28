@@ -793,10 +793,9 @@ sub install_cgal() {
     rmtree "$opt_tmp_dir/$lib-$version";
     untar_src("$lib-$version");
     safe_chdir("$opt_tmp_dir/$lib-$version/");
-    
     mkpath("build",1);
     safe_chdir("build");
-    run_command_or_die("cmake ../ -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir -DCMAKE_BUILD_TYPE=Release -DWITH_GMP=false" );
+    run_command_or_die("cmake ../ -Wno-dev -DBOOST_ROOT=$opt_install_dir -DCMAKE_INSTALL_PREFIX=$opt_install_dir -DCMAKE_BUILD_TYPE=Release -DWITH_GMP=OFF -DWITH_CGAL_Qt3=OFF" );
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
