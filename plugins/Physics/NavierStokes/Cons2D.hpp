@@ -7,6 +7,8 @@
 #ifndef CF_Physics_NavierStokes_Cons2D_hpp
 #define CF_Physics_NavierStokes_Cons2D_hpp
 
+#include <iostream>
+
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
@@ -54,9 +56,9 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
+    p.R = 287.058;                 // air
     p.gamma = 1.4;                 // diatomic ideal gas
     p.gamma_minus_1 = p.gamma - 1.;
-    p.R = 287.058;                 // air
 
     p.rho   = sol[Rho ];
     p.rhou  = sol[RhoU];
@@ -70,27 +72,41 @@ public: // functions
 
     p.uuvv = p.u*p.u + p.v*p.v;
 
-    p.H = p.gamma * p.rhoE * p.inv_rho - 0.5 * p.gamma_minus_1 * p.uuvv;
+    p.P = p.gamma_minus_1 * ( p.rhoE - 0.5 * p.rho * p.uuvv );
 
-    p.a2 = p.gamma_minus_1 * ( p.H - 0.5 * p.uuvv);
+    if( p.P <= 0. )
+    {
+          std::cout << "rho   : " << p.rho  << std::endl;
+          std::cout << "rhou  : " << p.rhou << std::endl;
+          std::cout << "rhov  : " << p.rhov << std::endl;
+          std::cout << "rhoE  : " << p.rhoE << std::endl;
+          std::cout << "P     : " << p.P    << std::endl;
+          std::cout << "u     : " << p.u    << std::endl;
+          std::cout << "v     : " << p.u    << std::endl;
+          std::cout << "uuvv  : " << p.uuvv << std::endl;
 
-    if( p.a2 <= 0 )
-      throw Common::BadValue( FromHere(), "Speed of sound negative at coordinates ["
+
+      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
                                    + Common::to_str(coord[XX]) + ","
                                    + Common::to_str(coord[YY])
                                    + "]");
+    }
 
-    p.a = sqrt( p.a2 );
+    const Real RT = p.P * p.inv_rho;    // RT = p/rho
+
+    p.E = p.rhoE * p.inv_rho;           // E = rhoE / rho
+
+    p.H = p.E + RT;                     // H = E + p/rho
+
+    p.a = sqrt( p.gamma * RT );
+
+    p.a2 = p.a * p.a;
 
     p.Ma = sqrt( p.uuvv / p.a2 );
 
-    p.T = p.a2 / ( p.gamma * p.R );
-
-    p.P = p.rho * p.R * p.T;
-    p.E = p.H - p.P * p.inv_rho;
+    p.T = RT / p.R;
 
     p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvv;
-
   }
 
   /// compute the physical flux
