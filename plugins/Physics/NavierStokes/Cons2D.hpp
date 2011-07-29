@@ -246,7 +246,10 @@ public: // functions
 
   //    A.setZero(); // assume are zeroed
 
+ // A(0,0) = 0.;
     A(0,1) = 1.;
+ // A(0,2) = 0.;
+ // A(0,3) = 0.;
     A(1,0) = p.half_gm1_v2 - uu;
     A(1,1) = -gamma_minus_3*p.u;
     A(1,2) = -p.gamma_minus_1*p.v;
@@ -254,6 +257,7 @@ public: // functions
     A(2,0) = -uv;
     A(2,1) = p.v;
     A(2,2) = p.u;
+ // A(2,3) = 0.;
     A(3,0) = p.half_gm1_v2*p.u - p.u * p.H;
     A(3,1) = -p.gamma_minus_1*uu + p.H;
     A(3,2) = -p.gamma_minus_1*uv;
@@ -263,10 +267,14 @@ public: // functions
 
     //    B.setZero(); // assume are zeroed
 
+ // B(0,0) = 0.;
+ // B(0,1) = 0.;
     B(0,2) = 1.;
+ // B(0,3) = 0.;
     B(1,0) = -uv;
     B(1,1) = p.v;
     B(1,2) = p.u;
+ // B(1,3) = 0.;
     B(2,0) = p.half_gm1_v2 - vv;
     B(2,1) = -p.gamma_minus_1*p.u;
     B(2,2) = -gamma_minus_3*p.v;
