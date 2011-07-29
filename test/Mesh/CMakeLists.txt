@@ -283,17 +283,17 @@ coolfluid_add_unit_test( utest-zoltan )
 
 ################################################################################
 
-list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
-list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
-
-set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
-
-set( utest-blockmesh-mpi-scale_scaling ON )
-
-set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
-set( utest-blockmesh-mpi-scale_mpi_test TRUE)
-
-coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
+# list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
+# list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
+# 
+# set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
+# 
+# set( utest-blockmesh-mpi-scale_scaling ON )
+# 
+# set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+# set( utest-blockmesh-mpi-scale_mpi_test TRUE)
+# 
+# coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
 
 ##########################################################################
 # test parallel field
