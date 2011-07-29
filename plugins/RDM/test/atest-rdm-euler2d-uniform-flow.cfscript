@@ -17,7 +17,9 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-tg-p1-7614.msh
+call Model/Domain/load_mesh file:uri=file:square1x1-qd-p2-25921.msh
+# square1x1-qd-p1-6561n.msh # none - maybe because is structured?
+# square1x1-tg-p2-7909.msh  # problem
 
 ### solver
 
@@ -31,6 +33,7 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
 configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.5,1.183,1.183,3.425"
+#0.5,0.0,1.67332,3.425
 
 ### boundary conditions
 
