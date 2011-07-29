@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CComputeLNorm_hpp
-#define CF_Solver_Actions_CComputeLNorm_hpp
+#ifndef CF_Solver_Actions_CPeriodicWriteMesh_hpp
+#define CF_Solver_Actions_CPeriodicWriteMesh_hpp
 
 #include "Common/CAction.hpp"
 
@@ -18,31 +18,31 @@ namespace Mesh   { class CField; }
 namespace Solver {
 namespace Actions {
 
-class Solver_Actions_API CComputeLNorm : public Common::CAction {
+class Solver_Actions_API CPeriodicWriteMesh : public Common::CAction {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CComputeLNorm> Ptr;
-  typedef boost::shared_ptr<CComputeLNorm const> ConstPtr;
+  typedef boost::shared_ptr<CPeriodicWriteMesh> Ptr;
+  typedef boost::shared_ptr<CPeriodicWriteMesh const> ConstPtr;
 
 public: // functions
   /// Contructor
   /// @param name of the component
-  CComputeLNorm ( const std::string& name );
+  CPeriodicWriteMesh ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CComputeLNorm() {}
+  virtual ~CPeriodicWriteMesh() {}
 
   /// Get the class name
-  static std::string type_name () { return "CComputeLNorm"; }
+  static std::string type_name () { return "CPeriodicWriteMesh"; }
 
   /// execute the action
   virtual void execute ();
 
 private: // data
 
-  boost::weak_ptr<Mesh::CField> m_field;
+  boost::weak_ptr<Mesh> m_field;
 
 };
 
@@ -52,4 +52,4 @@ private: // data
 } // Solver
 } // CF
 
-#endif // CF_Solver_Actions_CComputeLNorm_hpp
+#endif // CF_Solver_Actions_CPeriodicWriteMesh_hpp

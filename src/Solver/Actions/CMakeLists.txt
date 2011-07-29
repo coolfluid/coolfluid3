@@ -40,6 +40,8 @@ list( APPEND coolfluid_solver_actions_files
   CComputeVolume.cpp
   CComputeLNorm.hpp
   CComputeLNorm.cpp
+  CPeriodicWriteMesh.hpp
+  CPeriodicWriteMesh.cpp
   CSolveSystem.hpp
   CSolveSystem.cpp
   LibActions.hpp
