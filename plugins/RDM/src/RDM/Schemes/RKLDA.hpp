@@ -7,6 +7,10 @@
 #ifndef CF_RDM_Schemes_RKLDA_hpp
 #define CF_RDM_Schemes_RKLDA_hpp
 
+#include "Common/StringConversion.hpp"
+
+#include "Mesh/CField.hpp"
+
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
 #include "RDM/TimeStepping.hpp"
@@ -162,10 +166,10 @@ protected: // helper function
     dt      = mysolver.time_stepping().get_child("Time").option("time_step").template value<Real>();
 
     ksolutions.clear();
-    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<CField>() );
+    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::CField>() );
     for ( Uint k = 1; k <= rkorder; ++k)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<CField>() );
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + Common::to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
     }
   }
 
@@ -179,7 +183,7 @@ protected: // data
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
   RealMatrix rkcoeff;   ///< matrix with the coefficients that multiply du_s
 
-  std::vector< CField::Ptr > ksolutions;  ///< solution fields at different k steps
+  std::vector< Mesh::CField::Ptr > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
