@@ -25,7 +25,7 @@ call Model/Domain/load_mesh file:uri=file:square1x1-qd-p2-25921.msh
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=3000
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
