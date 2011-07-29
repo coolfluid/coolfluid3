@@ -176,7 +176,7 @@ protected: // data
   /// physical properties
   typename PHYS::MODEL::Properties phys_props;
 
-private:
+protected:
 
   /// temporary local gradient of 1 shape function in reference and physical space
   DimVT dNphys;

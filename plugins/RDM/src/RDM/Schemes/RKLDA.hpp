@@ -87,66 +87,11 @@ public: // functions
 
     #define RK_MAX 3
 
-    rkalphas(RK_MAX,RK_MAX-1);
+    rkalphas(RK_MAX,RK_MAX);
 
     rkbetas(RK_MAX,RK_MAX);
 
-    rkcoeff(RK_MAX-1,RK_MAX-1);
-
-    switch( RK_MAX )
-    {
-    case 1: /// @todo Forward Euler
-
-      rkalphas(0,0) = 1.;
-
-      rkbetas(0,0) =  0.;
-
-      break;
-
-    case 2:
-
-      rkalphas(0,0) =  0.5;
-      rkalphas(1,0) =  0.5;
-
-      rkcoeff(0,0) =   1.0;
-
-      rkbetas (0,0) =  0.0;
-      rkbetas (0,1) = -1.0;
-      rkbetas (1,0) =  0.0;
-      rkbetas (1,1) =  1.0;
-
-      break;
-
-    case 3:
-
-      rkalphas(0,0) = 0.25  ;
-      rkalphas(1,0) = 0.25  ;
-      rkalphas(2,0) = 0.    ;
-      rkalphas(0,1) = 1./6. ;
-      rkalphas(1,1) = 1./6. ;
-      rkalphas(2,1) = 2./3. ;
-
-      rkcoeff(0,0) =    1.0 ;
-      rkcoeff(1,0) =    0.0 ;
-      rkcoeff(0,1) =    0.5 ;
-      rkcoeff(1,1) =    2.0 ;
-
-      rkbetas(0,0) = 0.  ;
-      rkbetas(0,1) = -0.5 ;
-      rkbetas(0,2) = -2. ;
-      rkbetas(1,0) = 0. ;
-      rkbetas(1,1) = 0. ;
-      rkbetas(1,2) = 0. ;
-      rkbetas(2,0) = 0. ;
-      rkbetas(2,1) = 0.5 ;
-      rkbetas(2,2) = 2. ;
-
-      break ;
-
-//    default:
-
-    }
-
+    rkcoeff(RK_MAX-1);
 
   }
 
@@ -160,6 +105,8 @@ protected: // helper function
 
   void config_coeffs()
   {
+    using namespace Common;
+
     RDSolver& mysolver = this->parent().as_type<CellTerm>().solver().as_type<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
     step    = mysolver.iterative_solver().properties().template value<Uint>("iteration");
@@ -169,7 +116,71 @@ protected: // helper function
     ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::CField>() );
     for ( Uint k = 1; k <= rkorder; ++k)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + Common::to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
+    }
+
+    rkalphas.resize(rkorder,rkorder);
+    rkbetas.resize(rkorder,rkorder);
+    if ( rkorder == 1)
+        rkcoeff.resize(1);
+    else
+        rkcoeff.resize(rkorder-1);
+
+    switch( rkorder )
+    {
+    case 1:
+
+      rkalphas(0,0) = 1.;
+
+      rkcoeff[0] =  1.;
+
+      rkbetas(0,0) =  0.;
+
+      break;
+
+    case 2:
+
+      rkalphas(0,0) =  0.  ;
+      rkalphas(1,0) =  0.  ;
+      rkalphas(0,1) =  0.5 ;
+      rkalphas(1,1) =  0.5 ;
+
+      rkcoeff[0] =   1.0;
+
+      rkbetas (0,0) =  0.0;
+      rkbetas (0,1) = -1.0;
+      rkbetas (1,0) =  0.0;
+      rkbetas (1,1) =  1.0;
+
+      break;
+
+    case 3:
+
+      rkalphas(0,0) = 0.    ;
+      rkalphas(1,0) = 0.    ;
+      rkalphas(2,0) = 0.    ;
+      rkalphas(0,1) = 0.25  ;
+      rkalphas(1,1) = 0.25  ;
+      rkalphas(2,1) = 0.    ;
+      rkalphas(0,2) = 1./6. ;
+      rkalphas(1,2) = 1./6. ;
+      rkalphas(2,2) = 2./3. ;
+
+      rkcoeff[0] =    0.5 ;
+      rkcoeff[1] =    2.0 ;
+
+      rkbetas(0,0) = 0.  ;
+      rkbetas(0,1) = -0.5 ;
+      rkbetas(0,2) = -2. ;
+      rkbetas(1,0) = 0. ;
+      rkbetas(1,1) = 0. ;
+      rkbetas(1,2) = 0. ;
+      rkbetas(2,0) = 0. ;
+      rkbetas(2,1) = 0.5 ;
+      rkbetas(2,2) = 2. ;
+
+      break ;
+
     }
   }
 
@@ -181,7 +192,7 @@ protected: // data
 
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
-  RealMatrix rkcoeff;   ///< matrix with the coefficients that multiply du_s
+  RealVector rkcoeff;   ///< matrix with the coefficients that multiply du_s
 
   std::vector< Mesh::CField::Ptr > ksolutions;  ///< solution fields at different k steps
 
@@ -218,18 +229,17 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
 #if 0
     //compute delta u_s
 
-    for ( Uint s = 0 ; s < SF::nb_nodes ; ++s) // nb_states = number of solution points
+    for ( Uint s = 0 ; s < SF::nb_nodes ; ++s)
     {
         du[s] = 0. ;
         for ( Uint r = 0 ; r < rkorder ; ++r)
         {
             for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
-                du[s][eq] += rkbetas(r,step) * kstates ( eq , r );
+                du[s][eq] += rkbetas(r,step) * ksolutions[r][eq];
         }
     }
 #endif
 
-    if (step > 1)
     {
         // add mass matrix contribution
         for (Uint n=0; n<SF::nb_nodes; ++n)
@@ -238,13 +248,27 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
             {
                 for ( Uint p=0; p<PHYS::MODEL::_neqs ; ++p)
                 {
-                    if ( p==eq )
+                    if (step == 1 && rkorder == 1)
                     {
-                        (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff(step - 2 , rkorder - 2);// * du[eq];
+                        if ( p==eq )
+                        {
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0];// * du[eq];
+                        }
+                        else
+                        {
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0];// * du[eq];
+                        }
                     }
                     else
                     {
-                        (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff(step - 2 , rkorder - 2);// * du[eq];
+                        if ( p==eq )
+                        {
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2];// * du[eq];
+                        }
+                        else
+                        {
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2];// * du[eq];
+                        }
                     }
                 }
             }
@@ -255,11 +279,93 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
         /// @todo lumped and not lumped in the same line
 
     for ( Uint r = 0 ; r < step ; ++r)
-    {
+    {        
+///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// @todo must be tested for 3D
 
-        // change current solution pointer
+        // copy the coordinates from the large array to a small
 
-        B::interpolate( nodes_idx );
+        Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
+
+        // copy the solution from the large array to a smallchange_elements
+
+        for(Uint n = 0; n < SF::nb_nodes; ++n)
+          for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
+            B::U_n(n,v) = ksolutions[r]->data()[ nodes_idx[n] ][v];
+
+        // coordinates of quadrature points in physical space
+
+        B::X_q  = B::Ni * B::X_n;
+
+        // solution at all quadrature points in physical space
+
+        B::U_q = B::Ni * B::U_n;
+
+        // Jacobian of transformation phys -> ref:
+        //    |   dx/dksi    dx/deta    |
+        //    |   dy/dksi    dy/deta    |
+
+        // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
+        // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
+
+        for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+        {
+          for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+          {
+            B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
+          }
+        }
+
+        // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
+        for(Uint q = 0; q < QD::nb_points; ++q)
+        {
+          for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+          {
+            for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+            {
+             B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
+            }
+          }
+
+         // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
+         // to compute the gradients of of all shape functions in phys. space
+         B::jacob[q] = B::JM.determinant();
+         B::JMinv = B::JM.inverse();
+
+         for(Uint n = 0; n < SF::nb_nodes; ++n)
+         {
+           for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
+           {
+             B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
+           }
+
+           B::dNphys = B::JMinv * B::dNref;
+
+           for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
+           {
+             B::dNdX[dimx](q,n) = B::dNphys[dimx];
+           }
+
+         }
+
+        } // loop over quadrature points
+
+        // compute transformed integration weights (sum is element area)
+
+        for(Uint q = 0; q < QD::nb_points; ++q)
+          B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
+
+        // solution derivatives in physical space at quadrature point
+
+        B::dUdX[XX] = B::dNdX[XX] * B::U_n;
+        B::dUdX[YY] = B::dNdX[YY] * B::U_n;
+
+        // zero element residuals
+
+        B::Phi_n.setZero();
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         // L(N)+ @ each quadrature point
 
@@ -322,7 +428,7 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
 
             for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
               (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
-        }
+        } // loop over each quadrature point
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         // update the residual (according to k)
         if ( step > 1)
@@ -330,7 +436,7 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
             for (Uint n=0; n<SF::nb_nodes; ++n)
             {
               for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
-                (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 2) * dt * B::Phi_n(n,eq);
+                (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 1) * dt * B::Phi_n(n,eq);
             }
         }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -423,8 +529,8 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
   //  std::cout << "LDA: Area = " << wj.sum() << std::endl;
 
 
-  //    std::cout << "X    [" << q << "] = " << X_q.row(q)    << std::endl;
-  //    std::cout << "U    [" << q << "] = " << U_q.row(q)     << std::endl;
+  //    std::cout << "X    [" << q << "] = " << B::X_q.row(q)    << std::endl;
+  //    std::cout << "U    [" << q << "] = " << B::U_q.row(q)     << std::endl;
   //    std::cout << "dUdX[XX] [" << q << "] = " << dUdX[XX].row(q)       << std::endl;
   //    std::cout << "dUdX[YY] [" << q << "] = " << dUdX[YY].row(q)       << std::endl;
   //    std::cout << "LU   [" << q << "] = " << Lu.transpose() << std::endl;
@@ -438,7 +544,7 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
   //  std::cout << "mesh::fill function" <<  std::endl;
   //  std::cout << "nodes: " << nodes << std::endl;
 
-  //  std::cout << "solution: " << U_n << std::endl;
+  //  std::cout << "solution: " << B::U_n << std::endl;
   //  std::cout << "phi: " << Phi_n << std::endl;
 
   //  std::cout << " AREA : " << wj.sum() << std::endl;
