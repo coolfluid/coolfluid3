@@ -45,6 +45,9 @@ public: // functions
   /// physical properties
   struct Properties : public Physics::Properties
   {
+
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
+
     GeoV coords;       ///< position in domain
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables

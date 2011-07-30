@@ -26,10 +26,10 @@ namespace SF {
 template <Uint DIM, typename SF>
 class Point : public Mesh::ElementType {
 public:
-  
+
   typedef boost::shared_ptr< Point > Ptr;
   typedef boost::shared_ptr< Point const> ConstPtr;
-  
+
   Point(const std::string& name = type_name()) : Mesh::ElementType(name)
   {
     m_shape = shape;
@@ -44,19 +44,19 @@ public:
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::POINT;
-  
+
   /// @return number of faces
   static const Uint nb_faces = 0;
-  
+
   /// @return number of edges
   static const Uint nb_edges = 0;
-    
+
   /// Number of nodes
   static const Uint nb_nodes = SF::nb_nodes;
 
   /// Order of the shape function
   static const Uint order = SF::order;
-    
+
   /// Types for the matrices used
   typedef Eigen::Matrix<Real, DIM, 1> CoordsT;
   typedef Eigen::Matrix<Real, SF::dimensionality, 1> MappedCoordsT;
@@ -65,7 +65,6 @@ public:
   typedef Eigen::Matrix<Real, SF::dimensionality, SF::nb_nodes> MappedGradientT;
   typedef Eigen::Matrix<Real, SF::dimensionality, DIM> JacobianT;
 
-  
   // Delegation of shape_function_value and shape_function_gradient to template parameter
 
   /// Shape function reference

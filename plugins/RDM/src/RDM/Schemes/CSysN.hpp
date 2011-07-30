@@ -30,6 +30,8 @@ public: // typedefs
 
 public: // functions
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
+
   /// Contructor
   /// @param name of the component
   CSysN ( const std::string& name );

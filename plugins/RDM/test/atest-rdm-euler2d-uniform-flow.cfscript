@@ -17,15 +17,19 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-qd-p2-25921.msh
-# square1x1-qd-p1-6561n.msh # none - maybe because is structured?
-# square1x1-tg-p2-7909.msh  # problem
+call Model/Domain/load_mesh file:uri=square1x1-tg-p1-7614.msh
+# square1x1-tg-p1-7614.msh         # problem
+# square1x1-skewed-qd-p2-14641.msh # none
+# square1x1-skewed-qd-p1-6561.msh  # none
+# square1x1-qd-p2-25921.msh        # none
+# square1x1-qd-p1-6561n.msh        # none - maybe because is structured?
+# square1x1-tg-p2-7909.msh         # problem
 
 ### solver
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=1000
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
@@ -37,14 +41,14 @@ configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.5,1.1
 
 ### boundary conditions
 
-call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=INLET \
-     Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=\
-//Root/Model/Domain/mesh/topology/bottom,\
-//Root/Model/Domain/mesh/topology/left
+# call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+#      Name:string=INLET \
+#      Type:string=CF.RDM.BcDirichlet \
+#      Regions:array[uri]=\
+# //Root/Model/Domain/mesh/topology/bottom,\
+# //Root/Model/Domain/mesh/topology/left
 
-configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=0.5,1.183,1.183,3.425"
+# configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=0.5,1.183,1.183,3.425"
 
 ### domain discretization
 

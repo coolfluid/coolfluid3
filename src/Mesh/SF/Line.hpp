@@ -26,10 +26,10 @@ namespace SF {
 template <Uint DIM, typename SF>
 struct Line : public Mesh::ElementType {
 public:
-  
+
   typedef boost::shared_ptr< Line > Ptr;
   typedef boost::shared_ptr< Line const> ConstPtr;
-  
+
   Line(const std::string& name = type_name()) : Mesh::ElementType(name)
   {
     m_shape = shape;
@@ -47,25 +47,25 @@ public:
 
   /// @return m_geoShape
   static const GeoShape::Type shape = GeoShape::LINE;
-  
+
   /// @return number of faces
   static const Uint nb_faces = 3-DIM;
-  
+
   /// @return number of edges
   static const Uint nb_edges = 2;
-    
+
   /// Number of nodes
   static const Uint nb_nodes = SF::nb_nodes;
 
   /// Order of the shape function
   static const Uint order = SF::order;
-    
+
   /// Types for the matrices used
-  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
-  typedef Eigen::Matrix<Real, dimensionality, SF::nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1>         MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes>               ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes>  MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
 
   // Delegation of shape_function and shape_function_gradient to template parameter

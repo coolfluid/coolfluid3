@@ -38,6 +38,8 @@ public: // typedefs
 
 public: // functions
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
+
   /// Contructor
   /// @param name of the component
   RKLDA ( const std::string& name );
@@ -279,7 +281,7 @@ const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()
         /// @todo lumped and not lumped in the same line
 
     for ( Uint r = 0 ; r < step ; ++r)
-    {        
+    {
 ///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /// @todo must be tested for 3D

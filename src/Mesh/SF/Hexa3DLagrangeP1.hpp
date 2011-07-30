@@ -31,7 +31,7 @@ namespace SF {
 struct MESH_SF_API Hexa3DLagrangeP1  : public Hexa3D {
 
 public:
-  
+
   Hexa3DLagrangeP1(const std::string& name = type_name());
 
   static std::string type_name() { return "Hexa3DLagrangeP1"; }
@@ -43,15 +43,15 @@ public:
 
   /// Order of the shape function
   static const Uint order = 1;
-  
+
   /// Types for the matrices used
-  typedef Eigen::Matrix<Real, dimension, 1> CoordsT;
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension> NodeMatrixT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ShapeFunctionsT;
-  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> MappedGradientT;
+  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
+  typedef Eigen::Matrix<Real, dimensionality, 1>         MappedCoordsT;
+  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodeMatrixT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes>               ShapeFunctionsT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes>  MappedGradientT;
   typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
-  
+
   /// Shape function reference
   virtual const ShapeFunction& shape_function() const
   {
@@ -64,7 +64,7 @@ public:
   /// @param mappedCoord The mapped coordinates
   /// @param shapeFunc Vector storing the result
   static void shape_function_value(const MappedCoordsT& mapped_coord, ShapeFunctionsT& shape_func);
-  
+
   /// Compute Mapped Coordinates
   /// @param coord contains the coordinates to be mapped
   /// @param nodes contains the nodes
@@ -92,7 +92,7 @@ public:
 
   /// Volume of the cell
   static Real volume(const NodeMatrixT& nodes);
-	
+
   //template<typename NodesT>
   static bool in_element(const CoordsT& coord, const NodeMatrixT& nodes);
 
