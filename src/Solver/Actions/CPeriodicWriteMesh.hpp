@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
+namespace Mesh   { class CField; class CMesh; }
 namespace Solver {
 namespace Actions {
 
@@ -42,7 +42,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh> m_field;
+  boost::weak_ptr<Mesh::CMesh> m_mesh;
 
 };
 
