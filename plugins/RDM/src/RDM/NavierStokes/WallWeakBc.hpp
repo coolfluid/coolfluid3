@@ -101,7 +101,7 @@ public: // functions
  }
 
  /// Get the class name
- static std::string type_name () { return "WallWeakBc.BC<" + SF::type_name() + ">"; }
+ static std::string type_name () { return "WallWeakBc.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
 protected: // data
 
@@ -205,7 +205,7 @@ public: // functions
 
    U_q = Ni * U_n;
 
-#if 0
+#if 0 // modifyin gdirectly the residual
 
    const Real jacob = std::sqrt( dX_q(0,XX)*dX_q(0,XX)+dX_q(0,YY)*dX_q(0,YY) );
 
@@ -302,10 +302,6 @@ public: // functions
 
     PHYS::flux_jacobian_eigen_structure(B::phys_props,dN,Rv,Lv,Dv);
 
-    {
-      std::cout << "identity? " << Rv*Lv << std::endl;
-    }
-
     for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
       if(Dv[dim] >= 0.0)
         Lv.row(dim).setZero();
@@ -344,7 +340,7 @@ public: // functions
       Phi_n.row(n) += ( P * dF * Ni(q,n) * wj[q] );
     }
 
-#if 0
+#if BC_COMPUTE_WAVE_SPEED
     // compute the wave_speed for scaling the update
 
     PHYS::flux_jacobian_eigen_values(B::phys_props,

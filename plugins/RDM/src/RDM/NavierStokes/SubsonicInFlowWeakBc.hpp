@@ -114,7 +114,7 @@ public: // functions
  }
 
  /// Get the class name
- static std::string type_name () { return "SubsonicInFlowWeakBc.BC<" + SF::type_name() + ">"; }
+ static std::string type_name () { return "SubsonicInFlowWeakBc.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
 protected: // data
 

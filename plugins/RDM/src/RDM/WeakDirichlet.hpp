@@ -97,28 +97,22 @@ public: // functions
    // std::cout << "PHYS      ::type_name()    [" << PHYS::type_name() << "]" << std::endl << std::flush;
 
 
-   // Gradient of the shape functions in reference space
-   typename SF::MappedGradientT GradSF;
-   // Values of shape functions in reference space
-   typename SF::ShapeFunctionsT ValueSF;
+   // temporary gradient of the shape functions in reference space
+   typename SF::MappedGradientT grad_sf;
+   // temporary values of shape functions in reference space
+   typename SF::ShapeFunctionsT value_sf;
 
    // initialize the interpolation matrix
 
    for(Uint q = 0; q < QD::nb_points; ++q)
      for(Uint n = 0; n < SF::nb_nodes; ++n)
      {
-       // std::cout << FromHere().str() << " " << q << " " << n << std::endl << std::flush;
+        SF::shape_function_gradient( m_quadrature.coords.col(q), grad_sf  );
+        SF::shape_function_value   ( m_quadrature.coords.col(q), value_sf );
 
-        SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
-        SF::shape_function_value   ( m_quadrature.coords.col(q), ValueSF );
-
-        Ni(q,n)     = ValueSF[n];
-        dNdKSI(q,n) = GradSF[n];
-
-//        for(Uint d = 0; d < PHYS::MODEL::_ndim; ++d)
+        Ni(q,n)     = value_sf[n];
+        dNdKSI(q,n) = grad_sf[n];
      }
-
-   // std::cout << FromHere().str() << std::endl << std::flush;
 
    vars.resize(DIM_3D);
 
@@ -126,7 +120,7 @@ public: // functions
  }
 
  /// Get the class name
- static std::string type_name () { return "WeakDirichlet.BC<" + SF::type_name() + ">"; }
+ static std::string type_name () { return "WeakDirichlet.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
 protected: // data
 
