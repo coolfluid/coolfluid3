@@ -9,11 +9,10 @@
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 
-
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/CellLoop.hpp"
-#include "RDM/Schemes/CSysB.hpp"
+#include "RDM/Schemes/LF.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -24,18 +23,18 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysB, RDM::CellTerm, LibSchemes > CSysB_Builder;
+Common::ComponentBuilder < LF, RDM::CellTerm, LibSchemes > LF_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
-CSysB::CSysB ( const std::string& name ) : RDM::CellTerm(name)
+LF::LF ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }
 
-CSysB::~CSysB() {}
+LF::~LF() {}
 
-void CSysB::execute()
+void LF::execute()
 {
   ElementLoop& loop = access_element_loop( type_name() );
 

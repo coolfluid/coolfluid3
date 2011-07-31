@@ -48,7 +48,7 @@ configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      Name:string=INTERNAL \
-     Type:string=CF.RDM.GPU.CSysLDAGPU
+     Type:string=CF.RDM.GPU.LDAGPU
 
 ### simulate and write the result
 

@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysSUPG.hpp"
+#include "RDM/Schemes/SUPG.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<SUPG, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > SUPG_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > CSysSUPG_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoopT<SUPG, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > SUPG_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > CSysSUPG_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<SUPG, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > SUPG_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

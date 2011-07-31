@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysSUPG.hpp"
+#include "RDM/Schemes/SUPG.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysSUPG, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > CSysSUPG_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoopT<SUPG, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > SUPG_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

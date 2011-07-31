@@ -181,7 +181,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     cf_assert( regions.size() == 1u);
 
     options.add_option< OptionT<std::string> >("Name","INTERNAL");
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.CSysLDA");
+    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.LDA");
     options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
     solver.domain_discretization().signal_create_cell_term(frame);

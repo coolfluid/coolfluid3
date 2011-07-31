@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysLDA.hpp"
+#include "RDM/Schemes/LDA.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -21,10 +21,10 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysLDA,Physics::NavierStokes::Cons2D> ,
+Common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons2D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
-                           CSysLDA_Euler2D_Builder;
+                           LDA_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysB.hpp"
+#include "RDM/Schemes/B.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysB,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > CSysB_Euler2D_Builder;
+Common::ComponentBuilder < CellLoopT<B,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > B_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

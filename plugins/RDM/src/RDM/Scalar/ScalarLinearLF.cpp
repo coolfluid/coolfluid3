@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysLF.hpp"
+#include "RDM/Schemes/LF.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysLF, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > CSysLF_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > LF_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysLF, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > CSysLF_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > LF_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysLF, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > CSysLF_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > LF_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

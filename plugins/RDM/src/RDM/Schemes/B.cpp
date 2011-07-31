@@ -13,7 +13,7 @@
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/CellLoop.hpp"
-#include "RDM/Schemes/CSysSUPG.hpp"
+#include "RDM/Schemes/B.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -24,18 +24,18 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysSUPG, RDM::CellTerm, LibSchemes > CSysSUPG_Builder;
+Common::ComponentBuilder < B, RDM::CellTerm, LibSchemes > B_Builder;
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-CSysSUPG::CSysSUPG ( const std::string& name ) : RDM::CellTerm(name)
+B::B ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }
 
-CSysSUPG::~CSysSUPG() {}
+B::~B() {}
 
-void CSysSUPG::execute()
+void B::execute()
 {
   ElementLoop& loop = access_element_loop( type_name() );
 

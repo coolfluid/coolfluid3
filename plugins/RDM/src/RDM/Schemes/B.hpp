@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_CSysB_hpp
-#define CF_RDM_Schemes_CSysB_hpp
+#ifndef CF_RDM_Schemes_B_hpp
+#define CF_RDM_Schemes_B_hpp
 
 #include "Math/Checks.hpp"
 
@@ -19,7 +19,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysB : public RDM::CellTerm {
+class RDM_SCHEMES_API B : public RDM::CellTerm {
 
 public: // typedefs
 
@@ -27,8 +27,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< CSysB > Ptr;
-  typedef boost::shared_ptr< CSysB const > ConstPtr;
+  typedef boost::shared_ptr< B > Ptr;
+  typedef boost::shared_ptr< B const > ConstPtr;
 
 public: // functions
 
@@ -36,13 +36,13 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CSysB ( const std::string& name );
+  B ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSysB();
+  virtual ~B();
 
   /// Get the class name
-  static std::string type_name () { return "CSysB"; }
+  static std::string type_name () { return "B"; }
 
   /// Execute the loop for all elements
   virtual void execute();
@@ -52,7 +52,7 @@ public: // functions
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_SCHEMES_API CSysB::Term : public SchemeBase<SF,QD,PHYS> {
+class RDM_SCHEMES_API B::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
@@ -76,7 +76,7 @@ public: // functions
   }
 
   /// Get the class name
-  static std::string type_name () { return "CSysB.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "B.Scheme<" + SF::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
@@ -112,7 +112,7 @@ protected: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void CSysB::Term<SF,QD,PHYS>::execute()
+void B::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
@@ -224,4 +224,4 @@ void CSysB::Term<SF,QD,PHYS>::execute()
 } // RDM
 } // CF
 
-#endif // CF_RDM_Schemes_CSysB_hpp
+#endif // CF_RDM_Schemes_B_hpp

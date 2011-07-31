@@ -4,20 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_CSysLF_hpp
-#define CF_RDM_Schemes_CSysLF_hpp
+#ifndef CF_RDM_Schemes_SUPG_hpp
+#define CF_RDM_Schemes_SUPG_hpp
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
+/////////////////////////////////////////////////////////////////////////////////////
+
 namespace CF {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysLF : public RDM::CellTerm {
+class RDM_SCHEMES_API SUPG : public RDM::CellTerm {
 
 public: // typedefs
 
@@ -25,8 +27,8 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< CSysLF > Ptr;
-  typedef boost::shared_ptr< CSysLF const > ConstPtr;
+  typedef boost::shared_ptr< SUPG > Ptr;
+  typedef boost::shared_ptr< SUPG const > ConstPtr;
 
 public: // functions
 
@@ -34,13 +36,13 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  CSysLF ( const std::string& name );
+  SUPG ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSysLF();
+  virtual ~SUPG();
 
   /// Get the class name
-  static std::string type_name () { return "CSysLF"; }
+  static std::string type_name () { return "SUPG"; }
 
   /// Execute the loop for all elements
   virtual void execute();
@@ -50,7 +52,7 @@ public: // functions
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_SCHEMES_API CSysLF::Term : public SchemeBase<SF,QD,PHYS> {
+class RDM_SCHEMES_API SUPG::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
@@ -65,52 +67,68 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name) {     regist_typeinfo(this); }
+  Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
+  { regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "CSysLF.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "SUPG.Scheme<" + SF::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
 
 private: // data
 
-  /// diagonal matrix with positive eigen values
+  /// The operator L in the advection equation Lu = f
+  /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename B::PhysicsMT Ki_n [SF::nb_nodes];
+  /// right eigen vector matrix
+  typename B::PhysicsMT Rv;
+  /// left eigen vector matrix
+  typename B::PhysicsMT Lv;
+  /// diagonal matrix with eigen values
   typename B::PhysicsVT Dv [SF::nb_nodes];
-
+  /// vector of shaep functions
+  typename B::PhysicsVT Ni;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void CSysLF::Term<SF,QD,PHYS>::execute()
+void SUPG::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
+
+  /// @TODO NOT FINISHED!!!
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
   B::interpolate( nodes_idx );
 
+  // element area
+
+  const Real elem_area = B::wj.sum();
+
+  const Real h = std::sqrt(elem_area); // characteristic length of element
+
   // L(N)+ @ each quadrature point
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
-    B::sol_gradients_at_qdpoint(q);
-
-    PHYS::compute_properties(B::X_q.row(q),
-                             B::U_q.row(q),
-                             B::dUdXq,
-                             B::phys_props);
-
     for(Uint n=0; n < SF::nb_nodes; ++n)
     {
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      PHYS::flux_jacobian_eigen_values(B::phys_props,
-                                  B::dN,
-                                  Dv[n] );
+      PHYS::flux_jacobian_eigen_structure(B::phys_props,
+                                     B::dN,
+                                     Rv,
+                                     Lv,
+                                     Dv[n] );
+
+       Ki_n[n] = Rv * Dv[n].asDiagonal() * Lv;
     }
+
+    B::sol_gradients_at_qdpoint(q);
 
     // compute L(u)
 
@@ -118,26 +136,23 @@ void CSysLF::Term<SF,QD,PHYS>::execute()
              B::dFdU,
              B::LU );
 
-    // compute the phi_i LF intergral
+    // stabilization parameter (based on max characteristic speed)
+    /// @todo verify this
 
-    Real alpha = 0;
+    Real ref_speed = 0.;
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      alpha = std::max( alpha, Dv[n].array().abs().maxCoeff() );
+      ref_speed = std::max( ref_speed, Dv[n].array().abs().maxCoeff() );
 
-    const Real invdofs = 1./SF::nb_nodes;
+    const Real tau_stab = 0.5 * h / ref_speed;
 
-    for(Uint i = 0; i < SF::nb_nodes; ++i)
+    // nodal residual
+
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
     {
-      B::Phi_n.row(i) += invdofs * B::LU * B::wj[q];  // central part
-      for(Uint j=0; j < SF::nb_nodes; ++j)            // plus dissipation
-      {
-        if (i == j) continue;
-        B::Phi_n.row(i) += invdofs * alpha * (B::U_n.row(i).transpose() - B::U_n.row(j).transpose()) * B::wj[q]; // dissipation
-      }
+      for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
+        Ni[v] = B::Ni(q,n);
 
-      // compute the wave_speed for scaling the update
-
-      (*B::wave_speed)[nodes_idx[i]][0] += alpha * B::wj[q];
+//      B::Phi_n.row(n) += (  tau_stab * Ki_n[n] + Ni.asDiagonal() ) * B::LU * B::wj[q];
     }
 
   } // loop qd points
@@ -150,9 +165,9 @@ void CSysLF::Term<SF,QD,PHYS>::execute()
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF
 
-#endif // CF_RDM_Schemes_CSysLF_hpp
+#endif // CF_RDM_Schemes_SUPG_hpp

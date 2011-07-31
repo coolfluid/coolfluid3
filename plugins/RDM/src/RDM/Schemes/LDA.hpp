@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_CSysN_hpp
-#define CF_RDM_Schemes_CSysN_hpp
+#ifndef CF_RDM_Schemes_LDA_hpp
+#define CF_RDM_Schemes_LDA_hpp
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
@@ -17,7 +17,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_SCHEMES_API CSysN : public RDM::CellTerm {
+class RDM_SCHEMES_API LDA : public RDM::CellTerm {
 
 public: // typedefs
 
@@ -25,32 +25,31 @@ public: // typedefs
   /// varyng with shape function (SF), quadrature rule (QD) and Physics (PHYS)
   template < typename SF, typename QD, typename PHYS > class Term;
 
-  typedef boost::shared_ptr< CSysN > Ptr;
-  typedef boost::shared_ptr< CSysN const > ConstPtr;
+  typedef boost::shared_ptr< LDA > Ptr;
+  typedef boost::shared_ptr< LDA const > ConstPtr;
 
 public: // functions
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
-
   /// Contructor
   /// @param name of the component
-  CSysN ( const std::string& name );
+  LDA ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CSysN();
+  virtual ~LDA();
 
   /// Get the class name
-  static std::string type_name () { return "CSysN"; }
+  static std::string type_name () { return "LDA"; }
 
   /// Execute the loop for all elements
   virtual void execute();
 
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
+
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_SCHEMES_API CSysN::Term : public SchemeBase<SF,QD,PHYS> {
+class RDM_SCHEMES_API LDA::Term : public SchemeBase<SF,QD,PHYS> {
 
 public: // typedefs
 
@@ -63,6 +62,8 @@ public: // typedefs
 
 public: // functions
 
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
+
   /// Contructor
   /// @param name of the component
   Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name)
@@ -70,44 +71,41 @@ public: // functions
     regist_typeinfo(this);
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      DvP[n].setZero();
+      DvPlus[n].setZero();
   }
 
   /// Get the class name
-  static std::string type_name () { return "CSysN.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "LDA.Scheme<" + SF::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
 
 protected: // data
 
-  /// Matrix KiP_n stores the value L(N_i)+ at each quadrature point for each shape function N_i
-  typename B::PhysicsMT  KiP_n [SF::nb_nodes];
-  /// Matrix KiM_n stores the value L(N_i)- at each quadrature point for each shape function N_i
-  typename B::PhysicsMT  KiM_n [SF::nb_nodes];
+  /// The operator L in the advection equation Lu = f
+  /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
+  typename B::PhysicsMT  Ki_n [SF::nb_nodes];
   /// sum of Lplus to be inverted
-  typename B::PhysicsMT  sumKmin;
+  typename B::PhysicsMT  sumLplus;
   /// inverse Ki+ matix
   typename B::PhysicsMT  InvKi_n;
   /// right eigen vector matrix
   typename B::PhysicsMT  Rv;
   /// left eigen vector matrix
   typename B::PhysicsMT  Lv;
-  /// Ki matrix
-  typename B::PhysicsMT  Ki;
   /// diagonal matrix with eigen values
   typename B::PhysicsVT  Dv;
+  /// temporary hold of Values of the operator L(u) computed in quadrature points.
+  typename B::PhysicsVT  LUwq;
   /// diagonal matrix with positive eigen values
-  typename B::PhysicsVT  DvP [SF::nb_nodes];
-  /// diagonal matrix with negative eigen values
-  typename B::PhysicsVT  DvM [SF::nb_nodes];
+  typename B::PhysicsVT  DvPlus [SF::nb_nodes];
 
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF,typename QD, typename PHYS>
-void CSysN::Term<SF,QD,PHYS>::execute()
+void LDA::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
@@ -140,11 +138,9 @@ void CSysN::Term<SF,QD,PHYS>::execute()
 
       // diagonal matrix of positive eigen values
 
-      DvP[n] = Dv.unaryExpr(std::ptr_fun(plus));
-      DvM[n] = Dv.unaryExpr(std::ptr_fun(minus));
+      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
 
-      KiP_n[n] = Rv * DvP[n].asDiagonal() * Lv;
-      KiM_n[n] = Rv * DvM[n].asDiagonal() * Lv;
+      Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
     }
 
     // compute L(u)
@@ -153,50 +149,52 @@ void CSysN::Term<SF,QD,PHYS>::execute()
              B::dFdU,
              B::LU );
 
-    // compute sum L(N)-
+    // compute L(N)+
 
-    sumKmin = KiP_n[0];
+    sumLplus = Ki_n[0];
     for(Uint n = 1; n < SF::nb_nodes; ++n)
-      sumKmin += KiP_n[n];
+      sumLplus += Ki_n[n];
 
-    // invert the sum K min
+    // invert the sum L plus
 
-    InvKi_n = sumKmin.inverse();
+    InvKi_n = sumLplus.inverse();
 
-//    for(Uint i = 0; i < SF::nb_nodes; ++i)
-//      for(Uint j = 0; j < SF::nb_nodes; ++j)
-//      {
-//        typename B::PhysicsVT Udiff =  B::U_n.row(i).transpose()  - B::U_n.row(j).transpose();
-//        if ( Udiff.array().abs().sum() > 10E-6 )
-//        {
-//          std::cout << "B::U_n.row(i).transpose() : " << B::U_n.row(i).transpose() << std::endl;
-//          std::cout << "B::U_n.row(j).transpose() : " << B::U_n.row(j).transpose() << std::endl;
-//          std::cout << "Udiff : " << Udiff << std::endl;
-//        }
-//      }
+    // compute the phi_i LDA intergral
 
-    // N scheme
+    LUwq = InvKi_n * B::LU * B::wj[q];
 
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+      B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+
+    // compute the phi_i LDA intergral
+
+#ifdef NSCHEME
+    // N dissipation
     for(Uint i = 0; i < SF::nb_nodes; ++i)
     {
-      Ki = KiP_n[i] * InvKi_n;
-
-//      std::cout << "Ki : " << Ki << std::endl;
-
+      LUwq.setZero();
       for(Uint j = 0; j < SF::nb_nodes; ++j)
       {
         if (i==j) continue;
-        B::Phi_n.row(i) -= Ki * KiM_n[j] * ( B::U_n.row(i).transpose() - B::U_n.row(j).transpose() ) * B::wj[q];
-
-//        std::cout << "Phi -= " << Ki * KiM_n[j] * ( B::U_n.row(i).transpose() - B::U_n.row(j).transpose() ) << std::endl;
-
+        LUwq += Ki_n[j] * ( U_n.row(i).transpose() - U_n.row(j).transpose() );
+//        std::cout << "Uj-Ui : " << U_n.row(j).transpose() - U_n.row(i).transpose() << std::endl;
       }
+
+//      std::cout << "LUwq : " << LUwq << std::endl;
+
+      Phi_n.row(i) +=  Ki_n[i] * InvKi_n * LUwq * wj[q];
+
+//      std::cout << "Phi N = " << Ki_n[i] * InvKi_n * LUwq * wj[q] << std::endl;
+
     }
+#endif
+
 
     // compute the wave_speed for scaling the update
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      (*B::wave_speed)[nodes_idx[n]][0] += DvP[n].maxCoeff() * B::wj[q];
+      (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
+
 
   } // loop qd points
 
@@ -233,7 +231,7 @@ void CSysN::Term<SF,QD,PHYS>::execute()
   //  std::cout << "nodes: " << nodes << std::endl;
 
   //  std::cout << "solution: " << U_n << std::endl;
-//    std::cout << "phi: " << B::Phi_n << std::endl;
+  //  std::cout << "phi: " << Phi_n << std::endl;
 
   //  std::cout << " AREA : " << wj.sum() << std::endl;
 
@@ -244,14 +242,13 @@ void CSysN::Term<SF,QD,PHYS>::execute()
   //      std::cout << Phi_n(n,v) << " ";
   //  std::cout << "]" << std::endl;
 
-
-//  if( B::idx() == 307 ) exit(0);
+  //    if( idx() > 2 ) exit(0);
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF
 
-#endif // CF_RDM_Schemes_CSysN_hpp
+#endif // CF_RDM_Schemes_LDA_hpp

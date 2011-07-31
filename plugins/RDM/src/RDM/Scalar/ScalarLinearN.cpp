@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysN.hpp"
+#include "RDM/Schemes/N.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysN, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > CSysN_LinearAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<N, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > N_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysN, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > CSysN_LinearAdvSys2D_Builder;
+Common::ComponentBuilder < CellLoopT<N, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > N_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysN, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > CSysN_RotationAdv2D_Builder;
+Common::ComponentBuilder < CellLoopT<N, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > N_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

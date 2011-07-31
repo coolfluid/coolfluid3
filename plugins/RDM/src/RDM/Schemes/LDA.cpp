@@ -13,7 +13,7 @@
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/CellLoop.hpp"
-#include "RDM/Schemes/CSysN.hpp"
+#include "RDM/Schemes/LDA.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -24,19 +24,20 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysN, RDM::CellTerm, LibSchemes > CSysN_Builder;
+Common::ComponentBuilder < LDA, RDM::CellTerm, LibSchemes > LDA_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSysN::CSysN ( const std::string& name ) : RDM::CellTerm(name)
+LDA::LDA ( const std::string& name ) : RDM::CellTerm(name)
 {
   regist_typeinfo(this);
 }
 
-CSysN::~CSysN() {}
+LDA::~LDA() {}
 
-void CSysN::execute()
+void LDA::execute()
 {
+
   ElementLoop& loop = access_element_loop( type_name() );
 
   // loop on all regions configured by the user

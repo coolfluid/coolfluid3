@@ -24,7 +24,7 @@ namespace RDM {
 Common::ComponentBuilder < CellLoopT<RKLDA,Physics::LinEuler::Cons2D> ,
                            RDM::CellLoop,
                            LibLinEuler >
-                           CSysLDA_Cons2D_Builder;
+                           LDA_Cons2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysLDA.hpp"
+#include "RDM/Schemes/LDA.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -24,21 +24,21 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysLDA, Physics::Scalar::LinearAdv2D>,
+Common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdv2D>,
                            RDM::CellLoop,
-                           LibScalar > CSysLDA_LinearAdv2D_Builder;
+                           LibScalar > LDA_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysLDA, Physics::Scalar::LinearAdv3D>,
+Common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdv3D>,
                            RDM::CellLoop,
-                           LibScalar > CSysLDA_LinearAdv3D_Builder;
+                           LibScalar > LDA_LinearAdv3D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysLDA, Physics::Scalar::LinearAdvSys2D>,
+Common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdvSys2D>,
                            RDM::CellLoop,
-                           LibScalar > CSysLDA_LinearAdvSys2D_Builder;
+                           LibScalar > LDA_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<CSysLDA, Physics::Scalar::RotationAdv2D>,
+Common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::RotationAdv2D>,
                            RDM::CellLoop,
-                           LibScalar > CSysLDA_RotationAdv2D_Builder;
+                           LibScalar > LDA_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

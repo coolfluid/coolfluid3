@@ -2,16 +2,16 @@ list( APPEND coolfluid_rdm_schemes_files
   LibSchemes.cpp
   LibSchemes.hpp
   # steady RD schemes
-  CSysLDA.hpp
-  CSysLDA.cpp
-  CSysLF.hpp
-  CSysLF.cpp
-  CSysN.hpp
-  CSysN.cpp
-  CSysB.hpp
-  CSysB.cpp
-  CSysSUPG.hpp
-  CSysSUPG.cpp
+  LDA.hpp
+  LDA.cpp
+  LF.hpp
+  LF.cpp
+  N.hpp
+  N.cpp
+  B.hpp
+  B.cpp
+  SUPG.hpp
+  SUPG.cpp
   # standalone diffusion term
   CDiffGalerkin.hpp
   CDiffGalerkin.cpp

@@ -1,6 +1,14 @@
 set( RDM_TEST_RUN_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "dir for running RDM tests" )
 
 ##########################################################################
+# unit tests
+
+list( APPEND utest-rdm-lda_cflibs coolfluid_rdm )
+list( APPEND utest-rdm-lda_files  utest-rdm-lda.cpp )
+
+coolfluid_add_unit_test( utest-rdm-lda )
+
+##########################################################################
 # acceptance tests
 
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d

@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "RDM/Schemes/CSysB.hpp"
+#include "RDM/Schemes/B.hpp"
 
 #include "RDM/SupportedCells.hpp" // supported cells
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<CSysB, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > CSysB_Burgers2D_Builder;
+Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > B_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
