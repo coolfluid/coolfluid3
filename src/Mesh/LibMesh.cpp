@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include "Common/RegistLibrary.hpp"
 #include "Common/CRoot.hpp"
 
@@ -22,27 +24,17 @@ CF::Common::RegistLibrary<LibMesh> libMesh;
 
 void LibMesh::initiate_impl()
 {
-  Core::instance().root()
-      .get_child("Tools")
-      .create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
+  Core::instance().tools().create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
 
-  Core::instance().root()
-      .get_child_ptr("Tools")
-      ->create_component_ptr<Mesh::WriteMesh>( "WriteMesh" )
+  Core::instance().tools().create_component_ptr<Mesh::WriteMesh>( "WriteMesh" )
       ->mark_basic();
 }
 
 void LibMesh::terminate_impl()
 {
-  Core::instance().root()
-      .get_child_ptr("Tools")
-      ->remove_component("LoadMesh");
-  Core::instance().root()
-      .get_child_ptr("Tools")
-      ->remove_component("WriteMesh");
-
-
+  Core::instance().tools().remove_component("LoadMesh");
+  Core::instance().tools().remove_component("WriteMesh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
