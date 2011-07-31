@@ -75,7 +75,7 @@ public: // functions
   }
 
   /// Get the class name
-  static std::string type_name () { return "LDA.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "LDA.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();

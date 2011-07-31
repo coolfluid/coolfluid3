@@ -76,7 +76,7 @@ public: // functions
   }
 
   /// Get the class name
-  static std::string type_name () { return "B.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "B.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();

@@ -68,7 +68,7 @@ public: // functions
   Term ( const std::string& name ) : SchemeBase<SF,QD,PHYS>(name) {     regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "LF.Scheme<" + SF::type_name() + ">"; }
+  static std::string type_name () { return "LF.Term<" + SF::type_name() + "," + PHYS::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ();
