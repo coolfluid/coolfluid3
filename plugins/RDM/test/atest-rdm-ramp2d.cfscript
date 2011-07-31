@@ -23,15 +23,14 @@ call Model/Domain/load_mesh file:uri=file:ramp-tg-p1-6506.msh
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=500
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.2
 
 ### initial conditions
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
-# "functions:array[string]= 0.5, 1.67332, 0.0, 3.425"
+configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.5,1.67332,0.0,3.425"
 # corresponding pressure 101325.0
 
 ### boundary conditions
@@ -42,11 +41,11 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Regions:array[uri]=\
 //Root/Model/Domain/mesh/topology/left
 
-configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>0.5,0.5,1.),0.0,if(x>0.5,1.67332,2.83972),if(x>0.5,3.425,6.532)"
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=0.5,1.67332,0.0,3.425"
 
-call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=WALLS  Type:string=CF.RDM.WallEdwinBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/bottom,//Root/Model/Domain/mesh/topology/top
+# call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+#     Name:string=WALLS  Type:string=CF.RDM.WallEdwinBc \
+#     Regions:array[uri]=//Root/Model/Domain/mesh/topology/bottom,//Root/Model/Domain/mesh/topology/top
 
 ### domain discretization
 
