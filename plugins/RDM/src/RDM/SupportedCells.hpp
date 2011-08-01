@@ -39,21 +39,19 @@ namespace RDM {
 
 /// List of supported 2d cell shapefunctions
 typedef boost::mpl::vector<
-  Mesh::SF::Triag2DLagrangeP1
-//,
-//  Mesh::SF::Triag2DLagrangeP2,
-//  Mesh::SF::Triag2DLagrangeP2B,
-//  Mesh::SF::Triag2DLagrangeP3,
-//  Mesh::SF::Quad2DLagrangeP1,
-//  Mesh::SF::Quad2DLagrangeP2,
-//  Mesh::SF::Quad2DLagrangeP3
+  Mesh::SF::Triag2DLagrangeP1,
+  Mesh::SF::Triag2DLagrangeP2,
+  Mesh::SF::Triag2DLagrangeP2B,
+  Mesh::SF::Triag2DLagrangeP3,
+  Mesh::SF::Quad2DLagrangeP1,
+  Mesh::SF::Quad2DLagrangeP2,
+  Mesh::SF::Quad2DLagrangeP3
 > CellTypes2D;
 
 /// List of supported 3d cell shapefunctions
 typedef boost::mpl::vector<
-  Mesh::SF::Tetra3DLagrangeP1
-//,
-//  Mesh::SF::Hexa3DLagrangeP1
+  Mesh::SF::Tetra3DLagrangeP1,
+  Mesh::SF::Hexa3DLagrangeP1
 > CellTypes3D;
 
 //------------------------------------------------------------------------------------------
