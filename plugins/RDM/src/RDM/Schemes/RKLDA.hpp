@@ -38,8 +38,6 @@ public: // typedefs
 
 public: // functions
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
-
   /// Contructor
   /// @param name of the component
   RKLDA ( const std::string& name );
@@ -71,6 +69,8 @@ public: // typedefs
   typedef boost::shared_ptr< Term const> ConstPtr;
 
 public: // functions
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
   /// Contructor
   /// @param name of the component
@@ -108,6 +108,9 @@ protected: // helper function
     {
       ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
     }
+
+    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
+    std::cout << "RKLDA   step    : " << step    << std::endl;
 
     rkalphas.resize(rkorder,rkorder);
     rkbetas.resize(rkorder,rkorder);
@@ -172,6 +175,11 @@ protected: // helper function
       break ;
 
     }
+
+    std::cout << "rkalphas  :\n" << rkalphas << std::endl;
+    std::cout << "rkbetas   :\n" << rkbetas  << std::endl;
+    std::cout << "rkcoeff   :\n" << rkcoeff  << std::endl;
+
   }
 
 protected: // data
@@ -214,225 +222,243 @@ template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
 
-// get element connectivity
+  std::cout << "cell [" << B::idx() << "]" << std::endl;
 
-const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  // get element connectivity
 
-    //compute delta u_s
+  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
-du.setZero();
+  //compute delta u_s
+
+  std::cout << FromHere().short_str() << std::endl;
+
+  du.setZero();
+
+  for ( Uint r = 0 ; r < rkorder ; ++r)
+  {
+    std::cout << "field size : " << ksolutions[r]->data().size()
+              << " x " << ksolutions[r]->data().row_size()
+              << std::endl;
 
     for ( Uint n = 0 ; n < SF::nb_nodes ; ++n)
     {
-        for ( Uint r = 0 ; r < rkorder ; ++r)
-        {
-            for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
-                du(nodes_idx[n],eq) += rkbetas(r,step) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
-        }
+      for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
+      {
+        std::cout << "accessing [" << n << "] [" << eq << "]" << std::endl;
+
+        du(nodes_idx[n],eq) += rkbetas(r,step) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
+      }
     }
+  }
 
+  std::cout << FromHere().short_str() << std::endl;
+
+  {
+    // add mass matrix contribution
+    for (Uint n=0; n<SF::nb_nodes; ++n)
     {
-        // add mass matrix contribution
-       for (Uint n=0; n<SF::nb_nodes; ++n)
-       {
-           for ( Uint s=0; s< SF::nb_nodes; ++s)
-           {
-               for ( Uint eq=0 ; eq<PHYS::MODEL::_neqs ; ++eq)
-                {
-                    if (step == 1 && rkorder == 1)
-                    {
-                       if ( n==s )
-                        {
-                                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0] * du(s,eq);
-                        }
-                        else
-                        {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0] * du(s,eq);
-                        }
-                    }
-                    else
-                    {
-                        if ( n==s )
-                        {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2] * du(s,eq);
-                        }
-                        else
-                        {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2] * du(s,eq);
-                        }
-                    }
-               }
-           }
-       }
-    }
-
-        // there isn't a way to compute it automatically, yet
-        // it's necessary to define s
-        /// @todo lumped and not lumped in the same line
-
-    for ( Uint r = 0 ; r < step ; ++r)
-    {
-///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /// @todo must be tested for 3D
-
-        // copy the coordinates from the large array to a small
-
-        Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
-
-        // copy the solution from the large array to a smallchange_elements
-
-        for(Uint n = 0; n < SF::nb_nodes; ++n)
-          for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
-            B::U_n(n,v) = ksolutions[r]->data()[ nodes_idx[n] ][v];
-
-        // coordinates of quadrature points in physical space
-
-        B::X_q  = B::Ni * B::X_n;
-
-        // solution at all quadrature points in physical space
-
-        B::U_q = B::Ni * B::U_n;
-
-        // Jacobian of transformation phys -> ref:
-        //    |   dx/dksi    dx/deta    |
-        //    |   dy/dksi    dy/deta    |
-
-        // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
-        // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
-
-        for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+      for ( Uint s=0; s< SF::nb_nodes; ++s)
+      {
+        for ( Uint eq=0 ; eq<PHYS::MODEL::_neqs ; ++eq)
         {
-          for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+          if (step == 1 && rkorder == 1)
           {
-            B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
-          }
-        }
-
-        // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
-        for(Uint q = 0; q < QD::nb_points; ++q)
-        {
-          for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-          {
-            for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+            if ( n==s )
             {
-             B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
+              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0] * du(s,eq);
+            }
+            else
+            {
+              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0] * du(s,eq);
             }
           }
-
-         // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
-         // to compute the gradients of of all shape functions in phys. space
-         B::jacob[q] = B::JM.determinant();
-         B::JMinv = B::JM.inverse();
-
-         for(Uint n = 0; n < SF::nb_nodes; ++n)
-         {
-           for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
-           {
-             B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
-           }
-
-           B::dNphys = B::JMinv * B::dNref;
-
-           for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
-           {
-             B::dNdX[dimx](q,n) = B::dNphys[dimx];
-           }
-
-         }
-
-        } // loop over quadrature points
-
-        // compute transformed integration weights (sum is element area)
-
-        for(Uint q = 0; q < QD::nb_points; ++q)
-          B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
-
-        // solution derivatives in physical space at quadrature point
-
-        B::dUdX[XX] = B::dNdX[XX] * B::U_n;
-        B::dUdX[YY] = B::dNdX[YY] * B::U_n;
-
-        // zero element residuals
-
-        B::Phi_n.setZero();
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        // L(N)+ @ each quadrature point
-
-        for(Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
-        {
-            // compute the contributions to phi_i
-            B::sol_gradients_at_qdpoint(q);
-
-            PHYS::compute_properties(B::X_q.row(q),
-                                     B::U_q.row(q),
-                                     B::dUdXq,
-                                     B::phys_props);
-
-            for( Uint n = 0 ; n < SF::nb_nodes ; ++n)
+          else
+          {
+            if ( n==s )
             {
-              B::dN[XX] = B::dNdX[XX](q,n);
-              B::dN[YY] = B::dNdX[YY](q,n);
-
-              PHYS::flux_jacobian_eigen_structure(B::phys_props,
-                                             B::dN,
-                                             Rv,
-                                             Lv,
-                                             Dv );
-
-              // diagonal matrix of positive eigen values
-
-              DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
-
-              Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2] * du(s,eq);
             }
+            else
+            {
+              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2] * du(s,eq);
+            }
+          }
+        }
+      }
+    }
+  }
 
-            // compute L(u)
+  std::cout << FromHere().short_str() << std::endl;
 
-            PHYS::residual(B::phys_props,
+  // there isn't a way to compute it automatically, yet
+  // it's necessary to define s
+  /// @todo lumped and not lumped in the same line
+
+  for ( Uint r = 0 ; r < step ; ++r)
+  {
+    ///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    /// @todo must be tested for 3D
+
+    // copy the coordinates from the large array to a small
+
+    Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
+
+    // copy the solution from the large array to a small
+
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+      for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
+      {
+        B::U_n(n,v) = ksolutions[r]->data()[ nodes_idx[n] ][v];
+      }
+
+    // coordinates of quadrature points in physical space
+
+    B::X_q  = B::Ni * B::X_n;
+
+    // solution at all quadrature points in physical space
+
+    B::U_q = B::Ni * B::U_n;
+
+    // Jacobian of transformation phys -> ref:
+    //    |   dx/dksi    dx/deta    |
+    //    |   dy/dksi    dy/deta    |
+
+    // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
+    // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
+
+    for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+    {
+      for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+      {
+        B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
+      }
+    }
+
+    // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
+    for(Uint q = 0; q < QD::nb_points; ++q)
+    {
+      for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+      {
+        for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+        {
+          B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
+        }
+      }
+
+      // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
+      // to compute the gradients of of all shape functions in phys. space
+      B::jacob[q] = B::JM.determinant();
+      B::JMinv = B::JM.inverse();
+
+      for(Uint n = 0; n < SF::nb_nodes; ++n)
+      {
+        for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
+        {
+          B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
+        }
+
+        B::dNphys = B::JMinv * B::dNref;
+
+        for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
+        {
+          B::dNdX[dimx](q,n) = B::dNphys[dimx];
+        }
+
+      }
+
+    } // loop over quadrature points
+
+    // compute transformed integration weights (sum is element area)
+
+    for(Uint q = 0; q < QD::nb_points; ++q)
+      B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
+
+    // solution derivatives in physical space at quadrature point
+
+    B::dUdX[XX] = B::dNdX[XX] * B::U_n;
+    B::dUdX[YY] = B::dNdX[YY] * B::U_n;
+
+    // zero element residuals
+
+    B::Phi_n.setZero();
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // L(N)+ @ each quadrature point
+
+    for(Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
+    {
+      // compute the contributions to phi_i
+      B::sol_gradients_at_qdpoint(q);
+
+      PHYS::compute_properties(B::X_q.row(q),
+                               B::U_q.row(q),
+                               B::dUdXq,
+                               B::phys_props);
+
+      for( Uint n = 0 ; n < SF::nb_nodes ; ++n)
+      {
+        B::dN[XX] = B::dNdX[XX](q,n);
+        B::dN[YY] = B::dNdX[YY](q,n);
+
+        PHYS::flux_jacobian_eigen_structure(B::phys_props,
+                                            B::dN,
+                                            Rv,
+                                            Lv,
+                                            Dv );
+
+        // diagonal matrix of positive eigen values
+
+        DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+
+        Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
+      }
+
+      // compute L(u)
+
+      PHYS::residual(B::phys_props,
                      B::dFdU,
                      B::LU );
 
-            // compute L(N)+
+      // compute L(N)+
 
-            sumLplus = Ki_n[0];
-            for(Uint n = 1 ; n < SF::nb_nodes ; ++n)
-              sumLplus += Ki_n[n];
+      sumLplus = Ki_n[0];
+      for(Uint n = 1 ; n < SF::nb_nodes ; ++n)
+        sumLplus += Ki_n[n];
 
-              // invert the sum L plus
+      // invert the sum L plus
 
-            InvKi_n = sumLplus.inverse();
+      InvKi_n = sumLplus.inverse();
 
-            // compute the phi_i LDA integral
+      // compute the phi_i LDA integral
 
-            LUwq = InvKi_n * B::LU * B::wj[q];
+      LUwq = InvKi_n * B::LU * B::wj[q];
 
-            for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-              B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+      for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+        B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // save the phi_i
+      // save B::Phi_n.row
+      //Phin.row() += Phi_n.row(n) ;
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // compute contribution to wave_speed
+
+      for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+        (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
+    } // loop over each quadrature point
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // save the phi_i
-                // save B::Phi_n.row
-                //Phin.row() += Phi_n.row(n) ;
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-            // compute contribution to wave_speed
-
-            for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-              (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
-        } // loop over each quadrature point
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        // update the residual (according to k)
-        if ( step > 1)
-        {
-            for (Uint n=0; n<SF::nb_nodes; ++n)
-            {
-              for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
-                (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 1) * dt * B::Phi_n(n,eq);
-            }
-        }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // update the residual (according to k)
+    if ( step > 1)
+    {
+      for (Uint n=0; n<SF::nb_nodes; ++n)
+      {
+        for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
+          (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 1) * dt * B::Phi_n(n,eq);
+      }
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  }
 }
 //#endif
 

@@ -30,8 +30,6 @@ public: // typedefs
 
 public: // functions
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
-
   /// Contructor
   /// @param name of the component
   LF ( const std::string& name );
@@ -62,6 +60,8 @@ public: // typedefs
   typedef boost::shared_ptr< Term const> ConstPtr;
 
 public: // functions
+
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
   /// Contructor
   /// @param name of the component
