@@ -70,7 +70,7 @@ void SetupMultipleSolutions::execute()
   if ( is_null( solution ) )
   {
     solution =
-        mesh.create_field( RDM::Tags::solution() + to_str(0),
+        mesh.create_field( RDM::Tags::solution(),
                            CField::Basis::POINT_BASED,
                            "space[0]",
                            vars)
@@ -99,11 +99,21 @@ void SetupMultipleSolutions::execute()
       solution_k = mesh.create_field( name, *solution ).as_ptr<CField>();
       solution_k->add_tag("rksteps");
     }
+
+    std::cout << "creating field [" << solution_k->name()
+              << "] uri [" << solution_k->uri().string() << "]"
+              << std::endl;
+
+
+    std::cout << "field size : " << solution->data().size()
+              << " x " << solution_k->data().row_size()
+              << std::endl;
+
     cf_assert( solution_k );
     rk_steps.push_back(solution_k);
   }
 
-  for( Uint k = 1; k <= rk_steps.size(); ++k)
+  for( Uint k = 1; k < rk_steps.size(); ++k)
   {
     if( ! fields.get_child_ptr( rk_steps[k]->name() ) )
       fields.create_component<CLink>( rk_steps[k]->name() ).link_to(solution).add_tag("rksteps");
