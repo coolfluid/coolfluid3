@@ -57,7 +57,7 @@ inline bool is_not_equal(const Real& x,  const Real& y)
 /// @return true if equal to zero or almost equal within the accepted error fuzz.
 inline bool is_zero(const Real& x)
 {
-  return is_equal_with_error(x,y, 100*Consts::eps());
+  return is_equal_with_error(x, 0.0, 100*Consts::eps());
 }
 
 /// Function to check if a Real number is not zero or very close.
