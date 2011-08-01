@@ -83,18 +83,6 @@ public: // functions
 
     m_options["Elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
 
-    // definition of the alpha and beta coefficients of RK method
-
-    /// @warning RKLDA only supports up to RK3
-
-    #define RK_MAX 3
-
-    rkalphas(RK_MAX,RK_MAX);
-
-    rkbetas(RK_MAX,RK_MAX);
-
-    rkcoeff(RK_MAX-1);
-
   }
 
   /// Get the class name
@@ -215,6 +203,8 @@ protected: // data
   typename B::PhysicsVT  LUwq;
   /// diagonal matrix with positive eigen values
   typename B::PhysicsVT  DvPlus [SF::nb_nodes];
+  /// du_s
+  typename B::SolutionMT du;
 
 };
 
@@ -228,54 +218,54 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
 const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
-#if 0
     //compute delta u_s
 
-    for ( Uint s = 0 ; s < SF::nb_nodes ; ++s)
+du.setZero();
+
+    for ( Uint n = 0 ; n < SF::nb_nodes ; ++n)
     {
-        du[s] = 0. ;
         for ( Uint r = 0 ; r < rkorder ; ++r)
         {
             for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
-                du[s][eq] += rkbetas(r,step) * ksolutions[r][eq];
+                du(nodes_idx[n],eq) += rkbetas(r,step) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
         }
     }
-#endif
 
     {
         // add mass matrix contribution
-        for (Uint n=0; n<SF::nb_nodes; ++n)
-        {
-            for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
-            {
-                for ( Uint p=0; p<PHYS::MODEL::_neqs ; ++p)
+       for (Uint n=0; n<SF::nb_nodes; ++n)
+       {
+           for ( Uint s=0; s< SF::nb_nodes; ++s)
+           {
+               for ( Uint eq=0 ; eq<PHYS::MODEL::_neqs ; ++eq)
                 {
                     if (step == 1 && rkorder == 1)
                     {
-                        if ( p==eq )
+                       if ( n==s )
                         {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0];// * du[eq];
+                                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0] * du(s,eq);
                         }
                         else
                         {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0];// * du[eq];
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0] * du(s,eq);
                         }
                     }
                     else
                     {
-                        if ( p==eq )
+                        if ( n==s )
                         {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2];// * du[eq];
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2] * du(s,eq);
                         }
                         else
                         {
-                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2];// * du[eq];
+                            (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2] * du(s,eq);
                         }
                     }
-                }
-            }
-        }
+               }
+           }
+       }
     }
+
         // there isn't a way to compute it automatically, yet
         // it's necessary to define s
         /// @todo lumped and not lumped in the same line
