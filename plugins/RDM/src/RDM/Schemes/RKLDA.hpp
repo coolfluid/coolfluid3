@@ -246,7 +246,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       {
         std::cout << "accessing [" << n << "] [" << eq << "]" << std::endl;
 
-        du(nodes_idx[n],eq) += rkbetas(r,step) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
+        du(nodes_idx[n],eq) += rkbetas(r,step-1) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
       }
     }
   }
