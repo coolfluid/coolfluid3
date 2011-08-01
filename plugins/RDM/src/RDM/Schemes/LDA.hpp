@@ -106,9 +106,29 @@ protected: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+/// function that flushes the value of a real that is too close to zero
+inline Real lolo ( Real  x )
+{
+  std::cout << "x [" << x << "]"  << std::endl;
+  Real r = (x < 1E-12) ? 0.0 : x;
+  std::cout << "r [" << r << "]"  << std::endl;
+  return r;
+}
+
+inline Real myplus ( Real x )
+{
+  std::cout << "x [" << x << "]"  << std::endl;
+  Real r =  std::max( 0. , x );
+  std::cout << "r [" << r << "]"  << std::endl;
+  return r;
+}
+
+
 template<typename SF,typename QD, typename PHYS>
 void LDA::Term<SF,QD,PHYS>::execute()
 {
+  using namespace CF::Math;
+
   // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
@@ -119,14 +139,7 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
-
     B::sol_gradients_at_qdpoint(q);
-
-    for(Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
-      for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
-        if( Math::Checks::is_equal_with_error( B::dUdXq(eq,dim) , 0.0, 1E-20 ) )
-          std::cout << "non-zero grad at [" << B::X_q.row(q) << "] -> grad [" << B::dUdXq << "]" << std::endl;
-
 
     PHYS::compute_properties(B::X_q.row(q),
                              B::U_q.row(q),
@@ -146,7 +159,7 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
       // diagonal matrix of positive eigen values
 
-      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus));
+      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus)); /* WORKS */
 
       Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
     }
@@ -154,6 +167,17 @@ void LDA::Term<SF,QD,PHYS>::execute()
     // compute L(u)
 
     PHYS::residual( B::phys_props, B::dFdU, B::LU );
+
+//    if(B::idx() == 4185 )
+//      std::cout << "LU   [" << q << "] = " << B::LU.transpose() << std::endl;
+
+//    B::LU.unaryExpr(std::ptr_fun(lolo)); /* NOT CALLLED ??? */
+
+//    for(Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+//      B::LU[eq] = ( B::LU[eq] < 1E-13 ) ? 0.0 : B::LU[eq];
+
+//    if(B::idx() == 4185 )
+//      std::cout << "LU   [" << q << "] = " << B::LU.transpose() << std::endl;
 
     // compute L(N)+
 
@@ -169,8 +193,89 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
     LUwq = InvKi_n * B::LU * B::wj[q];
 
+//    LUwq.unaryExpr(std::ptr_fun(lolo));  /* NOT CALLLED ??? */
+
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+
+    // check for non-zero grad
+#if 0
+    {
+      bool zero = false;
+      for(Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+        for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
+        {
+//          std::cout << "[" << B::dUdXq(eq,dim) << "] diff [" << FloatingPoint<Real>( B::dUdXq(eq,dim) ).diff( FloatingPoint<Real>(0.) ) << "]" << std::endl;
+
+          if( std::abs( B::dUdXq(eq,dim) ) > 1E-12 )
+            zero = true;
+        }
+
+      if( zero || B::idx() == 4185 )
+      {
+
+        std::cout.setf(std::ios::scientific,std::ios::floatfield);
+        std::cout.precision(24);
+
+        std::cout << "---------------------------------------------------------------------------"     << std::endl;
+
+        std::cout << "cell  [" << B::idx() << "]" << std::endl;
+//        std::cout << "qd pt [" << q        << "]" << std::endl;
+
+        std::cout << std::endl;
+
+      //  std::cout << "  Operator:" << std::endl;
+      //  std::cout << "               Sum of weights = " << m_quadrature.weights.sum() << std::endl;
+      //  std::cout << "               Jacobians in physical space:" << std::endl;
+      //  std::cout << jacob << std::endl;
+
+//      std::cout << "Area = " << B::wj.sum() << std::endl;
+
+//      std::cout << "X_n  : " << B::X_n << std::endl;
+
+      std::cout << "U_n  :\n" << B::U_n << std::endl;
+      std::cout << std::endl;
+
+//          std::cout << "X    [" << q << "] = " << B::X_q.row(q)    << std::endl;
+          std::cout << "U    [" << q << "] = " << B::U_q.row(q)     << std::endl;
+          std::cout << std::endl;
+//          std::cout << "wj   [" << q << "] = " << B::wj[q]             << std::endl;
+          std::cout << "dUdX[XX] [" << q << "] = " << B::dUdX[XX].row(q)       << std::endl;
+          std::cout << "dUdX[YY] [" << q << "] = " << B::dUdX[YY].row(q)       << std::endl;
+          std::cout << std::endl;
+          std::cout << "LU   [" << q << "] = " << B::LU.transpose() << std::endl;
+          std::cout << std::endl;
+
+          for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
+            std::cout << "dFdU [" << dim << "] : \n" << B::dFdU[dim] << "\n" << std::endl;
+          std::cout << std::endl;
+
+          std::cout << "---------------------------------------------------------------------------"     << std::endl;
+
+      //  std::cout << "nodes_idx";
+      //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
+      //     std::cout << " " << nodes_idx[i];
+
+      //  std::cout << "mesh::fill function" <<  std::endl;
+      //  std::cout << "nodes: " << nodes << std::endl;
+
+      //  std::cout << "solution: " << U_n << std::endl;
+      //  std::cout << "phi: " << Phi_n << std::endl;
+
+      //  std::cout << " AREA : " << wj.sum() << std::endl;
+
+      //  std::cout << "phi [";
+
+      //  for (Uint n=0; n < SF::nb_nodes; ++n)
+      //    for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
+      //      std::cout << Phi_n(n,v) << " ";
+      //  std::cout << "]" << std::endl;
+
+      }
+
+      if (zero) exit(0);
+    }
+#endif
 
     // compute the phi_i LDA intergral
 
@@ -209,46 +314,6 @@ void LDA::Term<SF,QD,PHYS>::execute()
   for (Uint n=0; n<SF::nb_nodes; ++n)
     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);
-
-
-  // debug
-
-  //  std::cout << "LDA ELEM [" << idx() << "]" << std::endl;
-  //  std::cout << "  Operator:" << std::endl;
-  //  std::cout << "               Sum of weights = " << m_quadrature.weights.sum() << std::endl;
-  //  std::cout << "               Jacobians in physical space:" << std::endl;
-  //  std::cout << jacob << std::endl;
-  //  std::cout << "LDA: Area = " << wj.sum() << std::endl;
-
-
-  //    std::cout << "X    [" << q << "] = " << X_q.row(q)    << std::endl;
-  //    std::cout << "U    [" << q << "] = " << U_q.row(q)     << std::endl;
-  //    std::cout << "dUdX[XX] [" << q << "] = " << dUdX[XX].row(q)       << std::endl;
-  //    std::cout << "dUdX[YY] [" << q << "] = " << dUdX[YY].row(q)       << std::endl;
-  //    std::cout << "LU   [" << q << "] = " << Lu.transpose() << std::endl;
-  //    std::cout << "wj   [" << q << "] = " << wj[q]             << std::endl;
-  //    std::cout << "--------------------------------------"     << std::endl;
-
-  //  std::cout << "nodes_idx";
-  //  for ( Uint i = 0; i < nodes_idx.size(); ++i)
-  //     std::cout << " " << nodes_idx[i];
-
-  //  std::cout << "mesh::fill function" <<  std::endl;
-  //  std::cout << "nodes: " << nodes << std::endl;
-
-  //  std::cout << "solution: " << U_n << std::endl;
-  //  std::cout << "phi: " << Phi_n << std::endl;
-
-  //  std::cout << " AREA : " << wj.sum() << std::endl;
-
-  //  std::cout << "phi [";
-
-  //  for (Uint n=0; n < SF::nb_nodes; ++n)
-  //    for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
-  //      std::cout << Phi_n(n,v) << " ";
-  //  std::cout << "]" << std::endl;
-
-  //    if( idx() > 2 ) exit(0);
 
 }
 

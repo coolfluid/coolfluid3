@@ -100,7 +100,7 @@ public:
   bool almost_equals(const FloatingPoint& rhs, const size_t ulps ) const
   {
     if (is_nan() || rhs.is_nan()) return false;
-    return ULP_diff(bits_, rhs.bits_) <= ulps;
+    return ulp_diff(bits_, rhs.bits_) <= ulps;
   }
 
   bool almost_equals(const FloatingPoint& rhs) const
@@ -108,14 +108,26 @@ public:
     return almost_equals(rhs, kMaxUlps);
   }
 
-private:
-
-  // Now checking for NaN to match == behavior.
-  //
+  /// checking for NaN to match == behavior.
   bool is_nan() const
   {
     return ((kExpBitMask & bits_) == kExpBitMask) &&
         ((kFracBitMask & bits_) != 0);
+  }
+
+  Bits diff ( const FloatingPoint& rhs )
+  {
+    return ulp_diff(bits_, rhs.bits_);
+  }
+
+private:
+
+  Bits ulp_diff(const Bits& sam1, const Bits& sam2) const
+  {
+    const Bits biased1 = SignAndMagnitudeToBiased(sam1);
+    const Bits biased2 = SignAndMagnitudeToBiased(sam2);
+
+    return (biased1 >= biased2) ? (biased1 - biased2) : (biased2 - biased1);
   }
 
   Bits SignAndMagnitudeToBiased(const Bits& sam) const
@@ -125,14 +137,6 @@ private:
     } else {
       return kSignBitMask | sam;  // * 2
     }
-  }
-
-  Bits ULP_diff(const Bits& sam1, const Bits& sam2) const
-  {
-    const Bits biased1 = SignAndMagnitudeToBiased(sam1);
-    const Bits biased2 = SignAndMagnitudeToBiased(sam2);
-
-    return (biased1 >= biased2) ? (biased1 - biased2) : (biased2 - biased1);
   }
 
   union

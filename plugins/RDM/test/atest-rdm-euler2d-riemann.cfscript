@@ -17,8 +17,9 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:trapezium1x1-tg-p2-1949.msh
-# file:trapezium1x1-tg-p1-11512.msh
+call Model/Domain/load_mesh file:uri=trapezium1x1-tg-p1-11512.msh
+# trapezium1x1-tg-p2-1949.msh
+# trapezium1x1-tg-p1-11512.msh
 # "file:square1x1-tg-p1-303n.msh"      // works
 # "file:square1x1-tg-p1-7614.msh"      // works
 #  file:trapezium1x1-tg-p1-508.msh       // works

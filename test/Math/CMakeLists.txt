@@ -14,6 +14,13 @@ coolfluid_add_unit_test( utest-vector-operations )
 
 ################################################################################
 
+list( APPEND utest-math-checks_cflibs coolfluid_math )
+list( APPEND utest-math-checks_files  utest-math-checks.cpp )
+
+coolfluid_add_unit_test( utest-math-checks )
+
+################################################################################
+
 list( APPEND utest-matrix-inverter_cflibs coolfluid_math )
 list( APPEND utest-matrix-inverter_files  utest-matrix-inverter.cpp )
 
