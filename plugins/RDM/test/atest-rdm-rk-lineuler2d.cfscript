@@ -19,7 +19,7 @@ configure Wizard  rkorder:unsigned=2
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:rotation-tg-p1.msh
+call Model/Domain/load_mesh file:uri=rotation-tg-p1.msh
 
 ### solver
 
@@ -41,7 +41,10 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=0.
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=AROUND \
      Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
+     Regions:array[uri]=\
+//Root/Model/Domain/mesh/topology/inlet,\
+//Root/Model/Domain/mesh/topology/outlet,\
+//Root/Model/Domain/mesh/topology/farfield
 
 configure Model/RDSolver/BoundaryConditions/AROUND functions:array[string]=0
 
@@ -55,8 +58,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rk-lineuler2d-initial.msh
+# call Model/Domain/write_mesh file:uri=initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-rk-lineuler2d-solution.msh
+# call Model/Domain/write_mesh file:uri=solution.msh
