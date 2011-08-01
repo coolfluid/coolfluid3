@@ -95,10 +95,11 @@ void SetupMultipleSolutions::execute()
     CField::Ptr solution_k = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() + to_str(k));
     if ( is_null( solution_k ) )
     {
-      solution_k = mesh.create_field(Tags::solution() + to_str(k), *solution ).as_ptr<CField>();
+      std::string name = std::string(Tags::solution()) + to_str(k);
+      solution_k = mesh.create_field( name, *solution ).as_ptr<CField>();
       solution_k->add_tag("rksteps");
     }
-
+    cf_assert( solution_k );
     rk_steps.push_back(solution_k);
   }
 
