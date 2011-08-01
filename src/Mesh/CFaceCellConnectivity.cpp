@@ -124,7 +124,7 @@ void CFaceCellConnectivity::build_connectivity()
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);
-  std::vector<Uint> dummy_row(2, Math::Consts::Uint_max());
+  std::vector<Uint> dummy_row(2, Math::Consts::uint_max());
   Uint max_nb_faces(0);
 
   // calculate max_nb_faces
@@ -318,7 +318,7 @@ void CFaceCellConnectivity::build_connectivity()
     {
       boost_foreach (Uint elem, (*m_connectivity)[f])
       {
-        if ( elem != Math::Consts::Uint_max() )
+        if ( elem != Math::Consts::uint_max() )
         {
 
           boost::tie(elem_location_comp,elem_location_idx) = lookup().location(elem);

@@ -239,7 +239,7 @@ void CGlobalNumbering::execute()
     }
     else
     {
-      nodes_glb_idx[i] = Uint_max();
+      nodes_glb_idx[i] = uint_max();
     }
   }
 
@@ -279,7 +279,7 @@ void CGlobalNumbering::execute()
   {
     for (Uint i=0; i<nodes.size(); ++i)
     {
-      cf_assert(nodes.glb_idx()[i] != Uint_max());
+      cf_assert(nodes.glb_idx()[i] != uint_max());
       if (nodes.is_ghost(i) == false)
       {
         cf_assert(nodes.glb_idx()[i] >= start_id_per_proc[mpi::PE::instance().rank()]);
@@ -334,7 +334,7 @@ void CGlobalNumbering::execute()
       }
       else
       {
-        elements_glb_idx[e] = Uint_max();
+        elements_glb_idx[e] = uint_max();
       }
     } // end foreach elem_idx
     cf_assert(cnt == nb_owned_elems);

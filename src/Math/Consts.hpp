@@ -7,37 +7,35 @@
 #ifndef CF_Math_Consts_hpp
 #define CF_Math_Consts_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include <limits>    // for std::numeric_limits
 
 #include "Common/CF.hpp"
 
 #include "Math/LibMath.hpp"
 
-////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Math {
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Static functions for mathematical constants
-/// @author Tiago Quintino, Willem Deconinck
+///
+/// @author Tiago Quintino
+/// @author Willem Deconinck
 namespace Consts
-{ 
+{
   /// Returns the maximum number representable with the chosen precision
   inline Real int_max() { return std::numeric_limits<int>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
   inline Real int_min() { return std::numeric_limits<int>::min(); }
   /// Returns the maximum number representable with the chosen precision
-  inline Uint Uint_max() { return std::numeric_limits<Uint>::max(); }
+  inline Uint uint_max() { return std::numeric_limits<Uint>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
-  inline Uint Uint_min() { return std::numeric_limits<Uint>::min(); }
+  inline Uint uint_min() { return std::numeric_limits<Uint>::min(); }
   /// Returns the maximum number representable with the chosen precision
-  inline Real Real_max() { return std::numeric_limits<Real>::max(); }
+  inline Real real_max() { return std::numeric_limits<Real>::max(); }
   /// Definition of the minimum number representable with the chosen precision.
-  inline Real Real_min() { return std::numeric_limits<Real>::min(); }
+  inline Real real_min() { return std::numeric_limits<Real>::min(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
   /// @code std::abs(x) > Math::Consts::eps()  @endcode
@@ -46,15 +44,11 @@ namespace Consts
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
   /// Definition of the Pi constant.
   inline Real pi() { return M_PI; }
-  // /// Definition of the imaginary constant i = sqrt(-1)
-  // const Complex complexI = Complex(0.0,1.0);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Math
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Math_Consts_hpp

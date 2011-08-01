@@ -4,12 +4,13 @@ list( APPEND coolfluid_math_files
  LibMath.cpp
  LibMath.hpp
  BoostMath.hpp
+ Checks.hpp
+ Consts.hpp
  Defs.hpp
  FindMinimum.hpp
- Consts.hpp
+ FloatingPoint.hpp
  Functions.hpp
  MatrixTypes.hpp
- Checks.hpp
  MathExceptions.hpp
  MathExceptions.cpp
  VectorialFunction.hpp

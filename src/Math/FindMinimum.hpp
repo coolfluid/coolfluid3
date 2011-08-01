@@ -42,7 +42,7 @@ class BracketMethod {
 public:
 
   /// Default constructor
-  BracketMethod() : m_maxStep(Consts::Real_max()) {}
+  BracketMethod() : m_maxStep(Consts::real_max()) {}
 
   /// Bracket the minimum in a given function,
   /// starting with 2 values pointing downwards

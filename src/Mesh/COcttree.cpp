@@ -80,8 +80,8 @@ void COcttree::create_bounding_box()
   m_dim = m_mesh.lock()->nodes().coordinates().row_size();
 
   // find bounding box coordinates for region 1 and region 2
-  m_bounding[MIN].setConstant(Real_max());
-  m_bounding[MAX].setConstant(Real_min());
+  m_bounding[MIN].setConstant(real_max());
+  m_bounding[MAX].setConstant(real_min());
 
   boost_foreach(CTable<Real>::ConstRow coords, m_mesh.lock()->nodes().coordinates().array())
   {

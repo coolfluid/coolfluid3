@@ -35,7 +35,7 @@ CIterate::CIterate( const std::string& name  ) :
   CAction ( name ),
   m_iter(0),
   m_verbose(false),
-  m_max_iter(Uint_max())
+  m_max_iter(uint_max())
 {
   mark_basic();
   m_properties["brief"] = std::string("Iterator object");

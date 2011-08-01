@@ -68,8 +68,8 @@ BOOST_AUTO_TEST_CASE( SVDInverterTest )
 
   // Right Hand Side
   RealVector4 b(1., 3., -1., 3.);
-  
-  
+
+
   // Known correct solution
   RealVector3 xCheck(0.5, 0.25, 0.);
   RealVector3 tol(1., 1., 1.); // 1% tolerance
@@ -80,16 +80,16 @@ BOOST_AUTO_TEST_CASE( SVDInverterTest )
   BOOST_CHECK_CLOSE(svd.singularValues()[0],12.,tol[0]);
   BOOST_CHECK_CLOSE(svd.singularValues()[1],6.,tol[0]);
   BOOST_CHECK_CLOSE(svd.singularValues()[2]+1.,0.+1.,tol[0]);
-    
+
   RealVector s_inv = svd.singularValues();
   for (Uint i=0; i<3; ++i)
-    s_inv[i] = is_not_zero_with_error(s_inv[i],eps()*10.)? 1./s_inv[i] : 0.;
+    s_inv[i] = !is_equal_with_error(s_inv[i],0.0,eps()*10.) ? 1./s_inv[i] : 0.;
 
   RealVector3 x = svd.matrixV().leftCols(s_inv.size())
                 * s_inv.asDiagonal()
                 * svd.matrixU().leftCols(s_inv.size()).adjoint()
                 * b;
-  
+
   //RealVector3 x = svd.solve(b); // broken in Eigen, because the last singular value is not exactly 0
 
   //Check if solution matches

@@ -7,6 +7,8 @@
 #ifndef CF_RDM_Schemes_LDA_hpp
 #define CF_RDM_Schemes_LDA_hpp
 
+#include "Math/Checks.hpp"
+
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
 
@@ -120,6 +122,12 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
     B::sol_gradients_at_qdpoint(q);
 
+    for(Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+      for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
+        if( Math::Checks::is_equal_with_error( B::dUdXq(eq,dim) , 0.0, 1E-20 ) )
+          std::cout << "non-zero grad at [" << B::X_q.row(q) << "] -> grad [" << B::dUdXq << "]" << std::endl;
+
+
     PHYS::compute_properties(B::X_q.row(q),
                              B::U_q.row(q),
                              B::dUdXq,
@@ -145,9 +153,7 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
     // compute L(u)
 
-    PHYS::residual(B::phys_props,
-             B::dFdU,
-             B::LU );
+    PHYS::residual( B::phys_props, B::dFdU, B::LU );
 
     // compute L(N)+
 

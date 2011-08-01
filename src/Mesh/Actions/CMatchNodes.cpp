@@ -106,8 +106,8 @@ void CMatchNodes::execute()
   enum {MIN=0,MAX=1};
   std::vector<RealVector3> bounding_1(2);
   std::vector<RealVector3> bounding_2(2);
-  bounding_1[MIN].setConstant(Real_max());    bounding_1[MAX].setConstant(Real_min());
-  bounding_2[MIN].setConstant(Real_max());    bounding_2[MAX].setConstant(Real_min());
+  bounding_1[MIN].setConstant(real_max());    bounding_1[MAX].setConstant(real_min());
+  bounding_2[MIN].setConstant(real_max());    bounding_2[MAX].setConstant(real_min());
 
   boost_foreach(const Uint coord_idx , used_nodes_region_1.array() )
   {
