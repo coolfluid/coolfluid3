@@ -842,36 +842,23 @@ sub install_parmetis () {
     untar_src("ParMetis-$version");
     safe_chdir("$opt_tmp_dir/ParMetis-$version/");
 
-    if (is_mac()) { # add include for malloc.h
        my $filename = 'Makefile.in';
         safe_copy($filename,"$filename.orig");
         open(OUT, ">$filename") or die ("Error opening config file $filename !\n");
         open(IN,  "<$filename.orig") or die ("Error opening config file $filename.orig !\n");
-        while (<IN>) {
+        while (<IN>) 
+        {
         chomp;
-        s/(^INCDIR\s=\s?$)/INCDIR = -I\/usr\/include\/malloc\//g;
-        #print "$_\n";
-        print OUT "$_\n";
+        my $line = $_;
+        # add include for malloc.h
+        if (is_mac())   { $line =~ s/(^INCDIR\s=\s?$)/INCDIR = -I\/usr\/include\/malloc\//g; }
+        if ($opt_nompi) { $line =~ s/mpicc/gcc/g; }
+        $line =~ s/\-O3/$ENV{CFLAGS}/g;
+        print OUT "$line\n";
         }
         print my_colored("Modified Makefile.in to include malloc for MacOSX\n",$DEBUGCOLOR);
         close IN;
         close OUT;
-    }
-
-    if ($opt_nompi) { # substitute mpicc for gcc
-        my $filename = 'Makefile.in';
-        safe_copy($filename,"$filename.orig");
-        open(OUT, ">$filename") or die ("Error opening config file $filename !\n");
-        open(IN,  "<$filename.orig") or die ("Error opening config file $filename.orig !\n");
-        while (<IN>) {
-        chomp;
-        s/mpicc/gcc/g;
-        print "$_\n";
-        print OUT "$_\n";
-        }
-        close IN;
-        close OUT;
-    }
 
     safe_chdir("METISLib");
     run_command_or_die("make $opt_makeopts");
