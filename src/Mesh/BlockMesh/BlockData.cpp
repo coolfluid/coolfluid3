@@ -51,13 +51,14 @@ namespace detail {
 /// Creates a mesh containing only the blocks
 void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::string, std::string>& patch_types)
 {
+  const Uint nb_nodes = block_data.points.size();
+  
   // root region and coordinates
   CRegion& block_mesh_region = mesh.topology().create_region("block_mesh_region");
-  mesh.configure_option("dimension",static_cast<Uint>(DIM_3D));
+  mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
   CNodes& block_nodes = mesh.nodes();
   
   // Fill the coordinates array
-  const Uint nb_nodes = block_data.points.size();
   CTable<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
   coords_array.resize(boost::extents[nb_nodes][3]);
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
@@ -166,7 +167,12 @@ struct NodeIndices
   // Intersection of planes
   enum Bounds { XY = 3, XZ = 4, YZ = 5, XYZ = 6 };
   
-  NodeIndices(const CFaceConnectivity& face_connectivity, const BlockData& block_data) : m_face_connectivity(face_connectivity), m_block_data(block_data)
+  NodeIndices(const CFaceConnectivity& face_connectivity, const BlockData& block_data, const Uint rank, const Uint nb_procs) :
+    m_face_connectivity(face_connectivity),
+    m_block_data(block_data),
+    m_rank(rank),
+    m_nb_procs(nb_procs),
+    ghost_counter(0)
   {
     const Uint nb_blocks = m_block_data.block_subdivisions.size();
     bounded.resize(boost::extents[nb_blocks][7]);
@@ -202,6 +208,38 @@ struct NodeIndices
                             
       block_first_nodes.push_back(block_first_nodes.back() + nb_nodes);
     }
+    
+    // Initialize the nodes distribution
+    nodes_dist.reserve(m_nb_procs+1);
+    nodes_dist.push_back(0);
+    for(Uint proc = 0; proc != m_nb_procs; ++proc)
+    {
+      nodes_dist.push_back(nodes_dist.back() + block_first_nodes[m_block_data.block_distribution[proc+1]] - block_first_nodes[m_block_data.block_distribution[proc]]);
+    }
+    
+    m_local_nodes_begin = nodes_dist[m_rank];
+    m_local_nodes_end = nodes_dist[m_rank+1];
+  }
+  
+  /// Look up the local node index of node (i, j, k) in block
+  /// @param block The block index
+  /// @param i Node index in the X direction
+  /// @param j Node index in the Y direction
+  /// @param k Node index in the Z direction
+  /// If the node is not owned by the current rank, a ghost node is added to the ghost map.
+  Uint operator()(const Uint block, const Uint i, const Uint j, const Uint k)
+  {
+    const Uint gid = global_idx(block, i, j, k);
+    if(gid >= m_local_nodes_begin && gid < m_local_nodes_end)
+      return gid - m_local_nodes_begin;
+    
+    std::pair<IndexMapT::iterator, bool> stored_gid = global_to_local.insert(std::make_pair(gid, ghost_counter));
+    
+    // increment the number of ghosts if we didn't add a ghost for this gid before
+    if(stored_gid.second)
+      ++ghost_counter;
+    
+    return stored_gid.first->second;
   }
   
   /// Look up the global node index of node (i, j, k) in block
@@ -209,7 +247,7 @@ struct NodeIndices
   /// @param i Node index in the X direction
   /// @param j Node index in the Y direction
   /// @param k Node index in the Z direction
-  Uint operator()(const Uint block, const Uint i, const Uint j, const Uint k)
+  Uint global_idx(const Uint block, const Uint i, const Uint j, const Uint k)
   {
     cf_assert(block < m_block_data.block_subdivisions.size());
     
@@ -301,14 +339,14 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          const Uint retval = operator()(x_adj, 0, j, k);
+          const Uint retval = global_idx(x_adj, 0, j, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
         else
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          const Uint retval = operator()(y_adj, i, 0, k);
+          const Uint retval = global_idx(y_adj, i, 0, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
@@ -333,14 +371,14 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          const Uint retval = operator()(x_adj, 0, j, k);
+          const Uint retval = global_idx(x_adj, 0, j, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
         else
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          const Uint retval = operator()(z_adj, i, j, 0);
+          const Uint retval = global_idx(z_adj, i, j, 0);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
@@ -366,14 +404,14 @@ struct NodeIndices
         if(!bounded[block][YY])
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          const Uint retval = operator()(y_adj, i, 0, k);
+          const Uint retval = global_idx(y_adj, i, 0, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
         else
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          const Uint retval = operator()(z_adj, i, j, 0);
+          const Uint retval = global_idx(z_adj, i, j, 0);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
@@ -400,21 +438,21 @@ struct NodeIndices
         if(!bounded[block][XX])
         {
           const Uint x_adj = m_face_connectivity.adjacent_element(block, XPOS).second;
-          const Uint retval = operator()(x_adj, 0, j, k);
+          const Uint retval = global_idx(x_adj, 0, j, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
         if(!bounded[block][YY])
         {
           const Uint y_adj = m_face_connectivity.adjacent_element(block, YPOS).second;
-          const Uint retval = operator()(y_adj, i, 0, k);
+          const Uint retval = global_idx(y_adj, i, 0, k);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
         if(!bounded[block][ZZ])
         {
           const Uint z_adj = m_face_connectivity.adjacent_element(block, ZPOS).second;
-          const Uint retval = operator()(z_adj, i, j, 0);
+          const Uint retval = global_idx(z_adj, i, j, 0);
           cf_assert(retval < block_first_nodes.back());
           return retval;
         }
@@ -440,13 +478,32 @@ struct NodeIndices
   /// number of nodes in the mesh
   IndicesT block_first_nodes;
   
+  /// Distribution of the nodes among the processes. nodes_dist[i] is the first node on each process.
+  /// Length is nb_procs + 1, so the last element is the total number of nodes
+  IndicesT nodes_dist;
+  
   /// For each block, indicate if it is bounded by a boundary patch, in the X, Y, Z, XY, XZ, YZ and XYZ directions
   Bools2T bounded;
+  
+  /// Type defining a mapping between two indices
+  typedef std::map<Uint, Uint> IndexMapT;
+  
+  /// Global to local mapping for this rank, containing only the ghost nodes.
+  IndexMapT global_to_local;
+  
+  /// Counter for the ghost nodes
+  Uint ghost_counter;
   
 private:
   const CFaceConnectivity& m_face_connectivity;
   const BlockData& m_block_data;
+  const Uint m_rank;
+  const Uint m_nb_procs;
   
+  // First local node
+  Uint m_local_nodes_begin;
+  // Last local node + 1
+  Uint m_local_nodes_end;
 };
 
 /// Create the first step length and expansion rations in each direction
@@ -522,52 +579,76 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   
   // Helper data to get the inter-block connectivity right
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
-  detail::NodeIndices nodes(volume_to_face_connectivity, block_data);
-  
-  // Distribution of the nodes among CPUs
-  std::vector<Uint> nodes_dist;
-  nodes_dist.reserve(nb_procs+1);
-  nodes_dist.push_back(0);
-  for(Uint proc = 0; proc != nb_procs; ++proc)
-  {
-    nodes_dist.push_back(nodes_dist.back() + nodes.block_first_nodes[block_data.block_distribution[proc+1]] - nodes.block_first_nodes[block_data.block_distribution[proc]]);
-  }
+  detail::NodeIndices nodes(volume_to_face_connectivity, block_data, rank, nb_procs);
   
   // begin and end for the nodes and blocks on this CPU
   const Uint blocks_begin = block_data.block_distribution[rank];
   const Uint blocks_end = block_data.block_distribution[rank+1];
-  const Uint nodes_begin = nodes_dist[rank];
-  const Uint nodes_end = nodes_dist[rank+1];
+  const Uint nodes_begin = nodes.nodes_dist[rank];
+  const Uint nodes_end = nodes.nodes_dist[rank+1];
+  const Uint nb_nodes_local = nodes_end - nodes_begin;
   
   // Get the dimensionality info
   const std::pair<Uint,Uint> dims = detail::dimensionality(block_data.block_distribution.back(), volume_to_face_connectivity, patch_types);
-  
-  // 3D helper mesh in case we have a non-3D problem
   CMesh::Ptr tmp_mesh3d;
   if(dims.first == DIM_2D)
-  {
     tmp_mesh3d = mesh.create_component_ptr<CMesh>("tmp_mesh3d");
-    tmp_mesh3d->configure_option("dimension",static_cast<Uint>(DIM_3D));
-    mesh.configure_option("dimension",static_cast<Uint>(DIM_2D));
-  }
-  else
-  {
-    mesh.configure_option("dimension",static_cast<Uint>(DIM_3D));
-  }
   
-  // Create the node coordinates
+  
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->topology().create_region("root_region") : mesh.topology().create_region("root_region");
-  CNodes& mesh_nodes_comp = root_region.nodes();
-  CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
-  mesh_nodes_comp.resize(nodes_end - nodes_begin);
-  
-  // Create the volume cells connectivity
-  CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", mesh_nodes_comp);
+  CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   CTable<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
   
-  // Fill the volume arrays
+  // Set the connectivity, this also updates ghost node indices
   Uint element_idx = 0; // global element index
+  for(Uint block = blocks_begin; block != blocks_end; ++block)
+  {
+    const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
+    // Fill the volume connectivity table
+    for(Uint k = 0; k != segments[ZZ]; ++k)
+    {
+      for(Uint j = 0; j != segments[YY]; ++j)
+      {
+        for(Uint i = 0; i != segments[XX]; ++i)
+        {
+          CTable<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
+          element_connectivity[0] = nodes(block, i  , j  , k  );
+          element_connectivity[1] = nodes(block, i+1, j  , k  );
+          element_connectivity[2] = nodes(block, i+1, j+1, k  );
+          element_connectivity[3] = nodes(block, i  , j+1, k  );
+          element_connectivity[4] = nodes(block, i  , j  , k+1);
+          element_connectivity[5] = nodes(block, i+1, j  , k+1);
+          element_connectivity[6] = nodes(block, i+1, j+1, k+1);
+          element_connectivity[7] = nodes(block, i  , j+1, k+1);
+        }
+      }
+    }
+  }
+  
+  // the total number of nodes is now known
+  const Uint nb_nodes = nb_nodes_local + nodes.ghost_counter;
+  
+  // 3D helper mesh in case we have a non-3D problem
+  if(dims.first == DIM_2D)
+  {
+    tmp_mesh3d->initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
+    cf_assert(nb_nodes % 2 == 0);
+    mesh.initialize_nodes((nb_nodes)/2, static_cast<Uint>(DIM_2D));
+  }
+  else
+  {
+    mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
+  }
+  
+  // Create the node coordinates
+  CNodes& mesh_nodes_comp = root_region.nodes();
+  CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
+  
+  // Set the nodes, now the number of nodes is known
+  volume_elements.set_nodes(mesh_nodes_comp);
+  
+  // Fill the coordinate array
   for(Uint block = blocks_begin; block != blocks_end; ++block)
   {
     typedef Hexa3DLagrangeP1 SF;
@@ -629,26 +710,6 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
             mesh_coords[node_idx - nodes_begin][YY] = coords[YY];
             mesh_coords[node_idx - nodes_begin][ZZ] = coords[ZZ];
           }
-        }
-      }
-    }
-    
-    // Fill the volume connectivity table
-    for(Uint k = 0; k != segments[ZZ]; ++k)
-    {
-      for(Uint j = 0; j != segments[YY]; ++j)
-      {
-        for(Uint i = 0; i != segments[XX]; ++i)
-        {
-          CTable<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
-          element_connectivity[0] = nodes(block, i  , j  , k  );
-          element_connectivity[1] = nodes(block, i+1, j  , k  );
-          element_connectivity[2] = nodes(block, i+1, j+1, k  );
-          element_connectivity[3] = nodes(block, i  , j+1, k  );
-          element_connectivity[4] = nodes(block, i  , j  , k+1);
-          element_connectivity[5] = nodes(block, i+1, j  , k+1);
-          element_connectivity[6] = nodes(block, i+1, j+1, k+1);
-          element_connectivity[7] = nodes(block, i  , j+1, k+1);
         }
       }
     }
@@ -741,7 +802,27 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     }
   }
   
-  // If we had a 3d problem, we're done
+  // Commpattern arrays
+  std::vector<Uint> gids(nb_nodes);
+  std::vector<Uint> ranks(nb_nodes);
+  
+  // Local nodes
+  for(Uint i = 0; i != nb_nodes_local; ++i)
+  {
+    gids[i] = i + nodes_begin;
+    ranks[i] = rank;
+  }
+  
+  // Ghosts
+  for(detail::NodeIndices::IndexMapT::const_iterator ghost_it = nodes.global_to_local.begin(); ghost_it != nodes.global_to_local.end(); ++ghost_it)
+  {
+    const Uint global_id = ghost_it->first;
+    const Uint local_id = ghost_it->second;
+    gids[local_id] = global_id;
+    ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
+  }
+  
+  // Move from temp 3D mesh to 2D
   if(tmp_mesh3d)
   {
     // We skip 1D meshes for now
@@ -888,24 +969,28 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
       }
     }
     
-    // Copy only the nodes that are still needed
-    const Uint nb_nodes_3d = nodes_end - nodes_begin;
     CNodeConnectivity node_connectivity_2d("nodes");
-    node_connectivity_2d.initialize(nb_nodes_3d, find_components_recursively<CElements>(root_region_2d));
+    node_connectivity_2d.initialize(nb_nodes, find_components_recursively<CElements>(root_region_2d));
     
     // Count 2D nodes
+#ifndef NDEBUG
     Uint nb_nodes_2d = 0;
-    for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
       if(node_connectivity_2d.node_element_counts()[node_idx])
         ++nb_nodes_2d;
-      
+
+    cf_assert(nb_nodes_2d == nb_nodes / 2);
+#else
+    const Uint nb_nodes_2d = nb_nodes / 2;
+#endif
+    
     mesh_coords_2d.resize(boost::extents[nb_nodes_2d][2]);
     
     // Mapping between old and new index
-    std::vector<Uint> node_index_map(nb_nodes_3d);
+    std::vector<Uint> node_index_map(nb_nodes);
     
     Uint node_idx_2d = 0;
-    for(Uint node_idx = 0; node_idx != nb_nodes_3d; ++node_idx)
+    for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
     {
       if(node_connectivity_2d.node_element_counts()[node_idx])
       {

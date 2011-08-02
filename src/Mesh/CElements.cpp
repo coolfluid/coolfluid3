@@ -44,19 +44,29 @@ CElements::~CElements()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
+void CElements::initialize(const std::string& element_type_name)
 {
-  CEntities::initialize(element_type_name,nodes);
+  CEntities::initialize(element_type_name);
   node_connectivity().set_row_size(m_element_type->nb_nodes());
-  node_connectivity().create_lookup().add(nodes);
-
   CSpace& node_space = space(MeshSpaces::MESH_NODES);
   node_space.connectivity().set_row_size(node_space.nb_states());
-  //node_space.connectivity().create_lookup().add(nodes);
-
+  
   CSpace& element_space = space(MeshSpaces::MESH_ELEMENTS);
   element_space.connectivity().set_row_size(element_space.nb_states());
   cf_assert(element_space.nb_states() == 1); // P0 discontinuous space has 1 point (the element itself)
+}
+
+void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
+{
+  initialize(element_type_name);
+  set_nodes(nodes);
+}
+
+void CElements::set_nodes(CNodes& nodes)
+{
+  CEntities::set_nodes(nodes);
+  node_connectivity().create_lookup().add(nodes);
+  //node_space.connectivity().create_lookup().add(nodes);
 }
 
 //////////////////////////////////////////////////////////////////////////////

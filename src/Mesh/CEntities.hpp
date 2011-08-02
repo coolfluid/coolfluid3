@@ -65,8 +65,14 @@ public: // functions
   CEntities ( const std::string& name );
 
   /// Initialize the CEntities using the given type
-  void initialize(const std::string& element_type_name, CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name);
+  
+  /// Initialize the CEntities using the given type, also setting the nodes in one go
+  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
 
+  /// Set the nodes
+  virtual void set_nodes(CNodes& nodes);
+  
   /// Virtual destructor
   virtual ~CEntities();
 

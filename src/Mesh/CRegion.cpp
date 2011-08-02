@@ -58,9 +58,24 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
   Component::Ptr celems = get_child_ptr(name);
   if ( is_null(celems) )
   {
+    CElements& elements = create_elements(element_type_name);
+    elements.set_nodes(nodes);
+    return elements;
+  }
+  else
+    return celems->as_type<CElements>();
+}
+
+CElements& CRegion::create_elements(const std::string& element_type_name)
+{
+  std::string name = "elements_" + element_type_name;
+
+  Component::Ptr celems = get_child_ptr(name);
+  if ( is_null(celems) )
+  {
     CElements::Ptr elements = create_component_ptr<CElements>(name);
     elements->add_tag("GeometryElements");
-    elements->initialize(element_type_name,nodes);
+    elements->initialize(element_type_name);
     return *elements;
   }
   else

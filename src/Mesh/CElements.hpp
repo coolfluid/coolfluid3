@@ -39,12 +39,15 @@ public: // functions
   /// @param name of the component
   CElements ( const std::string& name );
 
-  /// Initialize the CElements using the given type
-  //void initialize(const std::string& element_type_name, CTable<Real>& coordinates);
-
-  /// Initialize the CElements using the given type
+  /// Initialize uding the given type
+  virtual void initialize(const std::string& element_type_name);
+  
+  /// Initialize the CElements using the given type and set the nodes
   virtual void initialize(const std::string& element_type_name, CNodes& nodes);
 
+  /// Set nodes
+  virtual void set_nodes(CNodes& nodes);
+  
   /// Virtual destructor
   virtual ~CElements();
 

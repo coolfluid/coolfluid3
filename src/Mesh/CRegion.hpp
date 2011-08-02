@@ -58,9 +58,13 @@ public: // functions
   CRegion& create_region ( const std::string& name );
 
   /// create a CElements component, initialized to take connectivity data for the given type
+  /// Set to refer to the supplied nodes
   /// @param element_type_name type of the elements
   /// @param nodes  location of the nodes the elements are linked with
   CElements& create_elements (const std::string& element_type_name, CNodes& nodes);
+  
+  /// Create a CElements with nodes unset
+  CElements& create_elements (const std::string& element_type_name);
 
   /// @return the number of elements stored in this region, including any subregions
   Uint recursive_elements_count() const;

@@ -86,11 +86,21 @@ CEntities::~CEntities()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
+void CEntities::initialize(const std::string& element_type_name)
 {
-  m_nodes->link_to(nodes.follow());
   configure_option("element_type",element_type_name);
   cf_assert(is_not_null(m_element_type));
+}
+
+void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
+{
+  set_nodes(nodes);
+  initialize(element_type_name);
+}
+
+void CEntities::set_nodes(CNodes& nodes)
+{
+  m_nodes->link_to(nodes.follow());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
