@@ -7,6 +7,8 @@
 #ifndef CF_RDM_Schemes_RKLDA_hpp
 #define CF_RDM_Schemes_RKLDA_hpp
 
+#include <iostream>
+
 #include "Common/StringConversion.hpp"
 
 #include "Mesh/CField.hpp"
@@ -114,10 +116,7 @@ protected: // helper function
 
     rkalphas.resize(rkorder,rkorder);
     rkbetas.resize(rkorder,rkorder);
-    if ( rkorder == 1)
-        rkcoeff.resize(1);
-    else
-        rkcoeff.resize(rkorder-1);
+    rkcoeff.resize(rkorder);
 
     switch( rkorder )
     {
@@ -125,7 +124,7 @@ protected: // helper function
 
       rkalphas(0,0) = 1.;
 
-      rkcoeff[0] =  1.;
+      rkcoeff[0] =  1.0 ;
 
       rkbetas(0,0) =  0.;
 
@@ -138,7 +137,8 @@ protected: // helper function
       rkalphas(0,1) =  0.5 ;
       rkalphas(1,1) =  0.5 ;
 
-      rkcoeff[0] =   1.0;
+      rkcoeff[0] =   1.0 ;
+      rkcoeff[1] =   1.0 ;
 
       rkbetas (0,0) =  0.0;
       rkbetas (0,1) = -1.0;
@@ -159,8 +159,9 @@ protected: // helper function
       rkalphas(1,2) = 1./6. ;
       rkalphas(2,2) = 2./3. ;
 
-      rkcoeff[0] =    0.5 ;
-      rkcoeff[1] =    2.0 ;
+      rkcoeff[0] =    1.0 ;
+      rkcoeff[1] =    0.5 ;
+      rkcoeff[2] =    2.0 ;
 
       rkbetas(0,0) = 0.  ;
       rkbetas(0,1) = -0.5 ;
@@ -213,6 +214,8 @@ protected: // data
   typename B::PhysicsVT  DvPlus [SF::nb_nodes];
   /// du_s
   typename B::SolutionMT du;
+  /// mass matrix
+  typename B::MassMT mass;
 
 };
 
@@ -227,6 +230,78 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
   // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+
+  // there isn't a way to compute it automatically, yet
+  // it's necessary to define s
+  /// @todo lumped and not lumped in the same line
+
+  ///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  /// @todo must be tested for 3D
+
+  // copy the coordinates from the large array to a small
+
+  Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
+
+  // coordinates of quadrature points in physical space
+
+  B::X_q  = B::Ni * B::X_n;
+
+
+  // Jacobian of transformation phys -> ref:
+  //    |   dx/dksi    dx/deta    |
+  //    |   dy/dksi    dy/deta    |
+
+  // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
+  // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
+
+  for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+  {
+    for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+    {
+      B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
+    }
+  }
+
+  // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
+  for(Uint q = 0; q < QD::nb_points; ++q)
+  {
+    for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
+    {
+      for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
+      {
+        B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
+      }
+    }
+
+    // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
+    // to compute the gradients of of all shape functions in phys. space
+    B::jacob[q] = B::JM.determinant();
+    B::JMinv = B::JM.inverse();
+
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+    {
+      for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
+      {
+        B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
+      }
+
+      B::dNphys = B::JMinv * B::dNref;
+
+      for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
+      {
+        B::dNdX[dimx](q,n) = B::dNphys[dimx];
+      }
+
+    }
+  // compute transformed integration weights (sum is element area)
+  B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
+
+  mass += B::Ni.row(q).transpose() * B::Ni.row(q) * B::wj[q] ;
+
+  } // loop over quadrature points
+
+  std::cout << "mass  :\n" << mass << std::endl;
 
   //compute delta u_s
 
@@ -246,7 +321,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       {
         std::cout << "accessing [" << n << "] [" << eq << "]" << std::endl;
 
-        du(nodes_idx[n],eq) += rkbetas(r,step-1) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
+        du(n,eq) += rkbetas(r,step-1) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
       }
     }
   }
@@ -261,28 +336,19 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       {
         for ( Uint eq=0 ; eq<PHYS::MODEL::_neqs ; ++eq)
         {
-          if (step == 1 && rkorder == 1)
-          {
-            if ( n==s )
-            {
-              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[0] * du(s,eq);
-            }
-            else
-            {
-              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[0] * du(s,eq);
-            }
-          }
-          else
-          {
-            if ( n==s )
-            {
-              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 2] * du(s,eq);
-            }
-            else
-            {
-              (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 2] * du(s,eq);
-            }
-          }
+            (*B::residual)[nodes_idx[n]][eq] = mass(n,s) * rkcoeff[step - 1] * du(s,eq);
+
+            // For triangles only
+//            if ( n==s )
+//            {
+
+//                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 1] * du(s,eq);
+//            }
+//            else
+//            {
+
+//                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 1] * du(s,eq);
+//            }
         }
       }
     }
@@ -290,19 +356,10 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   std::cout << FromHere().short_str() << std::endl;
 
-  // there isn't a way to compute it automatically, yet
-  // it's necessary to define s
-  /// @todo lumped and not lumped in the same line
+  std::cout << "Jq :\n" << B::jacob << std::endl;
 
   for ( Uint r = 0 ; r < step ; ++r)
   {
-    ///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    /// @todo must be tested for 3D
-
-    // copy the coordinates from the large array to a small
-
-    Mesh::fill(B::X_n, *B::coordinates, nodes_idx );
 
     // copy the solution from the large array to a small
 
@@ -312,67 +369,9 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
         B::U_n(n,v) = ksolutions[r]->data()[ nodes_idx[n] ][v];
       }
 
-    // coordinates of quadrature points in physical space
-
-    B::X_q  = B::Ni * B::X_n;
-
     // solution at all quadrature points in physical space
 
     B::U_q = B::Ni * B::U_n;
-
-    // Jacobian of transformation phys -> ref:
-    //    |   dx/dksi    dx/deta    |
-    //    |   dy/dksi    dy/deta    |
-
-    // dX[XX].col(KSI) has the values of dx/dksi at all quadrature points
-    // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
-
-    for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-    {
-      for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
-      {
-        B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
-      }
-    }
-
-    // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
-    for(Uint q = 0; q < QD::nb_points; ++q)
-    {
-      for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-      {
-        for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
-        {
-          B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
-        }
-      }
-
-      // Once the jacobi matrix at one quadrature point is assembled, let's re-use it
-      // to compute the gradients of of all shape functions in phys. space
-      B::jacob[q] = B::JM.determinant();
-      B::JMinv = B::JM.inverse();
-
-      for(Uint n = 0; n < SF::nb_nodes; ++n)
-      {
-        for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
-        {
-          B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
-        }
-
-        B::dNphys = B::JMinv * B::dNref;
-
-        for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
-        {
-          B::dNdX[dimx](q,n) = B::dNphys[dimx];
-        }
-
-      }
-
-    } // loop over quadrature points
-
-    // compute transformed integration weights (sum is element area)
-
-    for(Uint q = 0; q < QD::nb_points; ++q)
-      B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
 
     // solution derivatives in physical space at quadrature point
 
@@ -385,11 +384,13 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    std::cout << FromHere().short_str() << std::endl;
+
     // L(N)+ @ each quadrature point
 
     for(Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
     {
-      // compute the contributions to phi_i
+      // compute the contributions to phi_i  std::cout << FromHere().short_str() << std::endl;
       B::sol_gradients_at_qdpoint(q);
 
       PHYS::compute_properties(B::X_q.row(q),
@@ -417,9 +418,17 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       // compute L(u)
 
+
+
+      std::cout << FromHere().short_str() << std::endl;
       PHYS::residual(B::phys_props,
                      B::dFdU,
                      B::LU );
+      std::cout << FromHere().short_str() << std::endl;
+
+
+
+
 
       // compute L(N)+
 
@@ -449,15 +458,13 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     } // loop over each quadrature point
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // update the residual (according to k)
-    if ( step > 1)
-    {
-      for (Uint n=0; n<SF::nb_nodes; ++n)
+    std::cout << FromHere().short_str() << std::endl;
+    for (Uint n=0; n<SF::nb_nodes; ++n)
       {
         for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
           (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 1) * dt * B::Phi_n(n,eq);
       }
-    }
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   }
 }
 //#endif
