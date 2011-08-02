@@ -96,31 +96,33 @@ protected: // helper functions
 
 protected: // typedefs
 
-  typedef typename SF::NodeMatrixT                             NodeMT;
+  typedef typename SF::NodeMatrixT                                               NodeMT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, 1u>                                 WeightVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       ResidualMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>                 ResidualMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs >         EigenValueMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs >           EigenValueMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>          PhysicsMT;
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, 1u>                  PhysicsVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>            PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, 1u>                            PhysicsVT;
 
-  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>      SolutionMT;
-  typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                 SolutionVT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>                SolutionMT;
+  typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                           SolutionVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
-  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >               SFVectorT;
+  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes>                        MassMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, 1u>                  DimVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>                       SFMatrixT;
+  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >                                 SFVectorT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, PHYS::MODEL::_ndim>          JMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, 1u>                            DimVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim>       QCoordMT;
-  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       QSolutionMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, PHYS::MODEL::_ndim>            JMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>          QSolutionVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim>                 QCoordMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>                 QSolutionMT;
+
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>            QSolutionVT;
 
 protected: // data
 
