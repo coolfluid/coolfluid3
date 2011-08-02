@@ -47,8 +47,8 @@ void GraphicalUintTest::test_constructor()
   QVERIFY( is_not_null(spinBox) );
 
   // 1. check the range
-  QCOMPARE( Uint(spinBox->minimum()), Consts::Uint_min() );
-  QCOMPARE( Uint(spinBox->maximum()), Consts::Uint_max() );
+  QCOMPARE( Uint(spinBox->minimum()), Consts::uint_min() );
+  QCOMPARE( Uint(spinBox->maximum()), Consts::uint_max() );
 
   // 2. value is empty, the line edit should be empty as well
   QCOMPARE( int(spinBox->value()), 0 );

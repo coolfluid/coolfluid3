@@ -29,7 +29,7 @@ GraphicalInt::GraphicalInt(bool isUint, QVariant value, QWidget * parent)
   m_spinBox = new QDoubleSpinBox(/*isUint, */this);
 
   if(m_isUint)
-    m_spinBox->setRange(Consts::Uint_min(), Consts::Uint_max());
+    m_spinBox->setRange(Consts::uint_min(), Consts::uint_max());
   else
     m_spinBox->setRange(Consts::int_min(), Consts::int_max());
 
