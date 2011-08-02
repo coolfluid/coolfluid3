@@ -197,52 +197,58 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    throw Common::NotImplemented(FromHere(), "Cons2D::residual()");
+//    throw Common::NotImplemented(FromHere(), "Cons2D::residual()");
 
-#if 0
-    const Real gamma_minus_3 = p.gamma - 3.;
+//    const Real gamma_minus_3 = p.gamma - 3.;
 
-    const Real uu = p.u * p.u;
-    const Real uv = p.u * p.v;
-    const Real vv = p.v * p.v;
+//    const Real uu = p.u * p.u;
+//    const Real uv = p.u * p.v;
+//    const Real vv = p.v * p.v;
 
     JM& A = flux_jacob[XX];
 
   //    A.setZero(); // assume are zeroed
 
+    A(0,0) = p.u0[XX];
     A(0,1) = 1.;
-    A(1,0) = p.half_gm1_v2 - uu;
-    A(1,1) = -gamma_minus_3*p.u;
-    A(1,2) = -p.gamma_minus_1*p.v;
-    A(1,3) = p.gamma_minus_1;
-    A(2,0) = -uv;
-    A(2,1) = p.v;
-    A(2,2) = p.u;
-    A(3,0) = p.half_gm1_v2*p.u - p.u * p.H;
-    A(3,1) = -p.gamma_minus_1*uu + p.H;
-    A(3,2) = -p.gamma_minus_1*uv;
-    A(3,3) = p.gamma*p.u;
+    A(0,2) = 0.;
+    A(0,3) = 0.;
+    A(1,0) = 0.;
+    A(1,1) = p.u0[XX];
+    A(1,2) = 0.;
+    A(1,3) = 1.;
+    A(2,0) = 0.;
+    A(2,1) = 0.;
+    A(2,2) = p.u0[XX];
+    A(2,3) = 0.;
+    A(3,0) = 0.;
+    A(3,1) = p.c * p.c;
+    A(3,2) = 0.;
+    A(3,3) = p.u0[XX];
 
     JM& B = flux_jacob[YY];
 
     //    B.setZero(); // assume are zeroed
 
+    B(0,0) = p.u0[YY];
+    B(0,1) = 0.;
     B(0,2) = 1.;
-    B(1,0) = -uv;
-    B(1,1) = p.v;
-    B(1,2) = p.u;
-    B(2,0) = p.half_gm1_v2 - vv;
-    B(2,1) = -p.gamma_minus_1*p.u;
-    B(2,2) = -gamma_minus_3*p.v;
-    B(2,3) = p.gamma_minus_1;
-    B(3,0) = p.half_gm1_v2*p.v - p.v*p.H;
-    B(3,1) = -p.gamma_minus_1*uv;
-    B(3,2) = -p.gamma_minus_1*vv + p.H;
-    B(3,3) = p.gamma*p.v;
+    B(0,3) = 0.;
+    B(1,0) = 0.;
+    B(1,1) = p.u0[YY];
+    B(1,2) = 0.;
+    B(1,3) = 0.;
+    B(2,0) = 0.;
+    B(2,1) = 0.;
+    B(2,2) = p.u0[YY];
+    B(2,3) = 1.;
+    B(3,0) = 0.;
+    B(3,1) = 0.;
+    B(3,2) = p.c * p.c;
+    B(3,3) = p.u0[YY];
 
     res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
 
-#endif
   }
 
 }; // Cons2D
