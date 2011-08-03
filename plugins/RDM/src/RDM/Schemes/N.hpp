@@ -149,9 +149,7 @@ void N::Term<SF,QD,PHYS>::execute()
 
     // compute L(u)
 
-    PHYS::residual(B::phys_props,
-             B::dFdU,
-             B::LU );
+    PHYS::residual(B::phys_props, B::dFdU, B::LU );
 
     // compute sum L(N)-
 

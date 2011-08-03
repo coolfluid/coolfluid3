@@ -7,17 +7,20 @@
 #ifndef CF_RDM_CellLoop_hpp
 #define CF_RDM_CellLoop_hpp
 
+#include "Mesh/CField.hpp"
+
 #include "RDM/ElementLoop.hpp"
-
 #include "RDM/SupportedCells.hpp"
-
-/////////////////////////////////////////////////////////////////////////////////////
+#include "RDM/CellTerm.hpp"
 
 namespace CF {
 namespace RDM {
 
-/// FaceLoop defines the base class for all FaceLoopT
-/// It is the core of the looping mechanism over Faces.
+////////////////////////////////////////////////////////////////////////////////////////////
+
+
+/// CellLoop defines the base class for all CellLoopT
+/// It is the core of the looping mechanism over Cells
 struct CellLoop : public ElementLoop
 {
   /// Constructor
@@ -26,7 +29,34 @@ struct CellLoop : public ElementLoop
   /// Get the class name
   static std::string type_name () { return "CellLoop"; }
 
-}; // FaceLoop
+  /// Access the term
+  /// Will create it if does not exist.
+  /// @return reference to the term
+  template < typename TermT > TermT& access_term()
+  {
+    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
+    typename TermT::Ptr term;
+    if( is_null( cterm ) )
+    {
+      // does not exist so create the concrete term
+      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
+
+      // configure the fields
+      term->configure_option( Tags::solution(),   parent().as_type<CellTerm>().solution().uri()   );
+      term->configure_option( Tags::residual(),   parent().as_type<CellTerm>().residual().uri()   );
+      term->configure_option( Tags::wave_speed(), parent().as_type<CellTerm>().wave_speed().uri() );
+    }
+    else
+      term = cterm->as_ptr_checked<TermT>();
+
+    return *term;
+  }
+
+}; // CellLoop
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 
 /// CellLoopT defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism over Cells.
@@ -79,9 +109,9 @@ struct CellLoopT : public CellLoop
 
 }; // CellLoopT
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_CellLoop_hpp

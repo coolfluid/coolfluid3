@@ -29,15 +29,16 @@ call Model/Domain/load_mesh file:uri=square1x1-tg-p1-7614.msh
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=1000
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=164
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.5,1.183,1.183,3.425"
-#0.5,0.0,1.67332,3.425
+configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.500,1.500,1.500,7.000"
+# 0.500000,1.183000,1.183000,3.425000
+# 0.5,0.0,1.67332,3.425
 
 ### boundary conditions
 
@@ -54,7 +55,7 @@ configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.5,1.1
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.LDA
+     Type:string=CF.RDM.Schemes.N
 
 ### simulate and write the result
 

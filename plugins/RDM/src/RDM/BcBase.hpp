@@ -57,54 +57,49 @@ protected: // helper functions
 
   void change_elements()
   {
-    /// @todo improve this (ugly)
-
-    connectivity_table = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
-    coordinates = elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
+    connectivity_table =
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    coordinates =
+        elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
 
     cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(coordinates) );
 
-    /// @todo modify these to option components configured from
-
-    Mesh::CField::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "solution" );
-    cf_assert( is_not_null( csolution ) );
-    solution = csolution->data_ptr();
-
-    Mesh::CField::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "residual" );
-    cf_assert( is_not_null( cresidual ) );
-    residual = cresidual->data_ptr();
-
-    Mesh::CField::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "wave_speed" );
-    cf_assert( is_not_null( cwave_speed ) );
-    wave_speed = cwave_speed->data_ptr();
+    solution   = csolution.lock()->data_ptr();
+    residual   = cresidual.lock()->data_ptr();
+    wave_speed = cwave_speed.lock()->data_ptr();
   }
 
 protected: // typedefs
 
-  typedef typename SF::NodeMatrixT                             NodeMT;
+  typedef typename SF::NodeMatrixT                                     NodeMT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, 1u>                       WeightVT;
 
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       ResidualMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs >         EigenValueMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs > EigenValueMT;
 
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>          PhysicsMT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_neqs>  PhysicsMT;
   typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, 1u>                  PhysicsVT;
 
   typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>      SolutionMT;
   typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                 SolutionVT;
 
-  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>     SFMatrixT;
-  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >               SFVectorT;
+  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>             SFMatrixT;
+  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >                       SFVectorT;
 
   typedef Eigen::Matrix<Real, PHYS::MODEL::_ndim, 1u>                  DimVT;
 
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim>       QCoordMT;
   typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_neqs>       QSolutionMT;
-  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>          QSolutionVT;
+  typedef Eigen::Matrix<Real, PHYS::MODEL::_neqs, PHYS::MODEL::_ndim>  QSolutionVT;
 
 protected: // data
+
+  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
+  boost::weak_ptr< Mesh::CField > cresidual;   ///< residual field
+  boost::weak_ptr< Mesh::CField > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
@@ -117,12 +112,11 @@ protected: // data
   /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr wave_speed;
 
-  /// physical properties
-  typename PHYS::MODEL::Properties phys_props;
+  typename PHYS::MODEL::Properties phys_props; ///< physical properties
 
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename SF, typename QD, typename PHYS>
 BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
@@ -133,11 +127,9 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
   m_options["Elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
 }
 
-////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_BcBase_hpp

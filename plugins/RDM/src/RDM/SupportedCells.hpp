@@ -37,6 +37,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
+#if 0
 /// List of supported 2d cell shapefunctions
 typedef boost::mpl::vector<
   Mesh::SF::Triag2DLagrangeP1,
@@ -53,6 +54,11 @@ typedef boost::mpl::vector<
   Mesh::SF::Tetra3DLagrangeP1,
   Mesh::SF::Hexa3DLagrangeP1
 > CellTypes3D;
+
+#endif
+
+typedef boost::mpl::vector<Mesh::SF::Triag2DLagrangeP1> CellTypes2D;
+typedef boost::mpl::vector<Mesh::SF::Tetra3DLagrangeP1> CellTypes3D;
 
 //------------------------------------------------------------------------------------------
 
@@ -74,7 +80,7 @@ template<> struct CellTypes<DIM_3D>
 template <>
 struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 1, Mesh::SF::Triag2DLagrangeP1::shape> type;
 };
 
 /// Partial specialization for P2 triangles

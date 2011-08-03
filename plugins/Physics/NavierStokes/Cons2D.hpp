@@ -82,7 +82,7 @@ public: // functions
           std::cout << "rhoE  : " << p.rhoE << std::endl;
           std::cout << "P     : " << p.P    << std::endl;
           std::cout << "u     : " << p.u    << std::endl;
-          std::cout << "v     : " << p.u    << std::endl;
+          std::cout << "v     : " << p.v    << std::endl;
           std::cout << "uuvv  : " << p.uuvv << std::endl;
 
 
@@ -116,11 +116,11 @@ public: // functions
   {
     flux(0,XX) = p.rhou;              // rho.u
     flux(1,XX) = p.rhou * p.u + p.P;  // rho.u^2 + P
-    flux(2,XX) = p.rhou * p.v;        // rho.u.v
+    flux(2,XX) = p.rhou * p.rhov * p.inv_rho; // rho.u.v
     flux(3,XX) = p.rhou * p.H;        // rho.u.H
 
     flux(0,YY) = p.rhov;              // rho.v
-    flux(1,YY) = p.rhov * p.u;        // rho.v.u
+    flux(1,YY) = p.rhou * p.rhov * p.inv_rho; // rho.v.u
     flux(2,YY) = p.rhov * p.v + p.P;  // rho.v^2 + P
     flux(3,YY) = p.rhov * p.H;        // rho.v.H
   }
@@ -244,20 +244,23 @@ public: // functions
 
     JM& A = flux_jacob[XX];
 
-  //    A.setZero(); // assume are zeroed
+    //    A.setZero(); // assume are zeroed
 
- // A(0,0) = 0.;
+    A(0,0) = 0.;
     A(0,1) = 1.;
- // A(0,2) = 0.;
- // A(0,3) = 0.;
+    A(0,2) = 0.;
+    A(0,3) = 0.;
+
     A(1,0) = p.half_gm1_v2 - uu;
     A(1,1) = -gamma_minus_3*p.u;
     A(1,2) = -p.gamma_minus_1*p.v;
     A(1,3) = p.gamma_minus_1;
+
     A(2,0) = -uv;
     A(2,1) = p.v;
     A(2,2) = p.u;
- // A(2,3) = 0.;
+    A(2,3) = 0.;
+
     A(3,0) = p.half_gm1_v2*p.u - p.u * p.H;
     A(3,1) = -p.gamma_minus_1*uu + p.H;
     A(3,2) = -p.gamma_minus_1*uv;
@@ -267,18 +270,21 @@ public: // functions
 
     //    B.setZero(); // assume are zeroed
 
- // B(0,0) = 0.;
- // B(0,1) = 0.;
+    B(0,0) = 0.;
+    B(0,1) = 0.;
     B(0,2) = 1.;
- // B(0,3) = 0.;
+    B(0,3) = 0.;
+
     B(1,0) = -uv;
     B(1,1) = p.v;
     B(1,2) = p.u;
- // B(1,3) = 0.;
+    B(1,3) = 0.;
+
     B(2,0) = p.half_gm1_v2 - vv;
     B(2,1) = -p.gamma_minus_1*p.u;
     B(2,2) = -gamma_minus_3*p.v;
     B(2,3) = p.gamma_minus_1;
+
     B(3,0) = p.half_gm1_v2*p.v - p.v*p.H;
     B(3,1) = -p.gamma_minus_1*uv;
     B(3,2) = -p.gamma_minus_1*vv + p.H;

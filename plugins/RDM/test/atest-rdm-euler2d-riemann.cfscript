@@ -40,7 +40,7 @@ call Model/Domain/load_mesh file:uri=trapezium1x1-tg-p1-11512.msh
 
 configure Model/RDSolver                                update_vars:string=Cons2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=100
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=511
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
@@ -65,7 +65,7 @@ configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.LDA
+     Type:string=CF.RDM.Schemes.B
 
 ### simulate and write the result
 

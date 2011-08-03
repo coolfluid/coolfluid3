@@ -7,9 +7,11 @@
 #ifndef CF_RDM_FaceLoop_hpp
 #define CF_RDM_FaceLoop_hpp
 
-#include "RDM/ElementLoop.hpp"
+#include "Mesh/CField.hpp"
 
+#include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedFaces.hpp"
+#include "RDM/FaceTerm.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,6 +27,29 @@ struct FaceLoop : public ElementLoop
 
   /// Get the class name
   static std::string type_name () { return "FaceLoop"; }
+
+  /// Access the term
+  /// Will create it if does not exist.
+  /// @return reference to the term
+  template < typename TermT > TermT& access_term()
+  {
+    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
+    typename TermT::Ptr term;
+    if( is_null( cterm ) )
+    {
+      // does not exist so create the concrete term
+      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
+
+      // configure the fields
+      term->configure_option( Tags::solution(),   parent().as_type<FaceTerm>().solution().uri()   );
+      term->configure_option( Tags::residual(),   parent().as_type<FaceTerm>().residual().uri()   );
+      term->configure_option( Tags::wave_speed(), parent().as_type<FaceTerm>().wave_speed().uri() );
+    }
+    else
+      term = cterm->as_ptr_checked<TermT>();
+
+    return *term;
+  }
 
 }; // FaceLoop
 

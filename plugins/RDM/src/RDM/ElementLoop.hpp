@@ -14,13 +14,15 @@
 #include "Mesh/CRegion.hpp"
 
 #include "RDM/LibRDM.hpp"
-
-/////////////////////////////////////////////////////////////////////////////////////
+#include "RDM/Tags.hpp"
 
 namespace CF {
 namespace RDM {
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 /// Abstract RDM looping component
+/// @author Tiago Quintino
 class RDM_API ElementLoop : public Common::Component {
 
 public: // typedefs
@@ -47,20 +49,6 @@ public: // functions
   /// selects the region where to loop on
   void select_region( Mesh::CRegion::Ptr region ) { current_region = region; }
 
-  /// Access the term
-  /// Will create it if does not exist.
-  /// @return reference to the term
-  template < typename TermT > TermT& access_term()
-  {
-    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
-    typename TermT::Ptr term;
-    if( is_null( cterm ) )
-      term = parent().template create_component_ptr< TermT >( TermT::type_name() );
-    else
-      term = cterm->as_ptr_checked<TermT>();
-    return *term;
-  }
-
 protected: // data
 
   /// region to loop on
@@ -68,9 +56,9 @@ protected: // data
 
 }; // ElementLoop
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 } // RDM
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_RDM_ElementLoop_hpp

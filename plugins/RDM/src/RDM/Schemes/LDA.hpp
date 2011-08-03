@@ -143,21 +143,22 @@ void LDA::Term<SF,QD,PHYS>::execute()
   {
     B::sol_gradients_at_qdpoint(q);
 
+    // compute properties in this quadrature point
+
     PHYS::compute_properties(B::X_q.row(q),
                              B::U_q.row(q),
                              B::dUdXq,
                              B::phys_props);
+
+    // for every state, project the jacob eigen structure
+    // onto the direction given by the gradient, computing the Ki+
 
     for(Uint n=0; n < SF::nb_nodes; ++n)
     {
       B::dN[XX] = B::dNdX[XX](q,n);
       B::dN[YY] = B::dNdX[YY](q,n);
 
-      PHYS::flux_jacobian_eigen_structure(B::phys_props,
-                                     B::dN,
-                                     Rv,
-                                     Lv,
-                                     Dv );
+      PHYS::flux_jacobian_eigen_structure(B::phys_props, B::dN, Rv, Lv, Dv);
 
       // diagonal matrix of positive eigen values
 
@@ -166,7 +167,7 @@ void LDA::Term<SF,QD,PHYS>::execute()
       Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
     }
 
-    // compute L(u)
+    // compute the PDE residual L(u)
 
     PHYS::residual( B::phys_props, B::dFdU, B::LU );
 
@@ -199,6 +200,66 @@ void LDA::Term<SF,QD,PHYS>::execute()
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
+
+#if 0  // cell grad check
+    if(B::idx() == 9540 ) // 9541 - 1
+    {
+      std::cout.setf(std::ios::scientific,std::ios::floatfield);
+      std::cout.precision(24);
+
+      const Real n0x = B::X_n(1,YY) - B::X_n(2,YY);
+      const Real n0y = B::X_n(2,XX) - B::X_n(1,XX);
+
+      const Real n1x = B::X_n(2,YY) - B::X_n(0,YY);
+      const Real n1y = B::X_n(0,XX) - B::X_n(2,XX);
+
+      const Real n2x = B::X_n(0,YY) - B::X_n(1,YY);
+      const Real n2y = B::X_n(1,XX) - B::X_n(0,XX);
+
+      const Real S = std::abs( 0.5 * ( n0y * n1x - n1y * n0x ) );
+
+      const Real d0dx = n0x / ( 2 * S );
+      const Real d0dy = n0y / ( 2 * S );
+      const Real d1dx = n1x / ( 2 * S );
+      const Real d1dy = n1y / ( 2 * S );
+      const Real d2dx = n2x / ( 2 * S );
+      const Real d2dy = n2y / ( 2 * S );
+
+      std::cout << "surface S      [" << S           << "]" << std::endl;
+      std::cout << "surface sum_wj [" << B::wj.sum() << "]" << std::endl;
+
+      std::cout << std::endl;
+
+      std::cout << " --- d0dx [" << d0dx << "]\n --- dNdX [" << B::dNdX[XX](q,0) << "]"
+                << " --- d0dy [" << d0dy << "]\n --- dNdY [" << B::dNdX[YY](q,0) << "]" << std::endl;
+
+      std::cout << " --- d1dx [" << d1dx << "]\n --- dNdX [" << B::dNdX[XX](q,1) << "]"
+                << " --- d1dy [" << d1dy << "]\n --- dNdY [" << B::dNdX[YY](q,1) << "]" << std::endl;
+
+      std::cout << " --- d2dx [" << d2dx << "]\n --- dNdX [" << B::dNdX[XX](q,2) << "]"
+                << " --- d2dy [" << d2dy << "]\n --- dNdY [" << B::dNdX[YY](q,2) << "]" << std::endl;
+
+      std::cout << std::endl;
+
+      std::cout << "sum dNdx  [" << d0dx + d1dx + d2dx       << "]" << std::endl;
+      std::cout << "sum       [" << B::dNdX[XX].row(q).sum() << "]" << std::endl;
+
+      std::cout << std::endl;
+
+      std::cout << "sum dNdy  [" << d0dy + d1dy + d2dy       << "]" << std::endl;
+      std::cout << "sum       [" << B::dNdX[YY].row(q).sum() << "]" << std::endl;
+
+      std::cout << std::endl;
+
+      for(Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+        std::cout << " B::dUdXq("<<eq<<",X) " << B::dUdXq(eq,XX) << " " << B::dUdXq(eq,YY) << std::endl;
+
+      std::cout << "-----------------------------------------------------------------------" << std::endl;
+    }
+
+#endif
+
+
 
     // check for non-zero grad
 #if 0
