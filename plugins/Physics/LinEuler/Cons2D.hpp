@@ -58,22 +58,26 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.u0[XX] = 0.;
-    p.u0[YY] = 0.;
+    p.gamma = 1.0;
 
-    p.rho0  = 1.0;                ///< reference density
-    p.c     = 1.0;                   ///< speed of sound
-    p.inv_c = 1.0;               ///< inverse of the speed of sound, very commonly used
+    p.rho0   = 1.0;                      // reference density
+    p.u0[XX] = 0.5;                     // reference velocity
+    p.u0[YY] = 0.0;
+    p.P0     = 1.0;                      // reference pressure
 
-    p.rho   = sol[Rho];                 ///< density
-    p.rho0u = sol[RhoU0];               ///< rho0.u
-    p.rho0v = sol[RhoV0];               ///< rho0.v
-    p.p     = sol[P];                   ///< acoustic pressure
+    p.inv_rho = 1. / p.rho;             // inverse of density, very commonly used
 
-    p.inv_rho = 1. / p.rho;             ///< inverse of density, very commonly used
+    p.c     = std::sqrt( p.gamma * p.P0 * p.inv_rho );
+    p.inv_c = 1. / p.c;                 // inverse of the speed of sound, very commonly used
 
-    p.u = p.rho0u / p.rho0;                   ///< velocity along XX, rho0.u / rho0
-    p.v = p.rho0v / p.rho0;                   ///< velocity along YY, rho0.v / rho0
+    p.rho   = sol[Rho];                 // acoustic density
+    p.rho0u = sol[RhoU0];               // rho0.u
+    p.rho0v = sol[RhoV0];               // rho0.v
+    p.p     = sol[P];                   // acoustic pressure
+
+
+    p.u = p.rho0u / p.rho0;                   // velocity along XX, rho0.u / rho0
+    p.v = p.rho0v / p.rho0;                   // velocity along YY, rho0.v / rho0
   }
 
   /// compute the physical flux

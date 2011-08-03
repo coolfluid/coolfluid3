@@ -54,8 +54,11 @@ public: // functions
     GeoV u0;                  ///< background velocity
 
     Real rho0;                ///< reference density
+    Real P0;                  ///< reference pressure
     Real c;                   ///< speed of sound
     Real inv_c;               ///< inverse of the speed of sound, very commonly used
+
+    Real gamma;               ///< specific heat ratio
 
     Real rho;                 ///< density
     Real rho0u;               ///< rho0.u

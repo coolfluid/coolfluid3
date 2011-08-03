@@ -37,6 +37,8 @@ list( APPEND rdm_test_meshes_files
   # for sinus bump test case
   sinusbump-tg-p1-90.msh
   sinusbump-tg-p1-1344.msh
+  # for acoustic test case
+  circle1d-tg-p1-1451.msh
 )
 
 coolfluid_add_resources( rdm_test_meshes )

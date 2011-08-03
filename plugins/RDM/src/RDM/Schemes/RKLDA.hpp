@@ -263,7 +263,10 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     }
   }
 
+  mass.setZero();
+
   // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
+
   for(Uint q = 0; q < QD::nb_points; ++q)
   {
     for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)

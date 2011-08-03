@@ -19,7 +19,7 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=rotation-tg-p1.msh
+call Model/Domain/load_mesh file:uri=circle1d-tg-p1-1451.msh
 
 ### solver
 
@@ -34,19 +34,20 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT functions:array[string]=0.,0.,0.,0.
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]=\
+exp((-0.301)/25.*(x*x+y*y))+0.1*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y)),\
+0.04*(y)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y)),\
+-0.04*(x-67.)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y)),\
+exp((-0.301)/25.*(x*x+y*y))
 
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=AROUND \
+     Name:string=FARFIELD \
      Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=\
-//Root/Model/Domain/mesh/topology/inlet,\
-//Root/Model/Domain/mesh/topology/outlet,\
-//Root/Model/Domain/mesh/topology/farfield
+     Regions:array[uri]=//Root/Model/Domain/mesh/topology/perimeter
 
-configure Model/RDSolver/BoundaryConditions/AROUND functions:array[string]=0.,0.,0.,0.
+configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.,0.,0.,0.
 
 ### domain discretization
 
@@ -58,8 +59,10 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-# call Model/Domain/write_mesh file:uri=initial.msh
+call Model/Domain/write_mesh file:uri=initial.msh
+call Model/Domain/write_mesh file:uri=initial.plt
 
-call Model/simulate
+# call Model/simulate
 
-# call Model/Domain/write_mesh file:uri=solution.msh
+call Model/Domain/write_mesh file:uri=solution.msh
+call Model/Domain/write_mesh file:uri=solution.plt
