@@ -25,6 +25,7 @@ namespace Physics {
 
 /// Manage the variables needed in a model
 /// @author Bart Janssens
+/// @author Tiago Quintino
 class Physics_API VariableManager : public Common::Component {
 
 public: //typedefs
@@ -64,7 +65,7 @@ public: // functions
   /// @param field_name Default field name
   /// The given string is also linked to an option that gets created, allowing the user to change the name of the field
   /// @param var_type Type of the variable
-  /// @param is_equation_var True if the variable represents a state, i.e. something that is solved for
+  /// @param is_state True if the variable represents a state, i.e. something that is solved for
   void register_variable(const std::string& var_name, std::string& symbol, std::string& field_name, const VariableTypesT var_type, const bool is_state);
   
   /// True if the variable with the given name is part of the solution state
