@@ -140,6 +140,7 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
 }
 
 
+/// @todo CDomain writes only the first mesh. Handle multiple-mesh case.
 
 void CDomain::write_mesh(const URI& file)
 {
@@ -147,13 +148,14 @@ void CDomain::write_mesh(const URI& file)
     m_implementation->m_write_mesh = create_static_component_ptr<WriteMesh>("MeshWriter");
 
   std::vector<URI> state_fields;
-  CMesh& mesh = find_component<CMesh>(*this); // TODO: Handle multiple-mesh case
+  CMesh& mesh = find_component<CMesh>(*this);
   boost_foreach(const CField& field, find_components_recursively<CField>(mesh))
   {
     state_fields.push_back(field.uri());
   }
   m_implementation->m_write_mesh.lock()->write_mesh(mesh, file, state_fields);
 }
+
 
 void CDomain::signal_load_mesh ( Common::SignalArgs& node )
 {

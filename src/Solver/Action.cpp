@@ -48,11 +48,6 @@ Action::Action ( const std::string& name ) :
       ->pretty_name("Physical Model")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
-      ->description("Time tracking component")
-      ->pretty_name("Time")
-      ->mark_basic();
-
   std::vector< URI > dummy;
   m_options.add_option< OptionArrayT<URI> > (Tags::regions(), dummy)
       ->description("Regions this action is applied to")
@@ -74,15 +69,6 @@ Physics::PhysModel& Action::physical_model()
   return *model;
 }
 
-
-CTime& Action::time()
-{
-  CTime::Ptr t = m_time.lock();
-  if( is_null(t) )
-    throw Common::SetupError( FromHere(),
-                             "Time not yet set for component " + uri().string() );
-  return *t;
-}
 
 
 CMesh& Action::mesh()

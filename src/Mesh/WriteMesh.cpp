@@ -9,6 +9,7 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -158,7 +159,17 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
 {
   update_list_of_available_writers();
 
-  const std::string extension = file.extension();
+  /// @todo this should be improved to allow http(s) which would then upload the mesh
+  ///       to a remote location after writing to a temporary file
+  ///       uploading can be achieved using the curl library (which we already search for in the build system)
+
+  URI filepath = file;
+
+  if( filepath.scheme() != URI::Scheme::FILE )
+    filepath.scheme( URI::Scheme::FILE );
+
+
+  const std::string extension = filepath.extension();
 
   if ( m_extensions_to_writers.count(extension) == 0 )
     throw FileFormatError (FromHere(), "No meshwriter exists for files with extension " + extension);
@@ -166,16 +177,18 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
   if (m_extensions_to_writers[extension].size()>1)
   {
      std::string msg;
-     msg = file.string() + " has ambiguous extension " + extension + "\n"
+     msg = filepath.string() + " has ambiguous extension " + extension + "\n"
        +  "Possible writers for this extension are: \n";
      boost_foreach(const CMeshWriter::Ptr writer , m_extensions_to_writers[extension])
        msg += " - " + writer->name() + "\n";
      throw FileFormatError( FromHere(), msg);
    }
 
-  // Check for environment variables
+  // substitute the regex wildcards in the file name
+
   const MeshMetadata& metadata = mesh.metadata();
-  std::string file_str = file.string();
+
+  std::string file_str = filepath.path();
   boost::regex re("\\$\\{(\\w+)\\}");
   boost::sregex_iterator itr(file_str.begin(), file_str.end(), re);
   boost::sregex_iterator end;
@@ -210,9 +223,21 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
     }
   }
 
+  // change the path in the filepath
+
+  filepath.path( file_str );
+
+  // get the correct writer based on the extension
+
   CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
   writer->configure_option("fields",fields);
-  return writer->write_from_to(mesh,URI(file_str));
+
+  // write the mesh and notify output
+
+  writer->write_from_to(mesh, filepath );
+
+  CFinfo << "wrote mesh in file " << filepath.string() << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

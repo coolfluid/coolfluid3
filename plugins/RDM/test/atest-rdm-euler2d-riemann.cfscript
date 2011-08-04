@@ -43,6 +43,8 @@ configure Model/RDSolver                                update_vars:string=Cons2
 configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=511
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
+configure Model/RDSolver/IterativeSolver/PostActions/PeriodicWriter saverate:unsigned=10 filepath:uri=periodic.msh
+
 ### initial conditions
 
 call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT

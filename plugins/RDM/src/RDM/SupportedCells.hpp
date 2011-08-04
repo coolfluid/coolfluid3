@@ -37,7 +37,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-#define RDM_ALL_CELLS
+//  #define RDM_ALL_CELLS
 
 #ifdef RDM_ALL_CELLS
 /// List of supported 2d cell shapefunctions

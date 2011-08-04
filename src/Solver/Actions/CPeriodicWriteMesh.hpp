@@ -7,18 +7,17 @@
 #ifndef CF_Solver_Actions_CPeriodicWriteMesh_hpp
 #define CF_Solver_Actions_CPeriodicWriteMesh_hpp
 
-#include "Common/CAction.hpp"
-
 #include "Solver/Actions/LibActions.hpp"
+#include "Solver/Action.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; class CMesh; }
+namespace Mesh   { class CField; class CMesh; class WriteMesh; }
 namespace Solver {
 namespace Actions {
 
-class Solver_Actions_API CPeriodicWriteMesh : public Common::CAction {
+class Solver_Actions_API CPeriodicWriteMesh : public Solver::Action {
 
 public: // typedefs
 
@@ -42,7 +41,9 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::CMesh> m_mesh;
+  boost::weak_ptr<Component> m_iterator;  ///< component that holds the iteration
+
+  Mesh::WriteMesh& m_writer; ///< mesh writer
 
 };
 

@@ -17,6 +17,7 @@
 
 #include "Math/Checks.hpp"
 
+#include "Solver/Actions/CPeriodicWriteMesh.hpp"
 #include "Solver/Actions/CSynchronizeFields.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CComputeLNorm.hpp"
@@ -66,6 +67,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
   CComputeLNorm& cnorm = post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
   post_actions().append( cnorm );
 
+  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
+  post_actions().append( cwriter );
+
   cnorm.configure_option("Scale", true);
   cnorm.configure_option("Order", 2u);
 }
@@ -85,7 +89,7 @@ void IterativeSolver::execute()
 
   /// @todo this configuration sould be in constructor but does not work there
 
-  get_child("MaxIterations").configure_option( "iterator", this->uri() );
+  configure_option_recursively( "iterator", this->uri() );
 
   // access components (out of loop)
 
@@ -138,8 +142,8 @@ void IterativeSolver::execute()
     if( mpi::PE::instance().rank() == 0 )
     {
       Real rhs_norm = cnorm.properties().value<Real>("Norm");
-      std::cout << " Iter [" << std::setw(4) << iter << "]"
-                << " L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
+      std::cout << "iter ["    << std::setw(4)  << iter << "]"
+                << "L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
 
       if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
         throw FailedToConverge(FromHere(),

@@ -14,9 +14,6 @@
 #include "Common/StringConversion.hpp"
 #include "Common/CMap.hpp"
 
-/// @todo remove
-#include "Common/Log.hpp"
-
 #include "Mesh/Gmsh/CWriter.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -116,20 +113,20 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   }
 
   // must be in correct order!
-  std::cout << "1" << std::endl;
+//  std::cout << "1" << std::endl;
   write_header(file);
-  std::cout << "2" << std::endl;
+//  std::cout << "2" << std::endl;
   m_cf_2_gmsh_node->clear();
   m_cf_2_gmsh_node->reserve(CElements::used_nodes(*m_mesh->topology().as_non_const()).size());
-  std::cout << "3" << std::endl;
+//  std::cout << "3" << std::endl;
   write_coordinates(file);
-  std::cout << "4" << std::endl;
+//  std::cout << "4" << std::endl;
   write_connectivity(file);
-  std::cout << "5" << std::endl;
+//  std::cout << "5" << std::endl;
   write_elem_nodal_data(file);
-  std::cout << "6" << std::endl;
+//  std::cout << "6" << std::endl;
   write_nodal_data(file);
-  std::cout << "7" << std::endl;
+//  std::cout << "7" << std::endl;
   //write_element_data(file);
   file.close();
   m_cf_2_gmsh_node->clear();

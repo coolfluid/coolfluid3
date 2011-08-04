@@ -16,6 +16,7 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
+#include "Solver/Actions/CPeriodicWriteMesh.hpp"
 
 #include "RDM/FaceTerm.hpp"
 
@@ -54,6 +55,9 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
 
+  CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
+  post_actions().append( cwriter );
+
   // dyanmic components
 
   CCriterionMaxIterations& maxiter =
@@ -73,7 +77,7 @@ void TimeStepping::execute()
   /// @todo these configurations sould be in constructor but does not work there
   ///       becasue uri() is undefined on the constructor ( component is still free )
 
-  configure_option_recursively( "ctime", m_time->uri() );
+  configure_option_recursively( "ctime",    m_time->uri() );
   configure_option_recursively( "iterator", this->uri() );
 
   // start loop - iterations start from 1 ( max iter zero will do nothing )
@@ -86,7 +90,7 @@ void TimeStepping::execute()
 
     // print iteration
 
-    CFinfo << "    time [" << m_time->current_time() << "] iteration [" << k << "]" << CFendl;
+    CFinfo << "time step [" << k << "] time [" << m_time->current_time() << "]" << CFendl;
 
     // (1) the pre actions - pre-process, user defined actions, etc
 

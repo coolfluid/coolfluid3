@@ -19,7 +19,8 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=circle1d-tg-p1-1451.msh
+call Model/Domain/load_mesh file:uri=square1x1-tg-p1-303n.msh
+#circle1d-tg-p1-1451.msh
 
 ### solver
 
@@ -29,6 +30,8 @@ configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=3000
 configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=0.001 end_time:real=0.1
 
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
+
+configure Model/RDSolver/TimeStepping/PostActions/PeriodicWriter saverate:unsigned=10 filepath:uri=periodic.msh
 
 ### initial conditions
 
@@ -42,27 +45,27 @@ exp((-0.301)/25.*(x*x+y*y))
 
 ### boundary conditions
 
-call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=FARFIELD \
-     Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/perimeter
+#call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+#     Name:string=FARFIELD \
+#     Type:string=CF.RDM.BcDirichlet \
+#     Regions:array[uri]=//Root/Model/Domain/mesh/topology/perimeter
 
-configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.,0.,0.,0.
+#configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.,0.,0.,0.
 
 ### domain discretization
 
-call Model/RDSolver/DomainDiscretization/create_cell_term \
-     Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.RKLDA
+#call Model/RDSolver/DomainDiscretization/create_cell_term \
+#     Name:string=INTERNAL \
+#     Type:string=CF.RDM.Schemes.RKLDA
 
 ### simulate and write the result
 
 call Model/RDSolver/InitialConditions
 
 call Model/Domain/write_mesh file:uri=initial.msh
-call Model/Domain/write_mesh file:uri=initial.plt
+# call Model/Domain/write_mesh file:uri=initial.plt
 
-# call Model/simulate
+call Model/simulate
 
 call Model/Domain/write_mesh file:uri=solution.msh
-call Model/Domain/write_mesh file:uri=solution.plt
+# call Model/Domain/write_mesh file:uri=solution.plt

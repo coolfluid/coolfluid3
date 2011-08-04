@@ -11,6 +11,8 @@
 #include "Mesh/CField.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/MeshMetadata.hpp"
+
+#include "Solver/Tags.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CAdvanceTime.hpp"
@@ -22,9 +24,11 @@ namespace Actions {
 using namespace Common;
 using namespace Mesh;
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 Common::ComponentBuilder < CAdvanceTime, CAction, LibActions > CAdvanceTime_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 CAdvanceTime::CAdvanceTime( const std::string& name  ) :
   Solver::Action ( name )
@@ -32,19 +36,28 @@ CAdvanceTime::CAdvanceTime( const std::string& name  ) :
   mark_basic();
 
   properties()["brief"] = std::string("Time advancing object");
-  std::string description =
-    "This object handles time advancing\n";
-  properties()["description"] = description;
+  properties()["description"] = std::string( "This object handles time advancing\n" );
 
+  options().add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_time))
+      ->description("Time tracking component")
+      ->pretty_name("Time")
+      ->mark_basic();
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-CAdvanceTime::~CAdvanceTime()
+CAdvanceTime::~CAdvanceTime()  {}
+
+
+
+CTime& CAdvanceTime::time()
 {
+  CTime::Ptr t = m_time.lock();
+  if( is_null(t) )
+    throw Common::SetupError( FromHere(),
+                              "Time not yet set for component " + uri().string() );
+  return *t;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void CAdvanceTime::execute ()
 {
@@ -61,7 +74,7 @@ void CAdvanceTime::execute ()
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
 } // Solver

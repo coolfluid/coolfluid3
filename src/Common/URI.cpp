@@ -198,6 +198,16 @@ const std::string& URI::separator ()
   return sep;
 }
 
+void URI::scheme( URI::Scheme::Type sch )
+{
+  m_scheme = sch;
+}
+
+void URI::path( const std::string& path )
+{
+  m_path = path;
+}
+
 URI::Scheme::Type URI::scheme() const
 {
   return m_scheme;

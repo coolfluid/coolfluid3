@@ -7,8 +7,6 @@
 #ifndef CF_Common_URI_hpp
 #define CF_Common_URI_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 #include "Common/EnumT.hpp"
@@ -16,7 +14,7 @@
 namespace CF {
 namespace Common {
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
   /// Exception thrown when a string does not construct a valid path
   struct Common_API InvalidURI: public Common::Exception {
@@ -133,9 +131,17 @@ namespace Common {
     /// protocol has been specified.
     Scheme::Type scheme() const;
 
+    /// Changes the protocol to the supplied scheme
+    /// @post scheme() will return the supplied protocol
+    void scheme( Scheme::Type );
+
     /// Gives the URI path, which is the URI without the scheme (protocol)
     /// @return Returns the URI path
     std::string path() const;
+
+    /// Changes the URI path
+    /// @post path() will return the supplied path
+    void path( const std::string& path );
 
     /// Overloading of the stream operator "<<" for the output.
     /// No "\n"ine introduced.
@@ -174,11 +180,9 @@ namespace Common {
 
   }; // URI
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_URI_hpp

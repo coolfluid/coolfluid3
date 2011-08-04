@@ -7,8 +7,6 @@
 #ifndef CF_Solver_CAdvanceTime_hpp
 #define CF_Solver_CAdvanceTime_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Action.hpp"
 
@@ -43,9 +41,12 @@ public: // functions
   /// Simulates this model
   virtual void execute();
 
+  /// @returns the time component
+  Solver::CTime& time();
+
 private:
 
-  boost::weak_ptr<CTime> m_time;
+  boost::weak_ptr< Solver::CTime > m_time; ///< time used by this action
 
 };
 
@@ -54,7 +55,5 @@ private:
 } // Actions
 } // Solver
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Solver_CAdvanceTime_hpp

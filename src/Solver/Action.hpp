@@ -12,8 +12,6 @@
 
 #include "Solver/LibSolver.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 
 namespace Mesh { class CRegion; class CMesh; }
@@ -23,7 +21,7 @@ namespace Solver {
 class CSolver;
 class CTime;
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 class Solver_API Action : public Common::CAction {
 
@@ -57,16 +55,10 @@ public: // functions
   /// @returns the physical model this action relies on
   Physics::PhysModel& physical_model();
 
-  /// @returns the time component
-  /// @deprecated CTime makes no sense in certain simulations
-  ///             This will eventually be removed
-  Solver::CTime& time();
-
   /// @returns the regions this action is operating on
   Common::ComponentIteratorRange<Mesh::CRegion> regions();
 
   //@} END ACCESSORS
-
 
 protected: // functions
 
@@ -81,20 +73,14 @@ protected: // data
   /// physical model used by this action
   boost::weak_ptr< Physics::PhysModel > m_physical_model;
 
-  /// time used by this action
-  /// @todo eventually removed time from Action
-  boost::weak_ptr< Solver::CTime > m_time;
-
   /// regions of the mesh to loop over
   std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
 
 };
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Solver_Action_hpp
