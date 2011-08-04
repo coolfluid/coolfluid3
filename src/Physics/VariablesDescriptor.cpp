@@ -158,18 +158,12 @@ struct VariablesDescriptor::Implementation
       throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
     
     const Uint nb_vars = m_indices.size();
-    // Build an ordered list of the variables
-    std::vector<std::string> ordered_vars(nb_vars);
-    for(IndexMapT::const_iterator it = m_indices.begin(); it != m_indices.end(); ++it)
-    {
-      ordered_vars[it->second] = it->first;
-    }
     
     // Create a string with the description of the variables
     std::stringstream result_str;
     for(Uint i = 0; i != nb_vars; ++i)
     {
-      result_str << (i == 0 ? "" : ",") << ordered_vars[i] << "[" << to_size(m_types[i]) << "]";
+      result_str << (i == 0 ? "" : ",") << m_user_names[i] << "[" << to_size(m_types[i]) << "]";
     }
     
     return result_str.str();
