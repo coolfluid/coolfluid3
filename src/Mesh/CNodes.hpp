@@ -42,8 +42,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CNodes"; }
 
-  virtual Field& coordinates() { return *m_coordinates; }
-  virtual const Field& coordinates() const { return *m_coordinates; }
+  Field& coordinates() { return *m_coordinates; }
+  const Field& coordinates() const { return *m_coordinates; }
 
   CDynTable<Uint>& glb_elem_connectivity() { return *m_glb_elem_connectivity; }
   const CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }

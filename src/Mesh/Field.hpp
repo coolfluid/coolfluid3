@@ -77,21 +77,29 @@ public: // functions
 
   void set_topology(CRegion& topology);
 
-  const CRegion& topology() const;
-
-  CRegion& topology();
+  CRegion& topology() const;
 
   void set_field_group(FieldGroup& field_group);
 
-  const FieldGroup& field_group() const;
-
-  FieldGroup& field_group();
+  FieldGroup& field_group() const;
 
   virtual void resize(const Uint size);
 
-private:
+  CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
 
-  FieldGroup::Basis::Type m_basis;
+  CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+
+  CList<Uint>& glb_idx() const { return field_group().glb_idx(); }
+
+  CList<Uint>& rank() const { return field_group().rank(); }
+
+  bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
+
+  const std::string& space() const { return m_space; }
+
+  CSpace& space(const CEntities& entities) const { return entities.space(m_space); }
+
+private:
 
   void config_var_names();
   void config_var_types();
@@ -99,8 +107,8 @@ private:
   std::vector<std::string> m_var_names;
   std::vector<VarType> m_var_types;
 
-protected:
-
+  FieldGroup::Basis::Type m_basis;
+  std::string m_space;
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 

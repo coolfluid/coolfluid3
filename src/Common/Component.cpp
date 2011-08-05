@@ -209,13 +209,7 @@ bool Component::has_parent() const
   return is_not_null(m_raw_parent);
 }
 
-Component& Component::parent()
-{
-  cf_assert( is_not_null(m_raw_parent) );
-  return *m_raw_parent;
-}
-
-Component const& Component::parent() const
+Component& Component::parent() const
 {
   cf_assert( is_not_null(m_raw_parent) );
   return *m_raw_parent;
@@ -434,14 +428,13 @@ void Component::complete_path ( URI& path ) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::get_child(const std::string& name)
+Component& Component::get_child(const std::string& name) const
 {
-  return * get_child_ptr_checked(name);
-}
-
-const Component& Component::get_child(const std::string& name) const
-{
-  return * get_child_ptr_checked(name);
+  const CompStorage_t::const_iterator found = m_components.find(name);
+  if(found != m_components.end())
+    return *found->second;
+  else
+    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
 }
 
 Component::Ptr Component::get_child_ptr(const std::string& name)
@@ -525,6 +518,13 @@ boost::iterator_range<Component::iterator> Component::children()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+boost::iterator_range<Component::const_iterator> Component::children() const
+{
+  return boost::make_iterator_range(begin(),end());
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void Component::move_to ( Component& new_parent )
 {
   Component::Ptr this_ptr = parent().remove_component( *this );
@@ -532,20 +532,13 @@ void Component::move_to ( Component& new_parent )
   raise_path_changed();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::access_component ( const URI& path )
-{
-  return *access_component_ptr_checked(path); // pointer is garuanteed to be valid
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
-const Component& Component::access_component ( const URI& path ) const
+Component& Component::access_component ( const URI& path ) const
 {
   Component::ConstPtr comp = access_component_ptr_checked(path);
   cf_assert( is_not_null(comp) );
-  return *comp;
+  return *comp->as_non_const();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

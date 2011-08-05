@@ -199,14 +199,8 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @throws InvalidURI in case a component is not found at that path
   /// @return reference to component
-  Component& access_component ( const URI& path );
-
-  /// Looks for a component via its path
-  /// @param path to the component
-  /// @return reference to component
-  const Component& access_component ( const URI& path ) const;
+  Component& access_component ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
@@ -238,20 +232,11 @@ public: // functions
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
   /// @post returns always valid pointer
-  Component& parent();
-
-  /// @returns the const pointer to parent component
-  /// @pre parent pointer is valid
-  /// @post returns always valid pointer
-  Component const& parent() const;
+  Component& parent() const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @return reference to the component
-  Component& get_child(const std::string& name);
-
-  /// Gets the named child component from the list of direct subcomponents.
-  /// @return reference to the component
-  const Component& get_child(const std::string& name) const;
+  Component& get_child(const std::string& name) const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @post pointer may be null
@@ -277,6 +262,9 @@ public: // functions
 
   /// returns an iterator range with the children of this component
   boost::iterator_range<iterator> children();
+
+  /// returns an iterator range with the children of this component
+  boost::iterator_range<const_iterator> children() const;
 
   /// @returns this component converted to type T shared pointer
   template < typename T > boost::shared_ptr<T> as_ptr();

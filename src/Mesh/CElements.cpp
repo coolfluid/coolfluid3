@@ -50,10 +50,6 @@ void CElements::initialize(const std::string& element_type_name)
   node_connectivity().set_row_size(m_element_type->nb_nodes());
   CSpace& node_space = space(MeshSpaces::MESH_NODES);
   node_space.connectivity().set_row_size(node_space.nb_states());
-  
-  CSpace& element_space = space(MeshSpaces::MESH_ELEMENTS);
-  element_space.connectivity().set_row_size(element_space.nb_states());
-  cf_assert(element_space.nb_states() == 1); // P0 discontinuous space has 1 point (the element itself)
 }
 
 void CElements::initialize(const std::string& element_type_name, CNodes& nodes)

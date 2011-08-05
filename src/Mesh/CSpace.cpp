@@ -8,12 +8,14 @@
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/CLink.hpp"
 
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CConnectivity.hpp"
+#include "Mesh/FieldGroup.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -25,7 +27,8 @@ Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CSpace::CSpace ( const std::string& name ) :
-  Component ( name )
+  Component ( name ),
+  m_is_proxy(false)
 {
   mark_basic();
 
@@ -39,6 +42,8 @@ CSpace::CSpace ( const std::string& name ) :
       ->mark_basic();
 
   m_connectivity = create_static_component_ptr<CConnectivity>("connectivity");
+
+  m_bound_fields = create_static_component_ptr<CLink>("bound_fields");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,6 +67,47 @@ void CSpace::configure_shape_function()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+bool CSpace::is_bound_to_fields() const
+{
+  return m_bound_fields->is_linked();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CSpace::bound_fields() const
+{
+  cf_assert(is_bound_to_fields());
+  return m_bound_fields->follow()->as_type<FieldGroup>();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CConnectivity::ConstRow CSpace::indexes_for_element(const Uint elem_idx) const
+{
+  if (m_is_proxy)
+  {
+    for (Uint i=0; i<m_connectivity_proxy.shape()[1]; ++i)
+      m_connectivity_proxy[0][i] = m_elem_start_idx+i + elem_idx*m_connectivity_proxy.shape()[1];
+    return m_connectivity_proxy[0];
+  }
+  else
+  {
+    return connectivity()[elem_idx];
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CSpace::make_proxy(const Uint elem_start_idx)
+{
+  m_is_proxy = true;
+  m_elem_start_idx = elem_start_idx;
+  m_connectivity_proxy.resize(boost::extents[1][nb_states()]);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 
 } // Mesh
 } // CF

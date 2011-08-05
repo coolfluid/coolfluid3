@@ -124,6 +124,14 @@ void CMesh::update_statistics()
 ////////////////////////////////////////////////////////////////////////////////
 
 FieldGroup& CMesh::create_field_group( const std::string& name,
+                                       const FieldGroup::Basis::Type base )
+{
+  return create_field_group ( name, base, name, topology() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CMesh::create_field_group( const std::string& name,
                                        const FieldGroup::Basis::Type base,
                                        const std::string& space )
 {

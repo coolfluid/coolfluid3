@@ -33,13 +33,11 @@ CEntities::MeshSpaces::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
       ( CEntities::MeshSpaces::SPACE0,    "space[0]" )
-      ( CEntities::MeshSpaces::MESH_NODES,    "mesh_nodes" )
-      ( CEntities::MeshSpaces::MESH_ELEMENTS, "mesh_elements" );
+      ( CEntities::MeshSpaces::MESH_NODES,    "mesh_nodes" );
 
   all_rev = boost::assign::map_list_of
       ("space[0]",       CEntities::MeshSpaces::SPACE0 )
-      ("mesh_nodes",     CEntities::MeshSpaces::MESH_NODES )
-      ("mesh_elements",  CEntities::MeshSpaces::MESH_ELEMENTS );
+      ("mesh_nodes",     CEntities::MeshSpaces::MESH_NODES );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -125,7 +123,6 @@ void CEntities::configure_element_type()
 
   }
 
-
   if ( exists_space(MeshSpaces::MESH_NODES) )
   {
     m_spaces[MeshSpaces::MESH_NODES]->configure_option("shape_function",m_element_type->shape_function().derived_type_name());
@@ -134,16 +131,6 @@ void CEntities::configure_element_type()
   {
     CSpace& mesh_nodes = create_space(MeshSpaces::to_str(MeshSpaces::MESH_NODES),element_type().shape_function().derived_type_name());
     mesh_nodes.add_tag(MeshSpaces::to_str(MeshSpaces::MESH_NODES));
-  }
-
-  if ( exists_space(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS)) )
-  {
-    m_spaces[MeshSpaces::MESH_NODES]->configure_option("shape_function",std::string("CF.Mesh.SF.SF"+element_type().shape_function().shape_name()+"LagrangeP0"));
-  }
-  else
-  {
-    CSpace& mesh_nodes = create_space(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS),"CF.Mesh.SF.SF"+element_type().shape_function().shape_name()+"LagrangeP0");
-    mesh_nodes.add_tag(MeshSpaces::to_str(MeshSpaces::MESH_ELEMENTS));
   }
 }
 
@@ -261,14 +248,7 @@ const CSpace& CEntities::space (const Uint space_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CSpace& CEntities::space (const std::string& space_name)
-{
-  return m_spaces_group->get_child(space_name).as_type<CSpace>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const CSpace& CEntities::space (const std::string& space_name) const
+CSpace& CEntities::space (const std::string& space_name) const
 {
   return m_spaces_group->get_child(space_name).as_type<CSpace>();
 }

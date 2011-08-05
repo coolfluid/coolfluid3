@@ -42,7 +42,7 @@ public: // typedefs
 
     /// Enumeration of the default created Spaces in CF
     /// @todo SPACE0 to be renamed to MESH_NODES, and decrease number by 1
-    enum Type { INVALID=-1, SPACE0=0, MESH_NODES=1, MESH_ELEMENTS=2 };
+    enum Type { INVALID=-1, SPACE0=0, MESH_NODES=1 };
 
     struct Mesh_API Convert : public Common::EnumT< MeshSpaces >
     {
@@ -66,13 +66,13 @@ public: // functions
 
   /// Initialize the CEntities using the given type
   virtual void initialize(const std::string& element_type_name);
-  
+
   /// Initialize the CEntities using the given type, also setting the nodes in one go
   virtual void initialize(const std::string& element_type_name, CNodes& nodes);
 
   /// Set the nodes
   virtual void set_nodes(CNodes& nodes);
-  
+
   /// Virtual destructor
   virtual ~CEntities();
 
@@ -113,9 +113,7 @@ public: // functions
 
   const CSpace& space (const Uint space_idx) const;
 
-  CSpace& space (const std::string& space_name);
-
-  const CSpace& space (const std::string& space_name) const;
+  CSpace& space (const std::string& space_name) const;
 
   CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
 

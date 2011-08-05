@@ -19,6 +19,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CLibraries.hpp"
+#include "Common/CEnv.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -79,15 +80,15 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
+  Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CRoot& root = Core::instance().root();
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 
   // read mesh from file
-
   Core::instance().tools().get_child("LoadMesh").as_type<LoadMesh>().load_mesh_into("rotation-tg-p1.neu", *mesh);
 
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology/rotation/inlet"))
-                                    (URI("cpath://Root/mesh/topology/rotation/outlet"));
+  std::vector<URI> regions = list_of(mesh->topology().uri()/URI("rotation/inlet"))
+                                    (mesh->topology().uri()/URI("rotation/outlet"));
 
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -100,9 +101,10 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
   BOOST_CHECK_NO_THROW( node_loop2->execute() );
 
-  root.remove_component( *mesh );
-
   BOOST_CHECK(true);
+
+  //root.remove_component(*mesh);
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,10 +115,9 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
 
   // read mesh from file
-
   Core::instance().tools().get_child("LoadMesh").as_type<LoadMesh>().load_mesh_into("rotation-tg-p1.neu", *mesh);
 
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
+  std::vector<URI> regions = list_of(mesh->topology().uri());
 
   // Create inner_faces
   CMeshTransformer::Ptr facebuilder = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
 
-  root.remove_component( *mesh );
+  //root.remove_component(*mesh);
 
   BOOST_CHECK(true);
 }
@@ -143,7 +144,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
   CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
+  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh2");
 
   // read mesh from file
 
@@ -156,7 +157,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   field.configure_option("FieldType",std::string("PointBased"));
   field.create_data_storage();
 
-  std::vector<URI> regions = list_of(URI("cpath://Root/mesh/topology"));
+  std::vector<URI> regions = list_of(mesh->topology().uri());
 
   CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
   node_loop->configure_option("regions",regions);
@@ -181,7 +182,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CComputeVolume::Ptr compute_volume = root.create_component_ptr<CComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  CElements& elems = root.access_component("//Root/mesh/topology/rotation/fluid/Triag").as_type<CElements>();
+  CElements& elems = root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag")).as_type<CElements>();
   BOOST_CHECK(true);
   compute_volume->configure_option("Volume",volumes.uri());
   BOOST_CHECK(true);
@@ -225,7 +226,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
   CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.get_child_ptr("mesh")->as_ptr<CMesh>();
+  CMesh::Ptr mesh = root.get_child_ptr("mesh2")->as_ptr<CMesh>();
+
 
   BOOST_CHECK(true);
 
@@ -233,7 +235,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  std::vector<URI> topology = list_of(URI("cpath://Root/mesh/topology"));
+  std::vector<URI> topology = list_of(mesh->topology().uri());
 
   CForAllElementsT<CComputeVolume>::Ptr compute_all_cell_volumes =
     root.create_component_ptr< CForAllElementsT<CComputeVolume> > ("compute_all_cell_volumes");

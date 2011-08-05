@@ -23,6 +23,9 @@
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CNodes.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/CFaces.hpp"
+#include "Mesh/CCells.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -70,19 +73,70 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 {
   CMesh& mesh = *m_mesh;
 
+  // Check if nodes field_group is sane
   BOOST_CHECK_NO_THROW(mesh.nodes().check_sanity());
+
+  // Check if indexes_for_element function returns expected results
+  boost_foreach(CElements& elements, mesh.nodes().elements_range())
+  {
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      BOOST_CHECK( mesh.nodes().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
+    }
+  }
+  BOOST_CHECK_EQUAL( mesh.nodes().elements_lookup().components().size() , 5u);
+
 
   // ----------------------------------------------------------------------------------------------
   // CHECK element-based field group building
 
-
-  FieldGroup& elem_fields = mesh.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
-  FieldGroup& cell_fields = mesh.create_field_group("cells_P0", FieldGroup::Basis::CELL_BASED,    CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
-  FieldGroup& face_fields = mesh.create_field_group("faces_P0", FieldGroup::Basis::FACE_BASED,    CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_ELEMENTS));
+  // Create space and field_group for Lagrange P0 elements
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()))
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& elem_fields = mesh.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
 
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
+  BOOST_CHECK_EQUAL( elem_fields.elements_lookup().components().size() , 5u);
+
+  // Create space and field_group for Lagrange P0 cells
+  boost_foreach(CCells& elements, find_components_recursively<CCells>(mesh.topology()))
+    elements.create_space("cells_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& cell_fields = mesh.create_field_group("cells_P0", FieldGroup::Basis::CELL_BASED);
+
   BOOST_CHECK_EQUAL( cell_fields.size() , 25);
+  BOOST_CHECK_EQUAL( cell_fields.elements_lookup().components().size() , 1u);
+
+  // Create space and field_group for Lagrange P0 faces
+  boost_foreach(CFaces& elements, find_components_recursively<CFaces>(mesh.topology()))
+    elements.create_space("faces_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& face_fields = mesh.create_field_group("faces_P0", FieldGroup::Basis::FACE_BASED);
+
   BOOST_CHECK_EQUAL( face_fields.size() , 20);
+  BOOST_CHECK_EQUAL( face_fields.elements_lookup().components().size() , 4u);
+
+  // CHECK indexes_for_element access for nodes
+  Uint cell_idx=0;
+  boost_foreach(CEntities& elements, cell_fields.elements_range())
+  {
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      BOOST_CHECK( elements.space(cell_fields.space()).is_bound_to_fields() );
+      boost_foreach( const Uint point, cell_fields.indexes_for_element(elements,e) )
+      {
+        BOOST_CHECK_EQUAL( point, cell_idx );  // same because P0 field
+        ++cell_idx;
+      }
+    }
+  }
+  // Same check using a unified_cell_index
+  for (Uint unified_idx=0; unified_idx<cell_fields.elements_lookup().size(); ++unified_idx)
+  {
+    boost_foreach( const Uint point, cell_fields.indexes_for_element(unified_idx) )
+    {
+      BOOST_CHECK_EQUAL( point, unified_idx);  // The boost_foreach has only 1 iteration as it is P0 field
+    }
+  }
+
 
   // ----------------------------------------------------------------------------------------------
   // CHECK field building inside field groups
@@ -126,6 +180,43 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   FieldGroup& point_P2_fields = mesh.create_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "P2");
   BOOST_CHECK_EQUAL ( point_P2_fields.size() , 121u );
 
+
+//  std::cout << mesh.tree() << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_Field )
+{
+  FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
+  Field& volume = cells_P0.field("volume");
+  boost_foreach(CElements& elements, volume.elements_range())
+  {
+    CSpace& space = elements.space(volume.space());
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      boost_foreach( const Uint state, space.indexes_for_element(e))
+      {
+        volume[state][0] = elements.element_type().compute_volume(elements.get_coordinates(e));
+      }
+
+
+    }
+  }
+
+  FieldGroup& points_P2 = m_mesh->get_child("points_P2").as_type<FieldGroup>();
+  Field& point_field = points_P2.create_field("point_field");
+
+
+  boost_foreach(const CElements& elements, point_field.elements_range())
+  {
+    const CSpace& space = point_field.space(elements);
+    for (Uint e=0; e<elements.size(); ++e)
+    {
+      boost_foreach( const Uint point, space.indexes_for_element(e) )
+      point_field[point][0] = 1.;
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

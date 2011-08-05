@@ -12,13 +12,16 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/CEntities.hpp"
+#include "CConnectivity.hpp"
 
 namespace CF {
+namespace Common { class CLink; }
 namespace Mesh {
 
   class ElementType;
   class CElements;
   class CConnectivity;
+  class FieldGroup;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +65,14 @@ public: // functions
   /// @pre node connectivity must have been created beforehand
   const CConnectivity& connectivity() const { return *m_connectivity; }
 
+  CConnectivity::ConstRow indexes_for_element(const Uint elem_idx) const;
+
+  bool is_bound_to_fields() const;
+
+  FieldGroup& bound_fields() const;
+
+  void make_proxy(const Uint elem_start_idx);
+
 private: // functions
 
   /// Configuration option trigger for the shape function
@@ -75,6 +86,19 @@ protected: // data
   /// node_connectivity or state_connectivity for this space
   boost::shared_ptr<CConnectivity> m_connectivity;
 
+  boost::shared_ptr<Common::CLink> m_bound_fields;
+
+  /// keyword "mutable" means that this variable can be changed using a
+  /// const access function.
+  /// This is because this is just a temporary storage to mimic the full
+  /// connectivity table. This variable is being accessed by the function
+  /// indexes_for_element()
+  mutable CConnectivity::ArrayT m_connectivity_proxy;
+
+private: // data
+
+  bool m_is_proxy;
+  Uint m_elem_start_idx;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

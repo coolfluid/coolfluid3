@@ -33,7 +33,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   CCellFaces ( const std::string& name );
-    
+
   /// Virtual destructor
   virtual ~CCellFaces();
 
@@ -42,24 +42,24 @@ public: // functions
 
   /// return the number of elements
   virtual Uint size() const { return m_cell_connectivity->size(); }
-  
+
   virtual CTable<Uint>::ConstRow get_nodes(const Uint face_idx) const;
-  
+
   bool is_bdry(const Uint idx) { return m_cell_connectivity->is_bdry_face()[idx]; }
-  
+
   CFaceCellConnectivity& cell_connectivity() { return *m_cell_connectivity; }
   const CFaceCellConnectivity& cell_connectivity() const { return *m_cell_connectivity; }
-  
+
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 
   virtual void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
-  
-  
+
+
 protected:
-  
+
   CFaceCellConnectivity::Ptr m_cell_connectivity;
-  
-  static CTable<Uint>::ArrayT s_proxy_nodes;
+
+  mutable CTable<Uint>::ArrayT m_proxy_nodes;
 
 };
 

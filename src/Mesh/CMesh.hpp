@@ -59,6 +59,7 @@ public: // functions
   /// @return the geometry topology
   CRegion& topology() { return *m_topology; }
 
+  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base);
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space);
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion&);
 

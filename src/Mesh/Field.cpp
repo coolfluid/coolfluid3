@@ -212,15 +212,7 @@ Field::VarType Field::var_type ( const std::string& vname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CRegion& Field::topology() const
-{
-  cf_assert(m_topology.expired() == false);
-  return *m_topology.lock();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CRegion& Field::topology()
+CRegion& Field::topology() const
 {
   cf_assert(m_topology.expired() == false);
   return *m_topology.lock();
@@ -235,15 +227,7 @@ void Field::set_field_group(FieldGroup& field_group)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const FieldGroup& Field::field_group() const
-{
-  cf_assert(m_field_group.expired() == false);
-  return *m_field_group.lock();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-FieldGroup& Field::field_group()
+FieldGroup& Field::field_group() const
 {
   cf_assert(m_field_group.expired() == false);
   return *m_field_group.lock();
@@ -263,5 +247,18 @@ void Field::resize(const Uint size)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+CTable<Uint>::ConstRow Field::indexes_for_element(const CEntities& elements, const Uint idx) const
+{
+  return field_group().indexes_for_element(elements,idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
+{
+  return field_group().indexes_for_element(unified_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
 } // Mesh
 } // CF

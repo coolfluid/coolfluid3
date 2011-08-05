@@ -345,6 +345,17 @@ std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table);
 
 ////////////////////////////////////////////////////////////////////////////////
 
+template<typename RowT>
+std::vector<typename RowT::value_type> to_vector(RowT& table_row)
+{
+  std::vector<typename RowT::value_type> vec(table_row.size());
+  for (Uint i=0; i<vec.size(); ++i)
+    vec[i] = table_row[i];
+  return vec;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF
 

@@ -15,6 +15,7 @@
 #include "Common/Component.hpp"
 #include "Common/FindComponents.hpp"
 #include "Mesh/LibMesh.hpp"
+#include "Mesh/CTable.hpp"
 #include "Mesh/CUnifiedData.hpp"
 
 namespace CF {
@@ -27,6 +28,7 @@ namespace Mesh {
   class Field;
   class CRegion;
   class CEntities;
+  class CElements;
   template <typename T> class CList;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,9 +86,7 @@ public: // functions
   /// Create a new field in this group
   Field& create_field( const std::string& name, const std::string& variables = "scalar_same_name");
 
-  const CRegion& topology() const;
-
-  CRegion& topology();
+  CRegion& topology() const;
 
   virtual Uint size() const { return m_size; }
 
@@ -94,13 +94,9 @@ public: // functions
 
   const std::string& space() const { return m_space; }
 
-  const CList<Uint>& glb_idx() const { return *m_glb_idx; }
+  CList<Uint>& glb_idx() const { return *m_glb_idx; }
 
-  CList<Uint>& glb_idx() { return *m_glb_idx; }
-
-  const CList<Uint>& rank() const { return *m_rank; }
-
-  CList<Uint>& rank() { return *m_rank; }
+  CList<Uint>& rank() const { return *m_rank; }
 
   bool is_ghost(const Uint idx) const;
 
@@ -110,17 +106,20 @@ public: // functions
 
   void update();
 
-  boost::iterator_range< Common::ComponentIterator<CEntities> > elements_range();
+  boost::iterator_range< Common::ComponentIterator<CEntities> > entities_range();
+  boost::iterator_range< Common::ComponentIterator<CElements> > elements_range();
 
   Common::ComponentIteratorRange<Field> fields();
 
-  Field& field(const std::string& name);
+  Field& field(const std::string& name) const;
 
-  const Field& field(const std::string& name) const;
-
-  CUnifiedData& elements_lookup() { return *m_elements_lookup; }
+  CUnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
   void create_connectivity_in_space();
+  void bind_space();
+
+  CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
+  CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
 private: // functions
 
