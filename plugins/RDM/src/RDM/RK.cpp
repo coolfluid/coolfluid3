@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
@@ -71,8 +73,7 @@ void RK::execute()
 
   // implementation of the RungeKutta update step
 
-#if 0
-
+//--
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
@@ -85,15 +86,12 @@ void RK::execute()
       continue;
     }
 
-    const Real update = CFL / wave_speed[i][0] ;
     for ( Uint j=0; j< nbvars; ++j )
       solution[i][j] += - update * residual[i][j];
   }
 
-#endif
-
 }
-
+//--
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
