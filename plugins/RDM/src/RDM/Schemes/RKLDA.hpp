@@ -200,7 +200,7 @@ protected: // data
   /// diagonal matrix with eigen values
   typename B::PhysicsVT  Dv;
   /// temporary hold of du values times mass matrix
-  typename B::PhysicsVT  du_h;
+  typename B::PhysicsVT  du_l;
   /// diagonal matrix with positive eigen values
   typename B::PhysicsVT  DvPlus [SF::nb_nodes];
   /// du_s
@@ -301,8 +301,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     // copy the solution from the global array to a local (Eigen) matrix
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
-      for (Uint v = 0; v < PHYS::MODEL::_neqs; ++v)
-        B::U_n(n,v) = ksolutions[l]->data()[ nodes_idx[n] ][v];
+      for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+        B::U_n(n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
 
     // interpolate solution at all quadrature points in physical space
 
@@ -364,8 +364,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       du_l.setZero();
 
-      for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
-        du_l += B::Ni(q,j) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[j] ][eq];
+//      for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
+//        du_l += B::Ni(q,j) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[j] ][eq];
 
 
       // compute the phi_i integral
@@ -373,8 +373,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       for(Uint i = 0 ; i < SF::nb_nodes ; ++i)
         B::Phi_n.row(i) += (
                               Ki_n[i] * InvKi_n * ( du_l + dt * rkalphas(k,l) * B::LU )
-                             -
-                              B::Ni(q,i) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[i] ][eq]
+//                             -
+//                              B::Ni(q,i) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[i] ][eq]
                            )
                            * B::wj[q];
 
