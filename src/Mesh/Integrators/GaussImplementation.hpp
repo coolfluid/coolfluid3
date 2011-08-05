@@ -397,6 +397,7 @@ struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
 };
 
 
+/// Trapezium rule integration. Uses the end points of the line.
 template<>
 struct GaussMappedCoordsImpl<777, GeoShape::LINE>
 {

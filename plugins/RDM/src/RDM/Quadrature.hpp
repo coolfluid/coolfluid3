@@ -7,14 +7,14 @@
 #ifndef CF_RDM_Quadrature_hpp
 #define CF_RDM_Quadrature_hpp
 
-///////////////////////////////////////////////////////////////////////////////////////
-
 #include "Mesh/CElements.hpp"
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
 namespace CF {
 namespace RDM {
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// function returning positive number or zero
 inline Real plus ( Real x )
@@ -28,6 +28,7 @@ inline Real minus ( Real x )
   return std::min( 0. , x );
 }
 
+
 /// Predicate class to test if the region contains a specific element type
 template < typename TYPE >
 struct IsElementType
@@ -38,15 +39,16 @@ struct IsElementType
   }
 };
 
-//------------------------------------------------------------------------------------------
 
+/// Define the default quadrature for each element type
 template < typename SF, Uint order = SF::order >
 struct DefaultQuadrature
 {
   typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
 };
 
-////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

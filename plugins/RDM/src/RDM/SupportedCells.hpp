@@ -8,6 +8,8 @@
 #define CF_RDM_SupportedCells_hpp
 
 #include <boost/mpl/vector.hpp>
+#include <boost/mpl/copy.hpp>
+#include <boost/mpl/back_inserter.hpp>
 
 #include "RDM/Quadrature.hpp"
 
@@ -64,10 +66,11 @@ typedef boost::mpl::vector<Mesh::SF::Tetra3DLagrangeP1> CellTypes3D;
 
 #endif
 
+typedef boost::mpl::copy< CellTypes2D, boost::mpl::back_inserter< CellTypes3D > >::type AllCellTypes;
 
 //------------------------------------------------------------------------------------------
 
-template < int DIM > struct CellTypes {};
+template < int DIM > struct CellTypes {};  ///< selects element types according to dimension
 
 template<> struct CellTypes<DIM_2D>
 {

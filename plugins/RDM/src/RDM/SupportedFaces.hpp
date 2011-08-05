@@ -8,6 +8,8 @@
 #define CF_RDM_SupportedFaces_hpp
 
 #include <boost/mpl/vector.hpp>
+#include <boost/mpl/copy.hpp>
+#include <boost/mpl/back_inserter.hpp>
 
 #include "RDM/Quadrature.hpp"
 
@@ -29,7 +31,7 @@
 namespace CF {
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// List of supported 2d face shapefunctions
 typedef boost::mpl::vector<
@@ -45,7 +47,11 @@ typedef boost::mpl::vector<
   Mesh::SF::Quad3DLagrangeP1
 > FaceTypes3D;
 
-template < int DIM > struct FaceTypes {};
+typedef boost::mpl::copy< FaceTypes2D, boost::mpl::back_inserter< FaceTypes3D > >::type AllCellTypes;
+
+//------------------------------------------------------------------------------------------
+
+template < int DIM > struct FaceTypes {};  ///< selects element types according to dimension
 
 template<> struct FaceTypes<DIM_2D>
 {
@@ -56,8 +62,6 @@ template<> struct FaceTypes<DIM_3D>
 {
   typedef FaceTypes3D Faces;
 };
-
-//------------------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------------------
 
@@ -83,7 +87,7 @@ struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP3, 3 >
   typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Line2DLagrangeP3::shape> type;
 };
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

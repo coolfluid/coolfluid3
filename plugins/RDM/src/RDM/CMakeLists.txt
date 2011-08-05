@@ -36,6 +36,8 @@ list( APPEND coolfluid_rdm_files
   Reset.cpp
   BoundaryTerm.hpp
   BoundaryTerm.cpp
+  ComputeDualArea.hpp
+  ComputeDualArea.cpp
   CellTerm.hpp
   CellTerm.cpp
   FaceTerm.hpp
