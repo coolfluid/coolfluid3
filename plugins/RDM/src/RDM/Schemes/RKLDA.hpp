@@ -290,29 +290,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   } // loop quadrature points
 
-  std::cout << FromHere().short_str() << std::endl;
-
-  // compute delta u_s
-
-  du.setZero();
-
-  for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
-    for ( Uint i = 0 ; i < SF::nb_nodes ; ++i)
-      for ( Uint eq = 0 ; eq < PHYS::MODEL::_neqs; ++eq)
-        du(i,eq) += rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[i] ][eq];
-
-//  std::cout << FromHere().short_str() << std::endl;
-
- // add mass matrix contribution
-
-  for ( Uint q = 0; q < QD::nb_points ; ++q)               // loop over each quadrature point
-    for ( Uint i = 0; i < SF::nb_nodes; ++i)               // loop over each node
-      for ( Uint eq = 0; eq < PHYS::MODEL::_neqs ; ++eq)   // loop over each variable
-        (*B::residual)[nodes_idx[i]][eq] += - B::Ni(q,i) * B::wj[q] * du(i,eq);
-
-
-
-
 // std::cout << FromHere().short_str() << std::endl;
 
   // zero element residuals
@@ -321,7 +298,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
   {
-
     // copy the solution from the global array to a local (Eigen) matrix
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
@@ -343,7 +319,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
     for(Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
     {
-
       // compute the contributions to phi_i
 
       B::sol_gradients_at_qdpoint(q);
@@ -385,15 +360,23 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       InvKi_n = sumLplus.inverse();
 
-      // compute the other mass matrix comtribution
+      // compute du_l
 
-      for (Uint j=0; j<SF::nb_nodes; ++j)
-        du_h = B::Ni(q,j) * du.row(j).transpose();
+      du_l.setZero();
+
+      for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
+        du_l += B::Ni(q,j) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[j] ][eq];
+
 
       // compute the phi_i integral
 
-      for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-        B::Phi_n.row(n) += Ki_n[n] * InvKi_n * ( du_h + dt * rkalphas(k,l) * B::LU ) * B::wj[q];
+      for(Uint i = 0 ; i < SF::nb_nodes ; ++i)
+        B::Phi_n.row(i) += (
+                              Ki_n[i] * InvKi_n * ( du_l + dt * rkalphas(k,l) * B::LU )
+                             -
+                              B::Ni(q,i) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[i] ][eq]
+                           )
+                           * B::wj[q];
 
        // if last k step, compute the wave_speed ( in case we need to adapt the dt )
 
