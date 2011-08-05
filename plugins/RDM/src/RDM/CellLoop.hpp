@@ -57,17 +57,17 @@ struct CellLoop : public ElementLoop
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// CellLoopT defines a functor taking the type that boost::mpl::for_each passes.
+/// CellLoopT1 defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism over Cells.
-/// This CellLoopT is independent of the physics
+/// This CellLoopT1 is independent of the physics
 template < typename ACTION >
-struct CellLoopT : public CellLoop
+struct CellLoopT1 : public CellLoop
 {
   /// Constructor
-  CellLoopT( const std::string& name ) : CellLoop(name) {  regist_typeinfo(this); }
+  CellLoopT1( const std::string& name ) : CellLoop(name) {  regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "CellLoopT<" + ACTION::type_name() + ">"; }
+  static std::string type_name () { return "CellLoopT1<" + ACTION::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ()
@@ -107,7 +107,7 @@ struct CellLoopT : public CellLoop
     }
   }
 
-}; // CellLoopT
+}; // CellLoopT1
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -55,17 +55,17 @@ struct FaceLoop : public ElementLoop
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// FaceLoopT defines a functor taking the type that boost::mpl::for_each passes.
+/// FaceLoopT1 defines a functor taking the type that boost::mpl::for_each passes.
 /// It is the core of the looping mechanism over Faces.
-/// This FaceLoopT is independent of the physics
+/// This FaceLoopT1 is independent of the physics
 template < typename ACTION >
-struct FaceLoopT : public FaceLoop
+struct FaceLoopT1 : public FaceLoop
 {
   /// Constructor
-  FaceLoopT( const std::string& name ) : FaceLoop(name) {  regist_typeinfo(this); }
+  FaceLoopT1( const std::string& name ) : FaceLoop(name) {  regist_typeinfo(this); }
 
   /// Get the class name
-  static std::string type_name () { return "FaceLoopT<" + ACTION::type_name() + ">"; }
+  static std::string type_name () { return "FaceLoopT1<" + ACTION::type_name() + ">"; }
 
   /// execute the action
   virtual void execute ()
@@ -105,7 +105,7 @@ struct FaceLoopT : public FaceLoop
     }
   }
 
-}; // FaceLoopT
+}; // FaceLoopT1
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

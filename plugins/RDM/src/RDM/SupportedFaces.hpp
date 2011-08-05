@@ -47,7 +47,7 @@ typedef boost::mpl::vector<
   Mesh::SF::Quad3DLagrangeP1
 > FaceTypes3D;
 
-typedef boost::mpl::copy< FaceTypes2D, boost::mpl::back_inserter< FaceTypes3D > >::type AllCellTypes;
+typedef boost::mpl::copy< FaceTypes2D, boost::mpl::back_inserter< FaceTypes3D > >::type AllFaceTypes;
 
 //------------------------------------------------------------------------------------------
 

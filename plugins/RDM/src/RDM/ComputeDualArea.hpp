@@ -7,7 +7,17 @@
 #ifndef CF_RDM_ComputeDualArea_hpp
 #define CF_RDM_ComputeDualArea_hpp
 
+#include "Common/OptionComponent.hpp"
+
 #include "Math/Checks.hpp"
+
+#include "Mesh/CTable.hpp"
+#include "Mesh/ElementData.hpp"
+#include "Mesh/CField.hpp"
+#include "Mesh/CFieldView.hpp"
+#include "Mesh/CNodes.hpp"
+#include "Mesh/ElementType.hpp"
+#include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/CellTerm.hpp"
 
@@ -88,12 +98,21 @@ protected: // helper functions
     cf_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock()->data_ptr();
-    residual   = cresidual.lock()->data_ptr();
-    wave_speed = cwave_speed.lock()->data_ptr();
   }
 
 protected: // data
 
+  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
+
+  /// pointer to solution table, may reset when iterating over element types
+  Mesh::CTable<Real>::Ptr solution;
+  /// pointer to connectivity table, may reset when iterating over element types
+  Mesh::CTable<Uint>::Ptr connectivity_table;
+  /// pointer to nodes coordinates, may reset when iterating over element types
+  Mesh::CTable<Real>::Ptr coordinates;
+
+  /// helper object to compute the quadrature information
+  const QD& m_quadrature;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +120,7 @@ protected: // data
 
 
 template<typename SF, typename QD>
-ComputeDualArea::Term<SF,QD,PHYS>::ComputeDualArea::Term ( const std::string& name ) :
+ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   CLoopOperation(name),
   m_quadrature( QD::instance() )
 {
@@ -113,10 +132,10 @@ ComputeDualArea::Term<SF,QD,PHYS>::ComputeDualArea::Term ( const std::string& na
         Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &csolution));
 
   m_options["Elements"]
-      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD,PHYS>::change_elements, this ) );
+      .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations
-
+#if 0
   // Values of shape functions in reference space
   typename SF::ShapeFunctionsT ValueSF;
 
@@ -132,6 +151,7 @@ ComputeDualArea::Term<SF,QD,PHYS>::ComputeDualArea::Term ( const std::string& na
 
     Ni.row(q) = ValueSF.transpose();
   }
+#endif
 }
 
 

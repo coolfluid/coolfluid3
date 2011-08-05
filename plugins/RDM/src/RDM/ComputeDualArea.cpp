@@ -24,7 +24,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
+Common::ComponentBuilder < CellLoopT1< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
 
 Common::ComponentBuilder < ComputeDualArea, Solver::Action, LibRDM > ComputeDualArea_Builder;
 
@@ -40,17 +40,31 @@ ComputeDualArea::~ComputeDualArea() {}
 void ComputeDualArea::execute()
 {
 
-  ElementLoop& loop = access_element_loop( type_name() );
+  // ensure that the fields are present
+
+  link_fields();
+
+  // get the element loop or create it if does not exist
+
+  ElementLoop::Ptr loop;
+  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  if( is_null( cloop ) )
+  {
+    loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT1<" + type_name() + ">" , "LOOP");
+    add_component(loop);
+  }
+  else
+    loop = cloop->as_ptr_checked<ElementLoop>();
 
   // loop on all regions configured by the user
 
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
-    loop.select_region( region );
+    loop->select_region( region );
 
     // loop all elements of this region
 
-    loop.execute();
+    loop->execute();
   }
 }
 
