@@ -113,20 +113,13 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   }
 
   // must be in correct order!
-//  std::cout << "1" << std::endl;
   write_header(file);
-//  std::cout << "2" << std::endl;
   m_cf_2_gmsh_node->clear();
   m_cf_2_gmsh_node->reserve(CElements::used_nodes(*m_mesh->topology().as_non_const()).size());
-//  std::cout << "3" << std::endl;
   write_coordinates(file);
-//  std::cout << "4" << std::endl;
   write_connectivity(file);
-//  std::cout << "5" << std::endl;
   write_elem_nodal_data(file);
-//  std::cout << "6" << std::endl;
   write_nodal_data(file);
-//  std::cout << "7" << std::endl;
   //write_element_data(file);
   file.close();
   m_cf_2_gmsh_node->clear();
@@ -299,7 +292,6 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
           nb_elements += elements.size();
         }
       }
-
       // data_header
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
@@ -366,7 +358,6 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
                 /// evaluate field shape function in element_node
                 RealVector node_data = field_view.space().shape_function().value(local_coords)*field_data;
                 cf_assert(node_data.size() == var_type);
-
 
                 if (var_type==CField::TENSOR_2D)
                 {
