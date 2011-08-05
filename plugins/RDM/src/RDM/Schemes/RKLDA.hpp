@@ -116,7 +116,6 @@ protected: // helper function
 
     rkalphas.resize(rkorder,rkorder);
     rkbetas.resize(rkorder,rkorder);
-    rkcoeff.resize(rkorder);
 
     switch( rkorder )
     {
@@ -124,54 +123,45 @@ protected: // helper function
 
       rkalphas(0,0) = 1.;
 
-      rkcoeff[0] =  1.0 ;
-
       rkbetas(0,0) =  0.;
 
       break;
 
     case 2:
 
-      rkalphas(0,0) =  0.  ;
+      rkalphas(0,0) =  1.  ;
       rkalphas(1,0) =  0.  ;
       rkalphas(0,1) =  0.5 ;
       rkalphas(1,1) =  0.5 ;
 
-      rkcoeff[0] =   1.0 ;
-      rkcoeff[1] =   1.0 ;
-
       rkbetas (0,0) =  0.0;
-      rkbetas (0,1) = -1.0;
-      rkbetas (1,0) =  0.0;
+      rkbetas (0,1) =  0.0;
+      rkbetas (1,0) = -1.0;
       rkbetas (1,1) =  1.0;
 
       break;
 
     case 3:
 
-      rkalphas(0,0) = 0.    ;
-      rkalphas(1,0) = 0.    ;
-      rkalphas(2,0) = 0.    ;
-      rkalphas(0,1) = 0.25  ;
+      rkalphas(0,0) = 1.    ;
+      rkalphas(0,1) = 0.    ;
+      rkalphas(0,2) = 0.    ;
+      rkalphas(1,0) = 0.25  ;
       rkalphas(1,1) = 0.25  ;
-      rkalphas(2,1) = 0.    ;
-      rkalphas(0,2) = 1./6. ;
-      rkalphas(1,2) = 1./6. ;
+      rkalphas(1,2) = 0.    ;
+      rkalphas(2,0) = 1./6. ;
+      rkalphas(2,1) = 1./6. ;
       rkalphas(2,2) = 2./3. ;
 
-      rkcoeff[0] =    1.0 ;
-      rkcoeff[1] =    0.5 ;
-      rkcoeff[2] =    2.0 ;
-
-      rkbetas(0,0) = 0.  ;
-      rkbetas(0,1) = -0.5 ;
-      rkbetas(0,2) = -2. ;
-      rkbetas(1,0) = 0. ;
-      rkbetas(1,1) = 0. ;
-      rkbetas(1,2) = 0. ;
-      rkbetas(2,0) = 0. ;
-      rkbetas(2,1) = 0.5 ;
-      rkbetas(2,2) = 2. ;
+      rkbetas(0,0) =  0.  ;
+      rkbetas(0,1) =  0.  ;
+      rkbetas(0,2) =  0.  ;
+      rkbetas(1,0) = -0.5 ;
+      rkbetas(1,1) =  0.5 ;
+      rkbetas(1,2) =  0.  ;
+      rkbetas(2,0) = -2.  ;
+      rkbetas(2,1) =  0.  ;
+      rkbetas(2,2) =  2.  ;
 
       break ;
 
@@ -179,7 +169,6 @@ protected: // helper function
 
     std::cout << "rkalphas  :\n" << rkalphas << std::endl;
     std::cout << "rkbetas   :\n" << rkbetas  << std::endl;
-    std::cout << "rkcoeff   :\n" << rkcoeff  << std::endl;
 
   }
 
@@ -191,7 +180,6 @@ protected: // data
 
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
-  RealVector rkcoeff;   ///< matrix with the coefficients that multiply du_s
 
   std::vector< Mesh::CField::Ptr > ksolutions;  ///< solution fields at different k steps
 
@@ -214,8 +202,6 @@ protected: // data
   typename B::PhysicsVT  DvPlus [SF::nb_nodes];
   /// du_s
   typename B::SolutionMT du;
-  /// mass matrix
-  typename B::MassMT mass;
 
 };
 
@@ -225,7 +211,7 @@ template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
 
-  std::cout << "cell [" << B::idx() << "]" << std::endl;
+                                                                                std::cout << "cell [" << B::idx() << "]" << std::endl;
 
   // get element connectivity
 
@@ -247,7 +233,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   B::X_q  = B::Ni * B::X_n;
 
-
   // Jacobian of transformation phys -> ref:
   //    |   dx/dksi    dx/deta    |
   //    |   dy/dksi    dy/deta    |
@@ -262,8 +247,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
     }
   }
-
-  mass.setZero();
 
   // Fill Jacobi matrix (matrix of transformation phys. space -> ref. space) at qd. point q
 
@@ -300,22 +283,18 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
   // compute transformed integration weights (sum is element area)
   B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
 
-  mass += B::Ni.row(q).transpose() * B::Ni.row(q) * B::wj[q] ;
-
   } // loop over quadrature points
-
-  std::cout << "mass  :\n" << mass << std::endl;
 
   //compute delta u_s
 
-  std::cout << FromHere().short_str() << std::endl;
+                                                                                std::cout << FromHere().short_str() << std::endl;
 
   du.setZero();
 
-  for ( Uint r = 0 ; r < rkorder ; ++r)
+  for ( Uint l = 0 ; l < rkorder ; ++l)
   {
-    std::cout << "field size : " << ksolutions[r]->data().size()
-              << " x " << ksolutions[r]->data().row_size()
+    std::cout << "field size : " << ksolutions[l]->data().size()
+              << " x " << ksolutions[l]->data().row_size()
               << std::endl;
 
     for ( Uint n = 0 ; n < SF::nb_nodes ; ++n)
@@ -324,52 +303,36 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       {
         std::cout << "accessing [" << n << "] [" << eq << "]" << std::endl;
 
-        du(n,eq) += rkbetas(r,step-1) * ksolutions[r]->data()[ nodes_idx[n] ][eq];
+        du(n,eq) += rkbetas(l,step-1) * ksolutions[l]->data()[ nodes_idx[n] ][eq];
       }
     }
   }
 
-  std::cout << FromHere().short_str() << std::endl;
+                                                                                std::cout << FromHere().short_str() << std::endl;
+ // add mass matrix contribution
+ for ( Uint q = 0; q < QD::nb_points ; ++q)                                     // loop over each quadrature point
+ {
+     for ( Uint n = 0; n < SF::nb_nodes; ++n)                                   // loop over each node
+     {
+         for ( Uint eq = 0; eq < PHYS::MODEL::_neqs ; ++eq)                     // loop over each variable
+         {
+             (*B::residual)[nodes_idx[n]][eq] = - B::Ni(q,n) * B::wj[q] * du(n,eq);
+         }
+     }
+ }
+                                                                                //--------------------------------------------
 
-  {
-    // add mass matrix contribution
-    for (Uint n=0; n<SF::nb_nodes; ++n)
+                                                                                std::cout << FromHere().short_str() << std::endl;
+
+    for ( Uint l = 0 ; l < rkorder ; ++l)
     {
-      for ( Uint s=0; s< SF::nb_nodes; ++s)
-      {
-        for ( Uint eq=0 ; eq<PHYS::MODEL::_neqs ; ++eq)
-        {
-            (*B::residual)[nodes_idx[n]][eq] = mass(n,s) * rkcoeff[step - 1] * du(s,eq);
-
-            // For triangles only
-//            if ( n==s )
-//            {
-
-//                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 2. * rkcoeff[step - 1] * du(s,eq);
-//            }
-//            else
-//            {
-
-//                (*B::residual)[nodes_idx[n]][eq] = 1. / 12. * 1. * rkcoeff[step - 1] * du(s,eq);
-//            }
-        }
-      }
-    }
-  }
-
-  std::cout << FromHere().short_str() << std::endl;
-
-  std::cout << "Jq :\n" << B::jacob << std::endl;
-
-  for ( Uint r = 0 ; r < step ; ++r)
-  {
 
     // copy the solution from the large array to a small
 
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
       {
-        B::U_n(n,v) = ksolutions[r]->data()[ nodes_idx[n] ][v];
+        B::U_n(n,v) = ksolutions[l]->data()[ nodes_idx[n] ][v];
       }
 
     // solution at all quadrature points in physical space
@@ -387,7 +350,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    std::cout << FromHere().short_str() << std::endl;
+                                                                                std::cout << FromHere().short_str() << std::endl;
 
     // L(N)+ @ each quadrature point
 
@@ -421,17 +384,9 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       // compute L(u)
 
-
-
-      std::cout << FromHere().short_str() << std::endl;
       PHYS::residual(B::phys_props,
                      B::dFdU,
                      B::LU );
-      std::cout << FromHere().short_str() << std::endl;
-
-
-
-
 
       // compute L(N)+
 
@@ -445,30 +400,40 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       // compute the phi_i LDA integral
 
-      LUwq = InvKi_n * B::LU * B::wj[q];
+//      LUwq = InvKi_n * B::LU * B::wj[q];
 
-      for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
-        B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-      // save the phi_i
-      // save B::Phi_n.row
-      //Phin.row() += Phi_n.row(n) ;
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//      B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
       // compute contribution to wave_speed
 
       for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
         (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
     } // loop over each quadrature point
+
+
+    for (Uint q = 0 ; q < QD::nb_points ; ++q) // loop over each quadrature point
+    {
+        for(Uint n = 0 ; n < SF::nb_nodes ; ++n)
+        {
+            for (Uint s=0; s<SF::nb_nodes; ++s)
+            {
+                B::Phi_n.row(n) += Ki_n[n] * InvKi_n * ( B::Ni(q,s) * du.row(n).transpose() + dt * rkalphas(step-1,l) * B::LU ) * B::wj[q];
+            }
+        }
+    } // loop over each quadrature point
+
+    } // loop over each l for the same step
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // update the residual (according to k)
     std::cout << FromHere().short_str() << std::endl;
     for (Uint n=0; n<SF::nb_nodes; ++n)
-      {
+    {
         for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
-          (*B::residual)[nodes_idx[n]][eq] += rkalphas(r,step - 1) * dt * B::Phi_n(n,eq);
-      }
-      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  }
+        {
+            (*B::residual)[nodes_idx[n]][eq] += B::Phi_n(n,eq) ;
+        }
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 //#endif
 
