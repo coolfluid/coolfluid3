@@ -203,8 +203,8 @@ protected: // data
   typename B::PhysicsVT  du_l;
   /// diagonal matrix with positive eigen values
   typename B::PhysicsVT  DvPlus [SF::nb_nodes];
-  /// du_s
-  typename B::SolutionMT du;
+  /// Eigen structure for the solutions for the different k steps (defined for RK4 but works with lower orders)
+  typename B::SolutionMT sols_l [4];
 
 };
 
@@ -220,12 +220,12 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
-  // there isn't a way to compute it automatically, yet
-  // it's necessary to define s
-  /// @todo lumped and not lumped in the same line
+  // fill sols_l with the solutions untill the current step
+  for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
+    for(Uint n = 0; n < SF::nb_nodes; ++n)
+      for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
+        sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
 
-  ///////     ////////////////////////////////////////////////////////       ///////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   /// @todo must be tested for 3D
 
   // copy the coordinates from the large array to a small
@@ -290,7 +290,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   } // loop quadrature points
 
-// std::cout << FromHere().short_str() << std::endl;
+  // std::cout << FromHere().short_str() << std::endl;
 
   // zero element residuals
 
@@ -300,9 +300,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
   {
     // copy the solution from the global array to a local (Eigen) matrix
 
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
-        B::U_n(n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
+    B::U_n = sols_l[l];
 
     // interpolate solution at all quadrature points in physical space
 
@@ -312,8 +310,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
     for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
       B::dUdX[dim] = B::dNdX[dim] * B::U_n;
-
-    //--------------------------------------------------------------------------------------
 
     // L(N)+ @ each quadrature point
 
@@ -364,8 +360,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
       du_l.setZero();
 
-//      for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
-//        du_l += B::Ni(q,j) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[j] ][eq];
+      for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
+        du_l += B::Ni(q,j) * rkbetas(k,l) * sols_l[l].row(j);
 
 
       // compute the phi_i integral
@@ -373,8 +369,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       for(Uint i = 0 ; i < SF::nb_nodes ; ++i)
         B::Phi_n.row(i) += (
                               Ki_n[i] * InvKi_n * ( du_l + dt * rkalphas(k,l) * B::LU )
-//                             -
-//                              B::Ni(q,i) * rkbetas(k,l) * ksolutions[l]->data()[ nodes_idx[i] ][eq]
+                             -
+                              B::Ni(q,i) * rkbetas(k,l) * sols_l[l].row(i).transpose()
                            )
                            * B::wj[q];
 
