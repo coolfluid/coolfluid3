@@ -12,6 +12,7 @@
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CEntities.hpp"
+#include "Mesh/CElements.hpp"
 
 namespace CF {
 namespace Common
@@ -95,9 +96,13 @@ public: // functions
 
   bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
 
-  const std::string& space() const { return m_space; }
+  const std::string& space() const { return field_group().space(); }
 
-  CSpace& space(const CEntities& entities) const { return entities.space(m_space); }
+  CSpace& space(const CEntities& entities) const { return entities.space(field_group().space()); }
+
+  boost::iterator_range< Common::ComponentIterator<CEntities> > entities_range() { return field_group().entities_range(); }
+
+  boost::iterator_range< Common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
 
 private:
 
@@ -108,7 +113,6 @@ private:
   std::vector<VarType> m_var_types;
 
   FieldGroup::Basis::Type m_basis;
-  std::string m_space;
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
