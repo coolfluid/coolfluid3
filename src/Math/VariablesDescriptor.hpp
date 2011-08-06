@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_VariablesDescriptor_hpp
-#define CF_Physics_VariablesDescriptor_hpp
+#ifndef CF_Math_VariablesDescriptor_hpp
+#define CF_Math_VariablesDescriptor_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,22 +13,21 @@
 
 #include "Common/Component.hpp"
 
-#include "Physics/LibPhysics.hpp"
+#include "Math/LibMath.hpp"
 
 namespace CF {
 
-namespace Physics {
+namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Holds information related to a set of variables that are stored in the same field.
 /// Provides options:
-/// field_name: Name of the CField that will store the variables
 /// For each variable, an option composed of lowercase(internal variable name) + _variable_name
 /// dimensions: Dimension of the problem (i.e. number of spatial coordinates used)
 /// @author Bart Janssens
 /// @author Tiago Quintino
-class Physics_API VariablesDescriptor : public Common::Component {
+class Math_API VariablesDescriptor : public Common::Component {
 
 public: //typedefs
 
@@ -55,11 +54,11 @@ public: // functions
   /// SCALAR
   /// VECTOR: dimension of the problem
   /// TENSOR: rank 2 tensor with the dimension of the problem
-  struct Physics_API Dimensionalities
+  struct Math_API Dimensionalities
   {
     enum Type { INVALID=-1, SCALAR=1, VECTOR=-2, TENSOR=-3};
 
-    struct Physics_API Convert : public Common::EnumT< Dimensionalities >
+    struct Math_API Convert : public Common::EnumT< Dimensionalities >
     {
       /// constructor where all the converting maps are built
       Convert();
@@ -83,12 +82,6 @@ public: // functions
   /// Throws if dimensions is not set
   /// @param name Internal name of the variable
   Uint offset(const std::string& name);
-  
-  /// Field name for the stored variables, i.e. the name that the CField associated with these variables will have
-  const std::string& field_name() const;
-  
-  /// Sets the field name
-  void set_field_name(const std::string& name);
   
   /// Return the user-defined name of a variable
   /// @param name Internal name of the variable
@@ -114,9 +107,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // Math
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Physics_VariablesDescriptor_hpp
+#endif // CF_Math_VariablesDescriptor_hpp

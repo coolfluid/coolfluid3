@@ -36,6 +36,12 @@ set( utest-eigen-vs-matrixt_performance_test TRUE )
 add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
 coolfluid_add_unit_test( utest-eigen-vs-matrixt )
 
+################################################################################
+
+list( APPEND utest-math-variablesdescriptor_cflibs coolfluid_physics )
+list( APPEND utest-math-variablesdescriptor_files  utest-math-variablesdescriptor.cpp )
+
+coolfluid_add_unit_test( utest-math-variablesdescriptor )
 
 #if( CMAKE_COMPILER_IS_GNUCC )
 #    set_source_files_properties( utest-eigen-vs-matrixt.cpp

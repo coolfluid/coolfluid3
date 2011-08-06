@@ -16,10 +16,10 @@
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 
-#include "Physics/VariablesDescriptor.hpp"
+#include "Math/VariablesDescriptor.hpp"
 
 namespace CF {
-namespace Physics {
+namespace Math {
 
 using namespace Common;
 
@@ -39,12 +39,6 @@ struct VariablesDescriptor::Implementation
       ->mark_basic()
       ->link_to(&m_dim)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
-      
-    m_component.options().add_option< OptionT<std::string> >("field_name", m_component.name())
-      ->pretty_name("Field Name")
-      ->description("Name for the field that will store the variables described here")
-      ->mark_basic()
-      ->link_to(&m_field_name);
   }
 
   //////////////// Interface implementation /////////////////////
@@ -221,9 +215,6 @@ struct VariablesDescriptor::Implementation
   /////////////// data //////////////
 
   Component& m_component;
-
-  /// Name of the field
-  std::string m_field_name;
   
   /// dimensionality of physics
   Uint m_dim;
@@ -306,20 +297,6 @@ Uint VariablesDescriptor::offset(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const std::string& VariablesDescriptor::field_name() const
-{
-  return m_implementation->m_field_name;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void VariablesDescriptor::set_field_name(const std::string& name)
-{
-  configure_option("field_name", name);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 const std::string& VariablesDescriptor::user_variable_name(const std::string& name) const
 {
   return m_implementation->user_variable_name(name);
@@ -341,5 +318,5 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // Math
 } // CF
