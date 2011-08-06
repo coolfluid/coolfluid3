@@ -100,6 +100,7 @@ struct VariablesDescriptor::Implementation
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
     const boost::regex e_vector("v(ec(tor)?)?",boost::regex::perl|boost::regex::icase);
     const boost::regex e_tensor("t(ens(or)?)?",boost::regex::perl|boost::regex::icase);
+    const boost::regex e_array("[2-9][0-9]*");
     
     std::vector<std::string> tokenized_variables;
     boost::split(tokenized_variables, description, boost::is_any_of(","));
@@ -129,6 +130,18 @@ struct VariablesDescriptor::Implementation
         {
           types_to_add.push_back(Dimensionalities::TENSOR);
         }
+        else if(boost::regex_match(var_type,e_array)) // Match varname[n] and create n scalars as a result
+        {
+          Uint nb_scalars = from_str<Uint>(var_type);
+          const std::string basename = names_to_add.back();
+          names_to_add.back() = basename + "1";
+          types_to_add.push_back(Dimensionalities::SCALAR);
+          for(Uint i = 1; i != nb_scalars;)
+          {
+            names_to_add.push_back(basename + to_str(++i));
+            types_to_add.push_back(Dimensionalities::SCALAR);
+          }
+        }
         else
         {
           throw ParsingFailed(FromHere(), "Type " + var_type + " deduced from " + var + " is not recognized");
@@ -140,7 +153,7 @@ struct VariablesDescriptor::Implementation
       }
     }
     
-    for(Uint i = 0; i != nb_vars; ++i)
+    for(Uint i = 0; i != names_to_add.size(); ++i)
     {
       push_back(names_to_add[i], types_to_add[i]);
     }

@@ -82,7 +82,20 @@ BOOST_AUTO_TEST_CASE( ParseString )
   
   BOOST_CHECK_EQUAL(descriptor->size(), 7);
   BOOST_CHECK_EQUAL(descriptor->description(), "a[1],b[2],c[4]");
+}
+
+// Test parsing of string to batch-add variables, adding many scalars at a time
+BOOST_AUTO_TEST_CASE( ParseStringArray )
+{
+  VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
   
+  descriptor->configure_option("dimensions", 2u);
+  
+  // Add 5 scalars
+  descriptor->set_variables("a[5]");
+  
+  BOOST_CHECK_EQUAL(descriptor->size(), 5);
+  BOOST_CHECK_EQUAL(descriptor->description(), "a1[1],a2[1],a3[1],a4[1],a5[1]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

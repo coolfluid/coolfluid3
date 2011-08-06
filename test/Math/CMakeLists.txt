@@ -38,7 +38,7 @@ coolfluid_add_unit_test( utest-eigen-vs-matrixt )
 
 ################################################################################
 
-list( APPEND utest-math-variablesdescriptor_cflibs coolfluid_physics )
+list( APPEND utest-math-variablesdescriptor_cflibs coolfluid_math )
 list( APPEND utest-math-variablesdescriptor_files  utest-math-variablesdescriptor.cpp )
 
 coolfluid_add_unit_test( utest-math-variablesdescriptor )
