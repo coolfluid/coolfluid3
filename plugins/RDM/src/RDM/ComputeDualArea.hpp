@@ -54,6 +54,10 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute();
 
+protected: // helper functions
+
+  void create_dual_area_field();
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +139,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations
-#if 0
+
   // Values of shape functions in reference space
   typename SF::ShapeFunctionsT ValueSF;
 
@@ -151,7 +155,6 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
     Ni.row(q) = ValueSF.transpose();
   }
-#endif
 }
 
 
@@ -159,7 +162,6 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 template<typename SF,typename QD >
 void ComputeDualArea::Term<SF,QD>::execute()
 {
-#if 0
   using namespace CF::Math;
 
   // get element connectivity
@@ -172,60 +174,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
-    B::sol_gradients_at_qdpoint(q);
-
-    // compute properties in this quadrature point
-
-    PHYS::compute_properties(B::X_q.row(q),
-                             B::U_q.row(q),
-                             B::dUdXq,
-                             B::phys_props);
-
-    // for every state, project the jacob eigen structure
-    // onto the direction given by the gradient, computing the Ki+
-
-    for(Uint n=0; n < SF::nb_nodes; ++n)
-    {
-      B::dN[XX] = B::dNdX[XX](q,n);
-      B::dN[YY] = B::dNdX[YY](q,n);
-
-      PHYS::flux_jacobian_eigen_structure(B::phys_props, B::dN, Rv, Lv, Dv);
-
-      // diagonal matrix of positive eigen values
-
-      DvPlus[n] = Dv.unaryExpr(std::ptr_fun(plus)); /* WORKS */
-
-      Ki_n[n] = Rv * DvPlus[n].asDiagonal() * Lv;
-    }
-
-    // compute the PDE residual L(u)
-
-    PHYS::residual( B::phys_props, B::dFdU, B::LU );
-
-    // compute L(N)+
-
-    sumLplus = Ki_n[0];
-    for(Uint n = 1; n < SF::nb_nodes; ++n)
-      sumLplus += Ki_n[n];
-
-    // invert the sum L plus
-
-    InvKi_n = sumLplus.inverse();
-
-    // compute the phi_i ComputeDualArea intergral
-
-    LUwq = InvKi_n * B::LU * B::wj[q];
-
-//    LUwq.unaryExpr(std::ptr_fun(lolo));  /* NOT CALLLED ??? */
-
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      B::Phi_n.row(n) +=  Ki_n[n] * LUwq;
-
-    // compute the wave_speed for scaling the update
-
-    for(Uint n = 0; n < SF::nb_nodes; ++n)
-      (*B::wave_speed)[nodes_idx[n]][0] += DvPlus[n].maxCoeff() * B::wj[q];
-
+    wi += Ni * wj[q];
 
   } // loop qd points
 
@@ -233,7 +182,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   for (Uint n=0; n<SF::nb_nodes; ++n)
     for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
-      (*B::residual)[nodes_idx[n]][v] += B::Phi_n(n,v);
+      (*dual_area)[nodes_idx[n]][v] += B::Phi_n(n,v);
 
 #endif
 

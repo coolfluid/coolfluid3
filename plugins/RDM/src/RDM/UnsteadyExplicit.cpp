@@ -35,6 +35,7 @@
 #include "RDM/Reset.hpp"
 #include "RDM/RK.hpp"
 #include "RDM/SetupMultipleSolutions.hpp"
+#include "RDM/ComputeDualArea.hpp"
 
 #include "UnsteadyExplicit.hpp"
 
@@ -142,6 +143,10 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
   solver.prepare_mesh().append(setup);
 
   setup->configure_option( "nb_levels", rkorder );
+
+  ComputeDualArea::Ptr dual_area = allocate_component<ComputeDualArea>("ComputeDualArea");
+  solver.prepare_mesh().append(dual_area);
+
 
 
   // (5) configure domain, physical model and solver in all subcomponents

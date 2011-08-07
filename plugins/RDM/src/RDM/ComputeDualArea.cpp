@@ -37,12 +37,18 @@ ComputeDualArea::ComputeDualArea ( const std::string& name ) : RDM::CellTerm(nam
 
 ComputeDualArea::~ComputeDualArea() {}
 
+void ComputeDualArea::create_dual_area_field()
+{
+  // create if does not exist
+}
+
 void ComputeDualArea::execute()
 {
-
   // ensure that the fields are present
 
   link_fields();
+
+  create_dual_area_field();
 
   // get the element loop or create it if does not exist
 
