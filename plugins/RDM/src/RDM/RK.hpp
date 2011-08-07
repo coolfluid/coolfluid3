@@ -47,8 +47,8 @@ private: // data
   boost::weak_ptr<Mesh::CField> m_solution;
   /// residual field pointer
   boost::weak_ptr<Mesh::CField> m_residual;
-  /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
+  /// dual_area field pointer
+  boost::weak_ptr<Mesh::CField> m_dual_area;
 
 };
 

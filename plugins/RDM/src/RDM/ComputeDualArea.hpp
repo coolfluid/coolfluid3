@@ -54,9 +54,15 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute();
 
+  Mesh::CField& dual_area() { return *cdual_area.lock(); }
+
 protected: // helper functions
 
   void create_dual_area_field();
+
+private: // data
+
+  boost::weak_ptr< Mesh::CField > cdual_area;  ///< dual area
 
 };
 
@@ -102,14 +108,26 @@ protected: // helper functions
     cf_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock()->data_ptr();
+    dual_area   = parent().as_type<ComputeDualArea>().dual_area().data_ptr();
   }
+
+protected: // typedefs
+
+  typedef typename SF::NodeMatrixT                          NodeMT;
+  typedef Eigen::Matrix<Real, QD::nb_points, 1u>            WeightVT;
+  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>  SFMatrixT;
+  typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >            SFVectorT;
+  typedef Eigen::Matrix<Real, QD::nb_points, SF::dimension> QCoordMT;
+  typedef Eigen::Matrix<Real, SF::dimension, SF::dimension> JMT;
 
 protected: // data
 
-  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
+  boost::weak_ptr< Mesh::CField > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr solution;
+  /// pointer to dual area table
+  Mesh::CTable<Real>::Ptr dual_area;
   /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
   /// pointer to nodes coordinates, may reset when iterating over element types
@@ -117,6 +135,26 @@ protected: // data
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
+
+  /// node values
+  NodeMT     X_n;
+  /// interporlation matrix - values of shapefunction at each quadrature point
+  SFMatrixT  Ni;
+  /// derivative matrix - values of shapefunction derivative in Ksi at each quadrature point
+  SFMatrixT  dNdKSI[SF::dimension];
+  /// local dual area, per node per element
+  SFVectorT  wi;
+  /// Jacobi matrix at each quadrature point
+  JMT JM;
+  /// coordinates of quadrature points in physical space
+  QCoordMT X_q;
+  /// stores dX/dksi and dx/deta at each quadrature point, one matrix per dimension
+  QCoordMT dX[SF::dimension];
+  /// jacobian of transformation at each quadrature point
+  WeightVT jacob;
+  /// Integration factor (jacobian multiplied by quadrature weight)
+  WeightVT wj;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -166,25 +204,49 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[idx()];
 
-  B::interpolate( nodes_idx );
+  // copy the coordinates from the large array to a small
 
-  // L(N)+ @ each quadrature point
+  Mesh::fill(X_n, *coordinates, nodes_idx );
+
+  // interpolation of coordinates to quadrature points
+
+  X_q  = Ni * X_n;
+
+  // interpolation of gradients to quadrature points
+
+  for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
+    for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
+      dX[dimx].col(dimksi) = dNdKSI[dimksi] * X_n.col(dimx);
+
+  // sum @ each quadrature point
+
+  wi.setZero();
 
   for(Uint q=0; q < QD::nb_points; ++q)
   {
-    wi += Ni * wj[q];
+
+    // jacobian of transformation phys -> ref:
+
+    for(Uint dimx = 0; dimx < SF::dimension; ++dimx)
+      for(Uint dimksi = 0; dimksi < SF::dimension; ++dimksi)
+        JM(dimksi,dimx) = dX[dimx](q,dimksi);
+
+    jacob[q] = JM.determinant();
+
+    // integration point weight
+
+    wj[q] = jacob[q] * m_quadrature.weights[q];
+
+    wi += Ni.row(q).transpose() * wj[q];
 
   } // loop qd points
 
   // update the residual
 
   for (Uint n=0; n<SF::nb_nodes; ++n)
-    for (Uint v=0; v < PHYS::MODEL::_neqs; ++v)
-      (*dual_area)[nodes_idx[n]][v] += B::Phi_n(n,v);
-
-#endif
+    (*dual_area)[nodes_idx[n]][0] += wi[n];
 
 }
 

@@ -5,13 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
-
+#include "Common/CLink.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 
-
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CField.hpp"
 
+#include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/ComputeDualArea.hpp"
 
@@ -39,7 +41,24 @@ ComputeDualArea::~ComputeDualArea() {}
 
 void ComputeDualArea::create_dual_area_field()
 {
+  CMesh& mymesh = mesh();
+
   // create if does not exist
+
+  CField::Ptr comp = find_component_ptr_with_tag<Mesh::CField>( mymesh, Tags::dual_area());
+  if( is_null( comp ) )
+  {
+    comp = mymesh.create_scalar_field(Tags::dual_area(), solution()).as_ptr<Mesh::CField>();
+    comp->add_tag(Tags::dual_area());
+  }
+
+  cdual_area = comp;
+
+  RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
+  CGroup& fields = mysolver.fields();
+
+  if( ! fields.get_child_ptr( Tags::dual_area() ) )
+    fields.create_component<CLink>( Tags::dual_area() ).link_to(comp).add_tag( Tags::dual_area() );
 }
 
 void ComputeDualArea::execute()

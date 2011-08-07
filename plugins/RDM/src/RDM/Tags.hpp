@@ -24,9 +24,10 @@ public:
   static const char * fields()         { return "Fields";  }
   static const char * actions()        { return "Actions"; }
 
+  static const char * solution()      { return "solution"; }
   static const char * residual()      { return "residual"; }
   static const char * wave_speed()    { return "wave_speed"; }
-  static const char * solution()      { return "solution"; }
+  static const char * dual_area()     { return "dual_area"; }
 
   static const char * update_vars()   { return "update_vars"; }
 
