@@ -42,9 +42,9 @@ struct CellLoop : public ElementLoop
       term = parent().template create_component_ptr< TermT >( TermT::type_name() );
 
       // configure the fields
-      term->configure_option( Tags::solution(),   parent().as_type<CellTerm>().solution().uri()   );
-      term->configure_option( Tags::residual(),   parent().as_type<CellTerm>().residual().uri()   );
-      term->configure_option( Tags::wave_speed(), parent().as_type<CellTerm>().wave_speed().uri() );
+      term->configure_option_recursively( Tags::solution(),   parent().as_type<CellTerm>().solution().uri()   );
+      term->configure_option_recursively( Tags::residual(),   parent().as_type<CellTerm>().residual().uri()   );
+      term->configure_option_recursively( Tags::wave_speed(), parent().as_type<CellTerm>().wave_speed().uri() );
     }
     else
       term = cterm->as_ptr_checked<TermT>();

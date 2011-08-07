@@ -15,20 +15,20 @@
 
 #include "CActionDirector.hpp"
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Common {
 
 ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder;
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
   m_options.add_option< OptionArrayT<std::string> >("ActionOrder", std::vector<std::string>())
       ->description("Names of the actions to execute in sequence");
 }
+
 
 void CActionDirector::execute()
 {
@@ -55,10 +55,12 @@ void CActionDirector::execute()
   }
 }
 
+
 CActionDirector& CActionDirector::append(CAction& action)
 {
   return append(action.as_ptr<CAction>());
 }
+
 
 CActionDirector& CActionDirector::append(const CAction::Ptr& action)
 {
@@ -98,7 +100,6 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 CActionDirector& operator<<(CActionDirector& action_director, CAction& action)
 {
@@ -111,16 +112,13 @@ CActionDirector& operator<<(CActionDirector& action_director, const CAction::Ptr
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////
 
 void CActionDirector::on_action_added(CAction& action)
 {
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Common
 } // CF
-
-/////////////////////////////////////////////////////////////////////////////////////

@@ -93,7 +93,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
   m_time_stepping->append( *m_iterative_solver );
 
   m_prepare_mesh =
-      create_static_component_ptr< CActionDirector >( "SetupFields" );
+      create_static_component_ptr< CActionDirector >( "SetupMesh" );
 
   // for storing links to fields
 

@@ -178,6 +178,8 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   // initializations
 
+  // Gradient of the shape functions in reference space
+  typename SF::MappedGradientT GradSF;
   // Values of shape functions in reference space
   typename SF::ShapeFunctionsT ValueSF;
 
@@ -187,11 +189,18 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   {
     // compute values of all functions in this quadrature point
 
+    SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
     SF::shape_function_value   ( m_quadrature.coords.col(q), ValueSF );
 
     // copy the values to interpolation matrix
 
     Ni.row(q) = ValueSF.transpose();
+
+    // copy the gradients
+
+    for(Uint d = 0; d < SF::dimension; ++d)
+      dNdKSI[d].row(q) = GradSF.row(d);
+
   }
 }
 
@@ -201,6 +210,9 @@ template<typename SF,typename QD >
 void ComputeDualArea::Term<SF,QD>::execute()
 {
   using namespace CF::Math;
+
+//  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
+
 
   // get element connectivity
 
@@ -243,7 +255,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   } // loop qd points
 
-  // update the residual
+  // sum contribution to global table of dual areas
 
   for (Uint n=0; n<SF::nb_nodes; ++n)
     (*dual_area)[nodes_idx[n]][0] += wi[n];

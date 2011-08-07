@@ -63,11 +63,17 @@ void ComputeDualArea::create_dual_area_field()
 
 void ComputeDualArea::execute()
 {
+
+  std::cout << "+++ Compute dual area +++" << std::endl;
+
   // ensure that the fields are present
 
   link_fields();
 
   create_dual_area_field();
+
+  if( m_loop_regions.empty() )
+    m_loop_regions.push_back( mesh().topology().as_ptr<CRegion>() );
 
   // get the element loop or create it if does not exist
 
@@ -85,6 +91,8 @@ void ComputeDualArea::execute()
 
   boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
   {
+    std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
+
     loop->select_region( region );
 
     // loop all elements of this region
