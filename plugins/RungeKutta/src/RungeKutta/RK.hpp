@@ -69,6 +69,8 @@ private:
   boost::shared_ptr<Common::CGroupActions> m_post_update;
   boost::shared_ptr<Solver::Actions::CAdvanceTime> m_advance_time;
 
+  boost::weak_ptr<Solver::CTime> m_time;
+
   boost::weak_ptr<Mesh::CField> m_solution;
   boost::weak_ptr<Mesh::CField> m_residual;
   boost::weak_ptr<Mesh::CField> m_update_coeff;
