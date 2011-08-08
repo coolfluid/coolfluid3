@@ -81,7 +81,7 @@ void RK::execute()
 //  const Uint k = mysolver.iterative_solver().properties().value<Uint>("iteration");
 
 
-/// @todo mayeb better to directly store dual_area inverse
+/// @todo maybe better to directly store dual_area inverse
 
   // implementation of the RungeKutta update step
 
@@ -89,6 +89,7 @@ void RK::execute()
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
   {
+    std::cout << "Dual area [" << i << "] :" << dual_area[i][0] << std::endl;
     for ( Uint j=0; j< nbvars; ++j )
       solution[i][j] += - residual[i][j] / dual_area[i][0];
   }
