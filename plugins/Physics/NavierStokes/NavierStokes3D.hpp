@@ -66,7 +66,8 @@ public: // functions
 
     Real u;                   ///< velocity along XX
     Real v;                   ///< velocity along YY
-    Real uuvv;                ///< u^2 + v^2 + w^2
+    Real w;                   ///< velocity along ZZ
+    Real uuvvww;              ///< u^2 + v^2 + w^2
 
     Real H;                   ///< specific enthalpy
     Real a2;                  ///< square of speed of sound, very commonly used
