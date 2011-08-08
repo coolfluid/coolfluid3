@@ -17,13 +17,14 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:square1x1-tg-p2-2kn.msh
+call Model/Domain/load_mesh file:uri=file:square1x1-tg-p1-7614.msh
+#square1x1-tg-p2-2kn.msh
 
 ### solver
 
 configure Model/RDSolver                                update_vars:string=Burgers2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=300
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
