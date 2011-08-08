@@ -29,6 +29,8 @@ list( APPEND coolfluid_mesh_files
   CFieldView.cpp
   FieldGroup.hpp
   FieldGroup.cpp
+  FieldManager.cpp
+  FieldManager.hpp
   CHash.hpp
   CHash.cpp
   CInterpolator.hpp
