@@ -11,6 +11,7 @@
 #include "RDM/SupportedCells.hpp" // supported cells
 
 #include "Physics/NavierStokes/Cons2D.hpp"       // supported physics
+#include "Physics/NavierStokes/Cons3D.hpp"       // supported physics
 
 #include "RDM/NavierStokes/LibNavierStokes.hpp"
 
@@ -25,6 +26,11 @@ Common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons2D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
                            LDA_Euler2D_Builder;
+
+Common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons3D> ,
+                           RDM::CellLoop,
+                           LibNavierStokes >
+                           LDA_Euler3D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
