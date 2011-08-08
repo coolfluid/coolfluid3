@@ -222,9 +222,12 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   // fill sols_l with the solutions untill the current step
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
+  {
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
         sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
+    std::cout << "Solution [" << l << "] = " << sols_l[l] << std::endl;
+  }
 
   /// @todo must be tested for 3D
 
@@ -271,17 +274,12 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     for(Uint n = 0; n < SF::nb_nodes; ++n)
     {
       for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++ dimksi)
-      {
         B::dNref[dimksi] = B::dNdKSI[dimksi](q,n);
-      }
 
       B::dNphys = B::JMinv * B::dNref;
 
       for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
-      {
-        B::dNdX[dimx](q,n) = B::dNphys[dimx];
-      }
-
+        B::dNdX[dimx](q,n) = B::dNphys[dimx];      
     }
 
     // compute transformed integration weights (sum is element area)
@@ -363,6 +361,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
         du_l += B::Ni(q,j) * rkbetas(k,l) * sols_l[l].row(j);
 
+      std::cout << "du_l : " << du_l << std::endl;
 
       // compute the phi_i integral
 
@@ -383,6 +382,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     } // loop over each quadrature point
 
   } // loop over each l for the same step
+
+  std::cout << "Phi_n : " << Phi_n << std::endl;
 
   // sum the local residual to the global residual
 
