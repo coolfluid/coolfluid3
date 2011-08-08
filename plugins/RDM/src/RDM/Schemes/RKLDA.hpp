@@ -279,7 +279,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       B::dNphys = B::JMinv * B::dNref;
 
       for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++ dimx)
-        B::dNdX[dimx](q,n) = B::dNphys[dimx];      
+        B::dNdX[dimx](q,n) = B::dNphys[dimx];
     }
 
     // compute transformed integration weights (sum is element area)
@@ -383,7 +383,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   } // loop over each l for the same step
 
-  std::cout << "Phi_n : " << Phi_n << std::endl;
+  std::cout << "Phi_n : " << B::Phi_n << std::endl;
 
   // sum the local residual to the global residual
 

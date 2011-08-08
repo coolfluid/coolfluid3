@@ -54,8 +54,8 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-initial.msh
+call Model/Domain/write_mesh file:uri=initial.msh
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=atest-rdm-burgers2d-solution.msh
+call Model/Domain/write_mesh file:uri=solution.msh

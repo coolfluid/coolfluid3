@@ -239,21 +239,21 @@ public: // functions
     // matrix of left eigen vectors L = R.inverse();
 
     Lv(0,0) = nx*k2 - p.inv_rho*(p.v*nz - p.w*ny);
-    Lv(0,1) = gu_a2*nx;
-    Lv(0,2) = gv_a2*nx + nz*p.inv_rho;
-    Lv(0,3) = gw_a2*nx - ny*p.inv_rho;
+    Lv(0,1) = gu_a*nx;
+    Lv(0,2) = gv_a*nx + nz*p.inv_rho;
+    Lv(0,3) = gw_a*nx - ny*p.inv_rho;
     Lv(0,4) = k3*nx;
 
     Lv(1,0) = ny*k2 - p.inv_rho*(p.w*nx - p.u*nz);
-    Lv(1,1) = gu_a2*ny - nz*p.inv_rho;
-    Lv(1,2) = gv_a2*ny;
-    Lv(1,3) = gw_a2*ny + nx*p.inv_rho;
+    Lv(1,1) = gu_a*ny - nz*p.inv_rho;
+    Lv(1,2) = gv_a*ny;
+    Lv(1,3) = gw_a*ny + nx*p.inv_rho;
     Lv(1,4) = k3*ny;
 
     Lv(2,0) = nz*k2 - p.inv_rho*(p.u*ny - p.v*nx);
-    Lv(2,1) = gu_a2*nz + ny*p.inv_rho;
-    Lv(2,2) = gv_a2*nz - nx*p.inv_rho;
-    Lv(2,3) = gw_a2*nz;
+    Lv(2,1) = gu_a*nz + ny*p.inv_rho;
+    Lv(2,2) = gv_a*nz - nx*p.inv_rho;
+    Lv(2,3) = gw_a*nz;
     Lv(2,4) = k3*nz;
 
     Lv(3,0) = p.a*p.inv_rho*(gm2 - um/p.a);
