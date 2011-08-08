@@ -72,21 +72,21 @@ public: // functions
     p.v   = p.rhov * p.inv_rho;
     p.w   = p.rhow * p.inv_rho;
 
-    p.uuvv = p.u*p.u + p.v*p.v + p.w*p.w;
+    p.uuvvww = p.u*p.u + p.v*p.v + p.w*p.w;
 
     p.P = p.gamma_minus_1 * ( p.rhoE - 0.5 * p.rho * p.uuvvww );
 
     if( p.P <= 0. )
     {
-          std::cout << "rho   : " << p.rho  << std::endl;
-          std::cout << "rhou  : " << p.rhou << std::endl;
-          std::cout << "rhov  : " << p.rhov << std::endl;
-          std::cout << "rhow  : " << p.rhow << std::endl;
-          std::cout << "rhoE  : " << p.rhoE << std::endl;
-          std::cout << "P     : " << p.P    << std::endl;
-          std::cout << "u     : " << p.u    << std::endl;
-          std::cout << "v     : " << p.v    << std::endl;
-          std::cout << "uuvv  : " << p.uuvv << std::endl;
+          std::cout << "rho    : " << p.rho    << std::endl;
+          std::cout << "rhou   : " << p.rhou   << std::endl;
+          std::cout << "rhov   : " << p.rhov   << std::endl;
+          std::cout << "rhow   : " << p.rhow   << std::endl;
+          std::cout << "rhoE   : " << p.rhoE   << std::endl;
+          std::cout << "P      : " << p.P      << std::endl;
+          std::cout << "u      : " << p.u      << std::endl;
+          std::cout << "v      : " << p.v      << std::endl;
+          std::cout << "uuvvww : " << p.uuvvww << std::endl;
 
 
       throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
@@ -117,22 +117,23 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-    throw Common::NotImplemented( FromHere(), "" );
+    flux(0,XX) = p.rhou;                       // rho.u
+    flux(1,XX) = p.rhou * p.u + p.P;           // rho.u^2 + P
+    flux(2,XX) = p.rhou * p.rhov * p.inv_rho;  // rho.u.v
+    flux(3,XX) = p.rhou * p.rhow * p.inv_rho;  // rho.u.w
+    flux(4,XX) = p.rhou * p.H;                 // rho.u.H
 
-    flux(0,XX) = p.rhou;              // rho.u
-    flux(1,XX) = p.rhou * p.u + p.P;  // rho.u^2 + P
-    flux(2,XX) = p.rhou * p.rhov * p.inv_rho; // rho.u.v
-    flux(3,XX) = p.rhou * p.H;        // rho.u.H
+    flux(0,YY) = p.rhov;                       // rho.v
+    flux(1,YY) = p.rhov * p.rhou * p.inv_rho;  // rho.v.u
+    flux(2,YY) = p.rhov * p.v + p.P;           // rho.v^2 + P
+    flux(3,YY) = p.rhov * p.rhow * p.inv_rho;  // rho.v.w
+    flux(4,YY) = p.rhov * p.H;                 // rho.v.H
 
-    flux(0,YY) = p.rhov;              // rho.v
-    flux(1,YY) = p.rhou * p.rhov * p.inv_rho; // rho.v.u
-    flux(2,YY) = p.rhov * p.v + p.P;  // rho.v^2 + P
-    flux(3,YY) = p.rhov * p.H;        // rho.v.H
-
-    flux(0,ZZ) = p.rhov;              // rho.v
-    flux(1,ZZ) = p.rhou * p.rhov * p.inv_rho; // rho.v.u
-    flux(2,ZZ) = p.rhov * p.v + p.P;  // rho.v^2 + P
-    flux(3,ZZ) = p.rhov * p.H;        // rho.v.H
+    flux(0,ZZ) = p.rhow;                       // rho.w
+    flux(1,ZZ) = p.rhow * p.rhou * p.inv_rho;  // rho.w.u
+    flux(2,ZZ) = p.rhow * p.rhov * p.inv_rho;  // rho.w.v
+    flux(3,ZZ) = p.rhow * p.w + p.P;           // rho.w^2 + P
+    flux(4,ZZ) = p.rhow * p.H;                 // rho.w.H
   }
 
   /// compute the eigen values of the flux jacobians
@@ -141,15 +142,15 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    throw Common::NotImplemented( FromHere(), "" );
-
     const Real um = p.u * direction[XX]
-                  + p.v * direction[YY];
+                  + p.v * direction[YY]
+                  + p.w * direction[ZZ];
 
     Dv[0] = um;
     Dv[1] = um;
-    Dv[2] = um + p.a;
-    Dv[3] = um - p.a;
+    Dv[2] = um;
+    Dv[3] = um + p.a;
+    Dv[4] = um - p.a;
   }
 
   /// compute the eigen values of the flux jacobians
@@ -160,17 +161,17 @@ public: // functions
                                          OP& op )
 
   {
-    throw Common::NotImplemented( FromHere(), "" );
-
     const Real um = p.u * direction[XX]
-                  + p.v * direction[YY];
+                  + p.v * direction[YY]
+                  + p.w * direction[ZZ];
 
     const Real op_um = op(um);
 
     Dv[0] = op_um;
     Dv[1] = op_um;
-    Dv[2] = op_um + p.a;
-    Dv[3] = op_um - p.a;
+    Dv[2] = op_um;
+    Dv[3] = op_um + p.a;
+    Dv[4] = op_um - p.a;
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -181,10 +182,9 @@ public: // functions
                                             EM& Lv,
                                             EV& Dv)
   {
-    throw Common::NotImplemented( FromHere(), "" );
-
     const Real nx = direction[XX];
     const Real ny = direction[YY];
+    const Real nz = direction[ZZ];
 
     const Real inv_a  = 1. / p.a;
     const Real inv_a2 = inv_a * inv_a;
@@ -192,58 +192,89 @@ public: // functions
     const Real um = p.u * nx + p.v * ny;
     const Real ra = 0.5 * p.rho * inv_a;
 
-    const Real coeffM2 = p.half_gm1_v2 * inv_a2;
-    const Real uDivA = p.gamma_minus_1 * p.u * inv_a;
-    const Real vDivA = p.gamma_minus_1 * p.v * inv_a;
+    const Real gu_a = p.gamma_minus_1 * p.u * inv_a;
+    const Real gv_a = p.gamma_minus_1 * p.v * inv_a;
+    const Real gw_a = p.gamma_minus_1 * p.w * inv_a;
     const Real rho_a = p.rho * p.a;
 
     const Real gm1_ov_rhoa = p.gamma_minus_1 / rho_a;
 
+    const Real ke  = 0.5 * p.uuvvww;
+    const Real gm2 = p.half_gm1_v2 * inv_a2;
+    const Real k2  = 1.0 - gm2;
+    const Real k3  = - p.gamma_minus_1 * inv_a2;
+
     // matrix of right eigen vectors R
 
-    Rv(0,0) = 1.;
-    Rv(0,1) = 0.;
-    Rv(0,2) = ra;
+    Rv(0,0) = nx;
+    Rv(0,1) = ny;
+    Rv(0,2) = nz;
     Rv(0,3) = ra;
-    Rv(1,0) = p.u;
-    Rv(1,1) = p.rho * ny;
-    Rv(1,2) = ra*(p.u + p.a*nx);
-    Rv(1,3) = ra*(p.u - p.a*nx);
-    Rv(2,0) = p.v;
-    Rv(2,1) = -p.rho*nx;
-    Rv(2,2) = ra*(p.v + p.a*ny);
-    Rv(2,3) = ra*(p.v - p.a*ny);
-    Rv(3,0) = 0.5 * p.uuvv;
-    Rv(3,1) = p.rho * (p.u*ny - p.v*nx);
-    Rv(3,2) = ra*(p.H + p.a*um);
-    Rv(3,3) = ra*(p.H - p.a*um);
+    Rv(0,4) = ra;
+
+    Rv(1,0) = p.u*nx;
+    Rv(1,1) = p.u*ny - p.rho*nz;
+    Rv(1,2) = p.u*nz + p.rho*ny;
+    Rv(1,3) = ra*(p.u + p.a*nx);
+    Rv(1,4) = ra*(p.u - p.a*nx);
+
+    Rv(2,0) = p.v*nx + p.rho*nz;
+    Rv(2,1) = p.v*ny;
+    Rv(2,2) = p.v*nz - p.rho*nx;
+    Rv(2,3) = ra*(p.v + p.a*ny);
+    Rv(2,4) = ra*(p.v - p.a*ny);
+
+    Rv(3,0) = p.w*nx - p.rho*ny;
+    Rv(3,1) = p.w*ny + p.rho*nx;
+    Rv(3,2) = p.w*nz;
+    Rv(3,3) = ra*(p.w + p.a*nz);
+    Rv(3,4) = ra*(p.w - p.a*nz);
+
+    Rv(4,0) = ke*nx + p.rho*(p.v*nz - p.w*ny);
+    Rv(4,1) = ke*ny + p.rho*(p.w*nx - p.u*nz);
+    Rv(4,2) = ke*nz + p.rho*(p.u*ny - p.v*nx);
+    Rv(4,3) = ra*(p.H + p.a*um);
+    Rv(4,4) = ra*(p.H - p.a*um);
 
     // matrix of left eigen vectors L = R.inverse();
 
-    Lv(0,0) = 1.- coeffM2;
-    Lv(0,1) = uDivA*inv_a;
-    Lv(0,2) = vDivA*inv_a;
-    Lv(0,3) = -p.gamma_minus_1 * inv_a2;
-    Lv(1,0) = p.inv_rho * (p.v*nx - p.u*ny);
-    Lv(1,1) = p.inv_rho * ny;
-    Lv(1,2) = -p.inv_rho * nx;
-    Lv(1,3) = 0.0;
-    Lv(2,0) = p.a*p.inv_rho * (coeffM2 - um*inv_a);
-    Lv(2,1) = p.inv_rho * (nx - uDivA);
-    Lv(2,2) = p.inv_rho * (ny - vDivA);
-    Lv(2,3) = gm1_ov_rhoa;
-    Lv(3,0) = p.a*p.inv_rho*(coeffM2 + um*inv_a);
-    Lv(3,1) = -p.inv_rho*(nx + uDivA);
-    Lv(3,2) = -p.inv_rho*(ny + vDivA);
-    Lv(3,3) = gm1_ov_rhoa;
+    Lv(0,0) = nx*k2 - p.inv_rho*(p.v*nz - p.w*ny);
+    Lv(0,1) = gu_a2*nx;
+    Lv(0,2) = gv_a2*nx + nz*p.inv_rho;
+    Lv(0,3) = gw_a2*nx - ny*p.inv_rho;
+    Lv(0,4) = k3*nx;
+
+    Lv(1,0) = ny*k2 - p.inv_rho*(p.w*nx - p.u*nz);
+    Lv(1,1) = gu_a2*ny - nz*p.inv_rho;
+    Lv(1,2) = gv_a2*ny;
+    Lv(1,3) = gw_a2*ny + nx*p.inv_rho;
+    Lv(1,4) = k3*ny;
+
+    Lv(2,0) = nz*k2 - p.inv_rho*(p.u*ny - p.v*nx);
+    Lv(2,1) = gu_a2*nz + ny*p.inv_rho;
+    Lv(2,2) = gv_a2*nz - nx*p.inv_rho;
+    Lv(2,3) = gw_a2*nz;
+    Lv(2,4) = k3*nz;
+
+    Lv(3,0) = p.a*p.inv_rho*(gm2 - um/p.a);
+    Lv(3,1) = p.inv_rho*(nx - gu_a);
+    Lv(3,2) = p.inv_rho*(ny - gv_a);
+    Lv(3,3) = p.inv_rho*(nz - gw_a);
+    Lv(3,4) = gm1_ov_rhoa;
+
+    Lv(4,0) = p.a*p.inv_rho*(gm2 + um/p.a);
+    Lv(4,1) = p.inv_rho*(-nx - gu_a);
+    Lv(4,2) = p.inv_rho*(-ny - gv_a);
+    Lv(4,3) = p.inv_rho*(-nz - gw_a);
+    Lv(4,4) = gm1_ov_rhoa;
 
     // diagonal matrix of eigen values
 
     Dv[0] = um;
     Dv[1] = um;
-    Dv[2] = um + p.a;
-    Dv[3] = um - p.a;
-
+    Dv[2] = um;
+    Dv[3] = um + p.a;
+    Dv[4] = um - p.a;
   }
 
   /// compute the PDE residual
@@ -252,63 +283,100 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    throw Common::NotImplemented( FromHere(), "" );
-
     const Real gamma_minus_3 = p.gamma - 3.;
 
     const Real uu = p.u * p.u;
     const Real uv = p.u * p.v;
+    const Real uw = p.u * p.w;
     const Real vv = p.v * p.v;
+    const Real vw = p.v * p.w;
+    const Real ww = p.w * p.w;
 
-    JM& A = flux_jacob[XX];
+    JM& Jx = flux_jacob[XX];
 
-    //    A.setZero(); // assume are zeroed
+//  Jx(0,0) = 0.0;
+    Jx(0,1) = 1.0;
+//  Jx(0,2) = 0.0;
+//  Jx(0,3) = 0.0;
+//  Jx(0,4) = 0.0;
+    Jx(1,0) = p.half_gm1_v2 - uu;
+    Jx(1,1) = -gamma_minus_3*p.u;
+    Jx(1,2) = -p.gamma_minus_1*p.v;
+    Jx(1,3) = -p.gamma_minus_1*p.w;
+    Jx(1,4) = p.gamma_minus_1;
+    Jx(2,0) = -uv;
+    Jx(2,1) = p.v;
+    Jx(2,2) = p.u;
+//  Jx(2,3) = 0.0;
+//  Jx(2,4) = 0.0;
+    Jx(3,0) = -uw;
+    Jx(3,1) = p.w;
+//  Jx(3,2) = 0.0;
+    Jx(3,3) = p.u;
+//  Jx(3,4) = 0.0;
+    Jx(4,0) = p.u*(p.half_gm1_v2 - p.H);
+    Jx(4,1) = -p.gamma_minus_1*uu + p.H;
+    Jx(4,2) = -p.gamma_minus_1*uv;
+    Jx(4,3) = -p.gamma_minus_1*uw;
+    Jx(4,4) = p.gamma*p.u;
 
-    A(0,0) = 0.;
-    A(0,1) = 1.;
-    A(0,2) = 0.;
-    A(0,3) = 0.;
+    JM& Jy = flux_jacob[YY];
 
-    A(1,0) = p.half_gm1_v2 - uu;
-    A(1,1) = -gamma_minus_3*p.u;
-    A(1,2) = -p.gamma_minus_1*p.v;
-    A(1,3) = p.gamma_minus_1;
+//  Jy(0,0) = 0.0;
+//  Jy(0,1) = 0.0;
+    Jy(0,2) = 1.0;
+//  Jy(0,3) = 0.0;
+//  Jy(0,4) = 0.0;
+    Jy(1,0) = -uv;
+    Jy(1,1) = p.v;
+    Jy(1,2) = p.u;
+//  Jy(1,3) = 0.0;
+//  Jy(1,4) = 0.0;
+    Jy(2,0) = p.half_gm1_v2 - vv;
+    Jy(2,1) = -p.gamma_minus_1*p.u;
+    Jy(2,2) = -gamma_minus_3*p.v;
+    Jy(2,3) = -p.gamma_minus_1*p.w;
+    Jy(2,4) = p.gamma_minus_1;
+    Jy(3,0) = -vw;
+//  Jy(3,1) = 0.0;
+    Jy(3,2) = p.w;
+    Jy(3,3) = p.v;
+//  Jy(3,4) = 0.0;
+    Jy(4,0) = p.v*(p.half_gm1_v2 - p.H);
+    Jy(4,1) = -p.gamma_minus_1*uv;
+    Jy(4,2) = -p.gamma_minus_1*vv + p.H;
+    Jy(4,3) = -p.gamma_minus_1*vw;
+    Jy(4,4) = p.gamma*p.v;
 
-    A(2,0) = -uv;
-    A(2,1) = p.v;
-    A(2,2) = p.u;
-    A(2,3) = 0.;
+    JM& Jz = flux_jacob[ZZ];
 
-    A(3,0) = p.half_gm1_v2*p.u - p.u * p.H;
-    A(3,1) = -p.gamma_minus_1*uu + p.H;
-    A(3,2) = -p.gamma_minus_1*uv;
-    A(3,3) = p.gamma*p.u;
+//  Jz(0,0) = 0.0;
+//  Jz(0,1) = 0.0;
+//  Jz(0,2) = 0.0;
+    Jz(0,3) = 1.0;
+//  Jz(0,4) = 0.0;
+    Jz(1,0) = -uw;
+    Jz(1,1) = p.w;
+//  Jz(1,2) = 0.0;
+    Jz(1,3) = p.u;
+//  Jz(1,4) = 0.0;
+    Jz(2,0) = -vw;
+//  Jz(2,1) = 0.0;
+    Jz(2,2) = p.w;
+    Jz(2,3) = p.v;
+//  Jz(2,4) = 0.0;
+    Jz(3,0) = p.half_gm1_v2 - ww;
+    Jz(3,1) = -p.gamma_minus_1*p.u;
+    Jz(3,2) = -p.gamma_minus_1*p.v;
+    Jz(3,3) = -gamma_minus_3*p.w;
+    Jz(3,4) = p.gamma_minus_1;
+    Jz(4,0) = p.w*(p.half_gm1_v2 - p.H);
+    Jz(4,1) = -p.gamma_minus_1*uw;
+    Jz(4,2) = -p.gamma_minus_1*vw;
+    Jz(4,3) = -p.gamma_minus_1*ww + p.H;
+    Jz(4,4) = p.gamma*p.w;
 
-    JM& B = flux_jacob[YY];
-
-    //    B.setZero(); // assume are zeroed
-
-    B(0,0) = 0.;
-    B(0,1) = 0.;
-    B(0,2) = 1.;
-    B(0,3) = 0.;
-
-    B(1,0) = -uv;
-    B(1,1) = p.v;
-    B(1,2) = p.u;
-    B(1,3) = 0.;
-
-    B(2,0) = p.half_gm1_v2 - vv;
-    B(2,1) = -p.gamma_minus_1*p.u;
-    B(2,2) = -gamma_minus_3*p.v;
-    B(2,3) = p.gamma_minus_1;
-
-    B(3,0) = p.half_gm1_v2*p.v - p.v*p.H;
-    B(3,1) = -p.gamma_minus_1*uv;
-    B(3,2) = -p.gamma_minus_1*vv + p.H;
-    B(3,3) = p.gamma*p.v;
-
-    res = A * p.grad_vars.col(XX) + B * p.grad_vars.col(YY);
+    res = Jx * p.grad_vars.col(XX) + Jy * p.grad_vars.col(YY) + Jz * p.grad_vars.col(ZZ);
   }
 
 }; // Cons3D
