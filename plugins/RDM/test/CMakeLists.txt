@@ -26,6 +26,9 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-burgers2d
 coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d-uniform-flow
                                SCRIPT  atest-rdm-euler2d-uniform-flow.cfscript )
 
+coolfluid_add_acceptance_test( NAME    atest-rdm-euler3d-uniform-flow
+                               SCRIPT  atest-rdm-euler3d-uniform-flow.cfscript )
+
 coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d-riemann
                                SCRIPT  atest-rdm-euler2d-riemann.cfscript )
 
