@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
   Field& volume = cells_P0.field("volume");
   boost_foreach(CElements& elements, volume.elements_range())
   {
-    CSpace& space = elements.space(volume.space());
+    CSpace& space = volume.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
       boost_foreach( const Uint state, space.indexes_for_element(e))
