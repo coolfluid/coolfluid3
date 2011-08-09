@@ -61,7 +61,7 @@ struct PEOperationsFixture
   };
 
   /// mimicer function for templatization (basically a substituter for all_reudce)
-  template<typename T, typename Op> MPI::Operation mimic_usage( T& t, Op ) { return MPI::get_mpi_op<T, Op>::op(); };
+  template<typename T, typename Op> MPI::Operation mimic_usage( T& t, Op ) { return Comm::get_mpi_op<T, Op>::op(); };
 
   /// custom class for checking the non built-in way
   class optest {
@@ -116,9 +116,9 @@ BOOST_FIXTURE_TEST_SUITE( PEOperationsSuite, PEOperationsFixture )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  MPI::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( MPI::PE::instance().is_active() , true );
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << MPI::PE::instance().rank() << "/" << MPI::PE::instance().size() << " reports in." << CFendl;);
+  Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -239,9 +239,9 @@ BOOST_AUTO_TEST_CASE( built_in_operation_with_custom_datatype )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << MPI::PE::instance().rank() << "/" << MPI::PE::instance().size() << " says good bye." << CFendl;);
-  MPI::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( MPI::PE::instance().is_active() , false );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
+  Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

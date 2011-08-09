@@ -29,7 +29,7 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace MPI;
+using namespace Comm;
 using namespace CF::UI::Server;
 
 using namespace CF;
@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
     // setup COOLFluiD environment
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
-    MPI::PE::instance().init( argc, argv );
+    Comm::PE::instance().init( argc, argv );
     ServerRoot::root();
 
     if( nb_workers != 0 )
@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
       return_value = app.exec();
     }
 
-    MPI::PE::instance().finalize();
+    Comm::PE::instance().finalize();
     // terminate the runtime environment
     cf_env.terminate();
 

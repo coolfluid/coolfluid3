@@ -17,8 +17,8 @@ struct PEBroadcastFixture
     int i;
 
     // rank and proc
-    nproc=MPI::PE::instance().size();
-    irank=MPI::PE::instance().rank();
+    nproc=Comm::PE::instance().size();
+    irank=Comm::PE::instance().rank();
 
     // ptr helpers
     sndcnt=0;
@@ -140,29 +140,29 @@ BOOST_AUTO_TEST_CASE( broadcast_ptr_constant )
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
 
-    ptr_tmprcv=MPI::PE::instance().broadcast(ptr_snddat, nproc, (double*)0, r);
+    ptr_tmprcv=Comm::PE::instance().broadcast(ptr_snddat, nproc, (double*)0, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=0.;
-    MPI::PE::instance().broadcast(ptr_snddat, nproc, ptr_tmprcv, r);
+    Comm::PE::instance().broadcast(ptr_snddat, nproc, ptr_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    MPI::PE::instance().broadcast(ptr_tmprcv, nproc, ptr_tmprcv, r);
+    Comm::PE::instance().broadcast(ptr_tmprcv, nproc, ptr_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
 
-    ptr_tmprcv=(double*)MPI::PE::instance().broadcast((char*)ptr_snddat, nproc, (char*)0, r, sizeof(double));
+    ptr_tmprcv=(double*)Comm::PE::instance().broadcast((char*)ptr_snddat, nproc, (char*)0, r, sizeof(double));
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=0.;
-    MPI::PE::instance().broadcast((char*)ptr_snddat, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    Comm::PE::instance().broadcast((char*)ptr_snddat, nproc, (char*)ptr_tmprcv, r, sizeof(double));
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
 
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    MPI::PE::instance().broadcast((char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    Comm::PE::instance().broadcast((char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, r, sizeof(double));
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[r*nproc+i] );
   }
 }
@@ -179,30 +179,30 @@ BOOST_AUTO_TEST_CASE( broadcast_vector_constant )
 
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
-    MPI::PE::instance().broadcast(vec_snddat, vec_tmprcv, r);
+    Comm::PE::instance().broadcast(vec_snddat, vec_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
     BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , rcvcnt );
 
     vec_tmprcv.assign(nproc,0.);
-    MPI::PE::instance().broadcast(vec_snddat, vec_tmprcv, r);
+    Comm::PE::instance().broadcast(vec_snddat, vec_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
 
     vec_tmprcv=vec_snddat;
-    MPI::PE::instance().broadcast(vec_tmprcv, vec_tmprcv, r);
+    Comm::PE::instance().broadcast(vec_tmprcv, vec_tmprcv, r);
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[r*nproc+i] );
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
-    MPI::PE::instance().broadcast(vec_snddatchr, vec_tmprcvchr, r );
+    Comm::PE::instance().broadcast(vec_snddatchr, vec_tmprcvchr, r );
     BOOST_CHECK_EQUAL( vec_tmprcvchr.size() , sizeof(double)*rcvcnt );
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
 
     for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=0.;
-    MPI::PE::instance().broadcast(vec_snddatchr, vec_tmprcvchr, r );
+    Comm::PE::instance().broadcast(vec_snddatchr, vec_tmprcvchr, r );
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
 
     vec_tmprcvchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc));
-    MPI::PE::instance().broadcast(vec_tmprcvchr, vec_tmprcvchr, r );
+    Comm::PE::instance().broadcast(vec_tmprcvchr, vec_tmprcvchr, r );
     for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[r*nproc+i] );
   }
 }
@@ -221,32 +221,32 @@ BOOST_AUTO_TEST_CASE( broadcast_ptr_variable )
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
 
-    ptr_tmprcv=MPI::PE::instance().broadcast(ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+    ptr_tmprcv=Comm::PE::instance().broadcast(ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
     for (i=0; i<sndcnt; i++) ptr_tmprcv[i]=0.;
-    MPI::PE::instance().broadcast(ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    Comm::PE::instance().broadcast(ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=new double[nproc];
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    MPI::PE::instance().broadcast(ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    Comm::PE::instance().broadcast(ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
-    ptr_tmprcv=(double*)MPI::PE::instance().broadcast((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)0, ptr_rcvmap, r, sizeof(double));
+    ptr_tmprcv=(double*)Comm::PE::instance().broadcast((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)0, ptr_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
     for (i=0; i<sndcnt; i++) ptr_tmprcv[i]=0.;
-    MPI::PE::instance().broadcast((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
+    Comm::PE::instance().broadcast((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=new double[nproc];
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    MPI::PE::instance().broadcast((char*)ptr_tmprcv, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
+    Comm::PE::instance().broadcast((char*)ptr_tmprcv, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[nproc*r+i] );
   }
 }
@@ -263,32 +263,32 @@ BOOST_AUTO_TEST_CASE( broadcast_vector_variable )
 
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
-    MPI::PE::instance().broadcast(vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    Comm::PE::instance().broadcast(vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
     for (i=0; i<sndcnt; i++) vec_tmprcv[i]=0.;
-    MPI::PE::instance().broadcast(vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    Comm::PE::instance().broadcast(vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
     vec_tmprcv.resize(nproc);
     vec_tmprcv.reserve(nproc);
     for (i=0; i<nproc; i++) vec_tmprcv[i]=vec_snddat[i];
-    MPI::PE::instance().broadcast(vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    Comm::PE::instance().broadcast(vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[nproc*r+i] );
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
-    MPI::PE::instance().broadcast(vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().broadcast(vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
 
     for (i=0; i<nproc; i++) ((double*)&vec_tmprcvchr[0])[i]=0.;
-    MPI::PE::instance().broadcast(vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().broadcast(vec_snddatchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
 
     vec_tmprcvchr.resize(nproc*sizeof(double));
     vec_tmprcvchr.reserve(nproc*sizeof(double));
     for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
-    MPI::PE::instance().broadcast(vec_tmprcvchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().broadcast(vec_tmprcvchr, vec_sndmap, vec_tmprcvchr, vec_rcvmap, r, sizeof(double));
     for (i=0; i<sndcnt; i++) BOOST_CHECK_EQUAL( ((double*)&vec_tmprcvchr[0])[i] , vec_rcvdat[nproc*r+i] );
   }
 }

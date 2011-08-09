@@ -53,8 +53,8 @@ struct CommPatternFixture
   void setupGidAndRank(std::vector<Uint>& gid, std::vector<Uint>& rank)
   {
     // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
-    int nproc=MPI::PE::instance().size();
-    int irank=MPI::PE::instance().rank();
+    int nproc=Comm::PE::instance().size();
+    int irank=Comm::PE::instance().rank();
     gid.resize(6*nproc);
     rank.resize(6*nproc);
     for (Uint i=0; i<nproc; i++)
@@ -93,10 +93,10 @@ BOOST_FIXTURE_TEST_SUITE( CommPatternSuite, CommPatternFixture )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  MPI::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( MPI::PE::instance().is_active() , true );
+  Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << MPI::PE::instance().rank() << "/" << MPI::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -470,8 +470,8 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
 BOOST_AUTO_TEST_CASE( commpattern_mainstream )
 {
   // general constants in this routine
-  const int nproc=MPI::PE::instance().size();
-  const int irank=MPI::PE::instance().rank();
+  const int nproc=Comm::PE::instance().size();
+  const int irank=Comm::PE::instance().rank();
 
   // commpattern
   CommPattern pecp("CommPattern");
@@ -525,8 +525,8 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
 BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
 {
   // general constants in this routine
-  const int nproc=MPI::PE::instance().size();
-  const int irank=MPI::PE::instance().rank();
+  const int nproc=Comm::PE::instance().size();
+  const int irank=Comm::PE::instance().rank();
 
   // commpattern
   CommPattern pecp("CommPattern");
@@ -577,10 +577,10 @@ BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << MPI::PE::instance().rank() << "/" << MPI::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
-  MPI::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( MPI::PE::instance().is_active() , false );
+  Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

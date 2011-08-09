@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_SUITE( NeuReaderMPITests_TestSuite, NeuReaderMPITests_Fixture
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  MPI::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  MPI::PE::instance().finalize();
+  Comm::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

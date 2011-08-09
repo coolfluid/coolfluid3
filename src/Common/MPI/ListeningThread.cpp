@@ -26,7 +26,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace MPI {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////
 

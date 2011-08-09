@@ -63,9 +63,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
-  if (MPI::PE::instance().size() > 1)
+  if (Comm::PE::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(MPI::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
   }
 
   file.open(path,std::ios_base::out);

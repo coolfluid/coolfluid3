@@ -60,7 +60,7 @@ BOOST_FIXTURE_TEST_SUITE( MPIBufferTests_TestSuite, MPIBufferTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  MPI::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

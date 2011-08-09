@@ -139,7 +139,7 @@ void IterativeSolver::execute()
     // output convergence info
 
     /// @todo move current rhs as a prpoerty of the iterate or solver components
-    if( MPI::PE::instance().rank() == 0 )
+    if( Comm::PE::instance().rank() == 0 )
     {
       Real rhs_norm = cnorm.properties().value<Real>("Norm");
       std::cout << "iter ["    << std::setw(4)  << iter << "]"

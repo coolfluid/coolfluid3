@@ -31,7 +31,7 @@
 
 namespace CF {
   namespace Common {
-    namespace MPI {
+    namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -135,7 +135,7 @@ MPI_CUSTOM_OPERATION(customplus,true,*out=*in+*out);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // namespace MPI
+    } // namespace Comm
   } // namespace Common
 } // namespace CF
 

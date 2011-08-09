@@ -33,7 +33,7 @@
 
 namespace CF {
   namespace Common {
-    namespace MPI {
+    namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -266,7 +266,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace MPI
+    } // end namespace Comm
   } // end namespace Common
 } // end namespace CF
 

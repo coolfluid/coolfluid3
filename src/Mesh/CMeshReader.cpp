@@ -191,8 +191,8 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work
-    if (MPI::PE::instance().is_active())
-      MPI::PE::instance().instance().all_reduce( MPI::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
+    if (Comm::PE::instance().is_active())
+      Comm::PE::instance().instance().all_reduce( MPI::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
 
     if ( empty_on_all_ranks )
     {

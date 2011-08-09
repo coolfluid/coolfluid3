@@ -104,13 +104,13 @@ LogStream & Logger::getStream(LogLevel type)
 
 void Logger::openFiles()
 {
-  if(MPI::PE::instance().is_active())
+  if(Comm::PE::instance().is_active())
   {
     std::ostringstream logFile;
 
     iostreams::file_descriptor_sink fdLogFile;
 
-    int rank = MPI::PE::instance().rank();
+    int rank = Comm::PE::instance().rank();
 
     filesystem::remove(logFile.str());
 

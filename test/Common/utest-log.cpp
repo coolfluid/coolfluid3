@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( openFiles )
   Logger::instance().openFiles();
 
   // files are not created if PE is not initializaed
-  if(Common::MPI::PE::instance().is_active())
+  if(Common::Comm::PE::instance().is_active())
   {
     BOOST_CHECK(Logger::instance().getStream(INFO).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(ERROR).isFileOpen());

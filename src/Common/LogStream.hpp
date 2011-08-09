@@ -111,21 +111,21 @@ class Common_API LogStream
       {
         if (it->first != SYNC_SCREEN)
         {
-          if ((MPI::PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
+          if ((Comm::PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
           {
             *(it->second) << t;
             m_flushed = false;
           }
         }
-        else if (MPI::PE::instance().is_active())
+        else if (Comm::PE::instance().is_active())
         {
-          for( Uint i = 0 ; i < MPI::PE::instance().size(); ++i )
+          for( Uint i = 0 ; i < Comm::PE::instance().size(); ++i )
           {
             if (!this->getFilterRankZero(it->first))
             {
-                      MPI::PE::instance().barrier();
+                      Comm::PE::instance().barrier();
                   }
-            if (i == MPI::PE::instance().rank())
+            if (i == Comm::PE::instance().rank())
             {
               *(it->second) << t;
               m_flushed = false;

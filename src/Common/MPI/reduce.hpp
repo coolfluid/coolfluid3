@@ -35,7 +35,7 @@
 
 namespace CF {
   namespace Common {
-    namespace MPI {
+    namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -274,7 +274,7 @@ reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_values, 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace MPI
+    } // end namespace Comm
   } // end namespace Common
 } // end namespace CF
 

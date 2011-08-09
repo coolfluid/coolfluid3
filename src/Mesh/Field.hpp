@@ -17,7 +17,7 @@ namespace CF {
 namespace Common
 {
   class CLink;
-  namespace MPI { class CommPattern; }
+  namespace Comm { class CommPattern; }
 }
 
 namespace Mesh {

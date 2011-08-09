@@ -61,8 +61,8 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
       ->mark_basic()
       ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 
-  if(!MPI::PE::instance().is_active())
-    MPI::PE::instance().init();
+  if(!Comm::PE::instance().is_active())
+    Comm::PE::instance().init();
 }
 
 void CEigenLSS::set_config_file(const URI& path)

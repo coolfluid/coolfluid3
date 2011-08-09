@@ -38,7 +38,7 @@ void compute_L2( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm += row[0]*row[0];
 
-  MPI::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
 
   norm = std::sqrt(glb_norm);
 }
@@ -53,7 +53,7 @@ void compute_L1( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm += std::abs( row[0] );
 
-  MPI::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
 }
 
 void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
@@ -66,7 +66,7 @@ void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm = std::max( std::abs(row[0]), loc_norm );
 
-  MPI::PE::instance().all_reduce( MPI::max(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( MPI::max(), &loc_norm, size, &glb_norm );
 
   norm = glb_norm;
 }
@@ -81,7 +81,7 @@ void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
   boost_foreach(CTable<Real>::ConstRow row, array )
     loc_norm += std::pow( std::abs(row[0]), (int)order ) ;
 
-  MPI::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( MPI::plus(), &loc_norm, size, &glb_norm );
 
   norm = std::pow(glb_norm, 1./order );
 }

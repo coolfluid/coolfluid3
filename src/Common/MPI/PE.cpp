@@ -13,7 +13,7 @@
 
 namespace CF {
 namespace Common {
-namespace MPI {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -201,14 +201,14 @@ Communicator PE::spawn( int count, const char * command, char ** args,
 
 Communicator PE::get_parent() const
 {
-  MPI::Communicator comm;
+  Comm::Communicator comm;
   MPI_CHECK_RESULT(MPI_Comm_get_parent,(&comm));
   return comm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace MPI
+} // namespace Comm
 } // namespace Common
 } // namespace CF
 
