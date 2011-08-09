@@ -42,16 +42,20 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "VariableManager"; }
 
-  /// Create a VariablesDescriptor with the given variables string
-  VariablesDescriptor& create_descriptor(const std:string& descriptor);
-  
+  /// Create a VariablesDescriptor
+  /// @param name Name of the VariablesDescriptor component that gets created. The name is also automatically added as a tag.
+  /// @param description String that describes the variables in the created descriptor
+  VariablesDescriptor& create_descriptor(const std::string& name, const std::string& description);
+
   /// @name SIGNALS
   //@{
-    
+
   void signal_create_descriptor(Common::SignalArgs& node);
-    
+
   //@} END SIGNALS
-                        
+
+private:
+  void signature_create_descriptor(Common::SignalArgs& node);
 }; // VariableManager
 
 ////////////////////////////////////////////////////////////////////////////////
