@@ -76,9 +76,6 @@ void CLinearInterpolator::construct_internal_storage(const CMesh& source)
 
 void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& target)
 {
-  const CTable<Real>& s_data = source.data();
-  CTable<Real>& t_data = target.data();
-
   // Allocations
   CElements::ConstPtr s_elements;
   Uint s_elm_idx;
@@ -89,26 +86,26 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
     const Field& source_coords = source.coordinates();
     const Field& target_coords = target.coordinates();
 
-    for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
+    for (Uint t_node_idx=0; t_node_idx<target.size(); ++t_node_idx)
     {
       to_vector(t_node,target_coords[t_node_idx]);
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        CConnectivity::ConstRow s_elm = source.indexes_for_element(*s_elements,s_elm_idx);
-        std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
+        CConnectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
+        std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
-        fill( s_nodes , source_coords , s_elm );
+        fill( s_nodes , source_coords , s_field_indexes );
 
         std::vector<Real> w(s_nodes.size());
         pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
 
-        for (Uint idata=0; idata<t_data.row_size(); ++idata)
-          t_data[t_node_idx][idata] = 0;
+        for (Uint idata=0; idata<target.row_size(); ++idata)
+          target[t_node_idx][idata] = 0;
 
         for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-          for (Uint idata=0; idata<t_data.row_size(); ++idata)
-            t_data[t_node_idx][idata] += w[s_node_idx]*s_data[s_elm[s_node_idx]][idata];
+          for (Uint idata=0; idata<target.row_size(); ++idata)
+            target[t_node_idx][idata] += w[s_node_idx]*source[s_field_indexes[s_node_idx]][idata];
       }
     }
   }
@@ -118,7 +115,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes(0);
     Component::ConstPtr component;
-    for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
+    for (Uint t_node_idx=0; t_node_idx<target.size(); ++t_node_idx)
     {
       to_vector(t_node,target_coords[t_node_idx]);
       if (find_point_in_octtree(t_node,m_point_idx))
@@ -131,7 +128,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
           CElements const& elements = component->as_type<CElements const>();
           RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
-          boost_foreach ( const Uint state_idx, source.indexes_for_elements(elements,s_elm_idx) )
+          boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
           {
             s_field_indexes.push_back(state_idx);
           }
@@ -143,12 +140,12 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
         std::vector<Real> w(s_nodes.size());
         pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
 
-        for (Uint idata=0; idata<t_data.row_size(); ++idata)
-          t_data[t_node_idx][idata] = 0;
+        for (Uint idata=0; idata<target.row_size(); ++idata)
+          target[t_node_idx][idata] = 0;
 
-        for (Uint e=0; e<s_centroids.size(); ++e)
-          for (Uint idata=0; idata<t_data.row_size(); ++idata)
-            t_data[t_node_idx][idata] += w[e] * source[s_field_indexes[e]][idata];
+        for (Uint e=0; e<s_nodes.size(); ++e)
+          for (Uint idata=0; idata<target.row_size(); ++idata)
+            target[t_node_idx][idata] += w[e] * source[s_field_indexes[e]][idata];
       }
       else
       {
@@ -160,6 +157,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
   {
     Uint s_elm_idx;
     RealMatrix elem_coordinates;
+    const Field& source_coords = source.coordinates();
 
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )
     {
@@ -176,9 +174,9 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
           if (is_not_null(s_elements))
           {
             CConnectivity::ConstRow s_field_indexes = source.indexes_for_element(*s_elements,s_elm_idx);
-            std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
+            std::vector<RealVector> s_nodes(s_field_indexes.size(),RealVector(m_dim));
 
-            fill( s_nodes , source_coords , s_elm );
+            fill( s_nodes , source_coords , s_field_indexes );
 
             std::vector<Real> w(s_nodes.size());
             pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
@@ -189,7 +187,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
 
 
             for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-              for (Uint idata=0; idata<t_data.row_size(); ++idata)
+              for (Uint idata=0; idata<target.row_size(); ++idata)
                 target[t_field_indexes[t_elm_point_idx]][idata] += w[s_node_idx]*source[s_field_indexes[s_node_idx]][idata];
           }
         }
@@ -201,6 +199,8 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
     Uint s_elm_idx;
     //Uint t_elm_idx;
     RealMatrix elem_coordinates;
+    std::vector<Uint> s_field_indexes(0);
+    std::vector<RealVector> s_nodes;
     Component::ConstPtr component;
     boost_foreach( CElements& t_elements, find_components_recursively<CElements>(target.topology()) )
     {
@@ -218,7 +218,6 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
           {
             find_pointcloud(m_sufficient_nb_points);
 
-
             s_field_indexes.resize(0);
             s_nodes.resize(0);
             boost_foreach(const Uint glb_elem_idx, m_element_cloud)
@@ -226,7 +225,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
               boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
               CElements const& elements = component->as_type<CElements const>();
               RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
-              boost_foreach ( const Uint state_idx, source.indexes_for_elements(elements,s_elm_idx) )
+              boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
               {
                 s_field_indexes.push_back(state_idx);
               }
@@ -244,7 +243,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
 
 
             for (Uint s_node_idx=0; s_node_idx<s_nodes.size(); ++s_node_idx)
-              for (Uint idata=0; idata<t_data.row_size(); ++idata)
+              for (Uint idata=0; idata<target.row_size(); ++idata)
                 target[t_field_indexes[t_elm_point_idx]][idata] += w[s_node_idx]*source[s_field_indexes[s_node_idx]][idata];
           }
           else

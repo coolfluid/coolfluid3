@@ -275,25 +275,25 @@ CommPattern& Field::parallelize()
 
   // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
   std::vector<Uint> gid;
-  std::vector<Uint> rank;
+  std::vector<Uint> ranks;
   gid.reserve( size() );
-  rank.reserve( size() );
+  ranks.reserve( size() );
 
   CMesh& mesh = find_parent_component<CMesh>(*this);
-  boost_foreach (const Uint node, nodes.array())
+  cf_assert(glb_idx().size() == size());
+  cf_assert(rank().size()    == size());
+  for (Uint node=0; node<size(); ++node)
   {
-    cf_assert_desc(to_str(node)+">="+to_str(mesh.geometry().glb_idx().size()), node < mesh.geometry().glb_idx().size());
-    cf_assert_desc(to_str(node)+">="+to_str(mesh.geometry().rank().size()), node < mesh.geometry().rank().size());
     gid.push_back( glb_idx()[node] );
-    rank.push_back( rank()[node] );
+    ranks.push_back( rank()[node] );
   }
 
   // create the comm pattern and setup the pattern
 
-  CommPattern& comm_pattern = mesh.create_component_ptr<CommPattern>("comm_pattern_node_based");
+  CommPattern& comm_pattern = mesh.create_component<CommPattern>("comm_pattern_node_based");
 
   comm_pattern.insert("gid",gid,1,false);
-  comm_pattern.setup(m_comm_pattern->get_child("gid").as_ptr<CommWrapper>(),rank);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 
   return parallelize_with( comm_pattern );
 }
@@ -302,7 +302,7 @@ CommPattern& Field::parallelize()
 void Field::synchronize()
 {
   if ( !m_comm_pattern.expired() )
-    m_comm_pattern->synchronize( name() );
+    m_comm_pattern.lock()->synchronize( name() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
