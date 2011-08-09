@@ -39,7 +39,7 @@ RK::RK ( const std::string& name  )
   properties()["brief"] = std::string("Runge Kutta differential equation solver");
   properties()["description"] = std::string("Solves the differential equation using Runge Kutta method");
 
-  m_options.add_option(OptionT<Uint>::create("stages", m_stages))
+  options().add_option(OptionT<Uint>::create("stages", m_stages))
       ->description("Number of stages used in the multistage method")
       ->pretty_name("Stages")
       ->link_to(&m_stages)
@@ -48,15 +48,19 @@ RK::RK ( const std::string& name  )
 
   config_stages();
 
-  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(), &m_solution))
+  options().add_option(OptionComponent<CTime>::create( Solver::Tags::time(), &m_time))
+      ->description("Time component")
+      ->pretty_name("Time");
+
+  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(), &m_solution))
       ->description("Solution")
       ->pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
+  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
       ->description("Residual")
       ->pretty_name("Residual");
 
-  m_options.add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(), &m_update_coeff))
+  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(), &m_update_coeff))
       ->description("Update Coefficient")
       ->pretty_name("Update Coefficient");
 
@@ -167,14 +171,15 @@ void RK::execute()
 
   /// 1) backup solution and time
   U0 = U;
-  const Real T0 = time().current_time();
+
+  const Real T0 = m_time.lock()->current_time();
 
   /// For every stage of the Runge Kutta scheme
   m_pre_update->configure_option_recursively("freeze_update_coeff",false);
   for (Uint k=0; k<m_stages; ++k)
   {
     /// - Set the time for this stage (notice that at first stage time is not modified since m_gamma[0] = 0)
-    time().current_time() = T0 + m_gamma[k]*time().dt();
+    m_time.lock()->current_time() = T0 + m_gamma[k] * m_time.lock()->dt();
 
     /// - Pre update actions, must compute residual, update_coefficient (and thus time().dt())
     m_pre_update->execute();
@@ -193,7 +198,7 @@ void RK::execute()
   }
   /// Set time back to pre-stages time, so that the action Solver::CAdvanceTime will update the time
   /// @note that time().dt() has been modified
-  time().current_time() = T0;
+  m_time.lock()->current_time() = T0;
   m_advance_time->execute();
 }
 
