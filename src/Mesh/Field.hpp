@@ -7,8 +7,6 @@
 #ifndef CF_Mesh_Field_hpp
 #define CF_Mesh_Field_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CEntities.hpp"
@@ -26,7 +24,7 @@ namespace Mesh {
 
   class CRegion;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Field component class
 /// This class stores fields which can be applied
@@ -109,7 +107,7 @@ public: // functions
 
   Field& coordinates() const { return field_group().coordinates(); }
 
-  Common::MPI::CommPattern& parallelize_with(CommPattern& comm_pattern);
+  Common::MPI::CommPattern& parallelize_with( Common::MPI::CommPattern& comm_pattern );
 
   Common::MPI::CommPattern& parallelize();
 
@@ -127,15 +125,13 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
-  boost::weak_ptr<Common::CommPattern> m_comm_pattern;
+  boost::weak_ptr< Common::MPI::CommPattern > m_comm_pattern;
 
 };
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Mesh_Field_hpp
