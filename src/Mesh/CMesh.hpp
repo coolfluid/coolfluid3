@@ -64,17 +64,11 @@ public: // functions
 
   void update_statistics();
 
-  /// @return the nodes of the mesh , modifiable access
-  Geometry& geometry();
-
-  /// @return the nodes of the mesh , non-modifiable access
-  const Geometry& geometry() const;
+  /// @return the nodes of the mesh
+  Geometry& geometry() const;
 
   /// @return linearized view of all the entities in the mesh
-  CMeshElements& elements();
-
-  /// @return linearized view of all the entities in the mesh
-  const CMeshElements& elements() const;
+  CMeshElements& elements() const;
 
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }

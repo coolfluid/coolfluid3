@@ -75,7 +75,11 @@ void CInitFieldConstant::execute()
 {
   if (m_field.expired())
     throw SetupError(FromHere(), "option [field] was not set in ["+uri().path()+"]");
-  m_field.lock()->data() = m_constant;
+
+  Field& field = *m_field.lock();
+  for (Uint i=0; i<field.size(); ++i)
+    for (Uint j=0; j<field.row_size(); ++j)
+      field[i][j] = m_constant;
 }
 
 //////////////////////////////////////////////////////////////////////////////

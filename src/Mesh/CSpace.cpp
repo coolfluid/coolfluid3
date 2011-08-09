@@ -110,9 +110,9 @@ void CSpace::make_proxy(const Uint elem_start_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix compute_coordinates(const Uint elem_idx) const
+RealMatrix CSpace::compute_coordinates(const Uint elem_idx) const
 {
-  return element_type().shape_function().value( shape_function().local_coordinates().row(node) ) * support().get_coordinates(elem_idx);
+  return element_type().shape_function().value( shape_function().local_coordinates() ) * support().get_coordinates(elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
