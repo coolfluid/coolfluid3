@@ -94,10 +94,13 @@ int main(int argc, char *argv[])
       mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
     }
 
+    if( mpi::PE::instance().size() != 1 )
+      errorString = "This application is not designed to run in parallel.";
+
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
       errorString = "Port number must be an integer between 49153 and 65535\n";
-    else
+    else if( errorString.isEmpty() )
     {
       Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
       Core::instance().network_info().set_port( port );
@@ -117,8 +120,8 @@ int main(int argc, char *argv[])
         ip = hostInfo.addresses().at(0).toString();
 
       message = message.arg(ip)
-                .arg(QHostInfo::localHostName())
-                .arg(port);
+          .arg(QHostInfo::localHostName())
+          .arg(port);
 
       std::cout << message.toStdString() << std::endl;
 
