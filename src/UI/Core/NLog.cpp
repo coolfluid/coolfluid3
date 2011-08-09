@@ -40,7 +40,7 @@ NLog::NLog()
 
   regist_signal( "message" )
     ->description("Log message")
-    ->pretty_name("")->connect(boost::bind(&NLog::message, this, _1));
+    ->pretty_name("")->connect(boost::bind(&NLog::signal_message, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::message(SignalArgs & node)
+void NLog::signal_message(SignalArgs & node)
 {
   SignalOptions options( node );
 
@@ -127,6 +127,18 @@ void NLog::message(SignalArgs & node)
 QString NLog::toolTip() const
 {
   return this->componentType();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void NLog::message (const std::string & data )
+{
+//  QString message(data.c_str());
+//  QString typeStr = message.split(" ").first();
+//  QString copy(message);
+//  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr.toStdString());
+
+//  this->appendToLog ( type, false, copy.remove(0, typeStr.length() + 1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////

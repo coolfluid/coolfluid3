@@ -15,9 +15,8 @@
 
 #include "Common/XML/Protocol.hpp"
 
-#include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NLog.hpp"
-#include "UI/Core/ThreadManager.hpp"
 
 #include "UI/Graphics/SignatureDialog.hpp"
 
@@ -197,7 +196,7 @@ void SignalManager::dialogFinished(int result)
         }
       }
       else // ...or send the request to the server
-        ThreadManager::instance().network().send(m_frame);
+        NetworkQueue::global_queue()->send(m_frame);
 
     }
 

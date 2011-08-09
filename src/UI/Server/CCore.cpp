@@ -31,7 +31,14 @@
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::UI::UICommon;
-using namespace CF::UI::Server;
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace UI {
+namespace Server {
+
+/////////////////////////////////////////////////////////////////////////////
 
 CCore::CCore()
   : Component(SERVER_CORE),
@@ -63,38 +70,35 @@ CCore::CCore()
 
   regist_signal( "read_dir" )
     ->description("Read directory content")
+    ->read_only(true)
     ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
   regist_signal( "shutdown" )
     ->description("Shutdown the server")
     ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++.+++
-//++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 CCore::~CCore()
 {
   delete m_commServer;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 bool CCore::listenToPort(quint16 portNumber)
 {
   return m_commServer->openPort(portNumber);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::sendSignal( const XmlDoc & signal )
 {
   m_commServer->sendSignalToClient(signal);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::sendFrameRejected(const std::string & clientid,
                               const std::string & frameid,
@@ -104,8 +108,7 @@ void CCore::sendFrameRejected(const std::string & clientid,
   m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::sendException(const char * what,
                           const std::string & clientid)
@@ -113,8 +116,7 @@ void CCore::sendException(const char * what,
   m_commServer->sendMessageToClient(what, LogMessage::EXCEPTION, clientid);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::forward_signal( SignalArgs & args )
 {
@@ -131,8 +133,7 @@ bool CCore::getDirContent(const QString & directory,
                           const std::vector<std::string> & extensions,
                           bool includeFiles,
                           bool includeNoExtension,
-                          DirContent & content) const
-{
+                          DirContent & content) const {
   QDir dir(directory);
   bool dirExists = dir.exists();
 
@@ -222,54 +223,52 @@ void CCore::read_dir(SignalArgs & args)
   rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
   std::string clientId( attr != nullptr ? attr->value() : "" );
 
-  try
+
+  QString dirPath = options.value<std::string>("dirPath").c_str();
+  bool includeFiles = options.value<bool>("includeFiles");
+  bool includeNoExt = options.value<bool>("includeNoExtensions");
+  std::vector<std::string> exts = options.array<std::string>("extensions");
+
+  if(dirPath.isEmpty())
+    directory = this->DEFAULT_PATH;
+  else
+    directory = dirPath;
+
+  directory = QDir(directory).absolutePath();
+  directory = QDir::cleanPath(directory);
+
+  // if the directory is not the root
+  /// @todo test this on Windows!!!!
+  if(directory != "/")
+    content.dirs.push_back("..");
+
+  content.dirDates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+
+  if(!this->getDirContent(directory, exts, includeFiles, includeNoExt, content))
   {
-    QString dirPath = options.value<std::string>("dirPath").c_str();
-    bool includeFiles = options.value<bool>("includeFiles");
-    bool includeNoExt = options.value<bool>("includeNoExtensions");
-    std::vector<std::string> exts = options.array<std::string>("extensions");
-
-    if(dirPath.isEmpty())
-      directory = this->DEFAULT_PATH;
-    else
-      directory = dirPath;
-
-    directory = QDir(directory).absolutePath();
-    directory = QDir::cleanPath(directory);
-
-    // if the directory is not the root
-    /// @todo test this on Windows!!!!
-    if(directory != "/")
-      content.dirs.push_back("..");
-
-    content.dirDates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
-
-    if(!this->getDirContent(directory, exts, includeFiles, includeNoExt, content))
-    {
-      m_commServer->sendMessageToClient(dirPath + ": no such direcrory", LogMessage::ERROR, clientId);
-    }
-    else
-    {
-      // Build the reply
-      SignalFrame reply = args.create_reply( uri() );
-      SignalOptions roptions( reply );
-
-      roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
-      roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
-      roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-      roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dirDates);
-      roptions.add_option<OptionArrayT<std::string> >("fileDates", content.fileDates);
-      roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.fileSizes);
-    }
+    throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
   }
-  catch(Exception e)
+  else
   {
-    CFerror << e.what() << CFflush;
+    // Build the reply
+    SignalFrame reply = args.create_reply( uri() );
+    SignalOptions roptions = reply.options();
+
+    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
+    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
+    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
+    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dirDates);
+    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.fileDates);
+    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.fileSizes);
+
+    roptions.flush();
+
   }
+
+  CFinfo << "I was here " << __LINE__ << CFendl;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::newEvent(const std::string & name, const URI & path)
 {
@@ -278,24 +277,21 @@ void CCore::newEvent(const std::string & name, const URI & path)
   m_commServer->sendSignalToClient(*frame.xml_doc.get());
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::createDir(SignalArgs & node)
 {
   m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::shutdown(SignalArgs & node)
 {
   qApp->exit(0); // exit the Qt event loop
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::saveConfig(SignalArgs & node)
 {
@@ -314,8 +310,7 @@ void CCore::newClient(const std::string & clientId)
   m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::message(const QString & message)
 {
@@ -326,81 +321,35 @@ void CCore::message(const QString & message)
   m_commServer->sendMessageToClient(copy.remove(0, typeStr.length() + 1), type);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
 void CCore::error(const QString & message)
 {
   m_commServer->sendMessageToClient(message, LogMessage::ERROR);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
-void CCore::simulationFinished()
+void CCore::sendACK( const std::string & clientid,
+                     const std::string & frameid,
+                     bool success,
+                     const std::string & message)
 {
-  throw NotImplemented(FromHere(), "CCore::simulationFinished");
+  SignalFrame frame("ack", uri(), CLIENT_NETWORK_QUEUE_PATH);
+  SignalOptions & options = frame.options();
+
+
+  options.add_option< OptionT<std::string> >("frameid", frameid );
+  options.add_option< OptionT<bool> >("success", success );
+  options.add_option< OptionT<std::string> >("message", message );
+
+  options.flush();
+
+  m_commServer->sendSignalToClient( *frame.xml_doc.get(), clientid);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+/////////////////////////////////////////////////////////////////////////////
 
-void CCore::activateSimulation(int clientId, unsigned int nbProcs,
-                                      const QString & hosts)
-{
-  throw NotImplemented(FromHere(), "CCore::activateSimulation");
-
-//  QString error;
-
-//  if(!m_fileOpen)
-//    error = "Please open a case file or configure the simulator before activating "
-//    "the simulation.";
-//  else if(m_simRunning)
-//    error = "The simulation is already running.";
-//  else if(m_active)
-//    error = "The simulation is active.";
-
-//  if(!error.isEmpty())
-//  {
-//    m_commServer->sendError(clientId, error);
-//    m_commServer->sendAck(clientId, false, NETWORK_ACTIVATE_SIMULATION);
-//  }
-//  else
-//  {
-//    this->setStatus(WorkerStatus::STARTING);
-//    m_simulationManager.spawn("SubSystem", "SubSystem", nbProcs, hosts);
-//    m_active = true;
-//    m_simulationManager.run();
-//  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::deactivateSimulation(int clientId)
-{
-  throw NotImplemented(FromHere(), "CCore::deactivateSimulation");
-
-//  QString error;
-
-//  if(!m_active)
-//    m_commServer->sendError(clientId, "The simulation is not active.");
-//  else
-//  {
-//    this->setStatus(WorkerStatus::EXITING);
-//    m_commServer->sendMessage(-1, "Exiting workers.");
-//    m_simulationManager.exitWorkers();
-//    m_commServer->sendAck(-1, true, NETWORK_DEACTIVATE_SIMULATION);
-//    CFinfo << "Simulation has been deativated.\n" << CFflush;
-//    m_active = false;
-//    this->setStatus(WorkerStatus::NOT_RUNNING);
-//  }
-}
-
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-void CCore::spawned()
-{
-  throw NotImplemented(FromHere(), "CCore::spawned");
-}
+} // Server
+} // UI
+} // CF

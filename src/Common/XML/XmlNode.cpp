@@ -71,6 +71,15 @@ void XmlNode::set_attribute ( const std::string & name, const std::string & valu
 
 /////////////////////////////////////////////////////////////////////////////
 
+std::string XmlNode::attribute_value ( const std::string & name ) const
+{
+  rapidxml::xml_attribute<> * attr = content->first_attribute( name.c_str() );
+
+  return is_not_null(attr) ? attr->value() : std::string();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
 void XmlNode::set_name ( const char * name )
 {
   cf_assert( is_valid() );

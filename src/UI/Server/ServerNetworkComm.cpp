@@ -14,6 +14,7 @@
 
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
@@ -286,7 +287,7 @@ void ServerNetworkComm::newClient()
 
   std::cout << "A new client is connected" << std::endl;
 
-  ServerRoot::listenToEvents();
+  ServerRoot::instance().listenToEvents();
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -320,6 +321,8 @@ void ServerNetworkComm::newData()
       m_bytesRecieved += m_blockSize + (int)sizeof(quint32);
 
       XmlDoc::Ptr xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
+
+//      CFinfo << frame << CFendl;
 
       // free the buffer
       delete[] frame;
@@ -367,7 +370,7 @@ void ServerNetworkComm::newData()
                                "and '%2' (used for identification) do not "
                                "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
-            ServerRoot::processSignal(target, receiver, clientId, frameId, *sig_frame);
+            ServerRoot::instance().processSignal(target, receiver, clientId, frameId, *sig_frame);
         }
       }
 

@@ -77,6 +77,12 @@ public: // methods
   /// @return Returns the new attribute.
   void set_attribute ( const std::string & name, const std::string & value );
 
+  /// Gets the value of an attribute.
+  /// @param name Attribute name.
+  /// @return Returns the value of the attribute or an empty string of the
+  /// attribute was not found.
+  std::string attribute_value ( const std::string & name ) const;
+
   /// Sets a new name.
   /// @param name The new name
   void set_name ( const char * name );

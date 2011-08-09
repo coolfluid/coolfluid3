@@ -11,6 +11,7 @@
 #include "Common/Foreach.hpp"
 
 #include "Common/Option.hpp"
+#include "Common/XML/XmlNode.hpp"
 
 using namespace boost::assign;
 using namespace CF::Common::XML;
