@@ -114,7 +114,7 @@ void CWriter::write_file(std::fstream& file)
         {
           file << " \"" << var_name << "["<<i<<"]\"";
           ++zone_var_id;
-          if (field.basis() != Field::Basis::POINT_BASED)
+          if (field.basis() != FieldGroup::Basis::POINT_BASED)
             cell_centered_var_ids.push_back(zone_var_id);
         }
       }
@@ -122,7 +122,7 @@ void CWriter::write_file(std::fstream& file)
       {
         file << " \"" << var_name <<"\"";
         ++zone_var_id;
-        if (field.basis() != Field::Basis::POINT_BASED)
+        if (field.basis() != FieldGroup::Basis::POINT_BASED)
           cell_centered_var_ids.push_back(zone_var_id);
       }
     }
@@ -208,7 +208,7 @@ void CWriter::write_file(std::fstream& file)
 
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          if (field.basis() == Field::Basis::POINT_BASED)
+          if (field.basis() == FieldGroup::Basis::POINT_BASED)
           {
             boost_foreach(Uint n, used_nodes.array())
             {

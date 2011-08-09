@@ -62,7 +62,7 @@ void SetupSingleSolution::execute()
     }
 
     solution =
-        mesh.create_field( RDM::Tags::solution(),Field::Basis::POINT_BASED,"space[0]",vars).as_ptr<Field>();
+        mesh.create_field( RDM::Tags::solution(),FieldGroup::Basis::POINT_BASED,"space[0]",vars).as_ptr<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }

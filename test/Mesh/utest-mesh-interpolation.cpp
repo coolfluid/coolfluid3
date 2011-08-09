@@ -125,16 +125,16 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
   // Create empty fields
-  Field& s_nodebased   = source.create_field( "nodebased",    Field::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
-  Field& s_elembased   = source.create_field( "elementbased", Field::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  Field& s_nodebased   = source.create_field( "nodebased",    FieldGroup::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
+  Field& s_elembased   = source.create_field( "elementbased", FieldGroup::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-  Field& t_nodebased   = target.create_field( "nodebased",    Field::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
-  Field& t_nodebased_2 = target.create_field( "nodebased_2",  Field::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
-  Field& t_elembased   = target.create_field( "elementbased", Field::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  Field& t_nodebased   = target.create_field( "nodebased",    FieldGroup::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
+  Field& t_nodebased_2 = target.create_field( "nodebased_2",  FieldGroup::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
+  Field& t_elembased   = target.create_field( "elementbased", FieldGroup::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-//  target.create_field( "nodebased_2",    nvars_2, Field::Basis::POINT_BASED    );
-//  target.create_field( "elementbased",   evars,   Field::Basis::ELEMENT_BASED );
-//  target.create_field( "elementbased_2", evars_2, Field::Basis::ELEMENT_BASED );
+//  target.create_field( "nodebased_2",    nvars_2, FieldGroup::Basis::POINT_BASED    );
+//  target.create_field( "elementbased",   evars,   FieldGroup::Basis::ELEMENT_BASED );
+//  target.create_field( "elementbased_2", evars_2, FieldGroup::Basis::ELEMENT_BASED );
 
   BOOST_CHECK(true);
 

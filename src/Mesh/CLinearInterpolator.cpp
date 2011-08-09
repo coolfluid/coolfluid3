@@ -85,7 +85,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
 
-  if (source.basis() == Field::Basis::POINT_BASED && target.basis() == Field::Basis::POINT_BASED)
+  if (source.basis() == FieldGroup::Basis::POINT_BASED && target.basis() == FieldGroup::Basis::POINT_BASED)
   {
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -109,7 +109,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == Field::Basis::ELEMENT_BASED && target.basis() == Field::Basis::POINT_BASED)
+  else if (source.basis() == FieldGroup::Basis::ELEMENT_BASED && target.basis() == FieldGroup::Basis::POINT_BASED)
   {
     Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
@@ -148,7 +148,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == Field::Basis::POINT_BASED && target.basis() == Field::Basis::ELEMENT_BASED)
+  else if (source.basis() == FieldGroup::Basis::POINT_BASED && target.basis() == FieldGroup::Basis::ELEMENT_BASED)
   {
     FieldView t_view("t_view");
     t_view.set_field(target);
@@ -188,7 +188,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == Field::Basis::ELEMENT_BASED && target.basis() == Field::Basis::ELEMENT_BASED)
+  else if (source.basis() == FieldGroup::Basis::ELEMENT_BASED && target.basis() == FieldGroup::Basis::ELEMENT_BASED)
   {
     FieldView t_view("t_view");
     t_view.set_field(target);

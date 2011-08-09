@@ -274,15 +274,15 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
     Field& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == Field::Basis::ELEMENT_BASED ||
-        elementbased_field.basis() == Field::Basis::CELL_BASED    ||
-        elementbased_field.basis() == Field::Basis::FACE_BASED    )
+    if (elementbased_field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == FieldGroup::Basis::CELL_BASED    ||
+        elementbased_field.basis() == FieldGroup::Basis::FACE_BASED    )
     {
       const Real field_time = 0;//elementbased_field.option("time").value<Real>();
       const Uint field_iter = 0;//elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
-      const std::string field_basis = Field::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = FieldGroup::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -434,7 +434,7 @@ void CWriter::write_nodal_data(std::fstream& file)
   {
     Field& nodebased_field = *field_ptr.lock();
 
-    if (nodebased_field.basis() == Field::Basis::POINT_BASED)
+    if (nodebased_field.basis() == FieldGroup::Basis::POINT_BASED)
     {
       const std::string field_name = nodebased_field.name();
       std::string field_topology = nodebased_field.topology().uri().path();
@@ -550,15 +550,15 @@ void CWriter::write_element_data(std::fstream& file)
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
     Field& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == Field::Basis::ELEMENT_BASED ||
-        elementbased_field.basis() == Field::Basis::CELL_BASED    ||
-        elementbased_field.basis() == Field::Basis::FACE_BASED    )
+    if (elementbased_field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == FieldGroup::Basis::CELL_BASED    ||
+        elementbased_field.basis() == FieldGroup::Basis::FACE_BASED    )
     {
       const Real field_time = elementbased_field.option("time").value<Real>();
       const Uint field_iter = elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
-      const std::string field_basis = Field::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = FieldGroup::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))

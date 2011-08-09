@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   coordinates.configure_option("Space",std::string("space[0]"));
   coordinates.create_data_storage();
 
-  BOOST_CHECK_EQUAL( coordinates.basis() , Field::Basis::POINT_BASED );
+  BOOST_CHECK_EQUAL( coordinates.basis() , FieldGroup::Basis::POINT_BASED );
   BOOST_CHECK_EQUAL( coordinates.var_name() , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_name(0) , std::string("coordinates") );
   BOOST_CHECK_EQUAL( coordinates.var_index("coordinates") , 0u );
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( SolutionFieldCreation )
   solution.create_data_storage();
 
 
-  BOOST_CHECK_EQUAL( solution.basis() , Field::Basis::POINT_BASED );
+  BOOST_CHECK_EQUAL( solution.basis() , FieldGroup::Basis::POINT_BASED );
   BOOST_CHECK_EQUAL( solution.var_name() , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(0) , std::string("rho") );
   BOOST_CHECK_EQUAL( solution.var_name(1) , std::string("U") );

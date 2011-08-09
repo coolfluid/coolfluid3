@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
-  mesh->create_scalar_field("Temperature", "T", Field::Basis::POINT_BASED);
+  mesh->create_scalar_field("Temperature", "T", FieldGroup::Basis::POINT_BASED);
   
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
   
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
   
-  mesh->create_scalar_field("Pressure", "p", CF::Mesh::Field::Basis::POINT_BASED);
+  mesh->create_scalar_field("Pressure", "p", CF::Mesh::FieldGroup::Basis::POINT_BASED);
   
   MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
 
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
-  mesh->create_scalar_field("Temperature", "T", Field::Basis::POINT_BASED);
+  mesh->create_scalar_field("Temperature", "T", FieldGroup::Basis::POINT_BASED);
   
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
   
@@ -331,7 +331,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
-  mesh->create_scalar_field("Temperature", "T", Field::Basis::POINT_BASED);
+  mesh->create_scalar_field("Temperature", "T", FieldGroup::Basis::POINT_BASED);
   
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
   
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
   
-  mesh->create_scalar_field("Temperature", "T", Field::Basis::POINT_BASED);
+  mesh->create_scalar_field("Temperature", "T", FieldGroup::Basis::POINT_BASED);
 
   Real total = 0;
   

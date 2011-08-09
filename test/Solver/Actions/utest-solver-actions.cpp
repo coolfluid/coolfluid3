@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->create_field("test_CForAllElementsT",Field::Basis::CELL_BASED,"space[0]","var[1]");
+  Field& field = mesh->create_field("test_CForAllElementsT",FieldGroup::Basis::CELL_BASED,"space[0]","var[1]");
 
   BOOST_CHECK(true);
 

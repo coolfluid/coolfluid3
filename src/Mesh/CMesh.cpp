@@ -155,7 +155,7 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 ////////////////////////////////////////////////////////////////////////////////
 
 Field& CMesh::create_field( const std::string& name ,
-                             const Field::Basis::Type base,
+                             const FieldGroup::Basis::Type base,
                              const std::string& space,
                              const std::string& variables)
 {
@@ -197,7 +197,7 @@ Field& CMesh::create_field( const std::string& name ,
   field.configure_option("Space",space);
   field.configure_option("VarNames",names);
   field.configure_option("VarTypes",types);
-  field.configure_option("FieldType",Field::Basis::Convert::instance().to_str(base));
+  field.configure_option("FieldType",FieldGroup::Basis::Convert::instance().to_str(base));
   field.create_data_storage();
 
   return field;
@@ -256,7 +256,7 @@ Field& CMesh::create_field( const std::string& name , Field& based_on_field)
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::Field::Basis::Type base)
+Field& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::FieldGroup::Basis::Type base)
 {
   const std::vector<std::string> names(1, variable_name);
   const std::vector< Field::VarType > types(1, Field::SCALAR);
@@ -266,7 +266,7 @@ Field& CMesh::create_scalar_field(const std::string& field_name, const std::stri
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& CMesh::create_field(const std::string& name, const Field::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< Field::VarType > variable_types)
+Field& CMesh::create_field(const std::string& name, const FieldGroup::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< Field::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
 
@@ -282,7 +282,7 @@ Field& CMesh::create_field(const std::string& name, const Field::Basis::Type bas
   field.set_topology(topology());
   field.configure_option("VarNames",variable_names);
   field.configure_option("VarTypes",types_str);
-  field.configure_option("FieldType", Field::Basis::Convert::instance().to_str(base) );
+  field.configure_option("FieldType", FieldGroup::Basis::Convert::instance().to_str(base) );
   field.create_data_storage();
 
   return field;

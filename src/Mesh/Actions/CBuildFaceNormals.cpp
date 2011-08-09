@@ -79,7 +79,7 @@ void CBuildFaceNormals::execute()
   CMesh& mesh = *m_mesh.lock();
 
   const Uint dimension = mesh.nodes().coordinates().row_size();
-  Field& face_normal_field = mesh.create_field(Mesh::Tags::normal(),Field::Basis::FACE_BASED,"P0","face_normal["+to_str(dimension)+"]");
+  Field& face_normal_field = mesh.create_field(Mesh::Tags::normal(),FieldGroup::Basis::FACE_BASED,"P0","face_normal["+to_str(dimension)+"]");
   face_normal_field.add_tag(Mesh::Tags::normal());
   FieldView face_normal("face_normal_view");
   face_normal.set_field(face_normal_field);

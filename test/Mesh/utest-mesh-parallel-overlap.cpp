@@ -848,13 +848,13 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  Field& glb_node = mesh.create_field("glb_node",Field::Basis::POINT_BASED);
+  Field& glb_node = mesh.create_field("glb_node",FieldGroup::Basis::POINT_BASED);
   boost_foreach(const Uint node, debug_nodes)
       glb_node.data()[node][0] = 1.;
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  Field& glb_elem = mesh.create_field("glb_elem",Field::Basis::ELEMENT_BASED,"P0");
+  Field& glb_elem = mesh.create_field("glb_elem",FieldGroup::Basis::ELEMENT_BASED,"P0");
   FieldView& glb_elem_field_view = glb_elem.create_component<FieldView>("glb_elem_field_view");
   glb_elem_field_view.set_field(glb_elem);
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
@@ -869,7 +869,7 @@ BOOST_CHECK(true);
 BOOST_CHECK(true);
 
   // Create a field with glb element numbers
-  Field& elem_rank = mesh.create_field("elem_rank",Field::Basis::ELEMENT_BASED,"P0");
+  Field& elem_rank = mesh.create_field("elem_rank",FieldGroup::Basis::ELEMENT_BASED,"P0");
   FieldView& field_view = elem_rank.create_component<FieldView>("field_view");
   field_view.set_field(elem_rank);
   boost_foreach(const CEntities& elements, elem_rank.field_elements())

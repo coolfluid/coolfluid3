@@ -53,7 +53,7 @@ void create_fields(CMesh& mesh, PhysModel& physical_model)
     }
     else
     {
-      mesh.create_field(field_name, CF::Mesh::Field::Basis::POINT_BASED, "space[0]", var_spec);
+      mesh.create_field(field_name, CF::Mesh::FieldGroup::Basis::POINT_BASED, "space[0]", var_spec);
     }
   }
 }

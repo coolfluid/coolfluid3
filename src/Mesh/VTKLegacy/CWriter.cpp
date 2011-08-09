@@ -157,7 +157,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     const Field& field = *field_ptr.lock();
 
     // must be point based
-    if(field.basis() != Field::Basis::POINT_BASED)
+    if(field.basis() != FieldGroup::Basis::POINT_BASED)
       continue;
 
     // size must be correct

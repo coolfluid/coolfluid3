@@ -73,7 +73,7 @@ void SetupMultipleSolutions::execute()
   {
     solution =
         mesh.create_field( RDM::Tags::solution(),
-                           Field::Basis::POINT_BASED,
+                           FieldGroup::Basis::POINT_BASED,
                            "space[0]",
                            vars)
         .as_ptr<Field>();
@@ -165,7 +165,7 @@ void SetupMultipleSolutions::execute()
         if( i != nbdofs*nb_levels-1 ) lvars += ",";
       }
 
-    phi_k = mesh.create_field( "phi_k", Field::Basis::CELL_BASED, "space[0]", vars ).as_ptr<Field>();
+    phi_k = mesh.create_field( "phi_k", FieldGroup::Basis::CELL_BASED, "space[0]", vars ).as_ptr<Field>();
     phi_k->add_tag("phi_k");
   }
 

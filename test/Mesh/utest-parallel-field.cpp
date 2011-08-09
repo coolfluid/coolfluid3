@@ -127,7 +127,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // create a field and assign it to the comm pattern
 
-  Field& field = mesh.create_field("node_rank",Field::Basis::POINT_BASED);
+  Field& field = mesh.create_field("node_rank",FieldGroup::Basis::POINT_BASED);
 
   field.parallelize();
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  Field& glb_elem_idx = mesh.create_field("glb_elem_idx",Field::Basis::ELEMENT_BASED,"P0");
+  Field& glb_elem_idx = mesh.create_field("glb_elem_idx",FieldGroup::Basis::ELEMENT_BASED,"P0");
   FieldView& field_view = glb_elem_idx.create_component<FieldView>("field_view");
   field_view.set_field(glb_elem_idx);
   boost_foreach(const CEntities& elements, glb_elem_idx.field_elements())
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   // Create a field with glb node numbers
-  Field& glb_node_idx = mesh.create_field("glb_node_idx",Field::Basis::POINT_BASED);
+  Field& glb_node_idx = mesh.create_field("glb_node_idx",FieldGroup::Basis::POINT_BASED);
   Uint n=0;
   boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
   {

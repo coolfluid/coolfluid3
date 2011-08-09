@@ -66,7 +66,7 @@ void CBuildArea::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  Field& area_field = mesh.create_field(Mesh::Tags::area(),Field::Basis::FACE_BASED,"P0");
+  Field& area_field = mesh.create_field(Mesh::Tags::area(),FieldGroup::Basis::FACE_BASED,"P0");
   area_field.add_tag(Mesh::Tags::area());
   CScalarFieldView area("area_view");
   area.set_field(area_field);

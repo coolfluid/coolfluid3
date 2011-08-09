@@ -170,7 +170,7 @@ struct VariableManager::Implementation
       }
 
       if(!existing_field)
-        mesh.create_field(fd_name, Field::Basis::POINT_BASED, fd_var_names, fd_var_types);
+        mesh.create_field(fd_name, FieldGroup::Basis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
   */

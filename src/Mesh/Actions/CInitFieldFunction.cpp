@@ -85,7 +85,7 @@ void CInitFieldFunction::execute()
 
   RealVector return_val(field.data().row_size());
 
-  if (field.basis() == Field::Basis::POINT_BASED)
+  if (field.basis() == FieldGroup::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     for ( Uint idx=0; idx!=nb_pts; ++idx)

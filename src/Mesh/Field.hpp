@@ -13,7 +13,7 @@
 #include "Mesh/CElements.hpp"
 
 namespace CF {
-namespace Common { class CLink; }
+namespace Common { class CLink; class PECommPattern; }
 namespace Mesh {
 
 class CRegion;
