@@ -19,7 +19,6 @@
 namespace CF {
 namespace Mesh {
 
-class Field;
 class FieldGroup;
 class CMesh;
 
@@ -47,18 +46,18 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "FieldManager"; }
 
-  /// Create fields. Looks up the VariablesDescriptor for each tag in the VariableManager, and creates a field with the same tag in the given field group.
-  Field& create_fields(FieldGroup& field_group);
-  
+  /// Create fields. Looks up the VariablesDescriptor with the given tag, and creates a field with the same tag in the given field group.
+  void create_fields(const std::string& tag, CF::Mesh::FieldGroup& field_group);
+
   /// @deprecated Legacy "CField" interface for creating the fields.
-  CField& create_fields(CMesh& mesh, const CField::Basis::Type base, const std::string& space = "space[0]");
-  
+  void create_fields(const std::string& tag, CMesh& mesh, const CField::Basis::Type base, const std::string& space = "space[0]");
+
   /// @name SIGNALS
   //@{
-    
-  /// Creates the fields (uses the deprecated interface for now)
+
+  /// Creates the fields
   void signal_create_fields( Common::SignalArgs& node );
-  
+
   //@} END SIGNALS
 
 private:
