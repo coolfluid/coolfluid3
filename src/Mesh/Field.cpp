@@ -260,5 +260,55 @@ CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+PECommPattern& Field::parallelize_with(PECommPattern& comm_pattern)
+{
+  cf_assert_desc("Only point-based fields supported now", m_basis == Basis::POINT_BASED);
+  m_comm_pattern = comm_pattern.as_ptr<Common::PECommPattern>();
+  comm_pattern.insert(name(),data().array(),true);
+  return comm_pattern;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+PECommPattern& Field::parallelize()
+{
+  if ( is_not_null( m_comm_pattern ) ) // return if already parallel
+    return *m_comm_pattern;
+
+  // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
+  const CList<Uint>& nodes = used_nodes();
+  std::vector<Uint> gid;
+  std::vector<Uint> rank;
+  gid.reserve(nodes.size());
+  rank.reserve(nodes.size());
+
+  CMesh& mesh = find_parent_component<CMesh>(*this);
+  boost_foreach (const Uint node, nodes.array())
+  {
+    cf_assert_desc(to_str(node)+">="+to_str(mesh.nodes().glb_idx().size()), node < mesh.nodes().glb_idx().size());
+    cf_assert_desc(to_str(node)+">="+to_str(mesh.nodes().rank().size()), node < mesh.nodes().rank().size());
+    gid.push_back(mesh.nodes().glb_idx()[node]);
+    rank.push_back(mesh.nodes().rank()[node]);
+  }
+
+  // create the comm pattern and setup the pattern
+  m_comm_pattern = mesh.create_component_ptr<PECommPattern>("comm_pattern_node_based");
+  m_comm_pattern->insert("gid",gid,1,false);
+  m_comm_pattern->setup(m_comm_pattern->get_child("gid").as_ptr<PEObjectWrapper>(),rank);
+
+  return parallelize_with(*m_comm_pattern);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Field::synchronize()
+{
+  if ( is_not_null( m_comm_pattern ) )
+    m_comm_pattern->synchronize( name() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // Mesh
 } // CF

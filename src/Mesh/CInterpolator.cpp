@@ -10,7 +10,7 @@
 
 #include "Mesh/CInterpolator.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CStencilComputer.hpp"
 
 namespace CF {
@@ -24,12 +24,12 @@ using namespace Common::XML;
 CInterpolator::CInterpolator ( const std::string& name  ) :
   Component ( name )
 {
-  m_options.add_option(OptionComponent<CField>::create("source", &m_source))
+  m_options.add_option(OptionComponent<Field>::create("source", &m_source))
       ->description("Field to interpolate from")
       ->pretty_name("Source Field")
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<CField>::create("target", &m_target))
+  m_options.add_option(OptionComponent<Field>::create("target", &m_target))
       ->description("Field to interpolate to")
       ->pretty_name("TargetField")
       ->mark_basic();

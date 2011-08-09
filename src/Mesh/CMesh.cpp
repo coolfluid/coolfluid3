@@ -28,7 +28,7 @@
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/WriteMesh.hpp"
 #include "Mesh/MeshMetadata.hpp"
 #include "Mesh/CCells.hpp"
@@ -154,8 +154,8 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name ,
-                             const CField::Basis::Type base,
+Field& CMesh::create_field( const std::string& name ,
+                             const Field::Basis::Type base,
                              const std::string& space,
                              const std::string& variables)
 {
@@ -192,12 +192,12 @@ CField& CMesh::create_field( const std::string& name ,
       throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
   }
 
-  CField& field = *create_component_ptr<CField>(name);
+  Field& field = *create_component_ptr<Field>(name);
   field.set_topology(topology());
   field.configure_option("Space",space);
   field.configure_option("VarNames",names);
   field.configure_option("VarTypes",types);
-  field.configure_option("FieldType",CField::Basis::Convert::instance().to_str(base));
+  field.configure_option("FieldType",Field::Basis::Convert::instance().to_str(base));
   field.create_data_storage();
 
   return field;
@@ -205,9 +205,9 @@ CField& CMesh::create_field( const std::string& name ,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_field)
+Field& CMesh::create_scalar_field( const std::string& name , Field& based_on_field)
 {
-  CField& field = *create_component_ptr<CField>(name);
+  Field& field = *create_component_ptr<Field>(name);
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names(1,name);
@@ -230,9 +230,9 @@ CField& CMesh::create_scalar_field( const std::string& name , CField& based_on_f
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field( const std::string& name , CField& based_on_field)
+Field& CMesh::create_field( const std::string& name , Field& based_on_field)
 {
-  CField& field = *create_component_ptr<CField>(name);
+  Field& field = *create_component_ptr<Field>(name);
   field.set_topology(based_on_field.topology());
 
   std::vector<std::string> names; based_on_field.option("VarNames").put_value(names);
@@ -256,33 +256,33 @@ CField& CMesh::create_field( const std::string& name , CField& based_on_field)
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::CField::Basis::Type base)
+Field& CMesh::create_scalar_field(const std::string& field_name, const std::string& variable_name, const CF::Mesh::Field::Basis::Type base)
 {
   const std::vector<std::string> names(1, variable_name);
-  const std::vector< CField::VarType > types(1, CField::SCALAR);
+  const std::vector< Field::VarType > types(1, Field::SCALAR);
   return create_field(field_name, base, names, types);
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CField& CMesh::create_field(const std::string& name, const CField::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< CField::VarType > variable_types)
+Field& CMesh::create_field(const std::string& name, const Field::Basis::Type base, const std::vector< std::string >& variable_names, const std::vector< Field::VarType > variable_types)
 {
   cf_assert(variable_names.size() == variable_types.size());
 
   /// @todo Treat variable_types using EnumT, and store enum values in the option instead of strings
   std::vector<std::string> types_str;
   types_str.reserve( variable_types.size() );
-  boost_foreach(const CField::VarType var_type, variable_types)
+  boost_foreach(const Field::VarType var_type, variable_types)
   {
     types_str.push_back( boost::lexical_cast<std::string>(var_type) );
   }
 
-  CField& field = *create_component_ptr<CField>(name);
+  Field& field = *create_component_ptr<Field>(name);
   field.set_topology(topology());
   field.configure_option("VarNames",variable_names);
   field.configure_option("VarTypes",types_str);
-  field.configure_option("FieldType", CField::Basis::Convert::instance().to_str(base) );
+  field.configure_option("FieldType", Field::Basis::Convert::instance().to_str(base) );
   field.create_data_storage();
 
   return field;
@@ -325,7 +325,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
   options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
       ->description("File to write" );
 
-  boost_foreach (CField& field, find_components<CField>(*this))
+  boost_foreach (Field& field, find_components<Field>(*this))
   {
     options.add_option< OptionT<bool> >(field.name(), false )
         ->description("Mark if field gets to be written");
@@ -355,7 +355,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   std::vector<URI> fields;
 
-  boost_foreach( CField& field, find_components<CField>(*this))
+  boost_foreach( Field& field, find_components<Field>(*this))
   {
     if (options.check(field.name()))
     {

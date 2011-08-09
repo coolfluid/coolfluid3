@@ -31,7 +31,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -849,14 +849,14 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  CField& glb_node = mesh.create_field("glb_node",CField::Basis::POINT_BASED);
+  Field& glb_node = mesh.create_field("glb_node",Field::Basis::POINT_BASED);
   boost_foreach(const Uint node, debug_nodes)
       glb_node.data()[node][0] = 1.;
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  CField& glb_elem = mesh.create_field("glb_elem",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& glb_elem_field_view = glb_elem.create_component<CFieldView>("glb_elem_field_view");
+  Field& glb_elem = mesh.create_field("glb_elem",Field::Basis::ELEMENT_BASED,"P0");
+  FieldView& glb_elem_field_view = glb_elem.create_component<FieldView>("glb_elem_field_view");
   glb_elem_field_view.set_field(glb_elem);
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
@@ -870,8 +870,8 @@ BOOST_CHECK(true);
 BOOST_CHECK(true);
 
   // Create a field with glb element numbers
-  CField& elem_rank = mesh.create_field("elem_rank",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& field_view = elem_rank.create_component<CFieldView>("field_view");
+  Field& elem_rank = mesh.create_field("elem_rank",Field::Basis::ELEMENT_BASED,"P0");
+  FieldView& field_view = elem_rank.create_component<FieldView>("field_view");
   field_view.set_field(elem_rank);
   boost_foreach(const CEntities& elements, elem_rank.field_elements())
   {
@@ -882,10 +882,10 @@ BOOST_CHECK(true);
     }
   }
 BOOST_CHECK(true);
-  std::vector<CField::Ptr> fields_to_output;
-//  fields_to_output.push_back(glb_node.as_ptr<CField>());
-//  fields_to_output.push_back(glb_elem.as_ptr<CField>());
-  fields_to_output.push_back(elem_rank.as_ptr<CField>());
+  std::vector<Field::Ptr> fields_to_output;
+//  fields_to_output.push_back(glb_node.as_ptr<Field>());
+//  fields_to_output.push_back(glb_elem.as_ptr<Field>());
+  fields_to_output.push_back(elem_rank.as_ptr<Field>());
 BOOST_CHECK(true);
   tec_writer->set_fields(fields_to_output);
   tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);

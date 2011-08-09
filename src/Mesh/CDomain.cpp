@@ -149,7 +149,7 @@ void CDomain::write_mesh(const URI& file)
 
   std::vector<URI> state_fields;
   CMesh& mesh = find_component<CMesh>(*this);
-  boost_foreach(const CField& field, find_components_recursively<CField>(mesh))
+  boost_foreach(const Field& field, find_components_recursively<Field>(mesh))
   {
     state_fields.push_back(field.uri());
   }

@@ -13,7 +13,7 @@
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
 
@@ -67,7 +67,7 @@ void CBuildVolume::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& volume_field = mesh.create_field(Mesh::Tags::volume(),CField::Basis::CELL_BASED,"P0","volume[1]");
+  Field& volume_field = mesh.create_field(Mesh::Tags::volume(),Field::Basis::CELL_BASED,"P0","volume[1]");
   volume_field.add_tag(Mesh::Tags::volume());
   CScalarFieldView volume("volume_view");
   volume.set_field(volume_field);

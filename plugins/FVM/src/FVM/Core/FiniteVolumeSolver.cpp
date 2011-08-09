@@ -27,7 +27,7 @@
 #include "FVM/Core/BC.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CDomain.hpp"
@@ -169,19 +169,19 @@ void FiniteVolumeSolver::trigger_domain()
   add_flux_to_rhs->mark_basic();
   m_compute_rhs->get_child("2.3_for_all_faces").add_component(add_flux_to_rhs);
 
-  if ( is_null(find_component_ptr_with_tag<CField>(*mesh,Mesh::Tags::normal()) ) )
+  if ( is_null(find_component_ptr_with_tag<Field>(*mesh,Mesh::Tags::normal()) ) )
   {
     CFinfo << "  Creating field \"face_normal\", facebased" << CFendl;
     CBuildFaceNormals::Ptr build_face_normals = create_component_ptr<CBuildFaceNormals>("build_face_normals");
     build_face_normals->transform(mesh);
     remove_component(build_face_normals->name());
-    configure_option_recursively(Mesh::Tags::normal(), find_component_with_tag<CField>(*mesh,Mesh::Tags::normal()).uri());
+    configure_option_recursively(Mesh::Tags::normal(), find_component_with_tag<Field>(*mesh,Mesh::Tags::normal()).uri());
   }
 
-  if ( is_null(find_component_ptr_with_name<CField>(*mesh,"area") ) )
+  if ( is_null(find_component_ptr_with_name<Field>(*mesh,"area") ) )
   {
     CFinfo << "  Creating field \"area\", facebased" << CFendl;
-    CField& area = mesh->create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
+    Field& area = mesh->create_field(Mesh::Tags::area(),Field::Basis::FACE_BASED,"P0");
     area.add_tag(Mesh::Tags::area());
     CLoop::Ptr compute_area = create_component_ptr< CForAllFaces >("compute_area");
     compute_area->configure_option("regions", std::vector<URI>(1,area.topology().uri()));
@@ -192,16 +192,16 @@ void FiniteVolumeSolver::trigger_domain()
   }
 
   // create/initialize a solution if it is not available
-  CField::Ptr solution_ptr = find_component_ptr_with_name<CField>(*mesh,"solution");
+  Field::Ptr solution_ptr = find_component_ptr_with_name<Field>(*mesh,"solution");
   if ( is_null(solution_ptr) )
   {
     ///@todo get variable names etc, from Physics
     CFinfo <<  "  Creating field \"solution\", cellbased, with vars rho[1],rhoU["+to_str(m_physical_model.lock()->ndim())+"],rhoE[1]" << CFendl;
-    CField& solution = mesh->create_field("solution",CField::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->ndim())+"],rhoE[1]");
+    Field& solution = mesh->create_field("solution",Field::Basis::CELL_BASED,"P0","rho[1],rhoU["+to_str(m_physical_model.lock()->ndim())+"],rhoE[1]");
     solution.add_tag("solution");
   }
 
-  CField& solution = find_component_with_name<CField>(*mesh,"solution");
+  Field& solution = find_component_with_name<Field>(*mesh,"solution");
   m_solution->link_to(solution.self());
 
   Component::Ptr residual_ptr = find_component_ptr_with_tag(*mesh,"residual");
@@ -329,7 +329,7 @@ void FiniteVolumeSolver::auto_config_fields(Component& parent)
 
   CMesh& mesh = find_component_recursively<CMesh>(*m_domain.lock());
 
-  boost_foreach(CField& field, find_components<CField>(mesh) )
+  boost_foreach(Field& field, find_components<Field>(mesh) )
   {
     parent.configure_option_recursively(field.name(), field.uri());
   }

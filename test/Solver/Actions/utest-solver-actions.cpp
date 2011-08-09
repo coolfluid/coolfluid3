@@ -25,8 +25,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/LoadMesh.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
@@ -152,7 +151,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  CField& field = *mesh->create_component_ptr<CField>("field");
+  Field& field = *mesh->create_component_ptr<Field>("field");
   field.configure_option("Topology",mesh->topology().uri());
   field.configure_option("FieldType",std::string("PointBased"));
   field.create_data_storage();
@@ -168,12 +167,12 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  CField& volumes = *mesh->create_component_ptr<CField>("volumes");
+  Field& volumes = *mesh->create_component_ptr<Field>("volumes");
   volumes.configure_option("Topology",mesh->topology().uri());
   volumes.configure_option("FieldType",std::string("ElementBased"));
   volumes.create_data_storage();
 
-  CField& areas = *mesh->create_component_ptr<CField>("areas");
+  Field& areas = *mesh->create_component_ptr<Field>("areas");
   areas.configure_option("Topology",mesh->topology().uri());
   areas.configure_option("FieldType",std::string("ElementBased"));
   areas.create_data_storage();
@@ -209,10 +208,10 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(volumes.as_ptr<CField>());
-  fields.push_back(field.as_ptr<CField>());
-  fields.push_back(areas.as_ptr<CField>());
+  std::vector<Field::Ptr> fields;
+  fields.push_back(volumes.as_ptr<Field>());
+  fields.push_back(field.as_ptr<Field>());
+  fields.push_back(areas.as_ptr<Field>());
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
@@ -231,7 +230,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  CField& field = mesh->create_field("test_CForAllElementsT",CField::Basis::CELL_BASED,"space[0]","var[1]");
+  Field& field = mesh->create_field("test_CForAllElementsT",Field::Basis::CELL_BASED,"space[0]","var[1]");
 
   BOOST_CHECK(true);
 
@@ -250,8 +249,8 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   compute_all_cell_volumes->execute();
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(field.as_ptr<CField>());
+  std::vector<Field::Ptr> fields;
+  fields.push_back(field.as_ptr<Field>());
   CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");

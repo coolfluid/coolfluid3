@@ -20,9 +20,9 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/FieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -271,18 +271,18 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    CField& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField::Basis::ELEMENT_BASED ||
-        elementbased_field.basis() == CField::Basis::CELL_BASED    ||
-        elementbased_field.basis() == CField::Basis::FACE_BASED    )
+    Field& elementbased_field = *field_ptr.lock();
+    if (elementbased_field.basis() == Field::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == Field::Basis::CELL_BASED    ||
+        elementbased_field.basis() == Field::Basis::FACE_BASED    )
     {
       const Real field_time = 0;//elementbased_field.option("time").value<Real>();
       const Uint field_iter = 0;//elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
-      const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = Field::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -296,17 +296,17 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
       {
-        CField::VarType var_type = elementbased_field.var_type(iVar);
+        Field::VarType var_type = elementbased_field.var_type(iVar);
         std::string var_name = elementbased_field.var_name(iVar);
 
         Uint datasize(var_type);
         switch (var_type)
         {
-          case CField::VECTOR_2D:
-            datasize=Uint(CField::VECTOR_3D);
+          case Field::VECTOR_2D:
+            datasize=Uint(Field::VECTOR_3D);
             break;
-          case CField::TENSOR_2D:
-            datasize=Uint(CField::TENSOR_3D);
+          case Field::TENSOR_2D:
+            datasize=Uint(Field::TENSOR_3D);
             break;
           default:
             break;
@@ -359,7 +359,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
                 RealVector node_data = field_view.space().shape_function().value(local_coords)*field_data;
                 cf_assert(node_data.size() == var_type);
 
-                if (var_type==CField::TENSOR_2D)
+                if (var_type==Field::TENSOR_2D)
                 {
                   data[0]=node_data[0];
                   data[1]=node_data[1];
@@ -372,7 +372,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
                 {
                   for (Uint j=0; j<var_type; ++j)
                     file << " " << node_data[j];
-                  if (var_type == CField::VECTOR_2D)
+                  if (var_type == Field::VECTOR_2D)
                     file << " " << 0.0;
                 }
               }
@@ -430,11 +430,11 @@ void CWriter::write_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    CField& nodebased_field = *field_ptr.lock();
+    Field& nodebased_field = *field_ptr.lock();
 
-    if (nodebased_field.basis() == CField::Basis::POINT_BASED)
+    if (nodebased_field.basis() == Field::Basis::POINT_BASED)
     {
       const std::string field_name = nodebased_field.name();
       std::string field_topology = nodebased_field.topology().uri().path();
@@ -445,16 +445,16 @@ void CWriter::write_nodal_data(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<nodebased_field.nb_vars(); ++iVar)
       {
-        CField::VarType var_type = nodebased_field.var_type(iVar);
+        Field::VarType var_type = nodebased_field.var_type(iVar);
         std::string var_name = nodebased_field.var_name(iVar);
         Uint datasize(var_type);
         switch (var_type)
         {
-          case CField::VECTOR_2D:
-            datasize=Uint(CField::VECTOR_3D);
+          case Field::VECTOR_2D:
+            datasize=Uint(Field::VECTOR_3D);
             break;
-          case CField::TENSOR_2D:
-            datasize=Uint(CField::TENSOR_3D);
+          case Field::TENSOR_2D:
+            datasize=Uint(Field::TENSOR_3D);
             break;
           default:
             break;
@@ -481,7 +481,7 @@ void CWriter::write_nodal_data(std::fstream& file)
         {
           file << to_gmsh_node[used_nodes[local_node_idx++]] << " ";
 
-          if (var_type==CField::TENSOR_2D)
+          if (var_type==Field::TENSOR_2D)
           {
             data[0]=field_per_node[row_idx+0];
             data[1]=field_per_node[row_idx+1];
@@ -494,7 +494,7 @@ void CWriter::write_nodal_data(std::fstream& file)
           {
             for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
               file << " " << field_per_node[idx];
-            if (var_type == CField::VECTOR_2D)
+            if (var_type == Field::VECTOR_2D)
               file << " " << 0.0;
           }
           file << "\n";
@@ -547,18 +547,18 @@ void CWriter::write_element_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    CField& elementbased_field = *field_ptr.lock();
-    if (elementbased_field.basis() == CField::Basis::ELEMENT_BASED ||
-        elementbased_field.basis() == CField::Basis::CELL_BASED    ||
-        elementbased_field.basis() == CField::Basis::FACE_BASED    )
+    Field& elementbased_field = *field_ptr.lock();
+    if (elementbased_field.basis() == Field::Basis::ELEMENT_BASED ||
+        elementbased_field.basis() == Field::Basis::CELL_BASED    ||
+        elementbased_field.basis() == Field::Basis::FACE_BASED    )
     {
       const Real field_time = elementbased_field.option("time").value<Real>();
       const Uint field_iter = elementbased_field.option("iteration").value<Uint>();
       const std::string field_name = elementbased_field.name();
       std::string field_topology = elementbased_field.topology().uri().path();
-      const std::string field_basis = CField::Basis::Convert::instance().to_str(elementbased_field.basis());
+      const std::string field_basis = Field::Basis::Convert::instance().to_str(elementbased_field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(CEntities& field_elements, find_components_recursively<CEntities>(elementbased_field.topology()))
@@ -573,17 +573,17 @@ void CWriter::write_element_data(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<elementbased_field.nb_vars(); ++iVar)
       {
-        CField::VarType var_type = elementbased_field.var_type(iVar);
+        Field::VarType var_type = elementbased_field.var_type(iVar);
         std::string var_name = elementbased_field.var_name(iVar);
 
         Uint datasize(var_type);
         switch (var_type)
         {
-          case CField::VECTOR_2D:
-            datasize=Uint(CField::VECTOR_3D);
+          case Field::VECTOR_2D:
+            datasize=Uint(Field::VECTOR_3D);
             break;
-          case CField::TENSOR_2D:
-            datasize=Uint(CField::TENSOR_3D);
+          case Field::TENSOR_2D:
+            datasize=Uint(Field::TENSOR_3D);
             break;
           default:
             break;
@@ -603,14 +603,14 @@ void CWriter::write_element_data(std::fstream& file)
         {
           if (elementbased_field.exists_for_entities(field_elements))
           {
-            CFieldView field_view("field_view");
+            FieldView field_view("field_view");
             field_view.initialize(elementbased_field,field_elements.as_ptr<CEntities>());
             Uint elm_number = m_element_start_idx[&field_elements];
             Uint local_nb_elms = field_elements.size();
             for (Uint local_elm_idx = 0; local_elm_idx<local_nb_elms; ++local_elm_idx)
             {
               file << ++elm_number << " " ;
-              if (var_type==CField::TENSOR_2D)
+              if (var_type==Field::TENSOR_2D)
               {
                 data[0]=field_view[local_elm_idx][row_idx+0];
                 data[1]=field_view[local_elm_idx][row_idx+1];
@@ -623,7 +623,7 @@ void CWriter::write_element_data(std::fstream& file)
               {
                 for (Uint idx=row_idx; idx<row_idx+Uint(var_type); ++idx)
                   file << " " << field_view[local_elm_idx][idx];
-                if (var_type == CField::VECTOR_2D)
+                if (var_type == Field::VECTOR_2D)
                   file << " " << 0.0;
               }
               file << "\n";

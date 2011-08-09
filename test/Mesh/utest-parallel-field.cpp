@@ -24,7 +24,6 @@
 #include "Common/MPI/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
@@ -128,7 +127,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // create a field and assign it to the comm pattern
 
-  CField& field = mesh.create_field("node_rank",CField::Basis::POINT_BASED);
+  Field& field = mesh.create_field("node_rank",Field::Basis::POINT_BASED);
 
   field.parallelize();
 
@@ -145,8 +144,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Create a field with glb element numbers
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  CField& glb_elem_idx = mesh.create_field("glb_elem_idx",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& field_view = glb_elem_idx.create_component<CFieldView>("field_view");
+  Field& glb_elem_idx = mesh.create_field("glb_elem_idx",Field::Basis::ELEMENT_BASED,"P0");
+  FieldView& field_view = glb_elem_idx.create_component<FieldView>("field_view");
   field_view.set_field(glb_elem_idx);
   boost_foreach(const CEntities& elements, glb_elem_idx.field_elements())
   {
@@ -158,7 +157,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   // Create a field with glb node numbers
-  CField& glb_node_idx = mesh.create_field("glb_node_idx",CField::Basis::POINT_BASED);
+  Field& glb_node_idx = mesh.create_field("glb_node_idx",Field::Basis::POINT_BASED);
   Uint n=0;
   boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
   {
@@ -167,10 +166,10 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // Write the mesh with the fields
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(field.as_ptr<CField>());
-  fields.push_back(glb_elem_idx.as_ptr<CField>());
-  fields.push_back(glb_node_idx.as_ptr<CField>());
+  std::vector<Field::Ptr> fields;
+  fields.push_back(field.as_ptr<Field>());
+  fields.push_back(glb_elem_idx.as_ptr<Field>());
+  fields.push_back(glb_node_idx.as_ptr<Field>());
 
   CMeshWriter::Ptr tec_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");

@@ -12,7 +12,7 @@
 
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
@@ -63,7 +63,7 @@ void BcDirichlet::execute()
 
   // apply BC to solution field
 
-  CField& solution_field = solution();
+  Field& solution_field = solution();
 
 //  std::cout << "   field.size() == " << field.size() << std::endl;
 //  std::cout << "   coordinates.size() == " << mesh().nodes().coordinates().size() << std::endl;

@@ -22,7 +22,7 @@ namespace Common {  class URI;  }
 namespace Mesh {
 
   class CNodes;
-  class CField;
+  class Field;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ public: // functions
 
   virtual void execute();
 
-  void set_fields(const std::vector<boost::shared_ptr<CField> >& fields);
+  void set_fields(const std::vector<boost::shared_ptr<Field> >& fields);
 
 private: // functions
 
@@ -88,7 +88,7 @@ protected:
 
   CMesh::ConstPtr m_mesh;
 
-  std::vector<boost::weak_ptr<CField> > m_fields;
+  std::vector<boost::weak_ptr<Field> > m_fields;
 
 };
 

@@ -147,19 +147,19 @@ struct VariableManager::Implementation
 
       // Check if the field exists
       Component::ConstPtr existing_component = mesh.get_child_ptr(fd_name);
-      CField::ConstPtr existing_field;
+      Field::ConstPtr existing_field;
       if(existing_component)
-        existing_field = existing_component->as_ptr<CField>();
+        existing_field = existing_component->as_ptr<Field>();
       if(existing_component && !existing_field)
         throw ValueExists(FromHere(), "A component with the name of field " + fd_name + " exists. Field can not be created.");
 
       std::vector<std::string> fd_var_names;
-      std::vector<Mesh::CField::VarType> fd_var_types;
+      std::vector<Mesh::Field::VarType> fd_var_types;
 
       for(VarTypesT::const_iterator var_it = fd_it->second.begin(); var_it != fd_it->second.end(); ++var_it)
       {
         fd_var_names.push_back(var_it->first);
-        fd_var_types.push_back(static_cast<Mesh::CField::VarType>(var_it->second == SCALAR ? 1 : m_dim));
+        fd_var_types.push_back(static_cast<Mesh::Field::VarType>(var_it->second == SCALAR ? 1 : m_dim));
 
         if(existing_field) // If the field exists, check if it is compatible
         {
@@ -170,7 +170,7 @@ struct VariableManager::Implementation
       }
 
       if(!existing_field)
-        mesh.create_field(fd_name, CField::Basis::POINT_BASED, fd_var_names, fd_var_types);
+        mesh.create_field(fd_name, Field::Basis::POINT_BASED, fd_var_names, fd_var_types);
     }
   }
   */

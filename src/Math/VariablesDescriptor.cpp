@@ -93,7 +93,7 @@ struct VariablesDescriptor::Implementation
     return m_user_names[checked_index(name)];
   }
   
-  /// Implementation based on Willem Deconincks code for CField
+  /// Implementation based on Willem Deconincks code for Field
   void set_variables(const std::string& description)
   {
     const boost::regex e_variable("([[:word:]]+)[[:space:]]*(\\[[[:space:]]*[[:word:]]+[[:space:]]*\\])?");

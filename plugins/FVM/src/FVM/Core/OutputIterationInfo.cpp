@@ -10,7 +10,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/CTime.hpp"
@@ -45,7 +45,7 @@ OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
       ->description("Time tracking component")
       ->pretty_name("Time");
 
-  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+  m_options.add_option(OptionComponent<Field>::create("residual", &m_residual))
       ->description("Residual")
       ->pretty_name("Residual");
 }

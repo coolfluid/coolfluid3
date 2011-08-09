@@ -13,7 +13,7 @@
 #include "Mesh/Actions/CBuildArea.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
 
@@ -67,7 +67,7 @@ void CBuildArea::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& area_field = mesh.create_field(Mesh::Tags::area(),CField::Basis::FACE_BASED,"P0");
+  Field& area_field = mesh.create_field(Mesh::Tags::area(),Field::Basis::FACE_BASED,"P0");
   area_field.add_tag(Mesh::Tags::area());
   CScalarFieldView area("area_view");
   area.set_field(area_field);

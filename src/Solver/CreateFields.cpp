@@ -12,7 +12,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/VariableManager.hpp"
@@ -38,7 +38,7 @@ void create_fields(CMesh& mesh, PhysModel& physical_model)
     Component::Ptr field_comp = mesh.get_child_ptr(field_name);
     if(is_not_null(field_comp))
     {
-      CField::Ptr field = boost::dynamic_pointer_cast<CField>(field_comp);
+      Field::Ptr field = boost::dynamic_pointer_cast<Field>(field_comp);
       if(!field)
         throw SetupError(FromHere(), "Adding fields into " + mesh.uri().string() + ": Component with name " + field_name + " exists, but it is not a field");
 
@@ -53,7 +53,7 @@ void create_fields(CMesh& mesh, PhysModel& physical_model)
     }
     else
     {
-      mesh.create_field(field_name, CF::Mesh::CField::Basis::POINT_BASED, "space[0]", var_spec);
+      mesh.create_field(field_name, CF::Mesh::Field::Basis::POINT_BASED, "space[0]", var_spec);
     }
   }
 }

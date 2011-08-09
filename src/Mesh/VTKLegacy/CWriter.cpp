@@ -22,8 +22,8 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -152,12 +152,12 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    const CField& field = *field_ptr.lock();
+    const Field& field = *field_ptr.lock();
 
     // must be point based
-    if(field.basis() != CField::Basis::POINT_BASED)
+    if(field.basis() != Field::Basis::POINT_BASED)
       continue;
 
     // size must be correct
@@ -170,7 +170,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      if(field.var_type(var_idx) == CField::SCALAR)
+      if(field.var_type(var_idx) == Field::SCALAR)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)

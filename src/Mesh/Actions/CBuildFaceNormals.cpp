@@ -17,7 +17,7 @@
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -80,9 +80,9 @@ void CBuildFaceNormals::execute()
   CMesh& mesh = *m_mesh.lock();
   
   const Uint dimension = mesh.nodes().coordinates().row_size();
-  CField& face_normal_field = mesh.create_field(Mesh::Tags::normal(),CField::Basis::FACE_BASED,"P0","face_normal["+to_str(dimension)+"]");
+  Field& face_normal_field = mesh.create_field(Mesh::Tags::normal(),Field::Basis::FACE_BASED,"P0","face_normal["+to_str(dimension)+"]");
   face_normal_field.add_tag(Mesh::Tags::normal());
-  CFieldView face_normal("face_normal_view");
+  FieldView face_normal("face_normal_view");
   face_normal.set_field(face_normal_field);
   Component::Ptr component;
   Uint cell_idx(0);

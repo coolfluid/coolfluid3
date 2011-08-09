@@ -28,7 +28,6 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CInterpolator.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CSpace.hpp"
 
 #include "Mesh/Actions/CreateSpaceP0.hpp"
@@ -126,16 +125,16 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
   // Create empty fields
-  CField& s_nodebased   = source.create_field( "nodebased",    CField::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
-  CField& s_elembased   = source.create_field( "elementbased", CField::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  Field& s_nodebased   = source.create_field( "nodebased",    Field::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
+  Field& s_elembased   = source.create_field( "elementbased", Field::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-  CField& t_nodebased   = target.create_field( "nodebased",    CField::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
-  CField& t_nodebased_2 = target.create_field( "nodebased_2",  CField::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
-  CField& t_elembased   = target.create_field( "elementbased", CField::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  Field& t_nodebased   = target.create_field( "nodebased",    Field::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
+  Field& t_nodebased_2 = target.create_field( "nodebased_2",  Field::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
+  Field& t_elembased   = target.create_field( "elementbased", Field::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
 
-//  target.create_field( "nodebased_2",    nvars_2, CField::Basis::POINT_BASED    );
-//  target.create_field( "elementbased",   evars,   CField::Basis::ELEMENT_BASED );
-//  target.create_field( "elementbased_2", evars_2, CField::Basis::ELEMENT_BASED );
+//  target.create_field( "nodebased_2",    nvars_2, Field::Basis::POINT_BASED    );
+//  target.create_field( "elementbased",   evars,   Field::Basis::ELEMENT_BASED );
+//  target.create_field( "elementbased_2", evars_2, Field::Basis::ELEMENT_BASED );
 
   BOOST_CHECK(true);
 
@@ -153,7 +152,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   }
 
-  CFieldView s_elembased_view("s_elembased_view");
+  FieldView s_elembased_view("s_elembased_view");
   s_elembased_view.set_field(s_elembased);
   RealMatrix coordinates;
   boost_foreach( CElements& s_elements, find_components_recursively<CElements>(s_elembased.topology()) )
@@ -200,9 +199,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   BOOST_CHECK(true);
 
-  std::vector<CField::Ptr> s_fields;
-  boost_foreach(CField& field, find_components_recursively<CField>(source))
-    s_fields.push_back(field.as_ptr<CField>());
+  std::vector<Field::Ptr> s_fields;
+  boost_foreach(Field& field, find_components_recursively<Field>(source))
+    s_fields.push_back(field.as_ptr<Field>());
 
   meshwriter->set_fields(s_fields);
 
@@ -211,9 +210,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
 
-  std::vector<CField::Ptr> t_fields;
-  boost_foreach(CField& field, find_components_recursively<CField>(target))
-    t_fields.push_back(field.as_ptr<CField>());
+  std::vector<Field::Ptr> t_fields;
+  boost_foreach(Field& field, find_components_recursively<Field>(target))
+    t_fields.push_back(field.as_ptr<Field>());
 
   meshwriter->set_fields(t_fields);
   meshwriter->write_from_to(target,"interpolated.msh");

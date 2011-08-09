@@ -21,12 +21,8 @@ list( APPEND coolfluid_mesh_files
   CFaceCellConnectivity.cpp
   CFaces.hpp
   CFaces.cpp
-  CField.hpp
-  CField.cpp
   Field.hpp
   Field.cpp
-  CFieldView.hpp
-  CFieldView.cpp
   FieldGroup.hpp
   FieldGroup.cpp
   CHash.hpp

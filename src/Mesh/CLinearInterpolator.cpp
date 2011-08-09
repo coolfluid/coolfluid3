@@ -23,8 +23,8 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CNodes.hpp"
@@ -75,7 +75,7 @@ void CLinearInterpolator::construct_internal_storage(const CMesh& source)
 
 //////////////////////////////////////////////////////////////////////
 
-void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField& target)
+void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& target)
 {
   const CTable<Real>& s_data = source.data();
   CTable<Real>& t_data = target.data();
@@ -85,7 +85,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
 
-  if (source.basis() == CField::Basis::POINT_BASED && target.basis() == CField::Basis::POINT_BASED)
+  if (source.basis() == Field::Basis::POINT_BASED && target.basis() == Field::Basis::POINT_BASED)
   {
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
@@ -109,7 +109,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       }
     }
   }
-  else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::POINT_BASED)
+  else if (source.basis() == Field::Basis::ELEMENT_BASED && target.basis() == Field::Basis::POINT_BASED)
   {
     Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
@@ -148,9 +148,9 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       }
     }
   }
-  else if (source.basis() == CField::Basis::POINT_BASED && target.basis() == CField::Basis::ELEMENT_BASED)
+  else if (source.basis() == Field::Basis::POINT_BASED && target.basis() == Field::Basis::ELEMENT_BASED)
   {
-    CFieldView t_view("t_view");
+    FieldView t_view("t_view");
     t_view.set_field(target);
     RealVector t_centroid(m_dim);
     t_centroid.setZero();
@@ -188,9 +188,9 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
       }
     }
   }
-  else if (source.basis() == CField::Basis::ELEMENT_BASED && target.basis() == CField::Basis::ELEMENT_BASED)
+  else if (source.basis() == Field::Basis::ELEMENT_BASED && target.basis() == Field::Basis::ELEMENT_BASED)
   {
-    CFieldView t_view("t_view");
+    FieldView t_view("t_view");
     t_view.set_field(target);
     RealVector t_centroid(m_dim);
     t_centroid.setZero();
@@ -247,7 +247,7 @@ void CLinearInterpolator::interpolate_field_from_to(const CField& source, CField
   }
   else
   {
-    throw ShouldNotBeHere(FromHere(), "CField::basis() should return NODE_BASED or ELEMENT_BASED");
+    throw ShouldNotBeHere(FromHere(), "Field::basis() should return NODE_BASED or ELEMENT_BASED");
   }
 }
 

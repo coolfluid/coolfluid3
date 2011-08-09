@@ -18,7 +18,7 @@ namespace CF {
 namespace Mesh {
   template <typename T> class CTable;
   class CElements;
-  class CField;
+  class Field;
 }
 namespace Solver {
 namespace Actions {
@@ -49,7 +49,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::CField> m_field;
+  boost::weak_ptr<Mesh::Field> m_field;
 
   void config_field();
 };

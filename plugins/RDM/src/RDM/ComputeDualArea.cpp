@@ -11,7 +11,7 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
@@ -45,10 +45,10 @@ void ComputeDualArea::create_dual_area_field()
 
   // create if does not exist
 
-  CField::Ptr comp = find_component_ptr_with_tag<Mesh::CField>( mymesh, Tags::dual_area());
+  Field::Ptr comp = find_component_ptr_with_tag<Mesh::Field>( mymesh, Tags::dual_area());
   if( is_null( comp ) )
   {
-    comp = mymesh.create_scalar_field(Tags::dual_area(), solution()).as_ptr<Mesh::CField>();
+    comp = mymesh.create_scalar_field(Tags::dual_area(), solution()).as_ptr<Mesh::Field>();
     comp->add_tag(Tags::dual_area());
   }
 

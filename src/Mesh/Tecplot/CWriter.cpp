@@ -21,8 +21,8 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CSpace.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -100,12 +100,12 @@ void CWriter::write_file(std::fstream& file)
 
   std::vector<Uint> cell_centered_var_ids;
   Uint zone_var_id(dimension);
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    CField& field = *field_ptr.lock();
+    Field& field = *field_ptr.lock();
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
-      CField::VarType var_type = field.var_type(iVar);
+      Field::VarType var_type = field.var_type(iVar);
       std::string var_name = field.var_name(iVar);
 
       if ( static_cast<Uint>(var_type) > 1)
@@ -114,7 +114,7 @@ void CWriter::write_file(std::fstream& file)
         {
           file << " \"" << var_name << "["<<i<<"]\"";
           ++zone_var_id;
-          if (field.basis() != CField::Basis::POINT_BASED)
+          if (field.basis() != Field::Basis::POINT_BASED)
             cell_centered_var_ids.push_back(zone_var_id);
         }
       }
@@ -122,7 +122,7 @@ void CWriter::write_file(std::fstream& file)
       {
         file << " \"" << var_name <<"\"";
         ++zone_var_id;
-        if (field.basis() != CField::Basis::POINT_BASED)
+        if (field.basis() != Field::Basis::POINT_BASED)
           cell_centered_var_ids.push_back(zone_var_id);
       }
     }
@@ -196,19 +196,19 @@ void CWriter::write_file(std::fstream& file)
     file << "\n";
 
 
-    boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+    boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
     {
-      CField& field = *field_ptr.lock();
+      Field& field = *field_ptr.lock();
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        CField::VarType var_type = field.var_type(iVar);
+        Field::VarType var_type = field.var_type(iVar);
         std::string var_name = field.var_name(iVar);
         file << "\n### variable " << var_name << "\n\n"; // var name in comment
 
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          if (field.basis() == CField::Basis::POINT_BASED)
+          if (field.basis() == Field::Basis::POINT_BASED)
           {
             boost_foreach(Uint n, used_nodes.array())
             {

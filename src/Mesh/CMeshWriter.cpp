@@ -14,7 +14,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/MeshMetadata.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -63,7 +63,7 @@ void CMeshWriter::config_fields()
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)
   {
-    m_fields.push_back(access_component_ptr_checked(uri)->as_ptr_checked<CField>());
+    m_fields.push_back(access_component_ptr_checked(uri)->as_ptr_checked<Field>());
     if ( is_null(m_fields.back().lock()) )
       throw ValueNotFound(FromHere(),"Invalid URI ["+uri.string()+"]");
   }
@@ -71,10 +71,10 @@ void CMeshWriter::config_fields()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::set_fields(const std::vector<CField::Ptr>& fields)
+void CMeshWriter::set_fields(const std::vector<Field::Ptr>& fields)
 {
   m_fields.resize(0);
-  boost_foreach( CField::Ptr field, fields )
+  boost_foreach( Field::Ptr field, fields )
     m_fields.push_back(field);
 }
 

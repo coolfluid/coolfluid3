@@ -13,7 +13,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
@@ -108,7 +108,7 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
   m_options.add_option< OptionT<Uint> >("Order", 2u)
       ->description("Order of the p-norm, zero if L-inf");
 
-  m_options.add_option(OptionComponent<CField>::create("Field", &m_field))
+  m_options.add_option(OptionComponent<Field>::create("Field", &m_field))
       ->description("Field for which to compute the norm");
 }
 

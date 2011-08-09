@@ -13,8 +13,8 @@
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldView.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
@@ -54,7 +54,7 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute();
 
-  Mesh::CField& dual_area() { return *cdual_area.lock(); }
+  Mesh::Field& dual_area() { return *cdual_area.lock(); }
 
 protected: // helper functions
 
@@ -62,7 +62,7 @@ protected: // helper functions
 
 private: // data
 
-  boost::weak_ptr< Mesh::CField > cdual_area;  ///< dual area
+  boost::weak_ptr< Mesh::Field > cdual_area;  ///< dual area
 
 };
 
@@ -122,7 +122,7 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::CField > csolution;  ///< solution field
+  boost::weak_ptr< Mesh::Field > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr solution;
@@ -171,7 +171,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &csolution));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
   m_options["Elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );

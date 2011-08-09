@@ -11,7 +11,7 @@
 
 #include "Mesh/CNodes.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
@@ -36,7 +36,7 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<CField>::create( "field", &m_field ))
+  m_options.add_option(OptionComponent<Field>::create( "field", &m_field ))
       ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
@@ -65,9 +65,9 @@ void Init::execute()
 {
   if( is_null( m_field.lock() ) )
     m_field = solver().as_type<RDM::RDSolver>().fields()
-        .get_child( RDM::Tags::solution() ).as_ptr_checked<CField>();
+        .get_child( RDM::Tags::solution() ).as_ptr_checked<Field>();
 
-  CField& field = *m_field.lock();
+  Field& field = *m_field.lock();
 
   //  std::cout << "   field.size() == " << field.size() << std::endl;
   //  std::cout << "   coordinates.size() == " << mesh().nodes().coordinates().size() << std::endl;

@@ -14,7 +14,7 @@
 
 namespace CF {
 namespace Mesh{
-  class CField;
+  class Field;
 }
 namespace Solver {
 

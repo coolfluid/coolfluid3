@@ -6,8 +6,8 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/FieldView.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
@@ -50,9 +50,9 @@ void CComputeVolume::config_field()
 {
   URI uri;
   option("Volume").put_value(uri);
-  CField::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
+  Field::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
   if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
+    throw CastingFailed (FromHere(), "Field must be of a Field or derived type");
   m_volume->set_field(comp);
 }
 
@@ -84,7 +84,7 @@ void CComputeVolume::execute()
   volume[idx()] = vol;
 
   // 2) as simple field --> extra index for multiple variables per field
-  CFieldView& view = m_volume->as_type<CFieldView>();
+  FieldView& view = m_volume->as_type<FieldView>();
   view[idx()][var_idx] = vol;
 
   // // 3) as complex field --> extra index for the case with multiple states per element

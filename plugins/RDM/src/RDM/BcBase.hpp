@@ -14,7 +14,7 @@
 #include "Common/BasicExceptions.hpp"
 
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -97,9 +97,9 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::CField > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::CField > cwave_speed; ///< wave_speed field
+  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
+  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
+  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;

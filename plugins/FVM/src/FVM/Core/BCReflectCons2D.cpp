@@ -6,12 +6,13 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
 #include "Mesh/ElementData.hpp"
+
 #include "FVM/Core/BCReflectCons2D.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +57,8 @@ BCReflectCons2D::BCReflectCons2D ( const std::string& name ) :
 void BCReflectCons2D::config_solution()
 {
   URI uri;  option("solution").put_value(uri);
-  CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
-  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
+  Field::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
+  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a Field or derived type");
   m_connected_solution.set_field(comp);
 }
 
@@ -66,7 +67,7 @@ void BCReflectCons2D::config_solution()
 void BCReflectCons2D::config_normal()
 {
   URI uri;  option(Mesh::Tags::normal()).put_value(uri);
-  CField& comp = Common::Core::instance().root().access_component(uri).as_type<CField>();
+  Field& comp = Common::Core::instance().root().access_component(uri).as_type<Field>();
   m_face_normal.set_field(comp);
 }
 

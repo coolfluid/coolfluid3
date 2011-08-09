@@ -14,7 +14,7 @@
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -44,11 +44,11 @@ RK::RK ( const std::string& name ) :
   // options
 
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &m_solution));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::dual_area(), &m_dual_area));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::residual(), &m_residual));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
 
   options().add_option< OptionT<Real> >( "cfl", 1.0 )
       ->pretty_name("CFL")
@@ -66,11 +66,11 @@ void RK::execute()
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
   if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
   if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
   if (m_dual_area.expired())
-    m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<CField>();
+    m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<Field>();
 
   CTable<Real>& solution     = m_solution.lock()->data();
   CTable<Real>& dual_area    = m_dual_area.lock()->data();

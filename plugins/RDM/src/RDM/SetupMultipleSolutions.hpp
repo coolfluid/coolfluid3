@@ -15,7 +15,7 @@
 
 namespace CF {
 
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 
 namespace RDM {
 

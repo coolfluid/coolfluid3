@@ -15,8 +15,8 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/FieldView.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
   desc = "  Usage: CInitFieldConstant constant \n";
   m_properties["description"] = desc;
 
-  m_options.add_option(OptionComponent<CField>::create("field", &m_field))
+  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();

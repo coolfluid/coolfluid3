@@ -21,8 +21,7 @@
 #include "Math/MatrixTypes.hpp"
 
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -120,9 +119,9 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::CField > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::CField > cwave_speed; ///< wave_speed field
+  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
+  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
+  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
@@ -202,11 +201,11 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &csolution));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::wave_speed(), &cwave_speed));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::residual(), &cresidual));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
   m_options["Elements"]

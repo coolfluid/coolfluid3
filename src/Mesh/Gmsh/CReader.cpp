@@ -25,8 +25,8 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldView.hpp"
 
 #include "Mesh/Gmsh/CReader.hpp"
 
@@ -658,7 +658,7 @@ void CReader::read_element_data()
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
     if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
-    CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
+    Field& field = *m_mesh->create_component_ptr<Field>(gmsh_field.name);
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
     field.configure_option("VarNames",gmsh_field.var_names);
     field.configure_option("VarTypes",var_types_str);
@@ -673,7 +673,7 @@ void CReader::read_element_data()
       m_file.seekg(gmsh_field.file_data_positions[i]);
 
 
-      CFieldView field_view("field_view");
+      FieldView field_view("field_view");
       field_view.set_field(field);
 
       Uint gmsh_elem_idx;
@@ -739,7 +739,7 @@ void CReader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    CField& field = *m_mesh->create_component_ptr<CField>(gmsh_field.name);
+    Field& field = *m_mesh->create_component_ptr<Field>(gmsh_field.name);
 
     field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
     field.configure_option("VarNames",gmsh_field.var_names);
@@ -755,7 +755,7 @@ void CReader::read_node_data()
       m_file.seekg(gmsh_field.file_data_positions[i]);
 
 
-      CFieldView field_view("field_view");
+      FieldView field_view("field_view");
       field_view.set_field(field);
 
       Uint gmsh_node_idx;

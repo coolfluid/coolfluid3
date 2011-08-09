@@ -9,8 +9,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/FieldView.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CEntities.hpp"
@@ -68,8 +68,8 @@ BCDirichletCons1D::BCDirichletCons1D ( const std::string& name ) :
 void BCDirichletCons1D::config_solution()
 {
   URI uri;  option("solution").put_value(uri);
-  CField::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<CField>();
-  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
+  Field::Ptr comp = Common::Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
+  if ( is_null(comp) ) throw CastingFailed (FromHere(), "Field must be of a Field or derived type");
   m_connected_solution.set_field(comp);
 }
 

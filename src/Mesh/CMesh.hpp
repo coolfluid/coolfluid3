@@ -11,7 +11,7 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/FieldGroup.hpp"
 
 namespace CF {
@@ -65,31 +65,31 @@ public: // functions
 
   /// Create a field
   /// @param name       Name for the field component
-  /// @param base       Type of the storage method. See CField::Basis for valid values
+  /// @param base       Type of the storage method. See Field::Basis for valid values
   /// @param space      The space the field applies to (e.g. high-order shape functions)
   /// @param variables  Either a comma-separated string of the form variable_name[size], or "scalar_same_name" (the default), which indicates the field holds a single scalar
-  CField& create_field( const std::string& name,
-                        const CField::Basis::Type base,
+  Field& create_field( const std::string& name,
+                        const Field::Basis::Type base,
                         const std::string& space = "space[0]",
                         const std::string& variables = "scalar_same_name");
 
-  CField& create_field( const std::string& name , CField& based_on_field);
+  Field& create_field( const std::string& name , Field& based_on_field);
 
   /// Create a field
   /// @param name Name for the field component
   /// @param base Storage method
   /// @param variable_names The names of the variables to add
   /// @param variable_types The types of the variables to add
-  CField& create_field( const std::string& name,
-                          const CField::Basis::Type base,
+  Field& create_field( const std::string& name,
+                          const Field::Basis::Type base,
                           const std::vector<std::string>& variable_names,
-                          const std::vector<CField::VarType> variable_types);
+                          const std::vector<Field::VarType> variable_types);
 
 
   /// Create a field containing a single scalar
-  CField& create_scalar_field( const std::string& field_name, const std::string& variable_name, const CField::Basis::Type base);
+  Field& create_scalar_field( const std::string& field_name, const std::string& variable_name, const Field::Basis::Type base);
 
-  CField& create_scalar_field( const std::string& name , CField& based_on_field);
+  Field& create_scalar_field( const std::string& name , Field& based_on_field);
 
   void update_statistics();
 
