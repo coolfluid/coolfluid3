@@ -6,14 +6,13 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
 

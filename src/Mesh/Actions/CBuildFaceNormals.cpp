@@ -7,7 +7,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -17,7 +17,6 @@
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -78,7 +77,7 @@ void CBuildFaceNormals::execute()
 {
 
   CMesh& mesh = *m_mesh.lock();
-  
+
   const Uint dimension = mesh.nodes().coordinates().row_size();
   Field& face_normal_field = mesh.create_field(Mesh::Tags::normal(),Field::Basis::FACE_BASED,"P0","face_normal["+to_str(dimension)+"]");
   face_normal_field.add_tag(Mesh::Tags::normal());
@@ -111,10 +110,10 @@ void CBuildFaceNormals::execute()
           {
             face_coordinates(i,j) = coord;
             ++j;
-          } 
+          }
           ++i;
         }
-        
+
         if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
         {
           RealVector cell_centroid(1);
@@ -130,7 +129,7 @@ void CBuildFaceNormals::execute()
           for (Uint i=0; i<normal.size(); ++i)
             face_normal[face][i] = normal[i];
         }
-      }      
+      }
     }
   }
 }

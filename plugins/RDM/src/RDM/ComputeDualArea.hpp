@@ -14,7 +14,6 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CNodes.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"

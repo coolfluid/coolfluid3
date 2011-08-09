@@ -24,7 +24,6 @@
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"

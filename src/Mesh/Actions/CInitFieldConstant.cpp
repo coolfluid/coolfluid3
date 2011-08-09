@@ -15,7 +15,6 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 

@@ -21,7 +21,6 @@
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CRegion.hpp"

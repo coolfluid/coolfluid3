@@ -31,7 +31,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CNodes.hpp"
