@@ -70,7 +70,7 @@ CModelUnsteady::~CModelUnsteady() {}
 void CModelUnsteady::simulate ()
 {
   CModel::simulate();
-  time().configure_option("time", time().current_time() );
+//  time().configure_option("time", time().current_time() );
 }
 
 

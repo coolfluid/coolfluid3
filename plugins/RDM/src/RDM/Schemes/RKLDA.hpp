@@ -113,8 +113,8 @@ protected: // helper function
       ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
     }
 
-    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
-    std::cout << "RKLDA   step    : " << step    << std::endl;
+//    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
+//    std::cout << "RKLDA   step    : " << step    << std::endl;
 
     rkalphas.resize(rkorder,rkorder);
     rkbetas.resize(rkorder,rkorder);
@@ -169,8 +169,9 @@ protected: // helper function
 
     }
 
-    std::cout << "rkalphas  :\n" << rkalphas << std::endl;
-    std::cout << "rkbetas   :\n" << rkbetas  << std::endl;
+    // initialize dFdU to zero
+    for(Uint dim = 0; dim < PHYS::MODEL::_ndim; ++dim)
+      B::dFdU[dim].setZero();
 
   }
 
@@ -213,21 +214,15 @@ protected: // data
 template<typename SF,typename QD, typename PHYS>
 void RKLDA::Term<SF,QD,PHYS>::execute()
 {
-
-  std::cout << "cell [" << B::idx() << "]" << std::endl;
-
   // get element connectivity
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
   // fill sols_l with the solutions untill the current step
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
-  {
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
         sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
-    std::cout << "Solution [" << l << "] = " << sols_l[l] << std::endl;
-  }
 
   /// @todo must be tested for 3D
 
@@ -247,24 +242,16 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
   // dX[XX].col(ETA) has the values of dx/deta at all quadrature points
 
   for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-  {
     for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
-    {
       B::dX[dimx].col(dimksi) = B::dNdKSI[dimksi] * B::X_n.col(dimx);
-    }
-  }
 
   // compute element-wise transformations that depend solely on geometry
 
   for(Uint q = 0; q < QD::nb_points; ++q)
   {
     for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-    {
       for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
-      {
         B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
-      }
-    }
 
     // compute the gradients of of all shape functions in phys. space
 
@@ -287,8 +274,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     B::wj[q] = B::jacob[q] * B::m_quadrature.weights[q];
 
   } // loop quadrature points
-
-  // std::cout << FromHere().short_str() << std::endl;
 
   // zero element residuals
 
@@ -361,10 +346,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
         du_l += B::Ni(q,j) * rkbetas(k,l) * sols_l[l].row(j);
 
-      std::cout << "du_l : " << du_l << std::endl;
-
-      // compute the phi_i integral
-
       for(Uint i = 0 ; i < SF::nb_nodes ; ++i)
         B::Phi_n.row(i) += (
                               Ki_n[i] * InvKi_n * ( du_l + dt * rkalphas(k,l) * B::LU )
@@ -383,14 +364,11 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   } // loop over each l for the same step
 
-  std::cout << "Phi_n : " << B::Phi_n << std::endl;
-
   // sum the local residual to the global residual
 
   for (Uint n=0; n<SF::nb_nodes; ++n)
     for (Uint eq=0; eq < PHYS::MODEL::_neqs; ++eq)
       (*B::residual)[nodes_idx[n]][eq] += B::Phi_n(n,eq) ;
-
 
 } // !RKLDA::Term<SF,QD,PHYS>::execute()
 

@@ -60,7 +60,6 @@ RK::RK ( const std::string& name ) :
 
 }
 
-
 void RK::execute()
 {
   RDSolver& mysolver = solver().as_type< RDSolver >();
@@ -88,12 +87,8 @@ void RK::execute()
   const Uint nbdofs = solution.size();
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
-  {
-    std::cout << "Dual area [" << i << "] :" << dual_area[i][0] << std::endl;
     for ( Uint j=0; j< nbvars; ++j )
       solution[i][j] += - residual[i][j] / dual_area[i][0];
-  }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
