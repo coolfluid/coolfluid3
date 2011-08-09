@@ -117,7 +117,10 @@ public: // functions
   void bind_space();
 
   CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
+
   CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+
+  Field& coordinates() const;
 
 private: // functions
 
@@ -143,6 +146,7 @@ protected:
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;
 
+  boost::shared_ptr<Field> m_coordinates;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

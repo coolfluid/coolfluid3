@@ -17,6 +17,7 @@
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/ShapeFunction.hpp"
+#include "Mesh/Field.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -119,14 +120,35 @@ RealMatrix compute_coordinates(const Uint elem_idx) const
 void CSpace::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
   CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
-  Field& coordinates = bound_fields().field("coordinates");
+  Field& coordinates_field = bound_fields().coordinates();
+
+  cf_assert(coordinates.rows() == indexes.size());
+  cf_assert(coordinates.cols() == coordinates_field.row_size());
+
+  for (Uint i=0; i<coordinates.rows(); ++i)
+  {
+    for (Uint j=0; j<coordinates.cols(); ++j)
+    {
+      coordinates(i,j) = coordinates_field[i][j];
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
 {
-
+  CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
+  Field& coordinates_field = bound_fields().coordinates();
+  RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
+  for (Uint i=0; i<coordinates.rows(); ++i)
+  {
+    for (Uint j=0; j<coordinates.cols(); ++j)
+    {
+      coordinates(i,j) = coordinates_field[i][j];
+    }
+  }
+  return coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

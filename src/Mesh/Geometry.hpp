@@ -42,11 +42,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Geometry"; }
 
-  Field& coordinates() { return *m_coordinates; }
-  const Field& coordinates() const { return *m_coordinates; }
+  Field& coordinates() const { return *m_coordinates; }
 
-  CDynTable<Uint>& glb_elem_connectivity() { return *m_glb_elem_connectivity; }
-  const CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
+  CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
   /// The dimension for the coordinates of the mesh
   Uint dim() const { return coordinates().row_size(); }
@@ -54,8 +52,6 @@ public: // functions
   virtual Uint size() const { return coordinates().size(); cf_assert(m_size == coordinates().size()); }
 
 private: // data
-
-  boost::shared_ptr<Field> m_coordinates;
 
   boost::shared_ptr<CDynTable<Uint> > m_glb_elem_connectivity;
 };
