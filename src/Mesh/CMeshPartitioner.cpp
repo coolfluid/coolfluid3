@@ -35,7 +35,7 @@ namespace Mesh {
 
   using namespace Common;
   using namespace Common::XML;
-  using namespace Common::mpi;
+  using namespace Common::MPI;
 
 //////////////////////////////////////////////////////////////////////////////
 

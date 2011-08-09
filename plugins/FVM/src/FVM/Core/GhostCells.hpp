@@ -42,7 +42,7 @@ public: // functions
   GhostCells ( const std::string& name );
 
   /// Initialize the GhostCells using the given type
-  virtual void initialize(const std::string& element_type_name, Mesh::Geometry& nodes);
+  virtual void initialize(const std::string& element_type_name, Mesh::Geometry& geometry);
     
   /// Virtual destructor
   virtual ~GhostCells();

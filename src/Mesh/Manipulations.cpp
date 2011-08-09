@@ -16,7 +16,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::mpi;
+using namespace Common::MPI;
 using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////

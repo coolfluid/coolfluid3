@@ -68,10 +68,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the CEntities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, Geometry& nodes);
+  virtual void initialize(const std::string& element_type_name, Geometry& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(Geometry& nodes);
+  virtual void assign_geometry(Geometry& geometry);
 
   /// Virtual destructor
   virtual ~CEntities();
@@ -83,13 +83,10 @@ public: // functions
   void configure_element_type();
 
   /// return the elementType
-  const ElementType& element_type() const;
-
-  /// Mutable access to the nodes
-  Geometry& nodes();
+  ElementType& element_type() const;
 
   /// Const access to the coordinates
-  const Geometry& nodes() const;
+  Geometry& geometry() const;
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }

@@ -40,9 +40,10 @@
 namespace CF {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::mpi;
 using namespace boost::assign;
+
+using namespace Common;
+using namespace Common::MPI;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 

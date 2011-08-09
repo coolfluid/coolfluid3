@@ -188,7 +188,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
   options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
       ->description("File to write" );
 
-  boost_foreach (CField& field, find_components<CField>(*this))
+  boost_foreach (Field& field, find_components<Field>(*this))
   {
     options.add_option< OptionT<bool> >(field.name(), false )
         ->description("Mark if field gets to be written");
@@ -218,7 +218,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   std::vector<URI> fields;
 
-  boost_foreach( CField& field, find_components<CField>(*this))
+  boost_foreach( Field& field, find_components<Field>(*this))
   {
     if (options.check(field.name()))
     {

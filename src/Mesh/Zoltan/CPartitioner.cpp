@@ -23,7 +23,7 @@ namespace Mesh {
 namespace Zoltan {
 
   using namespace Common;
-  using namespace Common::mpi;
+  using namespace Common::MPI;
 
 #define RANK "[" << PE::instance().rank() << "] "
 

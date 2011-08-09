@@ -37,7 +37,7 @@ namespace Mesh {
 namespace Actions {
 
   using namespace Common;
-  using namespace Common::mpi;
+  using namespace Common::MPI;
 
 ////////////////////////////////////////////////////////////////////////////////
 

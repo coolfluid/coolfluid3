@@ -83,7 +83,7 @@ const CConnectivity& CElements::node_connectivity() const
 
 RealMatrix CElements::get_coordinates(const Uint elem_idx) const
 {
-  const CTable<Real>& coords_table = nodes().coordinates();
+  const CTable<Real>& coords_table = geometry().coordinates();
   CConnectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
@@ -101,7 +101,7 @@ RealMatrix CElements::get_coordinates(const Uint elem_idx) const
 
 void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
-  const CTable<Real>& coords_table = nodes().coordinates();
+  const CTable<Real>& coords_table = geometry().coordinates();
   CConnectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_coords.rows();

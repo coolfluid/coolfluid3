@@ -136,7 +136,7 @@ void CEntities::configure_element_type()
 
 //////////////////////////////////////////////////////////////////////////////
 
-const ElementType& CEntities::element_type() const
+ElementType& CEntities::element_type() const
 {
   cf_assert_desc("element_type not initialized", is_not_null(m_element_type));
   return *m_element_type;
@@ -144,14 +144,7 @@ const ElementType& CEntities::element_type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-const Geometry& CEntities::nodes() const
-{
-  return m_nodes->follow()->as_type<Geometry>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Geometry& CEntities::nodes()
+Geometry& CEntities::geometry() const
 {
   return m_nodes->follow()->as_type<Geometry>();
 }
