@@ -15,6 +15,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -66,21 +67,21 @@ void CBuildArea::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  Field& area_field = mesh.create_field(Mesh::Tags::area(),FieldGroup::Basis::FACE_BASED,"P0");
-  area_field.add_tag(Mesh::Tags::area());
-  CScalarFieldView area("area_view");
-  area.set_field(area_field);
+  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()))
+    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
 
-  boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()) )
+  FieldGroup& faces_P0 = mesh.create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
+  Field& area = faces_P0.create_field(Mesh::Tags::area());
+  area.add_tag(Mesh::Tags::area());
+
+  boost_foreach(CEntities& elements, area.entities_range() )
   {
-    area.set_elements(elements.as_ptr<CEntities>());
-
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      area[cell_idx] = elements.element_type().compute_area( coordinates );
+      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().compute_area( coordinates );
     }
   }
 }
