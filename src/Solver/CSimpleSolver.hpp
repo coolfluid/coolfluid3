@@ -46,21 +46,17 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "CSimpleSolver"; }
-  
+
   /// When a mesh is loaded into the domain, set this as the mesh returned by mesh() and
   /// create the fields, based on registered fields in the physical model (if any)
   virtual void mesh_loaded(Mesh::CMesh& mesh);
-  
+
 protected:
   /// Checked access to the mesh
   Mesh::CMesh& mesh();
-  
-  /// Checked access to the physical model
-  Physics::PhysModel& physics();
-  
+
 private:
   boost::weak_ptr<Mesh::CMesh> m_mesh;
-  boost::weak_ptr<Physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
