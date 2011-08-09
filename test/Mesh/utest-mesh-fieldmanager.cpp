@@ -16,6 +16,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Math/VariableManager.hpp"
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -26,7 +27,6 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
-#include <Math/VariablesDescriptor.hpp>
 
 using namespace boost;
 using namespace CF;
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   field_manager.configure_option("variable_manager", var_manager.uri());
 
   field_manager.create_fields(tag, mesh, CField::Basis::POINT_BASED);
-  
+
   BOOST_CHECK(is_not_null(mesh.get_child_ptr(tag)));
   CField& field = mesh.get_child(tag).as_type<CField>();
   BOOST_CHECK(field.has_variable("a"));

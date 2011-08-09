@@ -29,9 +29,6 @@ using namespace Mesh;
 
 CSimpleSolver::CSimpleSolver(const std::string& name) : CSolver(name)
 {
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physics) )
-              ->pretty_name("Physical Model")
-              ->description("Physical Model");
 }
 
 CSimpleSolver::~CSimpleSolver()
@@ -43,18 +40,12 @@ CSimpleSolver::~CSimpleSolver()
 void CSimpleSolver::mesh_loaded(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
-  
-  if(m_physics.expired())
-  {
-    CFdebug << "Not creating fields because physical model is not set for " << uri().string() << CFendl;
-    return;
-  }
-  
-  Physics::PhysModel& phys_model = *m_physics.lock();
-  
+
+  Physics::PhysModel& phys_model = physics();
+
   // Update the dimensions on the physics
   phys_model.variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
-  
+
   // Create the fields
   create_fields(mesh, phys_model);
 }
@@ -65,18 +56,8 @@ CMesh& CSimpleSolver::mesh()
 {
   if(m_mesh.expired())
     throw SetupError(FromHere(), "No mesh configured for " + uri().string());
-  
+
   return *m_mesh.lock();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Physics::PhysModel& CSimpleSolver::physics()
-{
-  if(m_physics.expired())
-    throw SetupError(FromHere(), "No physical model configured for " + uri().string());
-  
-  return *m_physics.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
