@@ -14,6 +14,7 @@
 
 #include "Common/XML/Map.hpp"
 #include "Common/XML/XmlDoc.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +86,7 @@ public:
   /// Checks if an option or array exists with specified name
   /// @param name the name of the option
   bool has_entry ( const std::string& name ) const;
-  
+
   /// Returns a sub-frame with a specified name.
   /// If the frame does not exist yet, it is created.
   /// @param name The frame name.
@@ -116,6 +117,9 @@ public:
   /// Inserts the options, translating them from strings
   void insert( std::vector<std::string>& input );
 
+  /// Converts this signal to a string in the CF script format
+  std::string to_script() const;
+
 public: // data
 
   /// The frame node
@@ -128,10 +132,16 @@ public: // data
   /// created by this class.
   boost::shared_ptr<XmlDoc> xml_doc;
 
+  SignalOptions & options( const std::string & name = std::string() );
+
+  const SignalOptions & options( const std::string & name = std::string() ) const;
+
 private: // data
 
   /// Maps contained in this frame.
   std::map<std::string, SignalFrame> m_maps;
+
+  std::map<std::string, SignalOptions> m_options;
 
 }; // SignalFrame
 

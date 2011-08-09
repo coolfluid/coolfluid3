@@ -11,6 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Math/Consts.hpp"
 

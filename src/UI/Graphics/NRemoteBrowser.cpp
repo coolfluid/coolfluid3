@@ -32,11 +32,9 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "UI/Core/NBrowser.hpp"
-#include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Graphics/FilesListItem.hpp"
-#include "UI/Core/TreeThread.hpp"
-#include "UI/Core/ThreadManager.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -748,7 +746,7 @@ void NRemoteBrowser::openDir(const QString & path)
 
   options.flush();
 
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -801,22 +799,6 @@ QString NRemoteBrowser::selectedFile() const
 
   return QString();
 }
-
-////////////////////////////////////////////////////////////////////////////
-
-//void NRemoteBrowser::ack(NetworkFrameType type)
-//{
-//  switch(type)
-//  {
-//    case NETWORK_CREATE_DIR:
-//      this->openDir(m_currentPath);
-//      break;
-
-//    default:
-//      TreeThread::getLog()->addMessage("Unexpected ACK recieved");
-//      break;
-//  }
-//}
 
 //////////////////////////////////////////////////////////////////////////
 

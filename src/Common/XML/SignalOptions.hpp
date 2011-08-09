@@ -10,8 +10,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 #include "Common/OptionList.hpp"
+#include "Common/URI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/Map.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,12 +22,15 @@ namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
 
+class SignalFrame;
+
 /// Abstracts the use of XML when adding options to a signal frame.
 
 /// @author Quentin Gasper.
 
-class Common_API SignalOptions : public Common::OptionList
+class Common_API SignalOptions : public OptionList
 {
+
 public:
 
   /// Default constructor.
@@ -38,7 +42,7 @@ public:
 
   /// Parses the XML data to options.
   /// @param frame The frame to parse. Must be valid.
-  SignalOptions( SignalFrame & frame );
+  SignalOptions( SignalFrame & frame, const std::string & name = std::string() );
 
   /// Constructor.
   /// Creates a copy of the provided list.
@@ -82,7 +86,7 @@ public:
 
   /// Adds options to a provided map.
   /// @param map Map options will be added to. Must be valid.
-  static void add_to_map( Map & map, const OptionList & list ) ;
+  static void add_to_map( Map & main_map, const OptionList & list ) ;
 
   /// Gives an option value converted to a specified TYPE.
   /// This method is a shortcut provided to make the calling code more readable.
@@ -104,10 +108,10 @@ public:
   /// If the managed map is not valid, nothing is done.
   void flush();
 
-private:
+public: // data
 
   /// The managed map
-  Map m_map;
+  Map main_map;
 
 }; // SignalOptionList
 

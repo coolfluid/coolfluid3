@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
     mpi::PE::instance().init( argc, argv );
-    ServerRoot::root();
+    ServerRoot::instance().root();
 
     if( nb_workers != 0 )
     {
@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
       Core::instance().network_info().set_port( port );
 
       QHostInfo hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
-      CCore::Ptr sk = ServerRoot::core();
+      CCore::Ptr sk = ServerRoot::instance().core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
       sk->listenToPort(port); // start listening to the network

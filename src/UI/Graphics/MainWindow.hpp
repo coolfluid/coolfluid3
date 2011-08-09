@@ -29,6 +29,9 @@ class QTableView;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Tools { namespace Shell { class Interpreter; } }
+
 namespace UI {
 
 namespace Core {
@@ -71,6 +74,8 @@ namespace Graphics {
       ACTION_SAVE_REMOTELY,
 
       ACTION_SAVE_LOCALLY,
+
+      ACTION_RUN_SCRIPT,
 
       ACTION_TOGGLE_DEBUG_MODE,
 
@@ -147,12 +152,15 @@ namespace Graphics {
 
     void openFileRemotely();
 
+    void runScript();
+
     void newLogMessage(const QString & message, UICommon::LogMessage::Type type);
 
     void tabClicked(int num);
 
     void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
+    void scriptFinished();
 
   private:
 
@@ -223,6 +231,8 @@ namespace Graphics {
 
     TreeBrowser * m_treeBrowser;
 
+    Tools::Shell::Interpreter * m_scriptRunner;
+
     /// @brief Creates actions and menus
     void buildMenus();
 
@@ -247,6 +257,8 @@ namespace Graphics {
     void showError(const QString & errorMessage);
 
     void setConnectedState(bool connected);
+
+    void setRunningScriptState(bool running);
 
   }; // class MainWindow
 

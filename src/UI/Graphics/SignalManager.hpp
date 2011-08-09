@@ -11,6 +11,8 @@
 
 #include <QMap>
 
+#include "Common/XML/SignalFrame.hpp"
+
 #include "UI/Core/CNode.hpp"
 
 class QAction;
@@ -23,6 +25,7 @@ template<typename T> class QList;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
 namespace UI {
 namespace Graphics {
 

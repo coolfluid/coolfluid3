@@ -20,6 +20,13 @@
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+namespace XML {
+  class XmlDoc;
+}
+}
+
 namespace UI {
 namespace Server {
 
@@ -82,6 +89,11 @@ namespace Server {
 
      void forward_signal( Common::SignalArgs & args );
 
+     void sendACK( const std::string & clientid,
+                   const std::string & frameid,
+                   bool success,
+                   const std::string & message);
+
   private slots:
 
     /// @brief Slot called when a new client connects
@@ -97,23 +109,6 @@ namespace Server {
     /// @brief Forwards an error message from the simulator to the network layer
     /// @param message Error message to send
     void error(const QString & message);
-
-    /// @brief Slot called when the simulation is done.
-    void simulationFinished();
-
-    /// @brief Slot called when the client wants to activate the simulation
-
-    /// @param clientId Client ID.
-    /// @param nbProcs Number of workers to spawn
-    /// @param hosts Hosts on which the workers will be spawned.
-    void activateSimulation(int clientId, unsigned int nbProcs,
-                            const QString & hosts);
-
-    /// @brief Slot called when the client wants to deactivate the simulation
-    /// @param clientId Client ID.
-    void deactivateSimulation(int clientId);
-
-    void spawned();
 
   public slots:
 

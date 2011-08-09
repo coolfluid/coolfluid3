@@ -65,6 +65,8 @@ list( APPEND coolfluid_common_files
     LibCommon.hpp
     LibLoader.cpp
     LibLoader.hpp
+    LocalDispatcher.cpp
+    LocalDispatcher.hpp
     Log.cpp
     Log.hpp
     LogLevel.hpp
@@ -105,6 +107,8 @@ list( APPEND coolfluid_common_files
     StringConversion.cpp
     Signal.hpp
     Signal.cpp
+    SignalDispatcher.cpp
+    SignalDispatcher.hpp
     SignalHandler.hpp
     SignalHandler.cpp
     TaggedObject.hpp

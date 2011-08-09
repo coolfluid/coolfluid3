@@ -29,6 +29,7 @@
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Core/CNodeBuilders.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NGeneric.hpp"
 #include "UI/Core/NJournal.hpp"
@@ -292,6 +293,8 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
 
   QMap<QString, QString>::const_iterator it = opts.begin();
 
+  QMap<QString, QString>::const_iterator it2 = opts.begin();
+
   // for better readability of the code, a SignalFrame is built even when
   // modifying local options. It's not the most efficient way to do, but local
   // options are not meant to be modified 10 times each second so this should
@@ -361,7 +364,7 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
     if( isLocalComponent() )
       signal_configure( frame );
     else
-      ThreadManager::instance().network().send(frame);
+      NetworkQueue::global_queue()->send( frame );
   }
 }
 
@@ -681,7 +684,7 @@ void CNode::requestSignalSignature(const QString & name)
 
   frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
 
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
