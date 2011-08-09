@@ -160,10 +160,8 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       continue;
 
     // size must be correct
-    if(field.data().size() != npoints)
+    if(field.size() != npoints)
       continue;
-
-    const CTable<Real>& data = field.data();
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
@@ -173,7 +171,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)
-          file << " " << data[i][var_begin] << "\n";
+          file << " " << field[i][var_begin] << "\n";
       }
       else if(static_cast<Uint>(field.var_type(var_idx)) == dim)
       {
@@ -181,9 +179,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
         const Uint var_end = var_begin+dim;
         for(Uint i = 0; i != npoints; ++i)
         {
-          const CTable<Real>::ConstRow row = data[i];
+          const CTable<Real>::ConstRow row = field[i];
           for(Uint j = var_begin; j != var_end; ++j)
-            file << " " << data[i][j];
+            file << " " << field[i][j];
           if(dim == 2) file << " " << 0.;
           file << "\n";
         }

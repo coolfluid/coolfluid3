@@ -20,13 +20,14 @@
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Component.hpp"
+#include "Common/CGroup.hpp"
+
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/CommWrapper.hpp"
 #include "Common/MPI/CommWrapperMArray.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Common/MPI/debug.hpp"
-#include "Common/CGroup.hpp"
- 
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -258,10 +259,10 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   int i,j;
   boost::multi_array<Uint,1> array1d;
   boost::multi_array<Uint,2> array2d;
-  
+
   array1d.resize(boost::extents[32]);
   array2d.resize(boost::extents[24][4]);
-  
+
   std::vector<int> map(4);
 
   for(i=0; i<32; i++) array1d[i]=i;
@@ -417,7 +418,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  CommPattern pecp("CommPattern");
+  Comm::CommPattern pecp("CommPattern");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
@@ -474,7 +475,7 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   const int irank=Comm::PE::instance().rank();
 
   // commpattern
-  CommPattern pecp("CommPattern");
+  Comm::CommPattern pecp("CommPattern");
 
   // setup gid & rank
   std::vector<Uint> gid;
@@ -529,7 +530,7 @@ BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
   const int irank=Comm::PE::instance().rank();
 
   // commpattern
-  CommPattern pecp("CommPattern");
+  Comm::CommPattern pecp("CommPattern");
 
   // setup gid & rank
   std::vector<Uint> pre_gid; // it is used to feed through series of adds

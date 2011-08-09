@@ -90,7 +90,7 @@ BOOST_FIXTURE_TEST_CASE( all_reduce, PECollectiveFixture )
   double rk = Comm::PE::instance().rank();
   int rk_size = 1;
 
-  Comm::PE::instance().all_reduce( MPI::plus(), &rk, rk_size, &rk_result );
+  Comm::PE::instance().all_reduce( Comm::plus(), &rk, rk_size, &rk_result );
 
   BOOST_CHECK_EQUAL( rk_result, sum );
 
@@ -102,14 +102,14 @@ BOOST_FIXTURE_TEST_CASE( all_reduce, PECollectiveFixture )
 
   /// @todo this should not compile ( but it does ) - Tamas to fix?
 #if 0
-  Comm::PE::instance().all_reduce( MPI::max(), &v, v.size(), &v );
+  Comm::PE::instance().all_reduce( Comm::max(), &v, v.size(), &v );
 #endif
 
   // this works
-  Comm::PE::instance().all_reduce( MPI::plus(), v, v );
+  Comm::PE::instance().all_reduce( Comm::plus(), v, v );
 
   // this is equivalent
-//  Comm::PE::instance().all_reduce( MPI::plus(), &v[0], v.size(), &v[0] );
+//  Comm::PE::instance().all_reduce( Comm::plus(), &v[0], v.size(), &v[0] );
 
   BOOST_CHECK_EQUAL( v[0], sum );
   BOOST_CHECK_EQUAL( v[1], Comm::PE::instance().size() * Comm::PE::instance().size() );

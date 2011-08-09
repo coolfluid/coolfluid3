@@ -62,8 +62,8 @@ struct PEDatatypeFixture
 ////////////////////////////////////////////////////////////////////////////////
 
 /// data stays in scope for checking if registration is really static
-MPI::Datatype mpi_datatype_usi=nullptr;
-MPI::Datatype mpi_datatype_usd=nullptr;
+Comm::Datatype mpi_datatype_usi=nullptr;
+Comm::Datatype mpi_datatype_usd=nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,10 +117,10 @@ BOOST_AUTO_TEST_CASE( datatype_registered_types )
   // check if registering goes fine
   user_struct_i usi;
   mpi_datatype_usi=Comm::get_mpi_datatype(usi);
-  BOOST_CHECK_NE(mpi_datatype_usi,(MPI::Datatype)nullptr);
+  BOOST_CHECK_NE(mpi_datatype_usi,(Comm::Datatype)nullptr);
   user_struct_d usd;
   mpi_datatype_usd=Comm::get_mpi_datatype(usd);
-  BOOST_CHECK_NE(mpi_datatype_usd,(MPI::Datatype)nullptr);
+  BOOST_CHECK_NE(mpi_datatype_usd,(Comm::Datatype)nullptr);
 
   // check if no glitch and separate types go to separate static variables
   BOOST_CHECK_NE(mpi_datatype_usd,mpi_datatype_usi);
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( internal_mechanism_returns_nullptr_for_non_registered_type
   // this is just to be sure that nothing fishy happens if data type is unknown,
   // normally you shouldn't call ::detail functions
   user_struct_c usc;
-  BOOST_CHECK_EQUAL(MPI::detail::get_mpi_datatype_impl(usc),(MPI::Datatype)nullptr);
+  BOOST_CHECK_EQUAL(Comm::detail::get_mpi_datatype_impl(usc),(Comm::Datatype)nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
