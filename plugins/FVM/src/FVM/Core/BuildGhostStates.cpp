@@ -15,7 +15,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CElements.hpp"
@@ -41,8 +41,8 @@ namespace Core {
 Common::ComponentBuilder < BuildGhostStates, CMeshTransformer, LibCore > BuildGhostStates_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
-  
-BuildGhostStates::BuildGhostStates ( const std::string& name ) : 
+
+BuildGhostStates::BuildGhostStates ( const std::string& name ) :
   CMeshTransformer(name)
 {
   mark_basic();
@@ -53,9 +53,9 @@ BuildGhostStates::BuildGhostStates ( const std::string& name ) :
 void BuildGhostStates::execute()
 {
   CMesh& mesh = *m_mesh.lock();
-  
+
   recursive_build_ghost_states(mesh.topology());
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,14 +63,14 @@ void BuildGhostStates::execute()
 void BuildGhostStates::recursive_build_ghost_states(Component& parent)
 {
   CMesh& mesh = *m_mesh.lock();
-  
+
   Uint dim = mesh.geometry().coordinates().row_size();
   std::string dim_str = to_str(dim);
   std::vector<Uint> dummy(1);
   boost_foreach(CRegion& region, find_components<CRegion>(parent) )
   {
     recursive_build_ghost_states(region);
-    
+
     if ( find_components<CFaces>(region).size() != 0 )
     {
       // this region has faces to build ghost cells at
@@ -82,7 +82,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
       Uint nb_faces(0);
       boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces) )
         nb_faces += faces.size();
-        
+
       CRegion& ghost_states = *region.create_component_ptr<CRegion>("ghost_states");
       GhostCells& ghosts = *ghost_states.create_component_ptr<GhostCells>("Point");
       ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP0",mesh.geometry());
@@ -93,7 +93,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
 
       // update the mesh_elements so that the ghost elements now have a unified index
       mesh.elements().update();
-      
+
       boost_foreach(CFaces& faces, find_components<CFaces>(boundary_faces) )
       {
         // CFinfo << faces.uri().path() << CFendl;
@@ -102,7 +102,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         {
           CFaceCellConnectivity& face2cell = *face2cell_ptr;
           Uint unified_ghost_idx = face2cell.lookup().unified_idx(ghosts,0);
-          
+
           //CFinfo << "size before = " << find_component<CUnifiedData<CCells> >(face2cell).size() << CFendl;
           boost_foreach(CCells& cells, find_components<CCells>(ghost_states))
             face2cell.add_used(cells);
@@ -114,7 +114,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
           Uint cell_idx(0);
 
           RealVector normal(dim);
-          RealVector ghost_coord(dim);          
+          RealVector ghost_coord(dim);
 
           for (Uint face=0; face<face2cell.size(); ++face)
           {
@@ -127,10 +127,10 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             RealMatrix cell_coordinates = cells.get_coordinates(cell_idx);
             RealVector centroid(cell_coordinates.cols());
             cells.element_type().compute_centroid(cell_coordinates,centroid);
-                        
+
             if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
             {
-              RealVector face_coord(dim); 
+              RealVector face_coord(dim);
               for (Uint d=0; d<dim; ++d)
                 face_coord[d] = mesh.geometry().coordinates()[faces.node_connectivity()[face][0]][d];
               normal = face_coord - centroid;
@@ -170,10 +170,10 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             f2c_connectivity[face][1]=unified_ghost_idx++;
           }
         }
-      }      
+      }
     }
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

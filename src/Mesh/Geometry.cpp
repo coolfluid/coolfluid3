@@ -7,7 +7,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CDynTable.hpp"
 
 namespace CF {
@@ -15,7 +15,7 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < Geometry, Component, LibMesh > CNodes_Builder;
+Common::ComponentBuilder < Geometry, Component, LibMesh > Geometry_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

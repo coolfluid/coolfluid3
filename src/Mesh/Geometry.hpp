@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CNodes_hpp
-#define CF_Mesh_CNodes_hpp
+#ifndef CF_Mesh_Geometry_hpp
+#define CF_Mesh_Geometry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ template <typename T> class CDynTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CNodes component class
+/// Geometry component class
 /// This class stores information about the nodes of the mesh
 /// @author Willem Deconinck
 class Mesh_API Geometry : public Mesh::FieldGroup {
@@ -67,4 +67,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CNodes_hpp
+#endif // CF_Mesh_Geometry_hpp

@@ -14,7 +14,7 @@
 
 #include "Mesh/Actions/CBubbleRemove.hpp"
 #include "Mesh/CCells.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"

@@ -10,7 +10,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/CDomain.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/Tags.hpp"

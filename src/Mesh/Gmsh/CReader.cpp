@@ -19,7 +19,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CDynTable.hpp"

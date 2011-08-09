@@ -25,7 +25,7 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 
 #include "Mesh/Actions/GrowOverlap.hpp"

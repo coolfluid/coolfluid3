@@ -12,7 +12,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -21,7 +21,7 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 
 using namespace CF;

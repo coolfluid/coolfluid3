@@ -26,7 +26,7 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"

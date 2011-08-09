@@ -22,7 +22,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"

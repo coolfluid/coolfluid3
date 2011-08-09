@@ -18,7 +18,7 @@
 
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CSpace.hpp"
 
@@ -146,14 +146,14 @@ const ElementType& CEntities::element_type() const
 
 const Geometry& CEntities::nodes() const
 {
-  return m_nodes->follow()->as_type<CNodes>();
+  return m_nodes->follow()->as_type<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Geometry& CEntities::nodes()
 {
-  return m_nodes->follow()->as_type<CNodes>();
+  return m_nodes->follow()->as_type<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

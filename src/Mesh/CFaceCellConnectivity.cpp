@@ -19,7 +19,7 @@
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CRegion.hpp"

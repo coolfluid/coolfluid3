@@ -17,7 +17,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
 namespace CF {

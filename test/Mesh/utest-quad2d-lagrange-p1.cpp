@@ -14,7 +14,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Mesh/CElements.hpp"
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a CElements component
   CElements::Ptr comp = allocate_component<CElements>("comp");
-  Geometry::Ptr nodes = allocate_component<CNodes>("nodes");
+  Geometry::Ptr nodes = allocate_component<Geometry>("nodes");
   comp->initialize("CF.Mesh.SF.Quad2DLagrangeP1",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

@@ -24,7 +24,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   CRoot::Ptr root = CRoot::create("root");
   CMesh& mesh = root->create_component<CMesh>("mesh");
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.nodes();
   mesh.initialize_nodes(2,DIM_3D);
   BOOST_CHECK_EQUAL(mesh.nodes().coordinates().row_size() , (Uint) DIM_3D);
 

@@ -9,7 +9,7 @@
 #include "Common/CLink.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 namespace CF {
@@ -50,7 +50,7 @@ void CNodeElementConnectivity::set_nodes(Geometry& nodes)
 void CNodeElementConnectivity::build_connectivity()
 {
   set_nodes(elements().components()[0]->as_type<CElements>().nodes());
-  Geometry const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
+  Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

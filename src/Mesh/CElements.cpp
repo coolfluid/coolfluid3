@@ -14,7 +14,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 
 namespace CF {

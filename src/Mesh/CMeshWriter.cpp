@@ -13,7 +13,7 @@
 
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/MeshMetadata.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
 
 namespace CF {

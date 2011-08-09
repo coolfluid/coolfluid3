@@ -10,7 +10,7 @@
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"

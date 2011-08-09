@@ -24,7 +24,7 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Manipulations.hpp"
 #include "Mesh/CMeshElements.hpp"

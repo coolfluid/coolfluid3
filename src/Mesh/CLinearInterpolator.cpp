@@ -27,7 +27,7 @@
 #include "Mesh/FieldView.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

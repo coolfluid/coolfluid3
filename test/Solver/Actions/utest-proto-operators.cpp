@@ -33,7 +33,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"

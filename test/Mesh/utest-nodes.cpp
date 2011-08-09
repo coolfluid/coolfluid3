@@ -24,7 +24,7 @@
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 
@@ -120,9 +120,9 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Construct_CNodes )
+BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  Geometry::Ptr nodes = allocate_component<CNodes>("nodes");
+  Geometry::Ptr nodes = allocate_component<Geometry>("nodes");
   BOOST_CHECK( is_not_null(nodes) );
 
   nodes->resize(10);

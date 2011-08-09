@@ -19,7 +19,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CGNS/CReader.hpp"
 

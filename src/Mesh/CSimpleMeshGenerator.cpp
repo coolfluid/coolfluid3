@@ -20,7 +20,7 @@
 #include "Mesh/CHash.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"

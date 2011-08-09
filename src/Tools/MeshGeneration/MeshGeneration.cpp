@@ -19,7 +19,7 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

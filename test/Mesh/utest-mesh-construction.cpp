@@ -21,7 +21,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.nodes();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.nodes();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);

@@ -10,7 +10,7 @@
 #include "Common/CBuilder.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 namespace CF {
@@ -52,7 +52,7 @@ void CNodeFaceCellConnectivity::set_nodes(Geometry& nodes)
 
 void CNodeFaceCellConnectivity::build_connectivity()
 {
-  Geometry const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
+  Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

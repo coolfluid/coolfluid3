@@ -7,7 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/CCellFaces.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 
 namespace CF {

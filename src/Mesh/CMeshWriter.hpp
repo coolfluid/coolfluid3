@@ -15,7 +15,7 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 namespace CF {
 namespace Common {  class URI;  }

@@ -19,7 +19,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldView.hpp"

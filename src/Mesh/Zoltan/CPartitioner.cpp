@@ -15,7 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/CMap.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Zoltan/CPartitioner.hpp"
 
 namespace CF {

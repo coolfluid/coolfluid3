@@ -14,7 +14,7 @@
 
 #include "Mesh/Actions/CBuildCoordinatesField.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"

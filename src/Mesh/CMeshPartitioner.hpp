@@ -23,7 +23,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
@@ -200,7 +200,7 @@ Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (Geometry::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
@@ -233,7 +233,7 @@ void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, Vector
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Geometry::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -269,7 +269,7 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Geometry::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])

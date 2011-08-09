@@ -16,7 +16,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CUnifiedData.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   }
 
   CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
-  boost_foreach(CNodes& nodes, find_components_recursively<CNodes>(mesh))
+  boost_foreach(Geometry& nodes, find_components_recursively<Geometry>(mesh))
     unified_nodes->add(nodes);
 
   Component::Ptr nodes;

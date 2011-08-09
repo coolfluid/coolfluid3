@@ -9,7 +9,7 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/Manipulations.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CElements.hpp"
 
 namespace CF {

@@ -33,7 +33,7 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.nodes();
 
   PackUnpackNodes copy_node(nodes);
   mpi::Buffer buf;
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.nodes();
 
   CMeshWriter::Ptr tec_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");

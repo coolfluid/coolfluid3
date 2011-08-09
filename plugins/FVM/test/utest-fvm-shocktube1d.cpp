@@ -25,7 +25,7 @@
 #include "Solver/CTime.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"

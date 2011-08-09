@@ -22,7 +22,7 @@
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "Physics/PhysModel.hpp"

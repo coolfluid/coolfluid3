@@ -9,7 +9,7 @@
 #include "Common/OptionComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"

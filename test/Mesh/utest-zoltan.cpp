@@ -21,7 +21,7 @@
 #include "Common/MPI/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
-    BOOST_CHECK( is_not_null(comp->as_ptr<CNodes>()) );
+    BOOST_CHECK( is_not_null(comp->as_ptr<Geometry>()) );
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 0);
     BOOST_CHECK_EQUAL(found, true);

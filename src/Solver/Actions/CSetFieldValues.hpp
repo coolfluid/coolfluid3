@@ -8,7 +8,7 @@
 #define CF_Solver_Actions_CSetFieldValues_hpp
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
