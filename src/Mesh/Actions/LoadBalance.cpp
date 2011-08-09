@@ -93,7 +93,7 @@ void LoadBalance::execute()
   /// @todo this has to be re-enabled
 #if 0
   // Create global node indexes for nodes and elements
-  // plus ranks which are necessary for PECommPattern (both in serial and parallel)
+  // plus ranks which are necessary for CommPattern (both in serial and parallel)
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 

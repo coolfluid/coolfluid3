@@ -153,12 +153,12 @@ list( APPEND coolfluid_common_files
       MPI/ListeningThread.hpp
       MPI/PE.hpp
       MPI/PE.cpp
-      MPI/PEObjectWrapper.cpp
-      MPI/PEObjectWrapper.hpp
-      MPI/PEObjectWrapperMultiArray.hpp
-      MPI/PEObjectWrapperMultiArray.cpp
-      MPI/PECommPattern.hpp
-      MPI/PECommPattern.cpp
+      MPI/CommWrapper.cpp
+      MPI/CommWrapper.hpp
+      MPI/CommWrapperMArray.hpp
+      MPI/CommWrapperMArray.cpp
+      MPI/CommPattern.hpp
+      MPI/CommPattern.cpp
       MPI/datatype.hpp
       MPI/operations.hpp
       MPI/debug.hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_mpi_broadcast_hpp
-#define CF_Common_mpi_broadcast_hpp
+#ifndef CF_Common_MPI_broadcast_hpp
+#define CF_Common_MPI_broadcast_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@
 
 namespace CF {
   namespace Common {
-    namespace mpi {
+    namespace MPI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,9 +43,9 @@ namespace detail {
 
   /**
     Implementation to the broadcast interface.
-    Don't call this function directly, use mpi::broadcastvm instead.
+    Don't call this function directly, use MPI::broadcastvm instead.
     In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
-    @param comm mpi::communicator
+    @param comm MPI::communicator
     @param in_values pointer to the send buffer
     @param in_n array holding send counts of size #processes
     @param in_map array of size #processes holding the mapping. If zero pointer passed, no mapping on send side.
@@ -100,7 +100,7 @@ namespace detail {
 /**
   Interface to broadcast communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
-  @param comm mpi::communicator
+  @param comm MPI::communicator
   @param in_values pointer to the send buffer
   @param in_n size of the send array (number of items)
   @param out_values pointer to the receive buffer
@@ -136,7 +136,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_v
 
 /**
   Interface to broadcast communication with specialization to std::vector.
-  @param comm mpi::communicator
+  @param comm MPI::communicator
   @param in_values send buffer
   @param out_values receive buffer
   @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
@@ -174,7 +174,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector
   If null pointer passed for out_values then memory is allocated to fit the max in map and the pointer is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
-  @param comm mpi::communicator
+  @param comm MPI::communicator
   @param in_values pointer to the send buffer
   @param in_n array holding send counts of size #processes
   @param in_map array of size #processes holding the mapping. If zero pointer passed, no mapping on send side.
@@ -223,7 +223,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, const in
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
   However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
-  @param comm mpi::communicator
+  @param comm MPI::communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
   @param in_map array of size #processes holding the mapping. If zero pointer or zero size vector passed, no mapping on send side.
@@ -266,10 +266,10 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace mpi
+    } // end namespace MPI
   } // end namespace Common
 } // end namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_mpi_broadcast_hpp
+#endif // CF_Common_MPI_broadcast_hpp

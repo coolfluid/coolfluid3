@@ -20,7 +20,7 @@
 
 namespace CF {
 namespace Common {
-namespace mpi{
+namespace MPI{
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -562,8 +562,8 @@ struct PackedObject
 {
   PackedObject() {}
 
-  virtual void pack(mpi::Buffer& buffer) = 0;
-  virtual void unpack(mpi::Buffer& buffer) = 0;
+  virtual void pack(MPI::Buffer& buffer) = 0;
+  virtual void unpack(MPI::Buffer& buffer) = 0;
 };
 
 inline Buffer& operator<< (Buffer& buffer, PackedObject& obj)

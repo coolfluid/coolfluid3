@@ -150,27 +150,27 @@ void CGlobalConnectivity::execute()
   std::vector<std::vector<Uint> > glb_elem_connectivity(nodes.size());
   nodes_glb_idx.resize(mesh.geometry().size());
 
-  for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+  for (Uint root=0; root<MPI::PE::instance().size(); ++root)
   {
     std::vector<Uint> rcv_glb_node_idx(0);//ghostnode_glb_idx.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
+    MPI::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
     std::vector<Uint> rcv_glb_elem_connectivity(0);//ghostnode_glb_elem_connectivity.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
+    MPI::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
     std::vector<Uint> rcv_glb_elem_connectivity_start(0);//ghostnode_glb_elem_connectivity_start.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
+    MPI::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
 
-    if (mpi::PE::instance().rank() != root)
+    if (MPI::PE::instance().rank() != root)
     {
-      for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+      for (Uint p=0; p<MPI::PE::instance().size(); ++p)
       {
-        if (p == mpi::PE::instance().rank())
+        if (p == MPI::PE::instance().rank())
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t glb_node, rcv_glb_node_idx)
           {
             if (node_glb2loc.find(glb_node) != node_glb2loc.end())
             {
-              //std::cout << "["<<mpi::PE::instance().rank() << "] owns ghostnode " << glb_node << " of [" << root << "]" << std::endl;
+              //std::cout << "["<<MPI::PE::instance().rank() << "] owns ghostnode " << glb_node << " of [" << root << "]" << std::endl;
               Uint loc_node_idx = node_glb2loc[glb_node];
               for(Uint l=rcv_glb_elem_connectivity_start[rcv_idx]; l<rcv_glb_elem_connectivity_start[rcv_idx+1]; ++l)
                 glb_elem_connectivity[loc_node_idx].push_back(rcv_glb_elem_connectivity[l]);

@@ -19,8 +19,8 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
+#include "Common/MPI/CommPattern.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
 #include "Common/MPI/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
@@ -73,7 +73,7 @@ BOOST_FIXTURE_TEST_SUITE( ParallelFieldsTests_TestSuite, ParallelFieldsTests_Fix
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  MPI::PE::instance().init(m_argc,m_argv);
 
 }
  ////////////////////////////////////////////////////////////////////////////////
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   field.parallelize();
 
-  field.data() = mpi::PE::instance().rank();
+  field.data() = MPI::PE::instance().rank();
 
   // Synchronize
 
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  MPI::PE::instance().finalize();
 
   Core::instance().terminate();
 }

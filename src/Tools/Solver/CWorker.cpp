@@ -44,7 +44,7 @@ CWorker::~CWorker()
 
 void CWorker::signal_solve ( SignalArgs & args )
 {
-  CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Starting to solve." << CFendl;
+  CFinfo << "Worker[" <<  MPI::PE::instance().rank() << "] Starting to solve." << CFendl;
 
   Real data[500000]; // 500 thousand elements
 
@@ -61,8 +61,8 @@ void CWorker::signal_solve ( SignalArgs & args )
       Real value = std::sqrt( std::pow(data[j],3) * 2.71 / 3.141592 );
     }
 
-    mpi::PE::instance().barrier();
-    CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Iteration " << i << CFendl;
+    MPI::PE::instance().barrier();
+    CFinfo << "Worker[" <<  MPI::PE::instance().rank() << "] Iteration " << i << CFendl;
   }
 }
 

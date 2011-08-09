@@ -261,17 +261,17 @@ CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern& Field::parallelize_with(PECommPattern& comm_pattern)
+CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
   cf_assert_desc("Only point-based fields supported now", m_basis == FieldGroup::Basis::POINT_BASED);
-  m_comm_pattern = comm_pattern.as_ptr<Common::PECommPattern>();
+  m_comm_pattern = comm_pattern.as_ptr<Common::CommPattern>();
   comm_pattern.insert(name(),data().array(),true);
   return comm_pattern;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern& Field::parallelize()
+CommPattern& Field::parallelize()
 {
   if ( !m_comm_pattern.expired() ) // return if already parallel
     return *m_comm_pattern;
@@ -293,9 +293,9 @@ PECommPattern& Field::parallelize()
   }
 
   // create the comm pattern and setup the pattern
-  m_comm_pattern = mesh.create_component_ptr<PECommPattern>("comm_pattern_node_based");
+  m_comm_pattern = mesh.create_component_ptr<CommPattern>("comm_pattern_node_based");
   m_comm_pattern->insert("gid",gid,1,false);
-  m_comm_pattern->setup(m_comm_pattern->get_child("gid").as_ptr<PEObjectWrapper>(),rank);
+  m_comm_pattern->setup(m_comm_pattern->get_child("gid").as_ptr<CommWrapper>(),rank);
 
   return parallelize_with(*m_comm_pattern);
 }

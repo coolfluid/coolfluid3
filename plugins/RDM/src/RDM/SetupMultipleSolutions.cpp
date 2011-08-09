@@ -160,7 +160,7 @@ void SetupMultipleSolutions::execute()
 
   // parallelize the solution if not yet done
 
-  PECommPattern& pattern = solution->parallelize();
+  CommPattern& pattern = solution->parallelize();
 
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );

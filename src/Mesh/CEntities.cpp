@@ -341,7 +341,7 @@ bool CEntities::is_ghost(const Uint idx) const
   cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf_assert(size() == m_rank->size());
   cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != mpi::PE::instance().rank();
+  return (*m_rank)[idx] != MPI::PE::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

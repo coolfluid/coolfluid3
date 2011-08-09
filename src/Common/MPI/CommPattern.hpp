@@ -4,28 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_PECommPattern_hpp
-#define CF_Common_MPI_PECommPattern_hpp
-
-////////////////////////////////////////////////////////////////////////////////
+#ifndef CF_Common_MPI_CommPattern_hpp
+#define CF_Common_MPI_CommPattern_hpp
 
 #include "Common/Component.hpp"
 #include "Common/BoostArray.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PEObjectWrapper.hpp"
-#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
-
-////////////////////////////////////////////////////////////////////////////////
+#include "Common/MPI/CommWrapper.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
 
 namespace CF {
 namespace Common {
+namespace MPI {
 
-/// @todo move into CF::Common::mpi namespace
-
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file PECommPattern.hpp
+  @file CommPattern.hpp
   @author Tamas Banyai
   @brief Parallel Communication Pattern.
   This class provides functionality to collect communication.
@@ -43,7 +38,7 @@ namespace Common {
   @todo introduce allocate_component
 **/
 
-class Common_API PECommPattern: public Component {
+class Common_API CommPattern: public Component {
 
 public:
 
@@ -51,9 +46,9 @@ public:
   //@{
 
   /// pointer to this type
-  typedef boost::shared_ptr<PECommPattern> Ptr;
+  typedef boost::shared_ptr<CommPattern> Ptr;
   /// const pointer to this type
-  typedef boost::shared_ptr<PECommPattern const> ConstPtr;
+  typedef boost::shared_ptr<CommPattern const> ConstPtr;
 
   /// type of integer to use internally in commpattern, to avoid mess of changing type when mpi allows unsigned ints
   typedef int CPint;
@@ -96,13 +91,13 @@ public:
 
   /// constructor
   /// @param name under this name will the component be registered
-  PECommPattern(const std::string& name);
+  CommPattern(const std::string& name);
 
   /// destructor
-  ~PECommPattern();
+  ~CommPattern();
 
   /// Get the class name
-  static std::string type_name () { return "PECommPattern"; }
+  static std::string type_name () { return "CommPattern"; }
 
   //@} END CONSTRUCTORS/DESTRUCTORS
 
@@ -116,7 +111,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperPtr<T> >(name);
+    typename CommWrapperPtr<T>::Ptr ow = create_component_ptr< CommWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -127,7 +122,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperPtr<T> >(name);
+    typename CommWrapperPtr<T>::Ptr ow = create_component_ptr< CommWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -137,7 +132,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVector<T>::Ptr ow = create_component_ptr< PEObjectWrapperVector<T> >(name);
+    typename CommWrapperVector<T>::Ptr ow = create_component_ptr< CommWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -147,7 +142,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVector<T>::Ptr ow = create_component_ptr< PEObjectWrapperVector<T> >(name);
+    typename CommWrapperVector<T>::Ptr ow = create_component_ptr< CommWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -157,7 +152,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename PEObjectWrapperVectorWeakPtr<T>::Ptr ow = create_component_ptr< PEObjectWrapperVectorWeakPtr<T> >(name);
+    typename CommWrapperVectorWeakPtr<T>::Ptr ow = create_component_ptr< CommWrapperVectorWeakPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -167,7 +162,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::multi_array<T,2>& data, const bool needs_update=true)
   {
-    PEObjectWrapperMultiArray<T,2>& ow = create_component< PEObjectWrapperMultiArray<T,2> >(name);
+    CommWrapperMArray<T,2>& ow = create_component< CommWrapperMArray<T,2> >(name);
     ow.setup(data,needs_update);
   }
 
@@ -177,7 +172,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::multi_array<T,1>& data, const bool needs_update=true)
   {
-    PEObjectWrapperMultiArray<T,1>& ow = create_component< PEObjectWrapperMultiArray<T,1> >(name);
+    CommWrapperMArray<T,1>& ow = create_component< CommWrapperMArray<T,1> >(name);
     ow.setup(data,needs_update);
   }
 
@@ -198,17 +193,17 @@ public:
   /// this function sets actually up the communication pattern
   /// beware: interprocess communication heavy
   /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
-  /// @param gid PEObjectWrapper to a Uint tpye of data array
+  /// @param gid CommWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
-  void setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank);
+  void setup(CommWrapper::Ptr gid, std::vector<Uint>& rank);
 
   /// build and/or modify communication pattern - add nodes
   /// this function sets actually up the communication pattern
   /// beware: interprocess communication heavy
   /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
-  /// @param gid PEObjectWrapper to a Uint tpye of data array
+  /// @param gid CommWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
-  void setup(PEObjectWrapper::Ptr gid, boost::multi_array<Uint,1>& rank);
+  void setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank);
 
   /// build and/or modify communication pattern - only incorporate actual buffers
   /// this function sets actually up the communication pattern
@@ -269,7 +264,7 @@ protected: // helper function
 
   /// function to synchronize this object
   /// usefull for reusing in the different synchronize functions
-  void synchronize_this ( const PEObjectWrapper& pobj );
+  void synchronize_this ( const CommWrapper& pobj );
 
 private:
 
@@ -299,7 +294,7 @@ private:
   //@} END BUFFERS HOLDING TEMPORARY DATA
 
   /// explicit shared_ptr to the gid wrapper
-  PEObjectWrapper::Ptr m_gid;
+  CommWrapper::Ptr m_gid;
 
   /// array holding the updatable info
   std::vector<bool> m_isUpdatable;
@@ -316,13 +311,12 @@ private:
   /// this is the map of receiveing communication pattern
   std::vector< CPint > m_recvMap;
 
-}; // PECommPattern
+}; // CommPattern
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
+} // MPI
 } // Common
 } // CF
 
-////////////////////////////////////////////////////////////////////////////////
-
-#endif // CF_Common_MPI_PECommPattern_hpp
+#endif // CF_Common_MPI_CommPattern_hpp

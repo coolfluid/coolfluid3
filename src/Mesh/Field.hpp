@@ -15,10 +15,8 @@
 #include "Mesh/CElements.hpp"
 
 namespace CF {
-namespace Common
-{
-  class CLink;
-}
+namespace Common { class CLink; class CommPattern; }
+
 namespace Mesh {
 
   class CRegion;
@@ -119,7 +117,7 @@ private:
   boost::weak_ptr<FieldGroup> m_field_group;
 
 
-  boost::weak_ptr<Common::PECommPattern> m_comm_pattern;
+  boost::weak_ptr<Common::CommPattern> m_comm_pattern;
 
 };
 

@@ -13,8 +13,8 @@
 #include "Common/Log.hpp"
 
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/PEObjectWrapper.hpp"
+#include "Common/MPI/CommPattern.hpp"
+#include "Common/MPI/CommWrapper.hpp"
 
 #include "Common/MPI/debug.hpp"
 
@@ -33,20 +33,20 @@ namespace Common  {
 // Provider
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < PECommPattern, Component, LibCommon > PECommPattern_Provider;
+Common::ComponentBuilder < CommPattern, Component, LibCommon > CommPattern_Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(new PEObjectWrapperPtr<int>("dummy")),
+CommPattern::CommPattern(const std::string& name): Component(name), m_gid(new CommWrapperPtr<int>("dummy")),
   m_isUpdatable(0),
   m_add_buffer(0),
   m_mov_buffer(0),
   m_rem_buffer(0),
-  m_sendCount(mpi::PE::instance().size(),0),
+  m_sendCount(MPI::PE::instance().size(),0),
   m_sendMap(0),
-  m_recvCount(mpi::PE::instance().size(),0),
+  m_recvCount(MPI::PE::instance().size(),0),
   m_recvMap(0)
 {
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
@@ -56,7 +56,7 @@ PECommPattern::PECommPattern(const std::string& name): Component(name), m_gid(ne
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::~PECommPattern()
+CommPattern::~CommPattern()
 {
   if (m_gid.get()!=nullptr) m_gid->remove_tag("gid_of_"+this->name());
 }
@@ -65,7 +65,7 @@ PECommPattern::~PECommPattern()
 // Commpattern handling
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
+void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 {
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
@@ -76,7 +76,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
   if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
-  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+  BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
     if ((Uint) pobj.size()!=m_isUpdatable.size()+gid->size())
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
@@ -103,7 +103,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, std::vector<Uint>& rank)
   }
 }
 
-void PECommPattern::setup(PEObjectWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
+void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
@@ -114,7 +114,7 @@ void PECommPattern::setup(PEObjectWrapper::Ptr gid, boost::multi_array<Uint,1>& 
   if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
 
   // sizesof datas matching
-  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+  BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
     if ((Uint) pobj.size()!=m_isUpdatable.size()+gid->size())
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
@@ -146,13 +146,13 @@ PEProcessSortedExecute(-1,
 // 0.: ??? lock and pre-flush data ???
 // 1.:
 
-void PECommPattern::setup()
+void CommPattern::setup()
 {
 
   {  // begin fast
   // get stuff
-  const CPint irank=(CPint)mpi::PE::instance().rank();
-  const CPint nproc=(CPint)mpi::PE::instance().size();
+  const CPint irank=(CPint)MPI::PE::instance().rank();
+  const CPint nproc=(CPint)MPI::PE::instance().size();
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
@@ -196,7 +196,7 @@ void PECommPattern::setup()
   m_sendMap.resize(0);
   m_sendMap.reserve(0);
   m_sendCount.assign(nproc,-1);
-  mpi::PE::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
+  MPI::PE::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
 
 //PECheckPoint(100,"-- step 3 --:");
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
@@ -235,8 +235,8 @@ void PECommPattern::setup()
 
   // -- 2 -- get environment data and gid
   // get stuff from environment
-  const CPint irank=(CPint)mpi::PE::instance().rank();
-  const CPint nproc=(CPint)mpi::PE::instance().size();
+  const CPint irank=(CPint)MPI::PE::instance().rank();
+  const CPint nproc=(CPint)MPI::PE::instance().size();
   // get gid and some tests
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
@@ -282,7 +282,7 @@ void PECommPattern::setup()
       m_isUpdatable[i]=true;
     }
   std::vector<int> dist_nupdatables(nproc);
-  mpi::PE::instance().all_reduce(mpi::plus(),dist_nupdatable,dist_nupdatable);
+  MPI::PE::instance().all_reduce(MPI::plus(),dist_nupdatable,dist_nupdatable);
   std::vector<int> dist_nupdatabledisp(nproc,0);
   for (int i=1; i<nproc; i++) dist_nupdatabledisp[i]=dist_nupdatable[i-1]+dist_nupdatabledisp[i-1];
 
@@ -319,9 +319,9 @@ PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.si
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::synchronize_all()
+void CommPattern::synchronize_all()
 {
-  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(*this) )
+  BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
   {
     synchronize_this(pobj);
   }
@@ -329,15 +329,15 @@ void PECommPattern::synchronize_all()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::synchronize( const std::string& name )
+void CommPattern::synchronize( const std::string& name )
 {
-  PEObjectWrapper& pobj = get_child(name).as_type<PEObjectWrapper>();
+  CommWrapper& pobj = get_child(name).as_type<CommWrapper>();
   synchronize_this(pobj);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::synchronize_this( const PEObjectWrapper& pobj )
+void CommPattern::synchronize_this( const CommWrapper& pobj )
 {
 
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
@@ -349,7 +349,7 @@ void PECommPattern::synchronize_this( const PEObjectWrapper& pobj )
 
       char* snd_data = (char*)pobj.pack(m_sendMap);
 
-      char* rcv_data = mpi::PE::instance().all_to_all(snd_data,
+      char* rcv_data = MPI::PE::instance().all_to_all(snd_data,
                                                       &m_sendCount[0],
                                                       (char*)0,
                                                       &m_recvCount[0],
@@ -366,7 +366,7 @@ void PECommPattern::synchronize_this( const PEObjectWrapper& pobj )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::add(Uint gid, Uint rank)
+void CommPattern::add(Uint gid, Uint rank)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
@@ -375,7 +375,7 @@ void PECommPattern::add(Uint gid, Uint rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
+void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
   m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
@@ -384,7 +384,7 @@ void PECommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
   m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
@@ -414,7 +414,7 @@ void PECommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
 #include <boost/lambda/lambda.hpp>
 
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/CommPattern.hpp"
 #include "Common/MPI/all_to_all.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -426,24 +426,24 @@ namespace CF {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern()
+CommPattern::CommPattern()
 {
   m_isCommPatternPrepared=false;
-  m_sendCount.resize(mpi::PE::instance().size(),0);
+  m_sendCount.resize(MPI::PE::instance().size(),0);
   m_sendMap.resize(0);
-  m_receiveCount.resize(mpi::PE::instance().size(),0);
+  m_receiveCount.resize(MPI::PE::instance().size(),0);
   m_receiveMap.resize(0);
   m_updatable.resize(0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
+CommPattern::CommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
 {
   m_isCommPatternPrepared=false;
-  m_sendCount.resize(mpi::PE::instance().size(),0);
+  m_sendCount.resize(MPI::PE::instance().size(),0);
   m_sendMap.resize(0);
-  m_receiveCount.resize(mpi::PE::instance().size(),0);
+  m_receiveCount.resize(MPI::PE::instance().size(),0);
   m_receiveMap.resize(0);
   m_updatable.resize(0);
   setup(gid,rank);
@@ -451,17 +451,17 @@ PECommPattern::PECommPattern(std::vector<Uint> gid, std::vector<Uint> rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PECommPattern::~PECommPattern()
+CommPattern::~CommPattern()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
+void CommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
 {
 
-  const Uint irank=mpi::PE::instance().rank();
-  const Uint nproc=(Uint)mpi::PE::instance().size();
+  const Uint irank=MPI::PE::instance().rank();
+  const Uint nproc=(Uint)MPI::PE::instance().size();
 
   assert(gid.size()==rank.size());
 
@@ -483,7 +483,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
       m_sendMap.push_back(*j);
 
   // fill receive count
-  boost::mpi::all_to_all(mpi::PE::instance(),m_sendCount,m_receiveCount);
+  boost::MPI::all_to_all(MPI::PE::instance(),m_sendCount,m_receiveCount);
 
   // fill receive map
   Uint total_m_receiveCount=0;
@@ -497,7 +497,7 @@ void PECommPattern::setup(std::vector<Uint> gid, std::vector<Uint> rank)
     rcvdisp[i]=rcvdisp[i-1]+m_receiveCount[i-1];
 
   for(Uint i=0; i<nproc; i++)
-    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, mpi::PE::instance());
+    MPI_Gatherv(&(sendmap[i])[0], sendmap[i].size(), MPI_INT, &m_receiveMap[0], &m_receiveCount[0], &rcvdisp[0], MPI_INT, i, MPI::PE::instance());
 
   std::cout << "m_updatable: ";
   std::for_each(m_updatable.begin(), m_updatable.end(), std::cout << _1 << ' ');
