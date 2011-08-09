@@ -52,17 +52,17 @@ void CElements::initialize(const std::string& element_type_name)
   node_space.connectivity().set_row_size(node_space.nb_states());
 }
 
-void CElements::initialize(const std::string& element_type_name, Geometry& nodes)
+void CElements::initialize(const std::string& element_type_name, Geometry& geo)
 {
   initialize(element_type_name);
-  set_nodes(nodes);
+  assign_geometry(geo);
 }
 
-void CElements::set_nodes(Geometry& nodes)
+void CElements::assign_geometry(Geometry& geo)
 {
-  CEntities::set_nodes(nodes);
-  node_connectivity().create_lookup().add(nodes);
-  //node_space.connectivity().create_lookup().add(nodes);
+  CEntities::assign_geometry(geo);
+  node_connectivity().create_lookup().add(geo);
+  //node_space.connectivity().create_lookup().add(geo);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  Geometry& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  Geometry& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))

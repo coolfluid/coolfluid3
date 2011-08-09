@@ -220,7 +220,7 @@ void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
   std::set<const Geometry*> nodes_set;
   BOOST_FOREACH(const CElements& elements, celements_range)
-    nodes_set.insert(&elements.nodes());
+    nodes_set.insert(&elements.geometry());
 
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;

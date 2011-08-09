@@ -156,7 +156,7 @@ void CWriter::write_coordinates(std::fstream& file)
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  boost_foreach(CTable<Real>::ConstRow row, m_mesh->nodes().coordinates().array())
+  boost_foreach(CTable<Real>::ConstRow row, m_mesh->geometry().coordinates().array())
   {
     ++node_number;
     file << std::setw(10) << node_number;

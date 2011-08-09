@@ -106,7 +106,7 @@ void CBuildFaceNormals::execute()
         boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face][0]) )
         {
           Uint j(0);
-          boost_foreach(const Real& coord, mesh.nodes().coordinates()[cell_nodes[node_id]])
+          boost_foreach(const Real& coord, mesh.geometry().coordinates()[cell_nodes[node_id]])
           {
             face_coordinates(i,j) = coord;
             ++j;

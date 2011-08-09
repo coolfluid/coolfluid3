@@ -66,7 +66,7 @@ void BcDirichlet::execute()
   Field& solution_field = solution();
 
 //  std::cout << "   field.size() == " << field.size() << std::endl;
-//  std::cout << "   coordinates.size() == " << mesh().nodes().coordinates().size() << std::endl;
+//  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
@@ -75,7 +75,7 @@ void BcDirichlet::execute()
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
 
-    /// @warning BcDirichlet assumes that solution maps one to one with mesh.nodes()
+    /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry()
 
     Geometry& nodes = mesh().geometry();
 

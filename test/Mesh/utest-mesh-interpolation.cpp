@@ -90,13 +90,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   meshreader->read_mesh_into("hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
-  BOOST_CHECK_EQUAL( source.nodes().coordinates().row_size() , (Uint)DIM_3D );
+  BOOST_CHECK_EQUAL( source.geometry().coordinates().row_size() , (Uint)DIM_3D );
 
   CMesh& target = Core::instance().root().create_component<CMesh>("quadtriag");
   meshreader->read_mesh_into("quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
-  BOOST_CHECK_EQUAL( target.nodes().coordinates().row_size() , (Uint)DIM_2D );
+  BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
 //	CMeshReader::Ptr cgns_meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");

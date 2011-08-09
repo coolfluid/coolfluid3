@@ -49,7 +49,7 @@ void CNodeElementConnectivity::set_nodes(Geometry& nodes)
 
 void CNodeElementConnectivity::build_connectivity()
 {
-  set_nodes(elements().components()[0]->as_type<CElements>().nodes());
+  set_nodes(elements().components()[0]->as_type<CElements>().geometry());
   Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
   
   // Reserve memory in m_connectivity->array()

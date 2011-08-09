@@ -254,7 +254,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 
         ElementType_t type = m_elemtype_CF_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
         const CConnectivity::ArrayT& connectivity_table = elements->node_connectivity().array();
-        int start_idx = m_global_start_idx[&elements->nodes().coordinates()];
+        int start_idx = m_global_start_idx[&elements->geometry().coordinates()];
 
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
         for (int iElem=0; iElem<nbElems; ++iElem)
@@ -282,7 +282,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
       m_section.nbBdry = 0; // unsorted boundary
 
       const CConnectivity::ArrayT& connectivity_table = elements.node_connectivity().array();
-      int start_idx = m_global_start_idx[&elements.nodes().coordinates()];
+      int start_idx = m_global_start_idx[&elements.geometry().coordinates()];
 
       int* elemNodes = new int [nbElems*m_section.elemNodeCount];
       for (int iElem=0; iElem<nbElems; ++iElem)

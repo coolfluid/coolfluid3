@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE( build )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank = " << PE::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh->nodes().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh->nodes().rank() << std::endl;
+      std::cout << "nodes = " << mesh->geometry().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh->geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh->topology().elements_range())
       {
         std::cout << "elems = " << entities.glb_idx() << std::endl;

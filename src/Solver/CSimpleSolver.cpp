@@ -53,7 +53,7 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
   Physics::PhysModel& phys_model = *m_physics.lock();
   
   // Update the dimensions on the physics
-  phys_model.variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
+  phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
   
   // Create the fields
   create_fields(mesh, phys_model);

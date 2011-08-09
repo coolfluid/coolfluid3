@@ -242,7 +242,7 @@ void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, Vector
       else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
         const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
+        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = glb_node_indices[ loc_node ];
@@ -278,7 +278,7 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
       else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
         const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
+        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
       }

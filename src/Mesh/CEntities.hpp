@@ -71,7 +71,7 @@ public: // functions
   virtual void initialize(const std::string& element_type_name, Geometry& nodes);
 
   /// Set the nodes
-  virtual void set_nodes(Geometry& nodes);
+  virtual void assign_geometry(Geometry& nodes);
 
   /// Virtual destructor
   virtual ~CEntities();

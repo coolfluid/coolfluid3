@@ -81,7 +81,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const CTable<Real>& coords = mesh.topology().nodes().coordinates();
+  const CTable<Real>& coords = mesh.topology().geometry().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 

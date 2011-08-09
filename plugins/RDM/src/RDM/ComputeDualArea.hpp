@@ -101,7 +101,7 @@ protected: // helper functions
     connectivity_table =
         elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
     coordinates =
-        elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
+        elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
 
     cf_assert( is_not_null(connectivity_table) );
     cf_assert( is_not_null(coordinates) );

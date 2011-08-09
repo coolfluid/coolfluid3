@@ -46,10 +46,10 @@ inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region
     {
       if(coordinates)
       {
-        cf_assert(coordinates == &elements.nodes().coordinates());
+        cf_assert(coordinates == &elements.geometry().coordinates());
         continue;
       }
-      coordinates = &elements.nodes().coordinates();
+      coordinates = &elements.geometry().coordinates();
     }
   }
   

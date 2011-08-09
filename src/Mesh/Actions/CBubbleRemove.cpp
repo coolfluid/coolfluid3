@@ -81,8 +81,8 @@ void CBubbleRemove::execute()
 //    CFinfo << "elems size " << elements.size() << CFendl;
 //    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "
 //                            << elements.node_connectivity().row_size() << CFendl;
-//    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
-//                            << elements.nodes().coordinates().row_size() << CFendl;
+//    CFinfo << "coords size "<< elements.geometry().coordinates().size() << " x "
+//                            << elements.geometry().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component_ptr< CTable<Uint> > ("backup");
@@ -107,7 +107,7 @@ void CBubbleRemove::execute()
     CConnectivity::ArrayT& conntable = elements.node_connectivity().array();
 
     // get coordinates
-    CTable<Real>& coords = elements.nodes().coordinates();
+    CTable<Real>& coords = elements.geometry().coordinates();
 
     const Uint nb_elem = elements.size();
     //const Uint dim = coords.row_size();

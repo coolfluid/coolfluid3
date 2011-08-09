@@ -209,7 +209,7 @@ bool check_element_nodes_sanity(CMesh& mesh)
 
   boost_foreach( CEntities& entities, mesh.topology().elements_range())
   {
-    Uint max_node_idx = entities.nodes().size();
+    Uint max_node_idx = entities.geometry().size();
 
     for (Uint e=0; e<entities.size(); ++e)
     {
@@ -316,7 +316,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  Geometry& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   PackUnpackNodes copy_node(nodes);
   mpi::Buffer buf;
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  Geometry& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   CMeshWriter::Ptr tec_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");

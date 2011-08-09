@@ -501,7 +501,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
 
   const CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
   const CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
-  const CTable<Real>& block_coordinates = block_elements.nodes().coordinates();
+  const CTable<Real>& block_coordinates = block_elements.geometry().coordinates();
 
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices::IndicesT elements_dist;
@@ -558,7 +558,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
 
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->topology().create_region("root_region") : mesh.topology().create_region("root_region");
-  Geometry& mesh_nodes_comp = root_region.nodes();
+  Geometry& mesh_nodes_comp = root_region.geometry();
   CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
   mesh_nodes_comp.resize(nodes_end - nodes_begin);
 
@@ -752,7 +752,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     // Create the 2D mesh
     // Create the node coordinates
     CRegion& root_region_2d = mesh.topology().create_region("root_region");
-    Geometry& mesh_nodes_comp_2d = root_region_2d.nodes();
+    Geometry& mesh_nodes_comp_2d = root_region_2d.geometry();
     CTable<Real>::ArrayT& mesh_coords_2d = mesh_nodes_comp_2d.coordinates().array();
 
     // Create the volume cells connectivity
@@ -954,7 +954,7 @@ void partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, cons
   const Uint nb_blocks = blocks_in.block_points.size();
 
   CElements& block_elements = find_component_recursively_with_name<CElements>(*block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  CTable<Real>::ArrayT& block_coordinates = block_elements.nodes().coordinates().array();
+  CTable<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
   // Direction to search from

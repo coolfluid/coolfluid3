@@ -80,7 +80,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   GeometricSupport(const Mesh::CElements& elements) :
-    m_coordinates(elements.nodes().coordinates()),
+    m_coordinates(elements.geometry().coordinates()),
     m_connectivity(elements.node_connectivity())
   {
   }

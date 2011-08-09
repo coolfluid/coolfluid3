@@ -59,7 +59,7 @@ CElements& CRegion::create_elements(const std::string& element_type_name, Geomet
   if ( is_null(celems) )
   {
     CElements& elements = create_elements(element_type_name);
-    elements.set_nodes(nodes);
+    elements.assign_geometry(nodes);
     return elements;
   }
   else
@@ -131,14 +131,14 @@ CElements& CRegion::elements(const std::string& name)
 
 const Geometry& CRegion::nodes() const
 {
-  return find_parent_component<CMesh>(*this).nodes();
+  return find_parent_component<CMesh>(*this).geometry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Geometry& CRegion::nodes()
 {
-  return find_parent_component<CMesh>(*this).nodes();
+  return find_parent_component<CMesh>(*this).geometry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

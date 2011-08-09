@@ -113,7 +113,7 @@ void LinearSolver::execute()
   if(m_implementation->m_lss.expired())
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
   
-  m_implementation->m_lss.lock()->resize(physics().variable_manager().nb_dof() * mesh().topology().nodes().size());
+  m_implementation->m_lss.lock()->resize(physics().variable_manager().nb_dof() * mesh().topology().geometry().size());
   CSimpleSolver::execute();
 }
 

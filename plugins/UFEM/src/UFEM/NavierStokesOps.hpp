@@ -51,7 +51,7 @@ struct ComputeTau
     coeffs.tau_su = 0.;
     if(umag > 1e-10)
     {
-      const Real h = 2. * u.support().volume() / (u.support().nodes() * (u_avg / umag)).array().abs().sum();
+      const Real h = 2. * u.support().volume() / (u.support().geometry() * (u_avg / umag)).array().abs().sum();
       Real ree=umag*h/(2.*coeffs.nu);
       Real xi=std::max(0.,std::min(ree/3.,1.));
       coeffs.tau_su = h*xi/(2.*umag);

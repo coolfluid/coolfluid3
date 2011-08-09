@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Uint n=0;
   boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
   {
-    glb_node_idx[n++][0] = mesh.nodes().glb_idx()[node];
+    glb_node_idx[n++][0] = mesh.geometry().glb_idx()[node];
   }
 
   // Write the mesh with the fields

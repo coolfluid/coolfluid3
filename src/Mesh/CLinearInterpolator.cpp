@@ -97,6 +97,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       {
         CConnectivity::ConstRow s_elm = source.indexes_for_element(*s_elements,s_elm_idx);
         std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
+
         fill( s_nodes , source_coords , s_elm );
 
         std::vector<Real> w(s_nodes.size());
@@ -174,7 +175,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
           {
             CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
             std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
-            fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
+            fill( s_nodes , s_elements->geometry().coordinates() , s_elm );
 
             std::vector<Real> w(s_nodes.size());
             pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_centroid, w);
@@ -263,7 +264,7 @@ void CLinearInterpolator::create_bounding_box()
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(CTable<Real>::ConstRow coords, m_source_mesh->nodes().coordinates().array())
+  boost_foreach(CTable<Real>::ConstRow coords, m_source_mesh->geometry().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {

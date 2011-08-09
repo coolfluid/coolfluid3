@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( CoordinatesFieldCreation )
   BOOST_CHECK_EQUAL( coordinates.space_name() , std::string("space[0]") );
 
 
-  Geometry& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   Uint data_idx(0);
   boost_foreach(const Uint node_idx, coordinates.used_nodes().array())
     coordinates[data_idx++] = nodes.coordinates()[node_idx];

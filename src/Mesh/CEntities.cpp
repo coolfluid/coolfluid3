@@ -92,11 +92,11 @@ void CEntities::initialize(const std::string& element_type_name)
 
 void CEntities::initialize(const std::string& element_type_name, Geometry& nodes)
 {
-  set_nodes(nodes);
+  assign_geometry(nodes);
   initialize(element_type_name);
 }
 
-void CEntities::set_nodes(Geometry& nodes)
+void CEntities::assign_geometry(Geometry& nodes)
 {
   m_nodes->link_to(nodes.follow());
 }

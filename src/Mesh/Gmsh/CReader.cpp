@@ -501,7 +501,7 @@ void CReader::read_connectivity()
    // create new region
    CRegion::Ptr region = m_region_list[ir].region;
 
-//   elements[ir] = create_cells_in_region(*region,m_mesh->nodes(),m_supported_types);
+//   elements[ir] = create_cells_in_region(*region,m_mesh->geometry(),m_supported_types);
 //   buffer[ir] = create_connectivity_buffermap(elements[ir]);
 
 
