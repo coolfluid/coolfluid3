@@ -14,6 +14,8 @@
 #include <QList>
 #include <QMutex>
 
+#include "Common/XML/XmlDoc.hpp"
+
 #include "UI/UICommon/LogMessage.hpp"
 
 class QHostAdress;
@@ -22,7 +24,6 @@ class QTcpSocket;
 class QString;
 
 ///////////////////////////////////////////////////////////////////////////////
-
 
 namespace CF {
 namespace UI {
@@ -164,12 +165,12 @@ namespace Server {
     /// @return Returns the number of bytes sent.
     int send(QTcpSocket * client, const Common::XML::XmlDoc & signal);
 
-		bool sendFrameRejected(QTcpSocket * client,
-													 const std::string & frameid,
-													 const CF::Common::URI & sender,
-													 const QString & reason);
+    bool sendFrameRejected(QTcpSocket * client,
+                           const std::string & frameid,
+                           const CF::Common::URI & sender,
+                           const QString & reason);
 
-		/// @brief Retrieves a client socket from its UUID.
+    /// @brief Retrieves a client socket from its UUID.
 
     /// @param uuid Client UUID
     /// @return Returns a pointer to the socket, or @c nullptr if client
@@ -177,11 +178,11 @@ namespace Server {
     /// @throw UnknownClientIdException if Client id is unknown.
     QTcpSocket * getSocket(const std::string & uuid) const;
 
-		std::string getAttr(const Common::XML::XmlNode & node,
-												const char * paramName,
-												QString & reason);
+    std::string getAttr(const Common::XML::XmlNode & node,
+                        const char * paramName,
+                        QString & reason);
 
-	}; // class ServerNetworkComm
+  }; // class ServerNetworkComm
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -15,10 +15,15 @@
 #include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/OptionArray.hpp"
 #include "Common/StringConversion.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 #include "Common/XML/SignalFrame.hpp"
+
+#include "Common/Log.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 // makes explicit instantiation for all template functions with a same type
 #define TEMPLATE_EXPLICIT_INSTANTIATION(T) \
@@ -203,7 +208,7 @@ SignalFrame SignalFrame::create_reply ( const URI & sender )
     rapidxml::xml_attribute<>* attr = node.content->first_attribute("receiver");
 
     if(attr == nullptr)
-      throw XmlError(FromHere(), "Could not found a sender");
+      throw XmlError(FromHere(), "Could not find a sender");
 
     sender_uri = URI(attr->value());
   }
@@ -339,6 +344,78 @@ void SignalFrame::insert( std::vector<std::string>& input )
          " -  for array types:   variable_name:array[type]=value1,value2\n"
          "  with possible type: [bool,unsigned,integer,real,string,uri]");
   }
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+SignalOptions & SignalFrame::options( const std::string & name )
+{
+  std::string tmp_name(name);
+
+  if( tmp_name.empty() )
+    tmp_name = Protocol::Tags::key_options();
+
+  map(tmp_name);
+  m_options[tmp_name] = SignalOptions( *this, tmp_name );
+
+  return m_options[tmp_name];
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+const SignalOptions & SignalFrame::options( const std::string & name ) const
+{
+  std::string tmp_name(name);
+
+  if( tmp_name.empty() )
+    tmp_name = Protocol::Tags::key_options();
+
+  if( !has_map(tmp_name) )
+    throw ValueNotFound( FromHere(), "Could not find a map with name [" + tmp_name +"].");
+
+  return m_options.find(tmp_name)->second;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+std::string SignalFrame::to_script() const
+{
+  std::string str;
+  std::string target = node.attribute_value("target");
+
+  if( target == "configure" )
+    str = target + ' ' + node.attribute_value("receiver");
+  else
+    str = "call " + node.attribute_value("receiver") + "/" + target;
+
+  std::string indent( str.length(), ' ');
+  SignalFrame frame( *this );
+  SignalOptions opts( frame );
+
+  OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
+
+  std::string s;
+  to_string(node, s);
+
+  CFinfo << s << CFendl;
+
+  for (; it != opts.store.end() ; it++ )
+  {
+    Option::ConstPtr option = it->second;
+
+    std::string opt = option->name() + ':';
+    std::string tag = option->tag();
+
+    if( tag == Protocol::Tags::node_array() )
+      tag += "[" + std::string(option->cast_to< OptionArray >()->elem_type()) + "]";
+
+    tag += '=' + option->value_str();
+
+    str += " \\\n" + indent + opt + tag;
+  }
+
+
+  return str;
 }
 
 ////////////////////////////////////////////////////////////////////////////

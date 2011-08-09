@@ -24,6 +24,8 @@
 namespace CF {
 namespace Common {
 
+namespace XML { class XmlNode; }
+
   //////////////////////////////////////////////////////////////////////////
 
   /// @brief Adds fonctionnalities to @c Property class.

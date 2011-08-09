@@ -17,6 +17,10 @@
 #include "Common/BuildInfo.hpp"
 #include "Common/CFactory.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/LocalDispatcher.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
@@ -37,6 +41,8 @@ namespace Shell {
 
   using namespace CF::Common;
 
+SignalDispatcher * BasicCommands::dispatcher = new LocalDispatcher();
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BasicCommands::BasicCommands()
@@ -45,7 +51,9 @@ BasicCommands::BasicCommands()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr BasicCommands::current_component = Core::instance().root().self();
+CRoot::Ptr BasicCommands::tree_root = Core::instance().root().as_ptr<CRoot>();
+
+Component::Ptr BasicCommands::current_component = BasicCommands::tree_root;
 
 Component& environment_component = Core::instance().root().create_component<Component>("env_vars");
 
@@ -99,8 +107,14 @@ void BasicCommands::call(const std::vector<std::string>& params)
     for (Uint i=0; i<signal_options.size(); ++i)
       signal_options[i] = params[i+1];
 
-    signaling_component->call_signal(name,signal_options);
+    XML::SignalOptions options;
 
+    options.fill_from_vector(signal_options);
+
+    XML::SignalFrame frame = options.create_frame(name, signaling_component->uri(), signaling_component->uri() );
+
+
+    dispatcher->dispatch_signal( name, signaling_component->uri(), frame );
   }
 }
 
@@ -349,7 +363,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
 void BasicCommands::rm(const std::string& cpath)
 {
   Component::Ptr to_delete = current_component->access_component_ptr_checked(cpath);
-  to_delete->parent().remove_component(to_delete->name());
+  dispatcher->dispatch_empty_signal( "delete_component", to_delete->uri() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -357,7 +371,7 @@ void BasicCommands::rm(const std::string& cpath)
 void BasicCommands::cd(const std::string& cpath)
 {
   if (cpath.empty())
-    current_component = Core::instance().root().self();
+    current_component = tree_root; //Core::instance().root().self();
   else
     current_component = current_component->access_component_ptr_checked(cpath);
 }
@@ -425,7 +439,14 @@ void BasicCommands::configure(const std::vector<std::string>& params)
     for (Uint i=0; i<conf_options.size(); ++i)
        conf_options[i] = params[i+1];
 
-    comp->configure( conf_options );
+
+    XML::SignalOptions options;
+
+    options.fill_from_vector(conf_options);
+
+    XML::SignalFrame frame = options.create_frame("configure", comp->uri(), comp->uri() );
+
+    dispatcher->dispatch_signal( "configure", comp->uri(), frame );
   }
   else
     throw ValueNotFound(FromHere(), "No component found at " + path );
@@ -438,6 +459,7 @@ void BasicCommands::export_env(const std::vector<std::string>& params)
   if (params.size() != 1)
     throw SetupError(FromHere(),"export takes only 1 parameter:  var:type=value");
 
+  /// @note (QG) this will not work from the GUI
   environment_component.change_property(params[0]);
 }
 
@@ -470,8 +492,16 @@ void BasicCommands::create(const std::vector<std::string>& params)
   if ( is_null(parent_component) )
     throw ValueNotFound(FromHere(), "component " + new_component_path.base_path().path() + " was not found in " + current_component->uri().path());
 
-  parent_component->create_component(new_component_path.name(), params[1]);
+  XML::SignalOptions options;
 
+//  XML::SignalFrame frame("create_component", parent_component->uri(), parent_component->uri());
+  //  XML::SignalOptions & options = frame.options();
+
+  options.add_option< OptionT<std::string> >( "name", new_component_path.name() );
+  options.add_option< OptionT<std::string> >( "type", params[1] );
+
+  XML::SignalFrame frame = options.create_frame("create_component", parent_component->uri(), parent_component->uri());
+  dispatcher->dispatch_signal( "create_component", parent_component->uri(), frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -484,8 +514,18 @@ void BasicCommands::mv(const std::vector<std::string>& params)
   const URI cpath2(params[1]);
   Component& component_1 = current_component->access_component(cpath1);
   Component& parent_2 = current_component->access_component(cpath2.base_path());
-  component_1.move_to(parent_2);
-  component_1.rename(cpath2.name());
+
+  XML::SignalOptions options;
+//  XML::SignalFrame frame( "move_component", component_1.uri(), component_1.uri() );
+
+  options.add_option< OptionURI >( "Path", parent_2.uri() );
+
+  XML::SignalFrame frame = options.create_frame("move_component", component_1.uri(), component_1.uri() );
+
+  dispatcher->dispatch_signal( "move_component", component_1.uri(), frame );
+
+//  component_1.move_to(parent_2);
+//  component_1.rename(cpath2.name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -16,6 +16,8 @@
 #include "Common/StringConversion.hpp"
 #include "Common/URI.hpp"
 #include "Common/Log.hpp"
+
+#include "Common/XML/Map.hpp"
 #include "Common/XML/CastingFunctions.hpp"
 
 using namespace CF::Common::XML;

@@ -19,11 +19,20 @@
 #include <QTableView>
 #include <QUrl>
 
+#include <boost/program_options.hpp>
+
+#include "Common/XML/SignalFrame.hpp"
+
+#include "Tools/Shell/BasicCommands.hpp"
+#include "Tools/Shell/Interpreter.hpp"
+
 #include "UI/Core/TreeThread.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/PropertyModel.hpp"
+#include "UI/Core/RemoteDispatcher.hpp"
 #include "UI/Core/ThreadManager.hpp"
 
 #include "UI/Graphics/AboutCFDialog.hpp"
@@ -41,11 +50,12 @@
 
 #define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
 
-using namespace CF::UI::Core;
-using namespace CF::UI::UICommon;
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
+using namespace CF::Tools::Shell;
+using namespace CF::UI::Core;
+using namespace CF::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -79,6 +89,12 @@ MainWindow::MainWindow()
   m_scrollDescription = new QScrollArea(this);
 
   m_aboutCFDialog = new AboutCFDialog(this);
+
+  boost::program_options::options_description desc;
+
+  desc.add( BasicCommands::description() );
+
+  m_scriptRunner = new Interpreter(desc);
 
   // configure components
 
@@ -188,6 +204,12 @@ void MainWindow::buildMenus()
   action = m_mnuFile->addAction("&Shutdown the server", this,
                                 SLOT(disconnectFromServer()), tr("ctrl+shift+K"));
   m_actions[ACTION_SHUTDOWN_SERVER] = action;
+
+  m_mnuFile->addSeparator();
+
+  action = m_mnuFile->addAction("&Run script", this,
+                                SLOT(runScript()), tr("ctrl+shift+R"));
+  m_actions[ACTION_RUN_SCRIPT] = action;
 
   m_mnuFile->addSeparator();
 
@@ -482,6 +504,14 @@ void MainWindow::setConnectedState(bool connected)
   m_actions[ACTION_CONNECT_TO_SERVER]->setEnabled(!connected);
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
   m_actions[ACTION_SHUTDOWN_SERVER]->setEnabled(connected);
+  m_actions[ACTION_RUN_SCRIPT]->setEnabled(connected);
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::setRunningScriptState(bool running)
+{
+  m_actions[ACTION_RUN_SCRIPT]->setEnabled(running);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -523,6 +553,20 @@ void MainWindow::openFileRemotely()
 
 ////////////////////////////////////////////////////////////////////////////
 
+void MainWindow::runScript()
+{
+  QFileDialog dlg;
+
+  dlg.setAcceptMode(QFileDialog::AcceptOpen);
+  dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript)" << "All files (*.*)" );
+  dlg.setDirectory( QDir::home() );
+
+  if( dlg.exec() == QFileDialog::Accepted )
+    NetworkQueue::global_queue()->execute_script( dlg.selectedFiles().first() );
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 void MainWindow::newLogMessage(const QString & message, CF::UI::UICommon::LogMessage::Type type)
 {
   m_logFile << message << '\n';
@@ -532,13 +576,14 @@ void MainWindow::newLogMessage(const QString & message, CF::UI::UICommon::LogMes
 
 void MainWindow::tabClicked(int num)
 {
-  if(m_tabWindow->currentWidget() == m_propertyView)
+  if( m_tabWindow->currentWidget() == m_propertyView )
     m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
+void MainWindow::currentIndexChanged(const QModelIndex & newIndex,
+                                     const QModelIndex & oldIndex)
 {
   QString text = "<b>%1</b><br><br>%2";
   QMap<QString, QString> data;
@@ -547,6 +592,13 @@ void MainWindow::currentIndexChanged(const QModelIndex & newIndex, const QModelI
 
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void MainWindow::scriptFinished()
+{
+  setRunningScriptState(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////

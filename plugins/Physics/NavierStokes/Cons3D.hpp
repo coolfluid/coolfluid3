@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #ifndef CF_Physics_NavierStokes_Cons3D_hpp
 #define CF_Physics_NavierStokes_Cons3D_hpp
 

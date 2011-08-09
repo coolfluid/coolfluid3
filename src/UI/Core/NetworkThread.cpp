@@ -8,6 +8,7 @@
 #include <QTcpSocket>
 
 #include "Common/Log.hpp"
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/FileOperations.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
@@ -100,8 +101,8 @@ void NetworkThread::disconnectFromServer(bool shutServer)
     m_requestDisc = true;
 
     // close the socket
-    m_socket->abort();
-    m_socket->close();
+//    m_socket->abort();
+//    m_socket->close();
   }
 }
 

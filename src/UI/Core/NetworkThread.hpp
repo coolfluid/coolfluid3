@@ -22,6 +22,13 @@ class QTcpSocket;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+namespace XML {
+  class XmlDoc;
+}
+}
+
 namespace UI {
 namespace Core {
 
@@ -70,7 +77,7 @@ public:
 public: // boost signals
 
   /// Signal executed when a new frame arrived (given as parameter).
-  boost::signals2::signal< void (Common::XML::XmlDoc::Ptr) > newSignal;
+  boost::signals2::signal< void ( boost::shared_ptr<Common::XML::XmlDoc> ) > newSignal;
 
 private slots :
 

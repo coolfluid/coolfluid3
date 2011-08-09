@@ -13,8 +13,7 @@
 
 #include "UI/UICommon/ComponentNames.hpp"
 
-#include "UI/Core/NetworkThread.hpp"
-#include "UI/Core/ThreadManager.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 
 #include "UI/Core/NRemoteFSBrowser.hpp"
 
@@ -170,7 +169,8 @@ void NRemoteFSBrowser::openDir ( const QString & path )
   options.add_option< OptionArrayT<std::string> >("extensions", vect);
 
   options.flush();
-  ThreadManager::instance().network().send(frame);
+
+  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,8 @@
 #include <QAbstractItemModel>
 #include <QList>
 
+#include "Common/XML/XmlNode.hpp"
+
 #include "UI/Core/CNode.hpp"
 
 class QModelIndex;
@@ -22,6 +24,13 @@ class QVariant;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common {
+namespace XML {
+  class XmlDoc;
+}
+}
+
 namespace UI {
 namespace Core {
 
@@ -134,7 +143,7 @@ private: // data
 
   QList<Common::SignalArgs *> m_children;
 
-  Common::XML::XmlDoc::Ptr m_doc;
+  boost::shared_ptr<Common::XML::XmlDoc> m_doc;
 
   /// @brief Converts an index to a signal node
 
@@ -148,7 +157,7 @@ private: // data
 
   QString readAttribute( const Common::SignalArgs & sig, const char * name) const;
 
-  Common::XML::XmlDoc::Ptr m_currentDoc;
+  boost::shared_ptr<Common::XML::XmlDoc> m_currentDoc;
 
 }; // JournalBrowser
 

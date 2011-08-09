@@ -12,14 +12,14 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
+#include "Common/XML/XmlDoc.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "Common/XML/Protocol.hpp"
 
 #include "UI/Core/NBrowser.hpp"
-#include "UI/Core/NetworkThread.hpp"
-#include "UI/Core/ThreadManager.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 
 #include "UI/Core/NJournalBrowser.hpp"
 
@@ -206,7 +206,7 @@ void NJournalBrowser::requestJournal()
 {
   SignalFrame frame("list_journal", uri(), SERVER_JOURNAL_PATH);
 
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -248,7 +248,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   ss << boost::uuids::random_generator()();
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////
