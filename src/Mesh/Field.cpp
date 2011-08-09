@@ -263,7 +263,7 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
   cf_assert_desc("Only point-based fields supported now", m_basis == FieldGroup::Basis::POINT_BASED);
   m_comm_pattern = comm_pattern.as_ptr<CommPattern>();
-  comm_pattern.insert(name(),data().array(),true);
+  comm_pattern.insert(name(), array(), true);
   return comm_pattern;
 }
 
@@ -271,30 +271,31 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 CommPattern& Field::parallelize()
 {
   if ( !m_comm_pattern.expired() ) // return if already parallel
-    return *m_comm_pattern;
+    return *m_comm_pattern.lock();
 
   // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
-  const CList<Uint>& nodes = used_nodes();
   std::vector<Uint> gid;
   std::vector<Uint> rank;
-  gid.reserve(nodes.size());
-  rank.reserve(nodes.size());
+  gid.reserve( size() );
+  rank.reserve( size() );
 
   CMesh& mesh = find_parent_component<CMesh>(*this);
   boost_foreach (const Uint node, nodes.array())
   {
     cf_assert_desc(to_str(node)+">="+to_str(mesh.geometry().glb_idx().size()), node < mesh.geometry().glb_idx().size());
     cf_assert_desc(to_str(node)+">="+to_str(mesh.geometry().rank().size()), node < mesh.geometry().rank().size());
-    gid.push_back(mesh.geometry().glb_idx()[node]);
-    rank.push_back(mesh.geometry().rank()[node]);
+    gid.push_back( glb_idx()[node] );
+    rank.push_back( rank()[node] );
   }
 
   // create the comm pattern and setup the pattern
-  m_comm_pattern = mesh.create_component_ptr<CommPattern>("comm_pattern_node_based");
-  m_comm_pattern->insert("gid",gid,1,false);
-  m_comm_pattern->setup(m_comm_pattern->get_child("gid").as_ptr<CommWrapper>(),rank);
 
-  return parallelize_with(*m_comm_pattern);
+  CommPattern& comm_pattern = mesh.create_component_ptr<CommPattern>("comm_pattern_node_based");
+
+  comm_pattern.insert("gid",gid,1,false);
+  comm_pattern.setup(m_comm_pattern->get_child("gid").as_ptr<CommWrapper>(),rank);
+
+  return parallelize_with( comm_pattern );
 }
 
 
