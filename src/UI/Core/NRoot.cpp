@@ -18,6 +18,7 @@
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/ThreadManager.hpp"
@@ -45,9 +46,11 @@ NRoot::NRoot(const std::string & name)
   regist_signal( "shutdown" )
     ->description("Server shutdown")
     ->pretty_name("")->connect(boost::bind(&NRoot::shutdown, this, _1));
+
   regist_signal( "client_registration" )
     ->description("Registration confirmation")
     ->pretty_name("")->connect(boost::bind(&NRoot::client_registration, this, _1));
+
   regist_signal( "frame_rejected" )
     ->description("Frame rejected by the server")
     ->pretty_name("")->connect(boost::bind(&NRoot::frame_rejected, this, _1));
@@ -56,6 +59,7 @@ NRoot::NRoot(const std::string & name)
     ->connect( boost::bind( &NRoot::signal_connect_server, this, _1 ) )
     ->description("Connects to the server")
     ->pretty_name("Connect to server");
+
   regist_signal( "disconnect_server" )
     ->connect( boost::bind( &NRoot::signal_disconnect_server, this, _1 ) )
     ->description("Disconnects from the server")
@@ -120,7 +124,7 @@ void NRoot::connectedToServer()
   // build and send signal
   SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

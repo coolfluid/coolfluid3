@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/XML/SignalOptions.hpp"
 #include "UI/Core/NPlugin.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;

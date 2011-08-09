@@ -11,7 +11,7 @@
 #include "Common/Signal.hpp"
 
 #include "UI/Core/TreeThread.hpp"
-#include "UI/Core/NetworkThread.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NLog.hpp"
 #include "UI/Core/NRoot.hpp"
 #include "UI/Core/ThreadManager.hpp"
@@ -730,10 +730,8 @@ void NTree::contentListed(Component::Ptr node)
 
 void NTree::updateTree()
 {
-
-
   SignalFrame frame("list_tree", CLIENT_TREE_PATH, SERVER_ROOT_PATH);
-  ThreadManager::instance().network().send(frame);
+  NetworkQueue::global_queue()->send( frame );
 }
 
 /*============================================================================

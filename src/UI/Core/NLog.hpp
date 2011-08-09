@@ -11,6 +11,8 @@
 
 #include <QHash>
 
+#include "Common/LogStringForwarder.hpp"
+
 #include "UI/Core/CNode.hpp"
 
 #include "UI/UICommon/LogMessage.hpp"
@@ -31,7 +33,8 @@ namespace Core {
 
   class Core_API NLog :
       public QObject,
-      public CNode
+      public CNode,
+      public Common::LogStringForwarder
   {
     Q_OBJECT
 
@@ -99,6 +102,8 @@ namespace Core {
     /// by default.
     virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
 
+    virtual void message ( const std::string & data );
+
   private:
 
     /// @brief Hash map that associates a type message to its name in
@@ -109,7 +114,7 @@ namespace Core {
 
     /// @brief Boost slot called when a message comes from the server
     /// @param node Signal node
-    void message(Common::SignalArgs & node);
+    void signal_message(Common::SignalArgs & node);
 
     /// @brief Appends a message to the log
 

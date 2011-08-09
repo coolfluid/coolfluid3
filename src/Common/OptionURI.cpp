@@ -12,6 +12,8 @@
 #include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 
+#include "Common/XML/FileOperations.hpp"
+
 #include "Common/OptionURI.hpp"
 
 using namespace CF::Common;
@@ -54,14 +56,17 @@ void OptionURI::configure ( XmlNode& node )
   rapidxml::xml_node<>* type_node = node.content->first_node( tag() );
 
   if(type_node != nullptr)
-    from_str<URI>(type_node->value());
+    val = from_str<URI>(type_node->value());
   else
     throw XmlError(FromHere(), "Could not find a value for this option.");
 
   URI::Scheme::Type protocol = val.scheme();
+  std::string str;
+
+  to_string(node, str);
 
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
-    throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + ": unsupported protocol.");
+    throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + " " + val.path() + " : unsupported protocol.");
 
   m_value = val;
 }

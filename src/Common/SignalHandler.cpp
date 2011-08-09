@@ -10,10 +10,12 @@
 
 #include "Common/Assertions.hpp"
 #include "Common/Signal.hpp"
-#include "Common/SignalHandler.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"  // try forward declaration
 #include "Common/XML/SignalOptions.hpp"
+
+#include "Common/SignalHandler.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

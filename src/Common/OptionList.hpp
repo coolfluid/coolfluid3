@@ -123,6 +123,14 @@ namespace Common {
     /// list the options as a string
     std::string list_options();
 
+    /// Parses the strings to options.
+
+    /// If an option already exists in the list, its value is modified with the
+    /// new one. If it does not exist yet, it is added.
+
+    /// @param args Options to parse.
+    void fill_from_vector( const std::vector<std::string> & args );
+
   public:
 
     /// storage of options

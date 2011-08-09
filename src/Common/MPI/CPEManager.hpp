@@ -18,6 +18,9 @@
 
 namespace CF {
 namespace Common {
+
+namespace XML { class XmlDoc; }
+
 namespace mpi {
 
 ////////////////////////////////////////////////////////////////////////////
@@ -74,7 +77,7 @@ public: // functions
 
   void signal_exit ( SignalArgs & args );
 
-  void new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr );
+  void new_signal ( const MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
 
   //@} END SIGNALS
 
