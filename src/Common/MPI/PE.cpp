@@ -168,11 +168,11 @@ WorkerStatus::Type PE::status()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-MPI::Communicator PE::spawn( int count, const char * command, char ** args,
+Communicator PE::spawn( int count, const char * command, char ** args,
                             const char * hosts )
 {
-  MPI::Info info = MPI::Info::Create();
-  MPI::Communicator comm;
+  ::MPI::Info info = ::MPI::Info::Create();
+  Communicator comm;
 
   if(count < 1)
     throw BadValue(FromHere(), "Cannot spawn less than 1 process.");

@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CBuilder.hpp"
-#include "Common/MPI/CommWrapperMultiArray.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,15 +16,15 @@ namespace Common {
 
 //////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < CommWrapperMultiArray<Uint,1>, CommWrapper, LibCommon > CommWrapperMultiArray_Uint_1_builder;
-ComponentBuilder < CommWrapperMultiArray<int,1>,  CommWrapper, LibCommon > CommWrapperMultiArray_int_1_builder;
-ComponentBuilder < CommWrapperMultiArray<Real,1>, CommWrapper, LibCommon > CommWrapperMultiArray_Real_1_builder;
-//ComponentBuilder < CommWrapperMultiArray<bool,1>, CommWrapper, LibCommon > CommWrapperMultiArray_bool_1_builder;
+ComponentBuilder < CommWrapperMArray<Uint,1>, CommWrapper, LibCommon > CommWrapperMArray_Uint_1_builder;
+ComponentBuilder < CommWrapperMArray<int,1>,  CommWrapper, LibCommon > CommWrapperMArray_int_1_builder;
+ComponentBuilder < CommWrapperMArray<Real,1>, CommWrapper, LibCommon > CommWrapperMArray_Real_1_builder;
+//ComponentBuilder < CommWrapperMArray<bool,1>, CommWrapper, LibCommon > CommWrapperMArray_bool_1_builder;
 
-ComponentBuilder < CommWrapperMultiArray<Uint,2>, CommWrapper, LibCommon > CommWrapperMultiArray_Uint_2_builder;
-ComponentBuilder < CommWrapperMultiArray<int,2>,  CommWrapper, LibCommon > CommWrapperMultiArray_int_2_builder;
-ComponentBuilder < CommWrapperMultiArray<Real,2>, CommWrapper, LibCommon > CommWrapperMultiArray_Real_2_builder;
-//ComponentBuilder < CommWrapperMultiArray<bool,2>, CommWrapper, LibCommon > CommWrapperMultiArray_bool_2_builder;
+ComponentBuilder < CommWrapperMArray<Uint,2>, CommWrapper, LibCommon > CommWrapperMArray_Uint_2_builder;
+ComponentBuilder < CommWrapperMArray<int,2>,  CommWrapper, LibCommon > CommWrapperMArray_int_2_builder;
+ComponentBuilder < CommWrapperMArray<Real,2>, CommWrapper, LibCommon > CommWrapperMArray_Real_2_builder;
+//ComponentBuilder < CommWrapperMArray<bool,2>, CommWrapper, LibCommon > CommWrapperMArray_bool_2_builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -74,7 +74,7 @@ public: // functions
 
   void signal_exit ( SignalArgs & args );
 
-  void new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr );
+  void new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr );
 
   //@} END SIGNALS
 
