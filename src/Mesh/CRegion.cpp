@@ -129,14 +129,7 @@ CElements& CRegion::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Geometry& CRegion::nodes() const
-{
-  return find_parent_component<CMesh>(*this).geometry();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Geometry& CRegion::nodes()
+Geometry& CRegion::geometry() const
 {
   return find_parent_component<CMesh>(*this).geometry();
 }
