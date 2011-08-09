@@ -153,21 +153,14 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Geometry& CMesh::geometry() const
+Geometry& CMesh::geometry() const
 {
   return *m_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshElements& CMesh::elements()
-{
-  return *m_elements;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const CMeshElements& CMesh::elements() const
+CMeshElements& CMesh::elements() const
 {
   return *m_elements;
 }
