@@ -43,7 +43,7 @@ namespace Mesh {
 using namespace boost::assign;
 
 using namespace Common;
-using namespace Common::MPI;
+using namespace Common::Comm;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 

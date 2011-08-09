@@ -24,7 +24,7 @@ using namespace boost;
 using namespace Comm;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::MPI;
+using namespace CF::Common::Comm;
 using namespace CF::Tools::Solver;
 
 int main(int argc, char ** argv)

@@ -107,9 +107,9 @@ public: // functions
 
   Field& coordinates() const { return field_group().coordinates(); }
 
-  Common::MPI::CommPattern& parallelize_with( Common::MPI::CommPattern& comm_pattern );
+  Common::Comm::CommPattern& parallelize_with( Common::Comm::CommPattern& comm_pattern );
 
-  Common::MPI::CommPattern& parallelize();
+  Common::Comm::CommPattern& parallelize();
 
   void synchronize();
 
@@ -125,7 +125,7 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
-  boost::weak_ptr< Common::MPI::CommPattern > m_comm_pattern;
+  boost::weak_ptr< Common::Comm::CommPattern > m_comm_pattern;
 
 };
 

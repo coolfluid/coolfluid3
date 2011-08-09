@@ -33,7 +33,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::MPI;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 

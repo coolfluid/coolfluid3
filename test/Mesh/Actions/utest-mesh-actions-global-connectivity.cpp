@@ -28,7 +28,7 @@ using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
-using namespace CF::Common::MPI;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 

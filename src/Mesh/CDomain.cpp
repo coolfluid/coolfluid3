@@ -28,7 +28,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
-using namespace Common::MPI;
+using namespace Common::Comm;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 

@@ -26,7 +26,7 @@
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::MPI;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   // Create a buffer
-  Common::MPI::Buffer buffer;
+  Common::Comm::Buffer buffer;
   int root = 0;
 
   // pack the buffer on root processor

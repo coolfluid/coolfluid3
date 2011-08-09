@@ -26,7 +26,7 @@
 using namespace boost::assign;
 
 using namespace CF::Common;
-using namespace CF::Common::MPI;
+using namespace CF::Common::Comm;
 
 namespace CF {
 namespace Mesh {

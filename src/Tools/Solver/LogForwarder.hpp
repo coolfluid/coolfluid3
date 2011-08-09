@@ -33,7 +33,7 @@ namespace Solver {
 
   private:
 
-    Common::MPI::CPEManager::Ptr m_manager;
+    Common::Comm::CPEManager::Ptr m_manager;
 
   };
 
