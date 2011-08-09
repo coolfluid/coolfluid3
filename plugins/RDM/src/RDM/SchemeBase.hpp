@@ -105,7 +105,6 @@ protected: // typedefs
   typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>                SolutionMT;
   typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                           SolutionVT;
 
-  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes>                        MassMT;
   typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>                       SFMatrixT;
   typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >                                 SFVectorT;
 

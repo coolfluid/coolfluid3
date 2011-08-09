@@ -226,7 +226,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
         sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
-    std::cout << "Solution [" << l << "] = " << sols_l[l] << std::endl;
+//    std::cout << "Solution [" << l << "] = " << std::endl
+//              << sols_l[l] << std::endl;
   }
 
   /// @todo must be tested for 3D
@@ -259,12 +260,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
   for(Uint q = 0; q < QD::nb_points; ++q)
   {
     for(Uint dimx = 0; dimx < PHYS::MODEL::_ndim; ++dimx)
-    {
       for(Uint dimksi = 0; dimksi < PHYS::MODEL::_ndim; ++dimksi)
-      {
         B::JM(dimksi,dimx) = B::dX[dimx](q,dimksi);
-      }
-    }
 
     // compute the gradients of of all shape functions in phys. space
 
@@ -288,7 +285,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   } // loop quadrature points
 
-  // std::cout << FromHere().short_str() << std::endl;
+  std::cout << "Area [" << B::idx() << "] : " << B::wj.sum() << std::endl;
 
   // zero element residuals
 
@@ -361,17 +358,27 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
       for (Uint j = 0; j < SF::nb_nodes; ++j)   // loop over each node
         du_l += B::Ni(q,j) * rkbetas(k,l) * sols_l[l].row(j);
 
-      std::cout << "du_l : " << du_l << std::endl;
+//      std::cout << "du_l : " << du_l << std::endl;
 
       // compute the phi_i integral
 
-      for(Uint i = 0 ; i < SF::nb_nodes ; ++i)
+//      std::cout << "InvKi_n :" << std::endl
+//                << InvKi_n     << std::endl;
+
+//      std::cout << "LU :" << std::endl
+//                << B::LU  << std::endl;
+
+      for(Uint i = 0 ; i < SF::nb_nodes ; ++i)        
+      {
+//        std::cout << "Ki_n[" << i << "] :" << std::endl
+//                  << Ki_n[i]               << std::endl;
         B::Phi_n.row(i) += (
                               Ki_n[i] * InvKi_n * ( du_l + dt * rkalphas(k,l) * B::LU )
                              -
                               B::Ni(q,i) * rkbetas(k,l) * sols_l[l].row(i).transpose()
                            )
                            * B::wj[q];
+      }
 
        // if last k step, compute the wave_speed ( in case we need to adapt the dt )
 
