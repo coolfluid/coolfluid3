@@ -136,6 +136,13 @@ void CSpace::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void CSpace::allocate_coordinates(RealMatrix& coordinates) const
+{
+  coordinates.resize(nb_states(),element_type().dimension());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
 {
   CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
