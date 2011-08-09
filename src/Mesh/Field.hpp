@@ -117,6 +117,9 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
+
+  boost::weak_ptr<Common::PECommPattern> m_comm_pattern;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

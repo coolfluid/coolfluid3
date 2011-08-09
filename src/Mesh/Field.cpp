@@ -263,7 +263,7 @@ CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 
 PECommPattern& Field::parallelize_with(PECommPattern& comm_pattern)
 {
-  cf_assert_desc("Only point-based fields supported now", m_basis == Basis::POINT_BASED);
+  cf_assert_desc("Only point-based fields supported now", m_basis == FieldGroup::Basis::POINT_BASED);
   m_comm_pattern = comm_pattern.as_ptr<Common::PECommPattern>();
   comm_pattern.insert(name(),data().array(),true);
   return comm_pattern;
@@ -273,7 +273,7 @@ PECommPattern& Field::parallelize_with(PECommPattern& comm_pattern)
 
 PECommPattern& Field::parallelize()
 {
-  if ( is_not_null( m_comm_pattern ) ) // return if already parallel
+  if ( !m_comm_pattern.expired() ) // return if already parallel
     return *m_comm_pattern;
 
   // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
@@ -304,7 +304,7 @@ PECommPattern& Field::parallelize()
 
 void Field::synchronize()
 {
-  if ( is_not_null( m_comm_pattern ) )
+  if ( !m_comm_pattern.expired() )
     m_comm_pattern->synchronize( name() );
 }
 
