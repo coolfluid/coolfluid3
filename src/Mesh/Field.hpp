@@ -15,7 +15,12 @@
 #include "Mesh/CElements.hpp"
 
 namespace CF {
-namespace Common { class CLink; class CommPattern; }
+
+namespace Common
+{
+  class CLink;
+  namespace MPI { class CommPattern; }
+}
 
 namespace Mesh {
 
@@ -104,6 +109,12 @@ public: // functions
 
   Field& coordinates() const { return field_group().coordinates(); }
 
+  Common::MPI::CommPattern& parallelize_with(CommPattern& comm_pattern);
+
+  Common::MPI::CommPattern& parallelize();
+
+  void synchronize();
+
 private:
 
   void config_var_names();
@@ -115,7 +126,6 @@ private:
   FieldGroup::Basis::Type m_basis;
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
-
 
   boost::weak_ptr<Common::CommPattern> m_comm_pattern;
 
