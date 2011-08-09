@@ -7,7 +7,6 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
 
-#include "Mesh/FieldView.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementType.hpp"

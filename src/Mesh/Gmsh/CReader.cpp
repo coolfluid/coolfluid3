@@ -26,7 +26,6 @@
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/FieldView.hpp"
 
 #include "Mesh/Gmsh/CReader.hpp"
 

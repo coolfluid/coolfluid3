@@ -23,7 +23,6 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/FieldView.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
