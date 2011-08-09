@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( test_pack_unpack )
 {
-  MPI::Buffer buf;
+  Comm::Buffer buf;
   buf << 1u << 2u << 3.0 << 4 << true;
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), true);
 

@@ -367,7 +367,7 @@ void flex_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::
   }
 }
 
-void flex_all_to_all(const std::vector<MPI::Buffer>& send, MPI::Buffer& recv)
+void flex_all_to_all(const std::vector<Comm::Buffer>& send, Comm::Buffer& recv)
 {
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
@@ -378,7 +378,7 @@ void flex_all_to_all(const std::vector<MPI::Buffer>& send, MPI::Buffer& recv)
   for (Uint i=1; i<send.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  MPI::Buffer send_linear;
+  Comm::Buffer send_linear;
 
   send_linear.resize(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
@@ -398,7 +398,7 @@ void flex_all_to_all(const std::vector<MPI::Buffer>& send, MPI::Buffer& recv)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void flex_all_to_all(const MPI::Buffer& send, std::vector<int>& send_strides, MPI::Buffer& recv, std::vector<int>& recv_strides)
+void flex_all_to_all(const Comm::Buffer& send, std::vector<int>& send_strides, Comm::Buffer& recv, std::vector<int>& recv_strides)
 {
   std::vector<int> send_displs(send_strides.size());
   if (send_strides.size()) send_displs[0] = 0;
@@ -493,8 +493,8 @@ void CMeshPartitioner::migrate()
 
   std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
 
-  MPI::Buffer send_to_proc;  std::vector<int> send_strides(Comm::PE::instance().size());
-  MPI::Buffer recv_from_all; std::vector<int> recv_strides(Comm::PE::instance().size());
+  Comm::Buffer send_to_proc;  std::vector<int> send_strides(Comm::PE::instance().size());
+  Comm::Buffer recv_from_all; std::vector<int> recv_strides(Comm::PE::instance().size());
 
   // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
@@ -597,7 +597,7 @@ void CMeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
   // in  : requested nodes                std::vector<Uint>
-  // out : buffer with packed nodes       MPI::Buffer(nodes)
+  // out : buffer with packed nodes       Comm::Buffer(nodes)
 
   // COMMUNICATE NODES TO LOOK FOR
 
@@ -606,7 +606,7 @@ void CMeshPartitioner::migrate()
 
 
   PackUnpackNodes copy_node(nodes);
-  std::vector<MPI::Buffer> nodes_to_send(PE::instance().size());
+  std::vector<Comm::Buffer> nodes_to_send(PE::instance().size());
   for (Uint proc=0; proc<PE::instance().size(); ++proc)
   {
     if (proc != PE::instance().rank())
@@ -640,7 +640,7 @@ void CMeshPartitioner::migrate()
 
   // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
 
-  MPI::Buffer received_nodes_buffer;
+  Comm::Buffer received_nodes_buffer;
   flex_all_to_all(nodes_to_send,received_nodes_buffer);
 
   // out: buffer containing requested nodes
