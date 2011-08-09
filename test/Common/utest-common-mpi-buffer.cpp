@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   // Create a buffer
-  MPI::Buffer buffer;
+  Common::MPI::Buffer buffer;
   int root = 0;
 
   // pack the buffer on root processor
