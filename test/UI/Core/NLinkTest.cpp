@@ -9,6 +9,8 @@
 
 #include "Common/URI.hpp"
 
+#include "Common/XML/SignalFrame.hpp"
+
 #include "UI/Core/ThreadManager.hpp"
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Core/NLink.hpp"

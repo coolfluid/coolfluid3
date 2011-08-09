@@ -17,6 +17,7 @@
 namespace CF {
 
 namespace Mesh { class CDomain; class CMesh; class FieldManager; }
+namespace Physics { class PhysModel; }
 
 namespace Solver {
 
