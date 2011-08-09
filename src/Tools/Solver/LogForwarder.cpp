@@ -9,6 +9,7 @@
 
 #include "Common/OptionT.hpp"
 
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Tools/Solver/LogForwarder.hpp"
