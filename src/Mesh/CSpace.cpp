@@ -16,6 +16,7 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/FieldGroup.hpp"
+#include "Mesh/ShapeFunction.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -108,6 +109,27 @@ void CSpace::make_proxy(const Uint elem_start_idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+RealMatrix compute_coordinates(const Uint elem_idx) const
+{
+  return element_type().shape_function().value( shape_function().local_coordinates().row(node) ) * support().get_coordinates(elem_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CSpace::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
+{
+  CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
+  Field& coordinates = bound_fields().field("coordinates");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
+{
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

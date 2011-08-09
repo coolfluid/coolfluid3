@@ -142,6 +142,7 @@ protected:
   boost::shared_ptr<CList<Uint> > m_glb_idx;
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,6 @@
 
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
-#include "Mesh/Field.hpp"
 #include "Mesh/FieldGroup.hpp"
 
 namespace CF {
@@ -63,7 +62,6 @@ public: // functions
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space);
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion&);
 
-  /// updates the statistics of the mesh
   void update_statistics();
 
   /// @return the nodes of the mesh , modifiable access

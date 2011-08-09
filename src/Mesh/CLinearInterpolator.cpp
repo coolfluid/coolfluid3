@@ -24,7 +24,6 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Geometry.hpp"
@@ -87,15 +86,18 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
 
   if (source.basis() == FieldGroup::Basis::POINT_BASED && target.basis() == FieldGroup::Basis::POINT_BASED)
   {
+    const Field& source_coords = source.coordinates();
+    const Field& target_coords = target.coordinates();
+
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
-      to_vector(t_node,target.coords(t_node_idx));
+      to_vector(t_node,target_coords[t_node_idx]);
       boost::tie(s_elements,s_elm_idx) = find_element(t_node);
       if (is_not_null(s_elements))
       {
-        CConnectivity::ConstRow s_elm = s_elements->node_connectivity()[s_elm_idx];
+        CConnectivity::ConstRow s_elm = source.indexes_for_element(*s_elements,s_elm_idx);
         std::vector<RealVector> s_nodes(s_elm.size(),RealVector(m_dim));
-        fill( s_nodes , s_elements->nodes().coordinates() , s_elm );
+        fill( s_nodes , source_coords , s_elm );
 
         std::vector<Real> w(s_nodes.size());
         pseudo_laplacian_weighted_linear_interpolation(s_nodes, t_node, w);
@@ -111,25 +113,25 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
   }
   else if (source.basis() == FieldGroup::Basis::ELEMENT_BASED && target.basis() == FieldGroup::Basis::POINT_BASED)
   {
+    const Field& target_coords = target.coordinates();
+    std::vector<Uint> s_data_idx(0);
     Component::ConstPtr component;
     for (Uint t_node_idx=0; t_node_idx<t_data.size(); ++t_node_idx)
     {
-      to_vector(t_node,target.coords(t_node_idx));
+      to_vector(t_node,target_coords[t_node_idx]);
       if (find_point_in_octtree(t_node,m_point_idx))
       {
         find_pointcloud(m_sufficient_nb_points);
-
-        std::vector<Uint> s_data_idx(m_element_cloud.size());
+        s_data_idx.resize(0);
         std::vector<RealVector> s_centroids(m_element_cloud.size(),RealVector(m_dim));
-        Uint cnt(0);
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
           CElements const& elements = component->as_type<CElements const>();
           RealMatrix elem_coords = elements.get_coordinates(s_elm_idx);
           elements.element_type().compute_centroid(elem_coords,s_centroids[cnt]);
-          s_data_idx[cnt] = source.elements_start_idx(elements) + s_elm_idx;
-          ++cnt;
+          boost_foreach ( const Uint state_idx, source.indexes_for_elements(elements,s_elm_idx) )
+            s_data_idx.push_back(state_idx);
         }
 
         std::vector<Real> w(s_centroids.size());
