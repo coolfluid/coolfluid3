@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_mpi_CWorkerGroup_hpp
-#define CF_Common_mpi_CWorkerGroup_hpp
+#ifndef CF_Common_MPI_CWorkerGroup_hpp
+#define CF_Common_MPI_CWorkerGroup_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@
 
 namespace CF {
 namespace Common {
-namespace mpi {
+namespace MPI {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,10 +60,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace mpi
+} // namespace MPI
 } // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_mpi_CWorkerGroup_hpp
+#endif // CF_Common_MPI_CWorkerGroup_hpp

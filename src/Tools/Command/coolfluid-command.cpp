@@ -27,7 +27,7 @@ using namespace CF::Tools::Shell;
 int main(int argc, char * argv[])
 {
   Core::instance().initiate(argc, argv);
-  mpi::PE::instance().init(argc, argv);
+  MPI::PE::instance().init(argc, argv);
 
   try
   {
@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
     CFerror << "Detected unknown exception" << CFendl;
   }
 
-  mpi::PE::instance().finalize();
+  MPI::PE::instance().finalize();
   Core::instance().terminate();
 
   return 0;

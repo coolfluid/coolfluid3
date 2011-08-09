@@ -51,7 +51,7 @@ struct RemoveElements
 };
 
 
-struct PackUnpackElements: Common::mpi::PackedObject
+struct PackUnpackElements: Common::MPI::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -61,9 +61,9 @@ struct PackUnpackElements: Common::mpi::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::mpi::Buffer& buf);
+  virtual void pack(Common::MPI::Buffer& buf);
 
-  virtual void unpack(Common::mpi::Buffer& buf);
+  virtual void unpack(Common::MPI::Buffer& buf);
 
   void flush();
 
@@ -76,7 +76,7 @@ struct PackUnpackElements: Common::mpi::PackedObject
 };
 
 
-struct PackUnpackNodes: Common::mpi::PackedObject
+struct PackUnpackNodes: Common::MPI::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -86,9 +86,9 @@ struct PackUnpackNodes: Common::mpi::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::mpi::Buffer& buf);
+  virtual void pack(Common::MPI::Buffer& buf);
 
-  virtual void unpack(Common::mpi::Buffer& buf);
+  virtual void unpack(Common::MPI::Buffer& buf);
 
   void flush();
 

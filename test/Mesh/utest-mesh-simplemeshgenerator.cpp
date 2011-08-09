@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_SUITE( SimpleMeshGeneratorTests_TestSuite, SimpleMeshGenerato
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  mpi::PE::instance().init(m_argc,m_argv);
+  MPI::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  MPI::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

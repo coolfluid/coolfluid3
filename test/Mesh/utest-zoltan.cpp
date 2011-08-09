@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_SUITE( ZoltanTests_TestSuite, ZoltanTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  MPI::PE::instance().init(m_argc,m_argv);
 
 }
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   Component::Ptr comp;
   Uint idx;
   bool found;
-  if ( mpi::PE::instance().rank() == 0)
+  if ( MPI::PE::instance().rank() == 0)
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  MPI::PE::instance().finalize();
 
   Core::instance().terminate();
 }

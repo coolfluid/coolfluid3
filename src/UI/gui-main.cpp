@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
   // initiate the core environment
   Core::instance().environment().configure_option("regist_signal_handlers", false);
   Core::instance().initiate(argc, argv);
-  mpi::PE::instance().init(argc,argv);   // this might modify argc and argv
+  MPI::PE::instance().init(argc,argv);   // this might modify argc and argv
 
   CF::Common::AssertionManager::instance().AssertionThrows = true;
   CF::Common::AssertionManager::instance().AssertionDumps = true;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
   // terminate the MPI environment
 
-  mpi::PE::instance().finalize();
+  MPI::PE::instance().finalize();
   Core::instance().terminate();
 
   return returnValue;

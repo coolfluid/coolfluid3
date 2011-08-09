@@ -117,7 +117,7 @@ void PackUnpackElements::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::pack(mpi::Buffer& buf)
+void PackUnpackElements::pack(MPI::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -138,7 +138,7 @@ void PackUnpackElements::pack(mpi::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::unpack(mpi::Buffer& buf)
+void PackUnpackElements::unpack(MPI::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;
@@ -205,7 +205,7 @@ void PackUnpackNodes::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::pack(mpi::Buffer& buf)
+void PackUnpackNodes::pack(MPI::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -236,7 +236,7 @@ void PackUnpackNodes::pack(mpi::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::unpack(mpi::Buffer& buf)
+void PackUnpackNodes::unpack(MPI::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;
