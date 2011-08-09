@@ -54,6 +54,10 @@ void SetupMultipleSolutions::execute()
 
   CGroup& fields = mysolver.fields();
 
+  // get the geometry field group
+
+  FieldGroup& geometry = mesh.geometry();
+
   // construct vector of variables
 
   const Uint nbdofs = physical_model().neqs();
@@ -68,11 +72,11 @@ void SetupMultipleSolutions::execute()
 
   // configure 1st solution
 
-  Field::Ptr solution = find_component_ptr_with_tag<Field>( mesh, RDM::Tags::solution() );
+  Field::Ptr solution = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
     solution =
-        mesh.create_field( RDM::Tags::solution(),
+        geometry.create_field( RDM::Tags::solution(),
                            FieldGroup::Basis::POINT_BASED,
                            "space[0]",
                            vars)
@@ -94,11 +98,11 @@ void SetupMultipleSolutions::execute()
 
   for(Uint k = 1; k <= nb_levels; ++k)
   {
-    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( mesh, RDM::Tags::solution() + to_str(k));
+    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() + to_str(k));
     if ( is_null( solution_k ) )
     {
       std::string name = std::string(Tags::solution()) + to_str(k);
-      solution_k = mesh.create_field( name, *solution ).as_ptr<Field>();
+      solution_k = geometry.create_field( name, *solution ).as_ptr<Field>();
       solution_k->add_tag("rksteps");
     }
 
@@ -129,10 +133,10 @@ void SetupMultipleSolutions::execute()
 
   // configure residual
 
-  Field::Ptr residual = find_component_ptr_with_tag<Field>( mesh, RDM::Tags::residual());
+  Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = mesh.create_field(Tags::residual(), *solution ).as_ptr<Field>();
+    residual = geometry.create_field(Tags::residual(), *solution ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
@@ -141,10 +145,10 @@ void SetupMultipleSolutions::execute()
 
   // configure wave_speed
 
-  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( mesh, RDM::Tags::wave_speed());
+  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = mesh.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
+    wave_speed = geometry.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
@@ -152,28 +156,9 @@ void SetupMultipleSolutions::execute()
     fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
 
-  // configure phi_k
-
-  Field::Ptr phi_k = find_component_ptr_with_tag<Field>( mesh, "phi_k");
-  if ( is_null( phi_k ) )
-  {
-    std::string lvars;
-    for(Uint k = 0; k < nb_levels; ++k)
-      for(Uint i = 0; i < nbdofs; ++i)
-      {
-        lvars += "u" + to_str(k) + "_"  + to_str(i) + "[1]";
-        if( i != nbdofs*nb_levels-1 ) lvars += ",";
-      }
-
-    phi_k = mesh.create_field( "phi_k", FieldGroup::Basis::CELL_BASED, "space[0]", vars ).as_ptr<Field>();
-    phi_k->add_tag("phi_k");
-  }
-
-
   /// @todo apply here the bubble insertion if needed
 
   // parallelize the solution if not yet done
-
 
   PECommPattern& pattern = solution->parallelize();
 

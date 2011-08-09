@@ -20,7 +20,7 @@ namespace CF {
   }
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class CRegion;
   class CMeshElements;
   class MeshMetadata;
@@ -94,17 +94,17 @@ public: // functions
   void update_statistics();
 
   /// @return the nodes of the mesh , modifiable access
-  CNodes& nodes();
+  Geometry& geometry();
 
   /// @return the nodes of the mesh , non-modifiable access
-  const CNodes& nodes() const;
+  const Geometry& geometry() const;
 
   /// @return linearized view of all the entities in the mesh
   CMeshElements& elements();
 
   /// @return linearized view of all the entities in the mesh
   const CMeshElements& elements() const;
-\
+
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }
 
@@ -134,7 +134,7 @@ private: // data
 
   boost::shared_ptr<CRegion> m_topology;
 
-  boost::shared_ptr<CNodes> m_nodes;
+  boost::shared_ptr<Geometry> m_nodes;
 
 };
 

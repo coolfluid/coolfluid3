@@ -91,7 +91,7 @@ void CWriter::write_file(std::fstream& file)
   file << "TITLE      = COOLFluiD Mesh Data" << "\n";
   file << "VARIABLES  = ";
 
-  Uint dimension = m_mesh->nodes().coordinates().row_size();
+  Uint dimension = m_mesh->geometry().coordinates().row_size();
   // write the coordinate variable names
   for (Uint i = 0; i < dimension ; ++i)
   {
@@ -182,7 +182,7 @@ void CWriter::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    const CTable<Real>& coordinates = m_mesh->nodes().coordinates();
+    const CTable<Real>& coordinates = m_mesh->geometry().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment

@@ -90,13 +90,13 @@ void CEntities::initialize(const std::string& element_type_name)
   cf_assert(is_not_null(m_element_type));
 }
 
-void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
+void CEntities::initialize(const std::string& element_type_name, Geometry& nodes)
 {
   set_nodes(nodes);
   initialize(element_type_name);
 }
 
-void CEntities::set_nodes(CNodes& nodes)
+void CEntities::set_nodes(Geometry& nodes)
 {
   m_nodes->link_to(nodes.follow());
 }
@@ -144,14 +144,14 @@ const ElementType& CEntities::element_type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CEntities::nodes() const
+const Geometry& CEntities::nodes() const
 {
   return m_nodes->follow()->as_type<CNodes>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes& CEntities::nodes()
+Geometry& CEntities::nodes()
 {
   return m_nodes->follow()->as_type<CNodes>();
 }

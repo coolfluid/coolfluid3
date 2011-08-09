@@ -20,7 +20,7 @@ namespace Common { class CLink; class CGroup;}
 namespace Mesh {
 
   template <typename T> class CList;
-  class CNodes;
+  class Geometry;
   class ElementType;
   class CSpace;
 
@@ -68,10 +68,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the CEntities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name, Geometry& nodes);
 
   /// Set the nodes
-  virtual void set_nodes(CNodes& nodes);
+  virtual void set_nodes(Geometry& nodes);
 
   /// Virtual destructor
   virtual ~CEntities();
@@ -86,10 +86,10 @@ public: // functions
   const ElementType& element_type() const;
 
   /// Mutable access to the nodes
-  CNodes& nodes();
+  Geometry& nodes();
 
   /// Const access to the coordinates
-  const CNodes& nodes() const;
+  const Geometry& nodes() const;
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }

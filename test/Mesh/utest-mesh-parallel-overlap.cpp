@@ -183,7 +183,7 @@ void my_all_to_all(const mpi::Buffer& send, std::vector<int>& send_strides, mpi:
 }
 
 
-bool check_nodes_sanity(CNodes& nodes)
+bool check_nodes_sanity(Geometry& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;

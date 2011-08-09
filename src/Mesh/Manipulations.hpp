@@ -18,14 +18,14 @@
 namespace CF {
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class CElements;
 
   ////////////////////////////////////////////////////////////////////////////////
 
 struct RemoveNodes
 {
-  RemoveNodes(CNodes& nodes);
+  RemoveNodes(Geometry& nodes);
 
   void operator() (const Uint idx);
 
@@ -80,7 +80,7 @@ struct PackUnpackNodes: Common::mpi::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackNodes(CNodes& nodes);
+  PackUnpackNodes(Geometry& nodes);
 
   PackUnpackNodes& operator() (const Uint idx,const bool remove_after_pack = false);
 
@@ -92,7 +92,7 @@ struct PackUnpackNodes: Common::mpi::PackedObject
 
   void flush();
 
-  CNodes& m_nodes;
+  Geometry& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
   CList<Uint>::Buffer       glb_idx;

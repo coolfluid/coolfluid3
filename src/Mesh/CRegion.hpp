@@ -19,7 +19,7 @@ namespace CF {
 namespace Mesh {
 
   template <typename T> class CTable;
-  class CNodes;
+  class Geometry;
   class CElements;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +61,7 @@ public: // functions
   /// Set to refer to the supplied nodes
   /// @param element_type_name type of the elements
   /// @param nodes  location of the nodes the elements are linked with
-  CElements& create_elements (const std::string& element_type_name, CNodes& nodes);
+  CElements& create_elements (const std::string& element_type_name, Geometry& nodes);
   
   /// Create a CElements with nodes unset
   CElements& create_elements (const std::string& element_type_name);
@@ -88,10 +88,10 @@ public: // functions
   CElements& elements (const std::string& element_type_name);
 
   /// @return nodes of the mesh
-  CNodes& nodes();
+  Geometry& nodes();
 
   /// @return nodes of the mesh
-  const CNodes& nodes() const;
+  const Geometry& nodes() const;
 
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const CElements& elements, region.elements_range() )

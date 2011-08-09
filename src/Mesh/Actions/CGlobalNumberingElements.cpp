@@ -99,7 +99,7 @@ void CGlobalNumberingElements::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
 
   boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )

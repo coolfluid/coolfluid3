@@ -42,7 +42,7 @@ void CNodeFaceCellConnectivity::setup(CRegion& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CNodeFaceCellConnectivity::set_nodes(CNodes& nodes)
+void CNodeFaceCellConnectivity::set_nodes(Geometry& nodes)
 {
   m_nodes->link_to(nodes.self());
   m_connectivity->resize(nodes.size());
@@ -52,7 +52,7 @@ void CNodeFaceCellConnectivity::set_nodes(CNodes& nodes)
 
 void CNodeFaceCellConnectivity::build_connectivity()
 {
-  CNodes const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
+  Geometry const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

@@ -80,7 +80,7 @@ void Init::execute()
   {
     /// @warning assumes that field maps one to one with mesh.nodes()
 
-    CNodes& nodes = mesh().nodes();
+    Geometry& nodes = mesh().geometry();
 
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {

@@ -99,7 +99,7 @@ void CWriter::write_headerData(std::fstream& file)
   Uint element_counter(0);
   Uint bc_counter(0);
 
-  const Uint node_counter = m_mesh->nodes().size();
+  const Uint node_counter = m_mesh->geometry().size();
 
 
   boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))

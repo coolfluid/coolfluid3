@@ -53,7 +53,7 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh, std::map<std::s
 {
   // root region and coordinates
   CRegion& block_mesh_region = mesh.topology().create_region("block_mesh_region");
-  CNodes& block_nodes = mesh.nodes();
+  Geometry& block_nodes = mesh.geometry();
 
   // Fill the coordinates array
   const Uint nb_nodes = block_data.points.size();
@@ -558,7 +558,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
 
   // Create the node coordinates
   CRegion& root_region = tmp_mesh3d ? tmp_mesh3d->topology().create_region("root_region") : mesh.topology().create_region("root_region");
-  CNodes& mesh_nodes_comp = root_region.nodes();
+  Geometry& mesh_nodes_comp = root_region.nodes();
   CTable<Real>::ArrayT& mesh_coords = mesh_nodes_comp.coordinates().array();
   mesh_nodes_comp.resize(nodes_end - nodes_begin);
 
@@ -752,7 +752,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     // Create the 2D mesh
     // Create the node coordinates
     CRegion& root_region_2d = mesh.topology().create_region("root_region");
-    CNodes& mesh_nodes_comp_2d = root_region_2d.nodes();
+    Geometry& mesh_nodes_comp_2d = root_region_2d.nodes();
     CTable<Real>::ArrayT& mesh_coords_2d = mesh_nodes_comp_2d.coordinates().array();
 
     // Create the volume cells connectivity

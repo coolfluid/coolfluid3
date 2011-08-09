@@ -7,8 +7,6 @@
 #ifndef CF_Mesh_FieldGroup_hpp
 #define CF_Mesh_FieldGroup_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include <boost/range.hpp>
 
 #include "Common/EnumT.hpp"
@@ -19,16 +17,16 @@
 #include "Mesh/CUnifiedData.hpp"
 
 namespace CF {
-namespace Common
-{
-  class CLink;
-}
+namespace Common { class CLink; }
+
 namespace Mesh {
-  class CMesh;
+
+class CMesh;
   class Field;
   class CRegion;
   class CEntities;
   class CElements;
+
   template <typename T> class CList;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -100,7 +98,7 @@ public: // functions
 
   bool is_ghost(const Uint idx) const;
 
-  /// @brief Check if all fields are compatible sanity of this group
+  /// @brief Check if all fields are compatible
   /// @throws Common::InvalidStructure
   void check_sanity();
 
@@ -150,7 +148,5 @@ protected:
 
 } // Mesh
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Mesh_FieldGroup_hpp

@@ -51,7 +51,7 @@ CRegion& CRegion::create_region( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements& CRegion::create_elements(const std::string& element_type_name, CNodes& nodes)
+CElements& CRegion::create_elements(const std::string& element_type_name, Geometry& nodes)
 {
   std::string name = "elements_" + element_type_name;
 
@@ -129,14 +129,14 @@ CElements& CRegion::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CRegion::nodes() const
+const Geometry& CRegion::nodes() const
 {
   return find_parent_component<CMesh>(*this).nodes();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes& CRegion::nodes()
+Geometry& CRegion::nodes()
 {
   return find_parent_component<CMesh>(*this).nodes();
 }

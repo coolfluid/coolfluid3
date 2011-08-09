@@ -91,7 +91,7 @@ void CGlobalConnectivity::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   CList<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time
@@ -111,7 +111,7 @@ void CGlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  CNodeElementConnectivity& node2elem = *mesh.nodes().create_component_ptr<CNodeElementConnectivity>("node2elem");
+  CNodeElementConnectivity& node2elem = *mesh.geometry().create_component_ptr<CNodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
 
   // 3)
@@ -128,9 +128,9 @@ void CGlobalConnectivity::execute()
   Uint elem_idx;
 
   Uint cnt(0);
-  for (Uint i=0; i<mesh.nodes().size(); ++i)
+  for (Uint i=0; i<mesh.geometry().size(); ++i)
   {
-    if (mesh.nodes().is_ghost(i))
+    if (mesh.geometry().is_ghost(i))
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
 
@@ -148,7 +148,7 @@ void CGlobalConnectivity::execute()
 
   // 4)
   std::vector<std::vector<Uint> > glb_elem_connectivity(nodes.size());
-  nodes_glb_idx.resize(mesh.nodes().size());
+  nodes_glb_idx.resize(mesh.geometry().size());
 
   for (Uint root=0; root<mpi::PE::instance().size(); ++root)
   {
@@ -184,7 +184,7 @@ void CGlobalConnectivity::execute()
   }
 
 
-  CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.nodes().glb_elem_connectivity();
+  CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry().glb_elem_connectivity();
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {

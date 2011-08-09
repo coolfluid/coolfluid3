@@ -380,7 +380,7 @@ void CReader::read_coordinates()
      master_region++;
   }
 
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void CReader::read_coordinates()
 void CReader::read_connectivity()
 {
 
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
 
 
   Uint part = option("part").value<Uint>();
@@ -879,7 +879,7 @@ void CReader::read_variable_header(std::map<std::string,Field>& fields)
 
 std::string CReader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 {
-  std::string dim = to_str(m_mesh->nodes().coordinates().row_size());
+  std::string dim = to_str(m_mesh->geometry().coordinates().row_size());
   switch (var_type_gmsh)
   {
     case 1:

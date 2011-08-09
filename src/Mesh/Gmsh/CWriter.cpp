@@ -182,7 +182,7 @@ void CWriter::write_coordinates(std::fstream& file)
   file << nb_nodes << "\n";
 
   Uint node_number=0;
-  const CTable<Real>& coordinates = m_mesh->nodes().coordinates();
+  const CTable<Real>& coordinates = m_mesh->geometry().coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {

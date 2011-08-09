@@ -99,13 +99,13 @@ void CGlobalNumberingNodes::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
-  if ( is_null( mesh.nodes().get_child_ptr("glb_node_hash") ) )
-    mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
+  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
 
   CVector_size_t& glb_node_hash =
-      mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+      mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
 
   glb_node_hash.data().resize(coordinates.size());
 
@@ -148,8 +148,8 @@ void CGlobalNumberingNodes::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_ghost(0);
-  CNodes& nodes = mesh.nodes();
-  CList<Uint>& nodes_rank = mesh.nodes().rank();
+  Geometry& nodes = mesh.geometry();
+  CList<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -189,7 +189,7 @@ void CGlobalNumberingNodes::execute()
   std::vector<size_t> node_from(nodes.size()-nb_ghost);
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
 
-  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;

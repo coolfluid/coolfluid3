@@ -77,7 +77,7 @@ void BcDirichlet::execute()
 
     /// @warning BcDirichlet assumes that solution maps one to one with mesh.nodes()
 
-    CNodes& nodes = mesh().nodes();
+    Geometry& nodes = mesh().geometry();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())

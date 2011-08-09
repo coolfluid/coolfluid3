@@ -129,7 +129,7 @@ void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_cells_in_region (CRegion& parent_region, CNodes& nodes,
+  CMeshReader::create_cells_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> cells_map;
@@ -149,7 +149,7 @@ std::map<std::string,CElements::Ptr>
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_faces_in_region (CRegion& parent_region, CNodes& nodes,
+  CMeshReader::create_faces_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> faces_map;

@@ -67,7 +67,7 @@ CMesh::CMesh ( const std::string& name  ) :
       ->connect   ( boost::bind ( &CMesh::signal_write_mesh,    this, _1 ) )
       ->signature ( boost::bind ( &CMesh::signature_write_mesh, this, _1 ) );
 
-  m_nodes = create_static_component_ptr<CNodes>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<Geometry>(Mesh::Tags::nodes());
   m_nodes->add_tag(Mesh::Tags::nodes());
 
 }
@@ -84,25 +84,25 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf_assert(dimension > 0);
 
-  nodes().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
-  nodes().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
-  nodes().configure_option("topology",topology().uri());
-  nodes().coordinates().configure_option("var_names",std::vector<std::string>(1,std::string("coord")));
-  nodes().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(dimension)));
-  nodes().resize(nb_nodes);
+  geometry().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
+  geometry().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
+  geometry().configure_option("topology",topology().uri());
+  geometry().coordinates().configure_option("var_names",std::vector<std::string>(1,std::string("coord")));
+  geometry().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(dimension)));
+  geometry().resize(nb_nodes);
 
-  cf_assert(nodes().size() == nb_nodes);
-  cf_assert(nodes().coordinates().row_size() == dimension);
+  cf_assert(geometry().size() == nb_nodes);
+  cf_assert(geometry().coordinates().row_size() == dimension);
   m_dimension = dimension;
   property("dimension") = m_dimension;
-  property("nb_nodes")  = nodes().size();
+  property("nb_nodes")  = geometry().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CMesh::update_statistics()
 {
-  cf_assert(m_dimension == nodes().coordinates().row_size() );
+  cf_assert(m_dimension == geometry().coordinates().row_size() );
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 
@@ -118,7 +118,7 @@ void CMesh::update_statistics()
   property("dimensionality")= m_dimensionality;
   property("nb_cells") = nb_cells;
   property("nb_faces") = nb_faces;
-  property("nb_nodes") = nodes().size();
+  property("nb_nodes") = geometry().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -290,14 +290,14 @@ Field& CMesh::create_field(const std::string& name, const FieldGroup::Basis::Typ
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes& CMesh::nodes()
+Geometry& CMesh::geometry()
 {
   return *m_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CMesh::nodes() const
+const Geometry& CMesh::geometry() const
 {
   return *m_nodes;
 }

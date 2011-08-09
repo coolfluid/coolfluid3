@@ -39,7 +39,7 @@ void CNodeElementConnectivity::setup(CRegion& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CNodeElementConnectivity::set_nodes(CNodes& nodes)
+void CNodeElementConnectivity::set_nodes(Geometry& nodes)
 {
   m_nodes->link_to(nodes.self());
   m_connectivity->resize(nodes.size());
@@ -50,7 +50,7 @@ void CNodeElementConnectivity::set_nodes(CNodes& nodes)
 void CNodeElementConnectivity::build_connectivity()
 {
   set_nodes(elements().components()[0]->as_type<CElements>().nodes());
-  CNodes const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
+  Geometry const& nodes = *m_nodes->follow()->as_ptr<CNodes>();
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

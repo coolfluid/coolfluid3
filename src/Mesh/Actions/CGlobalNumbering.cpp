@@ -99,11 +99,11 @@ void CGlobalNumbering::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
-  if ( is_null( mesh.nodes().get_child_ptr("glb_node_hash") ) )
-    mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
-  CVector_size_t& glb_node_hash = mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
+  CVector_size_t& glb_node_hash = mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
@@ -162,7 +162,7 @@ void CGlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())
@@ -177,7 +177,7 @@ void CGlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  CList<Uint>& nodes_rank = mesh.nodes().rank();
+  CList<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -222,7 +222,7 @@ void CGlobalNumbering::execute()
   std::vector<size_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
-  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
@@ -397,7 +397,7 @@ void CGlobalNumbering::execute()
   }
 
 
-  mesh.nodes().remove_component(glb_node_hash);
+  mesh.geometry().remove_component(glb_node_hash);
 
   boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
   {

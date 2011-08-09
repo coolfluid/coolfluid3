@@ -43,10 +43,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
   
   /// Initialize the CElements using the given type and set the nodes
-  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name, Geometry& nodes);
 
   /// Set nodes
-  virtual void set_nodes(CNodes& nodes);
+  virtual void set_nodes(Geometry& nodes);
   
   /// Virtual destructor
   virtual ~CElements();

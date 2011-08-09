@@ -78,14 +78,14 @@ void CBuildCoordinatesField::execute()
 
   Field& coordinates = *mesh.create_component_ptr<Field>("coordinates");
   names[0] = "coordinates";
-  sizes[0] = mesh.nodes().coordinates().row_size();
+  sizes[0] = mesh.geometry().coordinates().row_size();
   coordinates.get_child_ptr("topology")->as_ptr<CLink>()->link_to(mesh.topology().self());
   coordinates.configure_option("VarNames",names);
   coordinates.configure_option("VarSizes",sizes);
   coordinates.configure_option("FieldType",std::string("NodeBased"));
   coordinates.create_data_storage();
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   Uint data_idx(0);
   boost_foreach(const Uint node_idx, coordinates.used_nodes().array())
   {

@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a CElements component
   CElements::Ptr comp = allocate_component<CElements>("comp");
-  CNodes::Ptr nodes = allocate_component<CNodes>("nodes");
+  Geometry::Ptr nodes = allocate_component<CNodes>("nodes");
   comp->initialize("CF.Mesh.SF.Quad2DLagrangeP1",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

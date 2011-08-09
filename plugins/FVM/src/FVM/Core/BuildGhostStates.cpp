@@ -64,7 +64,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
 {
   CMesh& mesh = *m_mesh.lock();
   
-  Uint dim = mesh.nodes().coordinates().row_size();
+  Uint dim = mesh.geometry().coordinates().row_size();
   std::string dim_str = to_str(dim);
   std::vector<Uint> dummy(1);
   boost_foreach(CRegion& region, find_components<CRegion>(parent) )
@@ -85,11 +85,11 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
         
       CRegion& ghost_states = *region.create_component_ptr<CRegion>("ghost_states");
       GhostCells& ghosts = *ghost_states.create_component_ptr<GhostCells>("Point");
-      ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP0",mesh.nodes());
+      ghosts.initialize("CF.Mesh.SF.Point"+dim_str+"DLagrangeP0",mesh.geometry());
       CTable<Uint>& ghost_elem_connectivity = ghosts.node_connectivity();
       ghost_elem_connectivity.resize(nb_faces);
       ghost_elem_connectivity.set_row_size(1);
-      CTable<Real>::Buffer nodes_buffer = mesh.nodes().coordinates().create_buffer();
+      CTable<Real>::Buffer nodes_buffer = mesh.geometry().coordinates().create_buffer();
 
       // update the mesh_elements so that the ghost elements now have a unified index
       mesh.elements().update();
@@ -132,7 +132,7 @@ void BuildGhostStates::recursive_build_ghost_states(Component& parent)
             {
               RealVector face_coord(dim); 
               for (Uint d=0; d<dim; ++d)
-                face_coord[d] = mesh.nodes().coordinates()[faces.node_connectivity()[face][0]][d];
+                face_coord[d] = mesh.geometry().coordinates()[faces.node_connectivity()[face][0]][d];
               normal = face_coord - centroid;
               normal.normalize();
               ghost_coord =  centroid + 2.0*(face_coord-centroid);

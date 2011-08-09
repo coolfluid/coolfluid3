@@ -52,13 +52,13 @@ void CElements::initialize(const std::string& element_type_name)
   node_space.connectivity().set_row_size(node_space.nb_states());
 }
 
-void CElements::initialize(const std::string& element_type_name, CNodes& nodes)
+void CElements::initialize(const std::string& element_type_name, Geometry& nodes)
 {
   initialize(element_type_name);
   set_nodes(nodes);
 }
 
-void CElements::set_nodes(CNodes& nodes)
+void CElements::set_nodes(Geometry& nodes)
 {
   CEntities::set_nodes(nodes);
   node_connectivity().create_lookup().add(nodes);

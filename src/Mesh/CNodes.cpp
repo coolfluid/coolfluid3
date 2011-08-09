@@ -15,11 +15,11 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CNodes, Component, LibMesh > CNodes_Builder;
+Common::ComponentBuilder < Geometry, Component, LibMesh > CNodes_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes::CNodes ( const std::string& name ) :
+Geometry::Geometry ( const std::string& name ) :
   FieldGroup ( name )
 {
   m_coordinates = create_static_component_ptr< Field >(Mesh::Tags::coordinates());
@@ -33,7 +33,7 @@ CNodes::CNodes ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes::~CNodes()
+Geometry::~Geometry()
 {
 }
 

@@ -21,7 +21,7 @@ using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RemoveNodes::RemoveNodes(CNodes& nodes) :
+RemoveNodes::RemoveNodes(Geometry& nodes) :
     glb_idx (nodes.glb_idx().create_buffer()),
     rank (nodes.rank().create_buffer()),
     coordinates (nodes.coordinates().create_buffer()),
@@ -168,7 +168,7 @@ void PackUnpackElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes::PackUnpackNodes(CNodes& nodes) :
+PackUnpackNodes::PackUnpackNodes(Geometry& nodes) :
   m_nodes(nodes),
   m_remove_after_pack(false),
   m_idx(uint_max()),

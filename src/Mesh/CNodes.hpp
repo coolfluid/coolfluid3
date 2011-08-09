@@ -23,24 +23,24 @@ template <typename T> class CDynTable;
 /// CNodes component class
 /// This class stores information about the nodes of the mesh
 /// @author Willem Deconinck
-class Mesh_API CNodes : public Mesh::FieldGroup {
+class Mesh_API Geometry : public Mesh::FieldGroup {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CNodes> Ptr;
-  typedef boost::shared_ptr<CNodes const> ConstPtr;
+  typedef boost::shared_ptr<Geometry> Ptr;
+  typedef boost::shared_ptr<Geometry const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CNodes ( const std::string& name );
+  Geometry ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CNodes();
+  virtual ~Geometry();
 
   /// Get the class name
-  static std::string type_name () { return "CNodes"; }
+  static std::string type_name () { return "Geometry"; }
 
   Field& coordinates() { return *m_coordinates; }
   const Field& coordinates() const { return *m_coordinates; }

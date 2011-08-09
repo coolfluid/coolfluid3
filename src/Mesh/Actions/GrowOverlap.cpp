@@ -188,7 +188,7 @@ void GrowOverlap::execute()
 {
 
   CMesh& mesh = *m_mesh.lock();
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   const std::vector<Component::Ptr>& mesh_elements = mesh.elements().components();
 

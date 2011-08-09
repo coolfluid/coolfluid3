@@ -258,7 +258,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.create_component_ptr<CCellFaces>(shape_name);
     //std::cout << PERank << "  creating " << faces.uri().path() << std::endl;
-    faces.initialize(face_type,mesh.nodes());
+    faces.initialize(face_type,mesh.geometry());
     if (is_inner)
       faces.add_tag(Mesh::Tags::inner_faces());
     else
@@ -384,7 +384,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   CNodeFaceCellConnectivity& node2faces2 = *node2faces2_ptr;
   boost_foreach(Component::Ptr f2c, Ufaces2->components())
     node2faces2.face_cell_connectivity().add(f2c->as_type<CFaceCellConnectivity>()); // it is assumed this is only face types
-  node2faces2.set_nodes(mesh.nodes());
+  node2faces2.set_nodes(mesh.geometry());
   node2faces2.build_connectivity();
 
   Uint f1(0);
@@ -490,7 +490,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
   CNodeFaceCellConnectivity& nodes_to_inner_faces = *nodes_to_inner_faces_ptr;
   boost_foreach(Component::Ptr inner_f2c, unified_inner_faces_to_cells->components())
     nodes_to_inner_faces.face_cell_connectivity().add(inner_f2c->as_type<CFaceCellConnectivity>());
-  nodes_to_inner_faces.set_nodes(mesh.nodes());
+  nodes_to_inner_faces.set_nodes(mesh.geometry());
   nodes_to_inner_faces.build_connectivity();
 
   Uint unified_bdry_face_idx(0);

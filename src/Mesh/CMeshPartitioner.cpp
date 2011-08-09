@@ -109,7 +109,7 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   Uint tot_nb_owned_nodes(0);
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -166,7 +166,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 {
 
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   m_lookup->add(nodes);
   boost_foreach ( CEntities& elements, mesh.topology().elements_range() )
@@ -437,7 +437,7 @@ void CMeshPartitioner::migrate()
 
 
   CMesh& mesh = *m_mesh.lock();
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   // ----------------------------------------------------------------------------
   // ----------------------------------------------------------------------------
@@ -476,7 +476,7 @@ void CMeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
-  const CList<Uint>& global_node_indices = mesh.nodes().glb_idx();
+  const CList<Uint>& global_node_indices = mesh.geometry().glb_idx();
   boost_foreach (CEntities& elements, mesh.topology().elements_range())
   {
     boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )

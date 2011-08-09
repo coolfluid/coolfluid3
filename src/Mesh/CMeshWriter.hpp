@@ -21,7 +21,7 @@ namespace CF {
 namespace Common {  class URI;  }
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class Field;
 
 ////////////////////////////////////////////////////////////////////////////////
