@@ -16,20 +16,26 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 
+#include "Common/MPI/CommPattern.hpp"
+
 #include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
+using namespace boost::assign;
+
+using namespace CF::Common;
+using namespace CF::Common::MPI;
+
 namespace CF {
 namespace Mesh {
 
-using namespace Common;
-using namespace boost::assign;
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Field::Field ( const std::string& name  ) :
   CTable<Real> ( name ),
@@ -58,7 +64,9 @@ Field::Field ( const std::string& name  ) :
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
+
+Field::~Field() {}
+
 
 void Field::config_var_types()
 {
@@ -104,14 +112,12 @@ void Field::config_var_types()
   //option("VarTypes").change_value(var_types); // this triggers infinite recursion
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void Field::config_var_names()
 {
   option("var_names").put_value(m_var_names);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 std::string Field::var_name(Uint i) const
 {
@@ -156,18 +162,12 @@ std::string Field::var_name(Uint i) const
   //  return names;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void Field::set_topology(CRegion& region)
 {
   m_topology = region.as_ptr<CRegion>();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-Field::~Field()
-{
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -252,24 +252,21 @@ CTable<Uint>::ConstRow Field::indexes_for_element(const CEntities& elements, con
   return field_group().indexes_for_element(elements,idx);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 {
   return field_group().indexes_for_element(unified_idx);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
   cf_assert_desc("Only point-based fields supported now", m_basis == FieldGroup::Basis::POINT_BASED);
-  m_comm_pattern = comm_pattern.as_ptr<Common::CommPattern>();
+  m_comm_pattern = comm_pattern.as_ptr<CommPattern>();
   comm_pattern.insert(name(),data().array(),true);
   return comm_pattern;
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 CommPattern& Field::parallelize()
 {
@@ -300,7 +297,6 @@ CommPattern& Field::parallelize()
   return parallelize_with(*m_comm_pattern);
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void Field::synchronize()
 {
@@ -308,7 +304,7 @@ void Field::synchronize()
     m_comm_pattern->synchronize( name() );
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

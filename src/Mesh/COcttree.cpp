@@ -25,7 +25,6 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/Field.hpp"
-#include "Mesh/FieldView.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Geometry.hpp"
