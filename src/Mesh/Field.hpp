@@ -102,7 +102,7 @@ public: // functions
 
   boost::iterator_range< Common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
 
-  Field& coordinates() const { return field_group().field("coordinates"); }
+  Field& coordinates() const { return field_group().coordinates(); }
 
 private:
 
