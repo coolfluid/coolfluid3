@@ -23,6 +23,7 @@
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"

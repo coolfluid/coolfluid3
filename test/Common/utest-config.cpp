@@ -26,6 +26,7 @@
 #include "Common/OptionT.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/XmlDoc.hpp"
 #include "Common/XML/FileOperations.hpp"
 

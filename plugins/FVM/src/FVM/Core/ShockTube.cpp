@@ -28,6 +28,7 @@
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/VariableManager.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/CModelUnsteady.hpp"
@@ -109,8 +110,8 @@ void ShockTube::signal_create_model ( SignalArgs& args )
   ////////////////////////////////////////////////////////////////////////////////
 
   CFinfo << "Creating physics" << CFendl;
-  Physics::PhysModel& physics = model.create_physics("physics");
-  physics.configure_option( "Dimensions", p.get_option<Uint>("dimension") );
+  Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
+  physics.variable_manager().configure_option( "dimensions", p.get_option<Uint>("dimension") );
 
   ////////////////////////////////////////////////////////////////////////////////
   // Create tools

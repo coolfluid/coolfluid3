@@ -13,6 +13,9 @@
 #include "Common/CLink.hpp"
 #include "Common/OptionT.hpp"
 
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/XmlDoc.hpp"
+
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Core/NGeneric.hpp"
