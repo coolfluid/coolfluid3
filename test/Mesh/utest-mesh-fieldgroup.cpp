@@ -219,6 +219,33 @@ BOOST_AUTO_TEST_CASE( test_Field )
   }
 }
 
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+BOOST_AUTO_TEST_CASE( FieldOperators )
+{
+  FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
+  Field& solution = cells_P0.field("volume");
+  Field& solution_copy = cells_P0.create_field("volume_copy");
+
+  solution[0][0] = 25.;
+  solution_copy = solution;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 25. );
+  solution_copy += solution_copy;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 50. );
+  solution_copy *= 2;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 100. );
+  solution_copy /= 2;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 50. );
+  solution_copy *= solution_copy;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 2500. );
+  solution_copy /= solution_copy;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 1. );
+  solution_copy -= solution_copy;
+  BOOST_CHECK_EQUAL ( solution_copy[0][0] , 0. );
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

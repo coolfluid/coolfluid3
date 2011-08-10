@@ -848,15 +848,16 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  Field& glb_node = mesh.create_field("glb_node",FieldGroup::Basis::POINT_BASED);
+  Field& glb_node = mesh.geometry().create_field("glb_node");
   boost_foreach(const Uint node, debug_nodes)
-      glb_node.data()[node][0] = 1.;
+      glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  Field& glb_elem = mesh.create_field("glb_elem",FieldGroup::Basis::ELEMENT_BASED,"P0");
-  FieldView& glb_elem_field_view = glb_elem.create_component<FieldView>("glb_elem_field_view");
-  glb_elem_field_view.set_field(glb_elem);
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& glb_elem = elems_P0.create_field("glb_elem");
+
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
     CEntities& elements = mesh_elements[comp_idx]->as_type<CEntities>();
