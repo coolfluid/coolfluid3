@@ -22,7 +22,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
@@ -74,17 +74,17 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   CMesh& mesh = *m_mesh;
 
   // Check if nodes field_group is sane
-  BOOST_CHECK_NO_THROW(mesh.nodes().check_sanity());
+  BOOST_CHECK_NO_THROW(mesh.geometry().check_sanity());
 
   // Check if indexes_for_element function returns expected results
-  boost_foreach(CElements& elements, mesh.nodes().elements_range())
+  boost_foreach(CElements& elements, mesh.geometry().elements_range())
   {
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( mesh.nodes().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
+      BOOST_CHECK( mesh.geometry().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
     }
   }
-  BOOST_CHECK_EQUAL( mesh.nodes().elements_lookup().components().size() , 5u);
+  BOOST_CHECK_EQUAL( mesh.geometry().elements_lookup().components().size() , 5u);
 
 
   // ----------------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // Create field group for the space "P1"
   FieldGroup& point_P1_fields = mesh.create_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "P1");
 
-  BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.nodes().size() );
+  BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry().size() );
 
   // ----------------------------------------------------------------------------------------------
   // CHECK P2 point-based field group building

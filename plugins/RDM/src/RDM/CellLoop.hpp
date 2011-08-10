@@ -7,7 +7,7 @@
 #ifndef CF_RDM_CellLoop_hpp
 #define CF_RDM_CellLoop_hpp
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedCells.hpp"

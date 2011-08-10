@@ -17,7 +17,7 @@
 
 namespace CF {
 
-namespace Mesh { class CMesh; class CField; }
+namespace Mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -57,7 +57,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField> solution;
+  boost::weak_ptr<Mesh::Field> solution;
   /// function parser for the math formula of the dirichlet condition
   Math::VectorialFunction  function;
 

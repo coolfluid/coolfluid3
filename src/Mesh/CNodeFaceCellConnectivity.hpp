@@ -20,7 +20,7 @@ namespace Common {
 namespace Mesh {
 
   class CRegion;
-  class CNodes;
+  class Geometry;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ public:
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(CNodes& nodes);
+  void set_nodes(Geometry& nodes);
 
 private: // data
 

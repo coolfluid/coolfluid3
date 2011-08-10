@@ -26,7 +26,7 @@
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,14 +60,14 @@ BOOST_FIXTURE_TEST_SUITE( MPIBufferTests_TestSuite, MPIBufferTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_pack_unpack )
 {
-  mpi::Buffer buf;
+  Comm::Buffer buf;
   buf << 1u << 2u << 3.0 << 4 << true;
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), true);
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   // Create a buffer
-  mpi::Buffer buffer;
+  Common::Comm::Buffer buffer;
   int root = 0;
 
   // pack the buffer on root processor

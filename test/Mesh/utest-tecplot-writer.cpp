@@ -22,7 +22,7 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace std;
 using namespace boost;

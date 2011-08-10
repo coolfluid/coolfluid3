@@ -15,14 +15,14 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 namespace CF {
 namespace Common {  class URI;  }
 namespace Mesh {
 
-  class CNodes;
-  class CField;
+  class Geometry;
+  class Field;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,7 +64,7 @@ public: // functions
 
   virtual void execute();
 
-  void set_fields(const std::vector<boost::shared_ptr<CField> >& fields);
+  void set_fields(const std::vector<boost::shared_ptr<Field> >& fields);
 
 private: // functions
 
@@ -89,7 +89,7 @@ protected:
   // TODO: remove this
   const CMesh* m_mesh;
 
-  std::vector<boost::weak_ptr<CField> > m_fields;
+  std::vector<boost::weak_ptr<Field> > m_fields;
 
 };
 

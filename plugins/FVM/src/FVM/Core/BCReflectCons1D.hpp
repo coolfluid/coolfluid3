@@ -14,7 +14,7 @@
 namespace CF {
 namespace Mesh {
   class CConnectedFieldView;
-  class CFieldView;
+  class FieldView;
 }
 namespace FVM {
 namespace Core {
@@ -55,7 +55,7 @@ private: // data
   enum {INNER=0,GHOST=1};
   
   Mesh::CConnectedFieldView m_connected_solution;
-  Mesh::CFieldView          m_face_normal;
+  Mesh::FieldView          m_face_normal;
 
 };
 

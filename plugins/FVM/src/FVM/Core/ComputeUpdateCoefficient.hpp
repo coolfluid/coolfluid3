@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
+namespace Mesh   { class Field; }
 namespace Solver { class CTime;   }
 namespace FVM {
 namespace Core {
@@ -49,9 +49,9 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::CField> m_update_coeff;
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
-  boost::weak_ptr<Mesh::CField> m_volume;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<Mesh::Field> m_wave_speed;
+  boost::weak_ptr<Mesh::Field> m_volume;
   boost::weak_ptr<Solver::CTime> m_time;
 
   bool m_time_accurate;

@@ -26,7 +26,7 @@
 #include "Common/MPI/PECommPattern.hpp"
 #include "Common/MPI/debug.hpp"
 #include "Common/CGroup.hpp"
- 
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,8 +53,8 @@ struct PECommPatternFixture
   void setupGidAndRank(std::vector<Uint>& gid, std::vector<Uint>& rank)
   {
     // global indices and ranks, ordering: 0 1 2 ... 0 0 1 1 2 2 ... 0 0 0 1 1 1 2 2 2 ...
-    int nproc=mpi::PE::instance().size();
-    int irank=mpi::PE::instance().rank();
+    int nproc=Comm::PE::instance().size();
+    int irank=Comm::PE::instance().rank();
     gid.resize(6*nproc);
     rank.resize(6*nproc);
     for (Uint i=0; i<nproc; i++)
@@ -93,10 +93,10 @@ BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  mpi::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , true );
+  Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -258,10 +258,10 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   int i,j;
   boost::multi_array<Uint,1> array1d;
   boost::multi_array<Uint,2> array2d;
-  
+
   array1d.resize(boost::extents[32]);
   array2d.resize(boost::extents[24][4]);
-  
+
   std::vector<int> map(4);
 
   for(i=0; i<32; i++) array1d[i]=i;
@@ -470,8 +470,8 @@ BOOST_AUTO_TEST_CASE( commpattern_cast )
 BOOST_AUTO_TEST_CASE( commpattern_mainstream )
 {
   // general constants in this routine
-  const int nproc=mpi::PE::instance().size();
-  const int irank=mpi::PE::instance().rank();
+  const int nproc=Comm::PE::instance().size();
+  const int irank=Comm::PE::instance().rank();
 
   // commpattern
   PECommPattern pecp("CommPattern");
@@ -525,8 +525,8 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
 BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
 {
   // general constants in this routine
-  const int nproc=mpi::PE::instance().size();
-  const int irank=mpi::PE::instance().rank();
+  const int nproc=Comm::PE::instance().size();
+  const int irank=Comm::PE::instance().rank();
 
   // commpattern
   PECommPattern pecp("CommPattern");
@@ -577,10 +577,10 @@ BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
-  mpi::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , false );
+  Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

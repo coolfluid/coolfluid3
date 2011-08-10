@@ -20,7 +20,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
 #include "UI/ParaView/LibParaView.hpp"
@@ -181,7 +181,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
 
     std::vector<URI> fields;
-    boost_foreach(const CField& field, find_components_recursively<CField>(*m_mesh.lock()))
+    boost_foreach(const Field& field, find_components_recursively<Field>(*m_mesh.lock()))
       fields.push_back(field.uri());
 
     writer.configure_option("fields",fields);

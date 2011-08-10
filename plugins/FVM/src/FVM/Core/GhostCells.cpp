@@ -39,7 +39,7 @@ GhostCells::~GhostCells()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void GhostCells::initialize(const std::string& element_type_name, CNodes& nodes)
+void GhostCells::initialize(const std::string& element_type_name, Geometry& nodes)
 {
   Mesh::CElements::initialize(element_type_name,nodes);
   cf_assert(element_type().dimensionality() == 0);

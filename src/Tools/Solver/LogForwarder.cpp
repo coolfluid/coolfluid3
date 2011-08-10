@@ -17,7 +17,7 @@
 #include "Common/Log.hpp"
 
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////

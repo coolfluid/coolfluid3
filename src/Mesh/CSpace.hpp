@@ -49,10 +49,12 @@ public: // functions
 
   /// return the elementType
   /// @pre the shape function must be configured first
-  const ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
+  ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
-  const ElementType& element_type() const { return parent().as_type<CEntities>().element_type(); }
+  ElementType& element_type() const { return support().element_type(); }
+
+  CEntities& support() const { return parent().as_type<CEntities>(); }
 
   /// The number of nodes or states this element shape function provides
   Uint nb_states() const { return shape_function().nb_nodes(); }
@@ -72,6 +74,14 @@ public: // functions
   FieldGroup& bound_fields() const;
 
   void make_proxy(const Uint elem_start_idx);
+
+  RealMatrix compute_coordinates(const Uint elem_idx) const;
+
+  RealMatrix get_coordinates(const Uint elem_idx) const;
+
+  void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
+
+  void allocate_coordinates(RealMatrix& coordinates) const;
 
 private: // functions
 

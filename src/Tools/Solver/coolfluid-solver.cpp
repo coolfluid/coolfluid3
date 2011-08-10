@@ -21,10 +21,10 @@
 #include "Tools/Solver/LogForwarder.hpp"
 
 using namespace boost;
-using namespace MPI;
+using namespace Comm;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 using namespace CF::Tools::Solver;
 
 int main(int argc, char ** argv)

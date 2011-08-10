@@ -16,7 +16,7 @@
 
 namespace CF {
 namespace Common { class CGroupActions; class CGroup;}
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 namespace Solver { namespace Actions { class CAdvanceTime; } }
 namespace RungeKutta {
   class UpdateSolution;
@@ -71,10 +71,10 @@ private:
 
   boost::weak_ptr<Solver::CTime> m_time;
 
-  boost::weak_ptr<Mesh::CField> m_solution;
-  boost::weak_ptr<Mesh::CField> m_residual;
-  boost::weak_ptr<Mesh::CField> m_update_coeff;
-  boost::weak_ptr<Mesh::CField> m_solution_backup;
+  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<Mesh::Field> m_residual;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<Mesh::Field> m_solution_backup;
 
   std::vector<Real> m_alpha;
   std::vector<Real> m_beta;

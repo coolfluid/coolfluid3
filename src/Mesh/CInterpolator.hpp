@@ -18,7 +18,7 @@ namespace CF {
 namespace Mesh {
 
   class CMesh;
-  class CField;
+  class Field;
   class CStencilComputer;
   
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,7 +57,7 @@ public: // functions
 
   virtual void construct_internal_storage(const CMesh& source) = 0;
   
-  virtual void interpolate_field_from_to(const CField& source, CField& target) = 0;
+  virtual void interpolate_field_from_to(const Field& source, Field& target) = 0;
 
 private: // functions
 
@@ -68,10 +68,10 @@ private: // functions
 private: // data
   
   /// source field
-  boost::weak_ptr<CField> m_source;
+  boost::weak_ptr<Field> m_source;
   
   /// target field
-  boost::weak_ptr<CField> m_target;
+  boost::weak_ptr<Field> m_target;
   
   /// The strategy to compute the stencil
   boost::shared_ptr<CStencilComputer>       m_stencil_computer;

@@ -23,10 +23,10 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"
@@ -80,7 +80,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   GeometricSupport(const Mesh::CElements& elements) :
-    m_coordinates(elements.nodes().coordinates()),
+    m_coordinates(elements.geometry().coordinates()),
     m_connectivity(elements.node_connectivity())
   {
   }
@@ -320,7 +320,7 @@ public:
   {
     const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
     Common::Component::ConstPtr field_comp = mesh.get_child_ptr(placeholder.field_name);
-    Mesh::CField::ConstPtr field = field_comp->as_ptr<Mesh::CField>();
+    Mesh::Field::ConstPtr field = field_comp->as_ptr<Mesh::Field>();
     cf_assert(field);
     
     m_data = &field->data();

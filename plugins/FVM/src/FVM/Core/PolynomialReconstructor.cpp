@@ -10,8 +10,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"

@@ -17,8 +17,8 @@ struct PEGatherFixture
     int i;
 
     // rank and proc
-    nproc=mpi::PE::instance().size();
-    irank=mpi::PE::instance().rank();
+    nproc=Comm::PE::instance().size();
+    irank=Comm::PE::instance().rank();
 
     // ptr helpers
     sndcnt=0;
@@ -164,35 +164,35 @@ BOOST_AUTO_TEST_CASE( gather_ptr_constant )
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
 
-    ptr_tmprcv=mpi::PE::instance().gather(ptr_snddat, nproc, (double*)0, r);
+    ptr_tmprcv=Comm::PE::instance().gather(ptr_snddat, nproc, (double*)0, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
     if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
 
     if (r==irank) for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
-    mpi::PE::instance().gather(ptr_snddat, nproc, ptr_tmprcv, r);
+    Comm::PE::instance().gather(ptr_snddat, nproc, ptr_tmprcv, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
     ptr_tmprcv=new double[nproc*nproc];
     for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather(ptr_tmprcv, nproc, ptr_tmprcv, r);
+    Comm::PE::instance().gather(ptr_tmprcv, nproc, ptr_tmprcv, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
 
-    ptr_tmprcv=(double*)mpi::PE::instance().gather((char*)ptr_snddat, nproc, (char*)0, r, sizeof(double));
+    ptr_tmprcv=(double*)Comm::PE::instance().gather((char*)ptr_snddat, nproc, (char*)0, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
     if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
 
     if (r==irank) for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
-    mpi::PE::instance().gather((char*)ptr_snddat, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    Comm::PE::instance().gather((char*)ptr_snddat, nproc, (char*)ptr_tmprcv, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
     ptr_tmprcv=new double[nproc*nproc];
     for (i=0; i<nproc*nproc; i++) ptr_tmprcv[i]=0.;
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather((char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, r, sizeof(double));
+    Comm::PE::instance().gather((char*)ptr_tmprcv, nproc, (char*)ptr_tmprcv, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
   }
 }
@@ -211,33 +211,33 @@ BOOST_AUTO_TEST_CASE( gather_vector_constant )
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
 
-    mpi::PE::instance().gather(vec_snddat, vec_tmprcv, r);
+    Comm::PE::instance().gather(vec_snddat, vec_tmprcv, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
     if (r==irank) BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , rcvcnt );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , 0 );
 
     if (r==irank) vec_tmprcv.assign(nproc*nproc,0.);
-    mpi::PE::instance().gather(vec_snddat, vec_tmprcv, r);
+    Comm::PE::instance().gather(vec_snddat, vec_tmprcv, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
 
     vec_tmprcv=vec_snddat;
-    mpi::PE::instance().gather(vec_tmprcv, vec_tmprcv, r);
+    Comm::PE::instance().gather(vec_tmprcv, vec_tmprcv, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
 
-    mpi::PE::instance().gather(vec_snddatchr, vec_tmprcvchr, r);
+    Comm::PE::instance().gather(vec_snddatchr, vec_tmprcvchr, r);
     if (r==irank) BOOST_CHECK_EQUAL( vec_tmprcvchr.size() , sizeof(double)*rcvcnt );
     if (r==irank) for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[i] );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcvchr.size() , 0 );
 
     if (r==irank) for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=0.;
-    mpi::PE::instance().gather(vec_snddatchr, vec_tmprcvchr, r);
+    Comm::PE::instance().gather(vec_snddatchr, vec_tmprcvchr, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[i] );
 
     vec_tmprcvchr.assign((char*)(ptr_snddat),(char*)(ptr_snddat+nproc));
-    mpi::PE::instance().gather(vec_tmprcvchr, vec_tmprcvchr, r);
+    Comm::PE::instance().gather(vec_tmprcvchr, vec_tmprcvchr, r);
     if (r==irank) for (i=0; i<nproc*nproc; i++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i], vec_rcvdat[i] );
   }
 }
@@ -255,89 +255,32 @@ BOOST_AUTO_TEST_CASE( gather_ptr_variable )
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
-    ptr_tmprcv=mpi::PE::instance().gather(ptr_snddat, sndcnt, (double*)0, ptr_rcvcnt, r);
+    ptr_tmprcv=Comm::PE::instance().gather(ptr_snddat, sndcnt, (double*)0, ptr_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
-    mpi::PE::instance().gather(ptr_snddat, sndcnt, ptr_tmprcv, ptr_rcvcnt, r);
+    Comm::PE::instance().gather(ptr_snddat, sndcnt, ptr_tmprcv, ptr_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=new double[nproc*nproc];
     for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_tmprcv, ptr_rcvcnt, r);
+    Comm::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_tmprcv, ptr_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
     for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    ptr_tmprcv=mpi::PE::instance().gather(ptr_snddat, sndcnt, (double*)0, ptr_tmpcnt, r);
+    ptr_tmprcv=Comm::PE::instance().gather(ptr_snddat, sndcnt, (double*)0, ptr_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
     for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(ptr_snddat, sndcnt, ptr_tmprcv, ptr_tmpcnt, r);
-    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=new double[nproc*nproc];
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
-    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    for (i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_tmprcv, ptr_tmpcnt, r);
-    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=0;
-    ptr_tmprcv=mpi::PE::instance().gather(ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvcnt, ptr_rcvmap, r);
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
-    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
-
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
-    mpi::PE::instance().gather(ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r);
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=new double[nproc*nproc];
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
-    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r);
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=0;
-    ptr_tmprcv=(double*)mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)0, ptr_rcvcnt, r, sizeof(double));
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
-
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
-    mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)ptr_tmprcv, ptr_rcvcnt, r, sizeof(double));
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=new double[nproc*nproc];
-    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
-    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather((char*)ptr_tmprcv, sndcnt, (char*)ptr_tmprcv, ptr_rcvcnt, r, sizeof(double));
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-
-    delete[] ptr_tmprcv;
-    ptr_tmprcv=0;
-    for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    ptr_tmprcv=(double*)mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)0, ptr_tmpcnt, r, sizeof(double));
-    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
-    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
-
-    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
-    for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)ptr_tmprcv, ptr_tmpcnt, r, sizeof(double));
+    Comm::PE::instance().gather(ptr_snddat, sndcnt, ptr_tmprcv, ptr_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
 
@@ -346,25 +289,82 @@ BOOST_AUTO_TEST_CASE( gather_ptr_variable )
     for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
     for (i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather((char*)ptr_tmprcv, sndcnt, (char*)ptr_tmprcv, ptr_tmpcnt, r, sizeof(double));
+    Comm::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_tmprcv, ptr_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=0;
-    ptr_tmprcv=(double*)mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)0, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
+    ptr_tmprcv=Comm::PE::instance().gather(ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvcnt, ptr_rcvmap, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
     if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
-    mpi::PE::instance().gather((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
+    Comm::PE::instance().gather(ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     delete[] ptr_tmprcv;
     ptr_tmprcv=new double[nproc*nproc];
     for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
     for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().gather((char*)ptr_tmprcv, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
+    Comm::PE::instance().gather(ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r);
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
+    ptr_tmprcv=(double*)Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)0, ptr_rcvcnt, r, sizeof(double));
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
+
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
+    Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)ptr_tmprcv, ptr_rcvcnt, r, sizeof(double));
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=new double[nproc*nproc];
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    Comm::PE::instance().gather((char*)ptr_tmprcv, sndcnt, (char*)ptr_tmprcv, ptr_rcvcnt, r, sizeof(double));
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
+    for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
+    ptr_tmprcv=(double*)Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)0, ptr_tmpcnt, r, sizeof(double));
+    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
+
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
+    for(i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
+    Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, (char*)ptr_tmprcv, ptr_tmpcnt, r, sizeof(double));
+    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=new double[nproc*nproc];
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[k]=0.;
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    for (i=0; i<nproc; i++) ptr_tmpcnt[i]=-1; // needs to be set for all processes
+    Comm::PE::instance().gather((char*)ptr_tmprcv, sndcnt, (char*)ptr_tmprcv, ptr_tmpcnt, r, sizeof(double));
+    if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmpcnt[i] , ptr_rcvcnt[i] );
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[k] , ptr_rcvdat[k] );
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=0;
+    ptr_tmprcv=(double*)Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)0, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+    if (r!=irank) BOOST_CHECK_EQUAL( ptr_tmprcv , (double*)0 );
+
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
+    Comm::PE::instance().gather((char*)ptr_snddat, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
+    if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
+
+    delete[] ptr_tmprcv;
+    ptr_tmprcv=new double[nproc*nproc];
+    for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) ptr_tmprcv[i*nproc+j]=0.;
+    for (i=0; i<nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
+    Comm::PE::instance().gather((char*)ptr_tmprcv, sndcnt, ptr_sndmap, (char*)ptr_tmprcv, ptr_rcvcnt, ptr_rcvmap, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<ptr_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ptr_tmprcv[i*nproc+j] , ptr_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
   }
 }
@@ -382,32 +382,32 @@ BOOST_AUTO_TEST_CASE( gather_vector_variable )
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
 
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_rcvcnt, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[k]=0.;
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_rcvcnt, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
 
     vec_tmprcv.resize(nproc*nproc);
     vec_tmprcv.reserve(nproc*nproc);
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[k]=0.;
     for (i=0; i<nproc; i++) vec_tmprcv[i]=vec_snddat[i];
-    mpi::PE::instance().gather(vec_tmprcv, sndcnt, vec_tmprcv, vec_rcvcnt, r);
+    Comm::PE::instance().gather(vec_tmprcv, sndcnt, vec_tmprcv, vec_rcvcnt, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
 
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_tmpcnt, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[k]=0.;
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_tmpcnt, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_tmprcv, vec_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
 
@@ -416,55 +416,55 @@ BOOST_AUTO_TEST_CASE( gather_vector_variable )
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[k]=0.;
     for (i=0; i<nproc; i++) vec_tmprcv[i]=vec_snddat[i];
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_tmprcv, sndcnt, vec_tmprcv, vec_tmpcnt, r);
+    Comm::PE::instance().gather(vec_tmprcv, sndcnt, vec_tmprcv, vec_tmpcnt, r);
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[k] , vec_rcvdat[k] );
 
     vec_tmprcv.resize(0);
     vec_tmprcv.reserve(0);
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[i*nproc+j]=0.;
-    mpi::PE::instance().gather(vec_snddat, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
+    Comm::PE::instance().gather(vec_snddat, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     vec_tmprcv.resize(nproc*nproc);
     vec_tmprcv.reserve(nproc*nproc);
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) vec_tmprcv[i*nproc+j]=0.;
     for (i=0; i<nproc; i++) vec_tmprcv[i]=vec_snddat[i];
-    mpi::PE::instance().gather(vec_tmprcv, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
+    Comm::PE::instance().gather(vec_tmprcv, sndcnt, vec_sndmap, vec_tmprcv, vec_rcvcnt, vec_rcvmap, r);
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( vec_tmprcv[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcvchr.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[k]=0.;
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
     vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
     vec_tmprcvchr.reserve(nproc*nproc*sizeof(double));
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[k]=0.;
     for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
-    mpi::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_tmprcvchr, vec_rcvcnt, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcvchr.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[k]=0.;
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
@@ -473,25 +473,25 @@ BOOST_AUTO_TEST_CASE( gather_vector_variable )
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[k]=0.;
     for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
     for(i=0; i<nproc; i++) vec_tmpcnt[i]=-1; // needs to be set for all processes
-    mpi::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
+    Comm::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_tmprcvchr, vec_tmpcnt, r, sizeof(double));
     if (r==irank) for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmpcnt[i] , vec_rcvcnt[i] );
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[k] , vec_rcvdat[k] );
 
     vec_tmprcvchr.resize(0);
     vec_tmprcvchr.reserve(0);
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
     if (r!=irank) BOOST_CHECK_EQUAL( (int)vec_tmprcvchr.size() , 0 );
 
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[i*nproc+j]=0.;
-    mpi::PE::instance().gather(vec_snddatchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().gather(vec_snddatchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
 
     vec_tmprcvchr.resize(nproc*nproc*sizeof(double));
     vec_tmprcvchr.reserve(nproc*nproc*sizeof(double));
     for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) ((double*)(&vec_tmprcvchr[0]))[i*nproc+j]=0.;
     for (i=0; i<nproc; i++) ((double*)(&vec_tmprcvchr[0]))[i]=vec_snddat[i];
-    mpi::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
+    Comm::PE::instance().gather(vec_tmprcvchr, sndcnt, vec_sndmap, vec_tmprcvchr, vec_rcvcnt, vec_rcvmap, r, sizeof(double));
     if (r==irank) for (i=0, k=0; i<nproc; i++) for (j=0; j<vec_rcvcnt[i]; j++, k++) BOOST_CHECK_EQUAL( ((double*)(&vec_tmprcvchr[0]))[i*nproc+j] , vec_rcvdat[k] ); // i*nproc+j is not a bug, check reason at init
   }
 }

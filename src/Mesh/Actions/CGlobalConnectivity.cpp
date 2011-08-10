@@ -23,8 +23,7 @@
 #include "Mesh/Actions/CGlobalConnectivity.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -92,7 +91,7 @@ void CGlobalConnectivity::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   CList<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time
@@ -112,7 +111,7 @@ void CGlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  CNodeElementConnectivity& node2elem = *mesh.nodes().create_component_ptr<CNodeElementConnectivity>("node2elem");
+  CNodeElementConnectivity& node2elem = *mesh.geometry().create_component_ptr<CNodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
 
   // 3)
@@ -129,9 +128,9 @@ void CGlobalConnectivity::execute()
   Uint elem_idx;
 
   Uint cnt(0);
-  for (Uint i=0; i<mesh.nodes().size(); ++i)
+  for (Uint i=0; i<mesh.geometry().size(); ++i)
   {
-    if (mesh.nodes().is_ghost(i))
+    if (mesh.geometry().is_ghost(i))
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
 
@@ -149,29 +148,29 @@ void CGlobalConnectivity::execute()
 
   // 4)
   std::vector<std::vector<Uint> > glb_elem_connectivity(nodes.size());
-  nodes_glb_idx.resize(mesh.nodes().size());
+  nodes_glb_idx.resize(mesh.geometry().size());
 
-  for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+  for (Uint root=0; root<Comm::PE::instance().size(); ++root)
   {
     std::vector<Uint> rcv_glb_node_idx(0);//ghostnode_glb_idx.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
+    Comm::PE::instance().broadcast(ghostnode_glb_idx,rcv_glb_node_idx,root);
     std::vector<Uint> rcv_glb_elem_connectivity(0);//ghostnode_glb_elem_connectivity.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
+    Comm::PE::instance().broadcast(ghostnode_glb_elem_connectivity,rcv_glb_elem_connectivity,root);
     std::vector<Uint> rcv_glb_elem_connectivity_start(0);//ghostnode_glb_elem_connectivity_start.size());
-    mpi::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
+    Comm::PE::instance().broadcast(ghostnode_glb_elem_connectivity_start,rcv_glb_elem_connectivity_start,root);
 
-    if (mpi::PE::instance().rank() != root)
+    if (Comm::PE::instance().rank() != root)
     {
-      for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+      for (Uint p=0; p<Comm::PE::instance().size(); ++p)
       {
-        if (p == mpi::PE::instance().rank())
+        if (p == Comm::PE::instance().rank())
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t glb_node, rcv_glb_node_idx)
           {
             if (node_glb2loc.find(glb_node) != node_glb2loc.end())
             {
-              //std::cout << "["<<mpi::PE::instance().rank() << "] owns ghostnode " << glb_node << " of [" << root << "]" << std::endl;
+              //std::cout << "["<<Comm::PE::instance().rank() << "] owns ghostnode " << glb_node << " of [" << root << "]" << std::endl;
               Uint loc_node_idx = node_glb2loc[glb_node];
               for(Uint l=rcv_glb_elem_connectivity_start[rcv_idx]; l<rcv_glb_elem_connectivity_start[rcv_idx+1]; ++l)
                 glb_elem_connectivity[loc_node_idx].push_back(rcv_glb_elem_connectivity[l]);
@@ -185,7 +184,7 @@ void CGlobalConnectivity::execute()
   }
 
 
-  CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.nodes().glb_elem_connectivity();
+  CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry().glb_elem_connectivity();
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {

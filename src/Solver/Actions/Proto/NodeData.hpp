@@ -14,10 +14,10 @@
 
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
@@ -46,10 +46,10 @@ inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region
     {
       if(coordinates)
       {
-        cf_assert(coordinates == &elements.nodes().coordinates());
+        cf_assert(coordinates == &elements.geometry().coordinates());
         continue;
       }
-      coordinates = &elements.nodes().coordinates();
+      coordinates = &elements.geometry().coordinates();
     }
   }
   
@@ -89,7 +89,7 @@ struct NodeVarData< ScalarField >
   
   NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
     offset(var_offset),
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::CField>() ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::Field>() ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.variable_name);
@@ -131,7 +131,7 @@ struct NodeVarData< ScalarField >
   Uint offset;
   
 private:
-  Mesh::CField& m_field;
+  Mesh::Field& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   Uint m_idx;
@@ -150,7 +150,7 @@ struct NodeVarData<VectorField, Dim>
   
   NodeVarData(const VectorField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
     offset(var_offset),
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::CField>() ),
+    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::Field>() ),
     m_data( m_field.data() )
   {
     m_var_begin = m_field.var_index(placeholder.variable_name);
@@ -195,7 +195,7 @@ struct NodeVarData<VectorField, Dim>
   Uint offset;
   
 private:
-  Mesh::CField& m_field;
+  Mesh::Field& m_field;
   Uint m_var_begin;
   Mesh::CTable<Real>& m_data;
   ValueT m_value;

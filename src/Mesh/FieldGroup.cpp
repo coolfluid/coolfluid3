@@ -40,9 +40,10 @@
 namespace CF {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::mpi;
 using namespace boost::assign;
+
+using namespace Common;
+using namespace Common::Comm;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
@@ -415,11 +416,13 @@ void FieldGroup::create_connectivity_in_space()
   {
     std::set<std::size_t> points;
     RealMatrix elem_coordinates;
+    Uint dim = DIM_0D;
 
     // step 1: collect nodes in a set
     // ------------------------------
     boost_foreach(CEntities& entities, elements_range())
     {
+      dim = std::max(dim, entities.element_type().dimension());
       if (entities.space(m_space).is_bound_to_fields() > 0)
         throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
                          "fields ["+entities.space(m_space).bound_fields().uri().string()+"]\nCreate a new space for this purpose.");
@@ -437,6 +440,10 @@ void FieldGroup::create_connectivity_in_space()
       }
     }
 
+    Field& coordinates = create_field("coordinates","coords[Vector"+to_str(dim)+"D]");
+    coordinates.resize(points.size());
+    m_coordinates = coordinates.as_ptr<Field>();
+
     // step 2: collect nodes in a set
     // ------------------------------
     boost_foreach(CEntities& entities, entities_range())
@@ -453,7 +460,9 @@ void FieldGroup::create_connectivity_in_space()
         {
           RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
           std::size_t hash = hash_value(space_coordinates);
-          connectivity[elem][node]= std::distance(points.begin(), points.find(hash));
+          Uint idx = std::distance(points.begin(), points.find(hash));
+          connectivity[elem][node] = idx;
+          coordinates.set_row(idx, space_coordinates);
         }
       }
     }
@@ -510,6 +519,16 @@ CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) c
   Uint elem_idx;
   boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
   return indexes_for_element(component->as_type<CEntities>(),elem_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::coordinates() const
+{
+  if (is_null(m_coordinates))
+    throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+
+  return *m_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

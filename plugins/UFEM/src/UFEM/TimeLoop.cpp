@@ -8,7 +8,7 @@
 #include "Common/OptionComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/Tags.hpp"

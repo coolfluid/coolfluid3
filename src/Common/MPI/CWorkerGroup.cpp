@@ -19,7 +19,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace mpi {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ int CWorkerGroup::nbworkers () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace mpi
+} // namespace Comm
 } // namespace Common
 } // namespace CF
 

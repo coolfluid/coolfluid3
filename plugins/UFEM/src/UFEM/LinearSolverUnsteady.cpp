@@ -6,7 +6,7 @@
 
 #include "Common/Log.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/Tags.hpp"

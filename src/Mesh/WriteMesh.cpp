@@ -147,7 +147,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file )
 {
   std::vector<URI> fields;
 
-  boost_foreach( const CField& field, find_components<CField>(mesh) )
+  boost_foreach( const Field& field, find_components<Field>(mesh) )
     fields.push_back(field.uri());
 
   write_mesh(mesh,file,fields);

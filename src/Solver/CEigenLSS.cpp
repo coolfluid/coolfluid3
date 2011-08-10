@@ -40,7 +40,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/Timer.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "CEigenLSS.hpp"
 
@@ -61,8 +61,8 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
       ->mark_basic()
       ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 
-  if(!mpi::PE::instance().is_active())
-    mpi::PE::instance().init();
+  if(!Comm::PE::instance().is_active())
+    Comm::PE::instance().init();
 }
 
 void CEigenLSS::set_config_file(const URI& path)
@@ -323,7 +323,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      CField& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField>();
+      Field& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<Field>();
       CTable<Real>& field_table = field.data();
       const Uint field_size = field_table.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)

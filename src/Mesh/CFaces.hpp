@@ -37,7 +37,7 @@ public: // functions
   //void initialize(const std::string& element_type_name, CTable<Real>& coordinates);
 
   /// Initialize the CFaces using the given type
-  virtual void initialize(const std::string& element_type_name, CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name, Geometry& geometry);
     
   /// Virtual destructor
   virtual ~CFaces();

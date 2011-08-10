@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
+namespace Mesh   { class Field; }
 namespace Solver { class CTime;   }
 namespace FVM {
 namespace Core {
@@ -43,7 +43,7 @@ public: // functions
 private: // data
 
   boost::weak_ptr<Solver::CTime> m_time;
-  boost::weak_ptr<Mesh::CField> m_residual;  
+  boost::weak_ptr<Mesh::Field> m_residual;  
 };
 
 ////////////////////////////////////////////////////////////////////////////////

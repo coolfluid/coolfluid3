@@ -12,7 +12,7 @@
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -51,11 +51,11 @@ void FwdEuler::execute()
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
   if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
   if (m_wave_speed.expired())
-    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
+    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
   if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
 
   CTable<Real>& solution     = m_solution.lock()->data();
   CTable<Real>& wave_speed   = m_wave_speed.lock()->data();

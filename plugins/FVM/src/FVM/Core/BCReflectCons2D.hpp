@@ -14,7 +14,7 @@
 namespace CF {
 namespace Mesh {
   class CConnectedFieldView;
-  class CFieldView;
+  class FieldView;
 }
 namespace FVM {
 namespace Core {
@@ -63,7 +63,7 @@ private: // data
   RealVector2 U_t;
   
   Mesh::CConnectedFieldView m_connected_solution;
-  Mesh::CFieldView          m_face_normal;
+  Mesh::FieldView          m_face_normal;
 
 };
 

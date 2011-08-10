@@ -10,7 +10,7 @@
 #include "Common/CLink.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -49,9 +49,13 @@ void SetupSingleSolution::execute()
 
   const Uint nbdofs = physical_model().neqs();
 
+  // get the geometry field group
+
+  FieldGroup& geometry = mesh.geometry();
+
   // configure solution
 
-  CField::Ptr solution = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() );
+  Field::Ptr solution = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
     std::string vars;
@@ -62,7 +66,7 @@ void SetupSingleSolution::execute()
     }
 
     solution =
-        mesh.create_field( RDM::Tags::solution(),CField::Basis::POINT_BASED,"space[0]",vars).as_ptr<CField>();
+        geometry.create_field( RDM::Tags::solution(),FieldGroup::Basis::POINT_BASED,"space[0]",vars).as_ptr<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }
@@ -72,19 +76,19 @@ void SetupSingleSolution::execute()
 
   // configure residual
 
-  CField::Ptr residual = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::residual());
+  Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = mesh.create_field(Tags::residual(), *solution ).as_ptr<CField>();
+    residual = geometry.create_field(Tags::residual(), *solution ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
   // configure wave_speed
 
-  CField::Ptr wave_speed = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::wave_speed());
+  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = mesh.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<CField>();
+    wave_speed = geometry.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 

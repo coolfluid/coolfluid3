@@ -21,9 +21,8 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
+#include "Mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -63,9 +62,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
-  if (mpi::PE::instance().size() > 1)
+  if (Comm::PE::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
   }
 
   file.open(path,std::ios_base::out);
@@ -81,7 +80,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const CTable<Real>& coords = mesh.topology().nodes().coordinates();
+  const CTable<Real>& coords = mesh.topology().geometry().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -152,29 +151,27 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    const CField& field = *field_ptr.lock();
+    const Field& field = *field_ptr.lock();
 
     // must be point based
-    if(field.basis() != CField::Basis::POINT_BASED)
+    if(field.basis() != FieldGroup::Basis::POINT_BASED)
       continue;
 
     // size must be correct
-    if(field.data().size() != npoints)
+    if(field.size() != npoints)
       continue;
-
-    const CTable<Real>& data = field.data();
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      if(field.var_type(var_idx) == CField::SCALAR)
+      if(field.var_type(var_idx) == Field::SCALAR)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)
-          file << " " << data[i][var_begin] << "\n";
+          file << " " << field[i][var_begin] << "\n";
       }
       else if(static_cast<Uint>(field.var_type(var_idx)) == dim)
       {
@@ -182,9 +179,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
         const Uint var_end = var_begin+dim;
         for(Uint i = 0; i != npoints; ++i)
         {
-          const CTable<Real>::ConstRow row = data[i];
+          const CTable<Real>::ConstRow row = field[i];
           for(Uint j = var_begin; j != var_end; ++j)
-            file << " " << data[i][j];
+            file << " " << field[i][j];
           if(dim == 2) file << " " << 0.;
           file << "\n";
         }

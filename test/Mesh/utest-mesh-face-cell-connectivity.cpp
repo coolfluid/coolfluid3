@@ -18,7 +18,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"

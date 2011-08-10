@@ -32,7 +32,7 @@ namespace Solver
 
 namespace Mesh
 {
-  class CField;
+  class Field;
   class CRegion;
   class CDomain;
 }

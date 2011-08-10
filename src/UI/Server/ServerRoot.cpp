@@ -53,7 +53,7 @@ ServerRoot::ServerRoot()
   Component::Ptr tools = m_root->get_child_ptr("Tools");
 
   tools->add_component( m_journal );
-  tools->create_component_ptr<mpi::CPEManager>("PEManager")->mark_basic();
+  tools->create_component_ptr<Comm::CPEManager>("PEManager")->mark_basic();
 
   CPlotter::Ptr plotter = tools->create_component_ptr<CPlotter>("Plotter");
 

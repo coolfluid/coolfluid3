@@ -54,7 +54,7 @@ Core::Core()
   Logger::instance();
   AssertionManager::instance();
   OSystem::instance().layer()->platform_name();
-  mpi::PE::instance();
+  Comm::PE::instance();
 
   // create singleton objects inside core
   m_event_handler.reset ( new EventHandler() );

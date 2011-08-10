@@ -19,7 +19,7 @@
 
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;

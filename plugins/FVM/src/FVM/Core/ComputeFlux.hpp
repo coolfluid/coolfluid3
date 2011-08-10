@@ -14,7 +14,7 @@
 
 namespace CF {
 namespace Mesh {
-  class CFieldView;
+  class FieldView;
   class CConnectedFieldView;
 }
 namespace FVM {
@@ -60,7 +60,7 @@ private: // data
   Mesh::CConnectedFieldView m_connected_solution;
   Mesh::CConnectedFieldView m_connected_wave_speed;
   Mesh::CScalarFieldView    m_face_area;
-  Mesh::CFieldView          m_face_normal;
+  Mesh::FieldView          m_face_normal;
   
   RealVector m_flux;
   Real m_wave_speed_left;

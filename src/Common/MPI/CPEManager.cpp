@@ -34,7 +34,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace mpi {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@ CPEManager::CPEManager( const std::string & name )
 {
   m_listener = new ListeningThread();
 
-  if( PE::instance().get_parent() != MPI::COMM_NULL )
+  if( PE::instance().get_parent() != MPI_COMM_NULL )
   {
     m_groups["MPI_Parent"] = PE::instance().get_parent();
     m_listener->add_communicator( PE::instance().get_parent() );
@@ -101,7 +101,7 @@ CPEManager::~CPEManager()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
+void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 {
   XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
   SignalFrame sig_frame( nodedoc.content->first_node() );
@@ -382,6 +382,6 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-} // mpi
+} // Comm
 } // Common
 } // CF

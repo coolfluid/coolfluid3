@@ -11,7 +11,7 @@
 
 #include "Common/StringConversion.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -107,10 +107,10 @@ protected: // helper function
     k = step - 1;
 
     ksolutions.clear();
-    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::CField>() );
+    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::Field>() );
     for ( Uint k = 1; k <= rkorder; ++k)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::Field>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
@@ -185,7 +185,7 @@ protected: // data
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
 
-  std::vector< Mesh::CField::Ptr > ksolutions;  ///< solution fields at different k steps
+  std::vector< Mesh::Field::Ptr > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i

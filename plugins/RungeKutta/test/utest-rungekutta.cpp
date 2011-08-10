@@ -41,9 +41,9 @@ BOOST_AUTO_TEST_CASE( test_RK )
   CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh,1.,10);
   allocate_component<Mesh::Actions::CreateSpaceP0>("create_space[0]")->transform(mesh);
-  CField& solution = mesh.create_field("solution",CField::Basis::CELL_BASED);
-  CField& residual = mesh.create_field("residual",solution);
-  CField& update_coeff = mesh.create_scalar_field("update_coeff",solution);
+  Field& solution = mesh.create_field("solution",FieldGroup::Basis::CELL_BASED);
+  Field& residual = mesh.create_field("residual",solution);
+  Field& update_coeff = mesh.create_scalar_field("update_coeff",solution);
 
   CTime& time = Core::instance().root().create_component<CTime>("time");
 

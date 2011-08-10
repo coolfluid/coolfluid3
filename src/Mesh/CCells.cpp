@@ -35,7 +35,7 @@ CCells::~CCells()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CCells::initialize(const std::string& element_type_name, CNodes& nodes)
+void CCells::initialize(const std::string& element_type_name, Geometry& nodes)
 {
   CElements::initialize(element_type_name,nodes);
   cf_assert(element_type().dimensionality() == element_type().dimension());

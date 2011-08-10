@@ -14,7 +14,7 @@
 
 namespace CF {
 namespace Mesh {
-  class CNodes;
+  class Geometry;
 }
 namespace FVM {
 namespace Core {
@@ -42,7 +42,7 @@ public: // functions
   GhostCells ( const std::string& name );
 
   /// Initialize the GhostCells using the given type
-  virtual void initialize(const std::string& element_type_name, Mesh::CNodes& nodes);
+  virtual void initialize(const std::string& element_type_name, Mesh::Geometry& geometry);
     
   /// Virtual destructor
   virtual ~GhostCells();

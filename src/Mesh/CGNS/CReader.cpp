@@ -19,7 +19,7 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CGNS/CReader.hpp"
 
@@ -256,7 +256,7 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
 
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -315,7 +315,7 @@ void CReader::read_coordinates_unstructured(CRegion& parent_region)
 
 void CReader::read_coordinates_structured(CRegion& parent_region)
 {
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -414,7 +414,7 @@ void CReader::read_section(CRegion& parent_region)
   // Create a new region for this section
   CRegion& this_region = parent_region.create_region(m_section.name);
 
-  CNodes& all_nodes = *m_zone.nodes;
+  Geometry& all_nodes = *m_zone.nodes;
   Uint start_idx = m_zone.nodes_start_idx;
 
   if (m_section.type == MIXED)
@@ -523,7 +523,7 @@ void CReader::read_section(CRegion& parent_region)
 
 void CReader::create_structured_elements(CRegion& parent_region)
 {
-  CNodes& nodes = *m_zone.nodes;
+  Geometry& nodes = *m_zone.nodes;
 
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -649,7 +649,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CNodes& nodes = *m_zone.nodes;
+      Geometry& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
       std::map<std::string,CElements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
@@ -697,7 +697,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       CRegion& this_region = parent_region.create_region(m_boco.name);
-      CNodes& nodes = *m_zone.nodes;
+      Geometry& nodes = *m_zone.nodes;
 
       // Create CElements components for every possible element type supported.
       std::map<std::string,CElements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
@@ -754,7 +754,7 @@ void CReader::read_boco_structured(CRegion& parent_region)
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   CRegion& this_region = parent_region.create_region(m_boco.name);
-  CNodes& nodes = *m_zone.nodes;
+  Geometry& nodes = *m_zone.nodes;
 
   // Which BC_element type will we need?
   std::string etype_CF;

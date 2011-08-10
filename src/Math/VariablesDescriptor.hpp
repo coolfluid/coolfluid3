@@ -68,7 +68,7 @@ public: // functions
     };
   };
   
-  /// Total size of the array of scalars to hold each variable, i.e. the required row size for the CField data table.
+  /// Total size of the array of scalars to hold each variable, i.e. the required row size for the Field data table.
   /// Throws if dimensions is not set
   Uint size() const;
   
@@ -78,7 +78,7 @@ public: // functions
   /// Throws if dimensions is not set
   Uint size(const std::string& name);
   
-  /// Offset in the field for a variable, i.e. the start index of the variable in the CField row.
+  /// Offset in the field for a variable, i.e. the start index of the variable in the Field row.
   /// Throws if dimensions is not set
   /// @param name Internal name of the variable
   Uint offset(const std::string& name);
@@ -87,7 +87,7 @@ public: // functions
   /// @param name Internal name of the variable
   const std::string& user_variable_name(const std::string& name) const;
   
-  /// Setup variables acording to a CField string description
+  /// Setup variables acording to a Field string description
   void set_variables(const std::string& description);
   
   /// Get the string description for all the variables

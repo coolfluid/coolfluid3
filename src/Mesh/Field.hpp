@@ -7,23 +7,24 @@
 #ifndef CF_Mesh_Field_hpp
 #define CF_Mesh_Field_hpp
 
-////////////////////////////////////////////////////////////////////////////////
-
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CElements.hpp"
 
 namespace CF {
+
 namespace Common
 {
   class CLink;
+  namespace Comm { class CommPattern; }
 }
+
 namespace Mesh {
 
   class CRegion;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Field component class
 /// This class stores fields which can be applied
@@ -104,6 +105,16 @@ public: // functions
 
   boost::iterator_range< Common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
 
+  Field& coordinates() const { return field_group().coordinates(); }
+
+  Common::Comm::CommPattern& parallelize_with( Common::Comm::CommPattern& comm_pattern );
+
+  Common::Comm::CommPattern& parallelize();
+
+  void synchronize();
+
+  CUnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+
 private:
 
   void config_var_names();
@@ -116,13 +127,13 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
+  boost::weak_ptr< Common::Comm::CommPattern > m_comm_pattern;
+
 };
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF
-
-////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Mesh_Field_hpp

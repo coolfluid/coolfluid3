@@ -28,8 +28,7 @@
 #include "Mesh/Actions/CGlobalNumbering.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -100,18 +99,18 @@ void CGlobalNumbering::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
-  if ( is_null( mesh.nodes().get_child_ptr("glb_node_hash") ) )
-    mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
-  CVector_size_t& glb_node_hash = mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
+  CVector_size_t& glb_node_hash = mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
-      std::cout << "["<<mpi::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<Comm::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
 
@@ -129,7 +128,7 @@ void CGlobalNumbering::execute()
       elements.put_coordinates(element_coordinates,elem_idx);
       glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
       if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
+        std::cout << "["<<Comm::PE::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
 
       //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
     }
@@ -163,7 +162,7 @@ void CGlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())
@@ -178,14 +177,14 @@ void CGlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  CList<Uint>& nodes_rank = mesh.nodes().rank();
+  CList<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if (nodes.is_ghost(i) == false)
     {
       ++nb_owned_nodes;
-      nodes_rank[i] = mpi::PE::instance().rank();
+      nodes_rank[i] = Comm::PE::instance().rank();
     }
   }
 
@@ -200,16 +199,16 @@ void CGlobalNumbering::execute()
       if (elements.is_ghost(e) == false)
       {
         ++nb_owned_elems;
-        elem_rank[e] = mpi::PE::instance().rank();
+        elem_rank[e] = Comm::PE::instance().rank();
       }
     }
   }
 
   Uint tot_nb_owned_ids=nb_owned_nodes + nb_owned_elems;
 
-  std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
-  mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
-  std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
+  std::vector<Uint> nb_ids_per_proc(Comm::PE::instance().size());
+  Comm::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  std::vector<Uint> start_id_per_proc(Comm::PE::instance().size());
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
   {
@@ -223,11 +222,11 @@ void CGlobalNumbering::execute()
   std::vector<size_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
-  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
-  Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
+  Uint glb_id = start_id_per_proc[Comm::PE::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if ( ! nodes.is_ghost(i) )
@@ -243,17 +242,17 @@ void CGlobalNumbering::execute()
     }
   }
 
-  for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+  for (Uint root=0; root<Comm::PE::instance().size(); ++root)
   {
     std::vector<std::size_t> rcv_node_from(0);
-    mpi::PE::instance().broadcast(node_from,rcv_node_from,root);
+    Comm::PE::instance().broadcast(node_from,rcv_node_from,root);
     std::vector<Uint>        rcv_node_to(0);
-    mpi::PE::instance().broadcast(node_to,rcv_node_to,root);
-    if (mpi::PE::instance().rank() != root)
+    Comm::PE::instance().broadcast(node_to,rcv_node_to,root);
+    if (Comm::PE::instance().rank() != root)
     {
-      for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+      for (Uint p=0; p<Comm::PE::instance().size(); ++p)
       {
-        if (p == mpi::PE::instance().rank())
+        if (p == Comm::PE::instance().rank())
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t node_hash, rcv_node_from)
@@ -262,7 +261,7 @@ void CGlobalNumbering::execute()
             if ( node_glb2loc_it != hash_not_found )
             {
               if (m_debug)
-                std::cout << "["<<mpi::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<Comm::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
               cf_assert(nodes.is_ghost(node_glb2loc_it->second));
               nodes_rank[node_glb2loc_it->second]=root;
@@ -282,8 +281,8 @@ void CGlobalNumbering::execute()
       cf_assert(nodes.glb_idx()[i] != uint_max());
       if (nodes.is_ghost(i) == false)
       {
-        cf_assert(nodes.glb_idx()[i] >= start_id_per_proc[mpi::PE::instance().rank()]);
-        cf_assert(nodes.glb_idx()[i] < start_id_per_proc[mpi::PE::instance().rank()] + nb_owned_nodes);
+        cf_assert(nodes.glb_idx()[i] >= start_id_per_proc[Comm::PE::instance().rank()]);
+        cf_assert(nodes.glb_idx()[i] < start_id_per_proc[Comm::PE::instance().rank()] + nb_owned_nodes);
       }
     }
   }
@@ -323,7 +322,7 @@ void CGlobalNumbering::execute()
     for (Uint e=0; e<elements.size(); ++e)
     {
       if (m_debug)
-        std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
+        std::cout << "["<<Comm::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
 
       if ( ! elements.is_ghost(e) )
       {
@@ -339,17 +338,17 @@ void CGlobalNumbering::execute()
     } // end foreach elem_idx
     cf_assert(cnt == nb_owned_elems);
 
-    for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+    for (Uint root=0; root<Comm::PE::instance().size(); ++root)
     {
       std::vector<std::size_t> recv_hash(0);
-      mpi::PE::instance().broadcast(send_hash,recv_hash,root);
+      Comm::PE::instance().broadcast(send_hash,recv_hash,root);
       std::vector<Uint>        recv_id(0);
-      mpi::PE::instance().broadcast(send_id,recv_id,root);
-      if (mpi::PE::instance().rank() != root)
+      Comm::PE::instance().broadcast(send_id,recv_id,root);
+      if (Comm::PE::instance().rank() != root)
       {
-        for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+        for (Uint p=0; p<Comm::PE::instance().size(); ++p)
         {
-          if (p == mpi::PE::instance().rank())
+          if (p == Comm::PE::instance().rank())
           {
             Uint recv_idx(0);
             boost_foreach(const std::size_t hash, recv_hash)
@@ -358,7 +357,7 @@ void CGlobalNumbering::execute()
               if ( elem_glb2loc_it != hash_not_found )
               {
                 if (m_debug)
-                  std::cout << "["<<mpi::PE::instance().rank() << "]  will change elem "<< elem_glb2loc_it->first << " (" << elem_glb2loc_it->second << ") to " << recv_id[recv_idx] << std::endl;
+                  std::cout << "["<<Comm::PE::instance().rank() << "]  will change elem "<< elem_glb2loc_it->first << " (" << elem_glb2loc_it->second << ") to " << recv_id[recv_idx] << std::endl;
                 elements_glb_idx[elem_glb2loc_it->second]=recv_id[recv_idx];
                 cf_assert(elements.is_ghost(elem_glb2loc_it->second));
                 elem_rank[elem_glb2loc_it->second]=root;
@@ -398,7 +397,7 @@ void CGlobalNumbering::execute()
   }
 
 
-  mesh.nodes().remove_component(glb_node_hash);
+  mesh.geometry().remove_component(glb_node_hash);
 
   boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
   {

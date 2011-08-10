@@ -7,7 +7,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CDynTable.hpp"
 
 namespace CF {
@@ -15,11 +15,11 @@ namespace Mesh {
 
 using namespace Common;
 
-Common::ComponentBuilder < CNodes, Component, LibMesh > CNodes_Builder;
+Common::ComponentBuilder < Geometry, Component, LibMesh > Geometry_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes::CNodes ( const std::string& name ) :
+Geometry::Geometry ( const std::string& name ) :
   FieldGroup ( name )
 {
   m_coordinates = create_static_component_ptr< Field >(Mesh::Tags::coordinates());
@@ -33,7 +33,7 @@ CNodes::CNodes ( const std::string& name ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodes::~CNodes()
+Geometry::~Geometry()
 {
 }
 

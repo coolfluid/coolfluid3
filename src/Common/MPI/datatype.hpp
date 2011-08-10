@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_mpi_datatype_hpp
-#define CF_Common_mpi_datatype_hpp
+#ifndef CF_Common_MPI_datatype_hpp
+#define CF_Common_MPI_datatype_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@
   Use the function get_mpi_datatype to acces MPI_type;
   New plain old data types are automatically registered.
   Non built-in types with smaller sizes result to lower performance due to memcpy.
-  Never-ever use Datatype outside of namespace CF:Common::mpi.
+  Never-ever use Datatype outside of namespace CF:Common::Comm.
   If you really need to use it, than rather extend the interface.
 **/
 
@@ -34,7 +34,7 @@
 
 namespace CF {
   namespace Common {
-    namespace mpi {
+    namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -97,10 +97,10 @@ namespace detail {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // namespace mpi
+    } // namespace Comm
   } // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_mpi_datatype_hpp
+#endif // CF_Common_MPI_datatype_hpp

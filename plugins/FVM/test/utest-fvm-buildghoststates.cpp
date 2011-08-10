@@ -19,7 +19,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -80,9 +80,9 @@ BOOST_AUTO_TEST_CASE( test_buildghoststates )
 
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
-  std::vector<CField::Ptr> fields;
-  boost_foreach(CField& field, find_components_recursively<CField>(*mesh))
-    fields.push_back(field.as_ptr<CField>());
+  std::vector<Field::Ptr> fields;
+  boost_foreach(Field& field, find_components_recursively<Field>(*mesh))
+    fields.push_back(field.as_ptr<Field>());
   meshwriter->set_fields(fields);
 
 

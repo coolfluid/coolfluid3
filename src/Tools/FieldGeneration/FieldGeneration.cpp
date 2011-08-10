@@ -38,7 +38,7 @@ CF::Common::ComponentBuilder < FieldGenerator, Common::Component, LibFieldGenera
 void create_constant_scalar_field(CMesh& mesh, const std::string& field_name, const std::string& var_name, const Real value)
 {
   MeshTerm<1, ScalarField> heat(field_name, var_name);
-  mesh.create_scalar_field(field_name, var_name, CField::Basis::POINT_BASED);
+  mesh.create_scalar_field(field_name, var_name, FieldGroup::Basis::POINT_BASED);
   for_each_node(mesh.topology(), heat = value);
 }
 
@@ -82,7 +82,7 @@ void FieldGenerator::signal_update(Common::SignalArgs& node)
   const Real value = option("Value").value<Real>();
 
   // Get the field, if it exists
-  CField::Ptr field = boost::dynamic_pointer_cast<CField>(mesh->get_child_ptr(field_name));
+  Field::Ptr field = boost::dynamic_pointer_cast<Field>(mesh->get_child_ptr(field_name));
 
   // We can update the field if it exists AND contains the variable that we need
   if(field && !field->has_variable(var_name))
@@ -93,7 +93,7 @@ void FieldGenerator::signal_update(Common::SignalArgs& node)
   // If the field didn't exist, we create it
   if(!field)
   {
-    mesh->create_scalar_field(field_name, var_name, CF::Mesh::CField::Basis::POINT_BASED);
+    mesh->create_scalar_field(field_name, var_name, CF::Mesh::FieldGroup::Basis::POINT_BASED);
   }
 
   // Proto placeholder
