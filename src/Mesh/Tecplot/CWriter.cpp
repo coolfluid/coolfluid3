@@ -60,7 +60,7 @@ std::vector<std::string> CWriter::get_extensions()
 void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
 
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<CMesh>().get();
 
   // if the file is present open it
   boost::filesystem::fstream file;

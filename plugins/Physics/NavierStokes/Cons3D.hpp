@@ -9,6 +9,8 @@
 #ifndef CF_Physics_NavierStokes_Cons3D_hpp
 #define CF_Physics_NavierStokes_Cons3D_hpp
 
+#include <iostream>
+
 #include "Common/StringConversion.hpp"
 #include "Common/BasicExceptions.hpp"
 

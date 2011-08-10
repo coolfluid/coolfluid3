@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp" 
+#include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
@@ -50,13 +50,14 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   const Uint nb_segments = 10;
   const Real end_time = 0.5;
   const Real dt = 0.1;
-  const boost::proto::literal<RealVector2> alpha(RealVector2(1., 2.));
-  
+  const boost::proto::literal<RealVector> alpha(RealVector2(1., 2.));
+
   // Setup a model
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
-  
+  model.create_physics("CF.Physics.DynamicModel");
+
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
@@ -65,15 +66,15 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
   solver.solve_action().configure_option("lss", lss.uri());
-  
+
   // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", "v");
-  
+
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
 
   // build up the solver out of different actions
-  solver 
+  solver
     << create_proto_action("Initialize", nodes_expression(v = initial_temp))
     <<
     (
@@ -102,24 +103,24 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
       << solver.solve_action()
       << create_proto_action("Increment", nodes_expression(v += solver.solution(v)))
     );
-  
+
   // Creating the physics here makes sure everything is up-to-date
   model.create_physics("CF.Physics.DynamicModel");
   solver.mesh_loaded(mesh);
-  
+
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("bottom", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("top", "VectorVariable", outside_temp);
-  
+
   // Configure timings
   CTime& time = model.create_time();
   time.configure_option("time_step", dt);
   time.configure_option("end_time", end_time);
-  
+
   // Run the solver
   model.simulate();
-  
+
   // Write result
   domain.write_mesh(URI("systems.msh"));
 };
@@ -133,7 +134,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 // 82:    0    0    0    0    0  0.5    0 -0.5
 // 82:    0    0    0    0 -0.5    0  0.5    0
 // 82:    0    0    0    0    0 -0.5    0  0.5
-// 82: 
+// 82:
 // 82: 0.0078125 0.0078125 0.0078125 0.0078125         0         0         0         0
 // 82: 0.0078125 0.0078125 0.0078125 0.0078125         0         0         0         0
 // 82: 0.0078125 0.0078125 0.0078125 0.0078125         0         0         0         0

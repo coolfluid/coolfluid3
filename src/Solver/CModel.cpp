@@ -208,6 +208,9 @@ CSolver& CModel::create_solver( const std::string& builder)
 
   add_component(solver);
 
+  if(!m_implementation->m_physics.expired())
+    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics.lock()->uri());
+
   return *solver;
 }
 
@@ -334,9 +337,9 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
     return;
 
   SignalOptions options(args);
-  
+
   URI mesh_uri = options.value<URI>("mesh_uri");
-  
+
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed

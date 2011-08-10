@@ -17,6 +17,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/LoadMesh.hpp"

@@ -13,6 +13,8 @@ list( APPEND coolfluid_math_files
   MatrixTypes.hpp
   MathExceptions.hpp
   MathExceptions.cpp
+  VariableManager.hpp
+  VariableManager.cpp
   VariablesDescriptor.hpp
   VariablesDescriptor.cpp
   VectorialFunction.hpp

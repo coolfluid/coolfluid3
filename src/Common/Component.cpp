@@ -141,6 +141,7 @@ Component::Component ( const std::string& name ) :
 
 Component::~Component()
 {
+  CFdebug << "Deleting component " << uri().string() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
