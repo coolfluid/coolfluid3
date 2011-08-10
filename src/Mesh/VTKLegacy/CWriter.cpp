@@ -19,7 +19,6 @@
 #include "Mesh/VTKLegacy/CWriter.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
@@ -80,7 +79,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const CTable<Real>& coords = mesh.topology().geometry().coordinates();
+  const Field& coords = mesh.topology().geometry().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -88,7 +87,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   file << "POINTS " << npoints << " double\n";
   for(Uint i = 0; i != npoints; ++i)
   {
-    const CTable<Real>::ConstRow row = coords[i];
+    const Field::ConstRow row = coords[i];
     for(Uint j = 0; j != dim; ++j)
       file << " " << row[j];
     if(dim == 2) file << " " << 0.;
@@ -121,12 +120,12 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const CTable<Uint>& conn_table = elements.node_connectivity();
+      const CConnectivity& conn_table = elements.node_connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {
         file << " " << n_el_nodes;
-        const CTable<Uint>::ConstRow row = conn_table[i];
+        const CConnectivity::ConstRow row = conn_table[i];
         for(Uint j = 0; j != n_el_nodes; ++j)
           file << " " << row[j];
         file << "\n";
@@ -179,7 +178,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
         const Uint var_end = var_begin+dim;
         for(Uint i = 0; i != npoints; ++i)
         {
-          const CTable<Real>::ConstRow row = field[i];
+          const Field::ConstRow row = field[i];
           for(Uint j = var_begin; j != var_end; ++j)
             file << " " << field[i][j];
           if(dim == 2) file << " " << 0.;
