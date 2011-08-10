@@ -48,6 +48,8 @@ void SetupMultipleSolutions::execute()
 {
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 
+  /* nb_levels == rkorder */
+
   const Uint nb_levels = option("nb_levels").value<Uint>();
 
   CMesh& mesh = *m_mesh.lock();
@@ -93,40 +95,28 @@ void SetupMultipleSolutions::execute()
 
   rk_steps.push_back(solution);
 
-  for(Uint k = 1; k <= nb_levels; ++k)
+  for(Uint step = 1; step < nb_levels; ++step)
   {
-    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() + to_str(k));
+    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() + to_str(step));
     if ( is_null( solution_k ) )
     {
-      std::string name = std::string(Tags::solution()) + to_str(k);
+      std::string name = std::string(Tags::solution()) + to_str(step);
       solution_k = geometry.create_field( name, vars ).as_ptr<Field>();
       solution_k->add_tag("rksteps");
     }
-
-//    std::cout << "creating field [" << solution_k->name()
-//              << "] uri [" << solution_k->uri().string() << "]"
-//              << std::endl;
-
-
-//    std::cout << "field size : " << solution->size()
-//              << " x " << solution_k->data().row_size()
-//              << std::endl;
 
     cf_assert( solution_k );
     rk_steps.push_back(solution_k);
   }
 
-  for( Uint k = 1; k < rk_steps.size(); ++k)
+  for( Uint step = 1; step < rk_steps.size(); ++step)
   {
-    if( ! fields.get_child_ptr( rk_steps[k]->name() ) )
-      fields.create_component<CLink>( rk_steps[k]->name() ).link_to(solution).add_tag("rksteps");
+    if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
+      fields.create_component<CLink>( rk_steps[step]->name() ).link_to(solution).add_tag("rksteps");
   }
-
 
   /// @todo here we should check if space() order is correct,
   ///       if not the change space() by enriching or other appropriate action
-
-
 
   // configure residual
 
@@ -152,7 +142,6 @@ void SetupMultipleSolutions::execute()
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
     fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
-
   /// @todo apply here the bubble insertion if needed
 
   // parallelize the solution if not yet done
@@ -162,10 +151,10 @@ void SetupMultipleSolutions::execute()
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );
 
-  for(Uint k = 1; k <= nb_levels; ++k)
+  for(Uint step = 1; step < nb_levels; ++step)
   {
-    rk_steps[k]->parallelize_with( pattern );
-    parallel_fields.push_back( rk_steps[k]->uri() );
+    rk_steps[step]->parallelize_with( pattern );
+    parallel_fields.push_back( rk_steps[step]->uri() );
   }
 
   mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);
