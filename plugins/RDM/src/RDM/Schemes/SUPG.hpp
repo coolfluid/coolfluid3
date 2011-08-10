@@ -98,9 +98,9 @@ void SUPG::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  /// @TODO NOT FINISHED!!!
+  /// @todo NOT FINISHED!!!
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = this->connectivity[B::idx()];
 
   B::interpolate( nodes_idx );
 
