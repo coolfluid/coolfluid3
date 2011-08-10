@@ -36,6 +36,7 @@
 #include "Solver/CSolver.hpp"
 #include "Physics/PhysModel.hpp"
 #include "Solver/CTime.hpp"
+#include "Solver/Tags.hpp"
 
 #include "Solver/Actions/CForAllFaces.hpp"
 #include "Solver/Actions/CLoop.hpp"
@@ -90,9 +91,7 @@ FiniteVolumeSolver::FiniteVolumeSolver ( const std::string& name  ) : CSolver ( 
   // Properties
   option("domain").attach_trigger ( boost::bind ( &FiniteVolumeSolver::trigger_domain,   this ) );
 
-  m_options.add_option(OptionURI::create("physical_model", "cpath:../Physics", URI::Scheme::CPATH))
-      ->description("Physical Model")
-      ->attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
+  option(Solver::Tags::physical_model()).attach_trigger( boost::bind ( &FiniteVolumeSolver::trigger_physical_model, this ) );
 
   m_options.add_option(OptionURI::create("ctime", "cpath:../Time", URI::Scheme::CPATH))
       ->description("Time tracking component")
@@ -262,20 +261,8 @@ void FiniteVolumeSolver::trigger_time()
 
 void FiniteVolumeSolver::trigger_physical_model()
 {
-
-  URI uri = option("physical_model").value<URI>();
-  Component::Ptr ptr = access_component_ptr(uri);
-  if (is_null(ptr))
-  {
-    throw SetupError (FromHere(),"Physical Model not found in ["+uri.path()+"]");
-  }
-  else
-  {
-    m_physical_model = ptr->as_ptr_checked<Physics::PhysModel>();
-  }
-
-  m_iterate->configure_option_recursively("physical_model",m_physical_model.lock()->uri());
-
+  m_physical_model = physics().as_ptr<Physics::PhysModel>();
+  m_iterate->configure_option_recursively("physical_model", physics().uri());
 }
 
 //////////////////////////////////////////////////////////////////////////////
