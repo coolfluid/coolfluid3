@@ -31,7 +31,6 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
-using namespace Common::mpi;
 using namespace Math;
 
 
@@ -104,21 +103,6 @@ void FieldManager::create_fields(const std::string& tag, FieldGroup& field_group
     field_group.create_field(tag, descriptor.description()).add_tag(tag);
   }
 }
-
-void FieldManager::create_fields(const std::string& tag, CMesh& mesh, const CField::Basis::Type base, const std::string& space)
-{
-  boost_foreach(const VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
-  {
-    if(find_component_ptr_with_tag(mesh, tag))
-    {
-      CFdebug << "Skipping second field creation for tag " << tag << " in mesh " << mesh.uri().string() << CFendl;
-      continue;
-    }
-
-    mesh.create_field(tag, base, space, descriptor.description()).add_tag(tag);
-  }
-}
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
