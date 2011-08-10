@@ -33,6 +33,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
+  /// @todo make this option a OptionComponent
   m_options.add_option(OptionURI::create("Volume", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Field to set")
       ->mark_basic()
@@ -41,7 +42,6 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 
   m_options["Elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
-  m_volume = create_static_component_ptr<CScalarFieldView>("volume_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,47 +50,31 @@ void CComputeVolume::config_field()
 {
   URI uri;
   option("Volume").put_value(uri);
-  Field::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
-  if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a Field or derived type");
-  m_volume->set_field(comp);
+  m_volume = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CComputeVolume::trigger_elements()
 {
-  m_can_start_loop = m_volume->set_elements(elements());
+  m_can_start_loop = m_volume.lock()->elements_lookup().contains(elements());
   if (m_can_start_loop)
+  {
     elements().allocate_coordinates(m_coordinates);
+    m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<CSpace>();
+    m_volume_field_space.lock()->allocate_coordinates(m_coordinates);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void CComputeVolume::execute()
 {
-  // idx() is the index that is set using the function set_loop_idx() or configuration LoopIndex
+  CSpace& space = *m_volume_field_space.lock();
+  Field& volume = *m_volume.lock();
 
-  elements().put_coordinates(m_coordinates,idx());
-  Real vol = elements().element_type().compute_volume( m_coordinates );
-
-  Uint state_idx = 0;
-  Uint var_idx = 0;
-
-  // 3 ways to access the field through field views:
-
-  // 1) as simple scalar field --> only 1 index needed (this is already default here)
-  CScalarFieldView& volume = *m_volume;
-  volume[idx()] = vol;
-
-  // 2) as simple field --> extra index for multiple variables per field
-  FieldView& view = m_volume->as_type<FieldView>();
-  view[idx()][var_idx] = vol;
-
-  // // 3) as complex field --> extra index for the case with multiple states per element
-  // CMultiStateFieldView& multi_state_view = m_volume->as_type<CMultiStateFieldView>();
-  // multi_state_view[idx()][state_idx][var_idx] = vol;
-
+  m_coordinates = space.compute_coordinates(idx());
+  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().compute_volume( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
