@@ -72,10 +72,10 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity_table = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    connectivity = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
     coordinates = elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
 
     /// @todo modify these to option components configured from
 
@@ -96,7 +96,7 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::CTable<Uint>::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
@@ -181,7 +181,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
    Uint shape   = SF::nb_nodes;
    Uint quad    =  QD::nb_points;
    Uint nodes   = (*coordinates).size();
-   Uint elements = (*connectivity_table).size();
+   Uint elements = (*connectivity).size();
 
    typename SF::MappedGradientT m_sf_grad_ref; //Gradient of the shape functions in reference space
    typename SF::ShapeFunctionsT m_sf_ref;   //Values of shape functions in reference space
@@ -229,7 +229,7 @@ void SchemeLDAGPU<SF, QD,PHYS>::execute()
        for(Uint idy = 0; idy < shape; idy++)
        {
            Uint pos = idx * shape + idy;
-           connectTable[pos] = (*connectivity_table)[idx][idy];
+           connectTable[pos] = (*connectivity)[idx][idy];
        }
 
    }

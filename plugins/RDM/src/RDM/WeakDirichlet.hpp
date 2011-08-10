@@ -211,10 +211,10 @@ public: // functions
 
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    Mesh::CTable<Uint>& connectivity_table =
+    Mesh::CTable<Uint>& connectivity =
         neighbor_cells->as_type<Mesh::CElements>().node_connectivity();
 
-    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity_table[ neighbor_cell_idx ];
+    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 
@@ -229,7 +229,7 @@ public: // functions
 
     // get face connectivity
 
-   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+     const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
 
 //   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];

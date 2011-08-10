@@ -98,12 +98,12 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity_table =
+    connectivity =
         elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
     cf_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
@@ -127,10 +127,10 @@ protected: // data
   Mesh::Field::Ptr solution;
   /// pointer to dual area table
   Mesh::Field::Ptr dual_area;
-  /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  Mesh::Field::Ptr coordinates;
+  /// pointer to connectivity table, may reset when iterating over element types
+  Mesh::CConnectivity::Ptr connectivity;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -215,7 +215,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
 
   // copy the coordinates from the large array to a small
 

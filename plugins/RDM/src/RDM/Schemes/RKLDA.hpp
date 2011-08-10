@@ -216,7 +216,7 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
 
   // fill sols_l with the solutions until the current step
 
