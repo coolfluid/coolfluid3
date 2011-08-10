@@ -21,7 +21,6 @@
 #include "Tools/Solver/LogForwarder.hpp"
 
 using namespace boost;
-using namespace Comm;
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Common::Comm;

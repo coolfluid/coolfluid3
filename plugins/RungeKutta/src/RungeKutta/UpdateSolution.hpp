@@ -47,11 +47,6 @@ public: // functions
 
 private: // data
 
-  Mesh::CScalarFieldView::Ptr m_update_coeff_view;
-  Mesh::CMultiStateFieldView::Ptr m_residual_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_backup_view;
-
   boost::weak_ptr<Mesh::Field> m_solution;
   boost::weak_ptr<Mesh::Field> m_solution_backup;
   boost::weak_ptr<Mesh::Field> m_residual;
