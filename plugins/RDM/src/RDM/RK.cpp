@@ -79,11 +79,11 @@ void RK::execute()
 
   // get the correct solution to update depending on which rk k step we are
 
-  CField::Ptr csolution_k;
+  Field::Ptr csolution_k;
   if ( step == rkorder )
    csolution_k = m_solution.lock();
   else
-    csolution_k = find_component_ptr_with_name<CField>( mesh(), RDM::Tags::solution() + to_str(step) );
+    csolution_k = find_component_ptr_with_name<Field>( mesh(), RDM::Tags::solution() + to_str(step) );
 
   cf_assert( is_not_null(csolution_k) );
 
