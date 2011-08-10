@@ -51,7 +51,7 @@ std::vector<std::string> CWriter::get_extensions()
 
 void CWriter::write_from_to(const CMesh& mesh, const URI& path)
 {
-  m_mesh = mesh.as_ptr_checked<CMesh>();
+  m_mesh = mesh.as_ptr_checked<CMesh>().get();
 
   m_fileBasename = path.base_name(); // filename without extension
 

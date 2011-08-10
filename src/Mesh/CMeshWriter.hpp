@@ -86,7 +86,8 @@ protected: // classes
 
 protected:
 
-  CMesh::ConstPtr m_mesh;
+  // TODO: remove this
+  const CMesh* m_mesh;
 
   std::vector<boost::weak_ptr<CField> > m_fields;
 
