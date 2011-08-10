@@ -21,9 +21,9 @@
 #include "Common/FindComponents.hpp"
 #include "Common/Component.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PEObjectWrapper.hpp"
-#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
-#include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/CommWrapper.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
+#include "Common/MPI/CommPattern.hpp"
 #include "Common/MPI/debug.hpp"
 #include "Common/CGroup.hpp"
 
@@ -32,20 +32,21 @@
 
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PECommPatternFixture
+struct CommPatternFixture
 {
   /// common setup for each test case
-  PECommPatternFixture()
+  CommPatternFixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~PECommPatternFixture()
+  ~CommPatternFixture()
   {
   }
 
@@ -87,7 +88,7 @@ struct PECommPatternFixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
+BOOST_FIXTURE_TEST_SUITE( CommPatternSuite, CommPatternFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,8 +113,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   for(i=0; i<24; i++) d2[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperPtr<double>::Ptr w1=allocate_component< PEObjectWrapperPtr<double> >("Ptr1");
-  PEObjectWrapperPtr<double>::Ptr w2=allocate_component< PEObjectWrapperPtr<double> >("Ptr2");
+  CommWrapperPtr<double>::Ptr w1=allocate_component< CommWrapperPtr<double> >("Ptr1");
+  CommWrapperPtr<double>::Ptr w2=allocate_component< CommWrapperPtr<double> >("Ptr2");
 
   w1->setup(d1,32,2,true);
   w2->setup(d2,24,3,false);
@@ -189,8 +190,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   for(i=0; i<24; i++) d2[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperVector<double>::Ptr w1=allocate_component< PEObjectWrapperVector<double> >("Vector1");
-  PEObjectWrapperVector<double>::Ptr w2=allocate_component< PEObjectWrapperVector<double> >("Vector2");
+  CommWrapperVector<double>::Ptr w1=allocate_component< CommWrapperVector<double> >("Vector1");
+  CommWrapperVector<double>::Ptr w2=allocate_component< CommWrapperVector<double> >("Vector2");
 
   w1->setup(d1,2,true);
   w2->setup(d2,3,false);
@@ -270,11 +271,11 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
       array2d[i][j]=i;
   for(i=0; i<4; i++) map[i]=2*i;
 
-  PEObjectWrapperMultiArray<Uint,1>::Ptr w1=allocate_component< PEObjectWrapperMultiArray<Uint,1> >("array1d");
-  PEObjectWrapperMultiArray<Uint,2>::Ptr w2=allocate_component< PEObjectWrapperMultiArray<Uint,2> >("array2d");
+  CommWrapperMArray<Uint,1>::Ptr w1=allocate_component< CommWrapperMArray<Uint,1> >("array1d");
+  CommWrapperMArray<Uint,2>::Ptr w2=allocate_component< CommWrapperMArray<Uint,2> >("array2d");
 
-  PEObjectWrapper::Ptr w3= build_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,1>","array1d");
-  PEObjectWrapper::Ptr w4= build_component_abstract_type<PEObjectWrapper>("CF.Common.PEObjectWrapperMultiArray<unsigned,2>","array2d");
+  CommWrapper::Ptr w3= build_component_abstract_type<CommWrapper>("CF.Common.CommWrapperMArray<unsigned,1>","array1d");
+  CommWrapper::Ptr w4= build_component_abstract_type<CommWrapper>("CF.Common.CommWrapperMArray<unsigned,2>","array2d");
 
   w1->setup(array1d,true);
   w2->setup(array2d,false);
@@ -352,8 +353,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   for(i=0; i<24; i++) (*d2)[i]=64.+(double)i;
   for(i=0; i<4; i++) map[i]=2+i;
 
-  PEObjectWrapperVectorWeakPtr<double>::Ptr w1=allocate_component< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
-  PEObjectWrapperVectorWeakPtr<double>::Ptr w2=allocate_component< PEObjectWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
+  CommWrapperVectorWeakPtr<double>::Ptr w1=allocate_component< CommWrapperVectorWeakPtr<double> >("VectorWeakPtr1");
+  CommWrapperVectorWeakPtr<double>::Ptr w2=allocate_component< CommWrapperVectorWeakPtr<double> >("VectorWeakPtr2");
 
   w1->setup(d1,2,true);
   w2->setup(d2,3,false);
@@ -417,13 +418,13 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  PECommPattern pecp("CommPattern");
+  CommPattern pecp("CommPattern");
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
 
-  // register data to PECommPattern
+  // register data to CommPattern
   pecp.insert<double>("VectorWeakPtr1",d1,2,true);
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
@@ -436,13 +437,13 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   // count all child
   BOOST_CHECK_EQUAL( pecp.count_children() , 4u );
 
-  // count recursively childs but only of type PEObjectWrapper
-  //BOOST_CHECK_EQUAL( find_components_recursively<PEObjectWrapper>(pecp).size() , 2 );
+  // count recursively childs but only of type CommWrapper
+  //BOOST_CHECK_EQUAL( find_components_recursively<CommWrapper>(pecp).size() , 2 );
 
-  // iterate recursively childs but only of type PEObjectWrapper
-  BOOST_FOREACH( PEObjectWrapper& pobj, find_components_recursively<PEObjectWrapper>(pecp) )
+  // iterate recursively childs but only of type CommWrapper
+  BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(pecp) )
   {
-    BOOST_CHECK_EQUAL( pobj.type_name() , "PEObjectWrapper" );
+    BOOST_CHECK_EQUAL( pobj.type_name() , "CommWrapper" );
     BOOST_CHECK_EQUAL( pobj.size_of() , static_cast<int>(sizeof(double)) );
     if (pobj.name()=="VectorWeakPtr1"){
       BOOST_CHECK_EQUAL( pobj.size() , 16 );
@@ -459,10 +460,10 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
 /*
 BOOST_AUTO_TEST_CASE( commpattern_cast )
 {
-  PECommPattern pecp("CommPattern");
+  CommPattern pecp("CommPattern");
   std::vector<Uint> gid(10);
   pecp.insert("gid",gid);
-  PEObjectWrapper globid=pecp.get_child("gid").as_type<PECommPattern>();
+  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
 }
 */
 ////////////////////////////////////////////////////////////////////////////////
@@ -474,7 +475,7 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   const int irank=Comm::PE::instance().rank();
 
   // commpattern
-  PECommPattern pecp("CommPattern");
+  CommPattern pecp("CommPattern");
 
   // setup gid & rank
   std::vector<Uint> gid;
@@ -493,7 +494,7 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   pecp.insert("v2",v2,2,true);
 
   // initial setup
-  pecp.setup(pecp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>(),rank);
+  pecp.setup(pecp.get_child_ptr("gid")->as_ptr<CommWrapper>(),rank);
 
   PECheckPoint(100,"Before");
   PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
@@ -529,7 +530,7 @@ BOOST_AUTO_TEST_CASE( commpattern_external_synchronization )
   const int irank=Comm::PE::instance().rank();
 
   // commpattern
-  PECommPattern pecp("CommPattern");
+  CommPattern pecp("CommPattern");
 
   // setup gid & rank
   std::vector<Uint> pre_gid; // it is used to feed through series of adds
