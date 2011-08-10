@@ -229,7 +229,7 @@ public: // functions
 
     // get face connectivity
 
-     const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
+     const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
 //   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];

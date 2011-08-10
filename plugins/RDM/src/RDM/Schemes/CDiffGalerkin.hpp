@@ -98,7 +98,7 @@ void CDiffGalerkin::Term<SF,QD,PHYS>::execute()
 
   /// @todo NOT FINISHED!!!
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   B::interpolate( nodes_idx );
 

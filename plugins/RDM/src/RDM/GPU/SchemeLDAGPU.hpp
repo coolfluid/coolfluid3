@@ -72,8 +72,8 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
-    coordinates = elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
+    connectivity = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+    coordinates = elements().nodes().coordinates().as_ptr< Mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );
 
