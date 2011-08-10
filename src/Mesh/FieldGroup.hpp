@@ -15,6 +15,7 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CUnifiedData.hpp"
+#include "Mesh/CEntities.hpp"
 
 namespace CF {
 namespace Common { class CLink; }
@@ -24,7 +25,6 @@ namespace Mesh {
 class CMesh;
   class Field;
   class CRegion;
-  class CEntities;
   class CElements;
 
   template <typename T> class CList;
@@ -91,6 +91,8 @@ public: // functions
   void resize(const Uint size);
 
   const std::string& space() const { return m_space; }
+
+  CSpace& space(const CEntities& entities) const { return entities.space(m_space); }
 
   CList<Uint>& glb_idx() const { return *m_glb_idx; }
 

@@ -158,7 +158,7 @@ void RK::execute()
   if (m_solution.expired()) throw SetupError (FromHere(), "solution was not set");
 
   if ( m_solution_backup.expired() )  // backup not created --> create field
-    m_solution_backup = mesh().create_field("solution_backup",*m_solution.lock()).as_ptr<Field>();
+    m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup",  HERE GOES VAR DESCRIPTION OF SOLUTION).as_ptr<Field>();
 
   const CTable<Real>& U  = m_solution.lock()->data();
   CTable<Real>&       U0 = m_solution_backup.lock()->data();
