@@ -8,6 +8,7 @@
 
 
 #include "Python/Component.hpp"
+#include "Python/Core.hpp"
 #include "Python/PythonModule.hpp"
 
 namespace CF {
@@ -18,6 +19,7 @@ using namespace boost::python;
 BOOST_PYTHON_MODULE(libcoolfluid_python)
 {
   def_component();
+  def_core();
   scope().attr("__doc__") = "Provides access to the Coolfluid API from python";
 }
 
