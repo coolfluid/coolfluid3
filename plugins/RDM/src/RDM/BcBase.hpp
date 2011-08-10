@@ -65,9 +65,9 @@ protected: // helper functions
     cf_assert( is_not_null(connectivity_table) );
     cf_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock()->data_ptr();
-    residual   = cresidual.lock()->data_ptr();
-    wave_speed = cwave_speed.lock()->data_ptr();
+    solution   = csolution.lock();
+    residual   = cresidual.lock();
+    wave_speed = cwave_speed.lock();
   }
 
 protected: // typedefs

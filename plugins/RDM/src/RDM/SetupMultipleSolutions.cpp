@@ -24,6 +24,7 @@
 
 
 using namespace CF::Common;
+using namespace CF::Common::Comm;
 using namespace CF::Mesh;
 
 namespace CF {
@@ -106,14 +107,14 @@ void SetupMultipleSolutions::execute()
       solution_k->add_tag("rksteps");
     }
 
-    std::cout << "creating field [" << solution_k->name()
-              << "] uri [" << solution_k->uri().string() << "]"
-              << std::endl;
+//    std::cout << "creating field [" << solution_k->name()
+//              << "] uri [" << solution_k->uri().string() << "]"
+//              << std::endl;
 
 
-    std::cout << "field size : " << solution->data().size()
-              << " x " << solution_k->data().row_size()
-              << std::endl;
+//    std::cout << "field size : " << solution->size()
+//              << " x " << solution_k->data().row_size()
+//              << std::endl;
 
     cf_assert( solution_k );
     rk_steps.push_back(solution_k);

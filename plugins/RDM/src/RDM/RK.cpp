@@ -71,9 +71,9 @@ void RK::execute()
   if (m_dual_area.expired())
     m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<Field>();
 
-  CTable<Real>& solution     = m_solution.lock()->data();
-  CTable<Real>& dual_area    = m_dual_area.lock()->data();
-  CTable<Real>& residual     = m_residual.lock()->data();
+  CTable<Real>& solution     = m_solution.lock();
+  CTable<Real>& dual_area    = m_dual_area.lock();
+  CTable<Real>& residual     = m_residual.lock();
 
 /// @todo should be used later to calculate automatically the \Delta t
 //  const Real CFL = options().option("cfl").value<Real>();

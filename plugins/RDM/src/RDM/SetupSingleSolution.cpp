@@ -11,6 +11,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/Field.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -51,7 +52,7 @@ void SetupSingleSolution::execute()
 
   // get the geometry field group
 
-  FieldGroup& geometry = mesh.geometry();
+  Geometry& geometry = mesh.geometry();
 
   // configure solution
 

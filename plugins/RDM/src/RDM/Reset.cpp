@@ -95,7 +95,7 @@ void Reset::execute()
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 
-    CTable<Real>& field = ptr.lock()->data();
+    CTable<Real>& field = *ptr.lock();
 
     field = 0.; // set all entries to zero
   }
