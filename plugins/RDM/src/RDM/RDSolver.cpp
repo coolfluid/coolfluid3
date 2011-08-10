@@ -138,7 +138,7 @@ void RDSolver::config_physics()
 {
   try
   {
-    PhysModel pm = physics();
+    PhysModel& pm = physics();
 
     std::string user_vars = option(  RDM::Tags::update_vars() ).value<std::string>();
     if( user_vars.empty() )
