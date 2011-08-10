@@ -7,6 +7,9 @@ set( CF_Boost_MINIMAL_VERSION "1.46.1" )
 
 # components to search for
 list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options )
+if(CF_ENABLE_PYTHON)
+  list( APPEND CF_Boost_COMPONENTS python )
+endif()
 
 find_package( Boost ${CF_Boost_MINIMAL_VERSION} COMPONENTS ${CF_Boost_COMPONENTS} QUIET )
 

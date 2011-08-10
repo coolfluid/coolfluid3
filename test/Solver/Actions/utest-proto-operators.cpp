@@ -325,7 +325,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
   BOOST_CHECK_EQUAL(count, 10);
 }
-
+/*
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
@@ -491,7 +491,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   std::cout << result << std::endl;
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
