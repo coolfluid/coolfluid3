@@ -99,7 +99,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
 
@@ -215,7 +215,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
 
