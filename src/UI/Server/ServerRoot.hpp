@@ -19,10 +19,15 @@
 #include "UI/Server/CCore.hpp"
 
 class QMutex;
+template<typename T> class QList;
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common { namespace mpi { class CPEManager; } }
+namespace Solver { class CPlotter; }
+
 namespace UI {
 namespace Server {
 
@@ -52,7 +57,7 @@ namespace Server {
 
     Common::CJournal::ConstPtr journal() const { return m_journal; }
 
-    void processSignal(const std::string & target,
+    void process_signal(const std::string & target,
                        const Common::URI & receiver,
                        const std::string & clientid,
                        const std::string & frameid,
@@ -60,7 +65,9 @@ namespace Server {
 
 
 
-    void listenToEvents();
+    void listen_to_events();
+
+    void signal_to_forward( Common::SignalArgs & args );
 
   public slots:
 
@@ -69,6 +76,8 @@ namespace Server {
   private:
 
     ServerRoot();
+
+    ~ServerRoot();
 
   private: // data
 
@@ -82,17 +91,21 @@ namespace Server {
 
     Common::CJournal::Ptr m_journal;
 
-//    SignalCatcher * m_catcher;
-
     QMutex m_mutex;
 
     Common::NotificationQueue * m_queue;
 
     Notifier * m_notifier;
 
-    std::string m_currentClientId;
+    std::string m_current_client_id;
 
-    std::string m_currentFrameId;
+    std::string m_current_frame_id;
+
+    QList< Common::URI > m_local_components;
+
+    boost::shared_ptr<Common::mpi::CPEManager> m_manager;
+
+    boost::shared_ptr<Solver::CPlotter> m_plotter;
 
   }; // class ServerRoot
 

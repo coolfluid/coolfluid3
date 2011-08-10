@@ -4,16 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QtCore>
+#include <QList>
+#include <QMutex>
 
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
 #include "Common/Log.hpp"
+#include "Common/CGroup.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
 #include "Common/MPI/CPEManager.hpp"
+//#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 
 #include "Mesh/CTable.hpp"
@@ -28,6 +31,7 @@
 #include "UI/Server/ServerRoot.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::mpi;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;
@@ -46,25 +50,29 @@ ServerRoot::ServerRoot()
     m_thread(nullptr),
     m_root( Core::instance().root().as_ptr<CRoot>() ),
     m_core( new CCore() ),
-    m_journal( new CJournal("Journal") )
+    m_journal( new CJournal("Journal") ),
+    m_manager( new CPEManager("PEManager") ),
+    m_plotter( new CPlotter("Plotter") )
 {
   m_root->add_component(m_core);
 
   Component::Ptr tools = m_root->get_child_ptr("Tools");
 
   tools->add_component( m_journal );
-  tools->create_component_ptr<mpi::CPEManager>("PEManager")->mark_basic();
+  tools->add_component( m_manager );
+  tools->add_component( m_plotter );
 
-  CPlotter::Ptr plotter = tools->create_component_ptr<CPlotter>("Plotter");
+  m_local_components << URI( SERVER_CORE_PATH, URI::Scheme::CPATH );
 
-  plotter->mark_basic();
+  m_manager->mark_basic();
+  m_plotter->mark_basic();
 
   CTable<Real>::Ptr table = tools->create_component_ptr< CTable<Real> >("MyTable");
   table->set_row_size(8); // reserve 8 columns
   CTable<Real>::Buffer buffer = table->create_buffer(8000);
 
   table->mark_basic();
-  plotter->set_data_set( table->uri() );
+  m_plotter->set_data_set( table->uri() );
 
   // fill the table
   std::vector<Real> row(8);
@@ -83,7 +91,22 @@ ServerRoot::ServerRoot()
     buffer.add_row( row );
   }
 
+  m_manager->signal("signal_to_forward")->connect( boost::bind(&ServerRoot::signal_to_forward, this, _1) );
+
   buffer.flush();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+ServerRoot::~ServerRoot()
+{
+  delete m_queue;
+  delete m_notifier;
+
+  if( is_not_null(m_thread) )
+    m_thread->quit();
+
+  delete m_thread;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -96,73 +119,82 @@ ServerRoot & ServerRoot::instance()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ServerRoot::processSignal(const std::string & target,
-                               const URI & receiver,
-                               const std::string & clientid,
-                               const std::string & frameid,
-                               SignalArgs & signal)
+void ServerRoot::process_signal( const std::string & target,
+                                 const URI & receiver,
+                                 const std::string & clientid,
+                                 const std::string & frameid,
+                                 SignalArgs & signal )
 {
-  if(m_mutex.tryLock())
-  {
-    m_doc.swap(signal.xml_doc);
-    m_currentClientId = clientid;
-    m_currentFrameId = frameid;
-    Component::Ptr receivingCompo = m_root->retrieve_component_checked(receiver);
+  std::cout << receiver.path() << " is local componenents ? " << m_local_components.contains(receiver) << std::endl;
 
-    m_thread = new ProcessingThread(signal, target, receivingCompo);
-    QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
-    journal()->add_signal( signal );
-    m_thread->start();
-  }
-  else
+  if( m_local_components.contains(receiver) )
   {
-    std::string message;
-    bool success = false;
-//    bool
-
-    try
+    if( m_mutex.tryLock() )
     {
-      Component::Ptr comp = m_root->retrieve_component_checked(receiver);
+      m_doc.swap(signal.xml_doc);
+      m_current_client_id = clientid;
+      m_current_frame_id = frameid;
+      Component::Ptr receivingCompo = m_root->retrieve_component_checked(receiver);
 
-      if( comp->signal(target)->is_read_only() )
+      m_thread = new ProcessingThread(signal, target, receivingCompo);
+      QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
+      journal()->add_signal( signal );
+      m_thread->start();
+    }
+    else
+    {
+      std::string message;
+      bool success = false;
+      //    bool
+
+      try
       {
-        comp->call_signal(target, signal );
-        m_journal->add_signal(signal);
+        Component::Ptr comp = m_root->retrieve_component_checked(receiver);
 
-        SignalFrame reply = signal.get_reply();
-
-        if( reply.node.is_valid() )
+        if( comp->signal(target)->is_read_only() )
         {
-          m_core->sendSignal(*signal.xml_doc.get());
-          m_journal->add_signal( reply );
+          comp->call_signal(target, signal );
+          m_journal->add_signal(signal);
+
+          SignalFrame reply = signal.get_reply();
+
+          if( reply.node.is_valid() )
+          {
+            m_core->sendSignal( *signal.xml_doc.get() );
+            m_journal->add_signal( reply );
+          }
+
+          success = true;
         }
-
-        success = true;
+        else
+          message = "Server is busy.";
       }
-      else
-        message = "Server is busy.";
-    }
-    catch(CF::Common::Exception & cfe)
-    {
-      message = cfe.what();
-    }
-    catch(std::exception & stde)
-    {
-      message = stde.what();
-    }
-    catch(...)
-    {
-      message = "Unknown exception thrown during execution of action [" +
-          target + "] on component [" + receiver.path() + "].";
-    }
+      catch(CF::Common::Exception & cfe)
+      {
+        message = cfe.what();
+      }
+      catch(std::exception & stde)
+      {
+        message = stde.what();
+      }
+      catch(...)
+      {
+        message = "Unknown exception thrown during execution of action [" +
+            target + "] on component [" + receiver.path() + "].";
+      }
 
-     m_core->sendACK( clientid, frameid, success, message );
+      m_core->sendACK( clientid, frameid, success, message );
+    }
+  }
+  else // the receiver is not a local component
+  {
+    m_manager->send_to( "Workers", signal );
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ServerRoot::listenToEvents()
+void ServerRoot::listen_to_events ()
 {
   if(m_queue == nullptr)
   {
@@ -178,7 +210,14 @@ void ServerRoot::listenToEvents()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ServerRoot::finished()
+void ServerRoot::signal_to_forward( Common::SignalArgs & args )
+{
+  m_core->sendSignal( *args.xml_doc.get() );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void ServerRoot::finished ()
 {
   XmlNode nodedoc = Protocol::goto_doc_node(*m_doc.get());
   SignalFrame frame(nodedoc.content->first_node());
@@ -206,9 +245,9 @@ void ServerRoot::finished()
 
   m_queue->flush();
 
-  m_core->sendACK( m_currentClientId, m_currentFrameId, success, message );
-  m_currentClientId.clear();
-  m_currentFrameId.clear();
+  m_core->sendACK( m_current_client_id, m_current_frame_id, success, message );
+  m_current_client_id.clear();
+  m_current_frame_id.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////////

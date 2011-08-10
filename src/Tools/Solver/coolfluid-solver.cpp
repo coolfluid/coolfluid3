@@ -36,6 +36,7 @@ int main(int argc, char ** argv)
   int rank;
 
   desc.add_options()
+      ("help", "Prints this help message and exits")
       ("forward", program_options::value<std::string>(&forward)->default_value(forward),
        "Defines whether log should be forwarded to the parent process. Three "
        "values available: none (no forwarding), rank0 (only rank 0 forwards) or "
@@ -45,14 +46,29 @@ int main(int argc, char ** argv)
   Core::instance().initiate(argc, argv);
   PE::instance().init(argc, argv);
 
+//  program_options::variables_map vm;
+//  program_options::store(program_options::parse_command_line(argc, argv, desc), vm);
+//  program_options::notify(vm);
 
   parent_comm = PE::instance().get_parent();
   rank = PE::instance().rank();
 
+  for( int i = 0 ; i < argc ; ++i )
+    CFinfo << "args[" << i << "] = " << argv[i] << CFendl;
+
+//  if ( vm.count("help") > 0 )
+//  {
+//    CFinfo << "Usage: " << argv[0] << " [--forward <none|rank0|all>]" << CFendl << CFendl;
+//    CFinfo << "This program cannot be run alone. It needs to be launched from "
+//              "a third party program that provied a managing MPI environment."
+//              << CFendl << CFendl;
+//    CFinfo << desc << CFendl;
+//    return 0;
+//  }
+
   if( parent_comm == MPI_COMM_NULL )
   {
     CFerror << "This solver cannot run without a manager. Exiting..." << CFendl;
-
     return 1;
   }
 

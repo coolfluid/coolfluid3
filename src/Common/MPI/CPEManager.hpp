@@ -9,6 +9,8 @@
 
 #include <boost/thread/thread.hpp>
 
+#include "Common/Signal.hpp"
+
 #include "Common/MPI/types.hpp"
 #include "Common/MPI/CWorkerGroup.hpp"
 
@@ -61,6 +63,8 @@ public: // functions
   void broadcast( const SignalArgs & args );
 
   boost::thread & listening_thread();
+
+  Common::Signal::signal_type signal_to_forward( SignalArgs & args );
 
   /// @name SIGNALS
   //@{

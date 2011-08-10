@@ -34,6 +34,14 @@ using namespace CF::Common::XML;
 using namespace CF::UI::UICommon;
 using namespace CF::UI::Server;
 
+///////////////////////////////////////////////////////////////////////////////
+
+namespace CF {
+namespace UI {
+namespace Server {
+
+/////////////////////////////////////////////////////////////////////////////
+
 ServerNetworkComm::ServerNetworkComm()
   : m_server(nullptr),
   m_lastClientId(0)
@@ -43,8 +51,7 @@ ServerNetworkComm::ServerNetworkComm()
   m_bytesSent = 0;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 ServerNetworkComm::~ServerNetworkComm()
 {
@@ -63,8 +70,7 @@ ServerNetworkComm::~ServerNetworkComm()
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool ServerNetworkComm::openPort(quint16 port)
 {
@@ -92,8 +98,7 @@ bool ServerNetworkComm::openPort(quint16 port)
   return success;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
 {
@@ -133,8 +138,7 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   return count;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::sendSignalToClient(const XmlDoc & signal, const string & uuid)
 {
@@ -142,8 +146,7 @@ void ServerNetworkComm::sendSignalToClient(const XmlDoc & signal, const string &
   this->send(socket, signal);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::sendFrameRejectedToClient(const string clientid,
                                                   const string & frameid,
@@ -154,16 +157,14 @@ void ServerNetworkComm::sendFrameRejectedToClient(const string clientid,
   this->sendFrameRejected(socket, frameid, sender, reason);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::disconnectAll()
 {
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::sendMessageToClient(const QString & message,
                                             LogMessage::Type type,
@@ -173,8 +174,7 @@ void ServerNetworkComm::sendMessageToClient(const QString & message,
   this->sendMessage(socket, message, type);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
                                           const string & frameid,
@@ -192,8 +192,7 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
   return this->send(clientId, *frame.xml_doc.get()) != 0;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message,
                                     LogMessage::Type type)
@@ -213,24 +212,21 @@ bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message
   return this->send(client, *frame.xml_doc.get()) != 0;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int ServerNetworkComm::getBytesRecieved() const
 {
   return m_bytesRecieved;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 int ServerNetworkComm::getBytesSent() const
 {
   return m_bytesSent;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
 {
@@ -247,8 +243,7 @@ QTcpSocket * ServerNetworkComm::getSocket(const string & uuid) const
   return socket;
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 string ServerNetworkComm::getAttr(const XmlNode & node, const char * paramName,
                                   QString & reason)
@@ -287,11 +282,10 @@ void ServerNetworkComm::newClient()
 
   std::cout << "A new client is connected" << std::endl;
 
-  ServerRoot::instance().listenToEvents();
+  ServerRoot::instance().listen_to_events();
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::newData()
 {
@@ -322,7 +316,7 @@ void ServerNetworkComm::newData()
 
       XmlDoc::Ptr xmldoc = XML::parse_cstring( frame, m_blockSize - 1 );
 
-//      CFinfo << frame << CFendl;
+//      std::cout << frame << std::endl;
 
       // free the buffer
       delete[] frame;
@@ -338,7 +332,7 @@ void ServerNetworkComm::newData()
       clientId = this->getAttr(sig_frame->node, "clientid", errorMsg);
       frameId = this->getAttr(sig_frame->node, "frameid", errorMsg);
 
-      if(errorMsg.isEmpty())
+      if( errorMsg.isEmpty() )
       {
         if(target == "client_registration")
         {
@@ -363,14 +357,14 @@ void ServerNetworkComm::newData()
         }
         else
         {
-          if(m_clients[socket].empty())
+          if( m_clients[socket].empty() )
             errorMsg = "The signal came from an unregistered client.";
-          else if(m_clients[socket] != clientId)
+          else if( m_clients[socket] != clientId )
             errorMsg = QString("The client id '%1' (used for registration) "
                                "and '%2' (used for identification) do not "
                                "match.").arg(m_clients[socket].c_str()).arg(clientId.c_str());
           else
-            ServerRoot::instance().processSignal(target, receiver, clientId, frameId, *sig_frame);
+            ServerRoot::instance().process_signal(target, receiver, clientId, frameId, *sig_frame);
         }
       }
 
@@ -395,8 +389,7 @@ void ServerNetworkComm::newData()
 
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::clientDisconnected()
 {
@@ -411,18 +404,22 @@ void ServerNetworkComm::clientDisconnected()
   }
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::message(const QString & message)
 {
   this->sendMessage((QTcpSocket*)NULL, message, LogMessage::INFO);
 }
 
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+////////////////////////////////////////////////////////////////////////////
 
 void ServerNetworkComm::error(const QString & message)
 {
   this->sendMessage((QTcpSocket*)NULL, message, LogMessage::ERROR);
 }
+
+////////////////////////////////////////////////////////////////////////////
+
+} // Server
+} // UI
+} // CF

@@ -42,7 +42,7 @@ Common::ComponentBuilder < CPEManager, Component, LibCommon > CPEManager_Builder
 
 ////////////////////////////////////////////////////////////////////////////
 
-CPEManager::CPEManager( const std::string & name )
+CPEManager::CPEManager ( const std::string & name )
   : Component(name)
 {
   m_listener = new ListeningThread();
@@ -55,17 +55,20 @@ CPEManager::CPEManager( const std::string & name )
   }
 
   regist_signal( "spawn_group" )
-    ->description("Creates a new group of workers")
-    ->pretty_name("Spawn new group")->connect( boost::bind(&CPEManager::signal_spawn_group, this, _1) );
+      ->description("Creates a new group of workers")
+      ->pretty_name("Spawn new group")
+      ->connect( boost::bind(&CPEManager::signal_spawn_group, this, _1) );
 
   regist_signal( "kill_group" )
-    ->description("Kills a group of workers")
-    ->pretty_name("Kill group")->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
+      ->description("Kills a group of workers")
+      ->pretty_name("Kill group")
+      ->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
 
   regist_signal( "kill_all" )
-    ->description("Kills all groups of workers")
-    ->hidden(true)
-    ->pretty_name("Kill all groups")->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
+      ->description("Kills all groups of workers")
+      ->hidden(true)
+      ->pretty_name("Kill all groups")
+      ->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
 
   regist_signal("exit")
       ->connect( boost::bind(&CPEManager::signal_exit, this, _1) )
@@ -77,8 +80,13 @@ CPEManager::CPEManager( const std::string & name )
       ->description("Called when there is a signal to forward");
 
   regist_signal( "message" )
-    ->description("New message has arrived from a worker")
-    ->pretty_name("")->connect( boost::bind(&CPEManager::signal_message, this, _1) );
+      ->description("New message has arrived from a worker")
+      ->pretty_name("")
+      ->connect( boost::bind(&CPEManager::signal_message, this, _1) );
+
+  regist_signal( "signal_to_forward" )
+      ->description("Signal called by this object when to forward a signal "
+                    "called from a worker.");
 
   signal("spawn_group")->signature( boost::bind(&CPEManager::signature_spawn_group, this, _1) );
   signal("kill_group")->signature( boost::bind(&CPEManager::signature_kill_group, this, _1) );
@@ -88,13 +96,14 @@ CPEManager::CPEManager( const std::string & name )
   signal("delete_component")->hidden(true);
   signal("move_component")->hidden(true);
   signal("message")->hidden(true);
+  signal("signal_to_forward")->hidden(true);
 
   m_listener->new_signal.connect( boost::bind(&CPEManager::new_signal, this, _1, _2) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CPEManager::~CPEManager()
+CPEManager::~CPEManager ()
 {
 
 }
@@ -103,37 +112,111 @@ CPEManager::~CPEManager()
 
 void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
 {
-  XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
-  SignalFrame sig_frame( nodedoc.content->first_node() );
-  rapidxml::xml_attribute<>* tmpAttr = sig_frame.node.content->first_attribute("target");
+  if( PE::instance().instance().get_parent() == MPI_COMM_NULL )
+  {
+    SignalFrame frame( sig );
+    call_signal( "signal_to_forward", frame );
+//    signal_to_forward( frame );
 
-
-  if( is_null(tmpAttr) )
-    throw ValueNotFound(FromHere(), "Could not find the target.");
-
-  std::string target = tmpAttr->value();
-
-  tmpAttr = sig_frame.node.content->first_attribute("receiver");
-
-  if( is_null(tmpAttr) )
-    throw ValueNotFound(FromHere(), "Could not find the receiver.");
-
-
-  if( !m_root.expired() )
+//    std::cout << "Received a reply" << std::endl;
+//    std::string str;
+//    to_string( *sig.get(), str);
+//    std::cout << str << std::endl;
+  }
+  else if( !m_root.expired() )
   {
     CRoot::Ptr root = m_root.lock();
-    Component::Ptr comp = root->retrieve_component_checked( tmpAttr->value() );
 
-    comp->call_signal(target, sig_frame);
+    try
+    {
+      XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
+      SignalFrame signal_frame( sig );
+//      SignalFrame signal_frame( nodedoc.content->first_node() );
+      rapidxml::xml_attribute<>* tmpAttr = signal_frame.node.content->first_attribute("target");
+//      bool
+
+      if( is_null(tmpAttr) )
+        throw ValueNotFound(FromHere(), "Could not find the target.");
+
+      std::string target = tmpAttr->value();
+
+      tmpAttr = signal_frame.node.content->first_attribute("receiver");
+
+      if( is_null(tmpAttr) )
+        throw ValueNotFound(FromHere(), "Could not find the receiver.");
+
+      std::string str;
+      to_string( signal_frame.node, str);
+
+      Component::Ptr comp = root->retrieve_component_checked( tmpAttr->value() );
+
+      comp->call_signal(target, signal_frame);
+
+      if( PE::instance().rank() == 0 ) // only rank 0 sends the reply
+      {
+        SignalFrame reply = signal_frame.get_reply();
+
+        if( reply.node.is_valid() && !reply.node.attribute_value("target").empty() )
+        {
+//          std::string str;
+//          to_string(reply.node, str);
+//          std::cout << "Sending \n" << str << "\nas a reply" << std::endl;
+
+          send_to_parent( signal_frame );
+//          m_core->sendSignal( *signal_frame.xml_doc.get() );
+//          m_journal->add_signal( reply );
+        }
+      }
+
+//      std::cout << "Executing \n" << str << "\n on component " << tmpAttr->value()
+//             << " (rank " << PE::instance().rank()<< ")." << std::endl;
+
+      // synchronize with other buddies
+      PE::instance().barrier();
+
+      if( PE::instance().rank() == 0 )
+      {
+        /// @todo change the receiver path to be not hardcoded
+        SignalFrame frame("ack", uri(), "//Root/UI/NetworkQueue");
+        SignalOptions & options = frame.options();
+        std::string frameid = signal_frame.node.attribute_value("frameid");
+
+        options.add_option< OptionT<std::string> >("frameid", frameid );
+        options.add_option< OptionT<bool> >("success", true );
+        options.add_option< OptionT<std::string> >("message", "" );
+
+        options.flush();
+
+        send_to_parent( frame );
+//        m_commServer->sendSignalToClient( *frame.xml_doc.get(), clientid);
+
+      }
+
+    }
+    catch( Exception & cfe )
+    {
+      CFerror << cfe.what() << CFendl;
+    }
+    catch( std::exception & stde )
+    {
+      CFerror << stde.what() << CFendl;
+    }
+    catch(...)
+    {
+      CFerror << "Unhandled exception." << CFendl;
+    }
+
   }
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
-                             const char * command, const std::string & forward,
-                             const char * hosts )
+void CPEManager::spawn_group ( const std::string & name,
+                               Uint nb_workers,
+                               const char * command,
+                               const std::string & forward,
+                               const char * hosts )
 {
   if( m_groups.find(name) != m_groups.end())
     throw ValueExists(FromHere(), "A group of name " + name + " already exists.");
@@ -171,7 +254,7 @@ void CPEManager::spawn_group(const std::string & name, Uint nb_workers,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::kill_group( const std::string & name )
+void CPEManager::kill_group ( const std::string & name )
 {
   SignalFrame frame("exit", uri(), uri());
   std::map<std::string, Communicator>::iterator it = m_groups.find(name);
@@ -198,7 +281,7 @@ void CPEManager::kill_group( const std::string & name )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::kill_all()
+void CPEManager::kill_all ()
 {
   // stop the thread and wait() first
   /// @todo implement
@@ -206,21 +289,21 @@ void CPEManager::kill_all()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::wait()
+void CPEManager::wait ()
 {
   /// @todo implement
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to_parent( const SignalArgs & args )
+void CPEManager::send_to_parent ( const SignalArgs & args )
 {
   send_to("MPI_Parent", args);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to( const std::string & group, const SignalArgs & args )
+void CPEManager::send_to ( const std::string & group, const SignalArgs & args )
 {
   std::map<std::string, Communicator>::iterator it = m_groups.find(group);
 
@@ -232,7 +315,7 @@ void CPEManager::send_to( const std::string & group, const SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::broadcast( const SignalArgs & args )
+void CPEManager::broadcast ( const SignalArgs & args )
 {
   std::map<std::string, Communicator>::iterator it = m_groups.begin();
 
@@ -242,11 +325,13 @@ void CPEManager::broadcast( const SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to(Communicator comm, const SignalArgs &args)
+void CPEManager::send_to ( Communicator comm, const SignalArgs &args )
 {
   std::string str;
   char * buffer;
   int remote_size;
+
+  cf_assert( is_not_null(args.xml_doc) );
 
   to_string( *args.xml_doc, str);
 
@@ -265,7 +350,7 @@ void CPEManager::send_to(Communicator comm, const SignalArgs &args)
 
 ////////////////////////////////////////////////////////////////////////////
 
-boost::thread & CPEManager::listening_thread()
+boost::thread & CPEManager::listening_thread ()
 {
   return m_listener->thread();
 }
@@ -334,7 +419,7 @@ void CPEManager::mpi_forward ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_exit( SignalArgs & args )
+void CPEManager::signal_exit ( SignalArgs & args )
 {
   m_listener->stop_listening();
 }

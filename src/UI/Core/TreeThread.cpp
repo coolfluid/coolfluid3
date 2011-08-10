@@ -28,6 +28,7 @@
 
 #include "UI/UICommon/ComponentNames.hpp"
 
+#include "Common/XML/FileOperations.hpp"
 
 #include "UI/Core/TreeThread.hpp"
 
@@ -144,6 +145,10 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
       CRoot::Ptr realRoot = root()->root();
       SignalFrame frame(nodeToProcess);
 
+      std::string str;
+      to_string(frame.node, str);
+      CFinfo << str << CFendl;
+
       if(realRoot->uri().path() == URI(receiver).path())
         root()->call_signal(type, frame);
       else
@@ -151,7 +156,7 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
     }
     catch(CF::Common::Exception & cfe)
     {
-      NLog::globalLog()->addException(cfe.what());
+      NLog::globalLog()->addException(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
     }
     catch(std::exception & stde)
     {
