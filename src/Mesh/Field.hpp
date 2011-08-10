@@ -113,6 +113,8 @@ public: // functions
 
   void synchronize();
 
+  CUnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+
 private:
 
   void config_var_names();

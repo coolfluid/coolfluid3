@@ -26,6 +26,7 @@
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
 #include "Mesh/Field.hpp"
+#include "Mesh/CSpace.hpp"
 
 #include "Mesh/Gmsh/CReader.hpp"
 
@@ -642,7 +643,7 @@ void CReader::read_element_data()
   //  6 0.4
   //  $EndElementData
 
-  std::map<std::string,Field> fields;
+  std::map<std::string,CReader::Field> fields;
 
   boost_foreach(Uint element_data_position, m_element_data_positions)
   {
@@ -650,56 +651,57 @@ void CReader::read_element_data()
     read_variable_header(fields);
   }
 
-  foreach_container((const std::string& name) (Field& gmsh_field) , fields)
+  if (fields.size())
   {
-    std::vector<std::string> var_types_str;
-    boost_foreach(const Uint var_type, gmsh_field.var_types)
-      var_types_str.push_back(var_type_gmsh_to_cf(var_type));
+    FieldGroup& field_group = m_mesh->create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
-    if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
-    Field& field = *m_mesh->create_component_ptr<Field>(gmsh_field.name);
-    field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
-    field.configure_option("VarNames",gmsh_field.var_names);
-    field.configure_option("VarTypes",var_types_str);
-    field.configure_option("FieldType",gmsh_field.basis);
-    field.create_data_storage();
-
-    for (Uint i=0; i<field.nb_vars(); ++i)
+    foreach_container((const std::string& name) (CReader::Field& gmsh_field) , fields)
     {
-      CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
-      Uint var_begin = field.var_index(i);
-      Uint var_end = var_begin + static_cast<Uint>(field.var_type(i));
-      m_file.seekg(gmsh_field.file_data_positions[i]);
+      std::vector<std::string> var_types_str;
+      boost_foreach(const Uint var_type, gmsh_field.var_types)
+          var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
+      if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
-      FieldView field_view("field_view");
-      field_view.set_field(field);
+      Mesh::Field& field = field_group.create_field(gmsh_field.name);
+      field.configure_option("var_names",gmsh_field.var_names);
+      field.configure_option("var_types",var_types_str);
 
-      Uint gmsh_elem_idx;
-      Uint cf_idx;
-      CElements::Ptr elements;
-      Uint d;
-      std::vector<Real> data(gmsh_field.var_types[i]);
-
-      for (Uint e=0; e<gmsh_field.nb_entries; ++e)
+      for (Uint i=0; i<field.nb_vars(); ++i)
       {
-        m_file >> gmsh_elem_idx;
-        for (d=0; d<data.size(); ++d)
-          m_file >> data[d];
+        CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
+        Uint var_begin = field.var_index(i);
+        Uint var_end = var_begin + static_cast<Uint>(field.var_type(i));
+        m_file.seekg(gmsh_field.file_data_positions[i]);
 
-        std::map<Uint, boost::tuple<CElements::Ptr,Uint> >::iterator it = m_elem_idx_gmsh_to_cf.find(gmsh_elem_idx);
-        if (it != m_elem_idx_gmsh_to_cf.end())
+
+        Uint gmsh_elem_idx;
+        Uint cf_idx;
+        CElements::Ptr elements;
+        Uint d;
+        std::vector<Real> data(gmsh_field.var_types[i]);
+
+        for (Uint e=0; e<gmsh_field.nb_entries; ++e)
         {
-          boost::tie(elements,cf_idx) = it->second;
-          field_view.set_elements(elements);
-          CTable<Real>::Row field_data = field_view[cf_idx];
+          m_file >> gmsh_elem_idx;
+          for (d=0; d<data.size(); ++d)
+            m_file >> data[d];
 
-          d=0;
-          for(Uint v=var_begin; v<var_end; ++v)
-            field_data[v] = data[d++];
+          std::map<Uint, boost::tuple<CElements::Ptr,Uint> >::iterator it = m_elem_idx_gmsh_to_cf.find(gmsh_elem_idx);
+          if (it != m_elem_idx_gmsh_to_cf.end())
+          {
+            boost::tie(elements,cf_idx) = it->second;
+
+            Mesh::Field::Row field_data = field[field.space(*elements).indexes_for_element(cf_idx)[0]] ;
+
+            d=0;
+            for(Uint v=var_begin; v<var_end; ++v)
+              field_data[v] = data[d++];
+          }
         }
       }
     }
+
   }
 }
 
@@ -738,13 +740,10 @@ void CReader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    Field& field = *m_mesh->create_component_ptr<Field>(gmsh_field.name);
-
-    field.set_topology(m_mesh->topology().access_component(gmsh_field.topology).as_type<CRegion>());
-    field.configure_option("VarNames",gmsh_field.var_names);
-    field.configure_option("VarTypes",var_types_str);
-    field.configure_option("FieldType",std::string("PointBased"));
-    field.create_data_storage();
+    Mesh::Field& field = m_mesh->geometry().create_field(gmsh_field.name);
+    field.configure_option("var_names",gmsh_field.var_names);
+    field.configure_option("var_types",var_types_str);
+    field.resize(gmsh_field.nb_entries);
 
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
@@ -752,10 +751,6 @@ void CReader::read_node_data()
       Uint var_begin = field.var_index(i);
       Uint var_end = var_begin + static_cast<Uint>(field.var_type(i));
       m_file.seekg(gmsh_field.file_data_positions[i]);
-
-
-      FieldView field_view("field_view");
-      field_view.set_field(field);
 
       Uint gmsh_node_idx;
       Uint cf_idx;
@@ -772,7 +767,7 @@ void CReader::read_node_data()
         if (it != m_node_idx_gmsh_to_cf.end())
         {
           cf_idx = it->second;
-          CTable<Real>::Row field_data = field[cf_idx];
+          Mesh::Field::Row field_data = field[cf_idx];
 
           d=0;
           for(Uint v=var_begin; v<var_end; ++v)
