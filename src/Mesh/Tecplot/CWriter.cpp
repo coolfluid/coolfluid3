@@ -209,6 +209,8 @@ void CWriter::write_file(std::fstream& file)
         {
           if (field.basis() == FieldGroup::Basis::POINT_BASED)
           {
+            if ( &field.field_group() != &m_mesh->geometry() )
+              throw NotImplemented(FromHere(),"Tecplot writing of point-based fields only works when its fieldgroup is mesh.geometry()");
             boost_foreach(Uint n, used_nodes.array())
             {
               file << field[n][var_idx] << " ";
@@ -218,26 +220,27 @@ void CWriter::write_file(std::fstream& file)
           }
           else // element based
           {
-            CMultiStateFieldView field_view("field_view");
-            field_view.set_field(field);
-            if (field_view.set_elements(elements))
+            if (field.elements_lookup().contains(elements))
             {
-              RealVector field_data (field_view.space().nb_states());
+              CSpace& field_space = field.space(elements);
+              RealVector field_data (field_space.nb_states());
+
+              ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.SF.SF"+to_str(elements.element_type().shape_name())+"LagrangeP0","tmp_shape_func")->as_ptr<ShapeFunction>();
 
               for (Uint e=0; e<elements.size(); ++e)
               {
+                CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
                 /// set field data
-                CMultiStateFieldView::View data_view = field_view[e];
-                for (Uint iState=0; iState<field_view.space().nb_states(); ++iState)
+                for (Uint iState=0; iState<field_space.nb_states(); ++iState)
                 {
-                  field_data[iState] = data_view[iState][var_idx];
+                  field_data[iState] = field[field_index[iState]][var_idx];
                 }
 
                 /// get cell-centred local coordinates
-                RealVector local_coords = elements.space("P0").shape_function().local_coordinates().row(0);
+                RealVector local_coords = P0_cell_centred->local_coordinates().row(0);
 
                 /// evaluate field shape function in P0 space
-                Real cell_centred_data = field_view.space().shape_function().value(local_coords)*field_data;
+                Real cell_centred_data = field_space.shape_function().value(local_coords)*field_data;
 
                 /// Write cell centred value
                 file << cell_centred_data << " ";
