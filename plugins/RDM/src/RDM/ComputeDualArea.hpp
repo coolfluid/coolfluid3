@@ -107,7 +107,7 @@ protected: // helper functions
     cf_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
-    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Field>();
+    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
   }
 
 protected: // typedefs

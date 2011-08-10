@@ -67,7 +67,7 @@ void SetupSingleSolution::execute()
     }
 
     solution =
-        geometry.create_field( RDM::Tags::solution(),FieldGroup::Basis::POINT_BASED,"space[0]",vars).as_ptr<Field>();
+        geometry.create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }

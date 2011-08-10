@@ -76,10 +76,7 @@ void SetupMultipleSolutions::execute()
   if ( is_null( solution ) )
   {
     solution =
-        geometry.create_field( RDM::Tags::solution(),
-                           FieldGroup::Basis::POINT_BASED,
-                           "space[0]",
-                           vars)
+        geometry.create_field( RDM::Tags::solution(), vars )
         .as_ptr<Field>();
 
     solution->add_tag(Tags::solution());
@@ -102,7 +99,7 @@ void SetupMultipleSolutions::execute()
     if ( is_null( solution_k ) )
     {
       std::string name = std::string(Tags::solution()) + to_str(k);
-      solution_k = geometry.create_field( name, *solution ).as_ptr<Field>();
+      solution_k = geometry.create_field( name, vars ).as_ptr<Field>();
       solution_k->add_tag("rksteps");
     }
 
@@ -136,19 +133,19 @@ void SetupMultipleSolutions::execute()
   Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = geometry.create_field(Tags::residual(), *solution ).as_ptr<Field>();
+    residual = geometry.create_field(Tags::residual(), "rhs" ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
   if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
+    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
 
   // configure wave_speed
 
   Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = geometry.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
+    wave_speed = geometry.create_field(Tags::wave_speed(), "ws").as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
