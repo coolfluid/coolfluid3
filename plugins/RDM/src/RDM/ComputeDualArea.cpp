@@ -42,13 +42,14 @@ ComputeDualArea::~ComputeDualArea() {}
 void ComputeDualArea::create_dual_area_field()
 {
   CMesh& mymesh = mesh();
+  Geometry& geometry = mymesh.geometry();
 
   // create if does not exist
 
   Field::Ptr comp = find_component_ptr_with_tag<Mesh::Field>( mymesh, Tags::dual_area());
   if( is_null( comp ) )
   {
-    comp = mymesh.create_scalar_field(Tags::dual_area(), solution()).as_ptr<Mesh::Field>();
+    comp = geometry.create_field(Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
     comp->add_tag(Tags::dual_area());
   }
 

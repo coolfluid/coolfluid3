@@ -106,8 +106,8 @@ protected: // helper functions
     cf_assert( is_not_null(connectivity_table) );
     cf_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock()->data_ptr();
-    dual_area   = parent().as_type<ComputeDualArea>().dual_area().data_ptr();
+    solution   = csolution.lock();
+    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
   }
 
 protected: // typedefs
@@ -124,9 +124,9 @@ protected: // data
   boost::weak_ptr< Mesh::Field > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  Mesh::Field::Ptr solution;
   /// pointer to dual area table
-  Mesh::CTable<Real>::Ptr dual_area;
+  Mesh::Field::Ptr dual_area;
   /// pointer to connectivity table, may reset when iterating over element types
   Mesh::CTable<Uint>::Ptr connectivity_table;
   /// pointer to nodes coordinates, may reset when iterating over element types

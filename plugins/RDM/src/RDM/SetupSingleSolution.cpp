@@ -11,6 +11,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/Field.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -51,7 +52,7 @@ void SetupSingleSolution::execute()
 
   // get the geometry field group
 
-  FieldGroup& geometry = mesh.geometry();
+  Geometry& geometry = mesh.geometry();
 
   // configure solution
 
@@ -66,7 +67,7 @@ void SetupSingleSolution::execute()
     }
 
     solution =
-        geometry.create_field( RDM::Tags::solution(),FieldGroup::Basis::POINT_BASED,"space[0]",vars).as_ptr<Field>();
+        geometry.create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }
@@ -79,7 +80,7 @@ void SetupSingleSolution::execute()
   Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = geometry.create_field(Tags::residual(), *solution ).as_ptr<Field>();
+    residual = geometry.create_field(Tags::residual(), "rhs" ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
@@ -88,7 +89,7 @@ void SetupSingleSolution::execute()
   Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = geometry.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
+    wave_speed = geometry.create_field( Tags::wave_speed(), "ws" ).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 

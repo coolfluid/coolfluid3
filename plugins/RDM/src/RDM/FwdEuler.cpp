@@ -57,9 +57,9 @@ void FwdEuler::execute()
   if (m_residual.expired())
     m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
 
-  CTable<Real>& solution     = m_solution.lock()->data();
-  CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
-  CTable<Real>& residual     = m_residual.lock()->data();
+  Field& solution     = *m_solution.lock();
+  Field& wave_speed   = *m_wave_speed.lock();
+  Field& residual     = *m_residual.lock();
 
   const Real CFL = options().option("cfl").value<Real>();
 
