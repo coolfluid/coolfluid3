@@ -48,7 +48,8 @@ private: // helper functions
 
 private: // data
 
-  boost::shared_ptr<Mesh::CScalarFieldView> m_area;
+  boost::weak_ptr<Mesh::Field> m_area;
+  boost::weak_ptr<Mesh::CSpace> m_area_field_space;
 
   RealMatrix m_coordinates;
 

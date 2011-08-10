@@ -32,6 +32,7 @@ CComputeArea::CComputeArea ( const std::string& name ) :
   CLoopOperation(name)
 {
   // options
+  /// @todo make this option a OptionComponent
   m_options.add_option(OptionURI::create(Mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
       ->description("Field to set")
       ->pretty_name("Area")
@@ -40,8 +41,6 @@ CComputeArea::CComputeArea ( const std::string& name ) :
       ->add_tag(Mesh::Tags::area());
 
   m_options["Elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
-
-  m_area = create_static_component_ptr<CScalarFieldView>("area_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,29 +49,31 @@ void CComputeArea::config_field()
 {
   URI uri;
   option(Mesh::Tags::area()).put_value(uri);
-  Field::Ptr comp = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
-  if ( is_null(comp) )
-    throw CastingFailed (FromHere(), "Field must be of a Field or derived type");
-  m_area->set_field(comp);
+  m_area = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CComputeArea::trigger_elements()
 {
-  m_can_start_loop = m_area->set_elements(elements());
+  m_can_start_loop = m_area.lock()->elements_lookup().contains(elements());
   if (m_can_start_loop)
+  {
     elements().allocate_coordinates(m_coordinates);
+    m_area_field_space = m_area.lock()->space(elements()).as_ptr<CSpace>();
+    m_area_field_space.lock()->allocate_coordinates(m_coordinates);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 void CComputeArea::execute()
 {
-  CScalarFieldView& area = *m_area;
+  CSpace& space = *m_area_field_space.lock();
+  CField& area = *m_area.lock();
 
-  elements().put_coordinates(m_coordinates,idx());
-  area[idx()] = elements().element_type().compute_area( m_coordinates );
+  m_coordinates = space.compute_coordinates(idx());
+  area[space.indexes_for_element(idx())[0]] = elements().element_type().compute_area( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
