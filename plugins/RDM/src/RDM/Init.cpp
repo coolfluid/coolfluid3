@@ -74,7 +74,7 @@ void Init::execute()
 
   std::vector<Real> vars( DIM_3D, 0.);
 
-  RealVector return_val( field.data().row_size() );
+  RealVector return_val( field.row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {

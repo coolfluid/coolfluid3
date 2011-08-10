@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iostream>
-
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
@@ -15,6 +13,7 @@
 
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -57,7 +56,7 @@ void SetupMultipleSolutions::execute()
 
   // get the geometry field group
 
-  FieldGroup& geometry = mesh.geometry();
+  Geometry& geometry = mesh.geometry();
 
   // construct vector of variables
 

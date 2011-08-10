@@ -70,7 +70,7 @@ void BcDirichlet::execute()
 
   std::vector<Real> vars( DIM_3D, 0.);
 
-  RealVector return_val( solution_field.data().row_size() );
+  RealVector return_val( solution_field.row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
