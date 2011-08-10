@@ -70,10 +70,10 @@ void CComputeArea::trigger_elements()
 void CComputeArea::execute()
 {
   CSpace& space = *m_area_field_space.lock();
-  CField& area = *m_area.lock();
+  Field& area = *m_area.lock();
 
   m_coordinates = space.compute_coordinates(idx());
-  area[space.indexes_for_element(idx())[0]] = elements().element_type().compute_area( m_coordinates );
+  area[space.indexes_for_element(idx())[0]][0] = elements().element_type().compute_area( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
