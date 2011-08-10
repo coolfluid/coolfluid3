@@ -11,6 +11,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Math/Checks.hpp"
 
@@ -66,7 +67,7 @@ void RK::execute()
 
   // get the current rk k step and order
 
-  const Uint rkorder = mysolver.properties().template value<Uint>("rkorder");
+  const Uint rkorder = mysolver.properties().value<Uint>("rkorder");
   const Uint step    = mysolver.iterative_solver().properties().value<Uint>("iteration");
 
   if (m_solution.expired())
@@ -82,11 +83,11 @@ void RK::execute()
   if ( step == rkorder )
    csolution_k = m_solution.lock();
   else
-    colution_k = find_components_ptr_with_name<CField>( mesh(), RDM::Tags::solution() + to_str(step) );
+    csolution_k = find_component_ptr_with_name<CField>( mesh(), RDM::Tags::solution() + to_str(step) );
 
   cf_assert( is_not_null(csolution_k) );
 
-  CTable<Real>& solution_k   = csolution_k.data();
+  CTable<Real>& solution_k   = csolution_k->data();
   CTable<Real>& dual_area    = m_dual_area.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
@@ -98,8 +99,8 @@ void RK::execute()
 
   // implementation of the RungeKutta update step
 
-  const Uint nbdofs = solution.size();
-  const Uint nbvars = solution.row_size();
+  const Uint nbdofs = solution_k.size();
+  const Uint nbvars = solution_k.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
     for ( Uint j=0; j< nbvars; ++j )
       solution_k[i][j] += - residual[i][j] / dual_area[i][0];

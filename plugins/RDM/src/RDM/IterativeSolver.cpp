@@ -139,6 +139,7 @@ void IterativeSolver::execute()
     // output convergence info
 
     /// @todo move current rhs as a prpoerty of the iterate or solver components
+#if 0
     if( mpi::PE::instance().rank() == 0 )
     {
       Real rhs_norm = cnorm.properties().value<Real>("Norm");
@@ -149,7 +150,7 @@ void IterativeSolver::execute()
         throw FailedToConverge(FromHere(),
                                "Solution diverged after "+to_str(iter)+" iterations");
     }
-
+#endif
     // raise signal that iteration is done
 
     raise_iteration_done();
