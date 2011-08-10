@@ -86,6 +86,31 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
 
 ////////////////////////////////////////////////////////////////////////////
 
+SignalFrame::SignalFrame ( boost::shared_ptr<XmlDoc> doc )
+  : xml_doc(doc)
+{
+  cf_assert( is_not_null(doc) );
+
+  XmlNode doc_node = Protocol::goto_doc_node(*xml_doc.get());
+
+  rapidxml::xml_node<> * frame_node = doc_node.content->first_node( Protocol::Tags::node_frame() );
+  rapidxml::xml_node<> * map_node;
+
+  if( is_not_null(frame_node) )
+    node.content = frame_node;
+  else
+    throw XmlError( FromHere(), "Could not find a frame." );
+
+  map_node = node.content->first_node( Protocol::Tags::node_map() );
+
+  if( is_not_null(map_node) )
+    main_map.content.content = map_node;
+  else
+    main_map = node.add_node( Protocol::Tags::node_map() );
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalFrame::SignalFrame ( const std::string& target,
                            const URI& sender,
                            const URI& receiver )
