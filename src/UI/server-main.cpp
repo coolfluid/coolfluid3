@@ -29,7 +29,7 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace Comm;
+using namespace CF::Common::Comm;
 using namespace CF::UI::Server;
 
 using namespace CF;
