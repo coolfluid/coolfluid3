@@ -15,7 +15,6 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/VariableManager.hpp"
 
-#include "Solver/CreateFields.hpp"
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
 
@@ -43,20 +42,17 @@ CSimpleSolver::~CSimpleSolver()
 void CSimpleSolver::mesh_loaded(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
-  
+
   if(m_physics.expired())
   {
     CFdebug << "Not creating fields because physical model is not set for " << uri().string() << CFendl;
     return;
   }
-  
+
   Physics::PhysModel& phys_model = *m_physics.lock();
-  
+
   // Update the dimensions on the physics
   phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
-  
-  // Create the fields
-  create_fields(mesh, phys_model);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,7 +61,7 @@ CMesh& CSimpleSolver::mesh()
 {
   if(m_mesh.expired())
     throw SetupError(FromHere(), "No mesh configured for " + uri().string());
-  
+
   return *m_mesh.lock();
 }
 
@@ -75,7 +71,7 @@ Physics::PhysModel& CSimpleSolver::physics()
 {
   if(m_physics.expired())
     throw SetupError(FromHere(), "No physical model configured for " + uri().string());
-  
+
   return *m_physics.lock();
 }
 

@@ -323,12 +323,11 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      Field& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<Field>();
-      CTable<Real>& field_table = field.data();
-      const Uint field_size = field_table.size();
+      Field& field = find_component_with_name<Field>(solution_mesh,field_name);
+      const Uint field_size = field.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)
       {
-        CTable<Real>::Row row = field_table[row_idx];
+        Field::Row row = field[row_idx];
         for(Uint i = 0; i != nb_vars; ++i)
         {
           if(field_names[i] != field_name)
