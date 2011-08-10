@@ -183,10 +183,7 @@ void RDSolver::config_mesh()
   CMesh& mesh = *(m_mesh.lock());
 
   // ensure physcial model has already been configured
-
-  Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
-  if( is_null( physmodel ) )
-    throw SetupError(FromHere(), "Physical model not yet set for RDM solver [" + uri().string() + "]" );
+  physics();
 
   // setup the fields
 
