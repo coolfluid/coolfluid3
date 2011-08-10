@@ -64,11 +64,7 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(), &m_physical_model))
-      ->description("Mesh")
-      ->pretty_name("Mesh")
-      ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
-      ->mark_basic();
+  option(Tags::physical_model()).attach_trigger( boost::bind ( &FlowSolver::setup, this ) );
 
   m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
@@ -138,6 +134,7 @@ void FlowSolver::setup()
     //m_inner = find_component_ptr_recursively_with_tag<CAction>(*m_solve.lock(),Tags::inner());
     if ( m_setup.expired() == false )
     {
+      m_physical_model = physics().as_ptr<PhysModel>();
       if ( m_physical_model.expired() == false )
       {
         m_solve.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->uri());
