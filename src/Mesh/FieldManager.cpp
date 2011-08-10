@@ -90,7 +90,7 @@ FieldManager::~FieldManager()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldManager::create_fields(const std::string& tag, FieldGroup& field_group)
+void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
 {
   boost_foreach(const VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
@@ -106,7 +106,7 @@ void FieldManager::create_fields(const std::string& tag, FieldGroup& field_group
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldManager::signal_create_fields(SignalArgs& node)
+void FieldManager::signal_create_field(SignalArgs& node)
 {
   SignalOptions options(node);
 
@@ -120,7 +120,7 @@ void FieldManager::signal_create_fields(SignalArgs& node)
   if(!field_group)
     throw ValueNotFound(FromHere(), "Wrong component type at field_group URI: " + field_group_uri.string());
 
-  create_fields(options.option("tag").value_str(), *field_group);
+  create_field(options.option("tag").value_str(), *field_group);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
