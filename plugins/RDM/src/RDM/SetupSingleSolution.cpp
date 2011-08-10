@@ -80,7 +80,7 @@ void SetupSingleSolution::execute()
   Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = geometry.create_field(Tags::residual(), *solution ).as_ptr<Field>();
+    residual = geometry.create_field(Tags::residual(), "rhs" ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
@@ -89,7 +89,7 @@ void SetupSingleSolution::execute()
   Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = geometry.create_scalar_field(Tags::wave_speed(), *solution).as_ptr<Field>();
+    wave_speed = geometry.create_field( Tags::wave_speed(), "ws" ).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
