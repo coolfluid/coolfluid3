@@ -36,17 +36,17 @@ using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct PECommPatternFixture
+struct CommPatternFixture
 {
   /// common setup for each test case
-  PECommPatternFixture()
+  CommPatternFixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~PECommPatternFixture()
+  ~CommPatternFixture()
   {
   }
 
@@ -88,7 +88,7 @@ struct PECommPatternFixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( PECommPatternSuite, PECommPatternFixture )
+BOOST_FIXTURE_TEST_SUITE( CommPatternSuite, CommPatternFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -424,7 +424,7 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
   boost::shared_ptr< std::vector<double> > d2( new std::vector<double>(24) );
 
-  // register data to PECommPattern
+  // register data to CommPattern
   pecp.insert<double>("VectorWeakPtr1",d1,2,true);
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
@@ -460,10 +460,10 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
 /*
 BOOST_AUTO_TEST_CASE( commpattern_cast )
 {
-  PECommPattern pecp("CommPattern");
+  CommPattern pecp("CommPattern");
   std::vector<Uint> gid(10);
   pecp.insert("gid",gid);
-  CommWrapper globid=pecp.get_child("gid").as_type<PECommPattern>();
+  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
 }
 */
 ////////////////////////////////////////////////////////////////////////////////

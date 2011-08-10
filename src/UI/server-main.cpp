@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
     if( nb_workers != 0 )
     {
-      MPI::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<MPI::CPEManager>();
+      Comm::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<Comm::CPEManager>();
 
       mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
     }
