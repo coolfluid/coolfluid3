@@ -21,6 +21,7 @@
 #include "UI/Graphics/JournalBrowserDialog.hpp"
 
 using namespace CF::Common;
+using namespace CF::Tools::Shell;
 using namespace CF::UI::Core;
 using namespace CF::UI::Graphics;
 

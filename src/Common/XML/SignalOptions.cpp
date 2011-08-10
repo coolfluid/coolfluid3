@@ -6,11 +6,14 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/regex.hpp>
+#include <boost/tokenizer.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Assertions.hpp"
 #include "Common/BasicExceptions.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
@@ -19,6 +22,7 @@
 
 #include "Common/XML/CastingFunctions.hpp"
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -331,14 +335,17 @@ SignalOptions::SignalOptions(const OptionList &list)
 
 //////////////////////////////////////////////////////////////////////////////
 
-SignalOptions::SignalOptions( SignalFrame & frame )
+SignalOptions::SignalOptions( SignalFrame & frame,  const std::string & name )
   : OptionList()
 {
   cf_assert( frame.node.is_valid() );
 
-  m_map = frame.map( Protocol::Tags::key_options() ).main_map;
+  if( name.empty() )
+    main_map = frame.map( Protocol::Tags::key_options() ).main_map;
+  else
+    main_map = frame.map( name ).main_map;
 
-  rapidxml::xml_node<> * value_node = m_map.content.content->first_node();
+  rapidxml::xml_node<> * value_node = main_map.content.content->first_node();
 
   for( ; is_not_null(value_node) ; value_node = value_node->next_sibling() )
   {
@@ -430,15 +437,15 @@ std::vector<TYPE> SignalOptions::array( const std::string & name ) const
 
 void SignalOptions::flush()
 {
-  if( m_map.content.is_valid() )
-    add_to_map( m_map, *this );
+  if( main_map.content.is_valid() )
+    add_to_map( main_map, *this );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sender ) const
 {
-  cf_assert( m_map.content.is_valid() );
+  cf_assert( main_map.content.is_valid() );
 
   SignalFrame reply = frame.create_reply( sender );
   Map map = reply.map( Protocol::Tags::key_options() ).main_map;

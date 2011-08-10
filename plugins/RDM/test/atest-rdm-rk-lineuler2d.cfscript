@@ -19,14 +19,15 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=square1x1-tg-p1-303n.msh
+call Model/Domain/load_mesh file:uri=circle1d-tg-p1-1451.msh
+#square1x1-tg-p1-303n.msh
 #circle1d-tg-p1-1451.msh
 
 ### solver
 
 configure Model/RDSolver  update_vars:string=Cons2D
 
-configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=3000
+configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=100
 configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=0.001 end_time:real=0.1
 
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
@@ -63,9 +64,9 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 call Model/RDSolver/InitialConditions
 
 call Model/Domain/write_mesh file:uri=initial.msh
-# call Model/Domain/write_mesh file:uri=initial.plt
+#call Model/Domain/write_mesh file:uri=initial.plt
 
 call Model/simulate
 
 call Model/Domain/write_mesh file:uri=solution.msh
-# call Model/Domain/write_mesh file:uri=solution.plt
+#call Model/Domain/write_mesh file:uri=solution.plt

@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
+#include <QMutex>
 
 #include "Common/CRoot.hpp"
 #include "Common/CJournal.hpp"
@@ -31,50 +31,68 @@ namespace Server {
 
   ///////////////////////////////////////////////////////////////////////////
 
-  class SignalCatcher : public QObject
+  class ServerRoot :
+      public QObject
   {
     Q_OBJECT
+
+  public:
+
+    static ServerRoot & instance();
+
+    Common::CRoot::Ptr root() { return m_root; }
+
+    Common::CRoot::ConstPtr root() const { return m_root; }
+
+    CCore::Ptr core() { return m_core; }
+
+    CCore::ConstPtr core() const { return m_core; }
+
+    Common::CJournal::Ptr journal() { return m_journal; }
+
+    Common::CJournal::ConstPtr journal() const { return m_journal; }
+
+    void processSignal(const std::string & target,
+                       const Common::URI & receiver,
+                       const std::string & clientid,
+                       const std::string & frameid,
+                       Common::SignalArgs & node);
+
+
+
+    void listenToEvents();
 
   public slots:
 
     void finished();
-  };
-
-  class ServerRoot :
-      public boost::noncopyable,
-      public CF::NonInstantiable<ServerRoot>
-  {
-  public:
-
-    static CF::Common::CRoot::Ptr root();
-
-    static void processSignal(const std::string & target,
-                              const CF::Common::URI & receiver,
-                              const std::string & clientid,
-                              const std::string & frameid,
-                              Common::SignalArgs & node);
-
-    static CCore::Ptr core();
-
-    static CF::Common::CJournal::Ptr journal();
-
-    static void listenToEvents();
 
   private:
 
-    static Common::XML::XmlDoc::Ptr m_doc;
+    ServerRoot();
 
-    static ProcessingThread * m_thread;
+  private: // data
 
-    static SignalCatcher * m_catcher;
+    boost::shared_ptr<Common::XML::XmlDoc> m_doc;
 
-    static QMutex m_mutex;
+    ProcessingThread * m_thread;
 
-    static Common::NotificationQueue * m_queue;
+    Common::CRoot::Ptr m_root;
 
-    static Notifier * m_notifier;
+    CCore::Ptr m_core;
 
-    friend void SignalCatcher::finished();
+    Common::CJournal::Ptr m_journal;
+
+//    SignalCatcher * m_catcher;
+
+    QMutex m_mutex;
+
+    Common::NotificationQueue * m_queue;
+
+    Notifier * m_notifier;
+
+    std::string m_currentClientId;
+
+    std::string m_currentFrameId;
 
   }; // class ServerRoot
 

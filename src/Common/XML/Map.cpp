@@ -47,23 +47,23 @@ void Map::split_string ( const std::string & str, const std::string & delimiter,
   using namespace boost::algorithm; // split_iterator and make_split_iterator()
   typedef split_iterator<std::string::iterator> StringSplitIterator;
 
+  // make a copy of the string (it will be modified) and initialize the iterator
   std::string value_str(str);
   StringSplitIterator it = make_split_iterator(value_str, first_finder(delimiter, is_iequal()));
 
+  // reserve memory if the number of elements was given
   if(size >= 0)
-  {
-    result.clear();
-    result.resize(size);
-  }
+    result.reserve( result.size() + size );
 
-  for (int item = 0 ; it != StringSplitIterator() && (size < 0 || item < size);  ++it, ++item)
+  for ( ; it != StringSplitIterator() ; ++it )
   {
     try
     {
-      if(size < 0)
-        result.push_back( from_str<TYPE>( boost::copy_range<std::string>(*it)) );
-      else
-        result[item] = from_str<TYPE>( boost::copy_range<std::string>(*it) );
+      // take the item, cast it to TYPE and add it to the result vector
+      std::string str = boost::copy_range<std::string>(*it);
+
+      if( !str.empty() )
+        result.push_back(  from_str<TYPE>( str ) );
     }
     catch(boost::bad_lexical_cast e)
     {

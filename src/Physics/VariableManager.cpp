@@ -8,6 +8,7 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OptionT.hpp"
 
@@ -20,6 +21,9 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Common::ComponentBuilder < VariableManager, Component, LibPhysics > VariableManager_Builder;
+
+////////////////////////////////////////////////////////////////////////////////
 
 struct VariableManager::Implementation
 {
@@ -35,7 +39,7 @@ struct VariableManager::Implementation
       ->link_to(&m_dim)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
-  
+
   void trigger_dimensions()
   {
     // Re-initialize, in case variables were registered without the dimension being known
@@ -49,19 +53,19 @@ struct VariableManager::Implementation
       m_nbdofs += var_size;
     }
   }
-  
+
   std::string field_property_name(std::string var_name)
   {
     boost::to_lower(var_name);
     return var_name + "_field_name";
   }
-  
+
   std::string variable_property_name(std::string var_name)
   {
     boost::to_lower(var_name);
     return var_name + "_variable_name";
   }
-  
+
   bool is_state_variable(const std::string& var_name) const
   {
     return m_variable_offsets.count(var_name);
@@ -87,7 +91,7 @@ struct VariableManager::Implementation
         m_variable_offsets[name] = m_nbdofs;
         m_nbdofs += var_type == SCALAR ? 1 : m_dim;
       }
-      
+
       // Add options for changing the variable name and field name
       m_component.options().add_option< OptionT<std::string> >(field_property_name(name), field_name)
         ->pretty_name(name + std::string(" Field Name"))
@@ -107,7 +111,7 @@ struct VariableManager::Implementation
         m_variable_offsets[name] = m_nbdofs;
         m_nbdofs += var_type == SCALAR ? 1 : m_dim;
       }
-      
+
       m_component.option(field_property_name(name)).link_to(&field_name);
       m_component.option(variable_property_name(name)).link_to(&symbol);
     }
@@ -118,7 +122,7 @@ struct VariableManager::Implementation
     CMesh& mesh = mesh_checked();
     cf_assert(m_dim);
 
-    
+
 
     // Re-initialize, in case variables were registered without the dimension being known
     m_nbdofs = 0;
@@ -182,13 +186,13 @@ struct VariableManager::Implementation
       const std::string internal_name = it->first;
       const std::string variable_name = m_component.option(variable_property_name(internal_name)).value_str();
       const std::string field_name = m_component.option(field_property_name(internal_name)).value_str();
-      
+
       const std::string& old_spec = fields[field_name];
-      
+
       // Specification for the variable: variable_name[dimension of variable], inserting a , separator if needed
       std::stringstream var_spec;
       var_spec << (old_spec.empty() ? "" : ",") << variable_name << "[" << (it->second == SCALAR ? 1 : m_dim) << "]";
-      
+
       // Append the specification for this variable to the list for the field
       fields[field_name] += var_spec.str();
     }
@@ -201,13 +205,13 @@ struct VariableManager::Implementation
 
   /// number of degrees of freedom
   Uint m_nbdofs;
-  
+
   /// Offset of each equation variable, i.e. in V (vector of u and v) and p, V has offset 0, and p has offset 2 when the order is uvp in the global system
   std::map<std::string, Uint> m_variable_offsets;
-  
+
   /// Ordered list of the equation variables
   std::vector<std::string> m_state_variables;
-  
+
   /// Type of each variable
   typedef std::map<std::string, VariableTypesT> VarTypesT;
   VarTypesT m_variable_types;
@@ -250,7 +254,7 @@ VariableManager::VariableTypesT VariableManager::variable_type(const std::string
   Implementation::VarTypesT::const_iterator result = m_implementation->m_variable_types.find(var_name);
   if(result == m_implementation->m_variable_types.end())
     throw ValueNotFound(FromHere(), "The type for variable " + var_name + " was not found in " + uri().string());
-  
+
   return result->second;
 }
 

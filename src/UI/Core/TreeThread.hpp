@@ -19,6 +19,9 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
+
+namespace Common { namespace XML { class XmlDoc; } }
+
 namespace UI {
 namespace Core {
 
@@ -58,7 +61,7 @@ public:
 
   NRoot::Ptr root() { return m_root; }
 
-  void newSignal(Common::XML::XmlDoc::Ptr doc);
+  void newSignal( boost::shared_ptr<Common::XML::XmlDoc> doc);
 
 private:
 

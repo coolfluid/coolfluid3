@@ -9,12 +9,12 @@ call HotModel/setup solver_builder:string=CF.UFEM.HeatConductionSteady physics_b
 
 #############################################################################
 ### Read input
-call HotModel/Domain/load_mesh file:uri=@UFEM_HEAT_INPUT_MESH@ name:string=Mesh
+call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=Mesh
 
 #############################################################################
 ### create LSS
 create HotModel/LSS CF.Solver.CEigenLSS
-configure HotModel/LSS config_file:uri=@UFEM_LSS_CONFIG_FILE@
+configure HotModel/LSS config_file:uri=file:@UFEM_LSS_CONFIG_FILE@
 configure HotModel/HeatConductionSteady/LSSSolveAction lss:uri=cpath://Root/HotModel/LSS
 
 #############################################################################
@@ -27,4 +27,4 @@ configure HotModel/HeatConductionSteady/BoundaryConditions/BCouterTemperature va
 #############################################################################
 ### Run simulation and write the result
 call HotModel/simulate
-call HotModel/Domain/write_mesh file:uri=atest-ufem-heat-steady-output.msh
+call HotModel/Domain/write_mesh file:uri=file:atest-ufem-heat-steady-output.msh

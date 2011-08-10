@@ -11,8 +11,10 @@
 #include "Common/Log.hpp"
 
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/XmlDoc.hpp"
 
 #include "UI/Core/NBrowser.hpp"
+#include "UI/Core/NetworkQueue.hpp"
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NGeneric.hpp"
 #include "UI/Core/NLog.hpp"
@@ -25,6 +27,7 @@
 #include "UI/Core/CNodeBuilders.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
+
 
 #include "UI/Core/TreeThread.hpp"
 
@@ -76,11 +79,21 @@ void TreeThread::run()
   NTree::Ptr tree(new NTree(m_root));
   NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
   NGeneric::Ptr uidir( new NGeneric("UI", "CF.Common.CGroup", CNode::LOCAL_NODE ) );
+  NetworkQueue::Ptr networkQueue( new NetworkQueue() );
+
+  Logger::instance().getStream(WARNING).addStringForwarder( log.get() );
+  Logger::instance().getStream(ERROR).addStringForwarder( log.get() );
+  Logger::instance().getStream(INFO).addStringForwarder( log.get() );
+
+  Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
+  Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
   // add components to the root
   uidir->add_component(log);
   uidir->add_component(browser);
   uidir->add_component(tree);
+  uidir->add_component(networkQueue);
   uidir->add_component(plugins);
 
   realRoot->add_component(uidir);
@@ -91,6 +104,7 @@ void TreeThread::run()
   log->mark_basic();
   browser->mark_basic();
   tree->mark_basic();
+  networkQueue->mark_basic();
   plugins->mark_basic();
 
   // set the root as model root

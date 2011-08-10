@@ -33,6 +33,10 @@ namespace Server {
 
     void run();
 
+    bool success() const { return m_success; }
+
+    std::string message() const { return m_message; }
+
   private:
 
     Common::SignalArgs m_signal;
@@ -40,6 +44,10 @@ namespace Server {
     std::string m_target;
 
     Common::Component::Ptr m_receiver;
+
+    bool m_success;
+
+    std::string m_message;
 
 };
 

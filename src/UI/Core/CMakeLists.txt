@@ -5,6 +5,8 @@
 #
 
 # List of classes to "moc"
+# Put here all the headers that declare a class able to emit or catch Qt signals.
+# If a such header is missing here, linker returns a "missing vtable" error.
 list( APPEND coolfluid_ui_core_moc_classes
 CNode.hpp
 NetworkThread.hpp
@@ -15,6 +17,7 @@ NRemoteFSBrowser.hpp
 NRoot.hpp
 NTree.hpp
 PropertyModel.hpp
+RemoteDispatcher.hpp
 TreeNode.hpp
 TreeThread.hpp
 )
@@ -38,6 +41,8 @@ LibCore.cpp
 LibCore.hpp
 NBrowser.cpp
 NBrowser.hpp
+NetworkQueue.cpp
+NetworkQueue.hpp
 NetworkThread.cpp
 NetworkThread.hpp
 NGeneric.hpp
@@ -60,6 +65,8 @@ NTree.cpp
 NTree.hpp
 PropertyModel.cpp
 PropertyModel.hpp
+RemoteDispatcher.cpp
+RemoteDispatcher.hpp
 ThreadManager.cpp
 ThreadManager.hpp
 TreeNode.cpp
@@ -68,7 +75,7 @@ TreeThread.cpp
 TreeThread.hpp
 )
 
-list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_common )
+list( APPEND coolfluid_ui_core_cflibs coolfluid_ui_common coolfluid_shell )
 
 # Use Qt Libraries
 list( APPEND coolfluid_ui_core_libs ${QT_LIBRARIES} )

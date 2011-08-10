@@ -20,6 +20,7 @@
 
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
 using namespace boost::assign;
@@ -334,6 +335,153 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
   BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[3]), vectInt[2] );
   BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[4]), vectInt[3] );
   BOOST_CHECK_EQUAL( boost::any_cast<int>(restr_list[5]), vectInt[4] );
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE ( fill_from_vector )
+{
+  std::vector<std::string> args(12);
+  std::vector<std::string> args_mod(2);
+  SignalOptions options;
+
+  // single values
+  args[0] = "my_bool:bool=true";
+  args[1] = "my_uint:unsigned=7489";
+  args[2] = "my_int:integer=-4567";
+  args[3] = "my_real:real=3.1415";
+  args[4] = "my_string:string=Hello World!";
+  args[5] = "my_uri:uri=cpath://Root/Tools";
+
+  // array values
+  args[6] = "my_bool_array:array[bool]=true,false,true, true";
+  args[7] = "my_uint_array:array[unsigned]=7489, 12,65,0";
+  args[8] = "my_int_array:array[integer]=-4567,42, 730";
+  args[9] = "my_real_array:array[real]=3.1415,2.71,0.99,-12.35";
+  args[10] = "my_string_array:array[string]=Hello World!, VKI,COOLFluiD";
+  args[11] = "my_uri_array:array[uri]=cpath://Root/Tools, http://coolfluidsrv.vki.ac.be/cdash,file:/usr/bin/gcc";
+
+  // options to modify
+  args_mod[0] = "my_int:integer=42";
+  args_mod[1] = "my_real_array:array[real]=1.56, 7894.012, 32.768";
+
+  options.fill_from_vector( args );
+
+  BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
+
+  ///////////
+  // I. Check the single options
+  ///////////
+
+  // 1. my_bool
+  BOOST_CHECK ( options.check("my_bool") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_bool"].tag()), std::string("bool") );
+  BOOST_CHECK ( options["my_bool"].value<bool>() );
+
+  // 2. my_uint
+  BOOST_CHECK ( options.check("my_uint") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uint"].tag()), std::string("unsigned") );
+  BOOST_CHECK_EQUAL ( options["my_uint"].value<Uint>(), 7489 );
+
+  // 3. my_int
+  BOOST_CHECK ( options.check("my_int") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_int"].tag()), std::string("integer") );
+  BOOST_CHECK_EQUAL ( options["my_int"].value<int>(), -4567 );
+
+  // 4. my_real
+  BOOST_CHECK ( options.check("my_real") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_real"].tag()), std::string("real") );
+  BOOST_CHECK_EQUAL ( options["my_real"].value<Real>(), 3.1415 );
+
+  // 5. my_string
+  BOOST_CHECK ( options.check("my_string") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_string"].tag()), std::string("string") );
+  BOOST_CHECK_EQUAL ( options["my_string"].value<std::string>(), std::string("Hello World!") );
+
+  // 6. my_uri
+  BOOST_CHECK ( options.check("my_uri") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uri"].tag()), std::string("uri") );
+  BOOST_CHECK_EQUAL ( options["my_uri"].value<URI>().path(), URI("cpath://Root/Tools").path() );
+
+
+  ///////////
+  // II. Check the array options
+  ///////////
+
+  // 1. my_bool_array
+  BOOST_CHECK ( options.check("my_bool_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_bool_array"].tag()), std::string("array") );
+  std::vector<bool> bool_array = options["my_bool_array"].cast_to< OptionArrayT<bool> >()->value_vect();
+  BOOST_CHECK_EQUAL ( bool_array.size(), 4 );
+  BOOST_CHECK ( bool_array[0] );
+  BOOST_CHECK ( !bool_array[1] );
+  BOOST_CHECK ( bool_array[2] );
+  BOOST_CHECK ( bool_array[3] );
+
+  // 2. my_uint_array
+  BOOST_CHECK ( options.check("my_uint_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uint_array"].tag()), std::string("array") );
+  std::vector<Uint> uint_array = options["my_uint_array"].cast_to< OptionArrayT<Uint> >()->value_vect();
+  BOOST_CHECK_EQUAL ( uint_array.size(), 4 );
+  BOOST_CHECK_EQUAL ( uint_array[0], 7489 );
+  BOOST_CHECK_EQUAL ( uint_array[1], 12 );
+  BOOST_CHECK_EQUAL ( uint_array[2], 65 );
+  BOOST_CHECK_EQUAL ( uint_array[3], 0 );
+
+  // 3. my_int_array
+  BOOST_CHECK ( options.check("my_int_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_int_array"].tag()), std::string("array") );
+  std::vector<int> int_array = options["my_int_array"].cast_to< OptionArrayT<int> >()->value_vect();
+  BOOST_CHECK_EQUAL ( int_array.size(), 3 );
+  BOOST_CHECK_EQUAL ( int_array[0], -4567 );
+  BOOST_CHECK_EQUAL ( int_array[1], 42 );
+  BOOST_CHECK_EQUAL ( int_array[2], 730 );
+
+  // 4. my_real_array
+  BOOST_CHECK ( options.check("my_real_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_real_array"].tag()), std::string("array") );
+  std::vector<Real> real_array = options["my_real_array"].cast_to< OptionArrayT<Real> >()->value_vect();
+  BOOST_CHECK_EQUAL ( real_array.size(), 4 );
+  BOOST_CHECK_EQUAL ( real_array[0], 3.1415 );
+  BOOST_CHECK_EQUAL ( real_array[1], 2.71 );
+  BOOST_CHECK_EQUAL ( real_array[2], 0.99 );
+  BOOST_CHECK_EQUAL ( real_array[3], -12.35 );
+
+  // 5. my_string_array
+  BOOST_CHECK ( options.check("my_string_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_string_array"].tag()), std::string("array") );
+  std::vector<std::string> string_array = options["my_string_array"].cast_to< OptionArrayT<std::string> >()->value_vect();
+  BOOST_CHECK_EQUAL ( string_array.size(), 3 );
+  BOOST_CHECK_EQUAL ( string_array[0], std::string("Hello World!") );
+  BOOST_CHECK_EQUAL ( string_array[1], std::string("VKI") );
+  BOOST_CHECK_EQUAL ( string_array[2], std::string("COOLFluiD") );
+
+  // 6. my_uri_array
+  BOOST_CHECK ( options.check("my_uri_array") );
+  BOOST_CHECK_EQUAL ( std::string(options["my_uri_array"].tag()), std::string("array") );
+  std::vector<URI> uri_array = options["my_uri_array"].cast_to< OptionArrayT<URI> >()->value_vect();
+  BOOST_CHECK_EQUAL ( uri_array.size(), 3 );
+  BOOST_CHECK_EQUAL ( uri_array[0].path(), URI("cpath://Root/Tools").path() );
+  BOOST_CHECK_EQUAL ( uri_array[1].path(), URI("http://coolfluidsrv.vki.ac.be/cdash").path() );
+  BOOST_CHECK_EQUAL ( uri_array[2].path(), URI("file:/usr/bin/gcc").path() );
+
+  ////////////
+  // III. Modify options
+  ////////////
+
+  options.fill_from_vector( args_mod );
+
+  BOOST_CHECK_EQUAL ( options.store.size(), args.size() );
+
+  // 1. my_int
+  BOOST_CHECK_EQUAL ( options["my_int"].value<int>(), 42 );
+
+  // 2. my_real_array
+  real_array = options["my_real_array"].cast_to< OptionArrayT<Real> >()->value_vect();
+  BOOST_CHECK_EQUAL ( real_array.size(), 3 );
+  BOOST_CHECK_EQUAL ( real_array[0], 1.56 );
+  BOOST_CHECK_EQUAL ( real_array[1], 7894.012 );
+  BOOST_CHECK_EQUAL ( real_array[2], 32.768 );
 }
 
 //////////////////////////////////////////////////////////////////////////

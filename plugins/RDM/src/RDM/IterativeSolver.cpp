@@ -142,8 +142,8 @@ void IterativeSolver::execute()
     if( Comm::PE::instance().rank() == 0 )
     {
       Real rhs_norm = cnorm.properties().value<Real>("Norm");
-      std::cout << "iter ["    << std::setw(4)  << iter << "]"
-                << "L2(rhs) [" << std::setw(12) << rhs_norm << "]" << std::endl;
+      CFinfo << "iter ["    << std::setw(4)  << iter << "]"
+             << "L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
 
       if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
         throw FailedToConverge(FromHere(),

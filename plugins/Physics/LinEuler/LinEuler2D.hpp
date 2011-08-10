@@ -65,7 +65,7 @@ public: // functions
     Real rho0v;               ///< rho0.v
     Real p;                   ///< acoustic pressure
 
-    Real inv_rho;             ///< inverse of density, very commonly used
+    Real inv_rho0;             ///< inverse of referenceC density, very commonly used
 
     Real u;                   ///< velocity along XX, rho0.u / rho0
     Real v;                   ///< velocity along YY, rho0.v / rho0

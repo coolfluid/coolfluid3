@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #ifndef CF_Physics_LinEuler_Cons2D_hpp
 #define CF_Physics_LinEuler_Cons2D_hpp
 
@@ -65,16 +67,16 @@ public: // functions
     p.u0[YY] = 0.0;
     p.P0     = 1.0;                      // reference pressure
 
-    p.inv_rho = 1. / p.rho;             // inverse of density, very commonly used
+    p.inv_rho0 = 1. / p.rho0;             // inverse of reference density, very commonly used
 
-    p.c     = std::sqrt( p.gamma * p.P0 * p.inv_rho );
+    p.c     = std::sqrt( p.gamma * p.P0 * p.inv_rho0 );
+
     p.inv_c = 1. / p.c;                 // inverse of the speed of sound, very commonly used
 
     p.rho   = sol[Rho];                 // acoustic density
     p.rho0u = sol[RhoU0];               // rho0.u
     p.rho0v = sol[RhoV0];               // rho0.v
     p.p     = sol[P];                   // acoustic pressure
-
 
     p.u = p.rho0u / p.rho0;                   // velocity along XX, rho0.u / rho0
     p.v = p.rho0v / p.rho0;                   // velocity along YY, rho0.v / rho0

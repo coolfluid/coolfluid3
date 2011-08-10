@@ -11,6 +11,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Math/Consts.hpp"
 
@@ -70,7 +71,7 @@ CModelUnsteady::~CModelUnsteady() {}
 void CModelUnsteady::simulate ()
 {
   CModel::simulate();
-  time().configure_option("time", time().current_time() );
+//  time().configure_option("time", time().current_time() );
 }
 
 
