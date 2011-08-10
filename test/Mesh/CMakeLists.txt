@@ -219,13 +219,6 @@ coolfluid_add_unit_test( utest-nodes )
 
 ################################################################################
 
-list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neu coolfluid_mesh_sf coolfluid_mesh_gmsh )
-list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
-
-coolfluid_add_unit_test( utest-mesh-fields )
-
-################################################################################
-
 list( APPEND utest-mesh-fieldgroup_cflibs coolfluid_mesh_sf )
 list( APPEND utest-mesh-fieldgroup_files  utest-mesh-fieldgroup.cpp )
 
