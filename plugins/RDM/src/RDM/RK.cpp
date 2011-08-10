@@ -30,11 +30,11 @@ using namespace CF::Math::Checks;
 namespace CF {
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
   CF::Solver::Action(name)
@@ -64,6 +64,11 @@ void RK::execute()
 {
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
+  // get the current rk k step and order
+
+  const Uint rkorder = mysolver.properties().template value<Uint>("rkorder");
+  const Uint step    = mysolver.iterative_solver().properties().value<Uint>("iteration");
+
   if (m_solution.expired())
     m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
   if (m_residual.expired())
@@ -71,16 +76,25 @@ void RK::execute()
   if (m_dual_area.expired())
     m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<CField>();
 
-  CTable<Real>& solution     = m_solution.lock()->data();
+  // get the correct solution to update depending on which rk k step we are
+
+  CField::Ptr csolution_k;
+  if ( step == rkorder )
+   csolution_k = m_solution.lock();
+  else
+    colution_k = find_components_ptr_with_name<CField>( mesh(), RDM::Tags::solution() + to_str(step) );
+
+  cf_assert( is_not_null(csolution_k) );
+
+  CTable<Real>& solution_k   = csolution_k.data();
   CTable<Real>& dual_area    = m_dual_area.lock()->data();
   CTable<Real>& residual     = m_residual.lock()->data();
 
-/// @todo should be used later to calculate automatically the \Delta t
-//  const Real CFL = options().option("cfl").value<Real>();
-//  const Uint k = mysolver.iterative_solver().properties().value<Uint>("iteration");
 
+  /// @todo should be used later to calculate automatically the \Delta t
+     //const Real CFL = options().option("cfl").value<Real>();
 
-/// @todo maybe better to directly store dual_area inverse
+  /// @todo maybe better to directly store dual_area inverse
 
   // implementation of the RungeKutta update step
 
@@ -88,10 +102,10 @@ void RK::execute()
   const Uint nbvars = solution.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
     for ( Uint j=0; j< nbvars; ++j )
-      solution[i][j] += - residual[i][j] / dual_area[i][0];
+      solution_k[i][j] += - residual[i][j] / dual_area[i][0];
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

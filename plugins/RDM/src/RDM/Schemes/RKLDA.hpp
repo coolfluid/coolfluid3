@@ -108,9 +108,9 @@ protected: // helper function
 
     ksolutions.clear();
     ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::CField>() );
-    for ( Uint k = 1; k <= rkorder; ++k)
+    for ( Uint kstep = 1; kstep < rkorder; ++kstep)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ).follow()->as_ptr_checked<Mesh::CField>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
@@ -218,7 +218,8 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 
   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
 
-  // fill sols_l with the solutions untill the current step
+  // fill sols_l with the solutions until the current step
+
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)

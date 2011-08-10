@@ -48,6 +48,8 @@ void SetupMultipleSolutions::execute()
 {
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
 
+  /* nb_levels == rkorder */
+
   const Uint nb_levels = option("nb_levels").value<Uint>();
 
   CMesh& mesh = *m_mesh.lock();
@@ -92,12 +94,12 @@ void SetupMultipleSolutions::execute()
 
   rk_steps.push_back(solution);
 
-  for(Uint k = 1; k <= nb_levels; ++k)
+  for(Uint step = 1; step < nb_levels; ++step)
   {
-    CField::Ptr solution_k = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() + to_str(k));
+    CField::Ptr solution_k = find_component_ptr_with_tag<CField>( mesh, RDM::Tags::solution() + to_str(step));
     if ( is_null( solution_k ) )
     {
-      std::string name = std::string(Tags::solution()) + to_str(k);
+      std::string name = std::string(Tags::solution()) + to_str(step);
       solution_k = mesh.create_field( name, *solution ).as_ptr<CField>();
       solution_k->add_tag("rksteps");
     }
@@ -115,10 +117,10 @@ void SetupMultipleSolutions::execute()
     rk_steps.push_back(solution_k);
   }
 
-  for( Uint k = 1; k < rk_steps.size(); ++k)
+  for( Uint step = 1; step < rk_steps.size(); ++step)
   {
-    if( ! fields.get_child_ptr( rk_steps[k]->name() ) )
-      fields.create_component<CLink>( rk_steps[k]->name() ).link_to(solution).add_tag("rksteps");
+    if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
+      fields.create_component<CLink>( rk_steps[step]->name() ).link_to(solution).add_tag("rksteps");
   }
 
 
@@ -153,7 +155,7 @@ void SetupMultipleSolutions::execute()
 
 
   // configure phi_k
-
+#if 0
   CField::Ptr phi_k = find_component_ptr_with_tag<CField>( mesh, "phi_k");
   if ( is_null( phi_k ) )
   {
@@ -168,7 +170,7 @@ void SetupMultipleSolutions::execute()
     phi_k = mesh.create_field( "phi_k", CField::Basis::CELL_BASED, "space[0]", vars ).as_ptr<CField>();
     phi_k->add_tag("phi_k");
   }
-
+#endif
 
   /// @todo apply here the bubble insertion if needed
 
@@ -180,10 +182,10 @@ void SetupMultipleSolutions::execute()
   std::vector<URI> parallel_fields;
   parallel_fields.push_back( solution->uri() );
 
-  for(Uint k = 1; k <= nb_levels; ++k)
+  for(Uint step = 1; step < nb_levels; ++step)
   {
-    rk_steps[k]->parallelize_with( pattern );
-    parallel_fields.push_back( rk_steps[k]->uri() );
+    rk_steps[step]->parallelize_with( pattern );
+    parallel_fields.push_back( rk_steps[step]->uri() );
   }
 
   mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);
