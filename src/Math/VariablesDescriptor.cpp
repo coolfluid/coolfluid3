@@ -31,12 +31,11 @@ struct VariablesDescriptor::Implementation
 {
   Implementation(Component& component) :
     m_component(component),
-    m_dim(0u),
-    m_dim_configured(false)
+    m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >("dimensions", 0)
-      ->pretty_name("Dimensions")
-      ->description("Dimensionality of the problem, i.e. the number of components for the spatial coordinates")
+    m_component.options().add_option< OptionT<Uint> >("dimension", 0)
+      ->pretty_name("Dimension")
+      ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
       ->link_to(&m_dim)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
@@ -72,7 +71,7 @@ struct VariablesDescriptor::Implementation
 
   Uint size() const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get total size for " + m_component.uri().string() + " before dimension is configured");
 
     return m_size;
@@ -80,7 +79,7 @@ struct VariablesDescriptor::Implementation
 
   Uint size(const std::string& name) const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get dimension for variable " + name + " in " + m_component.uri().string() + " before dimension is configured");
 
     return to_size(m_types[checked_index(name)]);
@@ -88,7 +87,7 @@ struct VariablesDescriptor::Implementation
 
   Uint offset(const std::string& name) const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get offset for variable " + name + " in " + m_component.uri().string() + " before dimension is configured");
 
     return m_offsets[checked_index(name)];
@@ -96,7 +95,7 @@ struct VariablesDescriptor::Implementation
 
   Uint offset(const Uint var_nb) const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get offset for variable " + to_str(var_nb) + " in " + m_component.uri().string() + " before dimension is configured");
 
     return m_offsets[var_nb];
@@ -128,7 +127,7 @@ struct VariablesDescriptor::Implementation
   }
 
   /// Implementation based on Willem Deconincks code for Field
-  void set_variables(const std::string& description)
+  void set_variables(const std::string& description, const Uint dimension)
   {
     const boost::regex e_variable("([[:word:]]+)[[:space:]]*(\\[[[:space:]]*[[:word:]]+[[:space:]]*\\])?");
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
@@ -191,11 +190,12 @@ struct VariablesDescriptor::Implementation
     {
       push_back(names_to_add[i], types_to_add[i]);
     }
+    m_component.configure_option("dimension",dimension);
   }
 
   std::string description() const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
 
     const Uint nb_vars = m_indices.size();
@@ -239,8 +239,6 @@ struct VariablesDescriptor::Implementation
       m_offsets[i] = m_size;
       m_size += to_size(m_types[i]);
     }
-
-    m_dim_configured = true;
   }
 
   std::string variable_property_name(std::string var_name)
@@ -263,10 +261,8 @@ struct VariablesDescriptor::Implementation
 
   Component& m_component;
 
-  /// dimensionality of physics
+  /// dimension of physics
   Uint m_dim;
-  /// True if the dimensions have been configured
-  bool m_dim_configured;
 
   /// Total size
   Uint m_size;
@@ -408,9 +404,9 @@ std::string VariablesDescriptor::description() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void VariablesDescriptor::set_variables(const std::string& description)
+void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  m_implementation->set_variables(description);
+  m_implementation->set_variables(description,dimension);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

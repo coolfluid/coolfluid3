@@ -245,12 +245,12 @@ void Field::set_descriptor(Math::VariablesDescriptor& descriptor)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Field::create_descriptor(const std::string& description)
+void Field::create_descriptor(const std::string& description, const Uint dimension)
 {
   if (Math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<Math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
   m_descriptor = create_component_ptr<Math::VariablesDescriptor>("description");
-  descriptor().set_variables(description);
+  descriptor().set_variables(description,dimension);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
