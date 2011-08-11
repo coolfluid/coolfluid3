@@ -62,7 +62,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
   options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option< OptionT<std::string> >( "solution_space", "LagrangeP1" )
+  options().add_option< OptionT<std::string> >( "solution_space", "mesh_nodes" )
       ->pretty_name("Solution Space")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
@@ -186,7 +186,10 @@ void RDSolver::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  physics(); // ensure physcial model has already been configured
+  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+
+  if( pm.ndim() != mesh.dimension() )
+    throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
 

@@ -207,7 +207,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
         Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
-  m_options["Elements"]
+  m_options["elements"]
       .attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   // initializations

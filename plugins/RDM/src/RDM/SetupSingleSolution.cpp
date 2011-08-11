@@ -10,6 +10,7 @@
 #include "Common/CLink.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Mesh/CRegion.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
@@ -54,6 +55,31 @@ void SetupSingleSolution::execute()
 
   Geometry& geometry = mesh.geometry();
 
+  const std::string solution_space = mysolver.option("solution_space").value<std::string>();
+
+  // check that the geometry belongs to the same space as selected by the user
+
+  FieldGroup::Ptr solution_group;
+
+  if( solution_space == geometry.space() )
+    solution_group = geometry.as_ptr<FieldGroup>();
+  else
+  {
+    // check if solution space already exists
+    solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
+    if ( is_null(solution_group) )
+    {
+      boost_foreach(CEntities& elements, mesh.topology().elements_range())
+          elements.create_space( RDM::Tags::solution(), "CF.Mesh.SF.SF"+elements.element_type().shape_name() + solution_space );
+      solution_group = mesh.create_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED).as_ptr<FieldGroup>();
+    }
+    else // not null so check that space is what user wants
+    {
+      if( solution_space != solution_group->space() )
+        throw NotImplemented( FromHere(), "Changing solution space not supported" );
+    }
+  }
+
   // configure solution
 
   Field::Ptr solution = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() );
@@ -67,7 +93,7 @@ void SetupSingleSolution::execute()
     }
 
     solution =
-        geometry.create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
+        solution_group->create_field( RDM::Tags::solution(), vars, physical_model().ndim() ).as_ptr<Field>();
 
     solution->add_tag(RDM::Tags::solution());
   }
@@ -80,7 +106,7 @@ void SetupSingleSolution::execute()
   Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = geometry.create_field(Tags::residual(), "rhs" ).as_ptr<Field>();
+    residual = solution_group->create_field(Tags::residual(), solution->descriptor() ).as_ptr<Field>();
     residual->add_tag(Tags::residual());
   }
 
@@ -89,7 +115,7 @@ void SetupSingleSolution::execute()
   Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = geometry.create_field( Tags::wave_speed(), "ws" ).as_ptr<Field>();
+    wave_speed = solution_group->create_field( Tags::wave_speed(), "ws[1]", physical_model().ndim() ).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 

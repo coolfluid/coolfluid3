@@ -40,7 +40,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
       ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
       ->add_tag(Mesh::Tags::volume());
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
+  m_options["elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
 }
 

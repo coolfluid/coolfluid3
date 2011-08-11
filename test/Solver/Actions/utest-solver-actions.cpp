@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   compute_volume->configure_option("volume",volumes.uri());
   BOOST_CHECK(true);
-  compute_volume->configure_option("Elements",elems.uri());
+  compute_volume->configure_option("elements",elems.uri());
   BOOST_CHECK(true);
   compute_volume->configure_option("LoopIndex",12u);
   BOOST_CHECK(true);

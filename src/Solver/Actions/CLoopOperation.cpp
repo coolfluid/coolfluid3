@@ -33,7 +33,7 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
   m_idx(0)
 {
   // Following option is ignored if the loop is not about elements
-  //m_options.add_option(OptionComponent<Mesh::CEntities>::create("Elements","Elements that are being looped",&m_elements));
+  //m_options.add_option(OptionComponent<Mesh::CEntities>::create("elements","Elements that are being looped",&m_elements));
   m_options.add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Elements that are being looped")
       ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );

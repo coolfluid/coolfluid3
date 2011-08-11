@@ -124,7 +124,7 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 {
   regist_typeinfo(this);
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
+  m_options["elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
