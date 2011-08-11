@@ -91,7 +91,7 @@ FieldManager::~FieldManager()
 
 void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
 {
-  boost_foreach(const VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
+  boost_foreach(VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
     if(find_component_ptr_with_tag(field_group, tag)) // TODO: Check if the tagged fields that exist have the same variable descriptor
     {
