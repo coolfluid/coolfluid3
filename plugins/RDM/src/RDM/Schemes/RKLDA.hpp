@@ -216,14 +216,14 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   // fill sols_l with the solutions until the current step
 
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
-        sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
+        sols_l[l](n,eq) = (*ksolutions[l])[ nodes_idx[n] ][eq];
 
   /// @todo must be tested for 3D
 

@@ -57,12 +57,12 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity_table =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    connectivity =
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
+        elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
     cf_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
@@ -102,7 +102,7 @@ protected: // data
   boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::CConnectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types

@@ -190,7 +190,7 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 

@@ -116,7 +116,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
     Uint shape   = SF::nb_nodes; //std::cout<< shape<<std::endl;
     Uint quad    =  QD::nb_points; //std::cout<< quad<<std::endl;
     Uint nodes   = (*B::coordinates).size();
-    Uint elements = (*B::connectivity_table).size();
+    Uint elements = (*B::connectivity).size();
 //std::cout<<PHYS::MODEL::_ndim<<std::endl;
     float A_inter[shape*quad], A_ksi[shape*quad], A_eta[shape*quad];
     float weights[quad];
@@ -153,7 +153,7 @@ void CSysLDAGPU::Term<SF,QD,PHYS>::execute()
        for(Uint idy = 0; idy < shape; idy++)
        {
            Uint pos = idx * shape + idy;
-           connectTable[pos] = (*B::connectivity_table)[idx][idy];
+           connectTable[pos] = (*B::connectivity)[idx][idy];
        }
     }
 
