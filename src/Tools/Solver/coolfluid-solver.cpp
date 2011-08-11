@@ -19,6 +19,7 @@
 
 #include "Tools/Solver/CWorker.hpp"
 #include "Tools/Solver/LogForwarder.hpp"
+#include "Tools/Solver/Notifier.hpp"
 
 using namespace boost;
 using namespace MPI;
@@ -29,53 +30,23 @@ using namespace CF::Tools::Solver;
 
 int main(int argc, char ** argv)
 {
-  boost::program_options::options_description desc("Allowed options");
-  std::string forward = "none";
   LogForwarder * forwarder;
+  Notifier * notifier;
   Communicator parent_comm;
   int rank;
-
-  desc.add_options()
-      ("help", "Prints this help message and exits")
-      ("forward", program_options::value<std::string>(&forward)->default_value(forward),
-       "Defines whether log should be forwarded to the parent process. Three "
-       "values available: none (no forwarding), rank0 (only rank 0 forwards) or "
-       "all (all ranks forward).");
 
   // initiate the CF core and MPI environment
   Core::instance().initiate(argc, argv);
   PE::instance().init(argc, argv);
 
-//  program_options::variables_map vm;
-//  program_options::store(program_options::parse_command_line(argc, argv, desc), vm);
-//  program_options::notify(vm);
-
   parent_comm = PE::instance().get_parent();
   rank = PE::instance().rank();
-
-  for( int i = 0 ; i < argc ; ++i )
-    CFinfo << "args[" << i << "] = " << argv[i] << CFendl;
-
-//  if ( vm.count("help") > 0 )
-//  {
-//    CFinfo << "Usage: " << argv[0] << " [--forward <none|rank0|all>]" << CFendl << CFendl;
-//    CFinfo << "This program cannot be run alone. It needs to be launched from "
-//              "a third party program that provied a managing MPI environment."
-//              << CFendl << CFendl;
-//    CFinfo << desc << CFendl;
-//    return 0;
-//  }
 
   if( parent_comm == MPI_COMM_NULL )
   {
     CFerror << "This solver cannot run without a manager. Exiting..." << CFendl;
     return 1;
   }
-
-  // get command line arguments
-//  program_options::variables_map vm;
-//  program_options::store(program_options::parse_command_line(argc, argv, desc), vm);
-//  program_options::notify(vm);
 
   // create the PE manager
   CPEManager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->
@@ -85,23 +56,29 @@ int main(int argc, char ** argv)
 
   mgr->mark_basic();
 
-  // set the forwarder, if needed
-//  if( forward == "all" || (forward == "rank0" && PE::instance().rank() == 0) )
-  {
-    forwarder = new LogForwarder();
-    Logger::instance().getStream(INFO).addStringForwarder(forwarder);
-  }
+  notifier = new Notifier( mgr );
 
-  Logger::instance().getStream( INFO ).setFilterRankZero(false);
-  CFinfo << "Worker[" << rank << "] -> " << getpid() << " Syncing with the parent..." << CFendl;
-//  PE::instance().get_parent()->barrier();
+  notifier->listen_to_event("tree_updated", true);
+
+  // set the forwarder, if needed
+  //  if( forward == "all" || (forward == "rank0" && PE::instance().rank() == 0) )
+    {
+      forwarder = new LogForwarder();
+      Logger::instance().getStream(INFO).addStringForwarder(forwarder);
+    }
+
+  bool rank0 = CFinfo.getFilterRankZero(LogStream::SCREEN);
+
+  CFinfo.setFilterRankZero(LogStream::SCREEN, false);
+
+  CFinfo << "Worker[" << rank << "] -> Syncing with the parent..." << CFendl;
   PE::instance().barrier();
   MPI_Barrier( parent_comm );
-  CFinfo << "Worker[" << rank << "] -> " << getpid() << " Synced with the parent!" << CFendl;
+  CFinfo << "Worker[" << rank << "] -> Synced with the parent!" << CFendl;
+
+  CFinfo.setFilterRankZero(LogStream::SCREEN, rank0);
 
   mgr->listening_thread().join();
-
-//  PE::instance().barrier();
 
   CFinfo << "Worker[" << rank << "] -> " << "C U..." << CFendl;
 
@@ -111,6 +88,9 @@ int main(int argc, char ** argv)
   // terminate the CF core and MPI environment
   PE::instance().finalize();
   Core::instance().terminate();
+
+  delete forwarder;
+  delete notifier;
 
   return 0;
 }

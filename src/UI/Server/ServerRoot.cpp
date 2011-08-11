@@ -125,8 +125,6 @@ void ServerRoot::process_signal( const std::string & target,
                                  const std::string & frameid,
                                  SignalArgs & signal )
 {
-  std::cout << receiver.path() << " is local componenents ? " << m_local_components.contains(receiver) << std::endl;
-
   if( m_local_components.contains(receiver) )
   {
     if( m_mutex.tryLock() )

@@ -21,6 +21,7 @@
 namespace CF {
 namespace Common {
 
+class NotificationQueue;
 namespace XML { class XmlDoc; }
 
 namespace mpi {
@@ -66,6 +67,12 @@ public: // functions
 
   Common::Signal::signal_type signal_to_forward( SignalArgs & args );
 
+  Common::NotificationQueue * notification_queue() { return m_queue; }
+
+  const Common::NotificationQueue * notification_queue() const { return m_queue; }
+
+  void new_event( const std::string & name, const Common::URI & raiserPath );
+
   /// @name SIGNALS
   //@{
 
@@ -104,7 +111,7 @@ private:
 
   ListeningThread * m_listener;
 
-
+  Common::NotificationQueue * m_queue;
 
 }; // CPEManager
 

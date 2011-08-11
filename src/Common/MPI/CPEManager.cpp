@@ -12,6 +12,7 @@
 #include "Common/BoostFilesystem.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/LibCommon.hpp"
+#include "Common/NotificationQueue.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
@@ -46,6 +47,7 @@ CPEManager::CPEManager ( const std::string & name )
   : Component(name)
 {
   m_listener = new ListeningThread();
+  m_queue = new NotificationQueue( Core::instance().root().as_ptr<CRoot>() );
 
   if( PE::instance().get_parent() != MPI::COMM_NULL )
   {
@@ -116,12 +118,6 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
   {
     SignalFrame frame( sig );
     call_signal( "signal_to_forward", frame );
-//    signal_to_forward( frame );
-
-//    std::cout << "Received a reply" << std::endl;
-//    std::string str;
-//    to_string( *sig.get(), str);
-//    std::cout << str << std::endl;
   }
   else if( !m_root.expired() )
   {
@@ -131,9 +127,7 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
     {
       XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
       SignalFrame signal_frame( sig );
-//      SignalFrame signal_frame( nodedoc.content->first_node() );
       rapidxml::xml_attribute<>* tmpAttr = signal_frame.node.content->first_attribute("target");
-//      bool
 
       if( is_null(tmpAttr) )
         throw ValueNotFound(FromHere(), "Could not find the target.");
@@ -157,25 +151,12 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
         SignalFrame reply = signal_frame.get_reply();
 
         if( reply.node.is_valid() && !reply.node.attribute_value("target").empty() )
-        {
-//          std::string str;
-//          to_string(reply.node, str);
-//          std::cout << "Sending \n" << str << "\nas a reply" << std::endl;
-
           send_to_parent( signal_frame );
-//          m_core->sendSignal( *signal_frame.xml_doc.get() );
-//          m_journal->add_signal( reply );
-        }
       }
-
-//      std::cout << "Executing \n" << str << "\n on component " << tmpAttr->value()
-//             << " (rank " << PE::instance().rank()<< ")." << std::endl;
-
-      // synchronize with other buddies
-      PE::instance().barrier();
 
       if( PE::instance().rank() == 0 )
       {
+
         /// @todo change the receiver path to be not hardcoded
         SignalFrame frame("ack", uri(), "//Root/UI/NetworkQueue");
         SignalOptions & options = frame.options();
@@ -187,11 +168,13 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
 
         options.flush();
 
-        send_to_parent( frame );
-//        m_commServer->sendSignalToClient( *frame.xml_doc.get(), clientid);
+        m_queue->flush();
 
+        send_to_parent( frame );
       }
 
+      // synchronize with other buddies
+      PE::instance().barrier();
     }
     catch( Exception & cfe )
     {
@@ -208,6 +191,15 @@ void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
 
   }
 
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void CPEManager::new_event ( const std::string & name, const URI & raiser_path )
+{
+  SignalFrame frame ( name, raiser_path, raiser_path );
+
+  send_to_parent ( frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////

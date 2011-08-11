@@ -57,6 +57,10 @@ namespace Server {
 
     Common::CJournal::ConstPtr journal() const { return m_journal; }
 
+    boost::shared_ptr<Common::mpi::CPEManager> manager() { return m_manager; }
+
+    boost::shared_ptr<Common::mpi::CPEManager const> manager() const { return m_manager; }
+
     void process_signal(const std::string & target,
                        const Common::URI & receiver,
                        const std::string & clientid,
