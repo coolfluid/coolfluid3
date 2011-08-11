@@ -197,7 +197,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     options.add_option< OptionArrayT<std::string> >("pathinfo", data);
 
-    Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
+    Server::ServerRoot::instance().core()->sendSignal( *frame.xml_doc.get() );
   }
 
   curr_iteration++;
