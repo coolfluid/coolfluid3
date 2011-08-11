@@ -121,7 +121,7 @@ public: // functions
 
   void set_descriptor(Math::VariablesDescriptor& descriptor);
 
-  void create_descriptor(const std::string& description);
+  void create_descriptor(const std::string& description, const Uint dimension=0);
 
 private:
 

@@ -200,7 +200,7 @@ CRegion& FieldGroup::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description)
+Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description, const Uint dimension)
 {
 
   Field& field = create_component<Field>(name);
@@ -208,11 +208,10 @@ Field& FieldGroup::create_field(const std::string &name, const std::string& vari
   field.set_topology(topology());
   field.set_basis(m_basis);
 
-
   if (variables_description == "scalar_same_name")
-    field.create_descriptor(name+"[scalar]");
+    field.create_descriptor(name+"[scalar]",1u);
   else
-    field.create_descriptor(variables_description);
+    field.create_descriptor(variables_description,dimension);
 
   field.resize(m_size);
   return field;

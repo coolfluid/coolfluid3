@@ -82,7 +82,7 @@ public: // functions
   static std::string type_name () { return "FieldGroup"; }
 
   /// Create a new field in this group
-  Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
+  Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name", const Uint dimension = 0u);
 
   /// Create a new field in this group
   Field& create_field( const std::string& name, Math::VariablesDescriptor& variables_descriptor);

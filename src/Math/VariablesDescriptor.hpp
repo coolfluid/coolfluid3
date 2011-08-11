@@ -125,7 +125,7 @@ public: // functions
   const std::string& user_variable_name(const Uint var_nb) const;
 
   /// Setup variables acording to a Field string description
-  void set_variables(const std::string& description);
+  void set_variables(const std::string& description, const Uint dimension=0);
 
   /// Get the string description for all the variables
   std::string description() const;
