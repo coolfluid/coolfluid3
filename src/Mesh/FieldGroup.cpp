@@ -200,7 +200,7 @@ CRegion& FieldGroup::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description, const Uint dimension)
+Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description)
 {
 
   Field& field = create_component<Field>(name);
@@ -209,9 +209,9 @@ Field& FieldGroup::create_field(const std::string &name, const std::string& vari
   field.set_basis(m_basis);
 
   if (variables_description == "scalar_same_name")
-    field.create_descriptor(name+"[scalar]",1u);
+    field.create_descriptor(name+"[scalar]",parent().as_type<CMesh>().dimension());
   else
-    field.create_descriptor(variables_description,dimension);
+    field.create_descriptor(variables_description,parent().as_type<CMesh>().dimension());
 
   field.resize(m_size);
   return field;
@@ -251,6 +251,7 @@ Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescript
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
+  field.descriptor().configure_property("dimension",parent().as_type<CMesh>().dimension());
   field.resize(m_size);
   return field;
 }
@@ -436,11 +437,6 @@ void FieldGroup::create_connectivity_in_space()
     // ------------------------------
     boost_foreach(CEntities& entities, elements_range())
     {
-      dim = std::max(dim, entities.element_type().dimension());
-      if (entities.space(m_space).is_bound_to_fields() > 0)
-        throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
-                         "fields ["+entities.space(m_space).bound_fields().uri().string()+"]\nCreate a new space for this purpose.");
-
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
@@ -454,7 +450,7 @@ void FieldGroup::create_connectivity_in_space()
       }
     }
 
-    Field& coordinates = create_field("coordinates","coords[Vector"+to_str(dim)+"D]");
+    Field& coordinates = create_field("coordinates","coords[vector]");
     coordinates.resize(points.size());
     m_coordinates = coordinates.as_ptr<Field>();
 
