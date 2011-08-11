@@ -94,7 +94,7 @@ macro( coolfluid_prepare_test UTESTNAME )
 
     # add external dependency libraries if defined
     if( DEFINED ${UTESTNAME}_libs )
-      list(REMOVE_DUPLICATES ${UTESTNAME}_libs)
+      #list(REMOVE_DUPLICATES ${UTESTNAME}_libs)
       target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_libs} )
     endif(DEFINED ${UTESTNAME}_libs)
 
