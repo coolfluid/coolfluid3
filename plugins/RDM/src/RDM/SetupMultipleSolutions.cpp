@@ -11,6 +11,8 @@
 #include "Common/CLink.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMesh.hpp"
