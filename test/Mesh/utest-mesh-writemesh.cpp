@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->read_mesh_into("quadtriag.neu",mesh);
 
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]",DIM_2D);
+  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
   nodal.descriptor().configure_option("dimension",mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
     elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
-  Field& cell_centred = elems_P0.create_field("cell_centred","cell_centred[vector]",mesh.dimension());
+  Field& cell_centred = elems_P0.create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
   {
     for(Uint j=0; j<cell_centred.row_size(); ++j)

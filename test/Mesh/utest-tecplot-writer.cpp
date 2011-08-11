@@ -80,8 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   Uint nb_ghosts=0;
 
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]",DIM_2D);
-  nodal.descriptor().configure_option("dimension",mesh.dimension());
+  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)
@@ -92,8 +91,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
     elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
   mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
-  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]",DIM_2D);
-  cell_centred.descriptor().configure_option("dimension",mesh.dimension());
+  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
   {
     for(Uint j=0; j<cell_centred.row_size(); ++j)

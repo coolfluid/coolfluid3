@@ -134,6 +134,8 @@ public: // functions
   /// @param name Internal name of the variable
   void push_back(const std::string& name, const Dimensionalities::Type type);
 
+  void prefix_variable_names(const std::string& prefix);
+
   //@} End Variable management
 
 private:

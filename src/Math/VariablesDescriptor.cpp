@@ -210,6 +210,14 @@ struct VariablesDescriptor::Implementation
     return result_str.str();
   }
 
+  void prefix_variable_names(const std::string& prefix)
+  {
+    boost_foreach(std::string& name, m_user_names)
+    {
+      name = prefix+name;
+    }
+  }
+
   ///////////// Helper functions ////////
 
   /// Convert the dimensionality type to a real size
@@ -407,6 +415,13 @@ std::string VariablesDescriptor::description() const
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
   m_implementation->set_variables(description,dimension);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void VariablesDescriptor::prefix_variable_names(const std::string& prefix)
+{
+  m_implementation->prefix_variable_names(prefix);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

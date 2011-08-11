@@ -16,6 +16,7 @@
 #include "Common/CRoot.hpp"
 
 #include "Math/MatrixTypes.hpp"
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -141,7 +142,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // ----------------------------------------------------------------------------------------------
   // CHECK field building inside field groups
 
-  Field& solution = elem_fields.create_field("solution","rho[1],V[2],p[1]");
+  Field& solution = elem_fields.create_field("solution","rho[s],V[v],p[s]");
   Field& volume   = cell_fields.create_field("volume");
 
   BOOST_CHECK_EQUAL(solution.size() , elem_fields.size());
@@ -226,8 +227,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
   FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
-  Field& solution = cells_P0.create_field("solution");
-  Field& solution_copy = cells_P0.create_field("solution_copy",solution.descriptor());
+  Field& solution = cells_P0.create_field("solution","sol[1]");
+  Field& solution_copy = cells_P0.create_field("solution_copy",solution.descriptor().description());
+  solution_copy.descriptor().prefix_variable_names("copy_");
 
   solution[0][0] = 25.;
   solution_copy = solution;
