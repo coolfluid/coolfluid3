@@ -202,7 +202,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
-  elem_loop->configure_option("regions",regions);
+  elem_loop->configure_option("regions",mesh->geometry().topology());
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_option("volume",volumes.uri());

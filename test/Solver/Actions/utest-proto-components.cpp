@@ -25,7 +25,6 @@
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CModel.hpp"
-#include "Solver/CreateFields.hpp"
 #include "Solver/CSimpleSolver.hpp"
 
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
@@ -93,19 +92,19 @@ BOOST_AUTO_TEST_CASE( CopiedReference )
 }
 
 BOOST_AUTO_TEST_CASE( UseConfigurableConstant )
-{ 
+{
   ConstantStorage constant_values;
-  
+
   ConfigurableConstant<Real> c("SomeConst", "SomeDescription", 1.);
   Real result;
-  
+
   // Check if the default value is used
   SimpleGrammar()(ReplaceConfigurableConstants()(lit(result) = c, constant_values));
   BOOST_CHECK_EQUAL(result, 1.);
   BOOST_CHECK_EQUAL(constant_values.m_scalars["SomeConst"], 1.);
   BOOST_CHECK_EQUAL(constant_values.descriptions["SomeConst"], "SomeDescription");
   Real* orig_address = &constant_values.m_scalars["SomeConst"];
-  
+
   // Mimic a change to the value
   constant_values.m_scalars["SomeConst"] = 2.;
   SimpleGrammar()(ReplaceConfigurableConstants()(lit(result) = c, constant_values));
@@ -129,19 +128,19 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
 {
   Real result = 0;
   ConfigurableConstant<Real> a("a", "Multiplication factor");
- 
+
   // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
   boost::shared_ptr<Expression> expression = elements_expression(lit(result) += a*volume);
-  
+
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   expression->add_options(model.options());
   BOOST_CHECK(model.options().check("a"));
-  
+
   // a is zero by default, so the result should be zero
   expression->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(result, 0.);
-  
+
   // reconfigure a as 1, and check result
   model.options().option("a").change_value(1.);
   expression->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
@@ -153,22 +152,22 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
 {
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature", "T");
-  
+
   // Expression to set the temperature field
   boost::shared_ptr<Expression> init_temp = nodes_expression(T = 288.);
   // Register the variables
   init_temp->register_variables(model.physics());
-  
+
   // Create the fields
   create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature"));
-  
+
   // Do the initialization
   init_temp->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
-  
+
   // Sum up the values for the temperature
   Real temp_sum = 0.;
   nodes_expression(lit(temp_sum) += T)->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
@@ -177,26 +176,26 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
 
 /// Test CProtoAction
 BOOST_AUTO_TEST_CASE( ProtoAction )
-{ 
+{
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature2", "T2");
-  
+
   // Create an action that can wrap an expression
   CProtoAction& action = Core::instance().root().create_component<CProtoAction>("Action");
   action.set_expression(nodes_expression(T = 288.));
   action.configure_option("physical_model", model.physics().uri());
   action.configure_option(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
-  
+
   // Create the fields
   create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature2"));
-  
+
   // Run the action
   action.execute();
-  
+
   // Sum up the values for the temperature
   Real temp_sum = 0.;
   nodes_expression(lit(temp_sum) += T)->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
@@ -205,29 +204,29 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
 
 /// Test CSimpleSolver
 BOOST_AUTO_TEST_CASE( SimpleSolver )
-{ 
+{
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature3", "T3");
-  
+
   CSolver& solver = model.create_component<CSimpleSolver>("GenericSolver");
-  
+
   // Storage for the result check
   Real temp_sum = 0.;
-  
+
   // Add the actions to run on the domain
   solver << create_proto_action( "SetTemp",     nodes_expression(T = 288.) )
          << create_proto_action( "CheckResult", nodes_expression(lit(temp_sum) += T));
-  
+
   solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
-  
+
   // Run the actions
   model.simulate();
-  
+
   // Check result
   BOOST_CHECK_EQUAL(temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
@@ -236,40 +235,40 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
 class CustomProtoSolver : public CSimpleSolver
 {
 public:
-  
+
   typedef boost::shared_ptr<CustomProtoSolver> Ptr;
   typedef boost::shared_ptr<CustomProtoSolver const> ConstPtr;
-  
+
   CustomProtoSolver(const std::string& name) :
     CSimpleSolver(name),
     T("Temperature4", "T4"),
     temp_sum(0.)
-  { 
+  {
     // Add the expressions
     *this << create_proto_action( "SetTemp",  nodes_expression(T = 288.) )
           << create_proto_action( "Output", nodes_expression(_cout << T << "\n"))
           << create_proto_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
   }
-  
+
   MeshTerm<0, ScalarField> T;
   Real temp_sum;
-  
+
   static std::string type_name() { return "CustomProtoSolver"; }
 };
 
 BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
-{ 
+{
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   CustomProtoSolver& solver = model.create_component<CustomProtoSolver>("CustomSolver");
   solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively(Solver::Tags::physical_model(), model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
-  
+
   // Run the actions
   model.simulate();
-  
+
   // Check
   BOOST_CHECK_EQUAL(solver.temp_sum / static_cast<Real>(1+nb_segments), 288.);
 }
@@ -279,18 +278,18 @@ BOOST_AUTO_TEST_CASE( CopyExpression )
 {
   const Uint nb_segments = 5;
   CMesh& mesh = Core::instance().root().get_child("Model").as_type<CModel>().domain().get_child("mesh").as_type<CMesh>();
-  
+
   Real a = 1.;
   Real result = 0.;
-  
+
   // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
   boost::shared_ptr<Expression> expression = elements_expression(lit(result) += a*volume + 2. * boost::proto::lit(1.));
-  
+
   expression->loop(mesh.topology());
-  
+
   // default result
   BOOST_CHECK_EQUAL(result, 11.);
-  
+
   // reconfigure a as 2, and check result
   a = 2.;
   result = 0;
