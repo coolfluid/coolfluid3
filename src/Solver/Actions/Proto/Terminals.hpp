@@ -110,7 +110,7 @@ struct FieldBase
   /// Link to an appropriate Option in order to keep current
   std::string field_name;
   
-  /// Current run-time configured variable name for this variable (with respect to the CField)
+  /// Current run-time configured variable name for this variable (with respect to the Field)
   /// Link to an appropriate Option in order to keep current
   std::string variable_name;
 

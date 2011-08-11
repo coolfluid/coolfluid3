@@ -139,12 +139,14 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("description", std::string("This component has not a long description"));
 }
 
+
 Component::~Component()
 {
-  CFdebug << "Deleting component " << uri().string() << CFendl;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////
+
 
 Component::Ptr Component::follow()
 {

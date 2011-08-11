@@ -7,7 +7,7 @@
 #ifndef CF_RDM_FaceLoop_hpp
 #define CF_RDM_FaceLoop_hpp
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedFaces.hpp"

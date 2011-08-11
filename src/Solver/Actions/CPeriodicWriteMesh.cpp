@@ -12,7 +12,7 @@
 
 #include "Mesh/WriteMesh.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "CPeriodicWriteMesh.hpp"
 
@@ -67,7 +67,7 @@ void CPeriodicWriteMesh::execute()
     /// @note writes all fields to the mesh
 
     std::vector<URI> state_fields;
-    boost_foreach(const CField& field, find_components_recursively<CField>( mesh() ) )
+    boost_foreach(const Field& field, find_components_recursively<Field>( mesh() ) )
     {
       state_fields.push_back(field.uri());
     }

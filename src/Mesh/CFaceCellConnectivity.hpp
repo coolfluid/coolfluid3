@@ -20,7 +20,7 @@ namespace Common {
 }
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class CRegion;
   class CCells;
 

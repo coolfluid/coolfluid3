@@ -16,7 +16,7 @@
 
 namespace CF {
 
-namespace Mesh    { class CField;    class CMesh; }
+namespace Mesh    { class Field;    class CMesh; }
 namespace Physics { class PhysModel; class Variables; }
 namespace Solver  { namespace Actions { class CSynchronizeFields; } }
 

@@ -15,8 +15,8 @@ struct PEReduceFixture
   PEReduceFixture()
   {
     // rank and proc
-    nproc=mpi::PE::instance().size();
-    irank=mpi::PE::instance().rank();
+    nproc=Comm::PE::instance().size();
+    irank=Comm::PE::instance().rank();
 
     // ptr helpers
     sndcnt=0;
@@ -132,8 +132,8 @@ struct PEReduceFixture
       double dval;
       /// giving values for i and d
       void init(){
-        ival=mpi::PE::instance().rank()+1;
-        dval=(double)mpi::PE::instance().rank()+10.;
+        ival=Comm::PE::instance().rank()+1;
+        dval=(double)Comm::PE::instance().rank()+10.;
       }
       /// operator +
       optest operator +(const optest& b) const { optest t; t.ival=ival+b.ival; t.dval=dval+b.dval; return t; };
@@ -141,7 +141,7 @@ struct PEReduceFixture
       bool test()
       {
         int i;
-        int nproc=mpi::PE::instance().size();
+        int nproc=Comm::PE::instance().size();
         int itest=0;
         for(i=0; i<nproc; i++) itest+=i+1;
         double dtest=0;
@@ -179,9 +179,9 @@ BOOST_AUTO_TEST_CASE( reduce_most_common_ops )
   for(i=0; i<nproc; i++) { itest+=i+1; dtest+=(double)i+1.; }
   iresult=-1;
   dresult=-1.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), &ival, 1, &iresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), &dval, 1, &dresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing multiplies
@@ -190,9 +190,9 @@ BOOST_AUTO_TEST_CASE( reduce_most_common_ops )
   for(i=0; i<nproc; i++) { itest*=i+1; dtest*=(double)i+1.; }
   iresult=-1;
   dresult=-1.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::multiplies(), &ival, 1, &iresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::multiplies(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::multiplies(), &dval, 1, &dresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::multiplies(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing max
@@ -200,9 +200,9 @@ BOOST_AUTO_TEST_CASE( reduce_most_common_ops )
   dtest=(double)nproc;
   iresult=-1;
   dresult=-1.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::max(), &ival, 1, &iresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::max(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::max(), &dval, 1, &dresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::max(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 
   // testing min
@@ -210,9 +210,9 @@ BOOST_AUTO_TEST_CASE( reduce_most_common_ops )
   dtest=1.;
   iresult=-1;
   dresult=-1.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::min(), &ival, 1, &iresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::min(), &ival, 1, &iresult, r);
   BOOST_CHECK_EQUAL( iresult, itest );
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::min(), &dval, 1, &dresult, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::min(), &dval, 1, &dresult, r);
   BOOST_CHECK_EQUAL( dresult, dtest );
 }
 
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( reduce_operator_of_class )
   in[0].init();
   in[1].init();
   in[2].init();
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), in, 3, out, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), in, 3, out, r);
   BOOST_CHECK_EQUAL( out[0].test() , true );
   BOOST_CHECK_EQUAL( out[1].test() , true );
   BOOST_CHECK_EQUAL( out[2].test() , true );
@@ -243,21 +243,21 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_constant )
   ptr_tmprcv=0;
   for(r=0; r<nproc; r++) {
     if (r==irank) {
-      ptr_tmprcv=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+      ptr_tmprcv=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, (double*)0, r);
     } else {
-      double* dummy=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, (double*)0, r);
+      double* dummy=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, (double*)0, r);
       BOOST_CHECK_EQUAL( dummy , (double*)0 );
     }
   }
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
   for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, ptr_tmprcv, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, ptr_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
 
   for(r=0; r<nproc; r++) {
     for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().reduce(mpi::plus(), ptr_tmprcv, sndcnt, ptr_tmprcv, r);
+    Comm::PE::instance().reduce(Comm::plus(), ptr_tmprcv, sndcnt, ptr_tmprcv, r);
     if (irank==r) {
       for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[i] , ptr_rcvdat[i] );
     } else {
@@ -269,21 +269,21 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_constant )
   ptr_tmprcv2=0;
   for(r=0; r<nproc; r++) {
     if (r==irank) {
-      ptr_tmprcv2=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+      ptr_tmprcv2=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
     } else {
-      double* dummy=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
+      double* dummy=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, (double*)0, r, 2);
       BOOST_CHECK_EQUAL( dummy , (double*)0 );
     }
   }
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
 
   for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, ptr_tmprcv2, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, ptr_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
 
   for(r=0; r<nproc; r++) {
     for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-    mpi::PE::instance().reduce(mpi::plus(), ptr_tmprcv2, sndcnt, ptr_tmprcv2, r, 2);
+    Comm::PE::instance().reduce(Comm::plus(), ptr_tmprcv2, sndcnt, ptr_tmprcv2, r, 2);
     if (irank==r) {
       for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv2[i] , ptr_rcvdat2[i] );
     } else {
@@ -302,17 +302,17 @@ BOOST_AUTO_TEST_CASE( reduce_vector_constant )
 
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat, vec_tmprcv, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat, vec_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
   BOOST_CHECK_EQUAL( (int)vec_tmprcv.size() , sndcnt );
 
   vec_tmprcv.assign(2*nproc,0.);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat, vec_tmprcv, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat, vec_tmprcv, r);
   for (i=0; i<2*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
 
   for(r=0; r<nproc; r++) {
     vec_tmprcv=vec_snddat;
-    mpi::PE::instance().reduce(mpi::plus(), vec_tmprcv, vec_tmprcv, r);
+    Comm::PE::instance().reduce(Comm::plus(), vec_tmprcv, vec_tmprcv, r);
     if (irank==r) {
       for (i=0; i<2*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[i] , vec_rcvdat[i] );
     } else {
@@ -322,17 +322,17 @@ BOOST_AUTO_TEST_CASE( reduce_vector_constant )
 
   vec_tmprcv2.resize(0);
   vec_tmprcv2.reserve(0);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat2, vec_tmprcv2, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat2, vec_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
   BOOST_CHECK_EQUAL( (int)vec_tmprcv2.size() , 2*sndcnt );
 
   vec_tmprcv2.assign(4*nproc,0.);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat2, vec_tmprcv2, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat2, vec_tmprcv2, r, 2);
   for (i=0; i<4*nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
 
   for(r=0; r<nproc; r++) {
     vec_tmprcv2=vec_snddat2;
-    mpi::PE::instance().reduce(mpi::plus(), vec_tmprcv2, vec_tmprcv2, r, 2);
+    Comm::PE::instance().reduce(Comm::plus(), vec_tmprcv2, vec_tmprcv2, r, 2);
     if (irank==r) {
       for (i=0; i<4*nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv2[i] , vec_rcvdat2[i] );
     } else {
@@ -353,9 +353,9 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
   ptr_tmprcv=0;
   for(r=0; r<nproc; r++) {
     if (r==irank) {
-      ptr_tmprcv=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+      ptr_tmprcv=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
     } else {
-      double* dummy=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
+      double* dummy=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r);
       BOOST_CHECK_EQUAL( dummy , (double*)0 );
     }
   }
@@ -364,12 +364,12 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
   delete[] ptr_tmprcv;
   ptr_tmprcv=new double[2*nproc];
   for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=0.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), ptr_snddat, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
 
   for(r=0; r<nproc; r++) {
     for (i=0; i<2*nproc; i++) ptr_tmprcv[i]=ptr_snddat[i];
-    mpi::PE::instance().reduce(mpi::plus(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
+    Comm::PE::instance().reduce(Comm::plus(), ptr_tmprcv, sndcnt, ptr_sndmap, ptr_tmprcv, ptr_rcvmap, r);
     if (irank==r) {
       for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( ptr_tmprcv[2*i] , ptr_rcvdat[2*i] );
     } else {
@@ -381,9 +381,9 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
   ptr_tmprcv2=0;
   for(r=0; r<nproc; r++) {
     if (r==irank) {
-      ptr_tmprcv2=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+      ptr_tmprcv2=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
     } else {
-      double* dummy=mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
+      double* dummy=Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, ptr_sndmap, (double*)0, ptr_rcvmap, r, 2);
       BOOST_CHECK_EQUAL( dummy , (double*)0 );
     }
   }
@@ -393,13 +393,13 @@ BOOST_AUTO_TEST_CASE( reduce_ptr_variable )
   delete[] ptr_tmprcv2;
   ptr_tmprcv2=new double[4*nproc];
   for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=0.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), ptr_snddat2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), ptr_snddat2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
 
   for(r=0; r<nproc; r++) {
     for (i=0; i<4*nproc; i++) ptr_tmprcv2[i]=ptr_snddat2[i];
-    mpi::PE::instance().reduce(mpi::plus(), ptr_tmprcv2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
+    Comm::PE::instance().reduce(Comm::plus(), ptr_tmprcv2, sndcnt, ptr_sndmap, ptr_tmprcv2, ptr_rcvmap, r, 2);
     if (irank==r) {
       for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+0] , ptr_rcvdat2[4*i+0] );
       for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( ptr_tmprcv2[4*i+1] , ptr_rcvdat2[4*i+1] );
@@ -420,18 +420,18 @@ BOOST_AUTO_TEST_CASE( reduce_vector_variable )
 
   vec_tmprcv.resize(0);
   vec_tmprcv.reserve(0);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
 
   vec_tmprcv.resize(2*nproc);
   vec_tmprcv.reserve(2*nproc);
   for (i=0; i<2*nproc; i++) vec_tmprcv[i]=0.;
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
 
   for(r=0; r<nproc; r++) {
     vec_tmprcv=vec_snddat;
-    mpi::PE::instance().reduce(mpi::plus(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
+    Comm::PE::instance().reduce(Comm::plus(), vec_tmprcv, vec_sndmap, vec_tmprcv, vec_rcvmap, r);
     if (irank==r) {
       for (i=0; i<nproc; i++)  BOOST_CHECK_EQUAL( vec_tmprcv[2*i] , vec_rcvdat[2*i] );
     } else {
@@ -441,20 +441,20 @@ BOOST_AUTO_TEST_CASE( reduce_vector_variable )
 
   vec_tmprcv2.resize(0);
   vec_tmprcv2.reserve(0);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
 
   vec_tmprcv2.resize(4*nproc);
   vec_tmprcv2.reserve(4*nproc);
   vec_tmprcv2.assign(4*nproc,0.);
-  for(r=0; r<nproc; r++) mpi::PE::instance().reduce(mpi::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
+  for(r=0; r<nproc; r++) Comm::PE::instance().reduce(Comm::plus(), vec_snddat2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
   for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );
 
   for(r=0; r<nproc; r++) {
     vec_tmprcv2=vec_snddat2;
-    mpi::PE::instance().reduce(mpi::plus(), vec_tmprcv2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
+    Comm::PE::instance().reduce(Comm::plus(), vec_tmprcv2, vec_sndmap, vec_tmprcv2, vec_rcvmap, r, 2);
     if (irank==r) {
       for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+0] , vec_rcvdat2[4*i+0] );
       for (i=0; i<nproc; i++) BOOST_CHECK_EQUAL( vec_tmprcv2[4*i+1] , vec_rcvdat2[4*i+1] );

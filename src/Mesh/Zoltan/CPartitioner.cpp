@@ -15,7 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/CMap.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Zoltan/CPartitioner.hpp"
 
 namespace CF {
@@ -23,7 +23,7 @@ namespace Mesh {
 namespace Zoltan {
 
   using namespace Common;
-  using namespace Common::mpi;
+  using namespace Common::Comm;
 
 #define RANK "[" << PE::instance().rank() << "] "
 
@@ -231,7 +231,7 @@ int CPartitioner::query_nb_of_objects(void *data, int *ierr)
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  return p.nb_objects_owned_by_part(mpi::PE::instance().rank());
+  return p.nb_objects_owned_by_part(Comm::PE::instance().rank());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,7 @@ void CPartitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.list_of_objects_owned_by_part(mpi::PE::instance().rank(),globalID);
+  p.list_of_objects_owned_by_part(Comm::PE::instance().rank(),globalID);
 
 
   // for debugging
@@ -268,7 +268,7 @@ void CPartitioner::query_nb_connected_objects(void *data, int sizeGID, int sizeL
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.nb_connected_objects_in_part(mpi::PE::instance().rank(),numEdges);
+  p.nb_connected_objects_in_part(Comm::PE::instance().rank(),numEdges);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -282,8 +282,8 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.list_of_connected_objects_in_part(mpi::PE::instance().rank(),nborGID);
-  p.list_of_connected_procs_in_part(mpi::PE::instance().rank(),nborProc);
+  p.list_of_connected_objects_in_part(Comm::PE::instance().rank(),nborGID);
+  p.list_of_connected_procs_in_part(Comm::PE::instance().rank(),nborProc);
 
 
 

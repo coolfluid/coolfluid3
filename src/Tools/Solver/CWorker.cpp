@@ -6,6 +6,9 @@
 
 #include <cmath>
 
+#include "Common/CBuilder.hpp"
+#include "Common/LibCommon.hpp"
+
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 
@@ -20,6 +23,10 @@ using namespace CF::Common;
 namespace CF {
 namespace Tools {
 namespace Solver {
+
+////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < CWorker, Component, LibCommon > CWorker_Builder;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +51,7 @@ CWorker::~CWorker()
 
 void CWorker::signal_solve ( SignalArgs & args )
 {
-  CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Starting to solve." << CFendl;
+  CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Starting to solve." << CFendl;
 
   Real data[500000]; // 500 thousand elements
 
@@ -61,8 +68,8 @@ void CWorker::signal_solve ( SignalArgs & args )
       Real value = std::sqrt( std::pow(data[j],3) * 2.71 / 3.141592 );
     }
 
-    mpi::PE::instance().barrier();
-    CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Iteration " << i << CFendl;
+    Comm::PE::instance().barrier();
+    CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Iteration " << i << CFendl;
   }
 }
 

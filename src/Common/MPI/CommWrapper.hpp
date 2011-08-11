@@ -25,11 +25,11 @@ namespace Common  {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file PEObjectWrapper.hpp
+  @file CommWrapper.hpp
   @author Tamas Banyai
-  This file provides the wrapper classes of various datatypes which is used within PECommPattern.
+  This file provides the wrapper classes of various datatypes which is used within CommPattern.
   These object wrappers are not designed to be used outside of communication pattern, do not use them directly.
-  The layout is that base class PEObjectWrapper is an interface towards PECommPattern and for each data type there is a template child class.
+  The layout is that base class CommWrapper is an interface towards CommPattern and for each data type there is a template child class.
   Currently supports any: raw array, std::vector, boost::multiarray but their template type must be plain old data.
   Note that interface complies to the following relation: size of the data in bytes equal to size_of()*stride()*size().
 **/
@@ -38,20 +38,20 @@ namespace Common  {
 
 /// Base wrapper class serving as interface.
 /// @author Tamas Banyai
-class Common_API PEObjectWrapper : public Component {
+class Common_API CommWrapper : public Component {
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr<PEObjectWrapper> Ptr;
+    typedef boost::shared_ptr<CommWrapper> Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr<PEObjectWrapper const> ConstPtr;
+    typedef boost::shared_ptr<CommWrapper const> ConstPtr;
 
   public:
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapper( const std::string& name ) : Component(name) {};
+    CommWrapper( const std::string& name ) : Component(name) {};
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
@@ -93,7 +93,7 @@ class Common_API PEObjectWrapper : public Component {
     bool needs_update() const { return m_needs_update; };
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapper"; }
+    static std::string type_name () { return "CommWrapper"; }
 
   protected:
 
@@ -111,26 +111,26 @@ class Common_API PEObjectWrapper : public Component {
 /// @author Tamas Banyai
 /// @todo realloc technically passes through, but since the new size is unknown to object wrapper, therefore it will complain.
 /// @todo maybe provide boost::shared_array version too.
-template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
+template<typename T> class CommWrapperPtr: public CommWrapper{
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperPtr<T> > Ptr;
+    typedef boost::shared_ptr< CommWrapperPtr<T> > Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperPtr<T> const> ConstPtr;
+    typedef boost::shared_ptr< CommWrapperPtr<T> const> ConstPtr;
 
   public:
 
     /// destructor
-    ~PEObjectWrapperPtr() { /*delete m_data;*/ };
+    ~CommWrapperPtr() { /*delete m_data;*/ };
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperPtr(const std::string& name) : PEObjectWrapper(name) {   }
+    CommWrapperPtr(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperPtr<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperPtr<"+Common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param data pointer to data
@@ -244,23 +244,23 @@ template<typename T> class PEObjectWrapperPtr: public PEObjectWrapper{
 
 /// Wrapper class for std::vectors.
 /// @author Tamas Banyai
-template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
+template<typename T> class CommWrapperVector: public CommWrapper{
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperVector<T> > Ptr;
+    typedef boost::shared_ptr< CommWrapperVector<T> > Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperVector<T> const> ConstPtr;
+    typedef boost::shared_ptr< CommWrapperVector<T> const> ConstPtr;
 
   public:
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperVector(const std::string& name) : PEObjectWrapper(name) {   }
+    CommWrapperVector(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperVector<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperVector<"+Common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
@@ -287,7 +287,7 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
     }
 
     /// destructor
-    ~PEObjectWrapperVector() { /*delete m_data;*/ };
+    ~CommWrapperVector() { /*delete m_data;*/ };
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
@@ -372,23 +372,23 @@ template<typename T> class PEObjectWrapperVector: public PEObjectWrapper{
 
 /// Wrapper class for std::vectors via boost's weak pointer.
 /// @author Tamas Banyai
-template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
+template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperVectorWeakPtr<T> > Ptr;
+    typedef boost::shared_ptr< CommWrapperVectorWeakPtr<T> > Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperVectorWeakPtr<T> const> ConstPtr;
+    typedef boost::shared_ptr< CommWrapperVectorWeakPtr<T> const> ConstPtr;
 
   public:
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperVectorWeakPtr(const std::string& name) : PEObjectWrapper(name) {   }
+    CommWrapperVectorWeakPtr(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperVectorWeakPtr<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperVectorWeakPtr<"+Common::class_name<T>()+">"; }
 
     /// setup
     /// @param std::vector of data
@@ -404,7 +404,7 @@ template<typename T> class PEObjectWrapperVectorWeakPtr: public PEObjectWrapper{
     }
 
     /// destructor
-    ~PEObjectWrapperVectorWeakPtr() { /*delete m_data;*/ };
+    ~CommWrapperVectorWeakPtr() { /*delete m_data;*/ };
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map

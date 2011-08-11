@@ -13,7 +13,6 @@
 
 #include "Common/Component.hpp"
 
-#include "Mesh/CField.hpp"
 #include "Mesh/LibMesh.hpp"
 
 namespace CF {
@@ -47,16 +46,13 @@ public: // functions
   static std::string type_name () { return "FieldManager"; }
 
   /// Create fields. Looks up the VariablesDescriptor with the given tag, and creates a field with the same tag in the given field group.
-  void create_fields(const std::string& tag, CF::Mesh::FieldGroup& field_group);
-
-  /// @deprecated Legacy "CField" interface for creating the fields.
-  void create_fields(const std::string& tag, CMesh& mesh, const CField::Basis::Type base, const std::string& space = "space[0]");
+  void create_field(const std::string& tag, CF::Mesh::FieldGroup& field_group);
 
   /// @name SIGNALS
   //@{
 
   /// Creates the fields
-  void signal_create_fields( Common::SignalArgs& node );
+  void signal_create_field( Common::SignalArgs& node );
 
   //@} END SIGNALS
 

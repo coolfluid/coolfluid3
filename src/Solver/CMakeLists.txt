@@ -13,8 +13,6 @@ list( APPEND coolfluid_solver_files
   CModelUnsteady.cpp
   CEigenLSS.cpp
   CEigenLSS.hpp
-  CreateFields.hpp
-  CreateFields.cpp
   CSimpleSolver.hpp
   CSimpleSolver.cpp
   CSolver.hpp

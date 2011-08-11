@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_PEObjectWrapperMultiArray_HPP
-#define CF_Common_MPI_PEObjectWrapperMultiArray_HPP
+#ifndef CF_Common_MPI_CommWrapperMArray_HPP
+#define CF_Common_MPI_CommWrapperMArray_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_same.hpp>
 
-#include "Common/MPI/PEObjectWrapper.hpp"
+#include "Common/MPI/CommWrapper.hpp"
 #include "Common/BoostArray.hpp"
 #include "Common/Foreach.hpp"
 
@@ -26,36 +26,36 @@ namespace Common  {
 /// Wrapper class for CTable components
 /// @author Willem Deconinck
 template <typename T, std::size_t NumDims>
-class PEObjectWrapperMultiArray: public PEObjectWrapper
+class CommWrapperMArray: public CommWrapper
 {
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name)
+    CommWrapperMArray(const std::string& name) : CommWrapper(name)
     {
-      throw BadValue( FromHere() , "There is no PEObjectWrapper for boost::multi_array with this dimension. Make specialization (see example for dim=1 and dim=2)" );
+      throw BadValue( FromHere() , "There is no CommWrapper for boost::multi_array with this dimension. Make specialization (see example for dim=1 and dim=2)" );
     }
 
 };
 
 template <typename T>
-class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
+class CommWrapperMArray<T,1>: public CommWrapper{
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperMultiArray > Ptr;
+    typedef boost::shared_ptr< CommWrapperMArray > Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperMultiArray const> ConstPtr;
+    typedef boost::shared_ptr< CommWrapperMArray const> ConstPtr;
 
   public:
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
+    CommWrapperMArray(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperMultiArray<"+Common::class_name<T>()+",1>"; }
+    static std::string type_name () { return "CommWrapperMArray<"+Common::class_name<T>()+",1>"; }
 
 
     /// setup of passing by reference
@@ -70,7 +70,7 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
     }
 
     /// destructor
-    ~PEObjectWrapperMultiArray() {  }
+    ~CommWrapperMArray() {  }
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
@@ -156,23 +156,23 @@ class PEObjectWrapperMultiArray<T,1>: public PEObjectWrapper{
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename T>
-class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
+class CommWrapperMArray<T,2>: public CommWrapper{
 
   public:
 
     /// pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperMultiArray > Ptr;
+    typedef boost::shared_ptr< CommWrapperMArray > Ptr;
     /// const pointer to this type
-    typedef boost::shared_ptr< PEObjectWrapperMultiArray const> ConstPtr;
+    typedef boost::shared_ptr< CommWrapperMArray const> ConstPtr;
 
   public:
 
     /// constructor
     /// @param name the component will appear under this name
-    PEObjectWrapperMultiArray(const std::string& name) : PEObjectWrapper(name) {   }
+    CommWrapperMArray(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "PEObjectWrapperMultiArray<"+Common::class_name<T>()+",2>"; }
+    static std::string type_name () { return "CommWrapperMArray<"+Common::class_name<T>()+",2>"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
@@ -186,7 +186,7 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
     }
 
     /// destructor
-    ~PEObjectWrapperMultiArray() {  }
+    ~CommWrapperMArray() {  }
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
@@ -277,4 +277,4 @@ class PEObjectWrapperMultiArray<T,2>: public PEObjectWrapper{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_PEObjectWrapperMultiArray_HPP
+#endif // CF_Common_MPI_CommWrapperMArray_HPP

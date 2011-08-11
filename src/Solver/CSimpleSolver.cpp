@@ -9,13 +9,12 @@
 #include "Common/OptionComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/VariableManager.hpp"
 
-#include "Solver/CreateFields.hpp"
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
 
@@ -43,11 +42,9 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
 
   Physics::PhysModel& phys_model = physics();
 
-  // Update the dimensions on the physics
-  phys_model.variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
 
-  // Create the fields
-  create_fields(mesh, phys_model);
+  // Update the dimensions on the physics
+  phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +58,7 @@ CMesh& CSimpleSolver::mesh()
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
 
 } // Solver
 } // CF
