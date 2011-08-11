@@ -17,7 +17,7 @@
 	<key>CFBundleSignature</key>
 	<string>COOLFLUID</string>
 	<key>CFBundleGetInfoString</key>
-	<string>COOLFluiD CF_VERSION, Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium</string>
+	<string>COOLFluiD CF_VERSION, Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium</string>
 	<key>CFBundleIdentifier</key>
 	<string>be.ac.vki.cooolfluid</string>
 </dict>
