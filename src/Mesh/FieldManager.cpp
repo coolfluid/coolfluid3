@@ -34,6 +34,7 @@ using namespace Common::XML;
 using namespace Math;
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < FieldManager, Component, LibMesh > FieldManager_Builder;
 
@@ -76,7 +77,6 @@ struct FieldManager::Implementation
   boost::weak_ptr<VariableManager> m_variable_manager;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////
 
 FieldManager::FieldManager( const std::string& name  ) :
   Component ( name ),
@@ -88,7 +88,6 @@ FieldManager::~FieldManager()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
 {
@@ -104,7 +103,6 @@ void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
 void FieldManager::signal_create_field(SignalArgs& node)
 {
@@ -123,7 +121,7 @@ void FieldManager::signal_create_field(SignalArgs& node)
   create_field(options.option("tag").value_str(), *field_group);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF
