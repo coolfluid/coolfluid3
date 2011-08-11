@@ -21,7 +21,6 @@
 #include "Common/XML/FileOperations.hpp"
 
 #include "Python/Component.hpp"
-#include <boost/signals2/preprocessed_signal.hpp>
 
 namespace CF {
 namespace Python {

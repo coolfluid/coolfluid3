@@ -30,6 +30,24 @@ struct Core
   {
     return wrap_component(Common::Core::instance().environment());
   }
+
+  static void initiate(list arglist)
+  {
+    int argc = len(arglist);
+    static char** argv = 0;
+    if(!argv)
+    {
+      argv = new char*[argc];
+      for(Uint i = 0; i != argc; ++i)
+      {
+        std::string arg_i = extract<std::string>(arglist[i]);
+        argv[i] = new char[arg_i.size()];
+        arg_i.copy(argv[i], arg_i.size());
+      }
+    }
+
+    Common::Core::instance().initiate(argc, argv);
+  }
 };
 
 void def_core()
@@ -38,7 +56,9 @@ void def_core()
     .def("root", Core::root, "Access to the root of the component tree")
     .staticmethod("root")
     .def("environment", Core::environment, "Access to the environment for setting global options")
-    .staticmethod("environment");
+    .staticmethod("environment")
+    .def("initiate", Core::initiate)
+    .staticmethod("initiate");
 }
 
 } // Python
