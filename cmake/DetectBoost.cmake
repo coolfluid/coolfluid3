@@ -5,19 +5,31 @@ set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
 set( CF_Boost_MINIMAL_VERSION "1.46.1" )
 
+#avoid looking in system paths
+set(Boost_NO_SYSTEM_PATHS ON)
+
 # components to search for
-list( APPEND CF_Boost_COMPONENTS thread iostreams filesystem system regex unit_test_framework date_time program_options )
+list( APPEND CF_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
+list( APPEND CF_Boost_OTHER_COMPONENTS unit_test_framework)
 if(CF_ENABLE_PYTHON)
-  list( APPEND CF_Boost_COMPONENTS python )
+  list( APPEND CF_Boost_OPTIONAL_COMPONENTS python )
 endif()
 
-find_package( Boost ${CF_Boost_MINIMAL_VERSION} COMPONENTS ${CF_Boost_COMPONENTS} QUIET )
+find_package( Boost ${CF_Boost_MINIMAL_VERSION} COMPONENTS ${CF_Boost_CORE_COMPONENTS} ${CF_Boost_OTHER_COMPONENTS} ${CF_Boost_OPTIONAL_COMPONENTS} QUIET )
 
 coolfluid_log_file( "Boost version      [${Boost_LIB_VERSION}]" )
 coolfluid_log_file( "Boost include path [${Boost_INCLUDE_DIR}]" )
 coolfluid_log_file( "Boost libraries    [${Boost_LIBRARIES}]"   )
 
 add_definitions( -DBOOST_ENABLE_ASSERT_HANDLER )
+
+set(Boost_FOUND TRUE)
+foreach( blib IN LISTS CF_Boost_CORE_COMPONENTS CF_Boost_OTHER_COMPONENTS)
+  string(TOUPPER ${blib} blib_upper)
+  if( NOT Boost_${blib_upper}_FOUND )
+    set(Boost_FOUND FALSE)
+  endif()
+endforeach()
 
 # if not found give more information
 if( NOT Boost_FOUND )
@@ -34,12 +46,10 @@ list( APPEND CF_DEPS_LIBRARIES ${Boost_LIBRARIES} )
 # filter out the unit test libs from the boost libraries
 # only unit testslink to this
 set(CF_BOOST_LIBRARIES "" )
-foreach( blib ${Boost_LIBRARIES} )
-  if( NOT ${blib} MATCHES "[a-zA-Z0-9]*unit_test_framework[a-zA-Z0-9]*" )
-    list( APPEND CF_BOOST_LIBRARIES ${blib} )
-  endif()
+foreach( blib IN LISTS CF_Boost_CORE_COMPONENTS )
+  string(TOUPPER ${blib} blib_upper)
+  list( APPEND CF_BOOST_LIBRARIES ${Boost_${blib_upper}_LIBRARY} )
 endforeach()
-
 #######################################################################################
 # assume boost minimum version has it
 #  coolfluid_log( "+++++  Checking for boost erfc function" )
