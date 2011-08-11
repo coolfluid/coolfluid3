@@ -114,7 +114,7 @@ macro( coolfluid_add_library LIBNAME )
 
     # add external dependency libraries if defined
     if( DEFINED ${LIBNAME}_libs )
-      list(REMOVE_DUPLICATES ${LIBNAME}_libs)
+      #list(REMOVE_DUPLICATES ${LIBNAME}_libs)
       #	message( STATUS "${LIBNAME} has ${${LIBNAME}_libs}}" )
       target_link_libraries( ${LIBNAME} ${${LIBNAME}_libs} )
     endif()
