@@ -59,10 +59,14 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
+  options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  options().add_option< OptionT<std::string> >( "solution_space", "LagrangeP1" )
+      ->pretty_name("Solution Space")
+      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
+
+  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
@@ -182,8 +186,7 @@ void RDSolver::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  // ensure physcial model has already been configured
-  physics();
+  physics(); // ensure physcial model has already been configured
 
   // setup the fields
 
