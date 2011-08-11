@@ -104,7 +104,7 @@ void SetupMultipleSolutions::execute()
   if ( is_null( solution ) )
   {
     solution =
-        solution_group->create_field( RDM::Tags::solution(), vars, physical_model().ndim() ).as_ptr<Field>();
+        solution_group->create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
 
     solution->add_tag(Tags::solution());
   }
@@ -126,7 +126,8 @@ void SetupMultipleSolutions::execute()
     if ( is_null( solution_k ) )
     {
       std::string name = std::string(Tags::solution()) + to_str(step);
-      solution_k = solution_group->create_field( name, solution->descriptor() ).as_ptr<Field>();
+      solution_k = solution_group->create_field( name, solution->descriptor().description() ).as_ptr<Field>();
+      solution_k->descriptor()->prefix_variable_names("rk" + to_str(step) + "_");
       solution_k->add_tag("rksteps");
     }
 
@@ -148,7 +149,8 @@ void SetupMultipleSolutions::execute()
   Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
-    residual = solution_group->create_field(Tags::residual(), solution->descriptor() ).as_ptr<Field>();
+    residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
+    residual->descriptor()->prefix_variable_names("rhs_");
     residual->add_tag(Tags::residual());
   }
 
@@ -160,7 +162,7 @@ void SetupMultipleSolutions::execute()
   Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
-    wave_speed = solution_group->create_field(Tags::wave_speed(), "ws[1]", physical_model().ndim() ).as_ptr<Field>();
+    wave_speed = solution_group->create_field(Tags::wave_speed(), "ws[1]" ).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
