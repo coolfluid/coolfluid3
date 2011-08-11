@@ -715,7 +715,7 @@ void Component::signal_move_component ( SignalArgs& args  )
 {
   SignalOptions options( args );
 
-  URI path = options.value<URI>("Path");
+  URI path = options.value<URI>("path");
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
@@ -1074,7 +1074,8 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("path", std::string() )
+  options.add_option< OptionURI >("path")
+      ->pretty_name("Path")
       ->description("Path to the new component to which this one will move to.");
 }
 

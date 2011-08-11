@@ -29,7 +29,7 @@ namespace Python {
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector5<std::string, Real, Uint, int, bool> AnyTypes;
+typedef boost::mpl::vector6<std::string, Real, Uint, int, bool, Common::URI> AnyTypes;
 
 struct PythonToAny
 {
@@ -46,6 +46,8 @@ struct PythonToAny
   {
     if(m_found)
       return;
+
+    CFdebug << "got type " << Common::class_name_from_typeinfo(typeid(T)) << ", wanted " << m_target_type << CFendl;
 
     if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
@@ -194,6 +196,11 @@ public:
     return component().option(optname).value_str();
   }
 
+  Common::URI uri()
+  {
+    return component().uri();
+  }
+
   void wrap_signal(Common::SignalPtr signal)
   {
     m_wrapped_signals.push_back(SignalWrapper(signal));
@@ -237,7 +244,8 @@ void def_component()
     .def("create_component", &ComponentWrapper::create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", &ComponentWrapper::get_child)
     .def("configure_option", &ComponentWrapper::configure_option)
-    .def("option_value_str", &ComponentWrapper::option_value_str);
+    .def("option_value_str", &ComponentWrapper::option_value_str)
+    .def("uri", &ComponentWrapper::uri);
 }
 
 } // Python

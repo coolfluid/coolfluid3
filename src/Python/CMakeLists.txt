@@ -9,6 +9,8 @@ list( APPEND coolfluid_python_files
   LibPython.cpp
   PythonModule.hpp
   PythonModule.cpp
+  URI.hpp
+  URI.cpp
 )
 
 set( coolfluid_python_kernellib TRUE )
