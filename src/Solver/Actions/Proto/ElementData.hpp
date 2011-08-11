@@ -316,27 +316,28 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  SFVariableData(const VariableT& placeholder, const Mesh::CElements& elements, const SupportT& support) : m_data(0), m_connectivity(0), m_support(support)
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) : m_field(0), m_connectivity(0), m_support(support)
   {
-    const Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-    Common::Component::Ptr field_comp = mesh.get_child_ptr(placeholder.field_name);
-    Mesh::Field::Ptr field = field_comp->as_ptr<Mesh::Field>();
-    cf_assert(field);
+    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
 
-    m_data = field.get();
+    Common::Component::Ptr field_comp = mesh.get_child_ptr(placeholder.field_name);
+
+    cf_assert(field_comp);
+
+    m_field = &field_comp->as_type<Mesh::Field>();
 
     m_connectivity = &elements.node_connectivity();
 
-    var_begin = field->var_index(placeholder.variable_name);
+    var_begin = m_field->var_index(placeholder.variable_name);
   }
 
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
-    if(!m_data)
+    if(!m_field)
       return;
     m_element_idx = element_idx;
-    Mesh::fill(m_element_values, *m_data, (*m_connectivity)[element_idx], var_begin);
+    Mesh::fill(m_element_values, *m_field, (*m_connectivity)[element_idx], var_begin);
   }
 
   const Mesh::CTable<Uint>::ConstRow element_connectivity() const
@@ -423,10 +424,10 @@ private:
   ValueT m_element_values;
 
   /// Coordinates table
-  Mesh::CTable<Real> const* m_data;
+  Mesh::Field const* m_field;
 
   /// Connectivity table
-  Mesh::CTable<Uint> const* m_connectivity;
+  Mesh::CConnectivity const* m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;

@@ -92,7 +92,8 @@ struct NodeVarData< ScalarField >
     m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::Field>() )
   {
     m_var_begin = m_field.var_index(placeholder.variable_name);
-    cf_assert(m_field.var_type(placeholder.variable_name) == 1);
+/// @note Bark look here
+//    cf_assert(m_field.var_type(placeholder.variable_name) == 1);
   }
 
   void set_node(const Uint idx)
