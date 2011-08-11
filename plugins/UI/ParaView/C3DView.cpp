@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -197,7 +197,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     options.add_option< OptionArrayT<std::string> >("pathinfo", data);
 
-    Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
+    Server::ServerRoot::instance().core()->sendSignal( *frame.xml_doc.get() );
   }
 
   curr_iteration++;

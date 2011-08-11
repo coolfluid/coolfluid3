@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -70,7 +70,7 @@ void BcDirichlet::execute()
 
   std::vector<Real> vars( DIM_3D, 0.);
 
-  RealVector return_val( solution_field.data().row_size() );
+  RealVector return_val( solution_field.row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {

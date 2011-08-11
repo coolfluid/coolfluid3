@@ -1,9 +1,10 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 
@@ -11,11 +12,13 @@
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
 
+using namespace CF::Common;
+
 namespace CF {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+////////////////////////////////////////////////////////////////////////////////////////////
 
 ComponentBuilder< CCriterionTime, CCriterion, LibActions > CCriterionTime_Builder;
 
@@ -46,7 +49,14 @@ bool CCriterionTime::operator()()
   if (m_time.expired()) throw SetupError(FromHere(),"Time option was not set in ["+uri().path()+"]");
   CTime& t = *m_time.lock();
 
-  return ( t.current_time() + m_tolerance > t.option("end_time").value<Real>() );
+  const Real end_time = t.option("end_time").value<Real>();
+
+  bool achieved = ( t.current_time() + m_tolerance > end_time );
+
+  if( achieved )
+    CFinfo << "Time limit [" << end_time << "] reached" << CFendl;
+
+  return achieved;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -120,10 +120,12 @@ CEnv::~CEnv()
 
 void CEnv::trigger_only_cpu0_writes()
 {
-  CFerror.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFwarn.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFinfo.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFdebug.setFilterRankZero(option("only_cpu0_writes").value<bool>());
+  bool opt = option("only_cpu0_writes").value<bool>();
+
+  CFerror.setFilterRankZero( opt );
+  CFwarn.setFilterRankZero( opt );
+  CFinfo.setFilterRankZero( opt );
+  CFdebug.setFilterRankZero( opt );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

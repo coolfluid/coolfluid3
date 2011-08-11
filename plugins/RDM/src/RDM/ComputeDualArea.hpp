@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -98,16 +98,16 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity_table =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    connectivity =
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
+        elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
     cf_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock()->data_ptr();
-    dual_area   = parent().as_type<ComputeDualArea>().dual_area().data_ptr();
+    solution   = csolution.lock();
+    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
   }
 
 protected: // typedefs
@@ -124,13 +124,13 @@ protected: // data
   boost::weak_ptr< Mesh::Field > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  Mesh::Field::Ptr solution;
   /// pointer to dual area table
-  Mesh::CTable<Real>::Ptr dual_area;
-  /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::Field::Ptr dual_area;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  Mesh::Field::Ptr coordinates;
+  /// pointer to connectivity table, may reset when iterating over element types
+  Mesh::CConnectivity::Ptr connectivity;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -172,7 +172,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   m_options.add_option(
         Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
-  m_options["Elements"]
+  m_options["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations
@@ -215,7 +215,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
 

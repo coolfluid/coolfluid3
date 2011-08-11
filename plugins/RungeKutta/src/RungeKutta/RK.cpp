@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -158,10 +158,10 @@ void RK::execute()
   if (m_solution.expired()) throw SetupError (FromHere(), "solution was not set");
 
   if ( m_solution_backup.expired() )  // backup not created --> create field
-    m_solution_backup = mesh().create_field("solution_backup",*m_solution.lock()).as_ptr<Field>();
+    m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup", m_solution.lock()->descriptor()).as_ptr<Field>();
 
-  const CTable<Real>& U  = m_solution.lock()->data();
-  CTable<Real>&       U0 = m_solution_backup.lock()->data();
+  const Field& U  = *m_solution.lock();
+  Field&       U0 = *m_solution_backup.lock();
 
   /// @todo put this in triggers of own config options
   m_update->configure_option("solution",m_solution.lock()->uri());

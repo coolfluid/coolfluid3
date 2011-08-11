@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -669,9 +669,9 @@ void CReader::read_element_data()
 
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
-        CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
+        CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
         Uint var_begin = field.var_index(i);
-        Uint var_end = var_begin + static_cast<Uint>(field.var_type(i));
+        Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
         m_file.seekg(gmsh_field.file_data_positions[i]);
 
 
@@ -747,9 +747,9 @@ void CReader::read_node_data()
 
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
-      CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_type(i))<<"]" << CFendl;
+      CFdebug << "Reading " << field.name() << "/" << field.var_name(i) <<"["<<static_cast<Uint>(field.var_length(i))<<"]" << CFendl;
       Uint var_begin = field.var_index(i);
-      Uint var_end = var_begin + static_cast<Uint>(field.var_type(i));
+      Uint var_end = var_begin + static_cast<Uint>(field.var_length(i));
       m_file.seekg(gmsh_field.file_data_positions[i]);
 
       Uint gmsh_node_idx;

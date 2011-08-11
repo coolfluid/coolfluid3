@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -59,10 +59,14 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
+  options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  options().add_option< OptionT<std::string> >( "solution_space", "mesh_nodes" )
+      ->pretty_name("Solution Space")
+      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
+
+  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
@@ -182,8 +186,10 @@ void RDSolver::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  // ensure physcial model has already been configured
-  physics();
+  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+
+  if( pm.ndim() != mesh.dimension() )
+    throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
 

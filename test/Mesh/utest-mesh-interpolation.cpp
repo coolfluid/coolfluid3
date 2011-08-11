@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -124,25 +124,32 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
+  // Create P0 spaces
+  boost_foreach(CEntities& elements, source.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  boost_foreach(CEntities& elements, target.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+
+  FieldGroup& source_elem_fields = source.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& target_elem_fields = target.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& source_node_fields = source.geometry();
+  FieldGroup& target_node_fields = target.geometry();
+
   // Create empty fields
-  Field& s_nodebased   = source.create_field( "nodebased",    FieldGroup::Basis::POINT_BASED ,   "space[0]", "rho_n[1],   V_n[3],   p_n[1]"    );
-  Field& s_elembased   = source.create_field( "elementbased", FieldGroup::Basis::ELEMENT_BASED,  "P0", "rho_e[1],   V_e[3],   p_e[1]" );
+  Field& s_nodebased   = source_node_fields.create_field( "nodebased",     "rho_n[1],   V_n[3],   p_n[1]" );
+  Field& s_elembased   = source_elem_fields.create_field( "elementbased",  "rho_e[1],   V_e[3],   p_e[1]" );
 
-  Field& t_nodebased   = target.create_field( "nodebased",    FieldGroup::Basis::POINT_BASED,    "space[0]", "rho_n[1],   V_n[3],   p_n[1]"  );
-  Field& t_nodebased_2 = target.create_field( "nodebased_2",  FieldGroup::Basis::POINT_BASED ,   "space[0]", "rho_n_2[1], V_n_2[3], p_n_2[1]" );
-  Field& t_elembased   = target.create_field( "elementbased", FieldGroup::Basis::ELEMENT_BASED , "P0", "rho_e[1],   V_e[3],   p_e[1]" );
-
-//  target.create_field( "nodebased_2",    nvars_2, FieldGroup::Basis::POINT_BASED    );
-//  target.create_field( "elementbased",   evars,   FieldGroup::Basis::ELEMENT_BASED );
-//  target.create_field( "elementbased_2", evars_2, FieldGroup::Basis::ELEMENT_BASED );
+  Field& t_nodebased   = target_node_fields.create_field( "nodebased",     "rho_n[1],   V_n[3],   p_n[1]"   );
+  Field& t_nodebased_2 = target_node_fields.create_field( "nodebased_2",   "rho_n_2[1], V_n_2[3], p_n_2[1]" );
+  Field& t_elembased   = target_elem_fields.create_field( "elementbased",  "rho_e[1],   V_e[3],   p_e[1]"   );
 
   BOOST_CHECK(true);
 
   for ( Uint idx=0; idx!=s_nodebased.size(); ++idx)
   {
-    CTable<Real>::ConstRow coords = s_nodebased.coords(idx);
+    Field::ConstRow coords = s_nodebased.coordinates()[idx];
 
-    CTable<Real>::Row data = s_nodebased[idx];
+    Field::Row data = s_nodebased[idx];
 
     data[0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
     data[1]=coords[XX];
@@ -152,30 +159,25 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   }
 
-  FieldView s_elembased_view("s_elembased_view");
-  s_elembased_view.set_field(s_elembased);
   RealMatrix coordinates;
   boost_foreach( CElements& s_elements, find_components_recursively<CElements>(s_elembased.topology()) )
   {
-    if (s_elembased_view.set_elements(s_elements.as_ptr<CEntities>()))
+    CSpace& space = s_elembased.space(s_elements);
+    space.allocate_coordinates(coordinates);
+
+    for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
     {
-      s_elements.allocate_coordinates(coordinates);
-      RealVector coords(coordinates.rows());
-
-      for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
+      coordinates = space.compute_coordinates( elem_idx );
+      boost_foreach(const Uint state, space.indexes_for_element(elem_idx))
       {
-        s_elements.put_coordinates( coordinates, elem_idx );
-        s_elements.element_type().compute_centroid( coordinates , coords );
-
-        s_elembased_view[elem_idx][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
-        s_elembased_view[elem_idx][1]=coords[XX];
-        s_elembased_view[elem_idx][2]=coords[YY];
-        s_elembased_view[elem_idx][3]=7.0;
-        s_elembased_view[elem_idx][4]=coords[XX];
+        const RealVector& coords = coordinates.row(state);
+        s_elembased[state][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
+        s_elembased[state][1]=coords[XX];
+        s_elembased[state][2]=coords[YY];
+        s_elembased[state][3]=7.0;
+        s_elembased[state][4]=coords[XX];
       }
-
     }
-
   }
 
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -32,6 +32,7 @@
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CMeshTransformer.hpp"
+#include "Mesh/CSpace.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -127,11 +128,13 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // create a field and assign it to the comm pattern
 
-  Field& field = mesh.create_field("node_rank",FieldGroup::Basis::POINT_BASED);
+  Field& field = mesh.geometry().create_field("node_rank");
 
   field.parallelize();
 
-  field.data() = Comm::PE::instance().rank();
+  for (Uint n=0; n<field.size(); ++n)
+    for (Uint j=0; j<field.row_size(); ++j)
+      field[n][j] = Comm::PE::instance().rank();
 
   // Synchronize
 
@@ -143,25 +146,29 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  Field& glb_elem_idx = mesh.create_field("glb_elem_idx",FieldGroup::Basis::ELEMENT_BASED,"P0");
-  FieldView& field_view = glb_elem_idx.create_component<FieldView>("field_view");
-  field_view.set_field(glb_elem_idx);
-  boost_foreach(const CEntities& elements, glb_elem_idx.field_elements())
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
+  Field& elem_rank = elems_P0.create_field("elem_rank");
+
+  boost_foreach(CElements& elements , elems_P0.elements_range())
   {
-    field_view.set_elements(elements);
-    for (Uint e=0; e<elements.size(); ++e)
+    CSpace& space = elems_P0.space(elements);
+    for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      field_view[e][0] = elements.glb_idx()[e];
+      Uint field_idx = space.indexes_for_element(elem)[0];
+      glb_elem_idx[field_idx][0] = 1.;
+      elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }
 
   // Create a field with glb node numbers
-  Field& glb_node_idx = mesh.create_field("glb_node_idx",FieldGroup::Basis::POINT_BASED);
-  Uint n=0;
-  boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
+  Field& glb_node_idx = mesh.geometry().create_field("glb_node_idx");
+  CList<Uint>& glb_idx = mesh.geometry().glb_idx();
   {
-    glb_node_idx[n++][0] = mesh.geometry().glb_idx()[node];
+    for (Uint n=0; n<glb_node_idx.size(); ++n)
+      glb_node_idx[n][0] = glb_idx[n];
   }
 
   // Write the mesh with the fields

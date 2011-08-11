@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -46,11 +46,6 @@ public: // functions
   }
 
 private: // data
-
-  Mesh::CScalarFieldView::Ptr m_update_coeff_view;
-  Mesh::CMultiStateFieldView::Ptr m_residual_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_backup_view;
 
   boost::weak_ptr<Mesh::Field> m_solution;
   boost::weak_ptr<Mesh::Field> m_solution_backup;

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -57,17 +57,17 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity_table =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    connectivity =
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::CTable<Real> >();
+        elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
     cf_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock()->data_ptr();
-    residual   = cresidual.lock()->data_ptr();
-    wave_speed = cwave_speed.lock()->data_ptr();
+    solution   = csolution.lock();
+    residual   = cresidual.lock();
+    wave_speed = cwave_speed.lock();
   }
 
 protected: // typedefs
@@ -102,7 +102,7 @@ protected: // data
   boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::CConnectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
   Mesh::CTable<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
@@ -124,7 +124,7 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 {
   regist_typeinfo(this);
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
+  m_options["elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

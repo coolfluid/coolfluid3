@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -104,7 +104,7 @@ void CWriter::write_file(std::fstream& file)
     Field& field = *field_ptr.lock();
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
-      Field::VarType var_type = field.var_type(iVar);
+      Field::VarType var_type = field.var_length(iVar);
       std::string var_name = field.var_name(iVar);
 
       if ( static_cast<Uint>(var_type) > 1)
@@ -201,7 +201,7 @@ void CWriter::write_file(std::fstream& file)
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        Field::VarType var_type = field.var_type(iVar);
+        Field::VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
         file << "\n### variable " << var_name << "\n\n"; // var name in comment
 

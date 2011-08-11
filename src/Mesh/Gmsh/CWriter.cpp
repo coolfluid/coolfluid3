@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -295,7 +295,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
       Uint row_idx=0;
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
-        Field::VarType var_type = field.var_type(iVar);
+        Field::VarType var_type = field.var_length(iVar);
         std::string var_name = field.var_name(iVar);
 
         Uint datasize(var_type);

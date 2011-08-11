@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -17,6 +17,7 @@
 
 #include "Math/Defs.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 
 #include "Solver/CTime.hpp"
@@ -41,9 +42,10 @@ BOOST_AUTO_TEST_CASE( test_RK )
   CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh,1.,10);
   allocate_component<Mesh::Actions::CreateSpaceP0>("create_space[0]")->transform(mesh);
-  Field& solution = mesh.create_field("solution",FieldGroup::Basis::CELL_BASED);
-  Field& residual = mesh.create_field("residual",solution);
-  Field& update_coeff = mesh.create_scalar_field("update_coeff",solution);
+  FieldGroup& P0 = mesh.create_field_group("P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& solution     = P0.create_field("solution");
+  Field& residual     = P0.create_field("residual");
+  Field& update_coeff = P0.create_field("update_coeff");
 
   CTime& time = Core::instance().root().create_component<CTime>("time");
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3.
@@ -139,12 +139,14 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("description", std::string("This component has not a long description"));
 }
 
+
 Component::~Component()
 {
-  CFdebug << "Deleting component " << uri().string() << CFendl;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////
+
 
 Component::Ptr Component::follow()
 {

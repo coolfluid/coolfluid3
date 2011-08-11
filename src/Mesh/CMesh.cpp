@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,6 +19,8 @@
 #include "Common/Signal.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
+
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Mesh/LibMesh.hpp"
 
@@ -86,9 +88,11 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
   geometry().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
   geometry().configure_option("topology",topology().uri());
-  geometry().coordinates().configure_option("var_names",std::vector<std::string>(1,std::string("coord")));
-  geometry().coordinates().configure_option("var_types",std::vector<std::string>(1,to_str(dimension)));
-  geometry().resize(nb_nodes);
+
+  geometry().coordinates().set_field_group(geometry());
+  geometry().coordinates().set_topology(geometry().topology());
+  geometry().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
+  geometry().coordinates().descriptor().configure_option("dimension",dimension);  geometry().resize(nb_nodes);
 
   cf_assert(geometry().size() == nb_nodes);
   cf_assert(geometry().coordinates().row_size() == dimension);

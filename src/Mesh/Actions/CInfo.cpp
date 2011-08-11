@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -22,35 +22,35 @@
 namespace CF {
 namespace Mesh {
 namespace Actions {
-  
+
   using namespace Common;
-  
+
   class IsElementRegion
   {
   public:
     IsElementRegion () {}
-    
+
     bool operator()(const Component& component)
     {
       return !find_components<CTable<Uint> >(component).empty() && !find_components<CEntities>(component).empty();
     }
-    
+
   }; // IsElementRegion
-  
+
   class IsGroup
   {
   public:
     IsGroup () {}
-    
+
     bool operator()(const Component& component)
     {
       return count(find_components_with_filter<CRegion>(component,m_isElement));
     }
-    
+
   private:
     IsElementRegion m_isElement;
   }; // IsGroup
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
@@ -60,13 +60,13 @@ Common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
 CInfo::CInfo( const std::string& name )
 : CMeshTransformer(name)
 {
-   
+
 	properties()["brief"] = std::string("Print information of the mesh");
 	std::string desc;
-	desc = 
-  "  Usage: Info \n\n"
-  "          Information given: internal mesh hierarchy,\n"
-  "      element distribution for each region, and element type"; 
+	desc =
+	"  Usage: Info \n\n"
+	"          Information given: internal mesh hierarchy,\n"
+	"      element distribution for each region, and element type";
 	properties()["description"] = desc;
 }
 
@@ -79,13 +79,13 @@ std::string CInfo::brief_description() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-  
+
 std::string CInfo::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
-}  
-  
+}
+
 /////////////////////////////////////////////////////////////////////////////
 
 void CInfo::execute()
@@ -97,7 +97,7 @@ void CInfo::execute()
   boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
-  }  
+  }
 
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const Field& field, find_components<Field>(mesh) )
@@ -105,7 +105,7 @@ void CInfo::execute()
     CFinfo << " - " << field.name() << "  (" << FieldGroup::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
-      CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_type(i) << "]" << CFendl;
+      CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;
     }
   }
 }
@@ -115,18 +115,18 @@ void CInfo::execute()
 std::string CInfo::print_region_tree(const CRegion& region, Uint level)
 {
   std::string tree;
-    
+
   for (Uint i=0; i<level; i++)
     tree += "    ";
   tree += region.name() + " (" + to_str(region.recursive_elements_count()) +  ")\n";
-  
+
   tree += print_elements(region,level+1);
-  
+
   boost_foreach( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
   }
-  return tree;    
+  return tree;
 }
 
 //////////////////////////////////////////////////////////////////////////////

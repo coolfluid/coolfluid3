@@ -12,9 +12,6 @@ add_subdirectory( RiemannSolvers )
 # Runge-Kutta
 add_subdirectory( RungeKutta )
 
-# Finite Volume solver
-add_subdirectory( FVM  )
-
 # UFEM Finite Element solver
 add_subdirectory( UFEM )
 

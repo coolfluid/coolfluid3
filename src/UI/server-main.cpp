@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -29,7 +29,7 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace Comm;
+using namespace CF::Common::Comm;
 using namespace CF::UI::Server;
 
 using namespace CF;
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
 
     if( nb_workers != 0 )
     {
-      MPI::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<MPI::CPEManager>();
+      Comm::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<Comm::CPEManager>();
 
       mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
     }
