@@ -263,6 +263,7 @@ void PackUnpackNodes::flush()
   rank.flush();
   coordinates.flush();
   connected_elements.flush();
+  m_nodes.resize(m_nodes.coordinates().size());
   m_idx = uint_max();
 }
 
