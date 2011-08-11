@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   Field& field = mesh->geometry().create_field("field");
 
   CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
-  node_loop->configure_option("regions",mesh->geometry().topology());
+  node_loop->configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
 
 /// @todo CSetFieldValues no longer exists, find replacement for node_loop
 //  node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
@@ -165,7 +165,6 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   node_loop->execute();
 
   BOOST_CHECK(true);
-
 
   boost_foreach(CCells& cells, find_components<CCells>(mesh->topology()))
     cells.create_space("cells_P0","CF.Mesh.SF.SF"+cells.element_type().shape_name()+"LagrangeP0");
@@ -202,7 +201,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
-  elem_loop->configure_option("regions",mesh->geometry().topology());
+  elem_loop->configure_option("regions",std::vector<URI>(1,volumes.topology().uri()));
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
   elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_option("volume",volumes.uri());
@@ -236,7 +235,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->create_field("test_CForAllElementsT",FieldGroup::Basis::CELL_BASED,"space[0]","var[1]");
+  Field& field = mesh->get_child("cells_P0").as_type<FieldGroup>().create_field("test_CForAllElementsT","var[1]");
 
   BOOST_CHECK(true);
 
