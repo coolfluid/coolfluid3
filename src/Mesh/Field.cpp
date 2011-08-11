@@ -209,8 +209,8 @@ CommPattern& Field::parallelize()
   ranks.reserve( size() );
 
   CMesh& mesh = find_parent_component<CMesh>(*this);
-  cf_assert(glb_idx().size() == size());
-  cf_assert(rank().size()    == size());
+  cf_assert_desc("["+to_str(glb_idx().size())+"!="+to_str(size())+"]",glb_idx().size() == size());
+  cf_assert_desc("["+to_str(rank().size())+"!="+to_str(size())+"]",rank().size() == size());
   for (Uint node=0; node<size(); ++node)
   {
     gid.push_back( glb_idx()[node] );

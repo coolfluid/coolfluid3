@@ -450,7 +450,6 @@ void CMeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // REMOVE GHOST NODES AND GHOST ELEMENTS
 
-
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -473,6 +472,7 @@ void CMeshPartitioner::migrate()
     /// @todo mechanism not to flush element_manipulation until during real migration
   }
 
+
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
@@ -487,6 +487,7 @@ void CMeshPartitioner::migrate()
       }
     }
   }
+
 
   // -----------------------------------------------------------------------------
   // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
@@ -540,7 +541,6 @@ void CMeshPartitioner::migrate()
 
   // STILL DONT FLUSH!!! node_manipulation.flush();
 
-
    flex_all_to_all(send_to_proc,send_strides,recv_from_all,recv_strides);
 
 
@@ -549,6 +549,8 @@ void CMeshPartitioner::migrate()
 
    // FINALLY FLUSH NODES
    node_manipulation.flush();
+
+   nodes.check_sanity();
 
 
    // -----------------------------------------------------------------------------
