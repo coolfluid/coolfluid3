@@ -25,6 +25,8 @@
 
 #include "Common/MPI/PE.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/Field.hpp"
@@ -37,12 +39,14 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CConnectivity.hpp"
 
+
 namespace CF {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::mpi;
 using namespace boost::assign;
+
+using namespace Common;
+using namespace Common::Comm;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
@@ -196,46 +200,58 @@ CRegion& FieldGroup::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, const std::string &variables)
+Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description)
 {
-  std::vector<std::string> tokenized_variables(0);
-
-  if (variables == "scalar_same_name")
-  {
-    tokenized_variables.push_back(name+"[scalar]");
-  }
-  else
-  {
-    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-    boost::char_separator<char> sep(",");
-    Tokenizer tokens(variables, sep);
-
-    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-      tokenized_variables.push_back(*tok_iter);
-  }
-
-  std::vector<std::string> names;
-  std::vector<std::string> types;
-  BOOST_FOREACH(std::string var, tokenized_variables)
-  {
-    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
-
-    boost::match_results<std::string::const_iterator> what;
-    if (regex_search(var,what,e_variable))
-    {
-      names.push_back(what[1]);
-      types.push_back(what[2]);
-    }
-    else
-      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
-  }
 
   Field& field = create_component<Field>(name);
   field.set_field_group(*this);
   field.set_topology(topology());
   field.set_basis(m_basis);
-  field.configure_option("var_names",names);
-  field.configure_option("var_types",types);
+
+  if (variables_description == "scalar_same_name")
+    field.create_descriptor(name+"[scalar]",parent().as_type<CMesh>().dimension());
+  else
+    field.create_descriptor(variables_description,parent().as_type<CMesh>().dimension());
+
+  field.resize(m_size);
+  return field;
+
+//  std::vector<std::string> names;
+//  std::vector<std::string> types;
+//  BOOST_FOREACH(std::string var, tokenized_variables)
+//  {
+//    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
+
+//    boost::match_results<std::string::const_iterator> what;
+//    if (regex_search(var,what,e_variable))
+//    {
+//      names.push_back(what[1]);
+//      types.push_back(what[2]);
+//    }
+//    else
+//      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
+//  }
+
+//  Field& field = create_component<Field>(name);
+//  field.set_field_group(*this);
+//  field.set_topology(topology());
+//  field.set_basis(m_basis);
+//  field.configure_option("var_names",names);
+//  field.configure_option("var_types",types);
+//  field.resize(m_size);
+//  return field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescriptor& variables_descriptor)
+{
+  Field& field = create_component<Field>(name);
+  field.set_field_group(*this);
+  field.set_topology(topology());
+  field.set_basis(m_basis);
+  field.set_descriptor(variables_descriptor);
+  field.descriptor().configure_property("dimension",parent().as_type<CMesh>().dimension());
   field.resize(m_size);
   return field;
 }
@@ -415,15 +431,12 @@ void FieldGroup::create_connectivity_in_space()
   {
     std::set<std::size_t> points;
     RealMatrix elem_coordinates;
+    Uint dim = DIM_0D;
 
     // step 1: collect nodes in a set
     // ------------------------------
     boost_foreach(CEntities& entities, elements_range())
     {
-      if (entities.space(m_space).is_bound_to_fields() > 0)
-        throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
-                         "fields ["+entities.space(m_space).bound_fields().uri().string()+"]\nCreate a new space for this purpose.");
-
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
@@ -436,6 +449,10 @@ void FieldGroup::create_connectivity_in_space()
         }
       }
     }
+
+    Field& coordinates = create_field("coordinates","coords[vector]");
+    coordinates.resize(points.size());
+    m_coordinates = coordinates.as_ptr<Field>();
 
     // step 2: collect nodes in a set
     // ------------------------------
@@ -453,7 +470,9 @@ void FieldGroup::create_connectivity_in_space()
         {
           RealVector space_coordinates = entities.element_type().shape_function().value(shape_function.local_coordinates().row(node)) * elem_coordinates ;
           std::size_t hash = hash_value(space_coordinates);
-          connectivity[elem][node]= std::distance(points.begin(), points.find(hash));
+          Uint idx = std::distance(points.begin(), points.find(hash));
+          connectivity[elem][node] = idx;
+          coordinates.set_row(idx, space_coordinates);
         }
       }
     }
@@ -510,6 +529,16 @@ CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) c
   Uint elem_idx;
   boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
   return indexes_for_element(component->as_type<CEntities>(),elem_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::coordinates() const
+{
+  if (is_null(m_coordinates))
+    throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+
+  return *m_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

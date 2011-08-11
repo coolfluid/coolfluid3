@@ -40,7 +40,7 @@
 #include "Common/MPI/PE.hpp"
 #include "Common/Timer.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "CEigenLSS.hpp"
 
@@ -61,8 +61,8 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
       ->mark_basic()
       ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 
-  if(!mpi::PE::instance().is_active())
-    mpi::PE::instance().init();
+  if(!Comm::PE::instance().is_active())
+    Comm::PE::instance().init();
 }
 
 void CEigenLSS::set_config_file(const URI& path)
@@ -323,12 +323,11 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
   {
     if(unique_field_names.insert(field_name).second)
     {
-      CField& field = *solution_mesh.get_child_ptr(field_name)->as_ptr<CField>();
-      CTable<Real>& field_table = field.data();
-      const Uint field_size = field_table.size();
+      Field& field = find_component_with_name<Field>(solution_mesh,field_name);
+      const Uint field_size = field.size();
       for(Uint row_idx = 0; row_idx != field_size; ++row_idx)
       {
-        CTable<Real>::Row row = field_table[row_idx];
+        Field::Row row = field[row_idx];
         for(Uint i = 0; i != nb_vars; ++i)
         {
           if(field_names[i] != field_name)
@@ -338,7 +337,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
           const Uint solution_end = solution_begin + var_sizes[i];
           Uint field_idx = field.var_index(var_names[i]);
 
-          cf_assert( (Uint) field.var_type(var_names[i]) == (Uint) var_sizes[i]);
+          cf_assert( (Uint) field.var_length(var_names[i]) == (Uint) var_sizes[i]);
 
           for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
           {

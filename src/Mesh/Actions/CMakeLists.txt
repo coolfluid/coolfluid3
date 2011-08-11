@@ -1,10 +1,6 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_actions_files
-  CBubbleEnrich.hpp
-  CBubbleEnrich.cpp
-  CBubbleRemove.hpp
-  CBubbleRemove.cpp
   CInfo.hpp
   CInfo.cpp
   CExtract.hpp
@@ -15,8 +11,6 @@ list( APPEND coolfluid_mesh_actions_files
   CBuildFaces.cpp
   CBuildFaceNormals.hpp
   CBuildFaceNormals.cpp
-  CBuildCoordinatesField.hpp
-  CBuildCoordinatesField.cpp
   CBuildVolume.hpp
   CBuildVolume.cpp
   CGlobalNumbering.hpp

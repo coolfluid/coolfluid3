@@ -7,6 +7,8 @@
 option( CF_ENABLE_ASSERTIONS         "Enable code assertions"                         ON  )
 option( CF_ENABLE_GUI                "Enable GUI building"                            ON  )
 
+option( CF_ENABLE_PYTHON             "Enable building of the python bindings"         ON  )
+
 option( CF_ENABLE_DOCS               "Enable build of documentation"                  ON  )
 option( CF_ENABLE_EXPLICIT_TEMPLATES "Enable explicit template instantiation"         ON  )
 option( CF_ENABLE_WARNINGS           "Enable lots of warnings while compiling"        OFF )

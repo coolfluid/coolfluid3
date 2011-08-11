@@ -15,8 +15,9 @@ namespace CF {
 namespace Mesh {
   template <typename T> class CTable;
   class CElements;
-  class CField;
+  class Field;
   class CScalarFieldView;
+  class CSpace;
 }
 namespace Solver {
 namespace Actions {
@@ -53,7 +54,8 @@ private: // helper functions
 
 private: // data
 
-  boost::shared_ptr<Mesh::CScalarFieldView> m_volume;
+  boost::weak_ptr<Mesh::Field> m_volume;
+  boost::weak_ptr<Mesh::CSpace> m_volume_field_space;
 
   RealMatrix m_coordinates;
 

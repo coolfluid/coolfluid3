@@ -1,8 +1,5 @@
 coolfluid_find_orphan_files()
 
-# a library providing generation of fields (i.e. constant value)
-add_subdirectory(FieldGeneration)
-
 # a library providing an interface to profiling with google perftools
 add_subdirectory( GooglePerfTools )
 

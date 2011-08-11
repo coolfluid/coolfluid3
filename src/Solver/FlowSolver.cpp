@@ -24,7 +24,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -166,7 +166,7 @@ void FlowSolver::auto_config(Component& component)
   component.configure_option_recursively(Tags::mesh(),m_mesh.lock()->uri());
   component.configure_option_recursively(Tags::time(),m_time.lock()->uri());
 
-  boost_foreach(CField& field, find_components<CField>(*m_mesh.lock()) )
+  boost_foreach(Field& field, find_components<Field>(*m_mesh.lock()) )
     component.configure_option_recursively(field.name(), field.uri());
 }
 

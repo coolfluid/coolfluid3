@@ -28,8 +28,7 @@
 #include "Mesh/Actions/CGlobalNumberingNodes.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -100,13 +99,13 @@ void CGlobalNumberingNodes::execute()
 {
   CMesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
-  if ( is_null( mesh.nodes().get_child_ptr("glb_node_hash") ) )
-    mesh.nodes().create_component<CVector_size_t>("glb_node_hash");
+  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
 
   CVector_size_t& glb_node_hash =
-      mesh.nodes().get_child("glb_node_hash").as_type<CVector_size_t>();
+      mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
 
   glb_node_hash.data().resize(coordinates.size());
 
@@ -116,7 +115,7 @@ void CGlobalNumberingNodes::execute()
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
-      std::cout << "["<<mpi::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<Comm::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
 
@@ -149,32 +148,32 @@ void CGlobalNumberingNodes::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_ghost(0);
-  CNodes& nodes = mesh.nodes();
-  CList<Uint>& nodes_rank = mesh.nodes().rank();
+  Geometry& nodes = mesh.geometry();
+  CList<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if (nodes.is_ghost(i))
       ++nb_ghost;
     else
-      nodes_rank[i] = mpi::PE::instance().rank();
+      nodes_rank[i] = Comm::PE::instance().rank();
   }
 
 
   Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
-  if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
-  if (m_debug) std::cout << "["<<mpi::PE::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
+  if (m_debug) std::cout << "["<<Comm::PE::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
+  if (m_debug) std::cout << "["<<Comm::PE::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
 
 
-  std::vector<Uint> nb_ids_per_proc(mpi::PE::instance().size());
+  std::vector<Uint> nb_ids_per_proc(Comm::PE::instance().size());
 
   // avoid mpi call if PE not active
-  if( mpi::PE::instance().is_active() )
-    mpi::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  if( Comm::PE::instance().is_active() )
+    Comm::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
   else
     nb_ids_per_proc[0] = tot_nb_owned_ids;
 
-  std::vector<Uint> start_id_per_proc(mpi::PE::instance().size());
+  std::vector<Uint> start_id_per_proc(Comm::PE::instance().size());
 
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
@@ -190,11 +189,11 @@ void CGlobalNumberingNodes::execute()
   std::vector<size_t> node_from(nodes.size()-nb_ghost);
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
 
-  CList<Uint>& nodes_glb_idx = mesh.nodes().glb_idx();
+  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
-  Uint glb_id = start_id_per_proc[mpi::PE::instance().rank()];
+  Uint glb_id = start_id_per_proc[Comm::PE::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if ( ! nodes.is_ghost(i) )
@@ -206,22 +205,22 @@ void CGlobalNumberingNodes::execute()
     }
   }
 
-  for (Uint root=0; root<mpi::PE::instance().size(); ++root)
+  for (Uint root=0; root<Comm::PE::instance().size(); ++root)
   {
-    //std::vector<std::size_t> rcv_node_from = mpi::broadcast(node_from, root);
-    //std::vector<Uint>        rcv_node_to   = mpi::broadcast(node_to, root);
+    //std::vector<std::size_t> rcv_node_from = MPI::broadcast(node_from, root);
+    //std::vector<Uint>        rcv_node_to   = MPI::broadcast(node_to, root);
     // PECheckPoint(100,"001");
     std::vector<std::size_t> rcv_node_from(0);//node_from.size());
-    mpi::PE::instance().broadcast(node_from,rcv_node_from,root);
+    Comm::PE::instance().broadcast(node_from,rcv_node_from,root);
     //PECheckPoint(100,"002");
     std::vector<Uint>        rcv_node_to(0);//node_to.size());
-    mpi::PE::instance().broadcast(node_to,rcv_node_to,root);
+    Comm::PE::instance().broadcast(node_to,rcv_node_to,root);
     //PECheckPoint(100,"003");
-    if (mpi::PE::instance().rank() != root)
+    if (Comm::PE::instance().rank() != root)
     {
-      for (Uint p=0; p<mpi::PE::instance().size(); ++p)
+      for (Uint p=0; p<Comm::PE::instance().size(); ++p)
       {
-        if (p == mpi::PE::instance().rank())
+        if (p == Comm::PE::instance().rank())
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t node_hash, rcv_node_from)
@@ -230,7 +229,7 @@ void CGlobalNumberingNodes::execute()
             if ( node_glb2loc_it != hash_not_found )
             {
               if (m_debug)
-                std::cout << "["<<mpi::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<Comm::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
               nodes_rank[node_glb2loc_it->second]=root;
             }

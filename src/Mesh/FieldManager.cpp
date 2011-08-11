@@ -31,10 +31,10 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
-using namespace Common::mpi;
 using namespace Math;
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < FieldManager, Component, LibMesh > FieldManager_Builder;
 
@@ -77,7 +77,6 @@ struct FieldManager::Implementation
   boost::weak_ptr<VariableManager> m_variable_manager;
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////
 
 FieldManager::FieldManager( const std::string& name  ) :
   Component ( name ),
@@ -89,11 +88,10 @@ FieldManager::~FieldManager()
 {
 }
 
-////////////////////////////////////////////////////////////////////////////////
 
-void FieldManager::create_fields(const std::string& tag, FieldGroup& field_group)
+void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
 {
-  boost_foreach(const VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
+  boost_foreach(VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
     if(find_component_ptr_with_tag(field_group, tag)) // TODO: Check if the tagged fields that exist have the same variable descriptor
     {
@@ -101,28 +99,12 @@ void FieldManager::create_fields(const std::string& tag, FieldGroup& field_group
       continue;
     }
 
-    field_group.create_field(tag, descriptor.description()).add_tag(tag);
-  }
-}
-
-void FieldManager::create_fields(const std::string& tag, CMesh& mesh, const CField::Basis::Type base, const std::string& space)
-{
-  boost_foreach(const VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
-  {
-    if(find_component_ptr_with_tag(mesh, tag))
-    {
-      CFdebug << "Skipping second field creation for tag " << tag << " in mesh " << mesh.uri().string() << CFendl;
-      continue;
-    }
-
-    mesh.create_field(tag, base, space, descriptor.description()).add_tag(tag);
+    field_group.create_field(tag, descriptor).add_tag(tag);
   }
 }
 
 
-////////////////////////////////////////////////////////////////////////////////
-
-void FieldManager::signal_create_fields(SignalArgs& node)
+void FieldManager::signal_create_field(SignalArgs& node)
 {
   SignalOptions options(node);
 
@@ -136,10 +118,10 @@ void FieldManager::signal_create_fields(SignalArgs& node)
   if(!field_group)
     throw ValueNotFound(FromHere(), "Wrong component type at field_group URI: " + field_group_uri.string());
 
-  create_fields(options.option("tag").value_str(), *field_group);
+  create_field(options.option("tag").value_str(), *field_group);
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
 } // CF

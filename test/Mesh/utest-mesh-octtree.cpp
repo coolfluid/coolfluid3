@@ -23,7 +23,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/COcttree.hpp"
 #include "Mesh/CStencilComputerOcttree.hpp"

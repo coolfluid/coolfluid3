@@ -24,7 +24,7 @@ CHash::CHash ( const std::string& name ) :
     Component(name),
     m_nb_obj(0),
     m_base(0),
-    m_nb_parts(mpi::PE::instance().size())
+    m_nb_parts(Comm::PE::instance().size())
 {
   m_options.add_option<OptionT <Uint> >("nb_obj", m_nb_obj)
       ->description("Total number of objects")
@@ -55,7 +55,7 @@ Uint CHash::part_of_obj(const Uint obj) const
 
 Uint CHash::proc_of_part(const Uint part) const
 {
-  return std::min(mpi::PE::instance().size()-1, part / (m_nb_parts/mpi::PE::instance().size()));
+  return std::min(Comm::PE::instance().size()-1, part / (m_nb_parts/Comm::PE::instance().size()));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ Uint CHash::proc_of_obj(const Uint obj) const
 
 bool CHash::owns(const Uint obj) const
 {
-  return (proc_of_obj(obj) == mpi::PE::instance().rank());
+  return (proc_of_obj(obj) == Comm::PE::instance().rank());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,7 +114,7 @@ Uint CHash::end_idx_in_part(const Uint part) const
 
 Uint CHash::start_idx_in_proc(const Uint proc) const
 {
-  Uint part_begin = m_nb_parts/mpi::PE::instance().size()*proc;
+  Uint part_begin = m_nb_parts/Comm::PE::instance().size()*proc;
   return start_idx_in_part(part_begin);
 }
 
@@ -122,7 +122,7 @@ Uint CHash::start_idx_in_proc(const Uint proc) const
 
 Uint CHash::end_idx_in_proc(const Uint proc) const
 {
-  Uint part_end = (proc == mpi::PE::instance().size()-1) ? m_nb_parts : m_nb_parts/mpi::PE::instance().size()*(proc+1);
+  Uint part_end = (proc == Comm::PE::instance().size()-1) ? m_nb_parts : m_nb_parts/Comm::PE::instance().size()*(proc+1);
   return end_idx_in_part(part_end);
 }
 

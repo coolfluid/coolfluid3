@@ -14,16 +14,21 @@
 
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
-
+#include "Mesh/Field.hpp"
+#include "Mesh/CEntities.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace std;
 using namespace boost;
@@ -49,9 +54,9 @@ struct GmshReaderMPITests_Fixture
   /// possibly common functions used on the tests below
 
 
-	/// common values accessed by all tests goes here
-	int    m_argc;
-	char** m_argv;
+  /// common values accessed by all tests goes here
+  int    m_argc;
+  char** m_argv;
 
 };
 
@@ -63,7 +68,7 @@ BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixtu
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	Core::instance().initiate(m_argc,m_argv);
+  Core::instance().initiate(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -71,11 +76,11 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
 {
 
-	CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-	BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
-	BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
-	std::vector<std::string> extensions = meshreader->get_extensions();
-	BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+  BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
+  BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
+  std::vector<std::string> extensions = meshreader->get_extensions();
+  BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
 
 //	meshreader->configure_option("Repartition",true);
 //	meshreader->configure_option("OutputRank",(Uint) 0);
@@ -242,10 +247,36 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   // CFinfo << mesh.tree() << CFendl;
 
-CMeshWriter::Ptr mesh_writer =
+  Field& nodal = mesh.geometry().create_field("nodal" , "nodal[vector]");
+  nodal.descriptor().configure_option("dimension",mesh.dimension());
+  for (Uint n=0; n<nodal.size(); ++n)
+  {
+    for(Uint j=0; j<nodal.row_size(); ++j)
+      nodal[n][j] = n;
+  }
+
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+
+  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]");
+  for (Uint e=0; e<cell_centred.size(); ++e)
+  {
+    for(Uint j=0; j<cell_centred.row_size(); ++j)
+      cell_centred[e][j] = e;
+  }
+
+  std::vector<Field::Ptr> fields;
+  fields.push_back(nodal.as_ptr<Field>());
+  fields.push_back(cell_centred.as_ptr<Field>());
+
+
+  CMeshWriter::Ptr mesh_writer =
     build_component_abstract_type<CMeshWriter> ("CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out-out.msh");
-BOOST_CHECK(true);
+  mesh_writer->set_fields(fields);
+  mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out-out.msh");
+
+  BOOST_CHECK(true);
 
   CFinfo << "elements count = " << find_component<CRegion>(mesh).recursive_elements_count() << CFendl;
   CFinfo << "nodes count    = " << find_component<CRegion>(mesh).recursive_nodes_count() << CFendl;

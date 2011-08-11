@@ -49,8 +49,8 @@ void AssertionManager::do_assert ( bool condition,
   {
     CodeLocation code_position (file,line,func);
 
-		std::ostringstream oss;
-    oss << "Assertion failed on rank " << mpi::PE::instance().rank() << ": [" << cond_str << "] ";
+    std::ostringstream oss;
+    oss << "Assertion failed on rank " << Comm::PE::instance().rank() << ": [" << cond_str << "] ";
 
     if (desc)
       oss << "'" << desc << "' ";

@@ -121,6 +121,14 @@ coolfluid_add_unit_test( utest-tecplot-writer )
 
 ################################################################################
 
+list( APPEND utest-mesh-writemesh_cflibs coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_gmsh coolfluid_mesh_sf )
+list( APPEND utest-mesh-writemesh_files  utest-mesh-writemesh.cpp )
+list( APPEND utest-mesh-writemesh_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+
+coolfluid_add_unit_test( utest-mesh-writemesh )
+
+################################################################################
+
 list( APPEND utest-vtklegacy-writer_cflibs coolfluid_mesh_vtklegacy coolfluid_mesh_sf coolfluid_mesh_generation )
 list( APPEND utest-vtklegacy-writer_files  utest-vtklegacy-writer.cpp )
 
@@ -219,13 +227,6 @@ coolfluid_add_unit_test( utest-nodes )
 
 ################################################################################
 
-list( APPEND utest-mesh-fields_cflibs coolfluid_mesh_neu coolfluid_mesh_sf coolfluid_mesh_gmsh )
-list( APPEND utest-mesh-fields_files  utest-mesh-fields.cpp )
-
-coolfluid_add_unit_test( utest-mesh-fields )
-
-################################################################################
-
 list( APPEND utest-mesh-fieldgroup_cflibs coolfluid_mesh_sf )
 list( APPEND utest-mesh-fieldgroup_files  utest-mesh-fieldgroup.cpp )
 
@@ -292,14 +293,14 @@ coolfluid_add_unit_test( utest-zoltan )
 
 # list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_sf )
 # list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
-# 
+#
 # set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
-# 
+#
 # set( utest-blockmesh-mpi-scale_scaling ON )
-# 
+#
 # set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
 # set( utest-blockmesh-mpi-scale_mpi_test TRUE)
-# 
+#
 # coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
 
 ##########################################################################

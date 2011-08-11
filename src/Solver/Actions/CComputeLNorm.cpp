@@ -13,7 +13,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CTable.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
@@ -38,7 +38,7 @@ void compute_L2( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm += row[0]*row[0];
 
-  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( Comm::plus(), &loc_norm, size, &glb_norm );
 
   norm = std::sqrt(glb_norm);
 }
@@ -53,7 +53,7 @@ void compute_L1( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm += std::abs( row[0] );
 
-  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( Comm::plus(), &loc_norm, size, &glb_norm );
 }
 
 void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
@@ -66,7 +66,7 @@ void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
   boost_foreach(CTable<Real>::ConstRow row, array )
       loc_norm = std::max( std::abs(row[0]), loc_norm );
 
-  mpi::PE::instance().all_reduce( mpi::max(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( Comm::max(), &loc_norm, size, &glb_norm );
 
   norm = glb_norm;
 }
@@ -81,7 +81,7 @@ void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
   boost_foreach(CTable<Real>::ConstRow row, array )
     loc_norm += std::pow( std::abs(row[0]), (int)order ) ;
 
-  mpi::PE::instance().all_reduce( mpi::plus(), &loc_norm, size, &glb_norm );
+  Comm::PE::instance().all_reduce( Comm::plus(), &loc_norm, size, &glb_norm );
 
   norm = std::pow(glb_norm, 1./order );
 }
@@ -108,7 +108,7 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
   m_options.add_option< OptionT<Uint> >("Order", 2u)
       ->description("Order of the p-norm, zero if L-inf");
 
-  m_options.add_option(OptionComponent<CField>::create("Field", &m_field))
+  m_options.add_option(OptionComponent<Field>::create("Field", &m_field))
       ->description("Field for which to compute the norm");
 }
 
@@ -117,8 +117,8 @@ void CComputeLNorm::execute()
 {
   if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
 
-  CTable<Real>& table = m_field.lock()->data();
-  CTable<Real>::ArrayT& array =  table.array();
+  CTable<Real>& table = *m_field.lock();
+  CTable<Real>::ArrayT& array =  m_field.lock()->array();
 
   const Uint nbrows = table.size();
 

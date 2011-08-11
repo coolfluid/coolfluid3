@@ -13,7 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Triag2DLagrangeP1.hpp"
 #include "Mesh/CElements.hpp"
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  CNodes::Ptr nodes = allocate_component<CNodes>("nodes") ;
+  Geometry::Ptr nodes = allocate_component<Geometry>("nodes") ;
   // Create a CElements component
   CElements::Ptr comp = allocate_component<CElements>("comp");
 

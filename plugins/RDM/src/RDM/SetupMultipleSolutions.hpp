@@ -9,13 +9,14 @@
 
 #include "Solver/Action.hpp"
 
+
 #include "RDM/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 
 namespace RDM {
 

@@ -14,7 +14,7 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Solver/CEigenLSS.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"

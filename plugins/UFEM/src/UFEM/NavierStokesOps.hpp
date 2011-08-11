@@ -20,22 +20,22 @@ struct SUPGCoeffs
 {
   /// Reference velocity magnitude
   Real u_ref;
-  
+
   /// Kinematic viscosity
   Real nu;
-  
+
   /// Density
   Real rho;
-  
+
   /// Model coefficients
   Real tau_ps, tau_su, tau_bulk;
 };
 
 struct ComputeTau
-{ 
+{
   /// Dummy result
   typedef void result_type;
-  
+
   template<typename UT>
   void operator()(const UT& u, SUPGCoeffs& coeffs) const
   {
@@ -44,7 +44,7 @@ struct ComputeTau
     const Real xi=std::max(0.,std::min(ree/3.,1.));
     coeffs.tau_ps = he*xi/(2.*coeffs.u_ref);
     coeffs.tau_bulk = he*coeffs.u_ref/xi;
-    
+
     // Average cell velocity
     const RealVector2 u_avg = u.value().colwise().mean();
     const Real umag = u_avg.norm();

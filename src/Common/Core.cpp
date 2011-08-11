@@ -54,7 +54,7 @@ Core::Core()
   Logger::instance();
   AssertionManager::instance();
   OSystem::instance().layer()->platform_name();
-  mpi::PE::instance();
+  Comm::PE::instance();
 
   // create singleton objects inside core
   m_event_handler.reset ( new EventHandler() );
@@ -102,6 +102,9 @@ void Core::initiate ( int argc, char** argv )
 
   if( environment().option("regist_signal_handlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
+
+  // initiate the logging facility
+  Logger::instance().initiate();
 
   // load libraries listed in the COOLFLUID_PLUGINS environment variable
 

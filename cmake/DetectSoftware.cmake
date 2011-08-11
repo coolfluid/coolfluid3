@@ -100,3 +100,8 @@ if( CF_ENABLE_CUDA AND CF_ENABLE_GPU )
   coolfluid_log_file( "CUDA_FOUND: [${CUDA_FOUND}]" )
   coolfluid_set_package( PACKAGE CUDA DESCRIPTION "gpu computing" )
 endif()
+
+# python support
+if( CF_ENABLE_PYTHON )
+  include(FindPythonLibs)
+endif()

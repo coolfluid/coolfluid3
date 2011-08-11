@@ -86,6 +86,59 @@ SignalFrame::SignalFrame ( XmlNode xml ) :
 
 ////////////////////////////////////////////////////////////////////////////
 
+SignalFrame::SignalFrame ( boost::shared_ptr<XmlDoc> doc )
+  : xml_doc(doc)
+{
+  cf_assert( is_not_null(doc) );
+
+  XmlNode doc_node = Protocol::goto_doc_node(*xml_doc.get());
+
+  rapidxml::xml_node<> * frame_node = doc_node.content->first_node( Protocol::Tags::node_frame() );
+  rapidxml::xml_node<> * map_node;
+
+  node.content = frame_node;
+
+  if( node.is_valid() )
+  {
+    main_map.content = node.content->first_node( Protocol::Tags::node_map() );
+
+    if( !main_map.content.is_valid() ) // if the main map does not exist, we create it
+      main_map = node.add_node( Protocol::Tags::node_map() );
+    else
+    {
+      const char * tag_value = Protocol::Tags::node_value();
+      rapidxml::xml_node<>* value = main_map.content.content->first_node( tag_value );
+      rapidxml::xml_attribute<>* attr;
+      rapidxml::xml_node<>* map;
+
+      // iterate through the children to find sub-maps
+      for( ; value != nullptr ; value = value->next_sibling( tag_value ) )
+      {
+        attr = value->first_attribute( Protocol::Tags::attr_key() );
+        map = value->first_node( );
+
+        // if the key attribute exists and its value is not empty
+        if( attr != nullptr && attr->value()[0] != '\0' &&
+            map != nullptr && std::strcmp(map->name(), Protocol::Tags::node_map()) == 0 )
+        {
+          m_maps.insert( std::pair<std::string, SignalFrame>(attr->value(), SignalFrame(value)) );
+        }
+      }
+    }
+  }
+  else
+    throw XmlError( FromHere(), "Could not find a frame." );
+
+//  map_node = node.content->first_node( Protocol::Tags::node_map() );
+
+//  if( is_not_null(map_node) )
+//    main_map.content.content = map_node;
+//  else
+//    main_map = node.add_node( Protocol::Tags::node_map() );
+}
+
+////////////////////////////////////////////////////////////////////////////
+
 SignalFrame::SignalFrame ( const std::string& target,
                            const URI& sender,
                            const URI& receiver )

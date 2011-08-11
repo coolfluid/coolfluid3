@@ -66,7 +66,7 @@ struct NodesOp : boost::proto::transform< NodesOp >
     
     result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
     {
-      return data.support().nodes();
+      return data.support().geometry();
     }
     
   };

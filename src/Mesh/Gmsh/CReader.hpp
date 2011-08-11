@@ -25,7 +25,7 @@ namespace Mesh {
 class CElements;
 class CRegion;
 class CMixedHash;
-class CNodes;
+class Geometry;
 class CMesh;
 
 namespace Gmsh {

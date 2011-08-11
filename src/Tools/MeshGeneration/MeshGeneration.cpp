@@ -19,7 +19,7 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -54,7 +54,7 @@ void mesh_loaded(CMesh& mesh)
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
   CRegion& region = mesh.topology().create_region("fluid");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -94,7 +94,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -200,7 +200,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -356,7 +356,7 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
 void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   CFaces::Ptr cells = region.create_component_ptr<CFaces>("Faces");
   cells->initialize("CF.Mesh.SF.Line2DLagrangeP1",nodes);

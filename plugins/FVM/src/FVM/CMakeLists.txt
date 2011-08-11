@@ -1,1 +1,0 @@
-add_subdirectory( Core )  # coolfluid_fvm_core library

@@ -43,8 +43,8 @@ public: // functions
 
   virtual void execute();
 
-  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts = Common::mpi::PE::instance().size(), const bool bdry = true);
-  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts = Common::mpi::PE::instance().size(), const bool bdry = true);
+  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts = Common::Comm::PE::instance().size(), const bool bdry = true);
+  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts = Common::Comm::PE::instance().size(), const bool bdry = true);
 
 protected: // data
 
