@@ -9,6 +9,8 @@
 
 #include <boost/thread/thread.hpp>
 
+#include "Common/Signal.hpp"
+
 #include "Common/MPI/types.hpp"
 #include "Common/MPI/CWorkerGroup.hpp"
 
@@ -17,6 +19,7 @@
 namespace CF {
 namespace Common {
 
+class NotificationQueue;
 namespace XML { class XmlDoc; }
 
 namespace Comm {
@@ -60,6 +63,14 @@ public: // functions
 
   boost::thread & listening_thread();
 
+  Common::Signal::signal_type signal_to_forward( SignalArgs & args );
+
+  Common::NotificationQueue * notification_queue() { return m_queue; }
+
+  const Common::NotificationQueue * notification_queue() const { return m_queue; }
+
+  void new_event( const std::string & name, const Common::URI & raiserPath );
+
   /// @name SIGNALS
   //@{
 
@@ -97,6 +108,8 @@ private:
   std::map<std::string, Communicator> m_groups;
 
   ListeningThread * m_listener;
+
+  Common::NotificationQueue * m_queue;
 
 }; // CPEManager
 

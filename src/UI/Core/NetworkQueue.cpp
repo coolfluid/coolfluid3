@@ -21,6 +21,7 @@
 
 #include "UI/Core/NetworkThread.hpp"
 #include "UI/Core/NLog.hpp"
+
 #include "UI/Core/ThreadManager.hpp"
 #include "UI/Core/TreeThread.hpp"
 
@@ -58,6 +59,7 @@ NetworkQueue::NetworkQueue()
       ->hidden( true )
       ->connect( boost::bind( &NetworkQueue::signal_ack, this, _1 ) );
 }
+
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -306,6 +308,7 @@ void NetworkQueue::send_next_command()
 
       if( m_transactions.isEmpty() )
         send_next_command();
+
     }
     else
       send_next_command(); // if command is empty, try the next one

@@ -103,6 +103,9 @@ void Core::initiate ( int argc, char** argv )
   if( environment().option("regist_signal_handlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
+  // initiate the logging facility
+  Logger::instance().initiate();
+
   // load libraries listed in the COOLFLUID_PLUGINS environment variable
 
   char* env_var = std::getenv("COOLFLUID_PLUGINS");

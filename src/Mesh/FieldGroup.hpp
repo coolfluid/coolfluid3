@@ -133,6 +133,8 @@ public: // functions
 
   Field& coordinates() const;
 
+  Basis::Type basis() const { return m_basis; }
+
 private: // functions
 
   void update();

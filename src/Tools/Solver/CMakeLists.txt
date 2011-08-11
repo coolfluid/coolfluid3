@@ -1,6 +1,8 @@
 list( APPEND coolfluid-solver_files  coolfluid-solver.cpp
    CWorker.cpp
    CWorker.hpp
+   Notifier.hpp
+   Notifier.cpp
    LogForwarder.cpp
    LogForwarder.hpp )
 

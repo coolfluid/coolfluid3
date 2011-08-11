@@ -6,6 +6,9 @@
 
 #include <cmath>
 
+#include "Common/CBuilder.hpp"
+#include "Common/LibCommon.hpp"
+
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 
@@ -20,6 +23,10 @@ using namespace CF::Common;
 namespace CF {
 namespace Tools {
 namespace Solver {
+
+////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < CWorker, Component, LibCommon > CWorker_Builder;
 
 ////////////////////////////////////////////////////////////////////////////
 
