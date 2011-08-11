@@ -1,10 +1,6 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_actions_files
-  CBubbleEnrich.hpp
-  CBubbleEnrich.cpp
-  CBubbleRemove.hpp
-  CBubbleRemove.cpp
   CInfo.hpp
   CInfo.cpp
   CExtract.hpp
