@@ -153,6 +153,7 @@ void CDomain::write_mesh(const URI& file)
   {
     state_fields.push_back(field.uri());
   }
+
   m_implementation->m_write_mesh.lock()->write_mesh(mesh, file, state_fields);
 }
 
