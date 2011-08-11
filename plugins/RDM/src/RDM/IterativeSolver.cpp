@@ -138,7 +138,6 @@ void IterativeSolver::execute()
 
     // output convergence info
 
-#if 0
     /// @todo move current rhs as a prpoerty of the iterate or solver components
     if( Comm::PE::instance().rank() == 0 )
     {
@@ -150,7 +149,6 @@ void IterativeSolver::execute()
         throw FailedToConverge(FromHere(),
                                "Solution diverged after "+to_str(iter)+" iterations");
     }
-#endif
 
     // raise signal that iteration is done
 

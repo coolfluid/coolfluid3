@@ -55,9 +55,9 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 call Model/RDSolver/InitialConditions
 
 #call Model/Domain/write_mesh file:uri=initial.msh
-#call Model/Domain/write_mesh file:uri=initial.plt
+call Model/Domain/write_mesh file:uri=initial.plt
 
 call Model/simulate
 
 #call Model/Domain/write_mesh file:uri=solution.msh
-#call Model/Domain/write_mesh file:uri=solution.plt
+call Model/Domain/write_mesh file:uri=solution.plt
