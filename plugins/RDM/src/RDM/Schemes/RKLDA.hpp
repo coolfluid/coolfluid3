@@ -11,7 +11,7 @@
 
 #include "Common/StringConversion.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -83,7 +83,7 @@ public: // functions
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
 
-    m_options["Elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
+    m_options["elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
 
   }
 
@@ -107,10 +107,10 @@ protected: // helper function
     k = step - 1;
 
     ksolutions.clear();
-    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::CField>() );
-    for ( Uint k = 1; k <= rkorder; ++k)
+    ksolutions.push_back( mysolver.fields().get_child( Tags::solution() ).follow()->as_ptr_checked<Mesh::Field>() );
+    for ( Uint kstep = 1; kstep < rkorder; ++kstep)
     {
-      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(k) ).follow()->as_ptr_checked<Mesh::CField>() );
+      ksolutions.push_back( mysolver.fields().get_child( Tags::solution() + to_str(kstep) ).follow()->as_ptr_checked<Mesh::Field>() );
     }
 
 //    std::cout << "RKLDA   rkorder : " << rkorder << std::endl;
@@ -185,7 +185,7 @@ protected: // data
   RealMatrix rkalphas;  ///< matrix with alpha coefficients of RK method
   RealMatrix rkbetas;   ///< matrix with beta  coefficients of RK method
 
-  std::vector< Mesh::CField::Ptr > ksolutions;  ///< solution fields at different k steps
+  std::vector< Mesh::Field::Ptr > ksolutions;  ///< solution fields at different k steps
 
   /// The operator L in the advection equation Lu = f
   /// Matrix Ki_n stores the value L(N_i) at each quadrature point for each shape function N_i
@@ -216,13 +216,14 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
-  // fill sols_l with the solutions untill the current step
+  // fill sols_l with the solutions until the current step
+
   for ( Uint l = 0 ; l < step ; ++l) // loop until current RK step
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       for (Uint eq = 0; eq < PHYS::MODEL::_neqs; ++eq)
-        sols_l[l](n,eq) = ksolutions[l]->data()[ nodes_idx[n] ][eq];
+        sols_l[l](n,eq) = (*ksolutions[l])[ nodes_idx[n] ][eq];
 
   /// @todo must be tested for 3D
 

@@ -15,8 +15,7 @@
 #include "Mesh/Actions/CInitFieldConstant.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
   desc = "  Usage: CInitFieldConstant constant \n";
   m_properties["description"] = desc;
 
-  m_options.add_option(OptionComponent<CField>::create("field", &m_field))
+  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();
@@ -76,7 +75,11 @@ void CInitFieldConstant::execute()
 {
   if (m_field.expired())
     throw SetupError(FromHere(), "option [field] was not set in ["+uri().path()+"]");
-  m_field.lock()->data() = m_constant;
+
+  Field& field = *m_field.lock();
+  for (Uint i=0; i<field.size(); ++i)
+    for (Uint j=0; j<field.row_size(); ++j)
+      field[i][j] = m_constant;
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 #include "Common/CGroup.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/MeshMetadata.hpp"
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
@@ -52,15 +52,15 @@ RK::RK ( const std::string& name  )
       ->description("Time component")
       ->pretty_name("Time");
 
-  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::solution(), &m_solution))
+  options().add_option(OptionComponent<Field>::create(FlowSolver::Tags::solution(), &m_solution))
       ->description("Solution")
       ->pretty_name("Solution");
 
-  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::residual(), &m_residual))
+  options().add_option(OptionComponent<Field>::create(FlowSolver::Tags::residual(), &m_residual))
       ->description("Residual")
       ->pretty_name("Residual");
 
-  options().add_option(OptionComponent<CField>::create(FlowSolver::Tags::update_coeff(), &m_update_coeff))
+  options().add_option(OptionComponent<Field>::create(FlowSolver::Tags::update_coeff(), &m_update_coeff))
       ->description("Update Coefficient")
       ->pretty_name("Update Coefficient");
 
@@ -158,10 +158,10 @@ void RK::execute()
   if (m_solution.expired()) throw SetupError (FromHere(), "solution was not set");
 
   if ( m_solution_backup.expired() )  // backup not created --> create field
-    m_solution_backup = mesh().create_field("solution_backup",*m_solution.lock()).as_ptr<CField>();
+    m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup", m_solution.lock()->descriptor()).as_ptr<Field>();
 
-  const CTable<Real>& U  = m_solution.lock()->data();
-  CTable<Real>&       U0 = m_solution_backup.lock()->data();
+  const Field& U  = *m_solution.lock();
+  Field&       U0 = *m_solution_backup.lock();
 
   /// @todo put this in triggers of own config options
   m_update->configure_option("solution",m_solution.lock()->uri());

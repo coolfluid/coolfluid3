@@ -9,21 +9,22 @@
 
 #include <boost/thread/thread.hpp>
 
+#include "Common/Signal.hpp"
+
 #include "Common/MPI/types.hpp"
 #include "Common/MPI/CWorkerGroup.hpp"
 
 #include "Common/Component.hpp"
 
-////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Common {
 
+class NotificationQueue;
 namespace XML { class XmlDoc; }
 
-namespace mpi {
+namespace Comm {
 
-////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 class ListeningThread;
 
@@ -62,6 +63,14 @@ public: // functions
 
   boost::thread & listening_thread();
 
+  Common::Signal::signal_type signal_to_forward( SignalArgs & args );
+
+  Common::NotificationQueue * notification_queue() { return m_queue; }
+
+  const Common::NotificationQueue * notification_queue() const { return m_queue; }
+
+  void new_event( const std::string & name, const Common::URI & raiserPath );
+
   /// @name SIGNALS
   //@{
 
@@ -77,7 +86,7 @@ public: // functions
 
   void signal_exit ( SignalArgs & args );
 
-  void new_signal ( const MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
+  void new_signal ( const ::MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
 
   //@} END SIGNALS
 
@@ -100,16 +109,14 @@ private:
 
   ListeningThread * m_listener;
 
-
+  Common::NotificationQueue * m_queue;
 
 }; // CPEManager
 
-////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
-} // mpi
+} // Comm
 } // Common
 } // CF
-
-////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_MPI_CPEManager_hpp

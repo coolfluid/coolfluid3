@@ -7,7 +7,7 @@
 #include "Common/Signal.hpp"
 #include "Common/OptionComponent.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -29,13 +29,13 @@ CellTerm::CellTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::solution(), &m_solution))
+  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution Field");
 
-  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::wave_speed(), &m_wave_speed))
+  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::wave_speed(), &m_wave_speed))
       ->pretty_name("Wave Speed Field");
 
-  m_options.add_option(OptionComponent<CField>::create( RDM::Tags::residual(), &m_residual))
+  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::residual(), &m_residual))
       ->pretty_name("Residual Field");
 }
 
@@ -47,21 +47,21 @@ void CellTerm::link_fields()
   if( is_null( m_solution.lock() ) )
   {
     m_solution = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( RDM::Tags::solution(), m_solution.lock()->uri() );
   }
 
   if( is_null( m_residual.lock() ) )
   {
     m_residual = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( RDM::Tags::residual(), m_residual.lock()->uri() );
   }
 
   if( is_null( m_wave_speed.lock() ) )
   {
     m_wave_speed = solver().as_type<RDM::RDSolver>().fields()
-                         .get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
+                         .get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( RDM::Tags::wave_speed(), m_wave_speed.lock()->uri() );
   }
 }

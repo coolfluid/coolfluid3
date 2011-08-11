@@ -129,7 +129,7 @@ void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_cells_in_region (CRegion& parent_region, CNodes& nodes,
+  CMeshReader::create_cells_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> cells_map;
@@ -149,7 +149,7 @@ std::map<std::string,CElements::Ptr>
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_faces_in_region (CRegion& parent_region, CNodes& nodes,
+  CMeshReader::create_faces_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> faces_map;
@@ -191,8 +191,8 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work
-    if (mpi::PE::instance().is_active())
-      mpi::PE::instance().instance().all_reduce( mpi::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
+    if (Comm::PE::instance().is_active())
+      Comm::PE::instance().instance().all_reduce( Comm::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
 
     if ( empty_on_all_ranks )
     {

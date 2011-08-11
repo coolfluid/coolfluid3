@@ -19,7 +19,7 @@
 
 namespace CF {
 namespace Mesh { 
-  class CField;
+  class Field;
 namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ private: // data
   
   Math::VectorialFunction  m_function;
   
-  boost::weak_ptr<CField> m_field;
+  boost::weak_ptr<Field> m_field;
   
 }; // end CInitFieldFunction
 

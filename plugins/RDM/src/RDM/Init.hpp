@@ -15,7 +15,7 @@
 
 namespace CF {
 
-namespace Mesh { class CMesh; class CField; }
+namespace Mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -49,7 +49,7 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::CField> m_field;  ///< access to the field to initialize
+  boost::weak_ptr<Mesh::Field> m_field;  ///< access to the field to initialize
 
   Math::VectorialFunction  m_function;    ///< function parser for the math formula
 

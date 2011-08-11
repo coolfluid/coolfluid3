@@ -19,7 +19,7 @@
 namespace CF {
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class CRegion;
 
 namespace CGNS {
@@ -102,7 +102,7 @@ protected:
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
-    CNodes* nodes;
+    Geometry* nodes;
     Uint nodes_start_idx;
     //
   } m_zone;
@@ -142,7 +142,7 @@ protected:
   std::map<int,CRegion*> m_base_map;
   std::map<int,CRegion*> m_zone_map;
   std::map<int,CRegion*> m_section_map;
-  std::map<int,CNodes*>  m_nodes_map;
+  std::map<int,Geometry*>  m_nodes_map;
   std::map<int,CRegion*> m_boco_map;
 
 private:

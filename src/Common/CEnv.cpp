@@ -120,10 +120,12 @@ CEnv::~CEnv()
 
 void CEnv::trigger_only_cpu0_writes()
 {
-  CFerror.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFwarn.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFinfo.setFilterRankZero(option("only_cpu0_writes").value<bool>());
-  CFdebug.setFilterRankZero(option("only_cpu0_writes").value<bool>());
+  bool opt = option("only_cpu0_writes").value<bool>();
+
+  CFerror.setFilterRankZero( opt );
+  CFwarn.setFilterRankZero( opt );
+  CFinfo.setFilterRankZero( opt );
+  CFdebug.setFilterRankZero( opt );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

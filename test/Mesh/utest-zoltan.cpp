@@ -21,7 +21,7 @@
 #include "Common/MPI/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -33,7 +33,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_SUITE( ZoltanTests_TestSuite, ZoltanTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 
 }
 
@@ -134,11 +134,11 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   Component::Ptr comp;
   Uint idx;
   bool found;
-  if ( mpi::PE::instance().rank() == 0)
+  if ( Comm::PE::instance().rank() == 0)
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
-    BOOST_CHECK( is_not_null(comp->as_ptr<CNodes>()) );
+    BOOST_CHECK( is_not_null(comp->as_ptr<Geometry>()) );
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 0);
     BOOST_CHECK_EQUAL(found, true);
@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank  = "  << PE::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh.nodes().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh.nodes().rank() << std::endl;
+      std::cout << "nodes = " << mesh.geometry().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh.geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;
@@ -228,8 +228,8 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
 
   PEProcessSortedExecute(-1,
-      std::cout << PERank << "nodes = " << mesh.nodes().coordinates() << std::endl;
-      std::cout << PERank << "ranks = " << mesh.nodes().rank() << std::endl;
+      std::cout << PERank << "nodes = " << mesh.geometry().coordinates() << std::endl;
+      std::cout << PERank << "ranks = " << mesh.geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
 
   Core::instance().terminate();
 }

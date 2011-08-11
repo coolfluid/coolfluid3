@@ -17,11 +17,13 @@
 #include <boost/program_options/parsers.hpp>
 #include <boost/program_options/variables_map.hpp>
 
-#include "Common/NetworkInfo.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/CGroup.hpp"
 #include "Common/CEnv.hpp"
+#include "Common/NetworkInfo.hpp"
 
+#include "Common/MPI/PE.hpp"
 #include "Common/MPI/CPEManager.hpp"
+
 
 #include "UI/Server/ServerExceptions.hpp"
 #include "UI/Server/ServerRoot.hpp"
@@ -29,11 +31,12 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace MPI;
+using namespace CF::Common::Comm;
 using namespace CF::UI::Server;
 
 using namespace CF;
 using namespace CF::Common;
+using namespace CF::Common::Comm;
 
 int main(int argc, char *argv[])
 {
@@ -41,7 +44,7 @@ int main(int argc, char *argv[])
   QString errorString;
   int return_value = 0;
   int port = 62784;
-  Uint nb_workers = 0;
+  Uint nb_workers = 1;
   std::string hostfile("./machine.txt");
 
   boost::program_options::options_description desc("Allowed options");
@@ -73,7 +76,7 @@ int main(int argc, char *argv[])
 
     std::cout << "My PID is " << getpid() << std::endl;
 
-    if (vm.count("help") > 0)
+    if ( vm.count("help") > 0 )
     {
       std::cout << "Usage: " << argv[0] << " [--port <port-number>] "
                    "[--np <workers-count>] [--hostfile <hostfile>]" << std::endl;
@@ -84,20 +87,24 @@ int main(int argc, char *argv[])
     // setup COOLFluiD environment
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
-    mpi::PE::instance().init( argc, argv );
+
+    Comm::PE::instance().init( argc, argv );
     ServerRoot::instance().root();
 
-    if( nb_workers != 0 )
-    {
-      mpi::CPEManager::Ptr mgr =  Core::instance().root().get_child_ptr("Tools")->get_child("PEManager").as_ptr_checked<mpi::CPEManager>();
+    if( PE::instance().size() != 1 )
+      errorString = "This application is not designed to run in parallel.";
 
-      mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
-    }
+    if( nb_workers == 0 )
+      errorString = "At least 1 worker must be spawn.";
+
+    // spawn the
+    CPEManager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<CPEManager>();
+    mgr->spawn_group("Workers", nb_workers, "../Tools/Solver/coolfluid-solver");
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
       errorString = "Port number must be an integer between 49153 and 65535\n";
-    else
+    else if( errorString.isEmpty() )
     {
       Core::instance().network_info().set_hostname( QHostInfo::localHostName().toStdString() );
       Core::instance().network_info().set_port( port );
@@ -117,15 +124,15 @@ int main(int argc, char *argv[])
         ip = hostInfo.addresses().at(0).toString();
 
       message = message.arg(ip)
-                .arg(QHostInfo::localHostName())
-                .arg(port);
+          .arg(QHostInfo::localHostName())
+          .arg(port);
 
       std::cout << message.toStdString() << std::endl;
 
       return_value = app.exec();
     }
 
-    mpi::PE::instance().finalize();
+    Comm::PE::instance().finalize();
     // terminate the runtime environment
     cf_env.terminate();
 

@@ -139,12 +139,14 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("description", std::string("This component has not a long description"));
 }
 
+
 Component::~Component()
 {
-  CFdebug << "Deleting component " << uri().string() << CFendl;
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////
+
 
 Component::Ptr Component::follow()
 {
@@ -165,6 +167,9 @@ std::string Component::derived_type_name() const
 
 void Component::rename ( const std::string& name )
 {
+  if(name.empty())
+    throw BadValue(FromHere(), "Empty new name given for " + uri().string());
+
   const std::string new_name = name;
   if ( new_name == m_name.path() ) // skip if name does not change
     return;
@@ -174,7 +179,7 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
-  URI new_uri = m_path / new_name;
+  URI new_uri = uri().base_path() / new_name;
 
   if( ! m_root.expired() ) // inform the root about the change in path
     m_root.lock()->change_component_path( new_uri , shared_from_this() );
@@ -712,7 +717,7 @@ void Component::signal_move_component ( SignalArgs& args  )
 {
   SignalOptions options( args );
 
-  URI path = options.value<URI>("Path");
+  URI path = options.value<URI>("path");
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
@@ -955,7 +960,7 @@ void Component::signal_rename_component ( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string new_name = options.value<std::string>("New name");
+  std::string new_name = options.value<std::string>("name");
 
   rename(new_name);
 }
@@ -1071,7 +1076,8 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("path", std::string() )
+  options.add_option< OptionURI >("path")
+      ->pretty_name("Path")
       ->description("Path to the new component to which this one will move to.");
 }
 

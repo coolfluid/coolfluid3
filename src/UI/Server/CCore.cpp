@@ -17,14 +17,17 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
+#include "Common/MPI/CPEManager.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
+
 
 #include "UI/UICommon/ComponentNames.hpp"
 
 #include "UI/Server/RemoteClientAppender.hpp"
 #include "UI/Server/ServerNetworkComm.hpp"
+#include "UI/Server/ServerRoot.hpp"
 
 #include "UI/Server/CCore.hpp"
 
@@ -264,8 +267,6 @@ void CCore::read_dir(SignalArgs & args)
     roptions.flush();
 
   }
-
-  CFinfo << "I was here " << __LINE__ << CFendl;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -288,6 +289,7 @@ void CCore::createDir(SignalArgs & node)
 
 void CCore::shutdown(SignalArgs & node)
 {
+  ServerRoot::instance().manager()->kill_group("Workers");
   qApp->exit(0); // exit the Qt event loop
 }
 

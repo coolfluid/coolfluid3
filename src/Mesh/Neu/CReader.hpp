@@ -11,7 +11,7 @@
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/Neu/LibNeu.hpp"
 #include "Mesh/Neu/Shared.hpp"

@@ -23,10 +23,10 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/FieldManager.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CNodes.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CCells.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -57,12 +57,12 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   FieldManager& field_manager = root.create_component<FieldManager>("fieldmanager");
   field_manager.configure_option("variable_manager", var_manager.uri());
 
-  field_manager.create_fields(tag, mesh, CField::Basis::POINT_BASED);
+  field_manager.create_field(tag, mesh.geometry());
 
-  BOOST_CHECK(is_not_null(mesh.get_child_ptr(tag)));
-  CField& field = mesh.get_child(tag).as_type<CField>();
+  BOOST_CHECK(is_not_null(mesh.geometry().get_child_ptr(tag)));
+  Field& field = mesh.geometry().field(tag);
   BOOST_CHECK(field.has_variable("a"));
-  BOOST_CHECK(field.data().row_size() == 7);
+  BOOST_CHECK(field.row_size() == 7);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

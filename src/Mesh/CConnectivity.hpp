@@ -20,8 +20,7 @@ namespace Common {
   class CGroup;
 }
 namespace Mesh {
-  
-  class CNodes;
+
   class CRegion;
   class CCells;
 
@@ -46,13 +45,13 @@ public:
 
   /// Get the class name
   static std::string type_name () { return "CConnectivity"; }
-  
+
   CUnifiedData& lookup();
-  
+
   const CUnifiedData& lookup() const { return *m_lookup; }
-  
+
   CUnifiedData& create_lookup();
-  
+
   void set_lookup(CUnifiedData& lookup);
 
 private: // data

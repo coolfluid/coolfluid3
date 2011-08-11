@@ -36,6 +36,10 @@ public:
   /// @param xml The node to manage.
   SignalFrame ( XmlNode xml = XmlNode() );
 
+  /// Constructor
+  /// @param doc The document the frame is based on.
+  SignalFrame ( boost::shared_ptr<XmlDoc> doc );
+
   /// Contructor.
   /// Builds a new XML document and adds frame node to it.
   /// @param target The signal name.

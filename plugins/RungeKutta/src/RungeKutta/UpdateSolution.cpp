@@ -8,7 +8,8 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "RungeKutta/UpdateSolution.hpp"
 
@@ -35,26 +36,21 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(OptionComponent<CField>::create("solution", &m_solution))
+  m_options.add_option(OptionComponent<Field>::create("solution", &m_solution))
       ->description("Solution to update")
       ->pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<CField>::create("solution_backup", &m_solution_backup))
+  m_options.add_option(OptionComponent<Field>::create("solution_backup", &m_solution_backup))
       ->description("Solution Backup")
       ->pretty_name("Solution Backup");
 
-  m_options.add_option(OptionComponent<CField>::create("update_coeff", &m_update_coeff))
+  m_options.add_option(OptionComponent<Field>::create("update_coeff", &m_update_coeff))
       ->description("Update coefficient")
       ->pretty_name("Update Coefficient");
 
-  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+  m_options.add_option(OptionComponent<Field>::create("residual", &m_residual))
       ->description("Residual")
       ->pretty_name("Residual");
-
-  m_solution_view = create_static_component_ptr<CMultiStateFieldView>("solution_view");
-  m_solution_backup_view = create_static_component_ptr<CMultiStateFieldView>("solution_backup_view");
-  m_residual_view = create_static_component_ptr<CMultiStateFieldView>("residual_view");
-  m_update_coeff_view = create_static_component_ptr<CScalarFieldView>("update_coeff_view");
 
   m_options.add_option(OptionT<Real>::create("alpha", m_alpha))
       ->description("RK coefficient alpha")
@@ -76,36 +72,24 @@ void UpdateSolution::execute()
   if (m_residual.expired())     throw SetupError(FromHere(), "Residual field was not set");
   if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
 
-  CScalarFieldView& update_coeff = *m_update_coeff_view;
-  CMultiStateFieldView& residual = *m_residual_view;
-  CMultiStateFieldView& solution = *m_solution_view;
-  CMultiStateFieldView& solution_backup = *m_solution_backup_view;
-
-  /// @todo put this in attached triggers of the field configuration
-  residual.set_field(m_residual.lock());
-  solution.set_field(m_solution.lock());
-  solution_backup.set_field(m_solution_backup.lock());
-  update_coeff.set_field(m_update_coeff.lock());
+  Field& U  = *m_solution.lock();
+  Field& U0 = *m_solution_backup.lock();
+  Field& R  = *m_residual.lock();
+  Field& H  = *m_update_coeff.lock();
 
   const Real one_minus_alpha = 1.-m_alpha;
-  boost_foreach(const CEntities& elements, m_solution.lock()->field_elements())
+  boost_foreach(const CEntities& elements, U.entities_range())
   {
-    residual.set_elements(elements);
-    solution.set_elements(elements);
-    solution_backup.set_elements(elements);
-    update_coeff.set_elements(elements);
-
+    CSpace& solution_space = U.space(elements);
+    CSpace& P0_space = H.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
-      CMultiStateFieldView::View U  = solution[e];
-      CMultiStateFieldView::View U0 = solution_backup[e];
-      CMultiStateFieldView::View R  = residual[e];
-      const Real H                  = update_coeff[e];
-      for (Uint i=0; i<U.shape()[0]; ++i)
+      Real h = H[P0_space.indexes_for_element(e)[0]][0];
+      boost_foreach(const Uint state, solution_space.indexes_for_element(e))
       {
-        for (Uint j=0; j<U.shape()[1]; ++j)
+        for (Uint j=0; j<U.row_size(); ++j)
         {
-          U[i][j] = one_minus_alpha*U0[i][j] + m_alpha*U[i][j] + m_beta*H*R[i][j];
+          U[state][j] = one_minus_alpha*U0[state][j] + m_alpha*U[state][j] + m_beta*h*R[state][j];
         }
       }
     }

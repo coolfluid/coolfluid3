@@ -14,7 +14,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

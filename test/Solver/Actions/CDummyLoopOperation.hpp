@@ -15,7 +15,7 @@
 
 namespace CF {
 namespace Mesh {
-  class CFieldElements;
+  class FieldElements;
   template <typename T> class CList;
 }
 namespace TestActions {
