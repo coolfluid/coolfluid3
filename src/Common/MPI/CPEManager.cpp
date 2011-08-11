@@ -122,12 +122,14 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
   else if( !m_root.expired() )
   {
     CRoot::Ptr root = m_root.lock();
+    XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
+    SignalFrame signal_frame( sig );
+    rapidxml::xml_attribute<>* tmpAttr = signal_frame.node.content->first_attribute("target");
+    bool success = false;
+    std::string message;
 
     try
     {
-      XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
-      SignalFrame signal_frame( sig );
-      rapidxml::xml_attribute<>* tmpAttr = signal_frame.node.content->first_attribute("target");
 
       if( is_null(tmpAttr) )
         throw ValueNotFound(FromHere(), "Could not find the target.");
@@ -154,40 +156,41 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
           send_to_parent( signal_frame );
       }
 
-      if( PE::instance().rank() == 0 )
-      {
-
-        /// @todo change the receiver path to be not hardcoded
-        SignalFrame frame("ack", uri(), "//Root/UI/NetworkQueue");
-        SignalOptions & options = frame.options();
-        std::string frameid = signal_frame.node.attribute_value("frameid");
-
-        options.add_option< OptionT<std::string> >("frameid", frameid );
-        options.add_option< OptionT<bool> >("success", true );
-        options.add_option< OptionT<std::string> >("message", "" );
-
-        options.flush();
-
-        m_queue->flush();
-
-        send_to_parent( frame );
-      }
-
-      // synchronize with other buddies
-      PE::instance().barrier();
+      success = true;
     }
     catch( Exception & cfe )
     {
-      CFerror << cfe.what() << CFendl;
+      message = cfe.what();
     }
     catch( std::exception & stde )
     {
-      CFerror << stde.what() << CFendl;
+      message = stde.what();
     }
     catch(...)
     {
-      CFerror << "Unhandled exception." << CFendl;
+      message = "Unhandled exception.";
     }
+
+    if( PE::instance().rank() == 0 )
+    {
+      /// @todo change the receiver path to be not hardcoded
+      SignalFrame frame("ack", uri(), "//Root/UI/NetworkQueue");
+      SignalOptions & options = frame.options();
+      std::string frameid = signal_frame.node.attribute_value("frameid");
+
+      options.add_option< OptionT<std::string> >("frameid", frameid );
+      options.add_option< OptionT<bool> >("success", success );
+      options.add_option< OptionT<std::string> >("message", message );
+
+      options.flush();
+
+      m_queue->flush();
+
+      send_to_parent( frame );
+    }
+
+    // synchronize with other buddies
+    PE::instance().barrier();
 
   }
 

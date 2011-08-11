@@ -145,10 +145,6 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
       CRoot::Ptr realRoot = root()->root();
       SignalFrame frame(nodeToProcess);
 
-      std::string str;
-      to_string(frame.node, str);
-      CFinfo << str << CFendl;
-
       if(realRoot->uri().path() == URI(receiver).path())
         root()->call_signal(type, frame);
       else
