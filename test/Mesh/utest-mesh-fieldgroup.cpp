@@ -226,8 +226,8 @@ BOOST_AUTO_TEST_CASE( test_Field )
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
   FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
-  Field& solution = cells_P0.field("volume");
-  Field& solution_copy = cells_P0.create_field("volume_copy");
+  Field& solution = cells_P0.create_field("solution");
+  Field& solution_copy = cells_P0.create_field("solution_copy",solution.descriptor());
 
   solution[0][0] = 25.;
   solution_copy = solution;

@@ -8,6 +8,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "RungeKutta/UpdateSolution.hpp"
@@ -73,20 +74,22 @@ void UpdateSolution::execute()
 
   Field& U  = *m_solution.lock();
   Field& U0 = *m_solution_backup.lock();
-  Field& R  = *m_resisual.lock();
+  Field& R  = *m_residual.lock();
   Field& H  = *m_update_coeff.lock();
 
   const Real one_minus_alpha = 1.-m_alpha;
   boost_foreach(const CEntities& elements, U.entities_range())
   {
-    CSpace& space = U.space(elements);
+    CSpace& solution_space = U.space(elements);
+    CSpace& P0_space = H.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
-      boost_foreach(const Uint state, space.indexes_for_element(e))
+      Real h = H[P0_space.indexes_for_element(e)[0]][0];
+      boost_foreach(const Uint state, solution_space.indexes_for_element(e))
       {
         for (Uint j=0; j<U.row_size(); ++j)
         {
-          U[state][j] = one_minus_alpha*U0[state][j] + m_alpha*U[state][j] + m_beta*H*R[state][j];
+          U[state][j] = one_minus_alpha*U0[state][j] + m_alpha*U[state][j] + m_beta*h*R[state][j];
         }
       }
     }

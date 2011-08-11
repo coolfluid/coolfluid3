@@ -27,6 +27,9 @@
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/LoadMesh.hpp"
+#include "Mesh/CCells.hpp"
+#include "Mesh/Geometry.hpp"
+#include "Mesh/CSpace.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
@@ -151,31 +154,34 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  Field& field = *mesh->create_component_ptr<Field>("field");
-  field.configure_option("Topology",mesh->topology().uri());
-  field.configure_option("FieldType",std::string("PointBased"));
-  field.create_data_storage();
-
-  std::vector<URI> regions = list_of(mesh->topology().uri());
+  Field& field = mesh->geometry().create_field("field");
 
   CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
-  node_loop->configure_option("regions",regions);
+  node_loop->configure_option("regions",mesh->geometry().topology());
 
-  node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
-  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_option("Field",field.uri());
+/// @todo CSetFieldValues no longer exists, find replacement for node_loop
+//  node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
+//  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_option("Field",field.uri());
   node_loop->execute();
 
   BOOST_CHECK(true);
 
-  Field& volumes = *mesh->create_component_ptr<Field>("volumes");
-  volumes.configure_option("Topology",mesh->topology().uri());
-  volumes.configure_option("FieldType",std::string("ElementBased"));
-  volumes.create_data_storage();
 
-  Field& areas = *mesh->create_component_ptr<Field>("areas");
-  areas.configure_option("Topology",mesh->topology().uri());
-  areas.configure_option("FieldType",std::string("ElementBased"));
-  areas.create_data_storage();
+  boost_foreach(CCells& cells, find_components<CCells>(mesh->topology()))
+    cells.create_space("cells_P0","CF.Mesh.SF.SF"+cells.element_type().shape_name()+"LagrangeP0");
+
+  FieldGroup& cells_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
+  Field& volumes = cells_P0.create_field("volume");
+
+
+
+  boost_foreach(CEntities& faces, find_components_with_tag<CEntities>(mesh->topology(),Mesh::Tags::face_entity()))
+    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
+
+  FieldGroup& faces_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
+  Field& areas = faces_P0.create_field("area");
+
+
 
   BOOST_CHECK(true);
 
@@ -183,7 +189,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   CElements& elems = root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag")).as_type<CElements>();
   BOOST_CHECK(true);
-  compute_volume->configure_option("Volume",volumes.uri());
+  compute_volume->configure_option("volume",volumes.uri());
   BOOST_CHECK(true);
   compute_volume->configure_option("Elements",elems.uri());
   BOOST_CHECK(true);
@@ -191,15 +197,15 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   compute_volume->execute();
   BOOST_CHECK(true);
-  CScalarFieldView volume_view("volume_view");
-  volume_view.initialize(volumes,elems.as_ptr<CElements>());
-  BOOST_CHECK_EQUAL( volume_view[12] , 0.0035918050864676932);
+
+  CSpace& P0_space = volumes.space(elems);
+  BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
   elem_loop->configure_option("regions",regions);
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
-  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_option("Volume",volumes.uri());
+  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_option("volume",volumes.uri());
 
   elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
   elem_loop->action("CF.Solver.Actions.CComputeArea").configure_option("area",areas.uri());
@@ -244,7 +250,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
   compute_all_cell_volumes->configure_option("regions",topology);
   BOOST_CHECK(true);
 
-  compute_all_cell_volumes->action().configure_option("Volume",field.uri());
+  compute_all_cell_volumes->action().configure_option("volume",field.uri());
   BOOST_CHECK(true);
 
   compute_all_cell_volumes->execute();

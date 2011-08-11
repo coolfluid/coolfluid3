@@ -17,6 +17,7 @@ namespace Mesh {
   class CElements;
   class Field;
   class CScalarFieldView;
+  class CSpace;
 }
 namespace Solver {
 namespace Actions {

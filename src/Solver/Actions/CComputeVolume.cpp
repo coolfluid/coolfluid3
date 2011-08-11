@@ -34,7 +34,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  m_options.add_option(OptionURI::create("Volume", URI("cpath:"), URI::Scheme::CPATH))
+  m_options.add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Field to set")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
