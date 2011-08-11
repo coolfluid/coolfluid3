@@ -54,9 +54,9 @@ struct GmshReaderMPITests_Fixture
   /// possibly common functions used on the tests below
 
 
-	/// common values accessed by all tests goes here
-	int    m_argc;
-	char** m_argv;
+  /// common values accessed by all tests goes here
+  int    m_argc;
+  char** m_argv;
 
 };
 
@@ -68,7 +68,7 @@ BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixtu
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-	Core::instance().initiate(m_argc,m_argv);
+  Core::instance().initiate(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,11 +76,11 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
 {
 
-	CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-	BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
-	BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
-	std::vector<std::string> extensions = meshreader->get_extensions();
-	BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+  BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
+  BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
+  std::vector<std::string> extensions = meshreader->get_extensions();
+  BOOST_CHECK_EQUAL( extensions[0] , ".msh" );
 
 //	meshreader->configure_option("Repartition",true);
 //	meshreader->configure_option("OutputRank",(Uint) 0);
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   // CFinfo << mesh.tree() << CFendl;
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]",DIM_2D);
+  Field& nodal = mesh.geometry().create_field("nodal" , "nodal[vector]");
   nodal.descriptor().configure_option("dimension",mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
     elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
   mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
-  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]",mesh.dimension());
+  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
   {
     for(Uint j=0; j<cell_centred.row_size(); ++j)
