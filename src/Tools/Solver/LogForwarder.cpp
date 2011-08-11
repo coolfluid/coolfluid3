@@ -7,6 +7,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Common/StringConversion.hpp"
 #include "Common/OptionT.hpp"
 
 #include "Common/XML/SignalFrame.hpp"
@@ -37,11 +38,13 @@ LogForwarder::LogForwarder()
 
 void LogForwarder::message(const std::string &data)
 {
-  std::string path = m_manager->uri().string();
-  SignalFrame frame("message", path, path);
+  /// @todo remove those hardcoded URIs
+  SignalFrame frame("message", "cpath://Root/UI/Log", "cpath://Root/UI/Log");
   SignalOptions options(frame);
+  std::string header = "Worker[" + to_str( PE::instance().rank() ) + "] ";
 
-  options.add_option< OptionT<std::string> >("message", data);
+  options.add_option< OptionT<std::string> >("type", "Info");
+  options.add_option< OptionT<std::string> >("text", header + data);
 //  frame.set_option<std::string>("message", data);
 
   options.flush();
