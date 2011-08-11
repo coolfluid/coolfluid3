@@ -19,6 +19,8 @@ namespace Common
   class CLink;
   namespace Comm { class CommPattern; }
 }
+namespace Math { class VariablesDescriptor; }
+
 
 namespace Mesh {
 
@@ -57,7 +59,7 @@ public: // functions
 
   std::string var_name(Uint i=0) const;
 
-  Uint nb_vars() const { return m_var_types.size(); }
+  Uint nb_vars() const;
 
   /// True if the field contains a variable with the given name
   bool has_variable(const std::string& vname) const;
@@ -72,10 +74,10 @@ public: // functions
   Uint var_index(const Uint var_nb) const;
 
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given name
-  VarType var_type(const std::string& vname) const;
+  VarType var_length(const std::string& vname) const;
 
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
-  VarType var_type(const Uint i=0) const { return m_var_types[i]; }
+  VarType var_length(const Uint i=0) const;
 
   void set_topology(CRegion& topology);
 
@@ -115,13 +117,16 @@ public: // functions
 
   CUnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
 
+  Math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
+
+  void set_descriptor(Math::VariablesDescriptor& descriptor);
+
+  void create_descriptor(const std::string& description);
+
 private:
 
   void config_var_names();
   void config_var_types();
-
-  std::vector<std::string> m_var_names;
-  std::vector<VarType> m_var_types;
 
   FieldGroup::Basis::Type m_basis;
   boost::weak_ptr<CRegion> m_topology;
@@ -129,6 +134,7 @@ private:
 
   boost::weak_ptr< Common::Comm::CommPattern > m_comm_pattern;
 
+  boost::weak_ptr< Math::VariablesDescriptor > m_descriptor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

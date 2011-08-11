@@ -25,6 +25,8 @@
 
 #include "Common/MPI/PE.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/Field.hpp"
@@ -36,6 +38,7 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CConnectivity.hpp"
+
 
 namespace CF {
 namespace Mesh {
@@ -197,46 +200,58 @@ CRegion& FieldGroup::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, const std::string &variables)
+Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description)
 {
-  std::vector<std::string> tokenized_variables(0);
-
-  if (variables == "scalar_same_name")
-  {
-    tokenized_variables.push_back(name+"[scalar]");
-  }
-  else
-  {
-    typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-    boost::char_separator<char> sep(",");
-    Tokenizer tokens(variables, sep);
-
-    for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
-      tokenized_variables.push_back(*tok_iter);
-  }
-
-  std::vector<std::string> names;
-  std::vector<std::string> types;
-  BOOST_FOREACH(std::string var, tokenized_variables)
-  {
-    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
-
-    boost::match_results<std::string::const_iterator> what;
-    if (regex_search(var,what,e_variable))
-    {
-      names.push_back(what[1]);
-      types.push_back(what[2]);
-    }
-    else
-      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
-  }
 
   Field& field = create_component<Field>(name);
   field.set_field_group(*this);
   field.set_topology(topology());
   field.set_basis(m_basis);
-  field.configure_option("var_names",names);
-  field.configure_option("var_types",types);
+
+
+  if (variables_description == "scalar_same_name")
+    field.create_descriptor(name+"[scalar]");
+  else
+    field.create_descriptor(variables_description);
+
+  field.resize(m_size);
+  return field;
+
+//  std::vector<std::string> names;
+//  std::vector<std::string> types;
+//  BOOST_FOREACH(std::string var, tokenized_variables)
+//  {
+//    boost::regex e_variable("([[:word:]]+)?[[:space:]]*\\[[[:space:]]*([[:word:]]+)[[:space:]]*\\]");
+
+//    boost::match_results<std::string::const_iterator> what;
+//    if (regex_search(var,what,e_variable))
+//    {
+//      names.push_back(what[1]);
+//      types.push_back(what[2]);
+//    }
+//    else
+//      throw ShouldNotBeHere(FromHere(), "No match found for VarType " + var);
+//  }
+
+//  Field& field = create_component<Field>(name);
+//  field.set_field_group(*this);
+//  field.set_topology(topology());
+//  field.set_basis(m_basis);
+//  field.configure_option("var_names",names);
+//  field.configure_option("var_types",types);
+//  field.resize(m_size);
+//  return field;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescriptor& variables_descriptor)
+{
+  Field& field = create_component<Field>(name);
+  field.set_field_group(*this);
+  field.set_topology(topology());
+  field.set_basis(m_basis);
+  field.set_descriptor(variables_descriptor);
   field.resize(m_size);
   return field;
 }

@@ -100,7 +100,7 @@ void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
       continue;
     }
 
-    field_group.create_field(tag, descriptor.description()).add_tag(tag);
+    field_group.create_field(tag, descriptor).add_tag(tag);
   }
 }
 

@@ -337,7 +337,7 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
           const Uint solution_end = solution_begin + var_sizes[i];
           Uint field_idx = field.var_index(var_names[i]);
 
-          cf_assert( (Uint) field.var_type(var_names[i]) == (Uint) var_sizes[i]);
+          cf_assert( (Uint) field.var_length(var_names[i]) == (Uint) var_sizes[i]);
 
           for(Uint sol_idx = solution_begin; sol_idx != solution_end; ++sol_idx)
           {

@@ -19,10 +19,10 @@
 
 namespace CF {
 namespace Common { class CLink; }
-
+namespace Math { class VariablesDescriptor; }
 namespace Mesh {
 
-class CMesh;
+  class CMesh;
   class Field;
   class CRegion;
   class CElements;
@@ -82,29 +82,38 @@ public: // functions
   static std::string type_name () { return "FieldGroup"; }
 
   /// Create a new field in this group
-  Field& create_field( const std::string& name, const std::string& variables = "scalar_same_name");
+  Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
 
+  /// Create a new field in this group
+  Field& create_field( const std::string& name, Math::VariablesDescriptor& variables_descriptor);
+
+  /// Return the topology
   CRegion& topology() const;
 
+  /// Number of rows of contained fields
   virtual Uint size() const { return m_size; }
 
+  /// Resize the contained fields
   void resize(const Uint size);
 
+  /// Return the space_id
   const std::string& space() const { return m_space; }
 
+  /// Return the space of given entities
   CSpace& space(const CEntities& entities) const { return entities.space(m_space); }
 
+  /// Return the global index of every field row
   CList<Uint>& glb_idx() const { return *m_glb_idx; }
 
+  /// Return the rank of every field row
   CList<Uint>& rank() const { return *m_rank; }
 
+  /// Check if a field row is owned by this rank
   bool is_ghost(const Uint idx) const;
 
   /// @brief Check if all fields are compatible
   /// @throws Common::InvalidStructure
   void check_sanity();
-
-  void update();
 
   boost::iterator_range< Common::ComponentIterator<CEntities> > entities_range();
   boost::iterator_range< Common::ComponentIterator<CElements> > elements_range();
@@ -125,6 +134,8 @@ public: // functions
   Field& coordinates() const;
 
 private: // functions
+
+  void update();
 
   void config_space();
 
@@ -147,8 +158,8 @@ protected:
   boost::shared_ptr<CList<Uint> > m_glb_idx;
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;
-
   boost::shared_ptr<Field> m_coordinates;
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -166,13 +166,13 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      if(field.var_type(var_idx) == Field::SCALAR)
+      if(field.var_length(var_idx) == Field::SCALAR)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)
           file << " " << field[i][var_begin] << "\n";
       }
-      else if(static_cast<Uint>(field.var_type(var_idx)) == dim)
+      else if(static_cast<Uint>(field.var_length(var_idx)) == dim)
       {
         file << "VECTORS " << var_name << " double\n";
         const Uint var_end = var_begin+dim;
