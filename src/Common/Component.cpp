@@ -165,6 +165,9 @@ std::string Component::derived_type_name() const
 
 void Component::rename ( const std::string& name )
 {
+  if(name.empty())
+    throw BadValue(FromHere(), "Empty new name given for " + uri().string());
+
   const std::string new_name = name;
   if ( new_name == m_name.path() ) // skip if name does not change
     return;
@@ -174,7 +177,7 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
-  URI new_uri = m_path / new_name;
+  URI new_uri = uri().base_path() / new_name;
 
   if( ! m_root.expired() ) // inform the root about the change in path
     m_root.lock()->change_component_path( new_uri , shared_from_this() );
@@ -955,7 +958,7 @@ void Component::signal_rename_component ( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string new_name = options.value<std::string>("New name");
+  std::string new_name = options.value<std::string>("name");
 
   rename(new_name);
 }

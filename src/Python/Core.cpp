@@ -8,6 +8,7 @@
 #include <boost/weak_ptr.hpp>
 
 #include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
 #include "Python/Core.hpp"
@@ -24,13 +25,20 @@ struct Core
   {
     return wrap_component(Common::Core::instance().root());
   }
+
+  static object environment()
+  {
+    return wrap_component(Common::Core::instance().environment());
+  }
 };
 
 void def_core()
 {
   class_<Core>("Core", "Core class, the entry point to coolfluid", no_init)
     .def("root", Core::root, "Access to the root of the component tree")
-    .staticmethod("root");
+    .staticmethod("root")
+    .def("environment", Core::environment, "Access to the environment for setting global options")
+    .staticmethod("environment");
 }
 
 } // Python
