@@ -129,7 +129,7 @@ void SetupMultipleSolutions::execute()
     {
       std::string name = std::string(Tags::solution()) + to_str(step);
       solution_k = solution_group->create_field( name, solution->descriptor().description() ).as_ptr<Field>();
-      solution_k->descriptor()->prefix_variable_names("rk" + to_str(step) + "_");
+      solution_k->descriptor().prefix_variable_names("rk" + to_str(step) + "_");
       solution_k->add_tag("rksteps");
     }
 
@@ -152,7 +152,7 @@ void SetupMultipleSolutions::execute()
   if ( is_null( residual ) )
   {
     residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
-    residual->descriptor()->prefix_variable_names("rhs_");
+    residual->descriptor().prefix_variable_names("rhs_");
     residual->add_tag(Tags::residual());
   }
 

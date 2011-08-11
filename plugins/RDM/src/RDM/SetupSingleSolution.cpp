@@ -109,7 +109,7 @@ void SetupSingleSolution::execute()
   if ( is_null( residual ) )
   {
     residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
-    residual->descriptor()->prefix_variable_names("rhs_");
+    residual->descriptor().prefix_variable_names("rhs_");
     residual->add_tag(Tags::residual());
   }
 
