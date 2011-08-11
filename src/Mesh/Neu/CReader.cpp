@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -52,11 +52,11 @@ CReader::CReader( const std::string& name )
       ->description("Reads Neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
-  m_options.add_option<OptionT <Uint> >("part", mpi::PE::instance().rank())
+  m_options.add_option<OptionT <Uint> >("part", Comm::PE::instance().rank())
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", mpi::PE::instance().size())
+  m_options.add_option<OptionT <Uint> >("nb_parts", Comm::PE::instance().size())
       ->description("Total nb_partitions. (e.g. number of processors)");
 
   m_options.add_option<OptionT <bool> >("read_boundaries", true)
@@ -110,7 +110,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
 
   m_mesh->initialize_nodes(0, m_headerData.NDFCD);
 
-  cf_assert(m_mesh->nodes().coordinates().row_size() == m_headerData.NDFCD);
+  cf_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
 
   // Create a hash
   m_hash = create_component_ptr<CMixedHash>("hash");
@@ -157,7 +157,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   m_mesh->elements().update();
   m_mesh->update_statistics();
 
-  cf_assert(m_mesh->nodes().coordinates().row_size() == m_headerData.NDFCD);
+  cf_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
   cf_assert(m_mesh->properties().value<Uint>("dimension") == m_headerData.NDFCD);
 }
 
@@ -282,9 +282,9 @@ void CReader::read_coordinates()
 
   // Create the nodes
 
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
 
-  nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(mpi::PE::instance().rank()) + m_ghost_nodes.size());
+  nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(Comm::PE::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);
@@ -338,7 +338,7 @@ void CReader::read_coordinates()
 
 void CReader::read_connectivity()
 {
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
   m_tmp = m_region->create_region("main").as_ptr<CRegion>();
 
   m_global_to_tmp.clear();
@@ -407,7 +407,7 @@ void CReader::read_connectivity()
 
 void CReader::read_groups()
 {
-  CNodes& nodes = m_mesh->nodes();
+  Geometry& nodes = m_mesh->geometry();
   cf_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -528,7 +528,7 @@ void CReader::read_boundaries()
     }
 
     CRegion& bc_region = m_region->create_region(NAME);
-    CNodes& nodes = m_mesh->nodes();
+    Geometry& nodes = m_mesh->geometry();
 
     // create all kind of element type regions
     std::map<std::string,CElements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);

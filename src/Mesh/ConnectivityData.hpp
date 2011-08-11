@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,7 +12,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -218,13 +218,13 @@ void Mesh_API create_face_face_connectivity( const CElements& own_celements, con
 template<typename RangeT>
 void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
-  std::set<const CNodes*> nodes_set;
+  std::set<const Geometry*> nodes_set;
   BOOST_FOREACH(const CElements& elements, celements_range)
-    nodes_set.insert(&elements.nodes());
+    nodes_set.insert(&elements.geometry());
 
   // Total number of nodes in the mesh
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const CNodes* nodes, nodes_set)
+  BOOST_FOREACH(const Geometry* nodes, nodes_set)
     nb_nodes += nodes->size();
 
   initialize(nb_nodes, celements_range);

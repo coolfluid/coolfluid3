@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -147,7 +147,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file )
 {
   std::vector<URI> fields;
 
-  boost_foreach( const CField& field, find_components<CField>(mesh) )
+  boost_foreach( const Field& field, find_components<Field>(mesh) )
     fields.push_back(field.uri());
 
   write_mesh(mesh,file,fields);

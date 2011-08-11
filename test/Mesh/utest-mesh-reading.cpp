@@ -1,5 +1,5 @@
 
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -23,6 +23,7 @@
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/FileOperations.hpp"
+#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"

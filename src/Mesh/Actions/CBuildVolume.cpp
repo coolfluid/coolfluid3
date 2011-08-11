@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -6,16 +6,16 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 
 #include "Mesh/Actions/CBuildVolume.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -67,21 +67,21 @@ void CBuildVolume::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CField& volume_field = mesh.create_field(Mesh::Tags::volume(),CField::Basis::CELL_BASED,"P0","volume[1]");
-  volume_field.add_tag(Mesh::Tags::volume());
-  CScalarFieldView volume("volume_view");
-  volume.set_field(volume_field);
+  boost_foreach(CCells& cells, find_components_recursively<CCells>(mesh.topology()) )
+    cells.create_space("cells_P0","CF.Mesh.SF.SF"+cells.element_type().shape_name()+"LagrangeP0");
 
-  boost_foreach( CCells& elements, find_components_recursively<CCells>(mesh.topology()) )
+  FieldGroup& cells_P0 = mesh.create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
+  Field& volume = cells_P0.create_field(Mesh::Tags::volume());
+  volume.add_tag(Mesh::Tags::volume());
+
+  boost_foreach( CElements& elements, volume.elements_range() )
   {
-    volume.set_elements(elements.as_ptr<CEntities>());
-
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      volume[cell_idx] = elements.element_type().compute_volume( coordinates );
+      volume[cell_idx][0] = elements.element_type().compute_volume( coordinates );
     }
   }
 }

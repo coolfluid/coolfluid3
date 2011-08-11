@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -70,10 +70,10 @@ BOOST_FIXTURE_TEST_SUITE( PECollectiveSuite, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 {
-  mpi::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , true );
+  Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,44 +83,44 @@ BOOST_FIXTURE_TEST_CASE( all_reduce, PECollectiveFixture )
   // double
 
   double sum = 0.;
-  for(Uint i = 0; i < mpi::PE::instance().size();  ++i)
+  for(Uint i = 0; i < Comm::PE::instance().size();  ++i)
     sum += (double) i ;
 
   double rk_result;
-  double rk = mpi::PE::instance().rank();
+  double rk = Comm::PE::instance().rank();
   int rk_size = 1;
 
-  mpi::PE::instance().all_reduce( mpi::plus(), &rk, rk_size, &rk_result );
+  Comm::PE::instance().all_reduce( Comm::plus(), &rk, rk_size, &rk_result );
 
   BOOST_CHECK_EQUAL( rk_result, sum );
 
   // for vectors
 
   std::vector<double> v (2);
-  v[0] = mpi::PE::instance().rank();
-  v[1] = mpi::PE::instance().size();
+  v[0] = Comm::PE::instance().rank();
+  v[1] = Comm::PE::instance().size();
 
   /// @todo this should not compile ( but it does ) - Tamas to fix?
 #if 0
-  mpi::PE::instance().all_reduce( mpi::max(), &v, v.size(), &v );
+  Comm::PE::instance().all_reduce( Comm::max(), &v, v.size(), &v );
 #endif
 
   // this works
-  mpi::PE::instance().all_reduce( mpi::plus(), v, v );
+  Comm::PE::instance().all_reduce( Comm::plus(), v, v );
 
   // this is equivalent
-//  mpi::PE::instance().all_reduce( mpi::plus(), &v[0], v.size(), &v[0] );
+//  Comm::PE::instance().all_reduce( Comm::plus(), &v[0], v.size(), &v[0] );
 
   BOOST_CHECK_EQUAL( v[0], sum );
-  BOOST_CHECK_EQUAL( v[1], mpi::PE::instance().size() * mpi::PE::instance().size() );
+  BOOST_CHECK_EQUAL( v[1], Comm::PE::instance().size() * Comm::PE::instance().size() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 {
-  int nproc = mpi::PE::instance().size();
-  int irank = mpi::PE::instance().rank();
+  int nproc = Comm::PE::instance().size();
+  int irank = Comm::PE::instance().rank();
 
   // neighbour to right
   int rkright = (irank + 1) % nproc;
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 
   // communications
 
-  mpi::PE::instance().all_to_all( v, send_num, send_map,  v, recv_num, recv_map);
+  Comm::PE::instance().all_to_all( v, send_num, send_map,  v, recv_num, recv_map);
 
 //  PEDebugVector(v,v.size()); // this prints debug info on a vector !!!
 
@@ -176,10 +176,10 @@ BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( finalize, PECollectiveFixture )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
-  mpi::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , false );
+  Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,7 +19,7 @@
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CRegion.hpp"
@@ -120,7 +120,7 @@ void CFaceCellConnectivity::build_connectivity()
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
   CTable<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
   CList<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  CNodes& nodes = find_parent_component<CMesh>(*used()[0]).nodes();
+  Geometry& nodes = find_parent_component<CMesh>(*used()[0]).geometry();
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);

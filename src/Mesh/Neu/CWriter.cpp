@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -18,7 +18,7 @@
 
 #include "Mesh/Neu/CWriter.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -63,7 +63,7 @@ std::vector<std::string> CWriter::get_extensions()
 
 void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<CMesh>().get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
@@ -99,7 +99,7 @@ void CWriter::write_headerData(std::fstream& file)
   Uint element_counter(0);
   Uint bc_counter(0);
 
-  const Uint node_counter = m_mesh->nodes().size();
+  const Uint node_counter = m_mesh->geometry().size();
 
 
   boost_foreach(const CRegion& group, find_components_recursively_with_filter<CRegion>(*m_mesh,IsGroup()))
@@ -156,7 +156,7 @@ void CWriter::write_coordinates(std::fstream& file)
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  boost_foreach(CTable<Real>::ConstRow row, m_mesh->nodes().coordinates().array())
+  boost_foreach(CTable<Real>::ConstRow row, m_mesh->geometry().coordinates().array())
   {
     ++node_number;
     file << std::setw(10) << node_number;

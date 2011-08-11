@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -16,7 +16,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/COcttree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ void CStencilComputerOcttree::configure_mesh()
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
   m_nb_elems_in_mesh = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
-  m_dim = m_mesh.lock()->nodes().coordinates().row_size();
+  m_dim = m_mesh.lock()->geometry().coordinates().row_size();
 
   m_octtree->configure_option("mesh",m_mesh.lock()->uri());
   m_octtree->create_octtree();

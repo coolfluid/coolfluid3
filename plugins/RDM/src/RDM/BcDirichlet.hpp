@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -13,7 +13,7 @@
 
 namespace CF {
 
-namespace Mesh { class CMesh; class CField; }
+namespace Mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -50,7 +50,7 @@ private: // helper functions
 private: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::CField> m_solution;
+  boost::weak_ptr<Mesh::Field> m_solution;
   /// function parser for the math formula of the dirichlet condition
   Math::VectorialFunction  m_function;
 

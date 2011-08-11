@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,8 +19,7 @@
 #include "Mesh/Actions/CMatchNodes.hpp"
 #include "Mesh/CCellFaces.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CNodeFaceCellConnectivity.hpp"
@@ -85,7 +84,7 @@ void CMatchNodes::execute()
   std::map<std::size_t,Uint> hash_to_node_idx;
 
   CFinfo << mesh.tree() << CFendl;
-  const Uint m_dim = mesh.nodes().coordinates().row_size();
+  const Uint m_dim = mesh.geometry().coordinates().row_size();
 
   std::vector<URI> region_paths = option("Regions").value<std::vector<URI> >();
 
@@ -99,7 +98,7 @@ void CMatchNodes::execute()
     throw SetupError(FromHere(), "Number of used nodes in ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] are different.\n"
       "Nodes cannot be matched." );
 
-  CTable<Real>& coordinates = mesh.nodes().coordinates();
+  CTable<Real>& coordinates = mesh.geometry().coordinates();
 
 
   // find bounding box coordinates for region 1 and region 2

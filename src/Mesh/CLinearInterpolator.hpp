@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -53,7 +53,7 @@ private: // functions
 	/// Interpolate from one source field to target field
 	/// @param source [in] the source field
 	/// @param target [out] the target field
-	virtual void interpolate_field_from_to(const CField& source, CField& target);
+	virtual void interpolate_field_from_to(const Field& source, Field& target);
 
 	/// Create the octtree for fast searching in which element a coordinate can be found
 	void create_bounding_box();

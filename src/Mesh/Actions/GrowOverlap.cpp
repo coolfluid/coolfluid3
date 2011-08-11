@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -25,7 +25,7 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 
 #include "Mesh/Actions/GrowOverlap.hpp"
@@ -37,7 +37,7 @@ namespace Mesh {
 namespace Actions {
 
   using namespace Common;
-  using namespace Common::mpi;
+  using namespace Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ template <typename T>
 void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
 {
   std::vector<int> strides;
-  mpi::PE::instance().all_gather((int)send.size(),strides);
+  Comm::PE::instance().all_gather((int)send.size(),strides);
   std::vector<int> displs(strides.size());
   if (strides.size())
   {
@@ -61,7 +61,7 @@ void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& rec
       sum_strides += strides[i];
     }
     std::vector<Uint> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), mpi::PE::instance().communicator()));
+    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), Comm::PE::instance().communicator()));
     recv.resize(strides.size());
     for (Uint i=0; i<strides.size(); ++i)
     {
@@ -95,15 +95,15 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
     for (Uint j=0; j<send[i].size(); ++j)
       send_linear[send_displs[i]+j] = send[i][j];
 
-  std::vector<int> recv_strides(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
   std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], mpi::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], Comm::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), Comm::PE::instance().communicator()));
 
   recv.resize(recv_strides.size());
   for (Uint i=0; i<recv_strides.size(); ++i)
@@ -116,7 +116,7 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
   }
 }
 
-void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
+void my_all_to_all(const std::vector<Comm::Buffer>& send, Comm::Buffer& recv)
 {
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
@@ -127,42 +127,42 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
   for (Uint i=1; i<send.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  mpi::Buffer send_linear;
+  Comm::Buffer send_linear;
 
   send_linear.resize(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
     send_linear.pack(send[i].buffer(),send[i].packed_size());
 
-  std::vector<int> recv_strides(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void my_all_to_all(const mpi::Buffer& send, std::vector<int>& send_strides, mpi::Buffer& recv, std::vector<int>& recv_strides)
+void my_all_to_all(const Comm::Buffer& send, std::vector<int>& send_strides, Comm::Buffer& recv, std::vector<int>& recv_strides)
 {
   std::vector<int> send_displs(send_strides.size());
   if (send_strides.size()) send_displs[0] = 0;
   for (Uint i=1; i<send_strides.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  recv_strides.resize(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  recv_strides.resize(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
@@ -188,7 +188,7 @@ void GrowOverlap::execute()
 {
 
   CMesh& mesh = *m_mesh.lock();
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   const std::vector<Component::Ptr>& mesh_elements = mesh.elements().components();
 
@@ -258,7 +258,7 @@ void GrowOverlap::execute()
   // -----------------------------------------------------------------------------
   // SEARCH FOR CONNECTED ELEMENTS
   // in  : nodes                            std::vector<Uint>
-  // out : buffer with packed elements      mpi::Buffer(nodes)
+  // out : buffer with packed elements      Comm::Buffer(nodes)
 
   // COMMUNICATE NODES TO LOOK FOR
 
@@ -273,7 +273,7 @@ void GrowOverlap::execute()
   // elem_idx_to_send[from_comp][to_proc][elem_idx]
   std::vector< std::vector < std::set<Uint> > > elem_ids_to_send(mesh_elements.size());
   for (Uint comp_idx=0; comp_idx<elem_ids_to_send.size(); ++comp_idx)
-    elem_ids_to_send[comp_idx].resize(mpi::PE::instance().size());
+    elem_ids_to_send[comp_idx].resize(Comm::PE::instance().size());
 
 
   // storage for nodes that will need to be fetched after elements have been received
@@ -328,11 +328,11 @@ void GrowOverlap::execute()
       CElements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
 
-      std::vector<mpi::Buffer> elements_to_send(PE::instance().size());
-      mpi::Buffer elements_to_recv;
+      std::vector<Comm::Buffer> elements_to_send(PE::instance().size());
+      Comm::Buffer elements_to_recv;
 
       // Pack
-      for (Uint to_proc = 0; to_proc<mpi::PE::instance().size(); ++to_proc)
+      for (Uint to_proc = 0; to_proc<Comm::PE::instance().size(); ++to_proc)
       {
         boost_foreach(const Uint elem_idx, elem_ids_to_send[comp_idx][to_proc])
         {
@@ -395,7 +395,7 @@ void GrowOverlap::execute()
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
   // in  : requested nodes                std::vector<Uint>
-  // out : buffer with packed nodes       mpi::Buffer(nodes)
+  // out : buffer with packed nodes       Comm::Buffer(nodes)
 
   // COMMUNICATE NODES TO LOOK FOR
 
@@ -408,7 +408,7 @@ void GrowOverlap::execute()
 
 
   PackUnpackNodes copy_node(nodes);
-  std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
+  std::vector<Comm::Buffer> nodes_to_send(PE::instance().size());
   for (Uint proc=0; proc<PE::instance().size(); ++proc)
   {
     if (proc != PE::instance().rank())
@@ -433,7 +433,7 @@ void GrowOverlap::execute()
 
   // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
 
-  mpi::Buffer received_nodes_buffer;
+  Comm::Buffer received_nodes_buffer;
   my_all_to_all(nodes_to_send,received_nodes_buffer);
 
   // out: buffer containing requested nodes

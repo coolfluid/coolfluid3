@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -61,31 +61,31 @@ BOOST_FIXTURE_TEST_SUITE( PESuite, PEFixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , false );
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 BOOST_AUTO_TEST_CASE( allrankzero_preinit )
 {
-  BOOST_CHECK_EQUAL( mpi::PE::instance().rank() , (Uint)0 );
+  BOOST_CHECK_EQUAL( Comm::PE::instance().rank() , (Uint)0 );
 }
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  mpi::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , true );
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " reports in." << CFendl;);
+  Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
 {
-  BOOST_CHECK_LT( mpi::PE::instance().rank() , mpi::PE::instance().size() );
+  BOOST_CHECK_LT( Comm::PE::instance().rank() , Comm::PE::instance().size() );
 }
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << mpi::PE::instance().rank() << "/" << mpi::PE::instance().size() << " says good bye." << CFendl;);
-  mpi::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( mpi::PE::instance().is_active() , false );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
+  Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

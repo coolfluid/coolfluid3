@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -9,19 +9,19 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/Manipulations.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CElements.hpp"
 
 namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::mpi;
+using namespace Common::Comm;
 using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RemoveNodes::RemoveNodes(CNodes& nodes) :
+RemoveNodes::RemoveNodes(Geometry& nodes) :
     glb_idx (nodes.glb_idx().create_buffer()),
     rank (nodes.rank().create_buffer()),
     coordinates (nodes.coordinates().create_buffer()),
@@ -117,7 +117,7 @@ void PackUnpackElements::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::pack(mpi::Buffer& buf)
+void PackUnpackElements::pack(Comm::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -138,7 +138,7 @@ void PackUnpackElements::pack(mpi::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::unpack(mpi::Buffer& buf)
+void PackUnpackElements::unpack(Comm::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;
@@ -168,7 +168,7 @@ void PackUnpackElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes::PackUnpackNodes(CNodes& nodes) :
+PackUnpackNodes::PackUnpackNodes(Geometry& nodes) :
   m_nodes(nodes),
   m_remove_after_pack(false),
   m_idx(uint_max()),
@@ -205,7 +205,7 @@ void PackUnpackNodes::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::pack(mpi::Buffer& buf)
+void PackUnpackNodes::pack(Comm::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -236,7 +236,7 @@ void PackUnpackNodes::pack(mpi::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::unpack(mpi::Buffer& buf)
+void PackUnpackNodes::unpack(Comm::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;

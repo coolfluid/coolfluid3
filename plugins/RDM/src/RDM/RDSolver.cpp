@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -59,19 +59,19 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
+  options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  m_options.add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  options().add_option< OptionT<std::string> >( "solution_space", "mesh_nodes" )
+      ->pretty_name("Solution Space")
+      ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
+
+  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create( RDM::Tags::physical_model(), &m_physical_model))
-      ->description("Physical model to discretize")
-      ->pretty_name("Physics")
-      ->mark_basic()
-      ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
+  option(RDM::Tags::physical_model()).attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
   // subcomponents
 
@@ -140,40 +140,43 @@ void RDSolver::execute()
 
 void RDSolver::config_physics()
 {
-  if( is_null(m_physical_model.lock()) )
-    return;
-
-  std::string user_vars = option(  RDM::Tags::update_vars() ).value<std::string>();
-  if( user_vars.empty() )
-    return;
-
-  Physics::PhysModel& pm = * m_physical_model.lock();
-
-  Component::Ptr upv =
-      find_component_ptr_with_tag(pm, RDM::Tags::update_vars());
-
-  if( is_not_null(upv) ) // if exits insure is the good one
+  try
   {
-    Variables& vars = upv->as_type<Variables>();
-    if( vars.type() != user_vars )
+    PhysModel& pm = physics();
+
+    std::string user_vars = option(  RDM::Tags::update_vars() ).value<std::string>();
+    if( user_vars.empty() )
+      return;
+
+    Component::Ptr upv =
+        find_component_ptr_with_tag(pm, RDM::Tags::update_vars());
+
+    if( is_not_null(upv) ) // if exits insure is the good one
     {
-      pm.remove_component(vars.name() );
-      upv.reset();
+      Variables& vars = upv->as_type<Variables>();
+      if( vars.type() != user_vars )
+      {
+        pm.remove_component(vars.name() );
+        upv.reset();
+      }
     }
+
+    if( is_null(upv) )
+      pm.create_variables( user_vars, RDM::Tags::update_vars() );
+
+    boost_foreach( Component& comp, find_components(*this) )
+      comp.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
+
+    // load the library which has the correct RDM physics
+
+    std::string modeltype = pm.model_type();
+    boost::to_lower( modeltype );
+    OSystem::instance().lib_loader()->load_library( "coolfluid_rdm_" + modeltype );
   }
-
-  if( is_null(upv) )
-    pm.create_variables( user_vars, RDM::Tags::update_vars() );
-
-  boost_foreach( Component& comp, find_components(*this) )
-    comp.configure_option_recursively( RDM::Tags::physical_model(), pm.uri() );
-
-  // load the library which has the correct RDM physics
-
-  std::string modeltype = pm.model_type();
-  boost::to_lower( modeltype );
-  OSystem::instance().lib_loader()->load_library( "coolfluid_rdm_" + modeltype );
-
+  catch(SetupError&)
+  {
+    // Do nothing if physmodel is not configured
+  }
 }
 
 
@@ -183,11 +186,10 @@ void RDSolver::config_mesh()
 
   CMesh& mesh = *(m_mesh.lock());
 
-  // ensure physcial model has already been configured
+  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
 
-  Physics::PhysModel::Ptr physmodel = m_physical_model.lock();
-  if( is_null( physmodel ) )
-    throw SetupError(FromHere(), "Physical model not yet set for RDM solver [" + uri().string() + "]" );
+  if( pm.ndim() != mesh.dimension() )
+    throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
 
   // setup the fields
 

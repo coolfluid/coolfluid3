@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -20,7 +20,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
 #include "UI/ParaView/LibParaView.hpp"
@@ -181,7 +181,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
 
     std::vector<URI> fields;
-    boost_foreach(const CField& field, find_components_recursively<CField>(*m_mesh.lock()))
+    boost_foreach(const Field& field, find_components_recursively<Field>(*m_mesh.lock()))
       fields.push_back(field.uri());
 
     writer.configure_option("fields",fields);
@@ -197,7 +197,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     options.add_option< OptionArrayT<std::string> >("pathinfo", data);
 
-    Server::ServerRoot::core()->sendSignal( *frame.xml_doc.get() );
+    Server::ServerRoot::instance().core()->sendSignal( *frame.xml_doc.get() );
   }
 
   curr_iteration++;

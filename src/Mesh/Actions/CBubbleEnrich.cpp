@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -14,9 +14,9 @@
 
 #include "Mesh/Actions/CBubbleEnrich.hpp"
 #include "Mesh/CCells.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 
@@ -96,8 +96,8 @@ void CBubbleEnrich::execute()
 //    CFinfo << "elems size " << elements.size() << CFendl;
 //    CFinfo << "conn size "  << elements.node_connectivity().size() << " x "
 //                            << elements.node_connectivity().row_size() << CFendl;
-//    CFinfo << "coords size "<< elements.nodes().coordinates().size() << " x "
-//                            << elements.nodes().coordinates().row_size() << CFendl;
+//    CFinfo << "coords size "<< elements.geometry().coordinates().size() << " x "
+//                            << elements.geometry().coordinates().row_size() << CFendl;
 
     // backup the connectivity table
     CTable<Uint>::Ptr backup = this->create_component_ptr< CTable<Uint> > ("backup");
@@ -121,7 +121,7 @@ void CBubbleEnrich::execute()
     CConnectivity::ArrayT& conntable = elements.node_connectivity().array();
 
     // get coordinates
-    CTable<Real>& coords = elements.nodes().coordinates();
+    CTable<Real>& coords = elements.geometry().coordinates();
 
     const Uint nb_elem = elements.size();
     const Uint dim = coords.row_size();

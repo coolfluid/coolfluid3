@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,7 +12,7 @@
 #include "Physics/LibPhysics.hpp"
 
 namespace CF {
-
+namespace Math { class VariableManager; }
 namespace Physics {
 
   class Variables; // forward declaration
@@ -77,9 +77,12 @@ public: // functions
   /// Access to the VariableManager
   VariableManager& variable_manager();
   const VariableManager& variable_manager() const;
+  Math::VariableManager& variable_manager_new();
+  const Math::VariableManager& variable_manager_new() const;
 
 private:
   VariableManager& m_variable_manager;
+  Math::VariableManager& m_variable_manager_new;
 
 }; // PhysModel
 

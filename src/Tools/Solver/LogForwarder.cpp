@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -18,7 +18,7 @@
 #include "Common/Log.hpp"
 
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,7 +12,7 @@
 
 #include "Mesh/WriteMesh.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 
 #include "CPeriodicWriteMesh.hpp"
 
@@ -67,7 +67,7 @@ void CPeriodicWriteMesh::execute()
     /// @note writes all fields to the mesh
 
     std::vector<URI> state_fields;
-    boost_foreach(const CField& field, find_components_recursively<CField>( mesh() ) )
+    boost_foreach(const Field& field, find_components_recursively<Field>( mesh() ) )
     {
       state_fields.push_back(field.uri());
     }

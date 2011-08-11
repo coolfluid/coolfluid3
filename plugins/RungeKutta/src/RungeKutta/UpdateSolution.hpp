@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -8,13 +8,13 @@
 #define CF_RungeKutta_UpdateSolution_hpp
 
 #include "Common/CAction.hpp"
-#include "Mesh/CFieldView.hpp"
+
 #include "RungeKutta/LibRungeKutta.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
+namespace Mesh   { class Field; }
 namespace RungeKutta {
 
 class RungeKutta_API UpdateSolution : public Common::CAction
@@ -47,15 +47,10 @@ public: // functions
 
 private: // data
 
-  Mesh::CScalarFieldView::Ptr m_update_coeff_view;
-  Mesh::CMultiStateFieldView::Ptr m_residual_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_backup_view;
-
-  boost::weak_ptr<Mesh::CField> m_solution;
-  boost::weak_ptr<Mesh::CField> m_solution_backup;
-  boost::weak_ptr<Mesh::CField> m_residual;
-  boost::weak_ptr<Mesh::CField> m_update_coeff;
+  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<Mesh::Field> m_solution_backup;
+  boost::weak_ptr<Mesh::Field> m_residual;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
 
   Real m_alpha;
   Real m_beta;

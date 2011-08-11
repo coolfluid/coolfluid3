@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -49,8 +49,8 @@ void AssertionManager::do_assert ( bool condition,
   {
     CodeLocation code_position (file,line,func);
 
-		std::ostringstream oss;
-    oss << "Assertion failed on rank " << mpi::PE::instance().rank() << ": [" << cond_str << "] ";
+    std::ostringstream oss;
+    oss << "Assertion failed on rank " << Comm::PE::instance().rank() << ": [" << cond_str << "] ";
 
     if (desc)
       oss << "'" << desc << "' ";

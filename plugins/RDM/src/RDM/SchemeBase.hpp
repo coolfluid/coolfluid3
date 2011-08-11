@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -21,9 +21,8 @@
 #include "Math/MatrixTypes.hpp"
 
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -76,17 +75,17 @@ protected: // helper functions
 
   void change_elements()
   {
-    connectivity_table =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CTable<Uint> >();
+    connectivity =
+        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
     coordinates =
-        elements().nodes().coordinates().as_ptr< Mesh::CTable<Real> >();
+        elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity_table) );
+    cf_assert( is_not_null(connectivity) );
     cf_assert( is_not_null(coordinates) );
 
-    solution   = csolution.lock()->data_ptr();
-    residual   = cresidual.lock()->data_ptr();
-    wave_speed = cwave_speed.lock()->data_ptr();
+    solution   = csolution.lock();
+    residual   = cresidual.lock();
+    wave_speed = cwave_speed.lock();
   }
 
 protected: // typedefs
@@ -105,7 +104,6 @@ protected: // typedefs
   typedef Eigen::Matrix<Real, SF::nb_nodes,   PHYS::MODEL::_neqs>                SolutionMT;
   typedef Eigen::Matrix<Real, 1u, PHYS::MODEL::_neqs >                           SolutionVT;
 
-  typedef Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes>                        MassMT;
   typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>                       SFMatrixT;
   typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >                                 SFVectorT;
 
@@ -120,20 +118,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::CField > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::CField > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::CField > cwave_speed; ///< wave_speed field
+  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
+  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
+  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity_table;
+  Mesh::CConnectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  Mesh::Field::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  Mesh::Field::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr residual;
+  Mesh::Field::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr wave_speed;
+  Mesh::Field::Ptr wave_speed;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -202,14 +200,14 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &csolution));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::wave_speed(), &cwave_speed));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
   m_options.add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::residual(), &cresidual));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
-  m_options["Elements"]
+  m_options["elements"]
       .attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   // initializations

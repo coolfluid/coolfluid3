@@ -1,11 +1,11 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_mpi_PE_hpp
-#define CF_Common_mpi_PE_hpp
+#ifndef CF_Common_MPI_PE_hpp
+#define CF_Common_MPI_PE_hpp
 
 
 #include <mpi.h>
@@ -37,7 +37,7 @@ namespace CF {
 namespace Common {
 
 /// @brief Classes offering a %MPI interface for %COOLFluiD
-namespace mpi {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +114,7 @@ public:
   /// empty, processes are spawned on localhost.
   /// @return Returns an intercommunicator between this universe and
   /// the one newly created.
-  mpi::Communicator spawn(int count,
+  Communicator spawn(int count,
                           const char * command,
                           char ** args = nullptr,
                           const char * hosts = nullptr);
@@ -127,27 +127,27 @@ public:
 
   template<typename T> inline T*   all_to_all(const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return mpi::all_to_all(communicator(), in_values, in_n, out_values, stride);
+    return Comm::all_to_all(communicator(), in_values, in_n, out_values, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           mpi::all_to_all(communicator(), in_values, out_values, stride);
+           Comm::all_to_all(communicator(), in_values, out_values, stride);
   }
   template<typename T> inline T*   all_to_all(const T* in_values, const int *in_n, T* out_values, int *out_n, const int stride=1)
   {
-    return mpi::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
+    return Comm::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline T*   all_to_all(const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
   {
-    return mpi::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+    return Comm::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
   {
-           mpi::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
+           Comm::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
   {
-           mpi::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+           Comm::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
 
   //@}
@@ -157,27 +157,27 @@ public:
 
   template<typename T> inline T*   gather(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return mpi::gather(communicator(), in_values, in_n, out_values, root, stride);
+    return Comm::gather(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           mpi::gather(communicator(), in_values, out_values, root, stride);
+           Comm::gather(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int root, const int stride=1)
   {
-    return mpi::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
+    return Comm::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline T*   gather(const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int root, const int stride=1)
   {
-    return mpi::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+    return Comm::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int root, const int stride=1)
   {
-           mpi::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
+           Comm::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           mpi::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+           Comm::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
 
   //@}
@@ -187,31 +187,31 @@ public:
 
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return mpi::all_gather(communicator(), in_values, in_n, out_values, stride);
+    return Comm::all_gather(communicator(), in_values, in_n, out_values, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           mpi::all_gather(communicator(), in_values, out_values, stride);
+           Comm::all_gather(communicator(), in_values, out_values, stride);
   }
   template<typename T> inline void all_gather(const T& in_value, std::vector<T>& out_values)
   {
-           mpi::all_gather(communicator(), in_value, out_values);
+           Comm::all_gather(communicator(), in_value, out_values);
   }
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
   {
-    return mpi::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
+    return Comm::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
   {
-    return mpi::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+    return Comm::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
   {
-           mpi::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
+           Comm::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
   {
-           mpi::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+           Comm::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
 
   //@}
@@ -221,27 +221,27 @@ public:
 
   template<typename T> inline T*   scatter(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return mpi::scatter(communicator(), in_values, in_n, out_values, root, stride);
+    return Comm::scatter(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           mpi::scatter(communicator(), in_values, out_values, root, stride);
+           Comm::scatter(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   scatter(const T* in_values, const int* in_n, T* out_values, int& out_n, const int root, const int stride=1)
   {
-    return mpi::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
+    return Comm::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline T*   scatter(const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride=1)
   {
-    return mpi::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+    return Comm::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, int& out_n, const int root, const int stride=1)
   {
-           mpi::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
+           Comm::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, int& out_n, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           mpi::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+           Comm::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
 
   //@}
@@ -251,19 +251,19 @@ public:
 
   template<typename T, typename Op> inline T*   reduce(const Op& op, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return mpi::reduce(communicator(), op, in_values, in_n, out_values, root, stride);
+    return Comm::reduce(communicator(), op, in_values, in_n, out_values, root, stride);
   }
   template<typename T, typename Op> inline void reduce(const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           mpi::reduce(communicator(), op, in_values, out_values, root, stride);
+           Comm::reduce(communicator(), op, in_values, out_values, root, stride);
   }
   template<typename T, typename Op> inline T*   reduce(const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
   {
-    return mpi::reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, root, stride);
+    return Comm::reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, root, stride);
   }
   template<typename T, typename Op> inline void reduce(const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           mpi::reduce(communicator(), op, in_values, in_map, out_values, out_map, root, stride);
+           Comm::reduce(communicator(), op, in_values, in_map, out_values, out_map, root, stride);
   }
 
   //@}
@@ -273,19 +273,19 @@ public:
 
   template<typename T, typename Op> inline T*   all_reduce(const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return mpi::all_reduce(communicator(), op, in_values, in_n, out_values, stride);
+    return Comm::all_reduce(communicator(), op, in_values, in_n, out_values, stride);
   }
   template<typename T, typename Op> inline void all_reduce(const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           mpi::all_reduce(communicator(), op, in_values, out_values, stride);
+           Comm::all_reduce(communicator(), op, in_values, out_values, stride);
   }
   template<typename T, typename Op> inline T*   all_reduce(const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride=1)
   {
-    return mpi::all_reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, stride);
+    return Comm::all_reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, stride);
   }
   template<typename T, typename Op> inline void all_reduce(const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
   {
-           mpi::all_reduce(communicator(), op, in_values, in_map, out_values, out_map, stride);
+           Comm::all_reduce(communicator(), op, in_values, in_map, out_values, out_map, stride);
   }
 
   //@}
@@ -295,19 +295,19 @@ public:
 
   template<typename T> inline T*   broadcast(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return mpi::broadcast(communicator(), in_values, in_n, out_values, root, stride);
+    return Comm::broadcast(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void broadcast(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           mpi::broadcast(communicator(), in_values, out_values, root, stride);
+           Comm::broadcast(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   broadcast(const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
   {
-    return mpi::broadcast(communicator(), in_values, in_n, in_map, out_values, out_map, root, stride);
+    return Comm::broadcast(communicator(), in_values, in_n, in_map, out_values, out_map, root, stride);
   }
   template<typename T> inline void broadcast(const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           mpi::broadcast(communicator(), in_values, in_map, out_values, out_map, root, stride);
+           Comm::broadcast(communicator(), in_values, in_map, out_values, out_map, root, stride);
   }
 
   //@}
@@ -324,8 +324,8 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // namespace mpi
+} // namespace Comm
 } // namespace Common
 } // namespace CF
 
-#endif // CF_Common_mpi_PE_hpp
+#endif // CF_Common_MPI_PE_hpp

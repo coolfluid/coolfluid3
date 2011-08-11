@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -24,7 +24,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CTable.hpp"
 
@@ -64,11 +64,7 @@ FlowSolver::FlowSolver ( const std::string& name  ) : CSolver ( name )
       ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<PhysModel>::create(Tags::physical_model(), &m_physical_model))
-      ->description("Mesh")
-      ->pretty_name("Mesh")
-      ->attach_trigger( boost::bind ( &FlowSolver::setup, this ) )
-      ->mark_basic();
+  option(Tags::physical_model()).attach_trigger( boost::bind ( &FlowSolver::setup, this ) );
 
   m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
@@ -138,6 +134,7 @@ void FlowSolver::setup()
     //m_inner = find_component_ptr_recursively_with_tag<CAction>(*m_solve.lock(),Tags::inner());
     if ( m_setup.expired() == false )
     {
+      m_physical_model = physics().as_ptr<PhysModel>();
       if ( m_physical_model.expired() == false )
       {
         m_solve.lock()->configure_option_recursively(Tags::physical_model(),m_physical_model.lock()->uri());
@@ -169,7 +166,7 @@ void FlowSolver::auto_config(Component& component)
   component.configure_option_recursively(Tags::mesh(),m_mesh.lock()->uri());
   component.configure_option_recursively(Tags::time(),m_time.lock()->uri());
 
-  boost_foreach(CField& field, find_components<CField>(*m_mesh.lock()) )
+  boost_foreach(Field& field, find_components<Field>(*m_mesh.lock()) )
     component.configure_option_recursively(field.name(), field.uri());
 }
 

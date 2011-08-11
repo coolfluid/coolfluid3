@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -66,7 +66,7 @@ namespace Common {
     template < typename OPTION_TYPE >
     Option::Ptr add_option (boost::shared_ptr<OPTION_TYPE> option)
     {
-      cf_assert_desc ( "Class has already property with same name",
+      cf_assert_desc ( "Class has already property with name " + option->name(),
                        this->store.find(option->name()) == store.end() );
       Option::Ptr opt = boost::dynamic_pointer_cast<Option>(option);
       store.insert( std::make_pair(option->name(), opt ) );

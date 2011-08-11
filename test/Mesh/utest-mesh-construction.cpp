@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -21,7 +21,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/ElementType.hpp"
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -176,7 +176,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Uint node=2;
 
   CTable<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  CTable<Real>::Row coordRef = triagRegion.nodes().coordinates()[nodesRef[node]];
+  CTable<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.node_connectivity().size();
     std::vector<Real> volumes(nbRows);
-    const CTable<Real>& region_coordinates = region.nodes().coordinates();
+    const CTable<Real>& region_coordinates = region.geometry().coordinates();
     const CTable<Uint>& region_connTable = region.node_connectivity();
 
     // the loop
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Uint node=2;
 
   CTable<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  CTable<Real>::Row coordRef = triagRegion.nodes().coordinates()[nodesRef[node]];
+  CTable<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 

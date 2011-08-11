@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -25,7 +25,7 @@ template<typename T> class QList;
 
 namespace CF {
 
-namespace Common { namespace mpi { class CPEManager; } }
+namespace Common { namespace Comm { class CPEManager; } }
 namespace Solver { class CPlotter; }
 
 namespace UI {
@@ -57,9 +57,9 @@ namespace Server {
 
     Common::CJournal::ConstPtr journal() const { return m_journal; }
 
-    boost::shared_ptr<Common::mpi::CPEManager> manager() { return m_manager; }
+    boost::shared_ptr<Common::Comm::CPEManager> manager() { return m_manager; }
 
-    boost::shared_ptr<Common::mpi::CPEManager const> manager() const { return m_manager; }
+    boost::shared_ptr<Common::Comm::CPEManager const> manager() const { return m_manager; }
 
     void process_signal(const std::string & target,
                        const Common::URI & receiver,
@@ -107,7 +107,7 @@ namespace Server {
 
     QList< Common::URI > m_local_components;
 
-    boost::shared_ptr<Common::mpi::CPEManager> m_manager;
+    boost::shared_ptr<Common::Comm::CPEManager> m_manager;
 
     boost::shared_ptr<Solver::CPlotter> m_plotter;
 

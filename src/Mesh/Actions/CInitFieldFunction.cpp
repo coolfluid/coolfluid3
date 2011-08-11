@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -15,8 +15,7 @@
 #include "Mesh/Actions/CInitFieldFunction.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -43,7 +42,7 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
     "  Usage: CInitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<CField>::create("field", &m_field))
+  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();
@@ -79,70 +78,54 @@ void CInitFieldFunction::execute()
   if (m_field.expired())
     throw SetupError(FromHere(), "Option [field] was not set in ["+uri().path()+"]");
 
-  CField& field = *m_field.lock();
+  Field& field = *m_field.lock();
 
   std::vector<Real> vars(3,0.);
 
-  RealVector return_val(field.data().row_size());
+  RealVector return_val(field.row_size());
 
-  if (field.basis() == CField::Basis::POINT_BASED)
+  if (field.basis() == FieldGroup::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
+    Field& coordinates = field.coordinates();
     for ( Uint idx=0; idx!=nb_pts; ++idx)
     {
-      CTable<Real>::ConstRow coords = field.coords(idx);
+      Field::ConstRow coords = coordinates[idx];
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
 
       m_function.evaluate(vars,return_val);
 
-      CTable<Real>::Row data_row = field[idx];
-      for (Uint i=0; i<data_row.size(); ++i)
-        data_row[i] = return_val[i];
+      Field::Row field_row = field[idx];
+      for (Uint i=0; i<field_row.size(); ++i)
+        field_row[i] = return_val[i];
     }
   }
   else
   {
-    CMultiStateFieldView field_view("field_view");
-    field_view.set_field(field);
-    RealMatrix coordinates;
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(field.topology()) )
+    boost_foreach( CEntities& elements, field.entities_range() )
     {
-      if (field_view.set_elements(elements))
+      CSpace& space = field.space(elements);
+      RealMatrix coordinates;
+      space.allocate_coordinates(coordinates);
+
+      for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
-        elements.allocate_coordinates(coordinates);
-        RealVector centroid(coordinates.cols());
-        cf_assert(centroid.size() < 4);
-
-        for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
+        coordinates = space.compute_coordinates(elem_idx);
+        CConnectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
+        /// for each state of the field shape function
+        for (Uint iState=0; iState<space.nb_states(); ++iState)
         {
-          elements.put_coordinates( coordinates, elem_idx );
-
-
-          CMultiStateFieldView::View data_rows = field_view[elem_idx];
-          /// for each state of the field shape function
-          for (Uint iState=0; iState<field_view.space().nb_states(); ++iState)
-          {
-            /// get its local coordinates from the SPACE shape_function
-            RealVector local_coords = field_view.space().shape_function().local_coordinates().row(iState);
-            /// get the physical coordinates through the GEOMETRIC shape function (from element_type)
-            RealVector physical_coords = elements.element_type().shape_function().value(local_coords)*coordinates;
-            /// evaluate the function using the physical coordinates
-            for (Uint d=0; d<physical_coords.size(); ++d)
-              vars[d] = physical_coords[d];
-            m_function.evaluate(vars,return_val);
-            /// put the return values in the field
-            for (Uint i=0; i<data_rows[iState].size(); ++i)
-            {
-              data_rows[iState][i] = return_val[i];
-            }
-          }
+          /// evaluate the function using the physical coordinates
+          for (Uint d=0; d<coordinates.cols(); ++d)
+            vars[d] = coordinates.row(iState)[d];
+          m_function.evaluate(vars,return_val);
+          /// put the return values in the field
+          for (Uint i=0; i<field.row_size(); ++i)
+            field[field_idx[iState]][i] = return_val[i];
         }
-
       }
-
     }
-
   }
 
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -121,7 +121,7 @@ struct NodeLooperDim
   void operator()() const
   {
     // Create data used for the evaluation
-    DataT node_data(m_variables, m_region, m_region.nodes().coordinates(), m_expr);
+    DataT node_data(m_variables, m_region, m_region.geometry().coordinates(), m_expr);
     
     // Wrap things up so that we can store the intermediate product results
     do_run(WrapExpression()(m_expr, 0, node_data), node_data);
@@ -134,7 +134,7 @@ private:
     NodeGrammar grammar;
     
     std::vector<Uint> nodes;
-    make_node_list(m_region, m_region.nodes().coordinates(), nodes);
+    make_node_list(m_region, m_region.geometry().coordinates(), nodes);
     
     const Uint nb_nodes = nodes.size();
     for(Uint i = 0; i != nb_nodes; ++i)
@@ -166,7 +166,7 @@ struct NodeLooper
   template<typename NbDimsT>
   void operator()(const NbDimsT&)
   {
-    Mesh::CTable<Real>& coords = m_region.nodes().coordinates();
+    Mesh::CTable<Real>& coords = m_region.geometry().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
   

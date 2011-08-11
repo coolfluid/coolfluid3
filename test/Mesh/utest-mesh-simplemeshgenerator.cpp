@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -22,7 +22,7 @@
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace std;
 using namespace boost;
@@ -62,7 +62,7 @@ BOOST_FIXTURE_TEST_SUITE( SimpleMeshGeneratorTests_TestSuite, SimpleMeshGenerato
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -133,7 +133,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

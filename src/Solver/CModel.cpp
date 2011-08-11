@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -25,7 +25,7 @@
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -208,6 +208,9 @@ CSolver& CModel::create_solver( const std::string& builder)
 
   add_component(solver);
 
+  if(!m_implementation->m_physics.expired())
+    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics.lock()->uri());
+
   return *solver;
 }
 
@@ -334,9 +337,9 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
     return;
 
   SignalOptions options(args);
-  
+
   URI mesh_uri = options.value<URI>("mesh_uri");
-  
+
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed

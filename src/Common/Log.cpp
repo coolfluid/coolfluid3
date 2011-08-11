@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -116,13 +116,13 @@ LogStream & Logger::getStream(LogLevel type)
 
 void Logger::openFiles()
 {
-  if(mpi::PE::instance().is_active())
+  if(Comm::PE::instance().is_active())
   {
     std::ostringstream logFile;
 
     iostreams::file_descriptor_sink fdLogFile;
 
-    int rank = mpi::PE::instance().rank();
+    int rank = Comm::PE::instance().rank();
 
     filesystem::remove(logFile.str());
 

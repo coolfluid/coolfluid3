@@ -43,6 +43,13 @@ list( APPEND utest-math-variablesdescriptor_files  utest-math-variablesdescripto
 
 coolfluid_add_unit_test( utest-math-variablesdescriptor )
 
+################################################################################
+
+list( APPEND utest-math-variablemanager_cflibs coolfluid_math )
+list( APPEND utest-math-variablemanager_files  utest-math-variablemanager.cpp )
+
+coolfluid_add_unit_test( utest-math-variablemanager )
+
 #if( CMAKE_COMPILER_IS_GNUCC )
 #    set_source_files_properties( utest-eigen-vs-matrixt.cpp
 #      PROPERTIES COMPILE_FLAGS "-O2 -msse2 -msse3 -mssse3 -march=core2" )

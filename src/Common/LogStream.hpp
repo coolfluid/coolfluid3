@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -111,21 +111,21 @@ class Common_API LogStream
       {
         if (it->first != SYNC_SCREEN)
         {
-          if ((mpi::PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
+          if ((Comm::PE::instance().rank() == 0 || !this->getFilterRankZero(it->first)))
           {
             *(it->second) << t;
             m_flushed = false;
           }
         }
-        else if (mpi::PE::instance().is_active())
+        else if (Comm::PE::instance().is_active())
         {
-          for( Uint i = 0 ; i < mpi::PE::instance().size(); ++i )
+          for( Uint i = 0 ; i < Comm::PE::instance().size(); ++i )
           {
             if (!this->getFilterRankZero(it->first))
             {
-                      mpi::PE::instance().barrier();
+                      Comm::PE::instance().barrier();
                   }
-            if (i == mpi::PE::instance().rank())
+            if (i == Comm::PE::instance().rank())
             {
               *(it->second) << t;
               m_flushed = false;

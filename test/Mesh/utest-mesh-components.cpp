@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -24,7 +24,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/ElementType.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -691,11 +691,11 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   CRoot::Ptr root = CRoot::create("root");
   CMesh& mesh = root->create_component<CMesh>("mesh");
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(2,DIM_3D);
-  BOOST_CHECK_EQUAL(mesh.nodes().coordinates().row_size() , (Uint) DIM_3D);
+  BOOST_CHECK_EQUAL(mesh.geometry().coordinates().row_size() , (Uint) DIM_3D);
 
-  BOOST_CHECK_EQUAL(&mesh.nodes(), &region.nodes() );
+  BOOST_CHECK_EQUAL(&mesh.geometry(), &region.geometry() );
 
 }
 

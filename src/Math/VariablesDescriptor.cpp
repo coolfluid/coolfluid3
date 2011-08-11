@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -15,6 +15,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -30,19 +31,18 @@ struct VariablesDescriptor::Implementation
 {
   Implementation(Component& component) :
     m_component(component),
-    m_dim(0u),
-    m_dim_configured(false)
+    m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >("dimensions", 0)
-      ->pretty_name("Dimensions")
-      ->description("Dimensionality of the problem, i.e. the number of components for the spatial coordinates")
+    m_component.options().add_option< OptionT<Uint> >("dimension", 0)
+      ->pretty_name("Dimension")
+      ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
       ->link_to(&m_dim)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
 
   //////////////// Interface implementation /////////////////////
-  
+
   void push_back(const std::string& name, const VariablesDescriptor::Dimensionalities::Type type)
   {
     // Only proceed if the variable did not exist already
@@ -51,73 +51,106 @@ struct VariablesDescriptor::Implementation
       CFdebug << "Ignoring double registration of variable " << name << CFendl;
       return;
     }
-    
+
     m_types.push_back(type);
     m_offsets.push_back(m_size);
     m_user_names.push_back(name);
-    
+
     m_component.options().add_option< OptionT<std::string> >(variable_property_name(name), name)
         ->pretty_name(name + std::string(" Variable Name"))
         ->description("Variable name for variable " + name)
         ->link_to(&m_user_names.back());
-    
+
     m_size += to_size(type);
   }
-  
+
+  Uint nb_vars() const
+  {
+    return m_indices.size();
+  }
+
   Uint size() const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get total size for " + m_component.uri().string() + " before dimension is configured");
-    
+
     return m_size;
   }
-  
+
   Uint size(const std::string& name) const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get dimension for variable " + name + " in " + m_component.uri().string() + " before dimension is configured");
-    
+
     return to_size(m_types[checked_index(name)]);
   }
-  
-  Uint offset(const std::string& name)
+
+  Uint offset(const std::string& name) const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get offset for variable " + name + " in " + m_component.uri().string() + " before dimension is configured");
-    
+
     return m_offsets[checked_index(name)];
   }
-  
+
+  Uint offset(const Uint var_nb) const
+  {
+    if(!m_dim)
+      throw SetupError(FromHere(), "Attempt to get offset for variable " + to_str(var_nb) + " in " + m_component.uri().string() + " before dimension is configured");
+
+    return m_offsets[var_nb];
+  }
+
   const std::string& user_variable_name(const std::string& name) const
   {
     return m_user_names[checked_index(name)];
   }
-  
-  /// Implementation based on Willem Deconincks code for CField
-  void set_variables(const std::string& description)
+
+  const std::string& user_variable_name(const Uint var_nb) const
+  {
+    return m_user_names[var_nb];
+  }
+
+  bool has_variable(const std::string& vname) const
+  {
+    return std::find(m_user_names.begin(), m_user_names.end(), vname) != m_user_names.end();
+  }
+
+  Uint var_length(const Uint var_number) const
+  {
+    return to_size( m_types[var_number] );
+  }
+
+  Uint var_length(const std::string& name) const
+  {
+    return to_size( m_types[checked_index(name)] );
+  }
+
+  /// Implementation based on Willem Deconincks code for Field
+  void set_variables(const std::string& description, const Uint dimension)
   {
     const boost::regex e_variable("([[:word:]]+)[[:space:]]*(\\[[[:space:]]*[[:word:]]+[[:space:]]*\\])?");
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
     const boost::regex e_vector("v(ec(tor)?)?",boost::regex::perl|boost::regex::icase);
     const boost::regex e_tensor("t(ens(or)?)?",boost::regex::perl|boost::regex::icase);
     const boost::regex e_array("[2-9][0-9]*");
-    
+
     std::vector<std::string> tokenized_variables;
     boost::split(tokenized_variables, description, boost::is_any_of(","));
     const Uint nb_vars = tokenized_variables.size();
-    
+
     std::vector<std::string> names_to_add; names_to_add.reserve(nb_vars);
     std::vector<Dimensionalities::Type> types_to_add; types_to_add.reserve(nb_vars);
-    
+
     BOOST_FOREACH(std::string var, tokenized_variables)
     {
       boost::match_results<std::string::const_iterator> what;
       if (boost::regex_search(var,what,e_variable))
-      { 
+      {
         names_to_add.push_back(what[1]); boost::trim(names_to_add.back());
         std::string var_type = what[2];
         boost::trim_if(var_type, boost::is_any_of(" []"));
-        
+
         if(boost::regex_match(var_type,e_scalar))
         {
           types_to_add.push_back(Dimensionalities::SCALAR);
@@ -152,49 +185,50 @@ struct VariablesDescriptor::Implementation
         throw ParsingFailed(FromHere(), "Invalid variable: " + var);
       }
     }
-    
+
     for(Uint i = 0; i != names_to_add.size(); ++i)
     {
       push_back(names_to_add[i], types_to_add[i]);
     }
+    m_component.configure_option("dimension",dimension);
   }
-  
+
   std::string description() const
   {
-    if(!m_dim_configured)
+    if(!m_dim)
       throw SetupError(FromHere(), "Attempt to get field description in " + m_component.uri().string() + " before dimension is configured");
-    
+
     const Uint nb_vars = m_indices.size();
-    
+
     // Create a string with the description of the variables
     std::stringstream result_str;
     for(Uint i = 0; i != nb_vars; ++i)
     {
       result_str << (i == 0 ? "" : ",") << m_user_names[i] << "[" << to_size(m_types[i]) << "]";
     }
-    
+
     return result_str.str();
   }
 
   ///////////// Helper functions ////////
-  
+
   /// Convert the dimensionality type to a real size
   Uint to_size(Dimensionalities::Type dim_type) const
   {
     // special cases
     if(dim_type == Dimensionalities::VECTOR)
       return m_dim;
-    
+
     if(dim_type == Dimensionalities::TENSOR)
       return m_dim*m_dim;
-    
+
     // all others can be converted directly
     int converted = static_cast<int>(dim_type);
     cf_assert(converted > 0);
-    
+
     return static_cast<Uint>(converted);
   }
-  
+
   void trigger_dimensions()
   {
     // Recalculate size and offsets
@@ -205,52 +239,48 @@ struct VariablesDescriptor::Implementation
       m_offsets[i] = m_size;
       m_size += to_size(m_types[i]);
     }
-    
-    m_dim_configured = true;
   }
-  
+
   std::string variable_property_name(std::string var_name)
   {
     boost::to_lower(var_name);
     return var_name + "_variable_name";
   }
-  
+
   /// Index for the given internal name, throwing a nice error if it's not found
   Uint checked_index(const std::string& name) const
   {
     IndexMapT::const_iterator found = m_indices.find(name);
     if(found != m_indices.end())
       return found->second;
-    
+
     throw ValueNotFound(FromHere(), "Variable with internal name " + name + " was not found in descriptor " + m_component.uri().string());
   }
 
   /////////////// data //////////////
 
   Component& m_component;
-  
-  /// dimensionality of physics
+
+  /// dimension of physics
   Uint m_dim;
-  /// True if the dimensions have been configured
-  bool m_dim_configured;
 
   /// Total size
   Uint m_size;
-  
+
   /// Mapping from variable internal name to index in the vectors
   typedef std::map<std::string, Uint> IndexMapT;
   IndexMapT m_indices;
-  
+
   /// Type of each variable
   typedef std::vector<Dimensionalities::Type> VarTypesT;
   VarTypesT m_types;
-  
+
   /// Offsets for the variables
   std::vector<Uint> m_offsets;
-  
+
   /// User defined variable names
   std::vector<std::string> m_user_names;
-  
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -289,6 +319,13 @@ void VariablesDescriptor::push_back(const std::string& name, const VariablesDesc
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Uint VariablesDescriptor::nb_vars() const
+{
+  return m_implementation->nb_vars();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Uint VariablesDescriptor::size() const
 {
   return m_implementation->size();
@@ -296,16 +333,52 @@ Uint VariablesDescriptor::size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint VariablesDescriptor::size(const std::string& name)
+Uint VariablesDescriptor::size(const std::string& name) const
 {
   return m_implementation->size(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint VariablesDescriptor::offset(const std::string& name)
+Uint VariablesDescriptor::offset(const std::string& name) const
 {
   return m_implementation->offset(name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint VariablesDescriptor::offset(const Uint var_number) const
+{
+  return m_implementation->offset(var_number);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool VariablesDescriptor::has_variable(const std::string& name) const
+{
+  return m_implementation->has_variable(name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint VariablesDescriptor::var_number ( const std::string& name ) const
+{
+  return m_implementation->checked_index(name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint VariablesDescriptor::var_length ( const std::string& name ) const
+{
+  return m_implementation->var_length(name);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+
+Uint VariablesDescriptor::var_length ( const Uint var_number ) const
+{
+  return m_implementation->var_length(var_number);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -317,6 +390,13 @@ const std::string& VariablesDescriptor::user_variable_name(const std::string& na
 
 ////////////////////////////////////////////////////////////////////////////////
 
+const std::string& VariablesDescriptor::user_variable_name(const Uint var_nb) const
+{
+  return m_implementation->user_variable_name(var_nb);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 std::string VariablesDescriptor::description() const
 {
   return m_implementation->description();
@@ -324,9 +404,9 @@ std::string VariablesDescriptor::description() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void VariablesDescriptor::set_variables(const std::string& description)
+void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  m_implementation->set_variables(description);
+  m_implementation->set_variables(description,dimension);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

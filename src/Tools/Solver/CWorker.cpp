@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -51,7 +51,7 @@ CWorker::~CWorker()
 
 void CWorker::signal_solve ( SignalArgs & args )
 {
-  CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Starting to solve." << CFendl;
+  CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Starting to solve." << CFendl;
 
   Real data[500000]; // 500 thousand elements
 
@@ -68,8 +68,8 @@ void CWorker::signal_solve ( SignalArgs & args )
       Real value = std::sqrt( std::pow(data[j],3) * 2.71 / 3.141592 );
     }
 
-    mpi::PE::instance().barrier();
-    CFinfo << "Worker[" <<  mpi::PE::instance().rank() << "] Iteration " << i << CFendl;
+    Comm::PE::instance().barrier();
+    CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Iteration " << i << CFendl;
   }
 }
 

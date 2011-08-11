@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -18,7 +18,7 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
@@ -264,7 +264,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // complete circle
   CMesh& mesh = Core::instance().root().create_component<CMesh>("surface_integral");
   create_circle_2d(mesh, 1., 100);
-  CTable<Real>& coordinates = find_component_recursively<CNodes>(mesh).coordinates();
+  CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
 
 
@@ -285,7 +285,7 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
   CMesh& mesh = Core::instance().root().create_component<CMesh>("arc_integral");
   create_circle_2d(mesh, 1., 100, 0., Consts::pi());
-  CTable<Real>& arc_coordinates = find_component_recursively<CNodes>(mesh).coordinates();
+  CTable<Real>& arc_coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
   Real arc_flux = 0.;
   const SFT::CoordsT y_vector(0., 1.);
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   // complete circle
   CMesh& mesh = Core::instance().root().create_component<CMesh>("rotating_cylinder");
   create_circle_2d(mesh, 1., segments);
-  CTable<Real>& coordinates = find_component_recursively<CNodes>(mesh).coordinates();
+  CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
 
   // Rotating cylinder in uniform flow

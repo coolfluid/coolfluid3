@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -21,8 +21,8 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
+#include "Common/MPI/CommPattern.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
 #include "Common/MPI/Buffer.hpp"
 #include "Common/MPI/debug.hpp"
 
@@ -31,10 +31,9 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CMeshWriter.hpp"
@@ -43,12 +42,13 @@
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/Manipulations.hpp"
 #include "Mesh/CCellFaces.hpp"
+#include "Mesh/CSpace.hpp"
 
 using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 using namespace CF::Math::Consts;
 
 template <typename T>
@@ -66,7 +66,7 @@ template <typename T>
 void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
 {
   std::vector<int> strides;
-  mpi::PE::instance().all_gather((int)send.size(),strides);
+  Comm::PE::instance().all_gather((int)send.size(),strides);
   std::vector<int> displs(strides.size());
   if (strides.size())
   {
@@ -78,7 +78,7 @@ void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& rec
       sum_strides += strides[i];
     }
     std::vector<Uint> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), mpi::PE::instance().communicator()));
+    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), Comm::PE::instance().communicator()));
     recv.resize(strides.size());
     for (Uint i=0; i<strides.size(); ++i)
     {
@@ -112,15 +112,15 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
     for (Uint j=0; j<send[i].size(); ++j)
       send_linear[send_displs[i]+j] = send[i][j];
 
-  std::vector<int> recv_strides(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
   std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], mpi::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], Comm::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), Comm::PE::instance().communicator()));
 
   recv.resize(recv_strides.size());
   for (Uint i=0; i<recv_strides.size(); ++i)
@@ -133,7 +133,7 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
   }
 }
 
-void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
+void my_all_to_all(const std::vector<Comm::Buffer>& send, Comm::Buffer& recv)
 {
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
@@ -144,47 +144,47 @@ void my_all_to_all(const std::vector<mpi::Buffer>& send, mpi::Buffer& recv)
   for (Uint i=1; i<send.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  mpi::Buffer send_linear;
+  Comm::Buffer send_linear;
 
   send_linear.resize(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
     send_linear.pack(send[i].buffer(),send[i].packed_size());
 
-  std::vector<int> recv_strides(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void my_all_to_all(const mpi::Buffer& send, std::vector<int>& send_strides, mpi::Buffer& recv, std::vector<int>& recv_strides)
+void my_all_to_all(const Comm::Buffer& send, std::vector<int>& send_strides, Comm::Buffer& recv, std::vector<int>& recv_strides)
 {
   std::vector<int> send_displs(send_strides.size());
   if (send_strides.size()) send_displs[0] = 0;
   for (Uint i=1; i<send_strides.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  recv_strides.resize(mpi::PE::instance().size());
-  std::vector<int> recv_displs(mpi::PE::instance().size());
-  mpi::PE::instance().all_to_all(send_strides,recv_strides);
+  recv_strides.resize(Comm::PE::instance().size());
+  std::vector<int> recv_displs(Comm::PE::instance().size());
+  Comm::PE::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<mpi::PE::instance().size(); ++i)
+  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, mpi::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
 
-bool check_nodes_sanity(CNodes& nodes)
+bool check_nodes_sanity(Geometry& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -210,7 +210,7 @@ bool check_element_nodes_sanity(CMesh& mesh)
 
   boost_foreach( CEntities& entities, mesh.topology().elements_range())
   {
-    Uint max_node_idx = entities.nodes().size();
+    Uint max_node_idx = entities.geometry().size();
 
     for (Uint e=0; e<entities.size(); ++e)
     {
@@ -283,7 +283,7 @@ BOOST_FIXTURE_TEST_SUITE( ParallelOverlapTests_TestSuite, ParallelOverlapTests_F
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -317,10 +317,10 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   PackUnpackNodes copy_node(nodes);
-  mpi::Buffer buf;
+  Comm::Buffer buf;
   buf << copy_node(0);
   buf << copy_node(1);
   copy_node.flush();
@@ -382,7 +382,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
   CMeshWriter::Ptr tec_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // SEARCH FOR CONNECTED ELEMENTS
   // in  : nodes                            std::vector<Uint>
-  // out : buffer with packed elements      mpi::Buffer(nodes)
+  // out : buffer with packed elements      Comm::Buffer(nodes)
 
   // COMMUNICATE NODES TO LOOK FOR
 
@@ -582,7 +582,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // elem_idx_to_send[from_comp][to_proc][elem_idx]
   std::vector< std::vector < std::set<Uint> > > elem_ids_to_send(mesh_elements.size());
   for (Uint comp_idx=0; comp_idx<elem_ids_to_send.size(); ++comp_idx)
-    elem_ids_to_send[comp_idx].resize(mpi::PE::instance().size());
+    elem_ids_to_send[comp_idx].resize(Comm::PE::instance().size());
 
 
   // storage for nodes that will need to be fetched after elements have been received
@@ -646,11 +646,11 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       CElements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
 
-      std::vector<mpi::Buffer> elements_to_send(PE::instance().size());
-      mpi::Buffer elements_to_recv;
+      std::vector<Comm::Buffer> elements_to_send(PE::instance().size());
+      Comm::Buffer elements_to_recv;
 
       // Pack
-      for (Uint to_proc = 0; to_proc<mpi::PE::instance().size(); ++to_proc)
+      for (Uint to_proc = 0; to_proc<Comm::PE::instance().size(); ++to_proc)
       {
         boost_foreach(const Uint elem_idx, elem_ids_to_send[comp_idx][to_proc])
         {
@@ -727,7 +727,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
   // in  : requested nodes                std::vector<Uint>
-  // out : buffer with packed nodes       mpi::Buffer(nodes)
+  // out : buffer with packed nodes       Comm::Buffer(nodes)
   {
 
     // COMMUNICATE NODES TO LOOK FOR
@@ -741,7 +741,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
     PackUnpackNodes copy_node(nodes);
-    std::vector<mpi::Buffer> nodes_to_send(PE::instance().size());
+    std::vector<Comm::Buffer> nodes_to_send(PE::instance().size());
     for (Uint proc=0; proc<PE::instance().size(); ++proc)
     {
       if (proc != PE::instance().rank())
@@ -767,7 +767,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     BOOST_CHECK(check_nodes_sanity(nodes));
     // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
 
-    mpi::Buffer received_nodes_buffer;
+    Comm::Buffer received_nodes_buffer;
     my_all_to_all(nodes_to_send,received_nodes_buffer);
 
     // out: buffer containing requested nodes
@@ -849,43 +849,34 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  CField& glb_node = mesh.create_field("glb_node",CField::Basis::POINT_BASED);
+  Field& glb_node = mesh.geometry().create_field("glb_node");
   boost_foreach(const Uint node, debug_nodes)
-      glb_node.data()[node][0] = 1.;
+      glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  CField& glb_elem = mesh.create_field("glb_elem",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& glb_elem_field_view = glb_elem.create_component<CFieldView>("glb_elem_field_view");
-  glb_elem_field_view.set_field(glb_elem);
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& glb_elem  = elems_P0.create_field("glb_elem");
+  Field& elem_rank = elems_P0.create_field("elem_rank");
+
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
     CEntities& elements = mesh_elements[comp_idx]->as_type<CEntities>();
-    glb_elem_field_view.set_elements(elements);
+    CSpace& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
-      glb_elem_field_view[elem][0] = 1.;
+      Uint field_idx = space.indexes_for_element(elem)[0];
+      glb_elem[field_idx][0] = 1.;
+      elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }
 BOOST_CHECK(true);
 
-  // Create a field with glb element numbers
-  CField& elem_rank = mesh.create_field("elem_rank",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& field_view = elem_rank.create_component<CFieldView>("field_view");
-  field_view.set_field(elem_rank);
-  boost_foreach(const CEntities& elements, elem_rank.field_elements())
-  {
-    field_view.set_elements(elements);
-    for (Uint e=0; e<elements.size(); ++e)
-    {
-      field_view[e][0] = elements.rank()[e];
-    }
-  }
-BOOST_CHECK(true);
-  std::vector<CField::Ptr> fields_to_output;
-//  fields_to_output.push_back(glb_node.as_ptr<CField>());
-//  fields_to_output.push_back(glb_elem.as_ptr<CField>());
-  fields_to_output.push_back(elem_rank.as_ptr<CField>());
+  std::vector<Field::Ptr> fields_to_output;
+//  fields_to_output.push_back(glb_node.as_ptr<Field>());
+//  fields_to_output.push_back(glb_elem.as_ptr<Field>());
+  fields_to_output.push_back(elem_rank.as_ptr<Field>());
 BOOST_CHECK(true);
   tec_writer->set_fields(fields_to_output);
   tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);
@@ -900,7 +891,7 @@ BOOST_CHECK(true);
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
   Core::instance().terminate();
 }
 

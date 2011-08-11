@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -13,7 +13,7 @@
 
 namespace CF {
 namespace Common {
-namespace mpi {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -168,11 +168,11 @@ WorkerStatus::Type PE::status()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-mpi::Communicator PE::spawn( int count, const char * command, char ** args,
+Communicator PE::spawn( int count, const char * command, char ** args,
                             const char * hosts )
 {
-  MPI::Info info = MPI::Info::Create();
-  mpi::Communicator comm;
+  ::MPI::Info info = ::MPI::Info::Create();
+  Communicator comm;
 
   if(count < 1)
     throw BadValue(FromHere(), "Cannot spawn less than 1 process.");
@@ -201,14 +201,14 @@ mpi::Communicator PE::spawn( int count, const char * command, char ** args,
 
 Communicator PE::get_parent() const
 {
-  mpi::Communicator comm;
+  Comm::Communicator comm;
   MPI_CHECK_RESULT(MPI_Comm_get_parent,(&comm));
   return comm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace mpi
+} // namespace Comm
 } // namespace Common
 } // namespace CF
 

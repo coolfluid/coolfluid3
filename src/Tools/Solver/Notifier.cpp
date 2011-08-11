@@ -18,7 +18,7 @@ namespace Solver {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Notifier::Notifier( boost::shared_ptr<Common::mpi::CPEManager> manager )
+Notifier::Notifier( boost::shared_ptr<Common::Comm::CPEManager> manager )
   : m_manager(manager)
 {
   cf_assert( is_not_null(manager) );

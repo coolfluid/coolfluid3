@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -35,7 +35,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace mpi {
+namespace Comm {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ CPEManager::CPEManager ( const std::string & name )
   m_listener = new ListeningThread();
   m_queue = new NotificationQueue( Core::instance().root().as_ptr<CRoot>() );
 
-  if( PE::instance().get_parent() != MPI::COMM_NULL )
+  if( PE::instance().get_parent() != MPI_COMM_NULL )
   {
     m_groups["MPI_Parent"] = PE::instance().get_parent();
     m_listener->add_communicator( PE::instance().get_parent() );
@@ -112,7 +112,7 @@ CPEManager::~CPEManager ()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::new_signal ( const MPI::Intercomm &, XML::XmlDoc::Ptr sig)
+void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 {
   if( PE::instance().instance().get_parent() == MPI_COMM_NULL )
   {
@@ -459,6 +459,6 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-} // mpi
+} // Comm
 } // Common
 } // CF

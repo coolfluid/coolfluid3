@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -28,7 +28,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
-using namespace Common::mpi;
+using namespace Common::Comm;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
@@ -149,10 +149,11 @@ void CDomain::write_mesh(const URI& file)
 
   std::vector<URI> state_fields;
   CMesh& mesh = find_component<CMesh>(*this);
-  boost_foreach(const CField& field, find_components_recursively<CField>(mesh))
+  boost_foreach(const Field& field, find_components_recursively<Field>(mesh))
   {
     state_fields.push_back(field.uri());
   }
+
   m_implementation->m_write_mesh.lock()->write_mesh(mesh, file, state_fields);
 }
 

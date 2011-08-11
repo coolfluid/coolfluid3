@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -132,6 +132,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
+  model.create_physics("CF.Physics.DynamicModel");
 
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");

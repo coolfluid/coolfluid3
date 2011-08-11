@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -20,7 +20,7 @@ namespace Common {
 namespace Mesh {
 
   class CRegion;
-  class CNodes;
+  class Geometry;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ private: //functions
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(CNodes& nodes);
+  void set_nodes(Geometry& nodes);
 
 private: // data
 

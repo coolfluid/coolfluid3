@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -94,7 +94,7 @@ public:
       boost::algorithm::replace_all(stamp, "%time%", "TIME");
       boost::algorithm::replace_all(stamp, "%type%", m_streamName);
       boost::algorithm::replace_all(stamp, "%place%", m_place.short_str());
-      boost::algorithm::replace_all(stamp, "%rank%", to_str( mpi::PE::instance().rank() ));
+      boost::algorithm::replace_all(stamp, "%rank%", to_str( Comm::PE::instance().rank() ));
       
       m_newMessage = false;
       

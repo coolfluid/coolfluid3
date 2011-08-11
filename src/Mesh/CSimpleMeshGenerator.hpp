@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -43,8 +43,8 @@ public: // functions
 
   virtual void execute();
 
-  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts = Common::mpi::PE::instance().size(), const bool bdry = true);
-  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts = Common::mpi::PE::instance().size(), const bool bdry = true);
+  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts = Common::Comm::PE::instance().size(), const bool bdry = true);
+  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts = Common::Comm::PE::instance().size(), const bool bdry = true);
 
 protected: // data
 

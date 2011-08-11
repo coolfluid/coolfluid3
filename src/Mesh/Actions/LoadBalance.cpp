@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -22,7 +22,7 @@ namespace Mesh {
 namespace Actions {
 
 using namespace Common;
-using namespace Common::mpi;
+using namespace Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ void LoadBalance::execute()
     CFinfo << "  + deallocating unused connectivity" << CFendl;
 
     /// @todo check that this actually frees the memory
-    //mesh.nodes().glb_elem_connectivity().resize(0);
+    //mesh.geometry().glb_elem_connectivity().resize(0);
 
   }
   else
@@ -93,7 +93,7 @@ void LoadBalance::execute()
   /// @todo this has to be re-enabled
 #if 0
   // Create global node indexes for nodes and elements
-  // plus ranks which are necessary for PECommPattern (both in serial and parallel)
+  // plus ranks which are necessary for CommPattern (both in serial and parallel)
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 

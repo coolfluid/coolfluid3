@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -86,7 +86,7 @@ public: // functions
   
   /// Store the fields and their varible in the supplied map
   /// @param fields map to fill, where the key will be the field name and the value the string specifying the variables of the field,
-  /// using the CField protocol
+  /// using the Field protocol
   void field_specification(std::map<std::string, std::string>& fields);
   
   //@} End Variable management

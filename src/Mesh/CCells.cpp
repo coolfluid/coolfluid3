@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -35,7 +35,7 @@ CCells::~CCells()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CCells::initialize(const std::string& element_type_name, CNodes& nodes)
+void CCells::initialize(const std::string& element_type_name, Geometry& nodes)
 {
   CElements::initialize(element_type_name,nodes);
   cf_assert(element_type().dimensionality() == element_type().dimension());

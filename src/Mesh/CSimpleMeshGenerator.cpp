@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -20,7 +20,7 @@
 #include "Mesh/CHash.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshElements.hpp"
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
@@ -55,7 +55,7 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
       ->link_to(&m_lengths)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("nb_parts", mpi::PE::instance().size()))
+  m_options.add_option(OptionT<Uint>::create("nb_parts", Comm::PE::instance().size()))
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
@@ -98,7 +98,7 @@ void CSimpleMeshGenerator::execute()
 
 void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts, const bool bdry)
 {
-  Uint part = mpi::PE::instance().rank();
+  Uint part = Comm::PE::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
@@ -108,7 +108,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   hash.configure_option("nb_obj",num_obj);
 
   CRegion& region = mesh.topology().create_region("fluid");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   CCells& cells = region.create_component<CCells>("Line");
@@ -195,7 +195,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
 
 void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts , const bool bdry)
 {
-  Uint part = mpi::PE::instance().rank();
+  Uint part = Comm::PE::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
@@ -205,7 +205,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   hash.configure_option("nb_obj",num_obj);
 
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
 
 
   // find ghost nodes

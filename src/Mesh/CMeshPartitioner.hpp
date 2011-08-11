@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -23,7 +23,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
@@ -200,7 +200,7 @@ Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
@@ -233,7 +233,7 @@ void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, Vector
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -242,7 +242,7 @@ void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, Vector
       else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
         const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
+        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = glb_node_indices[ loc_node ];
@@ -269,7 +269,7 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (CNodes::Ptr nodes = comp->as_ptr<CNodes>())
+      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
         const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -278,7 +278,7 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
       else if (CElements::Ptr elements = comp->as_ptr<CElements>())
       {
         const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->nodes().glb_idx();
+        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
       }

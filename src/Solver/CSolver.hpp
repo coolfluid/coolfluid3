@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -16,7 +16,8 @@
 
 namespace CF {
 
-namespace Mesh { class CDomain; class CMesh; }
+namespace Mesh { class CDomain; class CMesh; class FieldManager; }
+namespace Physics { class PhysModel; }
 
 namespace Solver {
 
@@ -55,10 +56,16 @@ public: // functions
   /// Called when a mesh is changed into the domain that is associated with this solver
   virtual void mesh_changed(Mesh::CMesh& mesh);
 
+  /// Access to the FieldManager, which is a static subcomponent of CSolver
+  Mesh::FieldManager& field_manager();
+
 protected:
 
   /// Checked access to the domain (throws if domain is not properly configured)
   Mesh::CDomain& domain();
+
+  /// Checked access to the physical model
+  Physics::PhysModel& physics();
 
 private:
   class Implementation;

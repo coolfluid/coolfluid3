@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,7 +12,7 @@
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -51,15 +51,15 @@ void FwdEuler::execute()
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
   if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
   if (m_wave_speed.expired())
-    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<CField>();
+    m_wave_speed = mysolver.fields().get_child( RDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
   if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
 
-  CTable<Real>& solution     = m_solution.lock()->data();
-  CTable<Real>& wave_speed   = m_wave_speed.lock()->data();
-  CTable<Real>& residual     = m_residual.lock()->data();
+  Field& solution     = *m_solution.lock();
+  Field& wave_speed   = *m_wave_speed.lock();
+  Field& residual     = *m_residual.lock();
 
   const Real CFL = options().option("cfl").value<Real>();
 

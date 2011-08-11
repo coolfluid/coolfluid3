@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -18,14 +18,14 @@
 namespace CF {
 namespace Mesh {
 
-  class CNodes;
+  class Geometry;
   class CElements;
 
   ////////////////////////////////////////////////////////////////////////////////
 
 struct RemoveNodes
 {
-  RemoveNodes(CNodes& nodes);
+  RemoveNodes(Geometry& nodes);
 
   void operator() (const Uint idx);
 
@@ -51,7 +51,7 @@ struct RemoveElements
 };
 
 
-struct PackUnpackElements: Common::mpi::PackedObject
+struct PackUnpackElements: Common::Comm::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -61,9 +61,9 @@ struct PackUnpackElements: Common::mpi::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::mpi::Buffer& buf);
+  virtual void pack(Common::Comm::Buffer& buf);
 
-  virtual void unpack(Common::mpi::Buffer& buf);
+  virtual void unpack(Common::Comm::Buffer& buf);
 
   void flush();
 
@@ -76,23 +76,23 @@ struct PackUnpackElements: Common::mpi::PackedObject
 };
 
 
-struct PackUnpackNodes: Common::mpi::PackedObject
+struct PackUnpackNodes: Common::Comm::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackNodes(CNodes& nodes);
+  PackUnpackNodes(Geometry& nodes);
 
   PackUnpackNodes& operator() (const Uint idx,const bool remove_after_pack = false);
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::mpi::Buffer& buf);
+  virtual void pack(Common::Comm::Buffer& buf);
 
-  virtual void unpack(Common::mpi::Buffer& buf);
+  virtual void unpack(Common::Comm::Buffer& buf);
 
   void flush();
 
-  CNodes& m_nodes;
+  Geometry& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
   CList<Uint>::Buffer       glb_idx;

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -14,6 +14,7 @@
 #include "Common/BoostAnyConversion.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/Signal.hpp"
 
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
@@ -181,9 +182,11 @@ void CNodeTest::test_setProperties()
       " </map>"
       "</node>");
 
-  GUI_CHECK_THROW(MyNode("Node").setProperties(XmlNode(wrongOpt->content->first_node())), ShouldNotBeHere);
+  SignalArgs args_wrong(XmlNode(wrongOpt->content->first_node()));
+  GUI_CHECK_THROW(MyNode("Node").setProperties(args_wrong), ShouldNotBeHere);
 
-  GUI_CHECK_NO_THROW(node.setProperties(XmlNode(correctOpt->content->first_node())));
+  SignalArgs args_correct(XmlNode(correctOpt->content->first_node()));
+  GUI_CHECK_NO_THROW(node.setProperties(args_correct));
 
   boost::any prop;
 

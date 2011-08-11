@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -17,7 +17,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CDynTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
 namespace CF {
@@ -51,7 +51,7 @@ CRegion& CRegion::create_region( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CElements& CRegion::create_elements(const std::string& element_type_name, CNodes& nodes)
+CElements& CRegion::create_elements(const std::string& element_type_name, Geometry& nodes)
 {
   std::string name = "elements_" + element_type_name;
 
@@ -59,7 +59,7 @@ CElements& CRegion::create_elements(const std::string& element_type_name, CNodes
   if ( is_null(celems) )
   {
     CElements& elements = create_elements(element_type_name);
-    elements.set_nodes(nodes);
+    elements.assign_geometry(nodes);
     return elements;
   }
   else
@@ -129,16 +129,9 @@ CElements& CRegion::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CRegion::nodes() const
+Geometry& CRegion::geometry() const
 {
-  return find_parent_component<CMesh>(*this).nodes();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CNodes& CRegion::nodes()
-{
-  return find_parent_component<CMesh>(*this).nodes();
+  return find_parent_component<CMesh>(*this).geometry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

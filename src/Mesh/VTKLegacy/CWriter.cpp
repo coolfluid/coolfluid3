@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,11 +19,9 @@
 #include "Mesh/VTKLegacy/CWriter.hpp"
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Mesh/Geometry.hpp"
+#include "Mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -58,14 +56,14 @@ std::vector<std::string> CWriter::get_extensions()
 
 void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<CMesh>().get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
-  if (mpi::PE::instance().size() > 1)
+  if (Comm::PE::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(mpi::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
   }
 
   file.open(path,std::ios_base::out);
@@ -81,7 +79,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const CTable<Real>& coords = mesh.topology().nodes().coordinates();
+  const Field& coords = mesh.topology().geometry().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 
@@ -89,7 +87,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   file << "POINTS " << npoints << " double\n";
   for(Uint i = 0; i != npoints; ++i)
   {
-    const CTable<Real>::ConstRow row = coords[i];
+    const Field::ConstRow row = coords[i];
     for(Uint j = 0; j != dim; ++j)
       file << " " << row[j];
     if(dim == 2) file << " " << 0.;
@@ -122,12 +120,12 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
     {
       const Uint n_elems = elements.size();
-      const CTable<Uint>& conn_table = elements.node_connectivity();
+      const CConnectivity& conn_table = elements.node_connectivity();
       const Uint n_el_nodes = elements.element_type().nb_nodes();
       for(Uint i = 0; i != n_elems; ++i)
       {
         file << " " << n_el_nodes;
-        const CTable<Uint>::ConstRow row = conn_table[i];
+        const CConnectivity::ConstRow row = conn_table[i];
         for(Uint j = 0; j != n_el_nodes; ++j)
           file << " " << row[j];
         file << "\n";
@@ -152,39 +150,37 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(boost::weak_ptr<CField> field_ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
-    const CField& field = *field_ptr.lock();
+    const Field& field = *field_ptr.lock();
 
     // must be point based
-    if(field.basis() != CField::Basis::POINT_BASED)
+    if(field.basis() != FieldGroup::Basis::POINT_BASED)
       continue;
 
     // size must be correct
-    if(field.data().size() != npoints)
+    if(field.size() != npoints)
       continue;
-
-    const CTable<Real>& data = field.data();
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      if(field.var_type(var_idx) == CField::SCALAR)
+      if(field.var_length(var_idx) == Field::SCALAR)
       {
         file << "SCALARS " << var_name << " double\nLOOKUP_TABLE default\n";
         for(Uint i = 0; i != npoints; ++i)
-          file << " " << data[i][var_begin] << "\n";
+          file << " " << field[i][var_begin] << "\n";
       }
-      else if(static_cast<Uint>(field.var_type(var_idx)) == dim)
+      else if(static_cast<Uint>(field.var_length(var_idx)) == dim)
       {
         file << "VECTORS " << var_name << " double\n";
         const Uint var_end = var_begin+dim;
         for(Uint i = 0; i != npoints; ++i)
         {
-          const CTable<Real>::ConstRow row = data[i];
+          const Field::ConstRow row = field[i];
           for(Uint j = var_begin; j != var_end; ++j)
-            file << " " << data[i][j];
+            file << " " << field[i][j];
           if(dim == 2) file << " " << 0.;
           file << "\n";
         }

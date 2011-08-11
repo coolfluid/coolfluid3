@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( openFiles )
   Logger::instance().openFiles();
 
   // files are not created if PE is not initializaed
-  if(mpi::PE::instance().is_active())
+  if(Common::Comm::PE::instance().is_active())
   {
     BOOST_CHECK(Logger::instance().getStream(INFO).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(ERROR).isFileOpen());

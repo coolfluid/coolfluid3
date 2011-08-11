@@ -21,14 +21,12 @@ list( APPEND coolfluid_mesh_files
   CFaceCellConnectivity.cpp
   CFaces.hpp
   CFaces.cpp
-  CField.hpp
-  CField.cpp
   Field.hpp
   Field.cpp
-  CFieldView.hpp
-  CFieldView.cpp
   FieldGroup.hpp
   FieldGroup.cpp
+  FieldManager.cpp
+  FieldManager.hpp
   CHash.hpp
   CHash.cpp
   CInterpolator.hpp
@@ -53,8 +51,8 @@ list( APPEND coolfluid_mesh_files
   CMeshWriter.cpp
   CMixedHash.hpp
   CMixedHash.cpp
-  CNodes.hpp
-  CNodes.cpp
+  Geometry.hpp
+  Geometry.cpp
   CNodeElementConnectivity.hpp
   CNodeElementConnectivity.cpp
   CNodeFaceCellConnectivity.hpp

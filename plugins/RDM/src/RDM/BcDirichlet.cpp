@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -10,9 +10,9 @@
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CList.hpp"
@@ -63,21 +63,21 @@ void BcDirichlet::execute()
 
   // apply BC to solution field
 
-  CField& solution_field = solution();
+  Field& solution_field = solution();
 
 //  std::cout << "   field.size() == " << field.size() << std::endl;
-//  std::cout << "   coordinates.size() == " << mesh().nodes().coordinates().size() << std::endl;
+//  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
-  RealVector return_val( solution_field.data().row_size() );
+  RealVector return_val( solution_field.row_size() );
 
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
 
-    /// @warning BcDirichlet assumes that solution maps one to one with mesh.nodes()
+    /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry()
 
-    CNodes& nodes = mesh().nodes();
+    Geometry& nodes = mesh().geometry();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())

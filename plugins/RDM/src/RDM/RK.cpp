@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -11,10 +11,11 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Foreach.hpp"
+#include "Common/FindComponents.hpp"
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -30,11 +31,11 @@ using namespace CF::Math::Checks;
 namespace CF {
 namespace RDM {
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
 
-///////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
   CF::Solver::Action(name)
@@ -44,11 +45,11 @@ RK::RK ( const std::string& name ) :
   // options
 
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::solution(), &m_solution));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::dual_area(), &m_dual_area));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
   options().add_option(
-        Common::OptionComponent<Mesh::CField>::create( RDM::Tags::residual(), &m_residual));
+        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
 
   options().add_option< OptionT<Real> >( "cfl", 1.0 )
       ->pretty_name("CFL")
@@ -60,43 +61,51 @@ RK::RK ( const std::string& name ) :
 
 }
 
-
 void RK::execute()
 {
   RDSolver& mysolver = solver().as_type< RDSolver >();
 
+  // get the current rk k step and order
+
+  const Uint rkorder = mysolver.properties().value<Uint>("rkorder");
+  const Uint step    = mysolver.iterative_solver().properties().value<Uint>("iteration");
+
   if (m_solution.expired())
-    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<CField>();
+    m_solution = mysolver.fields().get_child( RDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
   if (m_residual.expired())
-    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<CField>();
+    m_residual = mysolver.fields().get_child( RDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
   if (m_dual_area.expired())
-    m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<CField>();
+    m_dual_area = mysolver.fields().get_child( RDM::Tags::dual_area() ).follow()->as_ptr_checked<Field>();
 
-  CTable<Real>& solution     = m_solution.lock()->data();
-  CTable<Real>& dual_area    = m_dual_area.lock()->data();
-  CTable<Real>& residual     = m_residual.lock()->data();
+  // get the correct solution to update depending on which rk k step we are
 
-/// @todo should be used later to calculate automatically the \Delta t
-//  const Real CFL = options().option("cfl").value<Real>();
-//  const Uint k = mysolver.iterative_solver().properties().value<Uint>("iteration");
+  Field::Ptr csolution_k;
+  if ( step == rkorder )
+   csolution_k = m_solution.lock();
+  else
+    csolution_k = find_component_ptr_with_name<Field>( mesh(), RDM::Tags::solution() + to_str(step) );
 
+  cf_assert( is_not_null(csolution_k) );
 
-/// @todo maybe better to directly store dual_area inverse
+  Field& solution_k   = *csolution_k;
+  Field& dual_area    = *m_dual_area.lock();
+  Field& residual     = *m_residual.lock();
+
+  /// @todo should be used later to calculate automatically the \Delta t
+     //const Real CFL = options().option("cfl").value<Real>();
+
+  /// @todo maybe better to directly store dual_area inverse
 
   // implementation of the RungeKutta update step
 
-  const Uint nbdofs = solution.size();
-  const Uint nbvars = solution.row_size();
+  const Uint nbdofs = solution_k.size();
+  const Uint nbvars = solution_k.row_size();
   for ( Uint i=0; i< nbdofs; ++i )
-  {
-    std::cout << "Dual area [" << i << "] :" << dual_area[i][0] << std::endl;
     for ( Uint j=0; j< nbvars; ++j )
-      solution[i][j] += - residual[i][j] / dual_area[i][0];
-  }
-
+      solution_k[i][j] += - residual[i][j] / dual_area[i][0];
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

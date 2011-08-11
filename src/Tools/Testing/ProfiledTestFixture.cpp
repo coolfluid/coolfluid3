@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -66,9 +66,9 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 {
   std::stringstream job_suffix;
 
-  if(mpi::PE::instance().is_active())
+  if(Comm::PE::instance().is_active())
   {
-    job_suffix << "-" << mpi::PE::instance().rank();
+    job_suffix << "-" << Comm::PE::instance().rank();
   }
 
   if( Core::instance().profiler() )
@@ -87,7 +87,7 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
   {
     Core::instance().profiler()->stop_profiling();
 
-    if(mpi::PE::instance().rank() > 0)
+    if(Comm::PE::instance().rank() > 0)
       return;
 
     cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));

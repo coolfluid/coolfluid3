@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -21,14 +21,14 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 
 using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnecti
 BOOST_AUTO_TEST_CASE( Init )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE( build )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank = " << PE::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh->nodes().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh->nodes().rank() << std::endl;
+      std::cout << "nodes = " << mesh->geometry().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh->geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh->topology().elements_range())
       {
         std::cout << "elems = " << entities.glb_idx() << std::endl;
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( build )
 
 BOOST_AUTO_TEST_CASE( Terminate )
 {
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
   Core::instance().terminate();
 }
 

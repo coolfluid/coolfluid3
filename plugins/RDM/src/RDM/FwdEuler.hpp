@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 namespace RDM {
 
 class RDM_API FwdEuler : public CF::Solver::Action {
@@ -42,11 +42,11 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::CField> m_solution;
+  boost::weak_ptr<Mesh::Field> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::CField> m_residual;
+  boost::weak_ptr<Mesh::Field> m_residual;
   /// wave_speed field pointer
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
+  boost::weak_ptr<Mesh::Field> m_wave_speed;
 
 };
 

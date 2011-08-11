@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -9,13 +9,12 @@
 #include "Common/OptionComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/VariableManager.hpp"
 
-#include "Solver/CreateFields.hpp"
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
 
@@ -29,9 +28,6 @@ using namespace Mesh;
 
 CSimpleSolver::CSimpleSolver(const std::string& name) : CSolver(name)
 {
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physics) )
-              ->pretty_name("Physical Model")
-              ->description("Physical Model");
 }
 
 CSimpleSolver::~CSimpleSolver()
@@ -43,20 +39,12 @@ CSimpleSolver::~CSimpleSolver()
 void CSimpleSolver::mesh_loaded(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
-  
-  if(m_physics.expired())
-  {
-    CFdebug << "Not creating fields because physical model is not set for " << uri().string() << CFendl;
-    return;
-  }
-  
-  Physics::PhysModel& phys_model = *m_physics.lock();
-  
+
+  Physics::PhysModel& phys_model = physics();
+
+
   // Update the dimensions on the physics
-  phys_model.variable_manager().configure_option("dimensions", mesh.topology().nodes().dim());
-  
-  // Create the fields
-  create_fields(mesh, phys_model);
+  phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,21 +53,12 @@ CMesh& CSimpleSolver::mesh()
 {
   if(m_mesh.expired())
     throw SetupError(FromHere(), "No mesh configured for " + uri().string());
-  
+
   return *m_mesh.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Physics::PhysModel& CSimpleSolver::physics()
-{
-  if(m_physics.expired())
-    throw SetupError(FromHere(), "No physical model configured for " + uri().string());
-  
-  return *m_physics.lock();
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
 } // CF

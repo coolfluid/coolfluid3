@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -8,7 +8,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/MeshMetadata.hpp"
 
@@ -67,7 +67,7 @@ void CAdvanceTime::execute ()
   mesh().metadata()["time"] = time().current_time();
   mesh().metadata()["iter"] = time().iter();
 
-  boost_foreach(CField& field, find_components_recursively<CField>(mesh()))
+  boost_foreach(Field& field, find_components_recursively<Field>(mesh()))
   {
     field.configure_option("time",time().current_time());
     field.configure_option("iteration", time().iter());

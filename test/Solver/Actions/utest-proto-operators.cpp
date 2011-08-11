@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -12,7 +12,6 @@
 
 
 #include "Solver/CModel.hpp"
-#include "Solver/CreateFields.hpp"
 #include "Solver/CSolver.hpp"
 
 #include "Solver/Actions/Proto/ElementLooper.hpp"
@@ -33,7 +32,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
@@ -86,22 +85,22 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
-  CMesh::Ptr mesh( allocate_component<CMesh>("rect") );
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("rect");
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
-  
+
   RealVector center_coords(2);
   center_coords.setZero();
-  
+
   // Use the volume function
   for_each_element<VolumeTypes>(mesh->topology(), _cout << "Volume = " << volume << ", centroid = " << transpose(coordinates(center_coords)) << "\n");
   std::cout << std::endl; // Can't be in expression
-  
+
   // volume calculation
   Real vol1 = 0.;
   for_each_element<VolumeTypes>(mesh->topology(), vol1 += volume);
-  
+
   CFinfo << "Mesh volume: " << vol1 << CFendl;
-  
+
   // For an all-quad mesh, this is the same... cool or what? TODO: restore this
 //   Real vol2 = 0.;
 //   for_each_element<VolumeTypes>
@@ -119,19 +118,19 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 //   // Create a 3x3 rectangle
 //   CMesh::Ptr mesh( allocate_component<CMesh>("rect") );
 //   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
-//   
+//
 //   // Set up a node-based field to store the number of cells that are adjacent to each node
 //   const std::vector<std::string> vars(1, "Valence[1]");
-//   mesh->create_field("Valences", vars, CField::NODE_BASED);
-//   
+//   mesh->create_field("Valences", vars, Field::NODE_BASED);
+//
 //   // Set up proto variables
 //   MeshTerm<0, ConstNodes> nodes( "Region", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") ); // Mesh geometry nodes
 //   MeshTerm<1, ScalarField > valence("Valences", "Valence"); // Valence field
-//   
+//
 //   // Count the elements!
 //   for_each_element<SF::VolumeTypes>(find_component_recursively_with_name<CRegion>(*mesh, "region")
 //                                   , for_each_element_node(nodes, valence[_elem_node]++));
-//   
+//
 //   // output the result
 //   for_each_node(find_component_recursively_with_name<CRegion>(*mesh, "region")
 //               , _cout << valence << " ");
@@ -142,31 +141,31 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
-  
-  mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
-  
+
+  mesh->geometry().create_field( "Temperature", "T" );
+
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
-  
+
   RealVector1 mapped_coords;
   mapped_coords.setZero();
-  
+
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
     boost::proto::lit(result) = 0.5 * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * transpose(nabla(temperature, mapped_coords)) * nabla(temperature, mapped_coords)
   );
-  
+
   check_close(result, 8*exact, 1e-10);
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
     boost::proto::lit(result) = integral<1>(transpose(nabla(temperature))*nabla(temperature)) * 0.5
   );
-  
+
   check_close(result, exact, 1e-10);
 }
 
@@ -177,15 +176,15 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real u = 300.;
   const Real circulation = 975.;
   const Real rho = 1.225;
-  
-  CMesh::Ptr mesh(allocate_component<CMesh>("circle"));
+
+  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
-  
+
   typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
-  
+
   RealVector2 force;
   force.setZero();
-  
+
   for_each_element<SurfaceTypes>
   (
     mesh->topology(),
@@ -194,7 +193,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
       pow<2>
       (
         2. * u * _sin( _atan2(coordinates[1], coordinates[0]) ) + circulation / (2. * pi() * radius)
-      )  * 0.5 * rho * normal 
+      )  * 0.5 * rho * normal
     )
   );
 
@@ -210,12 +209,12 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real u = 300.;
   const Real circulation = 975.;
   const Real rho = 1.225;
-  
+
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
-  
-  mesh->create_scalar_field("Pressure", "p", CF::Mesh::CField::Basis::POINT_BASED);
-  
+
+  mesh->geometry().create_field( "Pressure", "p" );
+
   MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
 
   typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
@@ -229,19 +228,19 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
       2. * u * _sin( _atan2(coordinates[1], coordinates[0]) ) + circulation / (2. * pi() * radius)
     )  * 0.5 * rho
   );
-  
+
   RealVector2 force;
   force.setZero();
-  
+
   RealVector1 mc;
   mc.setZero();
-  
+
   for_each_element<SurfaceTypes>
   (
     mesh->topology(),
     force += integral<1>(p * normal)
   );
-    
+
   BOOST_CHECK_CLOSE(force[YY], rho*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
 }
@@ -257,7 +256,7 @@ struct CustomLaplacian
   {
     typedef const Eigen::Matrix<Real, FieldDataT::dimension*FieldDataT::SF::nb_nodes, FieldDataT::dimension*FieldDataT::SF::nb_nodes>& type;
   };
-  
+
   template<typename StorageT, typename FieldDataT>
   const StorageT& operator()(StorageT& result, const FieldDataT& field) const
   {
@@ -277,30 +276,30 @@ BOOST_AUTO_TEST_CASE( CustomOp )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
-  
-  mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
-  
+
+  mesh->geometry().create_field( "Temperature", "T" );
+
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
-  
+
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
     boost::proto::lit(result) = integral<1>(laplacian_cust(temperature)) * 0.5
   );
-  
+
   check_close(result, exact, 1e-10);
-  
+
 }
 
 /// Custom op that just modifies its argument
 struct Counter
-{ 
+{
   /// Dummy result
   typedef void result_type;
-  
+
   result_type operator()(int& arg) const
   {
     ++arg;
@@ -314,7 +313,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
-  
+
   // Check if the counter really counts
   int count = 0;
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
@@ -322,7 +321,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
     mesh->topology(),
     counter(count)
   );
-  
+
   BOOST_CHECK_EQUAL(count, 10);
 }
 
@@ -330,18 +329,18 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
-  
-  mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
-  
+
+  mesh->geometry().create_field("Temperature", "T");
+
   MeshTerm<0, ScalarField > temperature("Temperature", "T");
-  
+
   RealVector1 mapped_coords;
   mapped_coords.setZero();
-  
+
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
   RealMatrix2 zero;  zero.setZero();
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
@@ -351,23 +350,23 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
       element_quadrature( boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature) )
     )
   );
-  
+
   check_close(result, exact, 1e-10);
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
     group <<
     (
       boost::proto::lit(result) = zero,
-      element_quadrature << 
+      element_quadrature <<
       (
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature),
         boost::proto::lit(result) += transpose(nabla(temperature))*nabla(temperature)
       )
     )
   );
-  
+
   check_close(result, 2.*exact, 1e-10);
 }
 
@@ -376,11 +375,11 @@ BOOST_AUTO_TEST_CASE(GroupArity)
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
-  
-  mesh->create_scalar_field("Temperature", "T", CField::Basis::POINT_BASED);
+
+  mesh->geometry().create_field("Temperature", "T");
 
   Real total = 0;
-  
+
   for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
   (
     mesh->topology(),
@@ -390,7 +389,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
       boost::proto::lit(total) += volume
     )
   );
-  
+
   BOOST_CHECK_CLOSE(total, 2., 1e-10);
 }
 
@@ -418,7 +417,7 @@ BOOST_AUTO_TEST_CASE(IntegralConstant)
 struct IndexPrinter
 {
   typedef void result_type;
-  
+
   template<typename I, typename J>
   void operator()(const I, const J)
   {
@@ -432,13 +431,13 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid");
   Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
-  
+
   const RealVector2 idx(1.,2.);
-  
+
   int result_i = 0;
   int result_j = 0;
   int result_ij = 0;
-  
+
   for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
   (
     mesh->topology(),
@@ -451,7 +450,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
       boost::proto::lit(result_ij) += boost::proto::lit(idx)[_i] + boost::proto::lit(idx)[_j] // Nested loop forall(_i): forall(_j)
     )
   );
-  
+
   BOOST_CHECK_EQUAL(result_i, 3);
   BOOST_CHECK_EQUAL(result_j, 3);
   BOOST_CHECK_EQUAL(result_ij, 12);
@@ -460,35 +459,36 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
   MeshTerm<0, VectorField> u("Velocity", "u");
-  
+
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   CDomain& dom = model.create_domain("Domain");
   CMesh& mesh = dom.create_component<CMesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
-  
+
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
   physics.variable_manager().configure_option("dimensions", 2u);
-  
+
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);
-  
+
   // set up fields
   init->register_variables(physics);
-  create_fields(mesh, physics);
-  
+  /// @todo Bart adapt this
+//  create_fields(mesh, physics);
+
   // Do the initialization
   init->loop(mesh.topology());
-  
+
   RealVector4 result;
   result.setZero();
-  
+
   // Run a vector product
   elements_expression
   (
     boost::mpl::vector1<SF::Quad2DLagrangeP1>(),
     element_quadrature(boost::proto::lit(result) += u*nabla(u))
   )->loop(mesh.topology());
-  
+
   std::cout << result << std::endl;
 }
 

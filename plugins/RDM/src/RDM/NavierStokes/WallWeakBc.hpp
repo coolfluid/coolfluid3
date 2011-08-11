@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -16,7 +16,7 @@
 
 namespace CF {
 
-namespace Mesh { class CMesh; class CField; }
+namespace Mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -181,7 +181,7 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CTable<Uint>::ConstRow nodes_idx = this->connectivity_table->array()[B::idx()];
+   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 

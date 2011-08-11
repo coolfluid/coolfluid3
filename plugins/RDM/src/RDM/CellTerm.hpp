@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -13,7 +13,7 @@
 
 namespace CF {
 
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 
 namespace RDM {
 
@@ -46,11 +46,11 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  Mesh::CField& solution()    { return *m_solution.lock(); }
+  Mesh::Field& solution()    { return *m_solution.lock(); }
 
-  Mesh::CField& residual()    { return *m_residual.lock(); }
+  Mesh::Field& residual()    { return *m_residual.lock(); }
 
-  Mesh::CField& wave_speed()  { return *m_wave_speed.lock(); }
+  Mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
 
   //@} END ACCESSORS
 
@@ -60,11 +60,11 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<Mesh::CField> m_solution;     ///< access to the solution field
+  boost::weak_ptr<Mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<Mesh::CField> m_residual;     ///< access to the residual field
+  boost::weak_ptr<Mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<Mesh::CField> m_wave_speed;   ///< access to the wave_speed field
+  boost::weak_ptr<Mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
 };
 

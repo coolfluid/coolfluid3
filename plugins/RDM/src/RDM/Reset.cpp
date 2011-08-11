@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -8,7 +8,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -58,9 +58,9 @@ void Reset::config_fields()
   {
     Component& comp = access_component(field_path);
 
-    if ( CField::Ptr field = comp.as_ptr<CField>() )
+    if ( Field::Ptr field = comp.as_ptr<Field>() )
     {
-      boost::weak_ptr<CField> wptr = field;
+      boost::weak_ptr<Field> wptr = field;
       m_fields.push_back( wptr );
     }
     else
@@ -78,9 +78,9 @@ void Reset::config_field_tags()
   boost_foreach(const std::string tag, vec)
     boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
     {
-      if( CField::Ptr field = link.follow()->as_ptr<CField>() )
+      if( Field::Ptr field = link.follow()->as_ptr<Field>() )
       {
-        boost::weak_ptr<CField> wptr = field;
+        boost::weak_ptr<Field> wptr = field;
         m_fields.push_back( wptr );
       }
     }
@@ -91,11 +91,11 @@ void Reset::config_field_tags()
 void Reset::execute()
 {
   // loop over fields to cleanup
-  boost_foreach(boost::weak_ptr<CField> ptr, m_fields)
+  boost_foreach(boost::weak_ptr<Field> ptr, m_fields)
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 
-    CTable<Real>& field = ptr.lock()->data();
+    CTable<Real>& field = *ptr.lock();
 
     field = 0.; // set all entries to zero
   }

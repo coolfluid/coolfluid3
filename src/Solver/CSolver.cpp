@@ -1,15 +1,21 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/BasicExceptions.hpp"
+#include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/Signal.hpp"
 
+#include "Math/VariableManager.hpp"
+
 #include "Mesh/CDomain.hpp"
+#include "Mesh/FieldManager.hpp"
+
+#include "Physics/PhysModel.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Tags.hpp"
@@ -24,7 +30,14 @@ using namespace Mesh;
 
 struct CSolver::Implementation {
 
-  Implementation(Component& component) : m_component(component) {}
+  Implementation(Component& component) :
+    m_component(component),
+    m_field_manager(component.create_static_component<FieldManager>("FieldManager"))
+  {
+    m_component.options().add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physics) )
+    ->pretty_name("Physical Model")
+    ->description("Physical Model");
+  }
 
   void trigger_domain()
   {
@@ -32,6 +45,21 @@ struct CSolver::Implementation {
     // errors are reported through domain() on access.
     // Rationale: the URI may be set before the domain is created
     m_domain = boost::dynamic_pointer_cast<CDomain>(m_component.access_component_ptr(m_domain_uri));
+  }
+
+  void trigger_physical_model()
+  {
+    cf_assert(!m_physics.expired());
+    m_field_manager.configure_option("variable_manager", physics().variable_manager_new().uri());
+  }
+
+  // Checked access to the physics
+  Physics::PhysModel& physics()
+  {
+    if(m_physics.expired())
+      throw SetupError(FromHere(), "No physical model configured for " + m_component.uri().string());
+
+    return *m_physics.lock();
   }
 
   // Checked access to the domain
@@ -56,7 +84,9 @@ struct CSolver::Implementation {
   Component& m_component;
   URI m_domain_uri;
   boost::weak_ptr<CDomain> m_domain;
+  FieldManager& m_field_manager;
 
+  boost::weak_ptr<Physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,11 +123,22 @@ void CSolver::mesh_loaded(CMesh& mesh) {}
 
 void CSolver::mesh_changed(CMesh& mesh) {}
 
+FieldManager& CSolver::field_manager()
+{
+  return m_implementation->m_field_manager;
+}
+
 
 CDomain& CSolver::domain()
 {
   return m_implementation->domain();
 }
+
+Physics::PhysModel& CSolver::physics()
+{
+  return m_implementation->physics();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

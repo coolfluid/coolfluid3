@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -14,16 +14,21 @@
 
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
+
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshTransformer.hpp"
-
+#include "Mesh/Field.hpp"
+#include "Mesh/CEntities.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 using namespace std;
 using namespace boost;
@@ -242,10 +247,36 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   // CFinfo << mesh.tree() << CFendl;
 
-CMeshWriter::Ptr mesh_writer =
+  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]",DIM_2D);
+  nodal.descriptor().configure_option("dimension",mesh.dimension());
+  for (Uint n=0; n<nodal.size(); ++n)
+  {
+    for(Uint j=0; j<nodal.row_size(); ++j)
+      nodal[n][j] = n;
+  }
+
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+
+  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]",mesh.dimension());
+  for (Uint e=0; e<cell_centred.size(); ++e)
+  {
+    for(Uint j=0; j<cell_centred.row_size(); ++j)
+      cell_centred[e][j] = e;
+  }
+
+  std::vector<Field::Ptr> fields;
+  fields.push_back(nodal.as_ptr<Field>());
+  fields.push_back(cell_centred.as_ptr<Field>());
+
+
+  CMeshWriter::Ptr mesh_writer =
     build_component_abstract_type<CMeshWriter> ("CF.Mesh.Gmsh.CWriter", "GmshWriter" );
-mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out-out.msh");
-BOOST_CHECK(true);
+  mesh_writer->set_fields(fields);
+  mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out-out.msh");
+
+  BOOST_CHECK(true);
 
   CFinfo << "elements count = " << find_component<CRegion>(mesh).recursive_elements_count() << CFendl;
   CFinfo << "nodes count    = " << find_component<CRegion>(mesh).recursive_nodes_count() << CFendl;

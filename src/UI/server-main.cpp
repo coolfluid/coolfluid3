@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -31,12 +31,12 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace MPI;
+using namespace CF::Common::Comm;
 using namespace CF::UI::Server;
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace CF::Common::Comm;
 
 int main(int argc, char *argv[])
 {
@@ -87,7 +87,8 @@ int main(int argc, char *argv[])
     // setup COOLFluiD environment
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
-    PE::instance().init( argc, argv );
+
+    Comm::PE::instance().init( argc, argv );
     ServerRoot::instance().root();
 
     if( PE::instance().size() != 1 )
@@ -131,7 +132,7 @@ int main(int argc, char *argv[])
       return_value = app.exec();
     }
 
-    PE::instance().finalize();
+    Comm::PE::instance().finalize();
     // terminate the runtime environment
     cf_env.terminate();
 

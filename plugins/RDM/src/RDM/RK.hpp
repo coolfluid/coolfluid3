@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh { class CField; }
+namespace Mesh { class Field; }
 namespace RDM {
 
 /// Runge-Kutta update step
@@ -44,11 +44,11 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::CField> m_solution;
+  boost::weak_ptr<Mesh::Field> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::CField> m_residual;
+  boost::weak_ptr<Mesh::Field> m_residual;
   /// dual_area field pointer
-  boost::weak_ptr<Mesh::CField> m_dual_area;
+  boost::weak_ptr<Mesh::Field> m_dual_area;
 
 };
 

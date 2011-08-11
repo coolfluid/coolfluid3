@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -18,7 +18,7 @@
 
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CSpace.hpp"
 
@@ -90,13 +90,13 @@ void CEntities::initialize(const std::string& element_type_name)
   cf_assert(is_not_null(m_element_type));
 }
 
-void CEntities::initialize(const std::string& element_type_name, CNodes& nodes)
+void CEntities::initialize(const std::string& element_type_name, Geometry& nodes)
 {
-  set_nodes(nodes);
+  assign_geometry(nodes);
   initialize(element_type_name);
 }
 
-void CEntities::set_nodes(CNodes& nodes)
+void CEntities::assign_geometry(Geometry& nodes)
 {
   m_nodes->link_to(nodes.follow());
 }
@@ -136,7 +136,7 @@ void CEntities::configure_element_type()
 
 //////////////////////////////////////////////////////////////////////////////
 
-const ElementType& CEntities::element_type() const
+ElementType& CEntities::element_type() const
 {
   cf_assert_desc("element_type not initialized", is_not_null(m_element_type));
   return *m_element_type;
@@ -144,16 +144,9 @@ const ElementType& CEntities::element_type() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-const CNodes& CEntities::nodes() const
+Geometry& CEntities::geometry() const
 {
-  return m_nodes->follow()->as_type<CNodes>();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-CNodes& CEntities::nodes()
-{
-  return m_nodes->follow()->as_type<CNodes>();
+  return m_nodes->follow()->as_type<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +334,7 @@ bool CEntities::is_ghost(const Uint idx) const
   cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf_assert(size() == m_rank->size());
   cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != mpi::PE::instance().rank();
+  return (*m_rank)[idx] != Comm::PE::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

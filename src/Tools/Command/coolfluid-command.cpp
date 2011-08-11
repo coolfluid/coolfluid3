@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -27,7 +27,7 @@ using namespace CF::Tools::Shell;
 int main(int argc, char * argv[])
 {
   Core::instance().initiate(argc, argv);
-  mpi::PE::instance().init(argc, argv);
+  Comm::PE::instance().init(argc, argv);
 
   try
   {
@@ -65,7 +65,7 @@ int main(int argc, char * argv[])
     CFerror << "Detected unknown exception" << CFendl;
   }
 
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
   Core::instance().terminate();
 
   return 0;

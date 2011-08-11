@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -267,9 +267,9 @@ void Transformer::output( const std::vector<std::string>& params )
 
     CFinfo << "\nWriting " << outputfile.path() << " with " << writer->get_format() << CFendl;
 
-    std::vector<CField::Ptr> fields;
-    boost_foreach ( CField& field, find_components<CField>(*mesh) )
-      fields.push_back(field.as_ptr<CField>());
+    std::vector<Field::Ptr> fields;
+    boost_foreach ( Field& field, find_components<Field>(*mesh) )
+      fields.push_back(field.as_ptr<Field>());
     if (!dryrun) writer->set_fields(fields);
     if (!dryrun) writer->write_from_to(*mesh,outputfile);
   }

@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -110,7 +110,7 @@ struct FieldBase
   /// Link to an appropriate Option in order to keep current
   std::string field_name;
   
-  /// Current run-time configured variable name for this variable (with respect to the CField)
+  /// Current run-time configured variable name for this variable (with respect to the Field)
   /// Link to an appropriate Option in order to keep current
   std::string variable_name;
 

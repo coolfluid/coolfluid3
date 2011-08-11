@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,20 +19,20 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/PECommPattern.hpp"
-#include "Common/MPI/PEObjectWrapperMultiArray.hpp"
+#include "Common/MPI/CommPattern.hpp"
+#include "Common/MPI/CommWrapperMArray.hpp"
 #include "Common/MPI/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
-#include "Mesh/CFieldView.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/CMeshGenerator.hpp"
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CMeshTransformer.hpp"
+#include "Mesh/CSpace.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_SUITE( ParallelFieldsTests_TestSuite, ParallelFieldsTests_Fix
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  mpi::PE::instance().init(m_argc,m_argv);
+  Comm::PE::instance().init(m_argc,m_argv);
 
 }
  ////////////////////////////////////////////////////////////////////////////////
@@ -128,11 +128,13 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // create a field and assign it to the comm pattern
 
-  CField& field = mesh.create_field("node_rank",CField::Basis::POINT_BASED);
+  Field& field = mesh.geometry().create_field("node_rank");
 
   field.parallelize();
 
-  field.data() = mpi::PE::instance().rank();
+  for (Uint n=0; n<field.size(); ++n)
+    for (Uint j=0; j<field.row_size(); ++j)
+      field[n][j] = Comm::PE::instance().rank();
 
   // Synchronize
 
@@ -144,33 +146,37 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CreateSpaceP0","create_space_P0")->transform(mesh);
-  CField& glb_elem_idx = mesh.create_field("glb_elem_idx",CField::Basis::ELEMENT_BASED,"P0");
-  CFieldView& field_view = glb_elem_idx.create_component<CFieldView>("field_view");
-  field_view.set_field(glb_elem_idx);
-  boost_foreach(const CEntities& elements, glb_elem_idx.field_elements())
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
+  Field& elem_rank = elems_P0.create_field("elem_rank");
+
+  boost_foreach(CElements& elements , elems_P0.elements_range())
   {
-    field_view.set_elements(elements);
-    for (Uint e=0; e<elements.size(); ++e)
+    CSpace& space = elems_P0.space(elements);
+    for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      field_view[e][0] = elements.glb_idx()[e];
+      Uint field_idx = space.indexes_for_element(elem)[0];
+      glb_elem_idx[field_idx][0] = 1.;
+      elem_rank[field_idx][0] = elements.rank()[elem];
     }
   }
 
   // Create a field with glb node numbers
-  CField& glb_node_idx = mesh.create_field("glb_node_idx",CField::Basis::POINT_BASED);
-  Uint n=0;
-  boost_foreach(const Uint node, glb_node_idx.used_nodes().array())
+  Field& glb_node_idx = mesh.geometry().create_field("glb_node_idx");
+  CList<Uint>& glb_idx = mesh.geometry().glb_idx();
   {
-    glb_node_idx[n++][0] = mesh.nodes().glb_idx()[node];
+    for (Uint n=0; n<glb_node_idx.size(); ++n)
+      glb_node_idx[n][0] = glb_idx[n];
   }
 
   // Write the mesh with the fields
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(field.as_ptr<CField>());
-  fields.push_back(glb_elem_idx.as_ptr<CField>());
-  fields.push_back(glb_node_idx.as_ptr<CField>());
+  std::vector<Field::Ptr> fields;
+  fields.push_back(field.as_ptr<Field>());
+  fields.push_back(glb_elem_idx.as_ptr<Field>());
+  fields.push_back(glb_node_idx.as_ptr<Field>());
 
   CMeshWriter::Ptr tec_writer =
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
@@ -192,7 +198,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
 
   Core::instance().terminate();
 }

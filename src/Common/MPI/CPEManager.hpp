@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -16,17 +16,15 @@
 
 #include "Common/Component.hpp"
 
-////////////////////////////////////////////////////////////////////////////
-
 namespace CF {
 namespace Common {
 
 class NotificationQueue;
 namespace XML { class XmlDoc; }
 
-namespace mpi {
+namespace Comm {
 
-////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
 class ListeningThread;
 
@@ -88,7 +86,7 @@ public: // functions
 
   void signal_exit ( SignalArgs & args );
 
-  void new_signal ( const MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
+  void new_signal ( const ::MPI::Intercomm &, boost::shared_ptr<XML::XmlDoc> );
 
   //@} END SIGNALS
 
@@ -115,12 +113,10 @@ private:
 
 }; // CPEManager
 
-////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
 
-} // mpi
+} // Comm
 } // Common
 } // CF
-
-////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_MPI_CPEManager_hpp

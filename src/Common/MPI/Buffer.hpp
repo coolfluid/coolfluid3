@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -20,7 +20,7 @@
 
 namespace CF {
 namespace Common {
-namespace mpi{
+namespace Comm{
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -562,8 +562,8 @@ struct PackedObject
 {
   PackedObject() {}
 
-  virtual void pack(mpi::Buffer& buffer) = 0;
-  virtual void unpack(mpi::Buffer& buffer) = 0;
+  virtual void pack(Comm::Buffer& buffer) = 0;
+  virtual void unpack(Comm::Buffer& buffer) = 0;
 };
 
 inline Buffer& operator<< (Buffer& buffer, PackedObject& obj)
@@ -590,7 +590,7 @@ inline std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mpi
+} // Comm
 } // Common
 } // CF
 

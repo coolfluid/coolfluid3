@@ -1,4 +1,4 @@
-// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -19,7 +19,7 @@
 
 namespace CF {
 namespace Mesh { 
-  class CField;
+  class Field;
 namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -54,7 +54,7 @@ private: // data
 
   Real m_constant;
 
-  boost::weak_ptr<CField> m_field;
+  boost::weak_ptr<Field> m_field;
   
 }; // end CInitFieldConstant
 
