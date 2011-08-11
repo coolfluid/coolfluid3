@@ -213,7 +213,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
-  mesh->geometry().create_field( "Pressure", "p", );
+  mesh->geometry().create_field( "Pressure", "p" );
 
   MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
 
@@ -473,7 +473,8 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   // set up fields
   init->register_variables(physics);
-  create_fields(mesh, physics);
+  /// @todo Bart adapt this
+//  create_fields(mesh, physics);
 
   // Do the initialization
   init->loop(mesh.topology());

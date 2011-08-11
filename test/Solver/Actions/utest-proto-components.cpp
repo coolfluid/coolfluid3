@@ -162,7 +162,8 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   init_temp->register_variables(model.physics());
 
   // Create the fields
-  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
+  /// @todo Bart adapt this
+//  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature"));
 
   // Do the initialization
@@ -190,7 +191,8 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   action.configure_option(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
 
   // Create the fields
-  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
+  /// @todo Bart adapt this
+//  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
   BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature2"));
 
   // Run the action
