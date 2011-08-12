@@ -31,7 +31,7 @@ call Model/Domain/load_mesh file:uri=file:rotation-tg-p1.neu
 
 configure Model/RDSolver                                update_vars:string=RotationAdv2D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=350
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
