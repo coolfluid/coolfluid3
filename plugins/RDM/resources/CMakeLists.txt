@@ -39,6 +39,8 @@ list( APPEND rdm_test_meshes_files
   sinusbump-tg-p1-1344.msh
   # for acoustic test case
   circle1d-tg-p1-1451.msh
+  # for supersonic ramp test case
+  ramp-tg-p1-6506.msh
 )
 
 coolfluid_add_resources( rdm_test_meshes )
