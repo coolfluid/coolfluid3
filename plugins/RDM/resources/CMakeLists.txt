@@ -39,6 +39,7 @@ list( APPEND rdm_test_meshes_files
   sinusbump-tg-p1-1344.msh
   # for acoustic test case
   circle1d-tg-p1-1451.msh
+  circle150r-tg-p1-3471.msh
   # for supersonic ramp test case
   ramp-tg-p1-6506.msh
 )

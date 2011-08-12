@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
@@ -55,8 +56,7 @@ void SetupMultipleSolutions::execute()
 
   const Uint nb_levels = option("nb_levels").value<Uint>();
 
-  CMesh& mesh = *m_mesh.lock();
-
+  CMesh&  mesh = *m_mesh.lock();
   CGroup& fields = mysolver.fields();
 
   // get the geometry field group
@@ -99,22 +99,15 @@ void SetupMultipleSolutions::execute()
    if( i != nbdofs-1 ) vars += ",";
   }
 
-
   // configure 1st solution
 
-  Field::Ptr solution = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() );
+  Field::Ptr solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );
   if ( is_null( solution ) )
   {
-    solution =
-        solution_group->create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
+    solution = solution_group->create_field( RDM::Tags::solution(), vars ).as_ptr<Field>();
 
     solution->add_tag(Tags::solution());
   }
-
-  if( ! fields.get_child_ptr( solution->name() ) )
-    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
-
-
 
   // create the other solutions based on the first solution field
 
@@ -124,7 +117,7 @@ void SetupMultipleSolutions::execute()
 
   for(Uint step = 1; step < nb_levels; ++step)
   {
-    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::solution() + to_str(step));
+    Field::Ptr solution_k = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() + to_str(step));
     if ( is_null( solution_k ) )
     {
       std::string name = std::string(Tags::solution()) + to_str(step);
@@ -137,18 +130,12 @@ void SetupMultipleSolutions::execute()
     rk_steps.push_back(solution_k);
   }
 
-  for( Uint step = 1; step < rk_steps.size(); ++step)
-  {
-    if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
-      fields.create_component<CLink>( rk_steps[step]->name() ).link_to(solution).add_tag("rksteps");
-  }
-
   /// @todo here we should check if space() order is correct,
   ///       if not the change space() by enriching or other appropriate action
 
   // configure residual
 
-  Field::Ptr residual = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::residual());
+  Field::Ptr residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
   if ( is_null( residual ) )
   {
     residual = solution_group->create_field(Tags::residual(), solution->descriptor().description() ).as_ptr<Field>();
@@ -156,22 +143,32 @@ void SetupMultipleSolutions::execute()
     residual->add_tag(Tags::residual());
   }
 
-  if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
 
   // configure wave_speed
 
-  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( geometry, RDM::Tags::wave_speed());
+  Field::Ptr wave_speed = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::wave_speed());
   if ( is_null( wave_speed ) )
   {
     wave_speed = solution_group->create_field(Tags::wave_speed(), "ws[1]" ).as_ptr<Field>();
     wave_speed->add_tag(Tags::wave_speed());
   }
 
+
+  // create links
+
+  if( ! fields.get_child_ptr( solution->name() ) )
+    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
+  if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
+    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
     fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
-  /// @todo apply here the bubble insertion if needed
+  for( Uint step = 1; step < rk_steps.size(); ++step)
+  {
+    if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
+      fields.create_component<CLink>( rk_steps[step]->name() ).link_to(solution).add_tag("rksteps");
+  }
+
 
   // parallelize the solution if not yet done
 
@@ -187,6 +184,10 @@ void SetupMultipleSolutions::execute()
   }
 
   mysolver.actions().get_child("Synchronize").configure_option("Fields", parallel_fields);
+
+//  std::cout << "solution " << solution->uri().string() << std::endl;
+//  std::cout << "residual " << residual->uri().string() << std::endl;
+//  std::cout << "wave_speed " << wave_speed->uri().string() << std::endl;
 
 }
 
