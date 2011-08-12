@@ -13,7 +13,6 @@
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
@@ -40,11 +39,8 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
 
-  Physics::PhysModel& phys_model = physics();
-
-
   // Update the dimensions on the physics
-  phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
+  physics().configure_option("dimensions", mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -50,7 +50,7 @@ struct CSolver::Implementation {
   void trigger_physical_model()
   {
     cf_assert(!m_physics.expired());
-    m_field_manager.configure_option("variable_manager", physics().variable_manager_new().uri());
+    m_field_manager.configure_option("variable_manager", physics().variable_manager().uri());
   }
 
   // Checked access to the physics

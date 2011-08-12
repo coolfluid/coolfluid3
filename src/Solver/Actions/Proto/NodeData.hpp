@@ -22,7 +22,6 @@
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "LSSProxy.hpp"
 #include "Transforms.hpp"

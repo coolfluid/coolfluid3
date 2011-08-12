@@ -17,7 +17,6 @@
 #include "Solver/Actions/CSolveSystem.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "LinearSolver.hpp"
 

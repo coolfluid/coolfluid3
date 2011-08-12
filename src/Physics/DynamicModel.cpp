@@ -5,23 +5,40 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/CBuilder.hpp"
+#include "Common/FindComponents.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Physics/DynamicModel.hpp"
 #include "Physics/DynamicVars.hpp"
-#include "VariableManager.hpp"
+
+#include "Math/VariableManager.hpp"
+#include "Math/VariablesDescriptor.hpp"
 
 namespace CF {
 namespace Physics {
 
 using namespace Common;
+using namespace Math;
 
 struct DynamicModel::Implementation
 {
-  Implementation() : m_type("DynamicModel")
+  Implementation(Component& component) : m_component(component), m_type("DynamicModel")
   {
+    m_component.options().add_option< OptionT<Uint> >("dimensions", 0u)
+      ->pretty_name("Dimensions")
+      ->description("Dimensions for the problem")
+      ->link_to(&m_dimensions)
+      ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
   
+  void trigger_dimensions()
+  {
+    m_component.configure_option_recursively("dimensions", m_dimensions);
+  }
+  
+  Component& m_component;
   std::string m_type;   ///< name of the physics type
+  Uint m_dimensions;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,7 +50,7 @@ Common::ComponentBuilder < Physics::DynamicModel,
                            
 DynamicModel::DynamicModel( const std::string& name ) :
   Physics::PhysModel(name),
-  m_implementation(new Implementation())
+  m_implementation(new Implementation(*this))
 {
 }
 
@@ -55,14 +72,20 @@ Variables::Ptr DynamicModel::create_variables(const std::string type, const std:
 
 Uint DynamicModel::ndim() const
 {
-  return variable_manager().option("dimensions").value<Uint>();
+  return m_implementation->m_dimensions;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Uint DynamicModel::neqs() const
 {
-  return variable_manager().nb_dof();
+  Uint nb_eqs = 0;
+  boost_foreach(const VariablesDescriptor& var_desc, find_components<VariablesDescriptor>(variable_manager()))
+  {
+    nb_eqs += var_desc.size();
+  }
+  
+  return nb_eqs;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

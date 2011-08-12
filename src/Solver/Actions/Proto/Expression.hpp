@@ -22,7 +22,6 @@
 #include "Mesh/CElements.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "ConfigurableConstant.hpp"
 #include "ElementLooper.hpp"

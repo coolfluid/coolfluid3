@@ -101,41 +101,16 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
   CFinfo << "Mesh volume: " << vol1 << CFendl;
 
-  // For an all-quad mesh, this is the same... cool or what? TODO: restore this
+  // For an all-quad mesh, this is the same... cool or what?
   Real vol2 = 0.;
   for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
   (
     mesh->topology(),
     vol2 += 0.5*((nodes[2][0] - nodes[0][0]) * (nodes[3][1] - nodes[1][1])
-             -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
+              -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
   );
   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
-/*
-// Deactivated, until for_each_element_node is ported from the old proto code
-// BOOST_AUTO_TEST_CASE( VertexValence )
-// {
-//   // Create a 3x3 rectangle
-//   CMesh::Ptr mesh( allocate_component<CMesh>("rect") );
-//   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
-//
-//   // Set up a node-based field to store the number of cells that are adjacent to each node
-//   const std::vector<std::string> vars(1, "Valence[1]");
-//   mesh->create_field("Valences", vars, Field::NODE_BASED);
-//
-//   // Set up proto variables
-//   MeshTerm<0, ConstNodes> nodes( "Region", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") ); // Mesh geometry nodes
-//   MeshTerm<1, ScalarField > valence("Valences", "Valence"); // Valence field
-//
-//   // Count the elements!
-//   for_each_element<SF::VolumeTypes>(find_component_recursively_with_name<CRegion>(*mesh, "region")
-//                                   , for_each_element_node(nodes, valence[_elem_node]++));
-//
-//   // output the result
-//   for_each_node(find_component_recursively_with_name<CRegion>(*mesh, "region")
-//               , _cout << valence << " ");
-//   std::cout << std::endl;
-// }
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
@@ -168,7 +143,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 
   check_close(result, exact, 1e-10);
 }
-
+/*
 BOOST_AUTO_TEST_CASE( RotatingCylinder )
 {
   const Real radius = 1.;
