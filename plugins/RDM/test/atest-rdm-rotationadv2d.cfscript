@@ -50,7 +50,7 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Type:string=CF.RDM.BcDirichlet \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
 
-configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=FARFIELD \
