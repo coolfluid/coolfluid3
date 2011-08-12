@@ -7,6 +7,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Common/CLink.hpp"
+#include "Common/CBuilder.hpp"
 #include "Mesh/CNodeElementConnectivity.hpp"
 #include "Mesh/CDynTable.hpp"
 #include "Mesh/Geometry.hpp"
@@ -19,7 +20,11 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) : 
+ComponentBuilder< CNodeElementConnectivity, Component, LibMesh > CNodeElementConnectivity_Builder;
+
+////////////////////////////////////////////////////////////////////////////////
+
+CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
   Component(name)
 {
   m_nodes = create_static_component_ptr<Common::CLink>(Mesh::Tags::nodes());
@@ -51,7 +56,7 @@ void CNodeElementConnectivity::build_connectivity()
 {
   set_nodes(elements().components()[0]->as_type<CElements>().geometry());
   Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
-  
+
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
   boost_foreach(Component::Ptr elements_comp, m_elements->components() )
@@ -70,9 +75,9 @@ void CNodeElementConnectivity::build_connectivity()
   {
     row.reserve(connectivity_sizes[i++]);
   }
-  
+
   // fill m_connectivity->array()
-  Uint glb_elem_idx = 0;  
+  Uint glb_elem_idx = 0;
   boost_foreach(Component::Ptr elements_comp, m_elements->components() )
   {
     CElements& elements = elements_comp->as_type<CElements>();
