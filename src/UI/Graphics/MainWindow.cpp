@@ -561,8 +561,15 @@ void MainWindow::runScript()
   dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript)" << "All files (*.*)" );
   dlg.setDirectory( QDir::home() );
 
-  if( dlg.exec() == QFileDialog::Accepted )
-    NetworkQueue::global_queue()->execute_script( dlg.selectedFiles().first() );
+  try
+  {
+    if( dlg.exec() == QFileDialog::Accepted )
+      NetworkQueue::global_queue()->execute_script( dlg.selectedFiles().first() );
+  }
+  catch( Exception & e)
+  {
+    NLog::globalLog()->addException( e.what() );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////
