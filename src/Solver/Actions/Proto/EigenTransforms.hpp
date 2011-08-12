@@ -13,7 +13,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
-/// @file EigenTransforms.hpp 
+/// @file EigenTransforms.hpp
 /// @brief Transforms related to Eigen matrix library functionality
 
 namespace CF {
@@ -87,15 +87,15 @@ struct EigenProductEval :
   {
     typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
     typedef typename boost::proto::result_of::right<ExprT>::type RightExprT;
-    
+
     typedef typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type LeftT;
     typedef typename boost::result_of<GrammarT(RightExprT, StateT, DataT)>::type RightT;
-    
+
     typedef typename boost::remove_const<typename boost::remove_reference<LeftT>::type>::type UnRefLeftT;
     typedef typename boost::remove_const<typename boost::remove_reference<RightT>::type>::type UnRefRightT;
-    
+
     typedef const typename ValueType< typename EigenProductType<UnRefLeftT, UnRefRightT>::type >::type& result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       expr.value = GrammarT()(boost::proto::left(expr), state, data) * GrammarT()(boost::proto::right(expr), state, data);
@@ -112,10 +112,10 @@ struct EigenPlusAssignProductEval :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    
-    
+
+
     typedef void result_type;
-    
+
     template<typename T>
     struct LHSHelper
     {
@@ -124,7 +124,7 @@ struct EigenPlusAssignProductEval :
         return arg;
       }
     };
-    
+
     template<typename T>
     struct LHSHelper<const T&>
     {
@@ -133,7 +133,7 @@ struct EigenPlusAssignProductEval :
         return const_cast<T&>(arg);
       }
     };
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       // Result type for the LHS
@@ -144,7 +144,7 @@ struct EigenPlusAssignProductEval :
           typename impl::expr_param
         >::type, typename impl::state_param, typename impl::data_param)
       >::type LeftT;
-      
+
       LHSHelper<LeftT>()(GrammarT()(boost::proto::left(expr), state, data)) += GrammarT()(boost::proto::left(boost::proto::right(expr)), state, data) * GrammarT()(boost::proto::right(boost::proto::right(expr)), state, data);
     }
   };
@@ -193,9 +193,9 @@ struct TransposeTransform :
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
+  {
     typedef Eigen::Transpose<typename boost::remove_reference<typename impl::state_param>::type> result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       return state.transpose();
@@ -209,10 +209,10 @@ struct MatrixElementAccess :
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
+  {
     /// We assume our matrices contain Reals.
     typedef Real result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       return state
@@ -232,24 +232,25 @@ struct MatrixSubscript :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type ExprValT;
-    
-    typedef typename boost::mpl::if_c<ExprValT::ColsAtCompileTime == 1, Real, typename ExprValT::ConstRowXpr>::type result_type;
-    
+
+    static const bool is_vector = ExprValT::ColsAtCompileTime == 1 || ExprValT::RowsAtCompileTime == 1;
+    typedef typename boost::mpl::if_c<is_vector, Real, typename ExprValT::ConstRowXpr>::type result_type;
+
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
-    inline Real do_eval(boost::mpl::true_, ExprT expr, StateT state) const
+    inline Real do_eval(boost::mpl::true_, ExprT expr, StateT state) const // used for vectors
     {
       return expr[state];
     }
-    
-    inline typename ExprValT::ConstRowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const
+
+    inline typename ExprValT::ConstRowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const // used for matrices
     {
       return expr.row(state);
     }
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       // go through overloaded do_eval to get the correct expression, depending on if we are subscripting a vector or a matrix
-      return do_eval(boost::mpl::bool_<ExprValT::ColsAtCompileTime == 1>(), expr, state);
+      return do_eval(boost::mpl::bool_<is_vector>(), expr, state);
     }
   };
 };
@@ -261,9 +262,9 @@ struct MatrixRowAccess :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::remove_reference<ExprT>::type ExprValT;
-    
+
     typedef typename ExprValT::RowXpr result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       return expr.row(state);
@@ -278,9 +279,9 @@ struct MatrixColAccess :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename boost::remove_reference<ExprT>::type ExprValT;
-    
+
     typedef typename ExprValT::ConstColXpr result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       return expr.col(state);
@@ -295,19 +296,19 @@ struct SetZero :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef void result_type;
-    
+
     template<typename MatrixT>
     result_type operator ()(MatrixT& expr, typename impl::state_param, typename impl::data_param) const
     {
       expr.setZero();
     }
   };
-  
+
   template<typename MatT, int R, int C, typename StateT, typename DataT>
   struct impl<Eigen::Block<MatT, R, C>, StateT, DataT> : boost::proto::transform_impl<Eigen::Block<MatT, R, C>, StateT, DataT>
   {
     typedef void result_type;
-    
+
     result_type operator ()(Eigen::Block<MatT, R, C> expr, typename impl::state_param, typename impl::data_param) const
     {
       expr.setZero();

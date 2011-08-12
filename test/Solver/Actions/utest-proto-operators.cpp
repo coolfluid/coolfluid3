@@ -102,16 +102,16 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   CFinfo << "Mesh volume: " << vol1 << CFendl;
 
   // For an all-quad mesh, this is the same... cool or what? TODO: restore this
-//   Real vol2 = 0.;
-//   for_each_element<VolumeTypes>
-//   (
-//     mesh->topology(),
-//     vol2 += 0.5*((coordinates(2, 0) - coordinates(0, 0)) * (coordinates(3, 1) - coordinates(1, 1))
-//               -  (coordinates(2, 1) - coordinates(0, 1)) * (coordinates(3, 0) - coordinates(1, 0)))
-//   );
-//   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+  Real vol2 = 0.;
+  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  (
+    mesh->topology(),
+    vol2 += 0.5*((nodes[2][0] - nodes[0][0]) * (nodes[3][1] - nodes[1][1])
+             -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
+  );
+  BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
-
+/*
 // Deactivated, until for_each_element_node is ported from the old proto code
 // BOOST_AUTO_TEST_CASE( VertexValence )
 // {
@@ -324,7 +324,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
   BOOST_CHECK_EQUAL(count, 10);
 }
-/*
+
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
