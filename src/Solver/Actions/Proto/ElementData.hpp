@@ -22,6 +22,8 @@
 #include "Common/Component.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/CElements.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
@@ -231,6 +233,14 @@ private:
   mutable typename SF::CoordsT m_normal_vector;
 };
 
+/// Helper function to find a field starting from a region
+inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
+{
+  Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
+  Mesh::FieldGroup& field_group =  mesh.geometry();
+  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+}
+
 /// Data associated with field variables
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
 class SFVariableData
@@ -316,33 +326,24 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) : m_field(0), m_connectivity(0), m_support(support)
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+    m_field(find_field(elements, placeholder.field_tag())),
+    m_connectivity(elements.node_connectivity()),
+    m_support(support)
   {
-    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-
-    Common::Component::Ptr field_comp = mesh.get_child_ptr(placeholder.field_name);
-
-    cf_assert(field_comp);
-
-    m_field = &field_comp->as_type<Mesh::Field>();
-
-    m_connectivity = &elements.node_connectivity();
-
-    var_begin = m_field->var_index(placeholder.variable_name);
+    var_begin = m_field.descriptor().offset(placeholder.name());
   }
 
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
-    if(!m_field)
-      return;
     m_element_idx = element_idx;
-    Mesh::fill(m_element_values, *m_field, (*m_connectivity)[element_idx], var_begin);
+    Mesh::fill(m_element_values, m_field, m_connectivity[element_idx], var_begin);
   }
 
   const Mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
-    return (*m_connectivity)[m_element_idx];
+    return m_connectivity[m_element_idx];
   }
 
   /// Reference to the geometric support
@@ -423,11 +424,11 @@ private:
   /// Value of the field in each element node
   ValueT m_element_values;
 
-  /// Coordinates table
-  Mesh::Field const* m_field;
+  /// Data table
+  const Mesh::Field& m_field;
 
   /// Connectivity table
-  Mesh::CConnectivity const* m_connectivity;
+  const Mesh::CConnectivity& m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;

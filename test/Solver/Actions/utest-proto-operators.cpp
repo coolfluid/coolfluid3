@@ -117,9 +117,9 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "Temperature", "T" );
+  mesh->geometry().create_field( "solution", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
