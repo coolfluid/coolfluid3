@@ -40,7 +40,9 @@ public:
 
   QList< Common::SignalArgs > actions;
 
-  Transaction( const QString & trans_uuid ) : uuid(trans_uuid) {}
+  bool from_script;
+
+  Transaction( const QString & trans_uuid ) : uuid(trans_uuid), from_script(false) {}
 
 }; // Transaction
 
@@ -73,7 +75,7 @@ public:
 
   static std::string class_name() { return "NetworkQueue"; }
 
-  QString send ( Common::SignalArgs & args, Priority priority = MEDIUM );
+  Transaction * send ( Common::SignalArgs & args, Priority priority = MEDIUM );
 
   QString start_transaction();
 

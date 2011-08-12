@@ -65,8 +65,8 @@ void OptionURI::configure ( XmlNode& node )
 
   to_string(node, str);
 
-  if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
-    throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + " " + val.path() + " : unsupported protocol.");
+  if( !m_protocols.empty() && std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
+    throw XmlError(FromHere(), URI::Scheme::Convert::instance().to_str(protocol) + " : unsupported scheme.");
 
   m_value = val;
 }
