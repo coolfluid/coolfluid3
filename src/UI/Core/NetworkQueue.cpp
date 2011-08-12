@@ -79,20 +79,21 @@ QString NetworkQueue::toolTip() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString NetworkQueue::send ( SignalArgs & args, Priority priority )
+Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
 {
-  QString uuid;
+  Transaction * transaction = nullptr;
 
   if( priority == IMMEDIATE )
     ThreadManager::instance().network().send( args );
   else
   {
-    uuid = start_transaction();
+    QString uuid = start_transaction();
+    transaction = m_newTransactions[uuid];
     add_to_transaction( uuid, args );
     insert_transaction( uuid, priority );
   }
 
-  return uuid;
+  return transaction;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -179,7 +180,10 @@ void NetworkQueue::dispatch_signal( const std::string & target,
                                     SignalArgs &args )
 {
   args.options().flush();
-  send( args, LOW );
+  Transaction * transaction = send( args, LOW );
+
+  if( is_not_null(transaction) )
+    transaction->from_script = true;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -215,6 +219,15 @@ void NetworkQueue::signal_ack ( Common::SignalArgs & args )
         XML::SignalFrame f = m_transactions[m_currentIndex]->actions[0].node;
 
         NLog::globalLog()->addException( msg.arg(message.c_str()).arg(f.to_script().c_str()) );
+
+        // if the signal was comming from a script, we close the script file
+        if ( m_transactions[m_currentIndex]->from_script )
+          m_scriptFile->close();
+
+        m_transactions.removeAt( m_currentIndex );
+
+        if( m_transactions.isEmpty() )
+          m_currentIndex = -1;
       }
       else
       {
@@ -272,6 +285,7 @@ void NetworkQueue::execute_script ( const QString & filename )
     NLog::globalLog()->addError( m_scriptFile->errorString() );
   else
   {
+    NLog::globalLog()->addMessage("Running script: " + filename);
     m_scriptStream->setDevice( m_scriptFile );
     send_next_command();
   }
