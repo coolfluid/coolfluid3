@@ -10,13 +10,16 @@
 #include <map>
 
 #include <boost/mpl/for_each.hpp>
-//#include <boost/proto/deep_copy.hpp>
+#include <boost/fusion/algorithm/iteration/for_each.hpp>
 
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionList.hpp"
+
+#include "Math/VariableManager.hpp"
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -94,7 +97,7 @@ public:
   
   void register_variables(Physics::PhysModel& physical_model)
   {
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >( RegisterVariables(physical_model, m_variables) );
+    boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
   }
 
 private:
@@ -121,39 +124,45 @@ private:
   /// Functor to register variables in a physical model
   struct RegisterVariables
   {
-    RegisterVariables(Physics::PhysModel& physical_model, VariablesT& variables) :
-      m_physical_model(physical_model),
-      m_variables(variables)
-    {
-    }
-
-    /// Operator taking an MPL integral constant as type
-    template<typename I>
-    void operator()(const I&) const
-    {
-      apply(boost::fusion::at<I>(m_variables), boost::mpl::at<EquationVariablesT, I>::type::value);
-    }
-
-    /// non-op for non-existing variables in the list
-    void apply(const boost::mpl::void_&, const bool) const
+    RegisterVariables(Physics::PhysModel& physical_model) :
+      m_physical_model(physical_model)
     {
     }
 
     /// Register a scalar
-    void apply(ScalarField& field, const bool is_equation_var) const
+    void operator()(ScalarField& field) const
     {
-      m_physical_model.variable_manager().register_variable(field.name(), field.variable_name, field.field_name, CF::Physics::VariableManager::SCALAR, is_equation_var);
+      get_descriptor(field.field_tag()).push_back(field.name(), Math::VariablesDescriptor::Dimensionalities::SCALAR);
     }
 
     /// Register a vector field
-    void apply(VectorField& field, const bool is_equation_var) const
+    void operator()(VectorField& field) const
     {
-      m_physical_model.variable_manager().register_variable(field.name(), field.variable_name, field.field_name, CF::Physics::VariableManager::VECTOR, is_equation_var);
+      get_descriptor(field.field_tag()).push_back(field.name(), Math::VariablesDescriptor::Dimensionalities::VECTOR);
     }
 
   private:
+    /// Get the VariablesDescriptor with the given tag
+    Math::VariablesDescriptor& get_descriptor(const std::string& tag)
+    {
+      Math::VariablesDescriptor* result = 0;
+      BOOST_FOREACH(Math::VariablesDescriptor& descriptor, Common::find_components_with_tag<Math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
+      {
+        if(is_not_null(result))
+          throw Common::SetupError(FromHere(), "Variablemanager " + m_physical_model.variable_manager().uri().string() + " has multiple descriptors with tag " + tag);
+        result = &descriptor;
+      }
+      
+      if(is_null(result))
+      {
+        result = &m_physical_model.variable_manager().create_component<Math::VariablesDescriptor>(tag);
+        result->add_tag(tag);
+      }
+      
+      return *result;
+    }
+    
     Physics::PhysModel& m_physical_model;
-    VariablesT& m_variables;
   };
 };
 
