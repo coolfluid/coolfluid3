@@ -128,7 +128,7 @@ struct VariablesDescriptor::Implementation
   }
 
   /// Implementation based on Willem Deconincks code for Field
-  void set_variables(const std::string& description, const Uint dimension)
+  void set_variables(const std::string& description)
   {
     const boost::regex e_variable("([[:word:]]+)[[:space:]]*(\\[[[:space:]]*[[:word:]]+[[:space:]]*\\])?");
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
@@ -191,7 +191,6 @@ struct VariablesDescriptor::Implementation
     {
       push_back(names_to_add[i], types_to_add[i]);
     }
-    m_component.configure_option(Common::Tags::dimension(),dimension);
   }
 
   std::string description() const
@@ -413,9 +412,16 @@ std::string VariablesDescriptor::description() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void VariablesDescriptor::set_variables(const std::string& description)
+{
+  m_implementation->set_variables(description);
+}
+
+
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  m_implementation->set_variables(description,dimension);
+  configure_option(Common::Tags::dimension(), dimension);
+  m_implementation->set_variables(description);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
