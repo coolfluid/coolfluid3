@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   const std::string tag = "solution";
 
   VariableManager& var_manager = root.create_component<VariableManager>("varmanager");
-  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option("dimensions", 2u);
+  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(Common::Tags::dimension(), 2u);
 
   // Test mesh
   CMesh& mesh = root.create_component<CMesh>("mesh");

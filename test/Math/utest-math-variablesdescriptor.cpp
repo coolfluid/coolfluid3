@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE( PushBackScalar )
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
   descriptor->push_back("a", CF::Math::VariablesDescriptor::Dimensionalities::SCALAR);
   
-  descriptor->configure_option("dimensions", 3u);
+  descriptor->configure_option(Common::Tags::dimension(), 3u);
   
   BOOST_CHECK_EQUAL(descriptor->size(), 1);
   BOOST_CHECK_EQUAL(descriptor->user_variable_name("a"), "a");
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
   
-  descriptor->configure_option("dimensions", 2u);
+  descriptor->configure_option(Common::Tags::dimension(), 2u);
   
   descriptor->push_back("v1", CF::Math::VariablesDescriptor::Dimensionalities::VECTOR);
   descriptor->push_back("v2", CF::Math::VariablesDescriptor::Dimensionalities::VECTOR);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("v2"), 2);
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 4);
   
-  descriptor->configure_option("dimensions", 3u);
+  descriptor->configure_option(Common::Tags::dimension(), 3u);
   BOOST_CHECK_EQUAL(descriptor->size(), 15);
   BOOST_CHECK_EQUAL(descriptor->size("v1"), 3);
   BOOST_CHECK_EQUAL(descriptor->size("v2"), 3);
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( ParseString )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
   
-  descriptor->configure_option("dimensions", 2u);
+  descriptor->configure_option(Common::Tags::dimension(), 2u);
   
   // Add a scalar, vector and tensor
   descriptor->set_variables("a, b[v], c[t]");
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( ParseStringArray )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
   
-  descriptor->configure_option("dimensions", 2u);
+  descriptor->configure_option(Common::Tags::dimension(), 2u);
   
   // Add 5 scalars
   descriptor->set_variables("a[5]");

@@ -15,6 +15,7 @@
 #include "Common/StreamHelpers.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StringConversion.hpp"
+#include "Common/Tags.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -158,7 +159,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   m_mesh->update_statistics();
 
   cf_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
-  cf_assert(m_mesh->properties().value<Uint>("dimension") == m_headerData.NDFCD);
+  cf_assert(m_mesh->properties().value<Uint>(Common::Tags::dimension()) == m_headerData.NDFCD);
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/Tags.hpp"
 
 #include "Physics/DynamicModel.hpp"
 #include "Physics/DynamicVars.hpp"
@@ -24,7 +25,7 @@ struct DynamicModel::Implementation
 {
   Implementation(Component& component) : m_component(component), m_type("DynamicModel"), m_updating(false)
   {
-    m_component.options().add_option< OptionT<Uint> >("dimensions", 0u)
+    m_component.options().add_option< OptionT<Uint> >(Common::Tags::dimension(), 0u)
       ->pretty_name("Dimensions")
       ->description("Dimensions for the problem")
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
@@ -36,8 +37,8 @@ struct DynamicModel::Implementation
       return;
     
     m_updating = true;
-    m_dimensions = m_component.option("dimensions").value<Uint>();
-    m_component.configure_option_recursively("dimensions", m_dimensions);
+    m_dimensions = m_component.option(Common::Tags::dimension()).value<Uint>();
+    m_component.configure_option_recursively(Common::Tags::dimension(), m_dimensions);
     m_updating = false;
   }
   

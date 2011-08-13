@@ -16,6 +16,7 @@
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/Tags.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -33,7 +34,7 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >("dimension", 0)
+    m_component.options().add_option< OptionT<Uint> >(Common::Tags::dimension(), 0)
       ->pretty_name("Dimension")
       ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
@@ -190,7 +191,7 @@ struct VariablesDescriptor::Implementation
     {
       push_back(names_to_add[i], types_to_add[i]);
     }
-    m_component.configure_option("dimension",dimension);
+    m_component.configure_option(Common::Tags::dimension(),dimension);
   }
 
   std::string description() const

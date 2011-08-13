@@ -40,7 +40,7 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
   m_mesh = mesh.as_ptr<CMesh>();
 
   // Update the dimensions on the physics
-  physics().configure_option("dimensions", mesh.topology().geometry().dim());
+  physics().configure_option(Common::Tags::dimension(), mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
