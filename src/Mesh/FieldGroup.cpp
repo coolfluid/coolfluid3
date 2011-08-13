@@ -251,7 +251,7 @@ Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescript
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
-  field.descriptor().configure_property("dimension",parent().as_type<CMesh>().dimension());
+  field.descriptor().configure_option("dimension",parent().as_type<CMesh>().dimension());
   field.resize(m_size);
   return field;
 }

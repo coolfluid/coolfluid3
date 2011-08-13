@@ -32,6 +32,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
@@ -143,7 +144,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 
   check_close(result, exact, 1e-10);
 }
-/*
+
 BOOST_AUTO_TEST_CASE( RotatingCylinder )
 {
   const Real radius = 1.;
@@ -188,9 +189,9 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
-  mesh->geometry().create_field( "Pressure", "p" );
+  mesh->geometry().create_field( "Pressure", "Pressure" ).add_tag("solution");
 
-  MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
+  MeshTerm<1, ScalarField > p("Pressure", "solution"); // Pressure field
 
   typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
 
@@ -252,9 +253,9 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "Temperature", "T" );
+  mesh->geometry().create_field( "Temperature", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
@@ -305,9 +306,9 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "T");
+  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
@@ -351,7 +352,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "T");
+  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
 
   Real total = 0;
 
@@ -433,7 +434,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
-  MeshTerm<0, VectorField> u("Velocity", "u");
+  MeshTerm<0, VectorField> u("Velocity", "solution");
 
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   CDomain& dom = model.create_domain("Domain");
@@ -441,15 +442,17 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
-  physics.variable_manager().configure_option("dimensions", 2u);
+  physics.configure_option("dimensions", 2u);
 
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);
 
+  FieldManager& field_manager = dom.create_component<FieldManager>("FieldManager");
+  field_manager.configure_option("variable_manager", physics.variable_manager().uri());
+
   // set up fields
   init->register_variables(physics);
-  /// @todo Bart adapt this
-//  create_fields(mesh, physics);
+  field_manager.create_field("solution", mesh.geometry());
 
   // Do the initialization
   init->loop(mesh.topology());
@@ -466,7 +469,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   std::cout << result << std::endl;
 }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

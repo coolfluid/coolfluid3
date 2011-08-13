@@ -55,7 +55,7 @@ public:
 
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(Physics::PhysModel& physical_model) = 0;
-  
+
 	virtual ~Expression() {}
 };
 
@@ -94,7 +94,7 @@ public:
       option.link_to(&it->second);
     }
   }
-  
+
   void register_variables(Physics::PhysModel& physical_model)
   {
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
@@ -143,7 +143,7 @@ private:
 
   private:
     /// Get the VariablesDescriptor with the given tag
-    Math::VariablesDescriptor& get_descriptor(const std::string& tag)
+    Math::VariablesDescriptor& get_descriptor(const std::string& tag) const
     {
       Math::VariablesDescriptor* result = 0;
       BOOST_FOREACH(Math::VariablesDescriptor& descriptor, Common::find_components_with_tag<Math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
@@ -152,16 +152,16 @@ private:
           throw Common::SetupError(FromHere(), "Variablemanager " + m_physical_model.variable_manager().uri().string() + " has multiple descriptors with tag " + tag);
         result = &descriptor;
       }
-      
+
       if(is_null(result))
       {
         result = &m_physical_model.variable_manager().create_component<Math::VariablesDescriptor>(tag);
         result->add_tag(tag);
       }
-      
+
       return *result;
     }
-    
+
     Physics::PhysModel& m_physical_model;
   };
 };

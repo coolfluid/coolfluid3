@@ -22,23 +22,29 @@ using namespace Math;
 
 struct DynamicModel::Implementation
 {
-  Implementation(Component& component) : m_component(component), m_type("DynamicModel")
+  Implementation(Component& component) : m_component(component), m_type("DynamicModel"), m_updating(false)
   {
     m_component.options().add_option< OptionT<Uint> >("dimensions", 0u)
       ->pretty_name("Dimensions")
       ->description("Dimensions for the problem")
-      ->link_to(&m_dimensions)
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
   
   void trigger_dimensions()
   {
+    if(m_updating)
+      return;
+    
+    m_updating = true;
+    m_dimensions = m_component.option("dimensions").value<Uint>();
     m_component.configure_option_recursively("dimensions", m_dimensions);
+    m_updating = false;
   }
   
   Component& m_component;
   std::string m_type;   ///< name of the physics type
   Uint m_dimensions;
+  bool m_updating;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
