@@ -12,6 +12,7 @@
 #include <boost/foreach.hpp>
 
 #include "Common/Log.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 
@@ -28,6 +29,8 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/Geometry.hpp"
 
+#include "Tools/MeshGeneration/MeshGeneration.hpp"
+
 using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
@@ -42,6 +45,9 @@ BOOST_AUTO_TEST_SUITE( FieldManagerSuite )
 
 BOOST_AUTO_TEST_CASE( test_FieldManager )
 {
+  Core::instance().environment().configure_option("exception_aborts",false);
+  Core::instance().environment().configure_option("exception_backtrace",false);
+  Core::instance().environment().configure_option("exception_outputs",false);
   CRoot& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
@@ -52,17 +58,25 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
 
   // Test mesh
   CMesh& mesh = root.create_component<CMesh>("mesh");
+  Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 10, 10);
 
   // FieldManager
   FieldManager& field_manager = root.create_component<FieldManager>("fieldmanager");
   field_manager.configure_option("variable_manager", var_manager.uri());
 
+  // Do this twice, to ensure the second run does nothing
+  field_manager.create_field(tag, mesh.geometry());
   field_manager.create_field(tag, mesh.geometry());
 
   BOOST_CHECK(is_not_null(mesh.geometry().get_child_ptr(tag)));
   Field& field = mesh.geometry().field(tag);
   BOOST_CHECK(field.has_variable("a"));
   BOOST_CHECK(field.row_size() == 7);
+  
+  // Now change the descriptor and ensure there is an error
+  var_manager.get_child(tag).remove_tag(tag);
+  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(Common::Tags::dimension(), 3u);
+  BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry()), SetupError);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
