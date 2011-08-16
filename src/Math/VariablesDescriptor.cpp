@@ -369,6 +369,14 @@ bool VariablesDescriptor::has_variable(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+VariablesDescriptor::Dimensionalities::Type VariablesDescriptor::dimensionality(const std::string& name) const
+{
+  return m_implementation->m_types[m_implementation->checked_index(name)];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 Uint VariablesDescriptor::var_number ( const std::string& name ) const
 {
   return m_implementation->checked_index(name);

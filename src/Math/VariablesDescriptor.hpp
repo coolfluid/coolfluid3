@@ -98,6 +98,10 @@ public: // functions
   /// @return true if found, false if not found
   bool has_variable(const std::string& name) const;
 
+  /// The dimensionality of the variable with the given name
+  /// @param name Internal name of the variable
+  Dimensionalities::Type dimensionality(const std::string& name) const;
+
   /// Find the variable number for a given variable name.
   /// @throws ValueNotFound if the variable is not found
   /// @param name Internal name of the variable
@@ -126,7 +130,7 @@ public: // functions
 
   /// Setup variables acording to a Field string description
   void set_variables(const std::string& description);
-  
+
   /// Setup variables together with their dimension
   void set_variables(const std::string& description, const Uint dimension);
 
