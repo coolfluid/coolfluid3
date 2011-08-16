@@ -12,22 +12,21 @@
 #include "Math/MatrixTypes.hpp"
 #include "Solver/CEigenLSS.hpp"
 
-#include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
- 
+
 /// Tag for a Neumann BC
 struct NeumannBCTag
 {
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef LSSComponentTerm<NeumannBCTag> NeumannBC;
-  
+typedef ComponentWrapper<CEigenLSS, NeumannBCTag> NeumannBC;
+
 struct NeumannBCSetter :
   boost::proto::transform< NeumannBCSetter >
 {
@@ -35,7 +34,7 @@ struct NeumannBCSetter :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef void result_type;
-    
+
     result_type operator ()(
                 typename impl::expr_param expr // Of the form neumann(lss, variable)
               , typename impl::state_param state
@@ -58,7 +57,7 @@ struct NeumannBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< LSSComponent<NeumannBCTag> >,
+        boost::proto::terminal< ComponentWrapper<CEigenLSS, NeumannBCTag> >,
         FieldTypes
       >,
       GrammarT
@@ -67,7 +66,7 @@ struct NeumannBCGrammar :
   >
 {
 };
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver

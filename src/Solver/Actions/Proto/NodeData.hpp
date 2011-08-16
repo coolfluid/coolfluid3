@@ -23,7 +23,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
 /// @file

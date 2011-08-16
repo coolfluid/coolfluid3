@@ -12,44 +12,44 @@
 #include "Math/MatrixTypes.hpp"
 #include "Solver/CEigenLSS.hpp"
 
-#include "LSSProxy.hpp"
+#include "ComponentWrapper.hpp"
 #include "Transforms.hpp"
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
- 
+
 /// Tag for a Neumann BC
 struct SolutionVectorTag
 {
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef LSSComponentTerm<SolutionVectorTag> SolutionVector;
-  
+typedef ComponentWrapper<CEigenLSS, SolutionVectorTag> SolutionVector;
+
 struct GetSolutionVector :
   boost::proto::transform< GetSolutionVector >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    
+
     typedef typename impl::data::template DataType<typename impl::state>::type VarDataT;
     typedef typename VarDataT::ValueT result_type;
-    
+
     template<typename T>
     void convert_result(Real& output, const T& input) const
     {
       output = input[0];
     }
-    
+
     template<typename T1, typename T2>
     void convert_result(T1& output, const T2& input) const
     {
       output = input;
     }
-    
+
     result_type operator ()(
                 typename impl::expr_param expr // Of the form neumann(lss, variable)
               , typename impl::state_param state
@@ -71,14 +71,14 @@ struct SolutionVectorGrammar :
   <
     boost::proto::function
     <
-      boost::proto::terminal< LSSComponent<SolutionVectorTag> >,
+      boost::proto::terminal< ComponentWrapper<CEigenLSS, SolutionVectorTag> >,
       FieldTypes
     >,
     GetSolutionVector(boost::proto::_value(boost::proto::_child0), boost::proto::_value(boost::proto::_child1))
   >
 {
 };
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver

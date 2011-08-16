@@ -29,6 +29,7 @@
 #include "Solver/CModel.hpp"
 #include "Solver/CSimpleSolver.hpp"
 
+#include "Solver/Actions/Proto/ComponentWrapper.hpp"
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
@@ -231,9 +232,9 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
   solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
-  
+
   solver.field_manager().create_field("T3", mesh.geometry());
-  
+
   // Run the actions
   model.simulate();
 
@@ -259,7 +260,7 @@ public:
           << create_proto_action( "Output", nodes_expression(_cout << T << "\n"))
           << create_proto_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
   }
-  
+
   virtual void mesh_loaded(CMesh& mesh)
   {
     field_manager().create_field("T4", mesh.geometry());
@@ -310,6 +311,38 @@ BOOST_AUTO_TEST_CASE( CopyExpression )
   result = 0;
   expression->loop(mesh.topology());
   BOOST_CHECK_EQUAL(result, 12.);
+}
+
+// Primitive transform that prints a component URI when given a ComponentWrapper terminal
+struct ComponentURIPrinter :
+  boost::proto::transform< ComponentURIPrinter >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      std::cout << boost::proto::value(expr).component().uri().string();
+    }
+  };
+};
+
+/// Define a tag (not used here)
+struct SomeTag {};
+
+BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
+{
+  CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
+  
+  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
+  
+  ComponentWrapper<Physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(Solver::Tags::physical_model()));
+
+  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
+  
+  ComponentURIPrinter()(wrapped_phys_model);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
