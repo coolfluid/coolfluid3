@@ -130,9 +130,6 @@ void SetupMultipleSolutions::execute()
     rk_steps.push_back(solution_k);
   }
 
-  /// @todo here we should check if space() order is correct,
-  ///       if not the change space() by enriching or other appropriate action
-
   // configure residual
 
   Field::Ptr residual = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::residual());
@@ -166,7 +163,7 @@ void SetupMultipleSolutions::execute()
   for( Uint step = 1; step < rk_steps.size(); ++step)
   {
     if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
-      fields.create_component<CLink>( rk_steps[step]->name() ).link_to(solution).add_tag("rksteps");
+      fields.create_component<CLink>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
   }
 
 
