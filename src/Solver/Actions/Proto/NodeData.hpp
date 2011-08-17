@@ -14,6 +14,8 @@
 
 #include "Common/FindComponents.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
@@ -21,10 +23,6 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
-
-#include "LSSProxy.hpp"
 #include "Transforms.hpp"
 
 /// @file
@@ -82,18 +80,30 @@ private:
   T& m_var;
 };
 
+/// Helper function to find a field starting from a region
+inline Mesh::Field& find_field(Mesh::CRegion& region, const std::string& tag)
+{
+  Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(region);
+  Mesh::FieldGroup& field_group =  mesh.geometry();
+  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+}
+
 template<>
 struct NodeVarData< ScalarField >
 {
   static const Uint dimension = 1;
 
-  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
-    offset(var_offset),
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.field_name)->as_ptr<Mesh::Field>() )
+  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region) :
+    m_field(find_field(region, placeholder.field_tag()))
   {
-    m_var_begin = m_field.var_index(placeholder.variable_name);
-/// @note Bark look here
-//    cf_assert(m_field.var_type(placeholder.variable_name) == 1);
+    const Math::VariablesDescriptor& descriptor = m_field.descriptor();
+    m_var_begin = descriptor.offset(placeholder.name());
+
+    // Variable must be a scalar
+    cf_assert(descriptor.size(placeholder.name()) == 1);
+
+    offset = descriptor.offset(placeholder.name());
+    nb_dofs = descriptor.size();
   }
 
   void set_node(const Uint idx)
@@ -127,8 +137,11 @@ struct NodeVarData< ScalarField >
     m_field[m_idx][m_var_begin] -= v;
   }
 
-  /// Offset for the variable in the LSS, if any
+  /// Offset for the variable in the field
   Uint offset;
+
+  /// Total nbdofs in the field that this variable is in
+  Uint nb_dofs;
 
 private:
   Mesh::Field& m_field;
@@ -147,11 +160,17 @@ struct NodeVarData<VectorField, Dim>
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region, const Uint var_offset) :
-    offset(var_offset),
-    m_field( *Common::find_parent_component<Mesh::CMesh>(region).get_child_ptr(placeholder.name())->as_ptr<Mesh::Field>() )
+  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
+    m_field( find_field(region, placeholder.field_tag()) )
   {
-    m_var_begin = m_field.var_index(placeholder.variable_name);
+    const Math::VariablesDescriptor& descriptor = m_field.descriptor();
+    m_var_begin = descriptor.offset(placeholder.name());
+
+    // Variable must be a vector
+    cf_assert(descriptor.size(placeholder.name()) == dimension);
+
+    offset = descriptor.offset(placeholder.name());
+    nb_dofs = descriptor.size();
   }
 
   void set_node(const Uint idx)
@@ -189,8 +208,11 @@ struct NodeVarData<VectorField, Dim>
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
 
-  /// Offset for the variable in the LSS, if any
+  /// Offset for the variable in the field
   Uint offset;
+
+  /// Total nb dofs in the field
+  Uint nb_dofs;
 
 private:
   Mesh::Field& m_field;
@@ -256,30 +278,9 @@ public:
   NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords, const ExprT& expr) :
     m_variables(variables),
     m_region(region),
-    m_coordinates(coords),
-    m_nb_dofs(0)
+    m_coordinates(coords)
   {
-    // Get any referred LSS proxies, so we can access the physical model
-    std::vector<LSSProxy*> lss_proxies;
-    CollectLSSProxies()(expr, lss_proxies);
-    Physics::PhysModel* physical_model = 0;
-    BOOST_FOREACH(LSSProxy* lss_proxy, lss_proxies)
-    {
-      if(physical_model)
-      {
-        // Currently, we only support a single physical model for the whole expression
-        cf_assert(physical_model == &lss_proxy->physical_model());
-      }
-      else
-      {
-        physical_model = &lss_proxy->physical_model();
-      }
-    }
-
-    if(physical_model)
-      m_nb_dofs = physical_model->neqs();
-
-    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data, physical_model));
+    boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_region, m_variables_data));
   }
 
   ~NodeData()
@@ -308,12 +309,6 @@ public:
     return m_position;
   }
 
-  /// DOFs at each node
-  Uint nb_dofs() const
-  {
-    return m_nb_dofs;
-  }
-
 private:
   /// Variables used in the expression
   VariablesT& m_variables;
@@ -330,19 +325,15 @@ private:
   /// Current coordinates
   mutable CoordsT m_position;
 
-  /// DOFs at each node
-  Uint m_nb_dofs;
-
   ///////////// helper functions and structs /////////////
 private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data, const Physics::PhysModel* a_physical_model) :
+    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data) :
       variables(vars),
       region(reg),
-      variables_data(vars_data),
-      physical_model(a_physical_model)
+      variables_data(vars_data)
     {
     }
 
@@ -362,14 +353,12 @@ private:
     void apply(const VarT& var, VarDataT*& data)
     {
       const std::string& var_name = var.name();
-      const Uint offset = (physical_model && physical_model->variable_manager().is_state_variable(var_name)) ? physical_model->variable_manager().offset(var_name) : 0;
-      data = new VarDataT(var, region, offset);
+      data = new VarDataT(var, region);
     }
 
     VariablesT& variables;
     Mesh::CRegion& region;
     VariablesDataT& variables_data;
-    const Physics::PhysModel* physical_model;
   };
 
   /// Delete stored per-variable data

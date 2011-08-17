@@ -236,26 +236,11 @@ struct ElementMatrixSize
   >::type type;
 };
 
-/// Get the offset in the element matrix for an equation variable
-template<typename MatrixSizesT, typename EquationVariablesT, typename VarIdxT>
-struct VarOffset
-{
-  typedef typename FilterMatrixSizes<MatrixSizesT, EquationVariablesT>::type filtered_sizes;
-  typedef typename boost::mpl::advance<typename boost::mpl::begin<filtered_sizes>::type, VarIdxT>::type last;
-  
-  typedef typename boost::mpl::fold
-  <
-    boost::mpl::iterator_range<typename boost::mpl::begin<filtered_sizes>::type, last>,
-    boost::mpl::int_<0>,
-    boost::mpl::plus<boost::mpl::_1, boost::mpl::_2>
-  >::type type;
-};
-
 /// Get a given element matrix
 struct ElementMatrixValue :
   boost::proto::transform<ElementMatrixValue>
 {
- 
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
@@ -272,21 +257,23 @@ struct ElementMatrixValue :
 struct ElementMatrixRowsValue :
   boost::proto::transform<ElementMatrixRowsValue>
 {
- 
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef typename VarDataType<ExprT, DataT>::type VarDataT;
+    typedef typename boost::remove_reference<DataT>::type::ElementMatrixT ElementMatrixT;
+
     typedef Eigen::Block
     <
-      typename boost::remove_reference<DataT>::type::ElementMatrixT,
+      ElementMatrixT,
       VarDataT::dimension * VarDataT::SF::nb_nodes,
-      VarDataT::matrix_size
+      ElementMatrixT::ColsAtCompileTime
     > result_type;
-    
-    result_type operator ()(typename impl::expr_param, typename impl::state_param state, typename impl::data_param data) const
+
+    result_type operator ()(typename impl::expr_param var, typename impl::state_param state, typename impl::data_param data) const
     {
-      return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::SF::nb_nodes, VarDataT::matrix_size>(VarDataT::offset, 0);
+      return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::SF::nb_nodes, ElementMatrixT::ColsAtCompileTime>(VarDataT::SF::nb_nodes*data.var_data(var).offset, 0);
     }
   };
 };
@@ -295,7 +282,7 @@ struct ElementMatrixRowsValue :
 struct ElementMatrixBlockValue :
   boost::proto::transform< ElementMatrixBlockValue >
 {
- 
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
@@ -312,14 +299,14 @@ struct ElementMatrixBlockValue :
       RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
       ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
     > result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
       return data.element_matrix(boost::proto::value(boost::proto::child_c<0>(expr))).template block
       <
         RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
         ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
-      >(RowVarDataT::offset, ColVarDataT::offset);
+        >(data.var_data(RowVarIdxT()).offset * RowVarDataT::SF::nb_nodes, data.var_data(ColVarIdxT()).offset * ColVarDataT::SF::nb_nodes);
     }
   };
 };
@@ -350,9 +337,9 @@ struct SubRows : boost::proto::transform< SubRows<I, J> >
     typedef typename boost::proto::result_of::child_c<ExprT, 1>::type Child1T;
     typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child1T)>::type>::type RowVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
-    
+
     typedef typename boost::remove_reference<StateT>::type MatrixT;
-    
+
     typedef Eigen::Block
     <
       MatrixT,
@@ -360,7 +347,7 @@ struct SubRows : boost::proto::transform< SubRows<I, J> >
       MatrixT::ColsAtCompileTime
     > result_type;
 
-    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
       return matrix.template block<RowVarDataT::SF::nb_nodes, MatrixT::ColsAtCompileTime>
       (
@@ -381,9 +368,9 @@ struct SubCols : boost::proto::transform< SubCols<I, J> >
     typedef typename boost::proto::result_of::child_c<ExprT, 2>::type Child2T;
     typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
     typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
-    
+
     typedef typename boost::remove_reference<StateT>::type MatrixT;
-    
+
     typedef Eigen::Block
     <
       MatrixT,
@@ -391,7 +378,7 @@ struct SubCols : boost::proto::transform< SubCols<I, J> >
       ColVarDataT::SF::nb_nodes
     > result_type;
 
-    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
       return matrix.template block<MatrixT::RowsAtCompileTime, ColVarDataT::SF::nb_nodes>
       (
@@ -415,9 +402,9 @@ struct SubMatrix : boost::proto::transform< SubMatrix<I, J> >
     typedef typename boost::mpl::prior<typename boost::result_of<ExprVarArity(Child2T)>::type>::type ColVarIdxT;
     typedef typename VarDataType<RowVarIdxT, DataT>::type RowVarDataT;
     typedef typename VarDataType<ColVarIdxT, DataT>::type ColVarDataT;
-    
+
     typedef typename boost::remove_reference<StateT>::type MatrixT;
-    
+
     typedef Eigen::Block
     <
       MatrixT,
@@ -425,7 +412,7 @@ struct SubMatrix : boost::proto::transform< SubMatrix<I, J> >
       ColVarDataT::SF::nb_nodes
     > result_type;
 
-    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param) const
+    result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
       return matrix.template block<RowVarDataT::SF::nb_nodes, ColVarDataT::SF::nb_nodes>
       (

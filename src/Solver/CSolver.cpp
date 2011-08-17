@@ -34,9 +34,11 @@ struct CSolver::Implementation {
     m_component(component),
     m_field_manager(component.create_static_component<FieldManager>("FieldManager"))
   {
-    m_component.options().add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physics) )
-    ->pretty_name("Physical Model")
-    ->description("Physical Model");
+    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(Tags::physical_model())
+      ->pretty_name("Physical Model")
+      ->description("Physical Model")
+      ->link_to(&m_physics)
+      ->attach_trigger(boost::bind(&Implementation::trigger_physical_model, *this));
   }
 
   void trigger_domain()
@@ -49,8 +51,7 @@ struct CSolver::Implementation {
 
   void trigger_physical_model()
   {
-    cf_assert(!m_physics.expired());
-    m_field_manager.configure_option("variable_manager", physics().variable_manager_new().uri());
+    m_field_manager.configure_option("variable_manager", dynamic_cast< OptionComponent<Physics::PhysModel>& >(m_component.option("physical_model")).component().variable_manager().uri());
   }
 
   // Checked access to the physics

@@ -113,6 +113,8 @@ list( APPEND coolfluid_common_files
     SignalHandler.cpp
     TaggedObject.hpp
     TaggedObject.cpp
+    Tags.hpp
+    Tags.cpp
     Timer.cpp
     Timer.hpp
     TypeInfo.cpp
