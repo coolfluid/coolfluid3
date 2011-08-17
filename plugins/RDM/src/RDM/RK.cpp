@@ -83,7 +83,9 @@ void RK::execute()
   if ( step == rkorder )
    csolution_k = m_solution.lock();
   else
-    csolution_k = find_component_ptr_with_name<Field>( mesh(), RDM::Tags::solution() + to_str(step) );
+  {
+    csolution_k = mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ).follow()->as_ptr_checked<Field>();
+  }
 
   cf_assert( is_not_null(csolution_k) );
 
