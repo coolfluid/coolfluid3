@@ -98,7 +98,7 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
 
   // properties
 
-  m_properties.add_property("Norm", Real(0.) );
+  m_properties.add_property("norm", Real(0.) );
 
   // options
 
@@ -146,7 +146,7 @@ void CComputeLNorm::execute()
   if( m_options.option("Scale").value<bool>() && order )
     norm /= nbrows;
 
-  configure_property("Norm", norm);
+  configure_property("norm", norm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

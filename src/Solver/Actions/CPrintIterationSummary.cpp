@@ -67,7 +67,7 @@ void CPrintIterationSummary::execute()
   Uint print_rate = option("print_rate").value<Uint>();
   bool check_convergence = option("check_convergence").value<bool>();
 
-  if( print_rate > 0 && iter % print_rate )
+  if( print_rate > 0 && !(iter % print_rate) )
     CFinfo << "iter ["    << std::setw(4)  << iter << "]"
            << "L2(rhs) [" << std::setw(12) << norm << "]" << CFendl;
 

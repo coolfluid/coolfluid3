@@ -30,6 +30,8 @@ list( APPEND coolfluid_solver_actions_files
   CForAllFaces.cpp
   CLoop.hpp
   CLoop.cpp
+  CPrintIterationSummary.hpp
+  CPrintIterationSummary.cpp
   CSynchronizeFields.hpp
   CSynchronizeFields.cpp
   CComputeArea.hpp

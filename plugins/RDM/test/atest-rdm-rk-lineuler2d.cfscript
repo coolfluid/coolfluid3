@@ -32,6 +32,8 @@ call Model/Domain/load_mesh file:uri=circle150r-tg-p1-3471.msh
 
 configure Model/RDSolver  update_vars:string=Cons2D
 
+configure Model/RDSolver  solution_space:string=LagrangeP1
+
 configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=10
 configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1.25 end_time:real=50
 
