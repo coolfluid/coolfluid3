@@ -79,7 +79,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
-  solver.solve_action().configure_option("lss", lss.uri());
+  solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
