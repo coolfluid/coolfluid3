@@ -90,12 +90,7 @@ void BasicCommands::call(const std::vector<std::string>& params)
   std::string executable_path = params[0];
 
   if ( Component::Ptr executable = current_component->access_component_ptr(executable_path) )
-  {
-    if ( CAction::Ptr action = executable->as_ptr<CAction>() )
-      action->execute();
-    else
-      throw ValueNotFound (FromHere(), executable_path + " is not an executable." );
-  }
+    dispatcher->dispatch_empty_signal( "execute", executable->uri() );
   else
   {
     Component::Ptr signaling_component = current_component->access_component_ptr(URI(executable_path).base_path());
