@@ -21,7 +21,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/SF/Tetra3DLagrangeP1.hpp"
 #include "Mesh/SF/Types.hpp"
@@ -86,7 +86,7 @@ struct LoopElems
       return;
 
     typename CTable<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
-    const CTable<Real>& coords = region.nodes().coordinates();
+    const CTable<Real>& coords = region.geometry().coordinates();
     // loop on elements
     BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)
     {
