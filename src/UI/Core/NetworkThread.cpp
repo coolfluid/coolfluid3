@@ -152,8 +152,8 @@ void NetworkThread::newData()
   {
     in.readBytes(frame, m_blockSize);
 
-//    if(NTree::globalTree()->isDebugModeEnabled())
-//      CFinfo << frame << CFendl;
+    if(NTree::globalTree()->isDebugModeEnabled())
+      CFinfo << frame << CFendl;
 
     // parse the frame and call the boost signal
     try
