@@ -324,7 +324,7 @@ struct ComponentURIPrinter :
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      std::cout << boost::proto::value(expr).component().uri().string();
+      std::cout << boost::proto::value(boost::proto::left(expr)).component().uri().string();
     }
   };
 };
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 
   BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
   
-  ComponentURIPrinter()(wrapped_phys_model);
+  ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

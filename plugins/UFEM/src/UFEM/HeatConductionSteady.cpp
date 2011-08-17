@@ -24,7 +24,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
 {
   MeshTerm<0, ScalarField> temperature("Temperature", "T");
   MeshTerm<1, ScalarField> heat("Heat", "q");
-  
+
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
 
   *this <<                                                                                          // The linear problem (= inner loop, but executed once here)
@@ -37,7 +37,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
         (
           _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
           _T(temperature) += transpose(N(temperature))*N(temperature)
-        ),
+        )
         system_matrix +=  _A,
         system_rhs += _T * nodal_values(heat)
       )

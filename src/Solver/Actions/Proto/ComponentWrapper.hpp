@@ -26,56 +26,50 @@ namespace Proto {
 
 /// Gives access to a component, obtained aither through a linked option or a direct reference in the constructor.
 /// Uses a weak pointer internally
-/// Non-copyable because the link at construction-time must be preserved.
 /// Implementation class, use the proto-ready terminal type defined below
-template<typename ComponentT>
-class ComponentWrapperImpl :
-  boost::noncopyable
+/// TagT provides an extra tag that can be used by proto to distinguish wrappers of the same type at compile time
+template<typename ComponentT, typename TagT>
+class ComponentWrapperImpl
 {
 public:
 
   /// Construction using references to the actual component (mainly useful in utests or other non-dynamic code)
   /// Using this constructor does not use dynamic configuration through options
   ComponentWrapperImpl(ComponentT& component) :
-    m_component(component.template as_ptr<ComponentT>())
+    m_component( new boost::weak_ptr<ComponentT>(component.template as_ptr<ComponentT>()) )
   {
   }
 
   /// Construction using an option that will point to the actual component.
-  ComponentWrapperImpl(Common::Option& component_option)
+  ComponentWrapperImpl(Common::Option& component_option) :
+    m_component( new boost::weak_ptr<ComponentT>() )
   {
-    component_option.link_to(&m_component);
-  }
-
-  ~ComponentWrapperImpl()
-  {
-    // TODO: Remove link created at construction time here
-    CFdebug << "Destroying component wrapper, possible dangling link" << CFendl;
+    component_option.link_to(m_component.get());
   }
 
   /// Return the wrapped component
   ComponentT& component()
   {
-    if(m_component.expired())
+    if(m_component->expired())
       throw Common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
     
-    return *m_component.lock();
+    return *(m_component->lock());
   }
 
 private:
   /// Points to the wrapped component, if any
-  boost::weak_ptr<ComponentT> m_component;
+  /// The shared_ptr wraps the weak_ptr so the link is always OK
+  boost::shared_ptr< boost::weak_ptr<ComponentT> > m_component;
 };
 
 /// Proto-ready terminal type for wrapping a component
-/// TagT provides an extra tag that can be used by proto to distinguish wrappers of the same type at compile time
 template<typename ComponentT, typename TagT>
 class ComponentWrapper :
-  public boost::proto::extends< boost::proto::literal< ComponentWrapperImpl<ComponentT>& >, ComponentWrapper<ComponentT, TagT> >
+  public boost::proto::extends< boost::proto::literal< ComponentWrapperImpl<ComponentT, TagT>& >, ComponentWrapper<ComponentT, TagT> >
 {
 public:
 
-  typedef boost::proto::extends< boost::proto::literal< ComponentWrapperImpl<ComponentT>& >, ComponentWrapper<ComponentT, TagT> > base_type;
+  typedef boost::proto::extends< boost::proto::literal< ComponentWrapperImpl<ComponentT, TagT>& >, ComponentWrapper<ComponentT, TagT> > base_type;
 
   /// Construction using references to the actual component (mainly useful in utests or other non-dynamic code)
   /// Using this constructor does not use dynamic configuration through options
@@ -94,7 +88,7 @@ public:
 
 private:
   /// Points to the wrapped component, if any
-  ComponentWrapperImpl<ComponentT> m_component_wrapper;
+  ComponentWrapperImpl<ComponentT, TagT> m_component_wrapper;
 };
 
 } // namespace Proto

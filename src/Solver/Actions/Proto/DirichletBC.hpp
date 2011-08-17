@@ -61,14 +61,14 @@ struct DirichletBCSetter :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss_proxy().lss();
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
       assign_dirichlet(
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
         data.node_idx,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset,
-        data.nb_dofs()
+        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs
       );
     }
   };
@@ -83,7 +83,7 @@ struct DirichletBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapper<CEigenLSS, DirichletBCTag> >,
+        boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, DirichletBCTag> >,
         FieldTypes
       >,
       GrammarT

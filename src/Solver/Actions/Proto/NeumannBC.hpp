@@ -41,8 +41,8 @@ struct NeumannBCSetter :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss_proxy().lss();
-      const Uint sys_idx = data.node_idx*data.nb_dofs() + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
+      const Uint sys_idx = data.node_idx*data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
       lss.rhs()[sys_idx] = state;
     }
   };
@@ -57,7 +57,7 @@ struct NeumannBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapper<CEigenLSS, NeumannBCTag> >,
+        boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, NeumannBCTag> >,
         FieldTypes
       >,
       GrammarT

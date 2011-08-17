@@ -23,6 +23,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "UFEM/LinearSolver.hpp"
+#include "UFEM/Tags.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -81,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   solver.solve_action().configure_option("lss", lss.uri());
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;

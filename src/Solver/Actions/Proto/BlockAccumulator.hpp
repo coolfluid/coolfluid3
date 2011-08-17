@@ -45,7 +45,7 @@ typedef ComponentWrapper<CEigenLSS, SystemRHSTag> SystemRHS;
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< ComponentWrapper<CEigenLSS, TagT> >
+  boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, TagT> >
 {
 };
 

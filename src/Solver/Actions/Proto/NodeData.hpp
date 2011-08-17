@@ -103,6 +103,7 @@ struct NodeVarData< ScalarField >
     cf_assert(descriptor.size(placeholder.name()) == 1);
 
     offset = descriptor.offset(placeholder.name());
+    nb_dofs = descriptor.size();
   }
 
   void set_node(const Uint idx)
@@ -136,8 +137,11 @@ struct NodeVarData< ScalarField >
     m_field[m_idx][m_var_begin] -= v;
   }
 
-  /// Offset for the variable in the LSS, if any
+  /// Offset for the variable in the field
   Uint offset;
+
+  /// Total nbdofs in the field that this variable is in
+  Uint nb_dofs;
 
 private:
   Mesh::Field& m_field;
@@ -166,6 +170,7 @@ struct NodeVarData<VectorField, Dim>
     cf_assert(descriptor.size(placeholder.name()) == dimension);
 
     offset = descriptor.offset(placeholder.name());
+    nb_dofs = descriptor.size();
   }
 
   void set_node(const Uint idx)
@@ -203,8 +208,11 @@ struct NodeVarData<VectorField, Dim>
       m_field[m_idx][m_var_begin + i] -= v[i];
   }
 
-  /// Offset for the variable in the LSS, if any
+  /// Offset for the variable in the field
   Uint offset;
+
+  /// Total nb dofs in the field
+  Uint nb_dofs;
 
 private:
   Mesh::Field& m_field;

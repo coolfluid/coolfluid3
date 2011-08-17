@@ -56,8 +56,8 @@ struct GetSolutionVector :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = expr.lss_proxy().lss();
-      const Uint sys_idx = data.node_idx*data.nb_dofs() + data.var_data(state).offset;
+      Solver::CEigenLSS& lss = expr.component();
+      const Uint sys_idx = data.node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
       convert_result(result, lss.solution().segment<VarDataT::dimension>(sys_idx));
       return result;
@@ -71,7 +71,7 @@ struct SolutionVectorGrammar :
   <
     boost::proto::function
     <
-      boost::proto::terminal< ComponentWrapper<CEigenLSS, SolutionVectorTag> >,
+      boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, SolutionVectorTag> >,
       FieldTypes
     >,
     GetSolutionVector(boost::proto::_value(boost::proto::_child0), boost::proto::_value(boost::proto::_child1))
