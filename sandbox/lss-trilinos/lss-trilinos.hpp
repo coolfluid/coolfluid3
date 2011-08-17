@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -120,6 +120,9 @@ public:
     int maxrowentries=0;
     std::vector<int> myglobalelements(0);
     std::vector<int> rowelements(0);
+
+int nrowelems=0;
+
     for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     {
       if (cp.isUpdatable()[i])
@@ -127,6 +130,9 @@ public:
         ++nmyglobalelements;
         myglobalelements.push_back((int)gid[i]);
         rowelements.push_back((int)(starting_indices[i+1]-starting_indices[i]));
+
+nrowelems+=starting_indices[i+1]-starting_indices[i];
+
         maxrowentries=maxrowentries<(starting_indices[i+1]-starting_indices[i])?(starting_indices[i+1]-starting_indices[i]):maxrowentries;
       }
     }
@@ -134,17 +140,21 @@ public:
     std::vector<double>dummy_entries(maxrowentries*9,0.);
     std::vector<int>global_columns(maxrowentries);
 
+PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank() << " nrowelems: " << nrowelems << "\n" << std::flush;);
+
     Epetra_BlockMap bm(-1,nmyglobalelements,&myglobalelements[0],&elementsizelist[0],0,m_comm);
     myglobalelements.resize(0);
     myglobalelements.reserve(0);
-    elementsizelist.resize(0);
-    elementsizelist.reserve(0);
 
 //PEProcessSortedExecute(-1,bm.Print(std::cout););
 
     // matrix
     m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,bm,&elementsizelist[0]));
     bm.~Epetra_BlockMap();
+    elementsizelist.resize(0);
+    elementsizelist.reserve(0);
+
+int nsubmitted=0;
 
     for(int i=0; i<(const int)nmyglobalelements; i++)
     {
@@ -152,11 +162,14 @@ public:
       m_matrix->BeginInsertGlobalValues(gid[i],rowelements[i],&global_columns[0]);
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
       {
-        m_matrix->SubmitBlockEntry(&dummy_entries[0],0,1,1);
+        m_matrix->SubmitBlockEntry(&dummy_entries[0],0,3,3);
+        nsubmitted++;
       }
       m_matrix->EndSubmitEntries();
     }
     m_matrix->FillComplete();
+
+PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank() << " nsubmitted: " << nsubmitted << "\n" << std::flush;);
 
 //PEProcessSortedExecute(-1,m_matrix->Print(std::cout););
 
@@ -213,7 +226,10 @@ public:
   virtual void get_diagonal(LSSVector& diag){};
 
   /// Reset Matrix
-  virtual void reset_to_zero(){};
+  virtual void reset_to_zero()
+  {
+    m_matrix->PutScalar(0.);
+  };
 
   //@} END EFFICCIENT ACCESS
 
@@ -221,7 +237,29 @@ public:
   //@{
 
   /// Print this matrix
-  virtual void print_to_screen(){};
+  virtual void print_to_screen(){
+    PEProcessSortedExecute(1,
+      int sumentries=0;
+      int maxcol=0;
+      for (int i=0; i<m_matrix->NumMyRows(); i++) {
+        int rowentries;
+        m_matrix->NumMyRowEntries(i,rowentries);
+        double *vals=new double[rowentries];
+        int *idxs=new int[rowentries];
+        m_matrix->ExtractMyRowCopy(i,rowentries,rowentries,vals,idxs);
+        sumentries+=rowentries;
+        for (int j=0; j<rowentries; j++) {
+          maxcol=maxcol<idxs[j]?idxs[j]:maxcol;
+          std::cout << idxs[j] << " " << -i << " " << vals[j] << "\n" << std::flush;
+        }
+        delete[] vals;
+        delete[] idxs;
+      }
+      std::cout << "# number of rows:    " << m_matrix->NumMyRows() << "\n";
+      std::cout << "# number of cols:    " << maxcol+1 << "\n";
+      std::cout << "# number of entries: " << sumentries << "\n";
+    );
+  };
 
   /// Print this matrix to a file
   virtual void print_to_file(const char* fileName){};

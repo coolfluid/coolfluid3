@@ -1,9 +1,10 @@
 # find boost package (essential)
-# set( Boost_DEBUG 1 )  # to debug boost search
+#set( Boost_DEBUG 1 )  # to debug boost search
 set( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
 set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
 set( CF_Boost_MINIMAL_VERSION "1.46.1" )
+set( Boost_ADDITIONAL_VERSIONS "1.47" "1.46" )
 
 #avoid looking in system paths
 set(Boost_NO_SYSTEM_PATHS ON)

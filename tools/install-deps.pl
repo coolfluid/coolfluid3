@@ -68,7 +68,7 @@ my $priority = 0;
 
 # these packages are listed by priority
 my %packages = (  #  version   default install priority      function
-    "cmake"      => [ "2.8.4",    'on' ,   'off', $priority++,  \&install_cmake ],
+    "cmake"      => [ "2.8.5",    'on' ,   'off', $priority++,  \&install_cmake ],
     "wget"       => [ "1.12",     'off',   'off', $priority++,  \&install_wgetprog],
     "blas"       => [ "3.0.3",    'off',   'off', $priority++,  \&install_blas ],
     "lapack"     => [ "3.0.3",    'off',   'off', $priority++,  \&install_lapack ],

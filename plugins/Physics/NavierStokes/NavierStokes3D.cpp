@@ -6,6 +6,8 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
+#include "Common/CBuilder.hpp"
+
 #include "Physics/Variables.hpp"
 
 #include "NavierStokes3D.hpp"
@@ -16,7 +18,14 @@ namespace NavierStokes {
 
 using namespace Common;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < NavierStokes::NavierStokes3D,
+                           Physics::PhysModel,
+                           LibNavierStokes >
+                           Builder_NavierStokes3D;
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 NavierStokes3D::NavierStokes3D( const std::string& name ) : Physics::PhysModel(name)
 {
@@ -37,7 +46,7 @@ boost::shared_ptr< Physics::Variables > NavierStokes3D::create_variables( const 
   return vars;
 }
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
 } // Physics

@@ -12,6 +12,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/regex.hpp>
 
+#include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
@@ -27,6 +28,9 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+ComponentBuilder< VariablesDescriptor, Component, LibMath > VariablesDescriptor_Builder;
+
+////////////////////////////////////////////////////////////////////////////////
 
 struct VariablesDescriptor::Implementation
 {

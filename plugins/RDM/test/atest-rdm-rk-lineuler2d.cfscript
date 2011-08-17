@@ -19,7 +19,7 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=circle150r-tg-p1-9599.msh
+call Model/Domain/load_mesh file:uri=circle150r-tg-p1-3471.msh
 #circle1d-tg-p1-1451.msh
 #circle150r-tg-p1-3471.msh
 #circle150r-tg-p1-9599.msh
@@ -37,7 +37,9 @@ configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=1.25 
 
 #configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
-configure Model/RDSolver/TimeStepping/PostActions/PeriodicWriter saverate:unsigned=10 filepath:uri=periodic${iter}.msh
+# configure Model/RDSolver/TimeStepping/PostActions/PeriodicWriter saverate:unsigned=10 filepath:uri=file:periodic.msh
+
+ls Model/RDSolver/Fields
 
 ### initial conditions
 

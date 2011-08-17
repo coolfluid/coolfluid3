@@ -239,15 +239,26 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
       else if (type == "array")
       {
         std::vector<std::string> array;
-        typedef boost::tokenizer<boost::char_separator<char> > Tokenizer;
-        boost::char_separator<char> sep(",");
-        Tokenizer tokens(value, sep);
 
-        for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
+        // the strings could have comma's inside, brackets, etc...
+        Uint in_brackets(0);
+        std::string::iterator first = value.begin();
+        std::string::iterator it = first;
+        for ( ; it!=value.end(); ++it)
         {
-          array.push_back(*tok_iter);
-          boost::algorithm::trim(array.back()); // remove leading and trailing spaces
+          if (*it == '(') // opening bracket
+            ++in_brackets;
+          else if (*it == ')') // closing bracket
+            --in_brackets;
+          else if (*it == ',' && in_brackets == 0)
+          {
+            array.push_back(std::string(first,it));
+            boost::algorithm::trim(array.back());
+            first = it+1;
+          }
         }
+        array.push_back(std::string(first,it));
+        boost::algorithm::trim(array.back());
 
         if (subtype == "bool")
           set_array_to_list<bool>(name, array, *this);

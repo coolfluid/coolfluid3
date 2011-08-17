@@ -39,14 +39,10 @@ string(ASCII 35 POUND)
 
  if(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES)
    set(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES ON CACHE INTERNAL "Support for C++ explict templates")
-   write_file(${CF_PROJECT_LOG}
-     "Determining if the C++ compiler supports explict template instantiation passed with the following output:\n"
-     "${OUTPUT}\n" APPEND)
+   coolfluid_log_file( "Determining if the C++ compiler supports explict template instantiation passed with the following output:\n ${OUTPUT}\n" )
  else()
    set(CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES OFF CACHE INTERNAL "Support for C++ explict templates")
-   write_file(${CF_PROJECT_LOG}
-     "Determining if the C++ compiler supports explict template instantiation failed with the following output:\n"
-     "${OUTPUT}\n" APPEND)
+   coolfluid_log_file( "Determining if the C++ compiler supports explict template instantiation failed with the following output:\n ${OUTPUT}\n" )
  endif()
 
 coolfluid_log_file( "+++++  Checking support for C++ explicit template instantiation -- ${CF_CXX_SUPPORTS_EXPLICIT_TEMPLATES}")
