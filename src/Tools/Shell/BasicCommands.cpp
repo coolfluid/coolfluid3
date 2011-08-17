@@ -22,8 +22,6 @@
 #include "Common/OptionURI.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Common/XML/FileOperations.hpp"
-
 #include "Common/Foreach.hpp"
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"
