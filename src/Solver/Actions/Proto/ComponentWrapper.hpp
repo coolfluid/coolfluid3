@@ -33,6 +33,8 @@ class ComponentWrapperImpl
 {
 public:
 
+  typedef TagT tag_type;
+
   /// Construction using references to the actual component (mainly useful in utests or other non-dynamic code)
   /// Using this constructor does not use dynamic configuration through options
   ComponentWrapperImpl(ComponentT& component) :
@@ -52,7 +54,7 @@ public:
   {
     if(m_component->expired())
       throw Common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
-    
+
     return *(m_component->lock());
   }
 

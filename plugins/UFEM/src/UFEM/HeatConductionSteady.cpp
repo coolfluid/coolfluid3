@@ -37,7 +37,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
         (
           _A(temperature) += k * transpose(nabla(temperature)) * nabla(temperature),
           _T(temperature) += transpose(N(temperature))*N(temperature)
-        )
+        ),
         system_matrix +=  _A,
         system_rhs += _T * nodal_values(heat)
       )
