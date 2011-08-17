@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -852,6 +852,15 @@ test_matrix::test_matrix()
     bc_node.assign(           rawmat::bc_node3,           rawmat::bc_node3           +16);
     bc_eqn.assign(            rawmat::bc_eqn3,            rawmat::bc_eqn3            +16);
     bc_value.assign(          rawmat::bc_value3,          rawmat::bc_value3          +16);
+  }
+
+  // inserting periodic info
+  for (int i=0; i<(const int)(periodic_pairs.size()); i+=2)
+  {
+      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i]],periodic_pairs[i+1]);
+      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i+1]],periodic_pairs[i]);
+      for(int j=(const int)periodic_pairs[i]+1; j<(const int)rowstart_positions.size(); j++) rowstart_positions[j]++;
+      for(int j=(const int)periodic_pairs[i+1]+1; j<(const int)rowstart_positions.size(); j++) rowstart_positions[j]++;
   }
 
 };
