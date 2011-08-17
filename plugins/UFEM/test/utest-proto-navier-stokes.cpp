@@ -26,6 +26,7 @@
 
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
+#include "UFEM/Tags.hpp"
 #include "UFEM/TimeLoop.hpp"
 
 #include "NavierStokes.hpp"
@@ -88,8 +89,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   coefs.nu = mu / rho;
   coefs.rho = rho;
 
-  std::cout << "c: " << c << std::endl;
-
   // List of (Navier-)Stokes creation functions, with their names
   const std::vector<std::string> names = boost::assign::list_of("stokes_artifdiss")("stokes_pspg")("navier_stokes_pspg")("navier_stokes_supg")("navier_stokes_bulk");
   typedef Expression::Ptr (*FactoryT)(LinearSolverUnsteady&, SUPGCoeffs&);
@@ -98,16 +97,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
   // Loop over all model types
   for(Uint i = 0; i != names.size(); ++i)
   {
-    std::cout << "Running test for model " << names[i] << std::endl;
+    std::cout << "\n################################## Running test for model " << names[i] << "##################################\n" << std::endl;
     // Setup a model
-    CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
+    CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>(names[i]);
     CDomain& domain = model.create_domain("Domain");
     LinearSolverUnsteady& solver = model.create_component<LinearSolverUnsteady>("Solver");
-    model.create_physics("CF.Physics.DynamicModel");
-
-    // Setup mesh
-    CMesh& mesh = domain.create_component<CMesh>("Mesh");
-    Tools::MeshGeneration::create_rectangle(mesh, length, height, x_segments, y_segments);
 
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
     CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
@@ -115,8 +109,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     solver.solve_action().configure_option("lss", lss.uri());
 
     // Expression variables
-    MeshTerm<0, VectorField> u("Velocity", "u");
-    MeshTerm<1, ScalarField> p("Pressure", "p");
+    MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+    MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
     // build up the solver out of different actions
     solver
@@ -136,9 +130,12 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
       << create_proto_action("CheckU", nodes_expression(_check_close(u[0], c * coordinates[1] * (height - coordinates[1]), 1e-2)))
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
 
-    // Creating the physics here makes sure everything is up-to-date
+    // Setup physics
     model.create_physics("CF.Physics.DynamicModel");
-    solver.mesh_loaded(mesh);
+
+    // Setup mesh
+    CMesh& mesh = domain.create_component<CMesh>("Mesh");
+    Tools::MeshGeneration::create_rectangle(mesh, length, height, x_segments, y_segments);
 
     solver.boundary_conditions().add_constant_bc("left", "Pressure", p0);
     solver.boundary_conditions().add_constant_bc("right", "Pressure", p1);
@@ -159,9 +156,6 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
     // Run the solver
     model.simulate();
-
-    // Clean up
-    Core::instance().root().remove_component("Model");
   }
 }
 

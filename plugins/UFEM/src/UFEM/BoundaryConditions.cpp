@@ -61,7 +61,7 @@ struct BoundaryConditions::Implementation
 
   CAction::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
   {
-    MeshTerm<0, ScalarField> var(variable_name, variable_name);
+    MeshTerm<0, ScalarField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -69,7 +69,7 @@ struct BoundaryConditions::Implementation
 
   CAction::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
   {
-    MeshTerm<0, VectorField> var(variable_name, variable_name);
+    MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -169,7 +169,7 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
   const std::string variable_name = options.value<std::string>("variable_name");
 
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
-  
+
   if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
     add_constant_bc(region_name, variable_name, 0.);
   else

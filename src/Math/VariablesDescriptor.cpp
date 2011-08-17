@@ -53,6 +53,8 @@ struct VariablesDescriptor::Implementation
       return;
     }
 
+    CFdebug << "Registering variable " << name << " at position " << m_types.size() << CFendl;
+
     m_types.push_back(type);
     m_offsets.push_back(m_size);
     m_user_names.push_back(name);

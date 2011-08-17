@@ -71,13 +71,17 @@ struct LinearSolver::Implementation
    dirichlet(m_solver.option("lss")),
    solution(m_solver.option("lss"))
   {
-    m_solver.option("lss").link_to(&m_lss)->attach_trigger(boost::bind(&Implementation::trigger_lss, this));
+    m_solver.option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
   }
   
   void trigger_lss()
   {
+    m_lss = dynamic_cast<OptionComponent<CEigenLSS>&>(m_solver.option("lss")).component().as_ptr<CEigenLSS>();
     if(m_lss.expired())
+    {
+      CFdebug << "Triggering on bad LSS in " << m_solver.uri().string() << CFendl;
       return;
+    }
 
     m_bc.option("lss").change_value(m_lss.lock()->uri());
     m_zero_action.m_lss = m_lss;

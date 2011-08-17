@@ -141,6 +141,11 @@ private:
       get_descriptor(field.field_tag()).push_back(field.name(), Math::VariablesDescriptor::Dimensionalities::VECTOR);
     }
 
+    /// Skip unused variables
+    void operator()(const boost::mpl::void_&) const
+    {
+    }
+
   private:
     /// Get the VariablesDescriptor with the given tag
     Math::VariablesDescriptor& get_descriptor(const std::string& tag) const
