@@ -39,7 +39,7 @@ Solver::Actions::Proto::Expression::Ptr navier_stokes_supg(LinearSolverUnsteady&
 /// Assembly for the Navier-Stokes equations, stabilized with SUPG and bulk viscosity
 Solver::Actions::Proto::Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs);
 
-  
+
 }
 }
 

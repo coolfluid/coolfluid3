@@ -21,12 +21,15 @@
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CModel.hpp"
 #include "Solver/CSimpleSolver.hpp"
 
+#include "Solver/Actions/Proto/ComponentWrapper.hpp"
 #include "Solver/Actions/Proto/ConfigurableConstant.hpp"
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
@@ -152,9 +155,10 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
 {
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
 
   // Declare a mesh variable
-  MeshTerm<0, ScalarField> T("Temperature", "T");
+  MeshTerm<0, ScalarField> T("Temperature", "solution");
 
   // Expression to set the temperature field
   boost::shared_ptr<Expression> init_temp = nodes_expression(T = 288.);
@@ -162,9 +166,10 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   init_temp->register_variables(model.physics());
 
   // Create the fields
-  /// @todo Bart adapt this
-//  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
-  BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature"));
+  FieldManager& field_manager = model.create_component<FieldManager>("FieldManager");
+  field_manager.configure_option("variable_manager", model.physics().variable_manager().uri());
+  field_manager.create_field("solution", mesh.geometry());
+  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry(), "solution"));
 
   // Do the initialization
   init_temp->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
@@ -180,6 +185,8 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
 {
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  FieldManager& field_manager = model.get_child("FieldManager").as_type<FieldManager>();
 
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature2", "T2");
@@ -191,9 +198,8 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   action.configure_option(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
 
   // Create the fields
-  /// @todo Bart adapt this
-//  create_fields(model.domain().get_child("mesh").as_type<CMesh>(), model.physics());
-  BOOST_CHECK(model.domain().get_child("mesh").as_type<CMesh>().get_child_ptr("Temperature2"));
+  field_manager.create_field("T2", mesh.geometry());
+  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry(), "T2"));
 
   // Run the action
   action.execute();
@@ -209,6 +215,7 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
 {
   const Uint nb_segments = 5;
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
 
   // Declare a mesh variable
   MeshTerm<0, ScalarField> T("Temperature3", "T3");
@@ -225,6 +232,8 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
   solver.configure_option_recursively(Solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<CMesh>().topology().uri()));
   solver.configure_option_recursively("physical_model", model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<CMesh>());
+
+  solver.field_manager().create_field("T3", mesh.geometry());
 
   // Run the actions
   model.simulate();
@@ -250,6 +259,11 @@ public:
     *this << create_proto_action( "SetTemp",  nodes_expression(T = 288.) )
           << create_proto_action( "Output", nodes_expression(_cout << T << "\n"))
           << create_proto_action( "SumTemps", nodes_expression(lit(temp_sum) += T));
+  }
+
+  virtual void mesh_loaded(CMesh& mesh)
+  {
+    field_manager().create_field("T4", mesh.geometry());
   }
 
   MeshTerm<0, ScalarField> T;
@@ -297,6 +311,38 @@ BOOST_AUTO_TEST_CASE( CopyExpression )
   result = 0;
   expression->loop(mesh.topology());
   BOOST_CHECK_EQUAL(result, 12.);
+}
+
+// Primitive transform that prints a component URI when given a ComponentWrapper terminal
+struct ComponentURIPrinter :
+  boost::proto::transform< ComponentURIPrinter >
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    typedef void result_type;
+
+    result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
+    {
+      std::cout << boost::proto::value(boost::proto::left(expr)).component().uri().string();
+    }
+  };
+};
+
+/// Define a tag (not used here)
+struct SomeTag {};
+
+BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
+{
+  CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
+  
+  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
+  
+  ComponentWrapper<Physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(Solver::Tags::physical_model()));
+
+  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
+  
+  ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

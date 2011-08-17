@@ -29,7 +29,6 @@
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/CModel.hpp"

@@ -7,6 +7,7 @@
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/NavierStokesOps.hpp"
+#include "UFEM/Tags.hpp"
 
 
 #include "NavierStokes.hpp"
@@ -20,25 +21,25 @@ typedef boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> AllowedElmsT;
 
 Expression::Ptr parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {
-  MeshTerm<0, VectorField> u("Velocity", "u");
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   return nodes_expression(solver.dirichlet(u) = coordinates[1] * (height - coordinates[1]) * u_ref);
 }
 
 Expression::Ptr parabolic_field(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {
-  MeshTerm<0, VectorField> u("Velocity", "u");
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   return nodes_expression(u = coordinates[1] * (height - coordinates[1]) * u_ref);
 }
 
 Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "u");
-  MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+
   const Real epsilon = 1. / coefs.nu;
   const Real mu = coefs.nu * coefs.rho;
-  
+
   return elements_expression
   (
     AllowedElmsT(),
@@ -55,19 +56,19 @@ Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
       solver.system_rhs -= _A * _b
-    ) 
+    )
   );
 }
 
 Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "u");
-  MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+
   const Real epsilon = 1. / coefs.nu;
   const Real mu = coefs.nu * coefs.rho;
-  
+
   return elements_expression
   (
     AllowedElmsT(),
@@ -86,19 +87,19 @@ Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
       solver.system_rhs -= _A * _b
-    ) 
+    )
   );
 }
 
 Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "u");
-  MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+
   const Real epsilon = 1. / coefs.nu;
   const Real mu = coefs.nu * coefs.rho;
-  
+
   return elements_expression
   (
     AllowedElmsT(),
@@ -124,12 +125,12 @@ Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
 Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
   // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "u");
-  MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+
   const Real epsilon = 1. / coefs.nu;
   const Real mu = coefs.nu * coefs.rho;
-  
+
   return elements_expression
   (
     AllowedElmsT(),
@@ -155,12 +156,12 @@ Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
 Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
 {
     // Expression variables
-  MeshTerm<0, VectorField> u("Velocity", "u");
-  MeshTerm<1, ScalarField> p("Pressure", "p");
-  
+  MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
+
   const Real epsilon = 1. / coefs.nu;
   const Real mu = coefs.nu * coefs.rho;
-  
+
   return elements_expression
   (
     AllowedElmsT(),
@@ -183,6 +184,6 @@ Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coe
     )
   );
 }
-  
+
 }
 }
