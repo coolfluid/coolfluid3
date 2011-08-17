@@ -13,25 +13,30 @@
 #include "test_matrix.hpp"
 
 using namespace CF::Common;
+using namespace CF::Common::Comm;
 
 int main(void)
 {
   // get to business
-  mpi::PE::instance().init();
+  Comm::PE::instance().init();
 
   // reference matrix
   boost::assign::test_matrix m;
 
   // make a commpattern as the most likely input
-  PECommPattern cp("cp");
+  CommPattern cp("cp");
   cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>(),m.irank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<CommWrapper>(),m.irank_updatable);
 
   // setting up the matrix
-  LSSTrilinosMatrix lssm;
+  LSSTrilinosMatrix lssm("lssm");
   lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
+
+
+  lssm.set_value(1,2,1.23);
+
   lssm.print_to_screen();
 
   // afscheid
-  mpi::PE::instance().finalize();
+  Comm::PE::instance().finalize();
 };

@@ -776,8 +776,8 @@ class test_matrix {
 
 test_matrix::test_matrix()
 {
-  irank=CF::Common::mpi::PE::instance().rank();
-  nproc=CF::Common::mpi::PE::instance().size();
+  irank=CF::Common::Comm::PE::instance().rank();
+  nproc=CF::Common::Comm::PE::instance().size();
   if (nproc!=4) CF::Common::BadValue(FromHere(),"This test can only be run on 4 processors, not more and not less.");
 
   nbeqs=3;
@@ -854,11 +854,11 @@ test_matrix::test_matrix()
     bc_value.assign(          rawmat::bc_value3,          rawmat::bc_value3          +16);
   }
 
-  // inserting periodic info
+  // inserting periodic info, fixing a defect with this
   for (int i=0; i<(const int)(periodic_pairs.size()); i+=2)
   {
-      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i]],periodic_pairs[i+1]);
-      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i+1]],periodic_pairs[i]);
+      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i]+1]-1,periodic_pairs[i+1]);
+      column_indices.insert(column_indices.begin()+rowstart_positions[periodic_pairs[i+1]+1]-1,periodic_pairs[i]);
       for(int j=(const int)periodic_pairs[i]+1; j<(const int)rowstart_positions.size(); j++) rowstart_positions[j]++;
       for(int j=(const int)periodic_pairs[i+1]+1; j<(const int)rowstart_positions.size(); j++) rowstart_positions[j]++;
   }

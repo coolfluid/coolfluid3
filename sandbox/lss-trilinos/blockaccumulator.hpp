@@ -28,49 +28,39 @@ class Common_API BlockAccumulator {
 public:
 
   /// setting up sizes
-  void prepare(Uint numnodes, Uint numeqs)
+  void resize(Uint numnodes, Uint numeqs)
   {
     const Uint size=numnodes*numeqs;
-    m_mat.resize(size,size);
-    m_sol.resize(size);
-    m_rhs.resize(size);
-    m_row_idxs.resize(numnodes);
-    m_col_idxs.resize(numnodes);
+    mat.resize(size,size);
+    sol.resize(size);
+    rhs.resize(size);
+    indices.resize(numnodes);
   };
 
-  /// how many rows
-  const Uint num_rows() { return m_mat.size(); };
+  /// entering the indices where the local matrix is lying
+  template<typename T> void neighbour_indices(const T& idx_vector )
+  {
+    CF_ASSERT(indices.size()==idx_vector.size());
+    for (Uint i=0; i<(const Uint)indices.size(); i++)
+      indices[i]=idx_vector[i];
+  };
 
-  /// how many columns
-  const Uint num_cols() { return m_mat.size(); };
-
-  /// local numbering of the rows
-  RealVector& row_idxs() { return m_row_idxs; };
-
-  /// local numbering of the columns
-  RealVector& col_idxs() { return m_col_idxs; };
+  /// how many rows/columns
+  const Uint size() { return sol.size(); };
 
   /// accessor to blockaccumulator's RealMatrix
-  RealMatrix& mat() { return m_mat; };
+  RealMatrix mat;
 
   /// accessor to blockaccumulator's solution vector
-  RealVector& sol() { return m_sol; };
+  RealVector sol;
 
   /// accessor to blockaccumulator's right hand side vector
-  RealVector& rhs() { return m_rhs; };
+  RealVector rhs;
+
+  /// local numbering of the unknowns
+  RealVector indices;
 
   // rest of the operations should directly be the stuff off eigen
-
-private:
-
-  /// data holders are directly from eigen
-  RealMatrix m_mat;
-  RealVector m_sol;
-  RealVector m_rhs;
-  RealVector m_row_idxs;
-  RealVector m_col_idxs;
-
-  /// private constructor
 
 };
 

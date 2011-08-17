@@ -18,7 +18,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/CommPattern.hpp"
 #include "blockaccumulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,19 +28,26 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSVector : boost::noncopyable {
+/// @TODO: properly implement component (type_name,ptr,constptr)
+class Common_API LSSVector : public Component {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSVector();
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSVector> Ptr;
 
-  /// Destructor.
-  virtual ~LSSVector() = 0;
- 
-  //@} END CREATION AND DESTRUCTION
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSVector const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSVector"; }
+
+  /// Default constructor
+  LSSVector(const std::string& name) : Component(name) { }
+
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
@@ -88,17 +95,24 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSMatrix : boost::noncopyable {
+/// @TODO: properly implement component (type_name,ptr,constptr)
+class Common_API LSSMatrix : public Component {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSMatrix(){};
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSMatrix> Ptr;
 
-  /// Destructor.
-  ~LSSMatrix(){};
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSMatrix const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSMatrix"; }
+
+  /// Default constructor
+  LSSMatrix(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -106,9 +120,9 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(PECommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
+  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
 
-  //@} END CREATION AND DESTRUCTION
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
