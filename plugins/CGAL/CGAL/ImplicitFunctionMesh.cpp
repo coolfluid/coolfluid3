@@ -18,7 +18,7 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
@@ -50,14 +50,14 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
 
 
   CRegion& region = mesh.topology().create_region("region");
-  CNodes& nodes = mesh.nodes();
+  Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,DIM_3D);
 
   // coordinate storage
   CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
-  
+
   // connectivity storage
   CElements& elements = region.create_elements("CF.Mesh.SF.Tetra3DLagrangeP1",nodes);
   CTable<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
