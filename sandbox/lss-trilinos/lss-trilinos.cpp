@@ -6,7 +6,7 @@
 
 /**
   @file lss-trilinos Testbed for designing the linear solver interface and implementing trilinos behind.
-  Will use Epetra::FECrsMatrix for the time beign, TPetra does not support Stratimikos. Conversion seems reasonably simple according to trilinos doc.
+  Will use Epetra::FEVbrMatrix for the time beign, TPetra does not support Stratimikos. Conversion seems reasonably simple according to trilinos doc.
 **/
 
 #include "lss-trilinos.hpp"
@@ -32,10 +32,26 @@ int main(void)
   LSSTrilinosMatrix lssm("lssm");
   lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
 
-
-  lssm.set_value(1,2,1.23);
-
+  // manual filling every entry
+  lssm.reset_to_zero();
+  int irow=0;
+  int ientry=0;
+  PEProcessSortedExecute(1,
+  for (int i=0; i<m.rowstart_positions.size()-1; i++)
+    if (m.irank_updatable[i]==Comm::PE::instance().rank())
+    {
+      for (int ieq=0; ieq<3; ieq++)
+        for (int j=m.rowstart_positions[i]; j<m.rowstart_positions[i+1]; j++)
+        {
+          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+0,m.mat_presolve[ientry++]);
+          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+1,m.mat_presolve[ientry++]);
+          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+2,m.mat_presolve[ientry++]);
+        }
+      irow++;
+    }
+  );
   lssm.print_to_screen();
+  //std::cout << "# entry " << ientry << "\n";
 
   // afscheid
   Comm::PE::instance().finalize();

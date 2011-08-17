@@ -125,7 +125,7 @@ public:
   /// Destructor.
   ~LSSTrilinosMatrix()
   {
-  /// @todo kill al lteuchos::rcp members
+  /// @todo kill all teuchos::rcp members
   };
 
   /// Setup sparsity structure
@@ -187,7 +187,7 @@ public:
 
   /// Set value at given location in the matrix
   /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
-  virtual void set_value(const Uint col, const Uint row, const Real value)
+  virtual void set_value(const Uint row, const Uint col, const Real value)
   {
     int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
     int colblock=(int)(col/elemsize);
@@ -195,14 +195,20 @@ public:
     int rowblock=(int)(row/elemsize);
     int rowsub=(int)(row%elemsize);
     Epetra_SerialDenseMatrix **val;
-    int *pcolblock=&colblock;
-    int one=1;
-    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,one,pcolblock,val);
-    val[0][0](rowsub,colsub)=value;
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        val[i][0](rowsub,colsub)=value;
+        break;
+      }
   };
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint col, const Uint row, const Real value)
+  /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
+  virtual void add_value(const Uint row, const Uint col, const Real value)
   {
     int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
     int colblock=(int)(col/elemsize);
@@ -210,14 +216,20 @@ public:
     int rowblock=(int)(row/elemsize);
     int rowsub=(int)(row%elemsize);
     Epetra_SerialDenseMatrix **val;
-    int *pcolblock=&colblock;
-    int one=1;
-    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,one,pcolblock,val);
-    val[0][0](rowsub,colsub)+=value;
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        val[i][0](rowsub,colsub)+=value;
+        break;
+      }
   };
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint col, const Uint row, Real& value)
+  /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
+  virtual void get_value(const Uint row, const Uint col, Real& value)
   {
     int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
     int colblock=(int)(col/elemsize);
@@ -225,10 +237,15 @@ public:
     int rowblock=(int)(row/elemsize);
     int rowsub=(int)(row%elemsize);
     Epetra_SerialDenseMatrix **val;
-    int *pcolblock=&colblock;
-    int one=1;
-    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,one,pcolblock,val);
-    value=val[0][0](rowsub,colsub);
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        value=val[i][0](rowsub,colsub);
+        break;
+      }
   };
 
   //@} END INDIVIDUAL ACCESS
@@ -240,7 +257,7 @@ public:
   virtual void set_values(const BlockAccumulator& values){};
 
   /// Add a list of values
-  /// local ibdices
+  /// local indices
   /// eigen, templatization on top level
   virtual void add_values(const BlockAccumulator& values){};
 
