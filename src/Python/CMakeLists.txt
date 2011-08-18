@@ -21,4 +21,6 @@ list(APPEND coolfluid_python_cflibs coolfluid_common )
 
 coolfluid_add_library( coolfluid_python )
 
+configure_file(coolfluid.py ${coolfluid_DSO_DIR} COPYONLY)
+
 endif()
