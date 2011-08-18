@@ -66,25 +66,33 @@ struct LinearSolver::Implementation
    m_solver(comp.create_static_component<CSolveSystem>("LSSSolveAction")),
    m_bc(comp.create_static_component<BoundaryConditions>("BoundaryConditions")),
    m_zero_action(comp.create_static_component<ZeroAction>("ZeroLSS")),
-   system_matrix(m_solver.option("lss")),
-   system_rhs(m_solver.option("lss")),
-   dirichlet(m_solver.option("lss")),
-   solution(m_solver.option("lss"))
+   system_matrix(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss")->pretty_name("LSS"))),
+   system_rhs(m_component.option("lss")),
+   dirichlet(m_component.option("lss")),
+   solution(m_component.option("lss")),
+   m_updating(false)
   {
-    m_solver.option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
+    m_component.option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
   }
   
   void trigger_lss()
   {
-    m_lss = dynamic_cast<OptionComponent<CEigenLSS>&>(m_solver.option("lss")).component().as_ptr<CEigenLSS>();
+    if(m_updating) // avoid recursion
+      return;
+    
+    m_updating = true;
+    
+    m_lss = dynamic_cast<OptionComponent<CEigenLSS>&>(m_component.option("lss")).component().as_ptr<CEigenLSS>();
     if(m_lss.expired())
     {
       CFdebug << "Triggering on bad LSS in " << m_solver.uri().string() << CFendl;
+      m_updating = false;
       return;
     }
-
-    m_bc.option("lss").change_value(m_lss.lock()->uri());
+    
+    m_component.configure_option_recursively("lss", m_component.option("lss").value<URI>());
     m_zero_action.m_lss = m_lss;
+    m_updating = false;
   }
 
   Component& m_component;
@@ -98,6 +106,8 @@ struct LinearSolver::Implementation
   SolutionVector solution;
   
   boost::weak_ptr<CEigenLSS> m_lss;
+  
+  bool m_updating;
 };
 
 LinearSolver::LinearSolver(const std::string& name) :

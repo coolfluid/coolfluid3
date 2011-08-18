@@ -1,4 +1,4 @@
-import libcoolfluid_python as cf
+import coolfluid as cf
 import sys
 
 cf.Core.initiate(sys.argv)

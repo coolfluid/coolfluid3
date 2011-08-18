@@ -50,3 +50,7 @@ set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
 coolfluid_add_acceptance_test( NAME    atest-ufem-heat-steady
                                SCRIPT  atest-ufem-heat-steady.cfscript )
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-python
+                                SCRIPT atest-ufem-python.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)

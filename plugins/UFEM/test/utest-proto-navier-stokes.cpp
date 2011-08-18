@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
     CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
     lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-    solver.solve_action().configure_option("lss", lss.uri());
+    solver.configure_option("lss", lss.uri());
 
     // Expression variables
     MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
