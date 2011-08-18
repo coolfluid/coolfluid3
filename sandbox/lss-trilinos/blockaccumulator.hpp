@@ -58,7 +58,7 @@ public:
   RealVector rhs;
 
   /// local numbering of the unknowns
-  RealVector indices;
+  std::vector<Uint> indices;
 
   // rest of the operations should directly be the stuff off eigen
 

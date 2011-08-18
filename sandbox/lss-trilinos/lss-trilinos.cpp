@@ -9,6 +9,7 @@
   Will use Epetra::FEVbrMatrix for the time beign, TPetra does not support Stratimikos. Conversion seems reasonably simple according to trilinos doc.
 **/
 
+#include "Math/MatrixTypes.hpp"
 #include "lss-trilinos.hpp"
 #include "test_matrix.hpp"
 
@@ -50,7 +51,28 @@ int main(void)
       irow++;
     }
   );
-  lssm.print_to_screen();
+//  lssm.print_to_screen();
+
+  // performance fill
+  lssm.reset_to_zero();
+  BlockAccumulator ba;
+  ba.resize(3,3);
+PEProcessSortedExecute(1,
+  ba.mat(0,0)=100.;
+  ba.mat(0,1)=101.;
+  ba.mat(0,2)=102.;
+  ba.mat(1,0)=110.;
+  ba.mat(1,1)=111.;
+  ba.mat(1,2)=112.;
+  ba.mat(2,0)=220.;
+  ba.mat(2,1)=221.;
+  ba.mat(2,2)=222.;
+  ba.indices[0]=0;
+  ba.indices[1]=2;
+  ba.indices[2]=10;
+  lssm.set_values(ba);
+);
+//  lssm.print_to_screen();
 
   // afscheid
   Comm::PE::instance().finalize();

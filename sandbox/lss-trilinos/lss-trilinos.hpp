@@ -49,7 +49,7 @@ public:
   /// Destructor.
   virtual ~LSSTrilinosVector()
   {
-  /// @todo kill al lteuchos::rcp members
+  /// @todo kill all teuchos::rcp members
   };
 
 
@@ -65,21 +65,30 @@ public:
   virtual void add_value(const Uint row, const Real value){};
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint row, const Real& value){};
+  virtual void get_value(const Uint row, Real& value){};
 
   //@} END INDIVIDUAL ACCESS
 
   /// @name EFFICCIENT ACCESS
   //@{
 
-  /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values){};
+  /// Set a list of values to rhs
+  virtual void set_rhs_values(const BlockAccumulator& values){};
 
-  /// Add a list of values
-  virtual void add_values(const BlockAccumulator& values){};
+  /// Add a list of values to rhs
+  virtual void add_rhs_values(const BlockAccumulator& values){};
 
-  /// Add a list of values
-  virtual void get_values(const BlockAccumulator& values){};
+  /// Get a list of values from rhs
+  virtual void get_rhs_values(BlockAccumulator& values){};
+
+  /// Set a list of values to sol
+  virtual void set_sol_values(const BlockAccumulator& values){};
+
+  /// Add a list of values to sol
+  virtual void add_sol_values(const BlockAccumulator& values){};
+
+  /// Get a list of values from sol
+  virtual void get_sol_values(BlockAccumulator& values){};
 
   /// Reset Vector
   virtual void reset_to_zero(){};
@@ -140,7 +149,7 @@ public:
     /// @todo don't hardcode the name, rather write an accessor to it in pecommpattern
     int *gid=(int*)cp.get_child_ptr("gid")->as_ptr<CommWrapper>()->pack();
 
-    // blockmap
+    // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
     int nmyglobalelements=0;
     int maxrowentries=0;
     std::vector<int> myglobalelements(0);
@@ -257,7 +266,22 @@ public:
   //@{
 
   /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values){};
+  virtual void set_values(const BlockAccumulator& values)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    int elemsize2=elemsize*elemsize;
+    int* idxs=(int*)&values.indices[0];
+    const int numblocks=values.indices.size();
+    for (int i=0; i<(const int)numblocks; i++)
+    {
+/*
+      std::cout << m_matrix->BeginReplaceMyValues(idxs[i],numblocks,idxs);
+      std::cout << m_matrix->SubmitBlockEntry((double*)(&(values.mat.data()[i*numblocks*elemsize2])),0,elemsize,numblocks*elemsize);
+      std::cout << m_matrix->EndSubmitEntries();
+      std::cout << "\n" << std::flush;
+*/
+    }
+  };
 
   /// Add a list of values
   /// local indices
