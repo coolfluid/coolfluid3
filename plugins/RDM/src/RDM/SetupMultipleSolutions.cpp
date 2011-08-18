@@ -88,6 +88,8 @@ void SetupMultipleSolutions::execute()
     }
   }
 
+  solution_group->add_tag( solution_space );
+
   // construct vector of variables
 
   const Uint nbdofs = physical_model().neqs();
