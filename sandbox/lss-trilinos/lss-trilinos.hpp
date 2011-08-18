@@ -268,19 +268,52 @@ public:
   /// Set a list of values
   virtual void set_values(const BlockAccumulator& values)
   {
-    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
-    int elemsize2=elemsize*elemsize;
-    int* idxs=(int*)&values.indices[0];
+//    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+//    int elemsize2=elemsize*elemsize;
+//    int* idxs=(int*)&values.indices[0];
+//    const int numblocks=values.indices.size();
+//    for (int i=0; i<(const int)numblocks; i++)
+//    {
+// /*
+//      std::cout << m_matrix->BeginReplaceMyValues(idxs[i],numblocks,idxs);
+//      std::cout << m_matrix->SubmitBlockEntry((double*)(&(values.mat.data()[i*numblocks*elemsize2])),0,elemsize,numblocks*elemsize);
+//      std::cout << m_matrix->EndSubmitEntries();
+//      std::cout << "\n" << std::flush;
+// */
+//    }
+
+//    int idxs[]={0,1,2,10};
+//    const int elemsize=3;
+//    const int numblocks=4;
+//    CF::RealMatrix val(12,12); val <<
+//      11., 12., 13., 21., 22., 23., 31., 32., 33., 41., 42., 43.,
+//      14., 15., 16., 24., 25., 26., 34., 35., 36., 44., 45., 46.,
+//      17., 18., 19., 27., 28., 29., 37., 38., 39., 47., 48., 49.,
+//      51., 52., 53., 61., 62., 63., 71., 72., 73., 81., 82., 83.,
+//      54., 55., 56., 64., 65., 66., 74., 75., 76., 84., 85., 86.,
+//      57., 58., 59., 67., 68., 69., 77., 78., 79., 87., 88., 89.,
+//      91., 92., 93.,101.,102.,103.,111.,112.,113.,121.,122.,123.,
+//      94., 95., 96.,104.,105.,106.,114.,115.,116.,124.,125.,126.,
+//      97., 98., 99.,107.,108.,109.,117.,118.,119.,127.,128.,129.,
+//     131.,132.,133.,141.,142.,143.,151.,152.,153.,161.,162.,163.,
+//     134.,135.,136.,144.,145.,146.,154.,155.,156.,164.,165.,166.,
+//     137.,138.,139.,147.,148.,149.,157.,158.,159.,167.,168.,169.;
+
+    const int elemsize=m_matrix->Map().ElementSize();
     const int numblocks=values.indices.size();
-    for (int i=0; i<(const int)numblocks; i++)
+    int* idxs=(int*)&values.indices[0];
+
+
+    for (int irow=0; irow<numblocks; irow++)
     {
-/*
-      std::cout << m_matrix->BeginReplaceMyValues(idxs[i],numblocks,idxs);
-      std::cout << m_matrix->SubmitBlockEntry((double*)(&(values.mat.data()[i*numblocks*elemsize2])),0,elemsize,numblocks*elemsize);
+      std::cout << "# " << std::flush;
+      std::cout << m_matrix->BeginSumIntoMyValues(idxs[irow],numblocks,idxs);  //SUMINTO -> REPLACE!!!
+      for (int icol=0; icol<numblocks; icol++)
+        std::cout << m_matrix->SubmitBlockEntry((double*)values.mat.data()+irow*elemsize+icol*elemsize*elemsize*numblocks,numblocks*elemsize,elemsize,elemsize);
       std::cout << m_matrix->EndSubmitEntries();
       std::cout << "\n" << std::flush;
-*/
     }
+
   };
 
   /// Add a list of values
