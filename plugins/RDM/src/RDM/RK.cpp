@@ -81,7 +81,7 @@ void RK::execute()
 
   Field::Ptr csolution_k;
   if ( step == rkorder )
-   csolution_k = m_solution.lock();
+    csolution_k = m_solution.lock();
   else
   {
     csolution_k = mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ).follow()->as_ptr_checked<Field>();
