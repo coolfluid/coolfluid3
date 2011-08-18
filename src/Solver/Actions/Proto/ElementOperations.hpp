@@ -39,7 +39,7 @@ struct VarChild
     >::type
   >::type type;
 };
-  
+
 /// Element volume
 struct VolumeOp : boost::proto::transform< VolumeOp >
 {
@@ -47,12 +47,12 @@ struct VolumeOp : boost::proto::transform< VolumeOp >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef Real result_type;
-    
+
     result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
     {
       return data.support().volume();
     }
-    
+
   };
 };
 
@@ -63,12 +63,12 @@ struct NodesOp : boost::proto::transform< NodesOp >
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef const typename boost::remove_reference<DataT>::type::SupportT::SF::NodeMatrixT& result_type;
-    
+
     result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
     {
-      return data.support().geometry();
+      return data.support().nodes();
     }
-    
+
   };
 };
 
@@ -80,20 +80,20 @@ struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
   /// Type of the mapped coordinates
   typedef typename SupportT::SF::MappedCoordsT MappedCoordsT;
-  
+
   typedef typename ResultType<SupportT>::type result_type;
-  
+
   result_type operator()(typename MappedOpBase::expr_param expr, typename MappedOpBase::state_param, typename MappedOpBase::data_param data)
   {
     return dispatch(boost::mpl::int_<boost::proto::arity_of<ExprT>::value>(), expr, data);
   }
-  
+
   /// Only the variable as function argument, matrices are precomputed, no mapped coords needed
   result_type dispatch(boost::mpl::int_<0>, typename MappedOpBase::expr_param, typename MappedOpBase::data_param data)
   {
     return Derived::apply(data.support());
   }
-  
+
   /// Mapped coordinates were supplied as an argument
   result_type dispatch(boost::mpl::int_<2>, typename MappedOpBase::expr_param expr, typename MappedOpBase::data_param data)
   {
@@ -113,20 +113,20 @@ struct MappedVarOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
   /// Type of the mapped coordinates
   typedef typename SupportT::SF::MappedCoordsT MappedCoordsT;
-  
+
   typedef typename ResultType<VarDataT>::type result_type;
-  
+
   result_type operator()(typename MappedVarOpBase::expr_param expr, typename MappedVarOpBase::state_param, typename MappedVarOpBase::data_param data)
   {
     return dispatch(boost::mpl::int_<boost::proto::arity_of<ExprT>::value>(), expr, data);
   }
-  
+
   /// Only the variable as function argument, matrices are precomputed, no mapped coords needed
   result_type dispatch(boost::mpl::int_<2>, typename MappedVarOpBase::expr_param, typename MappedVarOpBase::data_param data)
   {
     return Derived::apply(data.support(), data.var_data(typename VarT::index_type()));
   }
-  
+
   /// Mapped coordinates were put in the last argument
   result_type dispatch(boost::mpl::int_<3>, typename MappedVarOpBase::expr_param expr, typename MappedVarOpBase::data_param data)
   {
@@ -142,7 +142,7 @@ struct CoordinatesOp : boost::proto::transform< CoordinatesOp >
   {
     typedef const typename SupportT::SF::CoordsT& type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -150,7 +150,7 @@ struct CoordinatesOp : boost::proto::transform< CoordinatesOp >
     {
       return support.coordinates();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::MappedCoordsT& mapped_coords)
     {
       return support.coordinates(mapped_coords);
@@ -160,20 +160,20 @@ struct CoordinatesOp : boost::proto::transform< CoordinatesOp >
 
 /// Interpolated values at mapped coordinates
 struct InterpolationOp : boost::proto::transform< InterpolationOp >
-{ 
+{
   template<typename VarT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
-  {  
+  {
     typedef typename VarDataType<VarT, DataT>::type VarDataT;
     typedef typename VarDataT::EvalT result_type;
     typedef typename VarDataT::SF::MappedCoordsT MappedCoordsT;
-    
+
     /// Mapped coords supplied explicitely
     result_type operator()(typename impl::expr_param, const MappedCoordsT& mapped_coords, typename impl::data_param data)
     {
       return data.var_data(typename boost::remove_reference<VarT>::type::index_type()).eval(mapped_coords);
     }
-    
+
     /// Use precomputed value
     template<typename T>
     result_type operator()(typename impl::expr_param, T, typename impl::data_param data)
@@ -191,7 +191,7 @@ struct JacobianOp : boost::proto::transform< JacobianOp >
   {
     typedef const typename SupportT::ShapeFunctionT::JacobianT& type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -199,7 +199,7 @@ struct JacobianOp : boost::proto::transform< JacobianOp >
     {
       return support.jacobian();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::MappedCoordsT& mapped_coords)
     {
       return support.jacobian(mapped_coords);
@@ -215,7 +215,7 @@ struct JacobianDeterminantOp : boost::proto::transform< JacobianDeterminantOp >
   {
     typedef Real type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -223,7 +223,7 @@ struct JacobianDeterminantOp : boost::proto::transform< JacobianDeterminantOp >
     {
       return support.jacobian_determinant();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::MappedCoordsT& mapped_coords)
     {
       return support.jacobian_determinant(mapped_coords);
@@ -239,7 +239,7 @@ struct NormalOp : boost::proto::transform< NormalOp >
   {
     typedef const typename SupportT::SF::CoordsT& type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -247,7 +247,7 @@ struct NormalOp : boost::proto::transform< NormalOp >
     {
       return support.normal();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::MappedCoordsT& mapped_coords)
     {
       return support.normal(mapped_coords);
@@ -263,7 +263,7 @@ struct NablaOp : boost::proto::transform< NablaOp >
   {
     typedef const typename VarDataT::SF::MappedGradientT& type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedVarOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -271,7 +271,7 @@ struct NablaOp : boost::proto::transform< NablaOp >
     {
       return data.nabla();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::VarDataT& data, const typename impl::MappedCoordsT& mapped_coords)
     {
       return data.nabla(mapped_coords);
@@ -287,7 +287,7 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   {
     typedef const typename VarDataT::SF::ShapeFunctionsT& type;
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : MappedVarOpBase<ExprT, StateT, DataT, impl<ExprT, StateT, DataT>, ResultType>
   {
@@ -295,7 +295,7 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
     {
       return data.shape_function();
     }
-    
+
     static typename impl::result_type apply(const typename impl::SupportT& support, const typename impl::VarDataT& data, const typename impl::MappedCoordsT& mapped_coords)
     {
       return data.shape_function(mapped_coords);
@@ -316,7 +316,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
     >
   {
   };
-  
+
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
@@ -335,7 +335,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         >::type
       >::type type;
     };
-    
+
     /// Get the type for the child at index I
     /// Terminal values are left unchanged, numbered variables are replaced by their context data
     template<Uint I>
@@ -347,17 +347,17 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       {
         typedef T type;
       };
-      
+
       /// Convert numbered variables to their data
       template<typename VarI, typename T>
       struct DataType< Var<VarI, T> >
       {
         typedef typename VarDataType<VarI, DataT>::type type;
       };
-      
+
       typedef typename DataType<typename EvaluatedChild<I>::type>::type type;
     };
-    
+
     /// Helper to get the actual value of a child.
     /// The custom op may want to modify this, so we remove the const as well
     template<typename ChildT>
@@ -368,54 +368,54 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         return const_cast<ChildT&>(child);
       }
     };
-    
+
     /// Specialization to get the associated data
     template<typename I,  typename T>
     struct GetChild< Var<I, T> >
     {
       typedef typename VarDataType<I, DataT>::type VarDataT;
-      
+
       const VarDataT& operator()(const Var<I, T>& var, typename impl::data_param data)
       {
         return data.var_data(var);
       }
     };
-    
+
     /// Helper to get the result type
     template<typename TagT, Uint Arity, Uint Dummy=0>
     struct ResultType;
-    
+
     /// Specialization for a function with one argument
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 2, Dummy>
     {
       typedef typename boost::result_of<OpImpl(typename ChildType<1>::type)>::type type;
     };
-    
+
     /// Specialization for a function with 2 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 3, Dummy>
     {
       typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type)>::type type;
     };
-    
+
     /// Specialization for a function with 4 arguments
     template<Uint Dummy>
     struct ResultType<boost::proto::tag::function, 5, Dummy>
     {
       typedef typename boost::result_of<OpImpl(typename ChildType<1>::type, typename ChildType<2>::type, typename ChildType<3>::type, typename ChildType<4>::type)>::type type;
     };
-    
+
     typedef typename ResultType<typename boost::proto::tag_of<ExprT>::type, boost::proto::arity_of<ExprT>::value>::type result_type;
 
     // Non-const version
-    typedef typename boost::remove_const<typename impl::expr>::type& ExprParamT; 
-    
+    typedef typename boost::remove_const<typename impl::expr>::type& ExprParamT;
+
     result_type operator()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data)
     {
       return apply<result_type>()(typename boost::proto::tag_of<ExprT>::type(), boost::mpl::int_<boost::proto::arity_of<ExprT>::value>(), expr, state, data);
     }
-    
+
     /// Pass the stored parameter if the result type is a reference, don't store otherwise
     template<typename ResultT>
     struct apply
@@ -428,7 +428,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
       {
         return OpImpl()(GetChild<typename EvaluatedChild<1>::type>()(ChildGrammar()(boost::proto::child_c<1>(expr), state, data), data));
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                         boost::mpl::int_<3>,
                         typename impl::expr_param expr,
@@ -441,7 +441,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
           GetChild<typename EvaluatedChild<2>::type>()(ChildGrammar()(boost::proto::child_c<2>(expr), state, data), data)
         );
       }
-      
+
       result_type operator()(boost::proto::tag::function,
                              boost::mpl::int_<5>,
                              typename impl::expr_param expr,
@@ -457,7 +457,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         );
       }
     };
-    
+
     /// Specialization for references
     template<typename ResultT>
     struct apply<ResultT&>
@@ -471,7 +471,7 @@ struct CustomSFOpTransform : boost::proto::transform< CustomSFOpTransform<OpImpl
         return OpImpl()(expr.value, GetChild<typename EvaluatedChild<1>::type>()(boost::proto::value(boost::proto::child_c<1>(expr)), data));
       }
     };
-    
+
   };
 };
 

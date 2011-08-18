@@ -5,8 +5,6 @@ list( APPEND coolfluid_physics_files
   LibPhysics.cpp
   PhysModel.cpp
   PhysModel.hpp
-  VariableManager.hpp
-  VariableManager.cpp
   Variables.hpp
   Variables.cpp
   # a concrete physical model where the physics are dynamically configured

@@ -32,6 +32,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/ElementData.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
@@ -101,50 +102,25 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
   CFinfo << "Mesh volume: " << vol1 << CFendl;
 
-  // For an all-quad mesh, this is the same... cool or what? TODO: restore this
-//   Real vol2 = 0.;
-//   for_each_element<VolumeTypes>
-//   (
-//     mesh->topology(),
-//     vol2 += 0.5*((coordinates(2, 0) - coordinates(0, 0)) * (coordinates(3, 1) - coordinates(1, 1))
-//               -  (coordinates(2, 1) - coordinates(0, 1)) * (coordinates(3, 0) - coordinates(1, 0)))
-//   );
-//   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
+  // For an all-quad mesh, this is the same... cool or what?
+  Real vol2 = 0.;
+  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  (
+    mesh->topology(),
+    vol2 += 0.5*((nodes[2][0] - nodes[0][0]) * (nodes[3][1] - nodes[1][1])
+              -  (nodes[2][1] - nodes[0][1]) * (nodes[3][0] - nodes[1][0]))
+  );
+  BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
-
-// Deactivated, until for_each_element_node is ported from the old proto code
-// BOOST_AUTO_TEST_CASE( VertexValence )
-// {
-//   // Create a 3x3 rectangle
-//   CMesh::Ptr mesh( allocate_component<CMesh>("rect") );
-//   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 2, 2);
-//
-//   // Set up a node-based field to store the number of cells that are adjacent to each node
-//   const std::vector<std::string> vars(1, "Valence[1]");
-//   mesh->create_field("Valences", vars, Field::NODE_BASED);
-//
-//   // Set up proto variables
-//   MeshTerm<0, ConstNodes> nodes( "Region", find_component_ptr_recursively_with_name<CRegion>(*mesh, "region") ); // Mesh geometry nodes
-//   MeshTerm<1, ScalarField > valence("Valences", "Valence"); // Valence field
-//
-//   // Count the elements!
-//   for_each_element<SF::VolumeTypes>(find_component_recursively_with_name<CRegion>(*mesh, "region")
-//                                   , for_each_element_node(nodes, valence[_elem_node]++));
-//
-//   // output the result
-//   for_each_node(find_component_recursively_with_name<CRegion>(*mesh, "region")
-//               , _cout << valence << " ");
-//   std::cout << std::endl;
-// }
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "Temperature", "T" );
+  mesh->geometry().create_field( "solution", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
@@ -213,9 +189,9 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
-  mesh->geometry().create_field( "Pressure", "p" );
+  mesh->geometry().create_field( "Pressure", "Pressure" ).add_tag("solution");
 
-  MeshTerm<1, ScalarField > p("Pressure", "p"); // Pressure field
+  MeshTerm<1, ScalarField > p("Pressure", "solution"); // Pressure field
 
   typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
 
@@ -277,9 +253,9 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "Temperature", "T" );
+  mesh->geometry().create_field( "Temperature", "Temperature" ).add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
@@ -324,15 +300,15 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
   BOOST_CHECK_EQUAL(count, 10);
 }
-/*
+
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "T");
+  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
 
-  MeshTerm<0, ScalarField > temperature("Temperature", "T");
+  MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
   RealVector1 mapped_coords;
   mapped_coords.setZero();
@@ -376,7 +352,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "T");
+  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
 
   Real total = 0;
 
@@ -458,7 +434,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
 BOOST_AUTO_TEST_CASE( VectorMultiplication )
 {
-  MeshTerm<0, VectorField> u("Velocity", "u");
+  MeshTerm<0, VectorField> u("Velocity", "solution");
 
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   CDomain& dom = model.create_domain("Domain");
@@ -466,15 +442,17 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
-  physics.variable_manager().configure_option("dimensions", 2u);
+  physics.configure_option(Common::Tags::dimension(), 2u);
 
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);
 
+  FieldManager& field_manager = dom.create_component<FieldManager>("FieldManager");
+  field_manager.configure_option("variable_manager", physics.variable_manager().uri());
+
   // set up fields
   init->register_variables(physics);
-  /// @todo Bart adapt this
-//  create_fields(mesh, physics);
+  field_manager.create_field("solution", mesh.geometry());
 
   // Do the initialization
   init->loop(mesh.topology());
@@ -491,7 +469,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   std::cout << result << std::endl;
 }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()

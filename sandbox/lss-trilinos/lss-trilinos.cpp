@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
+// Copyright (C) 2010 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
@@ -30,6 +30,7 @@ int main(void)
   // setting up the matrix
   LSSTrilinosMatrix lssm;
   lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
+  lssm.print_to_screen();
 
   // afscheid
   mpi::PE::instance().finalize();
