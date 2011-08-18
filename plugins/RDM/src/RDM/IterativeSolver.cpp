@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iomanip>
-
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
@@ -15,12 +13,11 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Math/Checks.hpp"
-
 #include "Solver/Actions/CPeriodicWriteMesh.hpp"
 #include "Solver/Actions/CSynchronizeFields.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CComputeLNorm.hpp"
+#include "Solver/Actions/CPrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
@@ -29,7 +26,6 @@
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
-using namespace CF::Math::Checks;
 using namespace CF::Mesh;
 using namespace CF::Solver::Actions;
 
@@ -66,6 +62,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   CComputeLNorm& cnorm = post_actions().create_component<CComputeLNorm>( "ComputeNorm" );
   post_actions().append( cnorm );
+
+  CPrintIterationSummary& cprint = post_actions().create_component<CPrintIterationSummary>( "IterationSummary" );
+  post_actions().append( cprint );
 
   CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
   post_actions().append( cwriter );
@@ -104,6 +103,9 @@ void IterativeSolver::execute()
   Component& cnorm = post_actions().get_child("ComputeNorm");
   cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );
 
+  Component& cprint = post_actions().get_child("IterationSummary");
+  cprint.configure_option("norm", cnorm.uri() );
+
   // iteration loop
 
   Uint iter = 1; // iterations start from 1 ( max iter zero will do nothing )
@@ -135,20 +137,6 @@ void IterativeSolver::execute()
     // (6) the post actions - compute norm, post-process something, etc
 
     post_actions().execute();
-
-    // output convergence info
-
-    /// @todo move current rhs as a prpoerty of the iterate or solver components
-    if( Comm::PE::instance().rank() == 0 )
-    {
-      Real rhs_norm = cnorm.properties().value<Real>("Norm");
-      CFinfo << "iter ["    << std::setw(4)  << iter << "]"
-             << "L2(rhs) [" << std::setw(12) << rhs_norm << "]" << CFendl;
-
-      if ( is_nan(rhs_norm) || is_inf(rhs_norm) )
-        throw FailedToConverge(FromHere(),
-                               "Solution diverged after "+to_str(iter)+" iterations");
-    }
 
     // raise signal that iteration is done
 

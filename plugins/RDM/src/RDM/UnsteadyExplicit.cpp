@@ -135,6 +135,8 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   solver.iterative_solver().get_child("MaxIterations").configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
+  solver.iterative_solver().get_child("PostActions").get_child("IterationSummary").configure_option("print_rate", 0u); // dont print under unsteady iterations
+
   // (4d) setup solver fields
 
   /// @todo add here any other actions to allocte more fields or storage

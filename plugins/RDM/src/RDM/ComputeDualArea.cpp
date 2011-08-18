@@ -41,25 +41,33 @@ ComputeDualArea::~ComputeDualArea() {}
 
 void ComputeDualArea::create_dual_area_field()
 {
+  RDM::RDSolver& rdsolver = solver().as_type< RDM::RDSolver >();
   CMesh& mymesh = mesh();
-  Geometry& geometry = mymesh.geometry();
+
+  const std::string solution_space = rdsolver.option("solution_space").value<std::string>();
+
+  FieldGroup& solution_grp = find_component_with_tag<FieldGroup>( mymesh, solution_space );
 
   // create if does not exist
 
-  Field::Ptr comp = find_component_ptr_with_tag<Mesh::Field>( mymesh, Tags::dual_area());
-  if( is_null( comp ) )
+  Field::Ptr field;
+
+  Component::Ptr comp = solution_grp.get_child_ptr( Tags::dual_area() );
+  if( is_not_null( comp ) )
+    field = comp->as_ptr_checked<Field>();
+  else
   {
-    comp = geometry.create_field(Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
-    comp->add_tag(Tags::dual_area());
+    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
+    field->add_tag(Tags::dual_area());
   }
 
-  cdual_area = comp;
+  cdual_area = field;
 
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
   CGroup& fields = mysolver.fields();
 
   if( ! fields.get_child_ptr( Tags::dual_area() ) )
-    fields.create_component<CLink>( Tags::dual_area() ).link_to(comp).add_tag( Tags::dual_area() );
+    fields.create_component<CLink>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
 }
 
 void ComputeDualArea::execute()
