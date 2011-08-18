@@ -138,7 +138,7 @@ public:
   {
     // get gid
     /// @todo don't hardcode the name, rather write an accessor to it in pecommpattern
-    Uint *gid=(Uint*)cp.get_child_ptr("gid")->as_ptr<CommWrapper>()->pack();
+    int *gid=(int*)cp.get_child_ptr("gid")->as_ptr<CommWrapper>()->pack();
 
     // blockmap
     int nmyglobalelements=0;
@@ -159,13 +159,14 @@ public:
     std::vector<double>dummy_entries(maxrowentries*9,0.);
     std::vector<int>global_columns(maxrowentries);
 
-    Epetra_BlockMap bm(-1,nmyglobalelements,&myglobalelements[0],3,0,m_comm);
+    Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],3,0,m_comm);
+    Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,3,0,m_comm);
     myglobalelements.resize(0);
     myglobalelements.reserve(0);
 
     // matrix
-    m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,bm,3));
-    bm.~Epetra_BlockMap();
+    m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,3));
+    rowmap.~Epetra_BlockMap();
 
     for(int i=0; i<(const int)nmyglobalelements; i++)
     {
@@ -178,6 +179,8 @@ public:
       m_matrix->EndSubmitEntries();
     }
     m_matrix->FillComplete();
+    m_matrix->OptimizeStorage();
+    delete gid;
   }
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM

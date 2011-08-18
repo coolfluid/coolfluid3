@@ -51,7 +51,6 @@ int main(void)
     }
   );
   lssm.print_to_screen();
-  //std::cout << "# entry " << ientry << "\n";
 
   // afscheid
   Comm::PE::instance().finalize();
