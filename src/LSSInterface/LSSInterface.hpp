@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef lss_interface_hpp
-#define lss_interface_hpp
+#ifndef LSSInterface_hpp
+#define LSSInterface_hpp
 
 // OBJECTIVE: restrictive and simple to use
 
@@ -21,7 +21,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Common {
+namespace LSSInterface {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -205,7 +205,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
+} // namespace LSSInterface
 } // namespace CF
 
-#endif // lss_interface_hpp
+#endif // LSSInterface_hpp
