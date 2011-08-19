@@ -34,7 +34,7 @@ int main(void)
   lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
 
   // manual filling every entry
-  lssm.reset_to_zero();
+  lssm.reset();
   int irow=0;
   int ientry=0;
   PEProcessSortedExecute(1,
@@ -51,10 +51,9 @@ int main(void)
       irow++;
     }
   );
-//  lssm.print_to_screen();
 
   // performance fill
-  lssm.reset_to_zero();
+  lssm.reset();
   BlockAccumulator ba;
   ba.resize(3,3);
 PEProcessSortedExecute(1,
@@ -73,7 +72,11 @@ PEProcessSortedExecute(1,
   ba.indices[2]=10;
   lssm.set_values(ba);
 );
+
+  // dirichletbc
+  lssm.set_row(20,1,3.,4.);
   lssm.print_to_screen();
+
 
   // afscheid
   Comm::PE::instance().finalize();

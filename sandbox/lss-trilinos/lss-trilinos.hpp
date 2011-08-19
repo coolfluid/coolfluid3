@@ -91,7 +91,7 @@ public:
   virtual void get_sol_values(BlockAccumulator& values){};
 
   /// Reset Vector
-  virtual void reset_to_zero(){};
+  virtual void reset(Real reset_to=0.){};
 
   //@} END EFFICCIENT ACCESS
 
@@ -268,20 +268,6 @@ public:
   /// Set a list of values
   virtual void set_values(const BlockAccumulator& values)
   {
-//    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
-//    int elemsize2=elemsize*elemsize;
-//    int* idxs=(int*)&values.indices[0];
-//    const int numblocks=values.indices.size();
-//    for (int i=0; i<(const int)numblocks; i++)
-//    {
-// /*
-//      std::cout << m_matrix->BeginReplaceMyValues(idxs[i],numblocks,idxs);
-//      std::cout << m_matrix->SubmitBlockEntry((double*)(&(values.mat.data()[i*numblocks*elemsize2])),0,elemsize,numblocks*elemsize);
-//      std::cout << m_matrix->EndSubmitEntries();
-//      std::cout << "\n" << std::flush;
-// */
-//    }
-
 //    int idxs[]={0,1,2,10};
 //    const int elemsize=3;
 //    const int numblocks=4;
@@ -299,15 +285,18 @@ public:
 //     134.,135.,136.,144.,145.,146.,154.,155.,156.,164.,165.,166.,
 //     137.,138.,139.,147.,148.,149.,157.,158.,159.,167.,168.,169.;
 
+    // issue1: its stupid to submit submit each block separately, cant submit a single blockrow at once!!!
+    // issue2: so it seems that on trilinos side there is another "blockaccumulator"
+    // issue3: investigate performance if matrix is View mode, the copy due to issue2 could be circumvented (then epetra only stores pointers to values)
+    // issue4: investigate prformance of extracting a blockrowview and fill manually, all blocks at once in the current blockrow
     const int elemsize=m_matrix->Map().ElementSize();
     const int numblocks=values.indices.size();
     int* idxs=(int*)&values.indices[0];
 
-
     for (int irow=0; irow<numblocks; irow++)
     {
       std::cout << "# " << std::flush;
-      std::cout << m_matrix->BeginSumIntoMyValues(idxs[irow],numblocks,idxs);  //SUMINTO -> REPLACE!!!
+      std::cout << m_matrix->BeginReplaceMyValues(idxs[irow],numblocks,idxs);
       for (int icol=0; icol<numblocks; icol++)
         std::cout << m_matrix->SubmitBlockEntry((double*)values.mat.data()+irow*elemsize+icol*elemsize*elemsize*numblocks,numblocks*elemsize,elemsize,elemsize);
       std::cout << m_matrix->EndSubmitEntries();
@@ -325,7 +314,22 @@ public:
   virtual void get_values(BlockAccumulator& values){};
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
-  virtual void set_row(const Uint row, Real diagval, Real offdiagval){};
+  virtual void set_row(const Uint blockrow, const Uint blockeqn, Real diagval, Real offdiagval)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    Epetra_SerialDenseMatrix **val;
+    int* colindices;
+    int blockrowsize;
+    int diagonalblock=-1;
+    m_matrix->ExtractMyBlockRowView((int)blockrow,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+    {
+      if (colindices[i]==blockrow) diagonalblock=i;
+      for (int j=0; j<elemsize; j++)
+        val[i][0](blockeqn,j)=offdiagval;
+    }
+    val[diagonalblock][0](blockeqn,blockeqn)=diagval;
+  };
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
@@ -344,9 +348,9 @@ public:
   virtual void get_diagonal(LSSVector& diag){};
 
   /// Reset Matrix
-  virtual void reset_to_zero()
+  virtual void reset(Real reset_to=0.)
   {
-    m_matrix->PutScalar(0.);
+    m_matrix->PutScalar(reset_to);
   };
 
   //@} END EFFICCIENT ACCESS

@@ -7,9 +7,6 @@
 #ifndef lss_interface_hpp
 #define lss_interface_hpp
 
-// Maybe vector and matrix should be a single class, could be way more performant? But then needs support for multi rhs+solution.
-// matrix should access by sparsity given to it, hiding internal renumbering
-
 // OBJECTIVE: restrictive and simple to use
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -66,17 +63,26 @@ public:
   /// @name EFFICCIENT ACCESS
   //@{
 
-  /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values) = 0;
+  /// Set a list of values to rhs
+  virtual void set_rhs_values(const BlockAccumulator& values) = 0;
 
-  /// Add a list of values
-  virtual void add_values(const BlockAccumulator& values) = 0;
+  /// Add a list of values to rhs
+  virtual void add_rhs_values(const BlockAccumulator& values) = 0;
 
-  /// Add a list of values
-  virtual void get_values(const BlockAccumulator& values) = 0;
+  /// Get a list of values from rhs
+  virtual void get_rhs_values(BlockAccumulator& values) = 0;
+
+  /// Set a list of values to sol
+  virtual void set_sol_values(const BlockAccumulator& values) = 0;
+
+  /// Add a list of values to sol
+  virtual void add_sol_values(const BlockAccumulator& values) = 0;
+
+  /// Get a list of values from sol
+  virtual void get_sol_values(BlockAccumulator& values) = 0;
 
   /// Reset Vector
-  virtual void reset_to_zero() = 0;
+  virtual void reset(Real reset_to=0.) = 0;
 
   //@} END EFFICCIENT ACCESS
 
@@ -153,7 +159,7 @@ public:
   virtual void get_values(BlockAccumulator& values) = 0;
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
-  virtual void set_row(const Uint row, Real diagval, Real offdiagval) = 0;
+  virtual void set_row(const Uint blockrow, const Uint blockeqn, Real diagval, Real offdiagval) = 0;
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
@@ -172,7 +178,7 @@ public:
   virtual void get_diagonal(LSSVector& diag) = 0;
 
   /// Reset Matrix
-  virtual void reset_to_zero() = 0;
+  virtual void reset(Real reset_to=0.) = 0;
 
   //@} END EFFICCIENT ACCESS
 
