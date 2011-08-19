@@ -18,6 +18,10 @@
 #include "Common/MPI/CommPattern.hpp"
 #include "blockaccumulator.hpp"
 
+#include "LSSMatrix.hpp"
+#include "LSSSystem.hpp"
+#include "LSSVector.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {

@@ -2,6 +2,9 @@ coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_lssinterface_files
   LSSInterface.hpp
+  LSSMatrix.hpp
+  LSSSystem.hpp
+  LSSVector.hpp
 )
 
 list( APPEND coolfluid_lssinterface_libs coolfluid_common_libs ${CF_BOOST_LIBRARIES})
