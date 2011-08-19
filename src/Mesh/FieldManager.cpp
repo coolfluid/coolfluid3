@@ -93,8 +93,15 @@ void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
 {
   boost_foreach(VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
-    if(find_component_ptr_with_tag(field_group, tag)) // TODO: Check if the tagged fields that exist have the same variable descriptor
+    const Field::ConstPtr existing_field = find_component_ptr_with_tag<Field>(field_group, tag);
+    if(is_not_null(existing_field))
     {
+      if(descriptor.description() != existing_field->descriptor().description())
+      {
+        throw SetupError(FromHere(), "Existing field with tag " + tag + " at " + existing_field->uri().string() + " is incompatible with descriptor " + descriptor.uri().string()
+              + ": existing " + existing_field->descriptor().description() + " != required " + descriptor.description());
+      }
+      
       CFdebug << "Skipping second field creation for tag " << tag << " in fieldgroup " << field_group.uri().string() << CFendl;
       continue;
     }

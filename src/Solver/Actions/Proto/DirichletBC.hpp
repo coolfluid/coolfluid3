@@ -13,21 +13,21 @@
 
 #include "Solver/CEigenLSS.hpp"
 
-#include "LSSProxy.hpp"
+#include "ComponentWrapper.hpp"
 #include "Terminals.hpp"
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
- 
+
 /// Tag for a Dirichlet BC
 struct DirichletBCTag
 {
 };
 
 /// Used to create placeholders for a Dirichlet condition
-typedef LSSComponentTerm<DirichletBCTag> DirichletBC;
+typedef ComponentWrapper<CEigenLSS, DirichletBCTag> DirichletBC;
 
 /// Helper function for assignment
 inline void assign_dirichlet(CEigenLSS& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
@@ -46,7 +46,7 @@ inline void assign_dirichlet(CEigenLSS& lss, const NewT& new_value, const OldT& 
   for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
     lss.set_dirichlet_bc(sys_idx+i, new_value[i] - old_value[i]);
 }
-  
+
 struct DirichletBCSetter :
   boost::proto::transform< DirichletBCSetter >
 {
@@ -54,21 +54,21 @@ struct DirichletBCSetter :
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     typedef void result_type;
-    
+
     result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).lss_proxy().lss();
+      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
       assign_dirichlet(
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
         data.node_idx,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset,
-        data.nb_dofs()                  
+        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs
       );
     }
   };
@@ -83,7 +83,7 @@ struct DirichletBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< LSSComponent<DirichletBCTag> >,
+        boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, DirichletBCTag> >,
         FieldTypes
       >,
       GrammarT
@@ -92,7 +92,7 @@ struct DirichletBCGrammar :
   >
 {
 };
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver

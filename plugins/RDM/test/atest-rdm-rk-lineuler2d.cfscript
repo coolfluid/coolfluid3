@@ -12,14 +12,14 @@ configure //Root/Environment assertion_throws:bool=false   \
 
 create Wizard CF.RDM.UnsteadyExplicit
 
-configure Wizard  rkorder:unsigned=2
+configure Wizard  rkorder:unsigned=3
 
 call Wizard/create_model  model_name:string=Model \
                           physical_model:string=CF.Physics.LinEuler.LinEuler2D
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=circle150r-tg-p1-21194.msh
+call Model/Domain/load_mesh file:uri=circle150r-tg-p1-83244.msh
 #circle1d-tg-p1-1451.msh
 #circle150r-tg-p1-3471.msh
 #circle150r-tg-p1-9599.msh
@@ -32,8 +32,15 @@ call Model/Domain/load_mesh file:uri=circle150r-tg-p1-21194.msh
 
 configure Model/RDSolver  update_vars:string=Cons2D
 
+<<<<<<< HEAD
 configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=5000
 configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=0.26 end_time:real=50
+=======
+configure Model/RDSolver  solution_space:string=LagrangeP1
+
+configure Model/RDSolver/TimeStepping/MaxIterations  maxiter:unsigned=5000
+configure Model/RDSolver/TimeStepping/Time    time:real=0.0 time_step:real=0.09 end_time:real=50
+>>>>>>> 527ae6d450914eaf953ab10a98a368993adbc8d6
 
 #configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
@@ -70,10 +77,10 @@ call Model/RDSolver/DomainDiscretization/create_cell_term \
 
 call Model/RDSolver/InitialConditions
 
-call Model/Domain/write_mesh file:uri=initial-circle150r-tg-p1-21194-rk2.msh
-#call Model/Domain/write_mesh file:uri=initial-circle150r-tg-p1-9599-rk1.plt
+call Model/Domain/write_mesh file:uri=initial-circle150r-tg-p1-83244-rk3.msh
+#call Model/Domain/write_mesh file:uri=initial-circle150r-tg-p1-9599-rk2.plt
 
 call Model/simulate
 
-call Model/Domain/write_mesh file:uri=solution-circle150r-tg-p1-21194-rk2.msh
-#call Model/Domain/write_mesh file:uri=solution-circle150r-tg-p1-9599-rk1.plt
+call Model/Domain/write_mesh file:uri=solution-circle150r-tg-p1-83244-rk3.msh
+#call Model/Domain/write_mesh file:uri=solution-circle150r-tg-p1-9599-rk2.plt

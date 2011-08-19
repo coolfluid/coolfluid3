@@ -15,7 +15,7 @@
 
 #include "Solver/CEigenLSS.hpp"
 
-#include "LSSProxy.hpp"
+#include "ComponentWrapper.hpp"
 #include "Terminals.hpp"
 
 /// @file
@@ -25,14 +25,14 @@ namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
-  
+
 /// Tag for system matrix
 struct SystemMatrixTag
 {
 };
 
 /// Represents a system matrix
-typedef LSSComponentTerm<SystemMatrixTag> SystemMatrix;
+typedef ComponentWrapper<CEigenLSS, SystemMatrixTag> SystemMatrix;
 
 /// Tag for RHS
 struct SystemRHSTag
@@ -40,12 +40,12 @@ struct SystemRHSTag
 };
 
 /// Represents an RHS
-typedef LSSComponentTerm<SystemRHSTag> SystemRHS;
+typedef ComponentWrapper<CEigenLSS, SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< LSSComponent<TagT> >
+  boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, TagT> >
 {
 };
 
@@ -54,7 +54,7 @@ template<typename SystemTagT>
 struct MatrixAssignOpsCases
 {
   template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
-  
+
   template<int Dummy> struct case_<boost::proto::tag::assign, Dummy> : boost::proto::assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
   template<int Dummy> struct case_<boost::proto::tag::plus_assign, Dummy> : boost::proto::plus_assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
   template<int Dummy> struct case_<boost::proto::tag::minus_assign, Dummy> : boost::proto::minus_assign<BlockLhsGrammar<SystemTagT> , boost::proto::_ > {};
@@ -132,7 +132,7 @@ struct BlockAccumulator :
 
     /// Tag type represents the actual operation type
     typedef typename boost::proto::tag_of<ExprT>::type OpT;
-    
+
     /// Tag indicating if we are modifying the RHS or the system matrix (stored in child 0 of the LHS of the assignment op)
     typedef typename boost::remove_reference
     <
@@ -148,9 +148,7 @@ struct BlockAccumulator :
               , typename impl::data_param data // data associated with element loop
     ) const
     {
-      LSSProxy& proxy = boost::proto::value( boost::proto::left(expr) ).lss_proxy();
-      Solver::CEigenLSS& lss = proxy.lss();
-      BlockAssignmentOp<SystemTagT, OpT>()(lss, state, data);
+      BlockAssignmentOp<SystemTagT, OpT>()(boost::proto::value( boost::proto::left(expr) ).component(), state, data);
     }
   };
 };

@@ -10,6 +10,7 @@
 #include "Solver/Actions/Proto/Expression.hpp"
 
 #include "HeatConductionSteady.hpp"
+#include "Tags.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -22,9 +23,9 @@ ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady
 
 HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolver(name)
 {
-  MeshTerm<0, ScalarField> temperature("Temperature", "T");
-  MeshTerm<1, ScalarField> heat("Heat", "q");
-  
+  MeshTerm<0, ScalarField> temperature("Temperature", Tags::solution());
+  MeshTerm<1, ScalarField> heat("Heat", Tags::source_terms());
+
   ConfigurableConstant<Real> k("k", "Thermal conductivity (J/(mK))", 1.);
 
   *this <<                                                                                          // The linear problem (= inner loop, but executed once here)

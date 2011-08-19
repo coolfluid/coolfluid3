@@ -22,6 +22,8 @@
 #include "Common/Component.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/CElements.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
@@ -231,8 +233,16 @@ private:
   mutable typename SF::CoordsT m_normal_vector;
 };
 
+/// Helper function to find a field starting from a region
+inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
+{
+  Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
+  Mesh::FieldGroup& field_group =  mesh.geometry();
+  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+}
+
 /// Data associated with field variables
-template<typename ShapeFunctionT, typename SupportSF, Uint Dim, Uint Offset, Uint MatrixSize, bool IsEquationVar>
+template<typename ShapeFunctionT, typename SupportSF, Uint Dim, bool IsEquationVar>
 class SFVariableData
 {
 public:
@@ -303,12 +313,6 @@ public:
   /// The dimension of the variable
   static const Uint dimension = Dim;
 
-  /// The offset of the variable in the element matrix
-  static const Uint offset = Offset;
-
-  /// Size of the element matrix
-  static const Uint matrix_size = MatrixSize;
-
   /// True if this variable is an unknow in the system of equations
   static const bool is_equation_variable = IsEquationVar;
 
@@ -316,33 +320,24 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) : m_field(0), m_connectivity(0), m_support(support)
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+    m_field(find_field(elements, placeholder.field_tag())),
+    m_connectivity(elements.node_connectivity()),
+    m_support(support)
   {
-    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-
-    Common::Component::Ptr field_comp = mesh.get_child_ptr(placeholder.field_name);
-
-    cf_assert(field_comp);
-
-    m_field = &field_comp->as_type<Mesh::Field>();
-
-    m_connectivity = &elements.node_connectivity();
-
-    var_begin = m_field->var_index(placeholder.variable_name);
+    offset = m_field.descriptor().offset(placeholder.name());
   }
 
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
-    if(!m_field)
-      return;
     m_element_idx = element_idx;
-    Mesh::fill(m_element_values, *m_field, (*m_connectivity)[element_idx], var_begin);
+    Mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
   }
 
   const Mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
-    return (*m_connectivity)[m_element_idx];
+    return m_connectivity[m_element_idx];
   }
 
   /// Reference to the geometric support
@@ -404,6 +399,9 @@ public:
     return m_gradient;
   }
 
+  /// Index of where the variable we need is in the field data row
+  Uint offset;
+
 private:
   /// Precompute for non-volume SF
   void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
@@ -423,19 +421,16 @@ private:
   /// Value of the field in each element node
   ValueT m_element_values;
 
-  /// Coordinates table
-  Mesh::Field const* m_field;
+  /// Data table
+  const Mesh::Field& m_field;
 
   /// Connectivity table
-  Mesh::CConnectivity const* m_connectivity;
+  const Mesh::CConnectivity& m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;
 
   Uint m_element_idx;
-
-  /// Index of where the variable we need is in the field data row
-  Uint var_begin;
 
   /// Cached data
   mutable typename SF::ShapeFunctionsT m_sf;
@@ -472,13 +467,12 @@ struct MakeVarData
     typedef typename boost::mpl::at<ShapeFunctionsT, I>::type SF;
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
-    typedef typename boost::mpl::eval_if< IsEquationVar, VarOffset<MatrixSizesT, EquationVariablesT, I>, boost::mpl::int_<0> >::type Offset;
 
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -492,13 +486,12 @@ struct MakeVarData<VariablesT, SF, SF, EquationVariablesT, MatrixSizesT, EMatrix
     typedef typename boost::mpl::at<VariablesT, I>::type VarT;
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
-    typedef typename boost::mpl::eval_if< IsEquationVar, VarOffset<MatrixSizesT, EquationVariablesT, I>, boost::mpl::int_<0> >::type Offset;
 
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, SF, FieldWidth<VarT, SF>::value, Offset::value, MatSize::value, IsEquationVar::value>*
+      SFVariableData<SF, SF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -815,7 +808,7 @@ private:
       static const Uint cols = DataT::ValueT::ColsAtCompileTime;
       for(Uint i = 0; i != cols; ++i)
       {
-        element_vector.template segment<rows>(DataT::offset + i*rows) = v.col(i);
+        element_vector.template segment<rows>( (data->offset + i)*rows ) = v.col(i);
       }
     }
 
