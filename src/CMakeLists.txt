@@ -19,8 +19,4 @@ add_subdirectory( UI )
 # tools harbours miscellaneous tools to support coolfluid development
 add_subdirectory( Tools )
 
-# lssinterface provide connection with linear system solvers
-add_subdirectory( LSSInterface )
-
-
 add_subdirectory(Python)
