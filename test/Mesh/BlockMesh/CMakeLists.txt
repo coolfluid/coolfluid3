@@ -20,3 +20,13 @@ list( APPEND utest-blockmesh-2d_files  utest-blockmesh-2d.cpp )
 coolfluid_add_unit_test( utest-blockmesh-2d )
 
 ################################################################################
+
+list( APPEND utest-blockmesh-2d-mpi_cflibs coolfluid_mesh coolfluid_mesh_block )
+list( APPEND utest-blockmesh-2d-mpi_files  utest-blockmesh-2d-mpi.cpp )
+
+set(utest-blockmesh-2d-mpi_mpi_test TRUE)
+set(utest-blockmesh-2d-mpi_mpi_nprocs 4)
+
+coolfluid_add_unit_test( utest-blockmesh-2d-mpi )
+
+################################################################################
