@@ -31,6 +31,8 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
 
+#include "rapidxml/rapidxml.hpp"
+
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace CF::Common;
@@ -165,7 +167,27 @@ namespace detail
 
     std::stringstream data_stream;
   };
-}
+
+  // Recursively transform nodes to their parallel counterparts
+  void make_pvtu(XmlNode& node)
+  {
+    std::string pname = std::string("P") + std::string(node.content->name(), node.content->name_size());
+    node.set_name(pname.c_str());
+    const std::vector<std::string> attribs_to_remove = boost::assign::list_of("format")("offset");
+    boost_foreach(const std::string& attr_name, attribs_to_remove)
+    {
+      rapidxml::xml_attribute<char>* attr  = node.content->first_attribute(attr_name.c_str());
+      if(attr)
+        node.content->remove_attribute(attr);
+    }
+    XmlNode child;
+    for (child.content = node.content->first_node(); child.is_valid() ; child.content = child.content->next_sibling() )
+    {
+      make_pvtu(child);
+    }
+  }
+
+} // namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -184,6 +206,7 @@ CWriter::CWriter( const std::string& name )
 std::vector<std::string> CWriter::get_extensions()
 {
   std::vector<std::string> extensions;
+  extensions.push_back(".vtu");
   extensions.push_back(".pvtu");
   return extensions;
 }
@@ -192,16 +215,21 @@ std::vector<std::string> CWriter::get_extensions()
 
 void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
-  XmlDoc vtkfile("1.0", "ISO-8859-1");
+  // Path for the file written by the current node
+  boost::filesystem::path my_path(file_path.path());
+  const std::string basename = boost::filesystem::basename(my_path);
+  my_path = basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu";
+
+  XmlDoc doc("1.0", "ISO-8859-1");
 
   // Root node
-  XmlNode root = vtkfile.add_node("VTKFile");
-  root.set_attribute("type", "UnstructuredGrid");
-  root.set_attribute("version", "0.1");
-  root.set_attribute("byte_order", "LittleEndian");
-  root.set_attribute("compressor", "vtkZLibDataCompressor");
+  XmlNode vtkfile = doc.add_node("VTKFile");
+  vtkfile.set_attribute("type", "UnstructuredGrid");
+  vtkfile.set_attribute("version", "0.1");
+  vtkfile.set_attribute("byte_order", "LittleEndian");
+  vtkfile.set_attribute("compressor", "vtkZLibDataCompressor");
 
-  XmlNode unstructured_grid = root.add_node("UnstructuredGrid");
+  XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
   const Field& coords = mesh.topology().geometry().coordinates();
   const Uint npoints = coords.size();
@@ -251,7 +279,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   appended_data.finish_array();
 
   XmlNode cells = piece.add_node("Cells");
-  
+
   // Write connectivity
   XmlNode connectivity = cells.add_node("DataArray");
   connectivity.set_attribute("type", "UInt32");
@@ -275,7 +303,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     }
   }
   appended_data.finish_array();
-  
+
   // Write the offsets
   XmlNode offsets = cells.add_node("DataArray");
   offsets.set_attribute("type", "UInt32");
@@ -318,8 +346,8 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     }
   }
   appended_data.finish_array();
-  
-  
+
+
   XmlNode cell_data = piece.add_node("CellData");
   XmlNode point_data = piece.add_node("PointData");
 
@@ -352,7 +380,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       data_array.set_attribute("Name", var_name);
       data_array.set_attribute("format", "appended");
       data_array.set_attribute("offset", to_str(appended_data.offset()));
-      
+
       appended_data.start_array(field_size*var_size, sizeof(Real));
       for(Uint i = 0; i != field_size; ++i)
         for(Uint j = 0; j != var_size; ++j)
@@ -362,23 +390,52 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   }
 
   // Write to file, inserting the binary data at the end
-  std::ofstream fout(file_path.path().c_str(), std::ios_base::out | std::ios_base::binary);
-  
+  boost::filesystem::fstream fout(my_path, std::ios_base::out | std::ios_base::binary);
+
   // Remove the closing tag
   std::string xml_string;
-  to_string(vtkfile, xml_string);
+  to_string(doc, xml_string);
   boost::algorithm::erase_last(xml_string, "</VTKFile>");
   boost::algorithm::trim_right(xml_string);
-  
+
   // Write XML meta data
   fout << xml_string;
-  
+
   // Append  compressed data
   fout << "\n<AppendedData encoding=\"raw\">\n";
   fout << appended_data.data_stream.rdbuf();
   fout << "\n</AppendedData>\n</VTKFile>\n";
-  
+
   fout.close();
+
+  // Write the parallel header, if needed
+  if(Comm::PE::instance().rank() == 0)
+  {
+    boost::filesystem::path pvtu_path = basename + ".pvtu";
+
+    XmlDoc pvtu_doc("1.0", "ISO-8859-1");
+
+    // Root node
+    XmlNode pvtkfile = pvtu_doc.add_node("VTKFile");
+    pvtkfile.set_attribute("type", "PUnstructuredGrid");
+    pvtkfile.set_attribute("version", "0.1");
+    pvtkfile.set_attribute("byte_order", "LittleEndian");
+
+    XmlNode punstruc = pvtkfile.add_node("UnstructuredGrid");
+    piece.deep_copy(punstruc);
+    punstruc.content->remove_all_attributes();
+    punstruc.set_name("UnstructuredGrid");
+    detail::make_pvtu(punstruc);
+    punstruc.set_attribute("GhostLevel", "0");
+    
+    for(Uint i = 0; i != Comm::PE::instance().size(); ++i)
+    {
+      const std::string piece_path = basename + "_P" + to_str(i) + ".vtu";
+      punstruc.add_node("Piece").set_attribute("Source", piece_path);
+    }
+
+    to_file(pvtu_doc, pvtu_path);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

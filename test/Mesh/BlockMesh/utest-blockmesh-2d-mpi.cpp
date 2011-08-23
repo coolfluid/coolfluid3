@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = Comm::PE::instance().size();
   const Uint rank = Comm::PE::instance().rank();
   
-  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
+  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
 
   const Real length = 1.;
   const Real half_height = 1.;
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   
   CMesh& mesh = domain.create_component<CMesh>("mesh");
   BlockMesh::build_mesh(parallel_blocks, mesh);
-  writer->write_from_to(mesh, URI("grid-2d-parblocks.vtk"));
+  writer->write_from_to(mesh, URI("utest-blockmesh-2d-mpi_output.pvtu"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
