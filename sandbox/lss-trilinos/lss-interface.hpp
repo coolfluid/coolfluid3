@@ -7,9 +7,6 @@
 #ifndef lss_interface_hpp
 #define lss_interface_hpp
 
-// Maybe vector and matrix should be a single class, could be way more performant? But then needs support for multi rhs+solution.
-// matrix should access by sparsity given to it, hiding internal renumbering
-
 // OBJECTIVE: restrictive and simple to use
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -18,7 +15,7 @@
 
 #include "Common/CommonAPI.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Common/MPI/PECommPattern.hpp"
+#include "Common/MPI/CommPattern.hpp"
 #include "blockaccumulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,19 +25,26 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSVector : boost::noncopyable {
+/// @TODO: properly implement component (type_name,ptr,constptr)
+class Common_API LSSVector : public Component {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSVector();
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSVector> Ptr;
 
-  /// Destructor.
-  virtual ~LSSVector() = 0;
- 
-  //@} END CREATION AND DESTRUCTION
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSVector const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSVector"; }
+
+  /// Default constructor
+  LSSVector(const std::string& name) : Component(name) { }
+
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
@@ -59,17 +63,26 @@ public:
   /// @name EFFICCIENT ACCESS
   //@{
 
-  /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values) = 0;
+  /// Set a list of values to rhs
+  virtual void set_rhs_values(const BlockAccumulator& values) = 0;
 
-  /// Add a list of values
-  virtual void add_values(const BlockAccumulator& values) = 0;
+  /// Add a list of values to rhs
+  virtual void add_rhs_values(const BlockAccumulator& values) = 0;
 
-  /// Add a list of values
-  virtual void get_values(const BlockAccumulator& values) = 0;
+  /// Get a list of values from rhs
+  virtual void get_rhs_values(BlockAccumulator& values) = 0;
+
+  /// Set a list of values to sol
+  virtual void set_sol_values(const BlockAccumulator& values) = 0;
+
+  /// Add a list of values to sol
+  virtual void add_sol_values(const BlockAccumulator& values) = 0;
+
+  /// Get a list of values from sol
+  virtual void get_sol_values(BlockAccumulator& values) = 0;
 
   /// Reset Vector
-  virtual void reset_to_zero() = 0;
+  virtual void reset(Real reset_to=0.) = 0;
 
   //@} END EFFICCIENT ACCESS
 
@@ -88,17 +101,24 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSMatrix : boost::noncopyable {
+/// @TODO: properly implement component (type_name,ptr,constptr)
+class Common_API LSSMatrix : public Component {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSMatrix(){};
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSMatrix> Ptr;
 
-  /// Destructor.
-  ~LSSMatrix(){};
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSMatrix const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSMatrix"; }
+
+  /// Default constructor
+  LSSMatrix(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -106,9 +126,9 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(PECommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
+  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
 
-  //@} END CREATION AND DESTRUCTION
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
@@ -139,7 +159,7 @@ public:
   virtual void get_values(BlockAccumulator& values) = 0;
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
-  virtual void set_row(const Uint row, Real diagval, Real offdiagval) = 0;
+  virtual void set_row(const Uint blockrow, const Uint blockeqn, Real diagval, Real offdiagval) = 0;
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
@@ -158,7 +178,7 @@ public:
   virtual void get_diagonal(LSSVector& diag) = 0;
 
   /// Reset Matrix
-  virtual void reset_to_zero() = 0;
+  virtual void reset(Real reset_to=0.) = 0;
 
   //@} END EFFICCIENT ACCESS
 

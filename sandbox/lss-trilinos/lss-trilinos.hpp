@@ -17,7 +17,7 @@
 
 #include "lss-interface.hpp"
 
-#include <Common/MPI/PECommPattern.hpp>
+#include <Common/MPI/CommPattern.hpp>
 #include <Common/MPI/debug.hpp>
 
 
@@ -31,16 +31,29 @@ namespace Common {
 class Common_API LSSTrilinosVector : public LSSVector {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSTrilinosVector();
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSTrilinosVector> Ptr;
+
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSTrilinosVector const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSTrilinosVector"; }
+
+  /// Default constructor
+  LSSTrilinosVector(const std::string& name) : LSSVector(name) { }
 
   /// Destructor.
-  virtual ~LSSTrilinosVector();
+  virtual ~LSSTrilinosVector()
+  {
+  /// @todo kill all teuchos::rcp members
+  };
 
-  //@} END CREATION AND DESTRUCTION
+
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
@@ -52,24 +65,33 @@ public:
   virtual void add_value(const Uint row, const Real value){};
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint row, const Real& value){};
+  virtual void get_value(const Uint row, Real& value){};
 
   //@} END INDIVIDUAL ACCESS
 
   /// @name EFFICCIENT ACCESS
   //@{
 
-  /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values){};
+  /// Set a list of values to rhs
+  virtual void set_rhs_values(const BlockAccumulator& values){};
 
-  /// Add a list of values
-  virtual void add_values(const BlockAccumulator& values){};
+  /// Add a list of values to rhs
+  virtual void add_rhs_values(const BlockAccumulator& values){};
 
-  /// Add a list of values
-  virtual void get_values(const BlockAccumulator& values){};
+  /// Get a list of values from rhs
+  virtual void get_rhs_values(BlockAccumulator& values){};
+
+  /// Set a list of values to sol
+  virtual void set_sol_values(const BlockAccumulator& values){};
+
+  /// Add a list of values to sol
+  virtual void add_sol_values(const BlockAccumulator& values){};
+
+  /// Get a list of values from sol
+  virtual void get_sol_values(BlockAccumulator& values){};
 
   /// Reset Vector
-  virtual void reset_to_zero(){};
+  virtual void reset(Real reset_to=0.){};
 
   //@} END EFFICCIENT ACCESS
 
@@ -91,17 +113,29 @@ public:
 class Common_API LSSTrilinosMatrix : public LSSMatrix {
 public:
 
-  /// @name CREATION AND DESTRUCTION
+  /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
-  /// Default constructor without arguments.
-  LSSTrilinosMatrix():
-    m_comm(mpi::PE::instance().communicator())
-  {
-  };
+  /// pointer to this type
+  typedef boost::shared_ptr<LSSTrilinosMatrix> Ptr;
+
+  /// const pointer to this type
+  typedef boost::shared_ptr<LSSTrilinosMatrix const> ConstPtr;
+
+  /// name of the type
+  static std::string type_name () { return "LSSTrilinosMatrix"; }
+
+  /// Default constructor
+  LSSTrilinosMatrix(const std::string& name) :
+    LSSMatrix(name),
+    m_comm(Comm::PE::instance().communicator())
+  { }
 
   /// Destructor.
-  ~LSSTrilinosMatrix(){};
+  ~LSSTrilinosMatrix()
+  {
+  /// @todo kill all teuchos::rcp members
+  };
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -109,19 +143,17 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(PECommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
+  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
   {
     // get gid
     /// @todo don't hardcode the name, rather write an accessor to it in pecommpattern
-    Uint *gid=(Uint*)cp.get_child_ptr("gid")->as_ptr<PEObjectWrapper>()->pack();
+    int *gid=(int*)cp.get_child_ptr("gid")->as_ptr<CommWrapper>()->pack();
 
-    // blockmap
+    // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
     int nmyglobalelements=0;
     int maxrowentries=0;
     std::vector<int> myglobalelements(0);
     std::vector<int> rowelements(0);
-
-int nrowelems=0;
 
     for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     {
@@ -130,31 +162,20 @@ int nrowelems=0;
         ++nmyglobalelements;
         myglobalelements.push_back((int)gid[i]);
         rowelements.push_back((int)(starting_indices[i+1]-starting_indices[i]));
-
-nrowelems+=starting_indices[i+1]-starting_indices[i];
-
         maxrowentries=maxrowentries<(starting_indices[i+1]-starting_indices[i])?(starting_indices[i+1]-starting_indices[i]):maxrowentries;
       }
     }
-    std::vector<int> elementsizelist(nmyglobalelements,3);
     std::vector<double>dummy_entries(maxrowentries*9,0.);
     std::vector<int>global_columns(maxrowentries);
 
-PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank() << " nrowelems: " << nrowelems << "\n" << std::flush;);
-
-    Epetra_BlockMap bm(-1,nmyglobalelements,&myglobalelements[0],&elementsizelist[0],0,m_comm);
+    Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],3,0,m_comm);
+    Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,3,0,m_comm);
     myglobalelements.resize(0);
     myglobalelements.reserve(0);
 
-//PEProcessSortedExecute(-1,bm.Print(std::cout););
-
     // matrix
-    m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,bm,&elementsizelist[0]));
-    bm.~Epetra_BlockMap();
-    elementsizelist.resize(0);
-    elementsizelist.reserve(0);
-
-int nsubmitted=0;
+    m_matrix=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,3));
+    rowmap.~Epetra_BlockMap();
 
     for(int i=0; i<(const int)nmyglobalelements; i++)
     {
@@ -163,32 +184,81 @@ int nsubmitted=0;
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
       {
         m_matrix->SubmitBlockEntry(&dummy_entries[0],0,3,3);
-        nsubmitted++;
       }
       m_matrix->EndSubmitEntries();
     }
     m_matrix->FillComplete();
-
-PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank() << " nsubmitted: " << nsubmitted << "\n" << std::flush;);
-
-//PEProcessSortedExecute(-1,m_matrix->Print(std::cout););
-
+    m_matrix->OptimizeStorage();
+    delete gid;
   }
 
-
-  //@} END CREATION AND DESTRUCTION
+  //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
 
   /// Set value at given location in the matrix
-  virtual void set_value(const Uint col, const Uint row, const Real value){};
+  /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
+  virtual void set_value(const Uint row, const Uint col, const Real value)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    int colblock=(int)(col/elemsize);
+    int colsub=(int)(col%elemsize);
+    int rowblock=(int)(row/elemsize);
+    int rowsub=(int)(row%elemsize);
+    Epetra_SerialDenseMatrix **val;
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        val[i][0](rowsub,colsub)=value;
+        break;
+      }
+  };
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint col, const Uint row, const Real value){};
+  /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
+  virtual void add_value(const Uint row, const Uint col, const Real value)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    int colblock=(int)(col/elemsize);
+    int colsub=(int)(col%elemsize);
+    int rowblock=(int)(row/elemsize);
+    int rowsub=(int)(row%elemsize);
+    Epetra_SerialDenseMatrix **val;
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        val[i][0](rowsub,colsub)+=value;
+        break;
+      }
+  };
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint col, const Uint row, Real& value){};
+  /// Individual access results in degraded performance by a factor of 10-100 times slower, only use it for debug purposes
+  virtual void get_value(const Uint row, const Uint col, Real& value)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    int colblock=(int)(col/elemsize);
+    int colsub=(int)(col%elemsize);
+    int rowblock=(int)(row/elemsize);
+    int rowsub=(int)(row%elemsize);
+    Epetra_SerialDenseMatrix **val;
+    int* colindices;
+    int blockrowsize;
+    m_matrix->ExtractMyBlockRowView(rowblock,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+      if (*colindices++==colblock)
+      {
+        value=val[i][0](rowsub,colsub);
+        break;
+      }
+  };
 
   //@} END INDIVIDUAL ACCESS
 
@@ -196,10 +266,47 @@ PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank(
   //@{
 
   /// Set a list of values
-  virtual void set_values(const BlockAccumulator& values){};
+  virtual void set_values(const BlockAccumulator& values)
+  {
+//    int idxs[]={0,1,2,10};
+//    const int elemsize=3;
+//    const int numblocks=4;
+//    CF::RealMatrix val(12,12); val <<
+//      11., 12., 13., 21., 22., 23., 31., 32., 33., 41., 42., 43.,
+//      14., 15., 16., 24., 25., 26., 34., 35., 36., 44., 45., 46.,
+//      17., 18., 19., 27., 28., 29., 37., 38., 39., 47., 48., 49.,
+//      51., 52., 53., 61., 62., 63., 71., 72., 73., 81., 82., 83.,
+//      54., 55., 56., 64., 65., 66., 74., 75., 76., 84., 85., 86.,
+//      57., 58., 59., 67., 68., 69., 77., 78., 79., 87., 88., 89.,
+//      91., 92., 93.,101.,102.,103.,111.,112.,113.,121.,122.,123.,
+//      94., 95., 96.,104.,105.,106.,114.,115.,116.,124.,125.,126.,
+//      97., 98., 99.,107.,108.,109.,117.,118.,119.,127.,128.,129.,
+//     131.,132.,133.,141.,142.,143.,151.,152.,153.,161.,162.,163.,
+//     134.,135.,136.,144.,145.,146.,154.,155.,156.,164.,165.,166.,
+//     137.,138.,139.,147.,148.,149.,157.,158.,159.,167.,168.,169.;
+
+    // issue1: its stupid to submit submit each block separately, cant submit a single blockrow at once!!!
+    // issue2: so it seems that on trilinos side there is another "blockaccumulator"
+    // issue3: investigate performance if matrix is View mode, the copy due to issue2 could be circumvented (then epetra only stores pointers to values)
+    // issue4: investigate prformance of extracting a blockrowview and fill manually, all blocks at once in the current blockrow
+    const int elemsize=m_matrix->Map().ElementSize();
+    const int numblocks=values.indices.size();
+    int* idxs=(int*)&values.indices[0];
+
+    for (int irow=0; irow<numblocks; irow++)
+    {
+      std::cout << "# " << std::flush;
+      std::cout << m_matrix->BeginReplaceMyValues(idxs[irow],numblocks,idxs);
+      for (int icol=0; icol<numblocks; icol++)
+        std::cout << m_matrix->SubmitBlockEntry((double*)values.mat.data()+irow*elemsize+icol*elemsize*elemsize*numblocks,numblocks*elemsize,elemsize,elemsize);
+      std::cout << m_matrix->EndSubmitEntries();
+      std::cout << "\n" << std::flush;
+    }
+
+  };
 
   /// Add a list of values
-  /// local ibdices
+  /// local indices
   /// eigen, templatization on top level
   virtual void add_values(const BlockAccumulator& values){};
 
@@ -207,7 +314,22 @@ PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank(
   virtual void get_values(BlockAccumulator& values){};
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
-  virtual void set_row(const Uint row, Real diagval, Real offdiagval){};
+  virtual void set_row(const Uint blockrow, const Uint blockeqn, Real diagval, Real offdiagval)
+  {
+    int elemsize=m_matrix->Map().ElementSize(); // assuming constant elemsize, verified by using proper blockmap constructor
+    Epetra_SerialDenseMatrix **val;
+    int* colindices;
+    int blockrowsize;
+    int diagonalblock=-1;
+    m_matrix->ExtractMyBlockRowView((int)blockrow,elemsize,blockrowsize,colindices,val);
+    for (int i=0; i<blockrowsize; i++)
+    {
+      if (colindices[i]==blockrow) diagonalblock=i;
+      for (int j=0; j<elemsize; j++)
+        val[i][0](blockeqn,j)=offdiagval;
+    }
+    val[diagonalblock][0](blockeqn,blockeqn)=diagval;
+  };
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
@@ -226,9 +348,9 @@ PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank(
   virtual void get_diagonal(LSSVector& diag){};
 
   /// Reset Matrix
-  virtual void reset_to_zero()
+  virtual void reset(Real reset_to=0.)
   {
-    m_matrix->PutScalar(0.);
+    m_matrix->PutScalar(reset_to);
   };
 
   //@} END EFFICCIENT ACCESS
@@ -266,7 +388,7 @@ PEProcessSortedExecute(-1,std::cout << "# " << Common::mpi::PE::instance().rank(
 
   //@} END MISCELLANEOUS
 
-public: // for testing purposes and direct access of trilinos own debug
+public: /// @todo for testing purposes and direct access of trilinos own debug, switch to private when done
 //private:
 
   /// mpi universe of epetra
