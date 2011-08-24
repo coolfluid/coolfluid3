@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/Exception.hpp"
+#include "Common/Log.hpp"
+#include "Common/Timer.hpp"
 
 #include "Common/MPI/CommPattern.hpp"
 #include "Common/MPI/PE.hpp"
@@ -756,6 +758,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
 
 void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 {
+  Common::Timer timer;
   const Uint nb_procs = Comm::PE::instance().size();
   const Uint rank = Comm::PE::instance().rank();
   cf_assert(block_data.block_distribution.size() == nb_procs+1);
@@ -997,6 +1000,9 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 
   if(nb_procs > 1)
   {
+    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << CFendl;
+    timer.restart();
+    
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
@@ -1023,7 +1029,11 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
     
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
+    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << CFendl;
+    timer.restart();
+    
     mesh.geometry().coordinates().synchronize();
+    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << CFendl;
   }
 }
 

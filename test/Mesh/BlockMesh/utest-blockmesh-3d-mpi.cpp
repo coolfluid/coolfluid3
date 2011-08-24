@@ -23,6 +23,7 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -33,6 +34,7 @@ using namespace boost::assign;
 //////////////////////////////////////////////////////////////////////////////
 
 struct BockMesh3DFixture :
+  public Tools::Testing::ProfiledTestFixture,
   public Tools::Testing::TimedTestFixture
 {
   BockMesh3DFixture()
@@ -120,6 +122,12 @@ BOOST_FIXTURE_TEST_SUITE( BlockMesh3D, BockMesh3DFixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( Setup )
+{
+  // Make sure MPI is up before running the first test
+  BOOST_CHECK(Comm::PE::instance().is_active());
+}
+
 BOOST_AUTO_TEST_CASE( GenerateMesh )
 {
   const Uint nb_procs = Comm::PE::instance().size();
@@ -130,16 +138,41 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
   const Real width = 6.;
   const Real ratio = 0.1;
 
-  BlockMesh::BlockData serial_blocks, parallel_blocks;
+  BlockMesh::BlockData serial_blocks;
   
   // Create blocks for a 3D channel
   Tools::MeshGeneration::create_channel_3d(serial_blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
 
-  // partition blocks
-  BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_procs, XX, parallel_blocks);
-  
-  // Gnerate the actual mesh
-  BlockMesh::build_mesh(parallel_blocks, mesh());
+  // Try partitioning in multiple directions for certain numbers of CPUS
+  // - create_channel_3d always has 2 blocks in Y direction, which we keep as 2 partitons
+  // - In X and Z direction we distribute the rest so that there are twice as many partitions in X as in Z
+  if(nb_procs == 16)
+  {
+    BlockMesh::BlockData parallel_blocks_x, parallel_blocks_z;
+    
+    const Uint nb_x_partitions = 4;
+    const Uint nb_z_partitions = 2;
+    
+    BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_x_partitions, XX, parallel_blocks_x);
+    BlockMesh::partition_blocks(parallel_blocks_x, domain().create_component<CMesh>("block_mesh_z"), nb_z_partitions, ZZ, parallel_blocks_z);
+    
+    BOOST_CHECK_EQUAL(parallel_blocks_z.block_points.size(), nb_procs);
+    BOOST_CHECK_EQUAL(parallel_blocks_z.block_distribution.back(), nb_procs);
+    for(Uint i = 0; i != nb_procs; ++i)
+      parallel_blocks_z.block_distribution[i] = i;
+    
+    // Gnerate the actual mesh
+    BlockMesh::build_mesh(parallel_blocks_z, mesh());
+  }
+  else
+  {
+    BlockMesh::BlockData parallel_blocks;
+    // partition blocks
+    BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_procs, XX, parallel_blocks);
+    
+    // Gnerate the actual mesh
+    BlockMesh::build_mesh(parallel_blocks, mesh());
+  }
 }
 
 BOOST_AUTO_TEST_CASE( WriteMesh )

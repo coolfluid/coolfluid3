@@ -10,8 +10,8 @@ list( APPEND coolfluid_meshdiff_libs ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
 list( APPEND coolfluid_meshdiff_cflibs coolfluid_mesh)
 
-if( CF_ENABLE_PROFILING AND coolfluid_googleperftools_builds )
-  list( APPEND coolfluid_meshdiff_cflibs coolfluid_googleperftools )
+if( CF_ENABLE_PROFILING AND coolfluid_tools_googleperftools_builds )
+  list( APPEND coolfluid_meshdiff_cflibs coolfluid_tools_googleperftools )
 endif()
 
 coolfluid_add_library( coolfluid_meshdiff )

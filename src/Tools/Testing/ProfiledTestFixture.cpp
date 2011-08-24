@@ -35,9 +35,9 @@ using namespace Common;
 
 ProfiledTestFixture::ProfiledTestFixture()
 {
-  if(!Core::instance().profiler())
+  if(!Core::instance().root().get_child_ptr("Profiler"))
   {
-    const std::string prof_name ( "CF.Tools.GooglePerf.GooglePerfProfiling" );
+    const std::string prof_name ( "CF.Tools.GooglePerfTools.GooglePerfProfiling" );
     Core::instance().set_profiler( prof_name );
   }
 

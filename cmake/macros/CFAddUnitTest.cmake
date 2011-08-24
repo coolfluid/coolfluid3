@@ -99,13 +99,13 @@ macro( coolfluid_prepare_test UTESTNAME )
     endif(DEFINED ${UTESTNAME}_libs)
 
     # profiling gloabally selected
-    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND coolfluid_googleperftools_builds )
-      list( APPEND ${UTESTNAME}_cflibs coolfluid_googleperftools )
+    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND coolfluid_tools_googleperftools_builds )
+      list( APPEND ${UTESTNAME}_cflibs coolfluid_tools_googleperftools )
     endif()
 
     # profiling selected for specific target
-    if( ${UTESTNAME}_profile AND coolfluid_googleperftools_builds )
-      list( APPEND ${UTESTNAME}_cflibs coolfluid_googleperftools )
+    if( ${UTESTNAME}_profile AND coolfluid_tools_googleperftools_builds )
+      list( APPEND ${UTESTNAME}_cflibs coolfluid_tools_googleperftools )
     endif()
 
     # internal dependencies

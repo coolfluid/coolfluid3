@@ -17,7 +17,7 @@ coolfluid_add_unit_test( utest-blockmesh-2d-mpi )
 
 ################################################################################
 
-list( APPEND utest-blockmesh-3d-mpi_cflibs coolfluid_mesh coolfluid_mesh_block coolfluid_mesh_generation )
+list( APPEND utest-blockmesh-3d-mpi_cflibs coolfluid_mesh coolfluid_mesh_block coolfluid_mesh_generation coolfluid_testing )
 list( APPEND utest-blockmesh-3d-mpi_files  utest-blockmesh-3d-mpi.cpp )
 # arguments are number of segments in X, Y, Z directions
 list( APPEND utest-blockmesh-3d-mpi_args 12 10 10 )

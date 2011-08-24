@@ -114,13 +114,13 @@ macro( coolfluid_add_application APPNAME )
     endif()
 
     # profiling gloabally selected
-    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND coolfluid_googleperftools_builds )
-      list( APPEND ${APPNAME}_cflibs coolfluid_googleperftools )
+    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND coolfluid_tools_googleperftools_builds )
+      list( APPEND ${APPNAME}_cflibs coolfluid_tools_googleperftools )
     endif()
 
     # profiling selected for specific target
-    if( ${APPNAME}_profile AND coolfluid_googleperftools_builds )
-      list( APPEND ${APPNAME}_cflibs coolfluid_googleperftools )
+    if( ${APPNAME}_profile AND coolfluid_tools_googleperftools_builds )
+      list( APPEND ${APPNAME}_cflibs coolfluid_tools_googleperftools )
     endif()
 
     # internal dependencies
