@@ -204,10 +204,11 @@ void CommPattern::setup()
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
   // look up the nodes to on send side (brute force searching for now)
+  const int gid_count = m_gid->size();
   BOOST_FOREACH(int& si, m_sendMap)
   {
     bool found = false;
-    for (int i=0; i<m_gid->size(); i++)
+    for (int i=0; i<gid_count; i++)
     {
       if (gid[i]==si)
       {

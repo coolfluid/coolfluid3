@@ -1000,7 +1000,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 
   if(nb_procs > 1)
   {
-    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << CFendl;
+    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
     
     // Commpattern arrays
@@ -1013,6 +1013,8 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       gids[i] = i + nodes_begin;
       ranks[i] = rank;
     }
+    
+    std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
 
     // Ghosts
     for(detail::NodeIndices3D::IndexMapT::const_iterator ghost_it = nodes.global_to_local.begin(); ghost_it != nodes.global_to_local.end(); ++ghost_it)
@@ -1026,14 +1028,17 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
+    timer.restart();
     comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
     
+    timer.restart();
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
-    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << CFendl;
+    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
     
-    mesh.geometry().coordinates().synchronize();
-    CFinfo << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << CFendl;
+    //mesh.geometry().coordinates().synchronize();
+    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }
 

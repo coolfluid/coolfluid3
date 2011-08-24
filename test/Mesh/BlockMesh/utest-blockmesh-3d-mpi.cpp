@@ -168,15 +168,16 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
     // partition blocks
     BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_procs, XX, parallel_blocks);
     
-    // Gnerate the actual mesh
+    // Generate the actual mesh
     BlockMesh::build_mesh(parallel_blocks, mesh());
+    std::cout << "done for " << rank << std::endl;
   }
 }
 
-BOOST_AUTO_TEST_CASE( WriteMesh )
-{
-  writer().write_from_to(mesh(), "utest-blockmesh-3d-mpi_output.pvtu");
-}
+// BOOST_AUTO_TEST_CASE( WriteMesh )
+// {
+//   writer().write_from_to(mesh(), "utest-blockmesh-3d-mpi_output.pvtu");
+// }
 
 ////////////////////////////////////////////////////////////////////////////////
 
