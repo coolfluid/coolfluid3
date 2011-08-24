@@ -174,10 +174,10 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
   }
 }
 
-// BOOST_AUTO_TEST_CASE( WriteMesh )
-// {
-//   writer().write_from_to(mesh(), "utest-blockmesh-3d-mpi_output.pvtu");
-// }
+BOOST_AUTO_TEST_CASE( WriteMesh )
+{
+  writer().write_from_to(mesh(), "utest-blockmesh-3d-mpi_output.pvtu");
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
