@@ -23,7 +23,6 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
-#include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -34,7 +33,6 @@ using namespace boost::assign;
 //////////////////////////////////////////////////////////////////////////////
 
 struct BockMesh3DFixture :
-  public Tools::Testing::ProfiledTestFixture,
   public Tools::Testing::TimedTestFixture
 {
   BockMesh3DFixture()
