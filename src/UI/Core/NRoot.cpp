@@ -75,8 +75,8 @@ NRoot::NRoot(const std::string & name)
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connectedToServer()));
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer()),
-          this, SLOT(disconnected()));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer(bool)),
+          this, SLOT(disconnected(bool)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ void NRoot::connectedToServer()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::disconnected()
+void NRoot::disconnected( bool requested)
 {
   m_contentListed = false;
   m_actionSigs.clear();

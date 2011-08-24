@@ -218,7 +218,7 @@ void NetworkThread::disconnected()
   if(isRunning())
     exit( m_requestDisc ? 0 : 1 );
 
-  emit disconnectedFromServer();
+  emit disconnectedFromServer(m_requestDisc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
