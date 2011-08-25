@@ -11,10 +11,18 @@
 
 #include <boost/utility.hpp>
 
-#include "Common/CommonAPI.hpp"
+#include "Math/LibMath.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/CommPattern.hpp"
-#include "blockaccumulator.hpp"
+#include "Math/LSS/BlockAccumulator.hpp"
+#include "Math/LSS/Vector.hpp"
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+  @file Matrix.hpp implementation of LSS::Matrix
+  @author Tamas Banyai
+**/
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -24,23 +32,23 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LSSMatrix : public Component {
+class Math_API Matrix : public Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
   /// pointer to this type
-  typedef boost::shared_ptr<LSSMatrix> Ptr;
+  typedef boost::shared_ptr<Matrix> Ptr;
 
   /// const pointer to this type
-  typedef boost::shared_ptr<LSSMatrix const> ConstPtr;
+  typedef boost::shared_ptr<Matrix const> ConstPtr;
 
   /// name of the type
-  static std::string type_name () { return "LSSMatrix"; }
+  static std::string type_name () { return "Matrix"; }
 
   /// Default constructor
-  LSSMatrix(const std::string& name) : Component(name) { }
+  Matrix(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
   /// should only work with local numbering (parallel computations, plus rcm could be a totally internal matter of the matrix)
@@ -48,7 +56,7 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices) = 0;
+  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
@@ -65,6 +73,15 @@ public:
   virtual void get_value(const Uint col, const Uint row, Real& value) = 0;
 
   //@} END INDIVIDUAL ACCESS
+
+  /// @name SOLVE THE SYSTEM
+  //@{
+
+  /// The holy solve, for solving the m_mat*m_sol=m_rhs problem.
+  /// We bow on our knees before your greatness.
+  virtual void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+
+  //@} END SOLVE THE SYSTEM
 
   /// @name EFFICCIENT ACCESS
   //@{
@@ -115,15 +132,7 @@ public:
 
   //@} END MISCELLANEOUS
 
-private:
-
-  /// Copy constructor
-  LSSMatrix(const LSSMatrix& other);
-
-  /// Overloading of the assignment operator
-  const LSSMatrix& operator= (const LSSMatrix& other);
-
-}; // end of class LSSMatrix
+}; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

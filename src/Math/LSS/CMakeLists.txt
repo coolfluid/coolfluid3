@@ -1,8 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_lssinterface_files
-  Interface.hpp
   System.hpp
+  System.cpp
   Matrix.hpp
   Vector.hpp
   BlockAccumulator.hpp

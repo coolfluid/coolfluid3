@@ -7,16 +7,21 @@
 #ifndef CF_Math_LSS_Vector_hpp
 #define CF_Math_LSS_Vector_hpp
 
-// OBJECTIVE: restrictive and simple to use
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/utility.hpp>
 
-#include "Common/CommonAPI.hpp"
+#include "Math/LibMath.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/MPI/CommPattern.hpp"
-#include "blockaccumulator.hpp"
+#include "Math/LSS/BlockAccumulator.hpp"
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+  @file Vector.hpp implementation of LSS::Vector
+  @author Tamas Banyai
+**/
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,24 +31,23 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// @TODO: properly implement component (type_name,ptr,constptr)
-class Common_API LSSVector : public Component {
+class Math_API Vector : public Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
   /// pointer to this type
-  typedef boost::shared_ptr<LSSVector> Ptr;
+  typedef boost::shared_ptr<Vector> Ptr;
 
   /// const pointer to this type
-  typedef boost::shared_ptr<LSSVector const> ConstPtr;
+  typedef boost::shared_ptr<Vector const> ConstPtr;
 
   /// name of the type
-  static std::string type_name () { return "LSSVector"; }
+  static std::string type_name () { return "Vector"; }
 
   /// Default constructor
-  LSSVector(const std::string& name) : Component(name) { }
+  Vector(const std::string& name) : Component(name) { }
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 

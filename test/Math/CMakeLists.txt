@@ -50,6 +50,25 @@ list( APPEND utest-math-variablemanager_files  utest-math-variablemanager.cpp )
 
 coolfluid_add_unit_test( utest-math-variablemanager )
 
+################################################################################
+
+list( APPEND utest-lss-atomic_cflibs coolfluid_math )
+list( APPEND utest-lss-atomic_files  utest-lss-atomic.cpp)
+
+coolfluid_add_unit_test( utest-lss-atomic )
+
+################################################################################
+
+list( APPEND utest-lss-distributed-matrix_cflibs coolfluid_math )
+list( APPEND utest-lss-distributed-matrix_files
+  utest-lss-distributed-matrix.cpp
+  utest-lss-test-matrix.hpp
+)
+
+set(utest-parallel-environment_mpi_test TRUE)
+set(utest-parallel-environment_mpi_nprocs 4)
+coolfluid_add_unit_test( utest-lss-distributed-matrix )
+
 #if( CMAKE_COMPILER_IS_GNUCC )
 #    set_source_files_properties( utest-eigen-vs-matrixt.cpp
 #      PROPERTIES COMPILE_FLAGS "-O2 -msse2 -msse3 -mssse3 -march=core2" )
