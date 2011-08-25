@@ -16,6 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
@@ -198,7 +199,9 @@ Common::ComponentBuilder < VTKXML::CWriter, CMeshWriter, LibVTKXML> aVTKXMLWrite
 CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
-
+    m_options.add_option< OptionT<bool> >("distributed_files", false)
+    ->pretty_name("Distributed Files")
+    ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -217,8 +220,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
   boost::filesystem::path my_path(file_path.path());
+  const boost::filesystem::path my_dir = my_path.parent_path();
   const std::string basename = boost::filesystem::basename(my_path);
-  my_path = basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu";
+  my_path = my_dir / (basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
 
@@ -409,9 +413,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(Comm::PE::instance().rank() == 0)
+  if(Comm::PE::instance().rank() == 0 || option("distributed_files").value<bool>())
   {
-    boost::filesystem::path pvtu_path = basename + ".pvtu";
+    boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
 
     XmlDoc pvtu_doc("1.0", "ISO-8859-1");
 

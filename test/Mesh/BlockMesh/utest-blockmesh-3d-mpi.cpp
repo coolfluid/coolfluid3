@@ -45,11 +45,11 @@ struct BockMesh3DFixture :
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-    cf_assert(argc == 4);
+    cf_assert(argc >= 4);
     x_segs = boost::lexical_cast<Uint>(argv[1]);
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);
-
+    
     if(!Comm::PE::instance().is_active())
       Comm::PE::instance().init(argc, argv);
 
@@ -89,6 +89,13 @@ struct BockMesh3DFixture :
     {
       m_mesh = domain().get_child("mesh").as_ptr<CMesh>();
     }
+    
+    if(argc == 5)
+    {
+      writer().configure_option("distributed_files", true);
+      base_dir = std::string(argv[4]) + "/";
+    }
+    
   }
 
   CDomain& domain()
@@ -117,6 +124,8 @@ struct BockMesh3DFixture :
   boost::weak_ptr<CMesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
   boost::weak_ptr<CMesh> m_mesh; // Actual generated mesh
   boost::weak_ptr<CMeshWriter> m_writer;
+  
+  std::string base_dir;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -228,7 +237,7 @@ BOOST_AUTO_TEST_CASE( RankField )
 
 BOOST_AUTO_TEST_CASE( WriteMesh )
 {
-  writer().write_from_to(mesh(), "utest-blockmesh-3d-mpi_output.pvtu");
+  writer().write_from_to(mesh(), base_dir + "utest-blockmesh-3d-mpi_output.pvtu");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
