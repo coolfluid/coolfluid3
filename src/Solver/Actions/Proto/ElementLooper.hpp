@@ -73,7 +73,7 @@ struct ExpressionRunner
   {
     
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
-    if(!Mesh::IsElementType<SF>()(var.element_type(elements)))
+    if(!Mesh::IsElementType<SF>()(elements.element_type()))
       return;
     
     typedef typename boost::mpl::push_back
@@ -171,9 +171,17 @@ struct ElementLooper
   }
   
   
+  /// This looks up the support shape function
   template < typename SF >
   void operator() (const SF& sf) const
   {
+    
+    BOOST_MPL_ASSERT_MSG(
+          SF::order > 0
+        , ZERO_ORDER_SUPPORT_NOT_ALLOWED
+        , (SF)
+        );
+    
     if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
       return;
     
@@ -198,7 +206,7 @@ struct ElementLooper
   template<typename T, typename SF>
   void dispatch(const T&, const SF& sf) const
   {
-    print_error<SF>(); // remove this if you really need multiple-sf support
+    //print_error<SF>(); // remove this if you really need multiple-sf support
     // Number of variables (integral constant)
     typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
     
@@ -234,7 +242,8 @@ void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
   // Traverse all CElements under the root and evaluate the expression
   BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(root_region))
   {
-    boost::mpl::for_each<ShapeFunctionsT>( ElementLooper<ShapeFunctionsT, ExprT>(elements, expr, vars) );
+    // We skip order 0 functions in the top-call, because first the support shape function is determined, and order 0 is not allowed there
+    boost::mpl::for_each< boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsMinimalOrder<1> > >( ElementLooper<ShapeFunctionsT, ExprT>(elements, expr, vars) );
   }
 };
 

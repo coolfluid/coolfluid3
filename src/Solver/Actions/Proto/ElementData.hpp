@@ -241,6 +241,11 @@ inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag
   return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
 }
 
+/// Dummy shape function type used for element-based fields
+struct ElementBased
+{
+};
+
 /// Data associated with field variables
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, bool IsEquationVar>
 class SFVariableData
@@ -325,6 +330,7 @@ public:
     m_connectivity(elements.node_connectivity()),
     m_support(support)
   {
+    std::cout << "Created element data of type " << elements.element_type().shape_function().name() << std::endl;
     offset = m_field.descriptor().offset(placeholder.name());
   }
 
@@ -440,6 +446,39 @@ private:
   InterpolationImpl<Dim> m_eval;
 };
 
+/// Data for element-based fields
+template<typename SupportSF, Uint Dim, bool IsEquationVar>
+class SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>
+{
+public:
+  /// Type of stored value
+  typedef Real ValueResultT;
+  
+  /// Data type for the geometric support
+  typedef GeometricSupport<SupportSF> SupportT;
+  
+  /// The dimension of the variable
+  static const Uint dimension = Dim;
+
+  /// True if this variable is an unknow in the system of equations
+  static const bool is_equation_variable = IsEquationVar;
+  
+  template<typename VariableT>
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support)
+  {
+  }
+  
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+  }
+  
+  Real value() const
+  {
+    return 0;
+  }
+};
+
 /// Predicate to check if data belongs to an equation variable
 struct IsEquationData
 {
@@ -467,12 +506,14 @@ struct MakeVarData
     typedef typename boost::mpl::at<ShapeFunctionsT, I>::type SF;
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
+    
+    typedef typename boost::mpl::if_c<SF::order == 0, ElementBased, SF>::type ESF;
 
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
+      SFVariableData<ESF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
     >::type type;
   };
 };
