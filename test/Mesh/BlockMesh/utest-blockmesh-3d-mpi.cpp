@@ -18,8 +18,13 @@
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldGroup.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -39,15 +44,15 @@ struct BockMesh3DFixture :
   {
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char** argv = boost::unit_test::framework::master_test_suite().argv;
-    
+
     cf_assert(argc == 4);
     x_segs = boost::lexical_cast<Uint>(argv[1]);
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);
-    
+
     if(!Comm::PE::instance().is_active())
       Comm::PE::instance().init(argc, argv);
-    
+
     CRoot& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
     {
@@ -57,7 +62,7 @@ struct BockMesh3DFixture :
     {
       m_domain = root.get_child("domain").as_ptr<CDomain>();
     }
-    
+
     if(!domain().get_child_ptr("writer"))
     {
       m_writer = domain().add_component(build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_ptr<CMeshWriter>();
@@ -66,7 +71,7 @@ struct BockMesh3DFixture :
     {
       m_writer = domain().get_child("writer").as_ptr<CMeshWriter>();
     }
-    
+
     if(!domain().get_child_ptr("block_mesh"))
     {
       m_block_mesh = domain().create_component_ptr<CMesh>("block_mesh");
@@ -75,7 +80,7 @@ struct BockMesh3DFixture :
     {
       m_block_mesh = domain().get_child("block_mesh").as_ptr<CMesh>();
     }
-    
+
     if(!domain().get_child_ptr("mesh"))
     {
       m_mesh = domain().create_component_ptr<CMesh>("mesh");
@@ -85,29 +90,29 @@ struct BockMesh3DFixture :
       m_mesh = domain().get_child("mesh").as_ptr<CMesh>();
     }
   }
-  
+
   CDomain& domain()
   {
     return *m_domain.lock();
   }
-  
+
   CMeshWriter& writer()
   {
     return *m_writer.lock();
   }
-  
+
   CMesh& block_mesh()
   {
     return *m_block_mesh.lock();
   }
-  
+
   CMesh& mesh()
   {
     return *m_mesh.lock();
   }
-  
+
   Uint x_segs, y_segs, z_segs;
-  
+
   boost::weak_ptr<CDomain> m_domain;
   boost::weak_ptr<CMesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
   boost::weak_ptr<CMesh> m_mesh; // Actual generated mesh
@@ -130,35 +135,55 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 {
   const Uint nb_procs = Comm::PE::instance().size();
   const Uint rank = Comm::PE::instance().rank();
-  
+
   const Real length = 12.;
   const Real half_height = 0.5;
   const Real width = 6.;
   const Real ratio = 0.1;
 
   BlockMesh::BlockData serial_blocks;
-  
+
   // Create blocks for a 3D channel
   Tools::MeshGeneration::create_channel_3d(serial_blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
 
   // Try partitioning in multiple directions for certain numbers of CPUS
-  // - create_channel_3d always has 2 blocks in Y direction, which we keep as 2 partitons
-  // - In X and Z direction we distribute the rest so that there are twice as many partitions in X as in Z
+  Uint nb_x_partitions = 0;
+  Uint nb_z_partitions = 0;
+
   if(nb_procs == 16)
   {
+    nb_x_partitions = 4;
+    nb_z_partitions = 2;
+  }
+  else if(nb_procs == 32)
+  {
+    nb_x_partitions = 8;
+    nb_z_partitions = 2;
+  }
+  else if(nb_procs == 64)
+  {
+    nb_x_partitions = 8;
+    nb_z_partitions = 4;
+  }
+  else if(nb_procs == 128)
+  {
+    nb_x_partitions = 16;
+    nb_z_partitions = 4;
+  }
+
+  if(nb_z_partitions != 0)
+  {
     BlockMesh::BlockData parallel_blocks_x, parallel_blocks_z;
-    
-    const Uint nb_x_partitions = 4;
-    const Uint nb_z_partitions = 2;
-    
+
     BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_x_partitions, XX, parallel_blocks_x);
     BlockMesh::partition_blocks(parallel_blocks_x, domain().create_component<CMesh>("block_mesh_z"), nb_z_partitions, ZZ, parallel_blocks_z);
-    
+
     BOOST_CHECK_EQUAL(parallel_blocks_z.block_points.size(), nb_procs);
-    BOOST_CHECK_EQUAL(parallel_blocks_z.block_distribution.back(), nb_procs);
+    parallel_blocks_z.block_distribution.resize(nb_procs+1);
     for(Uint i = 0; i != nb_procs; ++i)
       parallel_blocks_z.block_distribution[i] = i;
-    
+    parallel_blocks_z.block_distribution[nb_procs] = nb_procs;
+
     // Gnerate the actual mesh
     BlockMesh::build_mesh(parallel_blocks_z, mesh());
   }
@@ -167,11 +192,38 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
     BlockMesh::BlockData parallel_blocks;
     // partition blocks
     BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_procs, XX, parallel_blocks);
-    
+
     // Generate the actual mesh
     BlockMesh::build_mesh(parallel_blocks, mesh());
     std::cout << "done for " << rank << std::endl;
   }
+}
+
+BOOST_AUTO_TEST_CASE( RankField )
+{
+  // Store element ranks
+  boost_foreach(CEntities& elements, mesh().topology().elements_range())
+  {
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  }
+  FieldGroup& elems_P0 = mesh().create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& elem_rank = elems_P0.create_field("elem_rank");
+
+  boost_foreach(CElements& elements , elems_P0.elements_range())
+  {
+    CSpace& space = elems_P0.space(elements);
+    for (Uint elem=0; elem<elements.size(); ++elem)
+    {
+      Uint field_idx = space.indexes_for_element(elem)[0];
+      elem_rank[field_idx][0] = elements.rank()[elem];
+    }
+  }
+
+  // setup fields to write
+  std::vector<Field::Ptr> fields;
+  fields.push_back(mesh().geometry().coordinates().as_ptr<Field>());
+  fields.push_back(elem_rank.as_ptr<Field>());
+  writer().set_fields(fields);
 }
 
 BOOST_AUTO_TEST_CASE( WriteMesh )

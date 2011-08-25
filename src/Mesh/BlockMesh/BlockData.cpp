@@ -1002,7 +1002,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   {
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
-    
+
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
@@ -1013,7 +1013,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       gids[i] = i + nodes_begin;
       ranks[i] = rank;
     }
-    
+
     std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
 
     // Ghosts
@@ -1024,19 +1024,19 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
-    
+
     Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
     timer.restart();
     comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
-    
+
     timer.restart();
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
-    
+
     //mesh.geometry().coordinates().synchronize();
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
@@ -1235,7 +1235,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       }
     }
   }
-  
+
   if(nb_procs > 1)
   {
     // Commpattern arrays
@@ -1257,12 +1257,12 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
-    
+
     Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
     comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
-    
+
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
     mesh.geometry().coordinates().synchronize();
   }
@@ -1278,6 +1278,19 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     detail::build_mesh_2d(block_data, mesh);
   else
     throw BadValue(FromHere(), "Only 2D and 3D meshes are supported by the blockmesher. Requested dimension was " + to_str(block_data.dimension));
+
+  const Uint rank = Comm::PE::instance().rank();
+
+  // Update the element ranks
+  boost_foreach(CElements& elements , find_components_recursively<CElements>(mesh))
+  {
+    const Uint nb_elems = elements.size();
+    elements.rank().resize(nb_elems);
+    for (Uint elem=0; elem != nb_elems; ++elem)
+    {
+      elements.rank()[elem] = rank;
+    }
+  }
 }
 
 
@@ -1601,7 +1614,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   const Uint XPOS = 1;
   const Uint YNEG = 0;
   const Uint YPOS = 2;
-  
+
   // Direction to search from
   const Uint start_direction = direction == XX ? XNEG : YNEG;
   const Uint end_direction = direction == XX ? XPOS : YPOS;
