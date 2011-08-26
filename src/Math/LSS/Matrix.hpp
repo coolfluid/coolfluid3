@@ -56,7 +56,10 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create_sparsity(Comm::CommPattern& cp, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+  virtual void create(Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+
+  /// Deallocate underlying data
+  virtual void destroy() = 0;
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
@@ -64,13 +67,13 @@ public:
   //@{
 
   /// Set value at given location in the matrix
-  virtual void set_value(const Uint col, const Uint row, const Real value) = 0;
+  virtual void set_value(const Uint icol, const Uint irow, const Real value) = 0;
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint col, const Uint row, const Real value) = 0;
+  virtual void add_value(const Uint icol, const Uint irow, const Real value) = 0;
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint col, const Uint row, Real& value) = 0;
+  virtual void get_value(const Uint icol, const Uint irow, Real& value) = 0;
 
   //@} END INDIVIDUAL ACCESS
 
@@ -98,23 +101,23 @@ public:
   virtual void get_values(BlockAccumulator& values) = 0;
 
   /// Set a row, diagonal and off-diagonals values separately (dirichlet-type boundaries)
-  virtual void set_row(const Uint blockrow, const Uint blockeqn, Real diagval, Real offdiagval) = 0;
+  virtual void set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval) = 0;
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
   /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
-  virtual void get_column_and_replace_to_zero(const Uint col, LSSVector& values) = 0;
+  virtual void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values) = 0;
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)
-  virtual void tie_row_pairs (const Uint colto, const Uint colfrom) = 0;
+  virtual void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from) = 0;
 
   /// Set the diagonal
-  virtual void set_diagonal(const LSSVector& diag) = 0;
+  virtual void set_diagonal(const std::vector<Real>& diag) = 0;
 
   /// Add to the diagonal
-  virtual void add_diagonal(const LSSVector& diag) = 0;
+  virtual void add_diagonal(const std::vector<Real>& diag) = 0;
 
   /// Get the diagonal
-  virtual void get_diagonal(LSSVector& diag) = 0;
+  virtual void get_diagonal(std::vector<Real>& diag) = 0;
 
   /// Reset Matrix
   virtual void reset(Real reset_to=0.) = 0;
@@ -124,11 +127,23 @@ public:
   /// @name MISCELLANEOUS
   //@{
 
-  /// Print this matrix
-  virtual void print_to_screen() = 0;
+  /// Print to wherever
+  inline void print(std::iostream& stream) = 0;
 
-  /// Print this matrix to a file
-  virtual void print_to_file(const char* fileName) = 0;
+  /// Print to file given by filename
+  inline void print(const std::string& filename) = 0;
+
+  /// Accessor to the state of create
+  inline const bool is_created() = 0;
+
+  /// Accessor to the number of equations
+  inline const Uint neq() = 0;
+
+  /// Accessor to the number of block rows
+  inline const Uint blockrow_size() = 0;
+
+  /// Accessor to the number of block columns
+  inline const Uint blockcol_size() = 0;
 
   //@} END MISCELLANEOUS
 

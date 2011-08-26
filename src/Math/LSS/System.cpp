@@ -58,19 +58,20 @@ inline void LSS::System::create(Comm::CommPattern& cp, Uint neq, std::vector<Uin
 {
   if (m_is_created) destroy();
   std::string solvertype=options().option("solver").value();
-  std::string typestr;
 
-  typestr="Trilinos";
-  if (solvertype==typestr){
+  if (solvertype=="Trilinos"){
     #ifdef CF_HAVE_TRILINOS
       m_mat=new TrilinosMatrix("Matrix");
       m_rhs=new TrilinosVector("RHS");
       m_sol=new TrilinosVector("Solution");
-      m_mat.create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
     #else
       throw Common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif
   }
+
+  m_mat.create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
+  m_rhs.create(cp.gid().size(),neq);
+  m_sol.create(cp.gid().size(),neq);
   m_is_created=true;
 }
 
@@ -78,10 +79,14 @@ inline void LSS::System::create(Comm::CommPattern& cp, Uint neq, std::vector<Uin
 
 inline void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
-  if (!((matrix->is_created()==solution->is_created())&&(matrix->is_created()==rhs->is_created())))
+  if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
     throw Common::BadValue(FromHere(),"Inconsistent states.");
-  if (!((matrix->solvertype()==solution->solvertype())&&(matrix->solvertype()==rhs->solvertype())))
+  if ((matrix->solvertype()!=solution->solvertype())||(matrix->solvertype()!=rhs->solvertype()))
     throw Common::NotSupported(FromHere(),"Inconsistent linear solver types.");
+  if ((matrix->neq()!=solution->neq())||(matrix->neq()!=rhs->neq()))
+    throw Common::BadValue(FromHere(),"Inconsistent number of equations.");
+  if ((matrix->blockcol_size()!=solution->size())||(matrix->blockcol_size()!=rhs->size()))
+    throw Common::BadValue(FromHere(),"Inconsistent number of block rows.");
   if (m_mat!=matrix) delete m_mat;
   if (m_rhs!=matrix) delete m_rhs;
   if (m_sol!=matrix) delete m_sol;
@@ -106,6 +111,7 @@ inline void LSS::System::destroy()
 
 inline void LSS::System::solve()
 {
+  CF_ASSERT(m_is_created);
   m_mat->solve(m_sol,m_rhs);
 }
 
@@ -141,10 +147,25 @@ inline void LSS::System::get_values(LSS::BlockAccumulator& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, LSS::Vector& values, bool preserve_symmetry=false)
+inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real value, bool preserve_symmetry=false)
 {
+  // THE ORDER IS IMPORTANT:
+  // first you take column if to preserve symmetry
+  // then you apply dirichlet to have the proper entry in m_sol
+  // then you move the extracted column to m_rhs if to preserve symmetry
+
   CF_ASSERT(m_is_created);
-  /// @todo finish
+  std::vector<Real> v;
+  if (preserve_symmetry)
+  {
+    m_mat->get_column_and_replace_to_zero(iblockrow,ieq,v);
+    if (preserve_symmetry)
+      for (int i=0; i<(const int)v.size(); i++)
+        m_rhs->add_value(i,-v[i]*value);
+  }
+  m_mat->set_row(iblockrow,ieqn,1.,0.);
+  m_sol->set_value(iblockrow,ieqn,value);
+  m_rhs->set_value(iblockrow,ieqn,value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -152,7 +173,7 @@ inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, LSS::Ve
 inline void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   CF_ASSERT(m_is_created);
-  /// @todo finish
+  m_mat->tie_bockrow_pairs(iblockrow_to,iblockrow_from);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

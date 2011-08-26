@@ -49,19 +49,35 @@ public:
   /// Default constructor
   Vector(const std::string& name) : Component(name) { }
 
+  /// Setup sparsity structure
+  virtual void create(Uint nblockrows, Uint neq) = 0;
+
+  /// Deallocate underlying data
+  virtual void destroy() = 0;
+
+
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
   /// @name INDIVIDUAL ACCESS
   //@{
 
   /// Set value at given location in the matrix
-  virtual void set_value(const Uint row, const Real value) = 0;
+  virtual void set_value(const Uint irow, const Real value) = 0;
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint row, const Real value) = 0;
+  virtual void add_value(const Uint irow, const Real value) = 0;
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint row, const Real& value) = 0;
+  virtual void get_value(const Uint irow, const Real& value) = 0;
+
+  /// Set value at given location in the matrix
+  virtual void set_value(const Uint iblockrow, const Uint ieq, const Real value) = 0;
+
+  /// Add value at given location in the matrix
+  virtual void add_value(const Uint iblockrow, const Uint ieq, const Real value) = 0;
+
+  /// Get value at given location in the matrix
+  virtual void get_value(const Uint iblockrow, const Uint ieq, const Real& value) = 0;
 
   //@} END INDIVIDUAL ACCESS
 
@@ -94,11 +110,20 @@ public:
   /// @name MISCELLANEOUS
   //@{
 
-  /// Print this vector to screen
-  virtual void print_to_screen() = 0;
+  /// Print to wherever
+  inline void print(std::iostream& stream) = 0;
 
-  /// Print this vector to file
-  virtual void print_to_file(const char* fileName) = 0;
+  /// Print to file given by filename
+  inline void print(const std::string& filename) = 0;
+
+  /// Accessor to the state of create
+  inline const bool is_created() = 0;
+
+  /// Accessor to the number of equations
+  inline const Uint neq() = 0;
+
+  /// Accessor to the number of block rows
+  inline const Uint size() = 0;
 
   //@} END MISCELLANEOUS
 

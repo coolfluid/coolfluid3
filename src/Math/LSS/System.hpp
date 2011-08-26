@@ -78,7 +78,7 @@ public:
   /// @todo action for it
   inline void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
 
-  /// Setup sparsity structure
+  /// Deallocate underlying data
   inline void destroy();
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -106,7 +106,7 @@ public:
 
   /// Apply dirichlet-type boundary conditions.
   /// When preserve_symmetry is true than blockrow*numequations+eq column is is zeroed by moving it to the right hand side (however this usually results in performance penalties).
-  inline void dirichlet(const Uint iblockrow, const Uint ieq, LSSVector& values, bool preserve_symmetry=false);
+  inline void dirichlet(const Uint iblockrow, const Uint ieq, bool preserve_symmetry=false);
 
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
   /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two blocks).
@@ -114,13 +114,13 @@ public:
   inline void periodicity (const Uint iblockrow_to, const Uint iblockrow_from);
 
   /// Set the diagonal
-  inline void set_diagonal(const LSS::Vector& diag);
+  inline void set_diagonal(const std::vector<Real>& diag);
 
   /// Add to the diagonal
-  inline void add_diagonal(const LSS::Vector& diag);
+  inline void add_diagonal(const std::vector<Real>& diag);
 
   /// Get the diagonal
-  inline void get_diagonal(LSS::Vector& diag);
+  inline void get_diagonal(std::vector<Real>& diag);
 
   /// Reset Matrix
   inline void reset(Real reset_to=0.);
