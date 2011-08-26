@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for proto operators"
 
+#include <boost/assign.hpp>
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
@@ -29,6 +30,8 @@
 #include "Mesh/SF/Types.hpp"
 #include "Mesh/SF/SFQuadLagrangeP0.hpp"
 
+#include "Mesh/BlockMesh/BlockData.hpp"
+
 #include "Physics/PhysModel.hpp"
 
 #include "Solver/CModel.hpp"
@@ -42,7 +45,6 @@
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
-#include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
@@ -55,32 +57,9 @@ using namespace CF::Common;
 
 using namespace CF::Math::Consts;
 
-using namespace boost;
-
-/// Check close, for testing purposes
-inline void check_close(const RealMatrix2& a, const RealMatrix2& b, const Real threshold)
-{
-  for(Uint i = 0; i != a.rows(); ++i)
-    for(Uint j = 0; j != a.cols(); ++j)
-      BOOST_CHECK_CLOSE(a(i,j), b(i,j), threshold);
-}
-
-static boost::proto::terminal< void(*)(const RealMatrix2&, const RealMatrix2&, Real) >::type const _check_close = {&check_close};
+using namespace boost::assign;
 
 ////////////////////////////////////////////////////
-
-/// List of all supported shapefunctions that allow high order integration
-typedef boost::mpl::vector3< SF::Line1DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1
-> HigherIntegrationElements;
-
-typedef boost::mpl::vector5< SF::Line1DLagrangeP1,
-                            SF::Triag2DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1,
-                            SF::Tetra3DLagrangeP1
-> VolumeTypes;
 
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
@@ -96,24 +75,60 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
   CMesh& mesh = dom.create_component<CMesh>("mesh");
-  Tools::MeshGeneration::create_rectangle(mesh, 5, 5, 5, 5);
+  
+  // Simple graded mesh (to get non-constant volume)
+  const Real length = 20.;
+  const Real height = 20.;
+  const Real ratio = 0.2;
+  const Uint x_segs = 10;
+  const Uint y_segs = 10;
+  
+  BlockMesh::BlockData blocks;
+
+  blocks.dimension = 2;
+  blocks.scaling_factor = 1.;
+  blocks.points += list_of(0.)(0.), list_of(length)(0.), list_of(length)(height), list_of(0.)(height);
+  blocks.block_points += list_of(0)(1)(2)(3);
+  blocks.block_subdivisions += list_of(x_segs)(y_segs);
+  blocks.block_gradings += list_of(ratio)(ratio)(ratio)(ratio);
+  blocks.patch_names += "bottom", "right", "top",  "left";
+  blocks.patch_types += "wall", "wall",  "wall", "wall";
+  blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
+  blocks.block_distribution += 0, 1;
+  
+  BlockMesh::build_mesh(blocks, mesh);
 
   // Declare a mesh variable
-  MeshTerm<0, ScalarField> T("Temperature", "solution");
+  MeshTerm<0, ScalarField> V("CellVolume", "volumes");
 
+  // Store the total error
+  Real total_error = 0;
+  
   // Accepted element types
   boost::mpl::vector2<Mesh::SF::SFQuadLagrangeP0, Mesh::SF::Quad2DLagrangeP1> allowed_elements;
+
+  // Expression to compute volumes, assuming rectangles
+  boost::shared_ptr<Expression> volumes = elements_expression
+  (
+    allowed_elements,
+    V = (nodes[1][0] - nodes[0][0]) * (nodes[3][1] - nodes[0][1])
+  );
   
-  // Expression to compute volumes
-  boost::shared_ptr<Expression> volumes = elements_expression(allowed_elements, _cout << nodal_values(T));
   // Register the variables
   volumes->register_variables(phys_model);
-  // Add action
-  solver << create_proto_action("Volumes", volumes);
+  // Add actions
+  solver
+    << create_proto_action("Volumes", volumes) // Setting the field
+    << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
 
   // Create the fields
-  solver.field_manager().create_field("solution", mesh.geometry());
-  
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+  {
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  }
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  solver.field_manager().create_field("volumes", elems_P0);
+
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
@@ -121,11 +136,13 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   // Run
   model.simulate();
+  
+  BOOST_CHECK_SMALL(total_error, 1e-12);
 
   // Write mesh
   CMeshWriter& writer = model.domain().add_component(build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_type<CMeshWriter>();
   std::vector<Field::Ptr> fields;
-  fields.push_back(mesh.geometry().get_child("solution").as_ptr<Field>());
+  fields.push_back(elems_P0.get_child("volumes").as_ptr<Field>());
   writer.set_fields(fields);
   writer.write_from_to(mesh, "utest-proto-elements_output.pvtu");
 }

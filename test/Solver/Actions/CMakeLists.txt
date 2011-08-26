@@ -46,7 +46,7 @@ if(CF_ENABLE_PROTO)
     utest-proto-components.cpp )
   coolfluid_add_unit_test( utest-proto-components )
 
-  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_solver )
   list( APPEND utest-proto-elements_files
     utest-proto-elements.cpp )
   coolfluid_add_unit_test( utest-proto-elements )
