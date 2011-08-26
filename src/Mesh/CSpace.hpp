@@ -49,12 +49,20 @@ public: // functions
 
   /// return the elementType
   /// @pre the shape function must be configured first
-  ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
+  const ShapeFunction& shape_function() const;
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
-  ElementType& element_type() const { return support().element_type(); }
+  ElementType& element_type() { return support().element_type(); }
+  const ElementType& element_type() const { return support().element_type(); }
 
-  CEntities& support() const { return parent().as_type<CEntities>(); }
+  /// Set the geometric support that is associated with this space
+  void set_support(CEntities& support);
+  
+  /// Access the geometric support
+  /// @return a reference to the entities
+  /// @throws SetupError if not set.
+  CEntities& support();
+  const CEntities& support() const;
 
   /// The number of nodes or states this element shape function provides
   Uint nb_states() const { return shape_function().nb_nodes(); }
@@ -109,6 +117,7 @@ private: // data
 
   bool m_is_proxy;
   Uint m_elem_start_idx;
+  boost::weak_ptr<CEntities> m_support;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -54,6 +54,36 @@ CSpace::~CSpace()
 {
 }
 
+const ShapeFunction& CSpace::shape_function() const
+{
+  if(is_null(m_shape_function))
+    throw SetupError(FromHere(), "Shape function not configured for " + uri().string());
+  return *m_shape_function;
+}
+
+
+void CSpace::set_support(CEntities& support)
+{
+  m_support = support.as_ptr<CEntities>();
+}
+
+CEntities& CSpace::support()
+{
+  if(m_support.expired())
+    throw SetupError(FromHere(), "Support not set for " + uri().string());
+  
+  return *m_support.lock();
+}
+
+const CEntities& CSpace::support() const
+{
+  if(m_support.expired())
+    throw SetupError(FromHere(), "Support not set for " + uri().string());
+  
+  return *m_support.lock();
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 void CSpace::configure_shape_function()
