@@ -12,12 +12,14 @@ list( APPEND coolfluid_lssinterface_libs coolfluid_common_libs ${CF_BOOST_LIBRAR
 
 set( coolfluid_lssinterface_kernellib TRUE )
 
-coolfluid_add_library( coolfluid_lssinterface )
+add_subdirectory( EmptyLSS )
 
 # happen to have trilinos
 if(CF_HAVE_TRILINOS)
 add_subdirectory( Trilinos )
 endif()
+
+coolfluid_add_library( coolfluid_lssinterface )
 
 
 

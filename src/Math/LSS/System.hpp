@@ -72,7 +72,7 @@ public:
 
   /// Setup sparsity structure
   /// @todo action for it
-  inline void create(Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  inline void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it
@@ -146,14 +146,11 @@ public:
   inline LSS::Vector::ConstPtr sol() { return m_sol; };
 
   /// Accessor to the state of create
-  inline const bool is_created() { return m_is_created; };
+  inline const bool is_created();
 
   //@} END MISCELLANEOUS
 
 private:
-
-  /// flag if the system is created or not
-  bool m_is_created;
 
   /// shared_ptr to system matrix
   LSS::Matrix::Ptr m_mat;

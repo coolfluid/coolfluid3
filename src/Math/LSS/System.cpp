@@ -10,6 +10,7 @@
 #include "Math/LibMath.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Component.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Math/LSS/System.hpp"
 #include "Math/LSS/Matrix.hpp"
@@ -25,11 +26,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-// don't forget to add entry in the create function and in the cmakelists.txt to hhok things in
-
-/// @todo to be implemented an empty solver, which does nothing
-//#include "Math/LSS/Trilinos/EmptySolver.hpp"
-//#include "Math/LSS/Trilinos/EmptySolver.hpp"
+#include "Math/LSS/EmptyLSS/EmptyLSSVector.hpp"
+#include "Math/LSS/EmptyLSS/EmptyLSSMatrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,24 +44,29 @@ using namespace CF::Math;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 LSS::System::System(const std::string& name) :
-  Component(name),
-  m_is_created(false)
+  Component(name)
 {
-  options().add_option< OptionT<std::string> >( "solver" , "Trilinos" );
+  options().add_option< CF::Common::OptionT<std::string> >( "solver" , "Trilinos" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::create(Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
+inline void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
 {
-  if (m_is_created) destroy();
-  std::string solvertype=options().option("solver").value();
+  if (is_created()) destroy();
+  std::string solvertype=options().option("solver").value_str();
+
+  if (solvertype=="EmptyLSS"){
+      m_mat=new LSS::EmptyLSSMatrix("Matrix");
+      m_rhs=new LSS::EmptyLSSVector("RHS");
+      m_sol=new LSS::EmptyLSSVector("Solution");
+  }
 
   if (solvertype=="Trilinos"){
     #ifdef CF_HAVE_TRILINOS
-      m_mat=new TrilinosMatrix("Matrix");
-      m_rhs=new TrilinosVector("RHS");
-      m_sol=new TrilinosVector("Solution");
+      m_mat(new TrilinosMatrix("Matrix"));
+      m_rhs(new TrilinosVector("RHS"));
+      m_sol(new TrilinosVector("Solution"));
     #else
       throw Common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif
@@ -72,7 +75,6 @@ inline void LSS::System::create(Comm::CommPattern& cp, Uint neq, std::vector<Uin
   m_mat.create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
   m_rhs.create(cp.gid().size(),neq);
   m_sol.create(cp.gid().size(),neq);
-  m_is_created=true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +82,7 @@ inline void LSS::System::create(Comm::CommPattern& cp, Uint neq, std::vector<Uin
 inline void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
-    throw Common::BadValue(FromHere(),"Inconsistent states.");
+    throw Common::SetupError(FromHere(),"Inconsistent states.");
   if ((matrix->solvertype()!=solution->solvertype())||(matrix->solvertype()!=rhs->solvertype()))
     throw Common::NotSupported(FromHere(),"Inconsistent linear solver types.");
   if ((matrix->neq()!=solution->neq())||(matrix->neq()!=rhs->neq()))
@@ -94,7 +96,6 @@ inline void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution
   m_rhs=rhs;
   m_sol=solution;
   options().option("solver").put_value(matrix->solvertype());
-  m_is_created=true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,14 +105,13 @@ inline void LSS::System::destroy()
   delete m_mat;
   delete m_sol;
   delete m_rhs;
-  m_is_created=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 inline void LSS::System::solve()
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->solve(m_sol,m_rhs);
 }
 
@@ -119,7 +119,7 @@ inline void LSS::System::solve()
 
 inline void LSS::System::set_values(const LSS::BlockAccumulator& values)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->set_values(values);
   m_sol->set_sol_values(values);
   m_rhs->set_rhs_values(values);
@@ -129,7 +129,7 @@ inline void LSS::System::set_values(const LSS::BlockAccumulator& values)
 
 inline void LSS::System::add_values(const LSS::BlockAccumulator& values)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->add_values(values);
   m_sol->add_sol_values(values);
   m_rhs->add_rhs_values(values);
@@ -139,7 +139,7 @@ inline void LSS::System::add_values(const LSS::BlockAccumulator& values)
 
 inline void LSS::System::get_values(LSS::BlockAccumulator& values)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->get_values(values);
   m_sol->get_sol_values(values);
   m_rhs->get_rhs_values(values);
@@ -149,12 +149,7 @@ inline void LSS::System::get_values(LSS::BlockAccumulator& values)
 
 inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real value, bool preserve_symmetry=false)
 {
-  // THE ORDER IS IMPORTANT:
-  // first you take column if to preserve symmetry
-  // then you apply dirichlet to have the proper entry in m_sol
-  // then you move the extracted column to m_rhs if to preserve symmetry
-
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   std::vector<Real> v;
   if (preserve_symmetry)
   {
@@ -172,7 +167,7 @@ inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real va
 
 inline void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblockrow_from)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->tie_bockrow_pairs(iblockrow_to,iblockrow_from);
 }
 
@@ -180,7 +175,7 @@ inline void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblock
 
 inline void LSS::System::set_diagonal(const Vector& diag)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->set_diagonal(diag);
 }
 
@@ -188,7 +183,7 @@ inline void LSS::System::set_diagonal(const Vector& diag)
 
 inline void LSS::System::add_diagonal(const LSS::Vector& diag)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->add_diagonal(diag);
 }
 
@@ -196,7 +191,7 @@ inline void LSS::System::add_diagonal(const LSS::Vector& diag)
 
 inline void LSS::System::get_diagonal(LSS::Vector& diag)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->get_diagonal(diag);
 }
 
@@ -204,7 +199,7 @@ inline void LSS::System::get_diagonal(LSS::Vector& diag)
 
 inline void LSS::System::reset(Real reset_to=0.)
 {
-  CF_ASSERT(m_is_created);
+  cf_assert(is_created());
   m_mat->reset(reset_to);
   m_sol->reset(reset_to);
   m_rhs->reset(reset_to);
@@ -214,7 +209,7 @@ inline void LSS::System::reset(Real reset_to=0.)
 
 inline void LSS::System::print(std::iostream& stream)
 {
-  if (m_is_created)
+  if (is_created())
   {
     m_mat->print(stream);
     m_sol->print(stream);
@@ -226,13 +221,28 @@ inline void LSS::System::print(std::iostream& stream)
 
 inline void LSS::System::print(const std::string& filename)
 {
-  if (m_is_created)
+  if (is_created())
   {
     std::ofstream ofs(filename.c_str());
     m_mat->print(ofs);
     m_sol->print(ofs);
     m_rhs->print(ofs);
     ofs.close();
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+inline bool LSS::System::is_created()
+{
+  int numcreated=0;
+  if (m_mat!=nullptr) if (m_mat->is_created()) numcreated+=1;
+  if (m_sol!=nullptr) if (m_sol->is_created()) numcreated+=2;
+  if (m_rhs!=nullptr) if (m_rhs->is_created()) numcreated+=4;
+  switch (numcreated) {
+    case 0 : return false;
+    case 7 : return true;
+    default: throw Common::SetupError(FromHere(),"LSS System is in inconsistent state.");
   }
 }
 

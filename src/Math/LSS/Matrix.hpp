@@ -12,7 +12,6 @@
 #include <boost/utility.hpp>
 
 #include "Math/LibMath.hpp"
-#include "Common/MPI/PE.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -32,7 +31,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API Matrix : public Component {
+class Math_API Matrix : public CF::Common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -56,7 +55,7 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create(Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+  virtual void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -128,22 +127,22 @@ public:
   //@{
 
   /// Print to wherever
-  inline void print(std::iostream& stream) = 0;
+  virtual void print(std::iostream& stream) = 0;
 
   /// Print to file given by filename
-  inline void print(const std::string& filename) = 0;
+  virtual void print(const std::string& filename) = 0;
 
   /// Accessor to the state of create
-  inline const bool is_created() = 0;
+  virtual const bool is_created() = 0;
 
   /// Accessor to the number of equations
-  inline const Uint neq() = 0;
+  virtual const Uint neq() = 0;
 
   /// Accessor to the number of block rows
-  inline const Uint blockrow_size() = 0;
+  virtual const Uint blockrow_size() = 0;
 
   /// Accessor to the number of block columns
-  inline const Uint blockcol_size() = 0;
+  virtual const Uint blockcol_size() = 0;
 
   //@} END MISCELLANEOUS
 
