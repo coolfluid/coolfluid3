@@ -34,7 +34,8 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProfiledTestFixture::ProfiledTestFixture()
+ProfiledTestFixture::ProfiledTestFixture() :
+  m_process_profile(false) // don't run pprof by default
 {
   if(!Core::instance().root().get_child_ptr("Profiler"))
   {
@@ -106,7 +107,7 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
     boost::filesystem::path outfile(m_profile_dir / basename);
     std::string pprof_command(CF_PPROF_COMMAND);
 
-    if(pprof_command.size()) // process the profile file, if the command exists
+    if(pprof_command.size() && m_process_profile) // process the profile file, if the command exists
     {
       try {
         // note: graph output is too heavy for the dashboard

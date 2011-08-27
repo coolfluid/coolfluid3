@@ -10,10 +10,6 @@ list( APPEND coolfluid_testing_files
 list( APPEND coolfluid_testing_libs   ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 list( APPEND coolfluid_testing_cflibs coolfluid_common )
 
-if( CF_ENABLE_PROFILING AND coolfluid_tools_googleperftools_builds )
-  list( APPEND coolfluid_testing_cflibs coolfluid_tools_googleperftools )
-endif()
-
 if( CF_OS_LINUX AND CF_HAVE_RT )
   list( APPEND coolfluid_testing_libs ${RT_LIB} )
 endif()

@@ -675,7 +675,7 @@ public:
   template<typename I>
   typename DataType<I>::type& var_data(const I&)
   {
-    return *boost::fusion::at<I>(m_variables_data);
+    return *boost::fusion::at<typename IndexType<I>::type>(m_variables_data);
   }
 
   /// Return the variable stored at index I

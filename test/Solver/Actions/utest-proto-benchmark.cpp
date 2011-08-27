@@ -49,6 +49,7 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
+#include "Tools/Testing/ProfiledTestFixture.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace CF;
@@ -61,6 +62,7 @@ using namespace CF::Common;
 ////////////////////////////////////////////////////
 
 struct ProtoBenchmarkFixture :
+  public Tools::Testing::ProfiledTestFixture,
   public Tools::Testing::TimedTestFixture
 {
   ProtoBenchmarkFixture() :
