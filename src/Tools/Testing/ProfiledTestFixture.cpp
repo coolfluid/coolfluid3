@@ -15,6 +15,7 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 #include "Common/Log.hpp"
+#include "Common/CEnv.hpp"
 #include "Common/Core.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/CFactories.hpp"
@@ -37,8 +38,17 @@ ProfiledTestFixture::ProfiledTestFixture()
 {
   if(!Core::instance().root().get_child_ptr("Profiler"))
   {
+    Core::instance().environment().configure_option("exception_aborts",false);
+    Core::instance().environment().configure_option("exception_backtrace",false);
+    Core::instance().environment().configure_option("exception_outputs",false);
     const std::string prof_name ( "CF.Tools.GooglePerfTools.GooglePerfProfiling" );
-    Core::instance().set_profiler( prof_name );
+    try
+    {
+      Core::instance().set_profiler( prof_name );
+    }
+    catch(...)
+    {
+    }
   }
 
   char** argv = boost::unit_test::framework::master_test_suite().argv;
