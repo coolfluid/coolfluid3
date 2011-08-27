@@ -31,7 +31,7 @@ namespace Proto {
 template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesSFT, typename NbVarsT, typename VarIdxT>
 struct ExpressionRunner
 {
-  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0) {}
+  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0), m_found(false) {}
 
   typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
 
@@ -86,13 +86,15 @@ struct ExpressionRunner
     // This needs to be extended once non-Lagrange functions are added
     if(SF::order != space.shape_function().order())
     {
-      if(m_nb_tests == boost::mpl::size<ShapeFunctionsT>::value)
+      if(m_nb_tests == boost::mpl::size<ShapeFunctionsT>::value && !m_found)
       {
         throw Common::SetupError(FromHere(), "Needed shape function " + space.shape_function().name() + " for variable " + var.name() + " but it was not in the compiled list");
       }
       
       return;
     }
+    
+    m_found = true;
     
     typedef typename boost::mpl::push_back
     <
@@ -118,6 +120,7 @@ struct ExpressionRunner
   Mesh::CElements& elements;
   // Number of times we tried a shape function
   mutable Uint m_nb_tests;
+  mutable bool m_found;
 };
 
 

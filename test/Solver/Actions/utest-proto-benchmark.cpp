@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( CheckResult )
     std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
     Real vol_check = 0;
     for_each_element< ElementsT >(mesh.topology(), vol_check += V);
-    BOOST_CHECK_CLOSE(vol_check, wanted_volume, 1e-10);
+    BOOST_CHECK_CLOSE(vol_check, wanted_volume, 1e-6);
   }
 }
 
