@@ -8,12 +8,8 @@
 #define BOOST_TEST_MODULE "Test module for benchmarking proto operators"
 
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
-
-#include "Solver/Actions/Proto/ElementLooper.hpp"
-#include "Solver/Actions/Proto/Functions.hpp"
-#include "Solver/Actions/Proto/NodeLooper.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -21,19 +17,39 @@
 
 #include "Math/MatrixTypes.hpp"
 
+#include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-#include "Mesh/CMeshReader.hpp"
+#include "Mesh/CMeshWriter.hpp"
 #include "Mesh/ElementData.hpp"
-#include "Mesh/CNodes.hpp"
+#include "Mesh/FieldManager.hpp"
+#include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/SF/Types.hpp"
+#include "Mesh/SF/SFHexaLagrangeP0.hpp"
+
+#include "Mesh/BlockMesh/BlockData.hpp"
+
+#include "Physics/PhysModel.hpp"
+
+#include "Solver/CModel.hpp"
+#include "Solver/CSolver.hpp"
+#include "Solver/Tags.hpp"
+
+#include "Solver/Actions/CForAllElements.hpp"
+#include "Solver/Actions/CComputeVolume.hpp"
+
+#include "Solver/Actions/Proto/CProtoAction.hpp"
+#include "Solver/Actions/Proto/ElementLooper.hpp"
+#include "Solver/Actions/Proto/Expression.hpp"
+#include "Solver/Actions/Proto/Functions.hpp"
+#include "Solver/Actions/Proto/NodeLooper.hpp"
+#include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
-#include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -42,161 +58,170 @@ using namespace CF::Solver::Actions::Proto;
 using namespace CF::Mesh;
 using namespace CF::Common;
 
-using namespace CF::Math::MathConsts;
-
-using namespace boost;
-
 ////////////////////////////////////////////////////
 
-/// List of all supported shapefunctions that allow high order integration
-typedef boost::mpl::vector< SF::Line1DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1
-> HigherIntegrationElements;
-
-typedef boost::mpl::vector< SF::Line1DLagrangeP1,
-                            SF::Triag2DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1,
-                            SF::Tetra3DLagrangeP1
-> VolumeTypes;
-
-struct ProtoBenchmarkFixture : public //Tools::Testing::ProfiledTestFixture,
-                                      Tools::Testing::TimedTestFixture
+struct ProtoBenchmarkFixture :
+  public Tools::Testing::TimedTestFixture
 {
-  static CMesh::Ptr grid_2d;
-  static CMesh::Ptr channel_3d;
+  ProtoBenchmarkFixture() :
+    root(Core::instance().root()),
+    length(12.),
+    half_height(0.5),
+    width(6.)
+  {
+  }
+
+  // Setup a model under root
+  CModel& setup(const std::string& model_name)
+  {
+    int argc = boost::unit_test::framework::master_test_suite().argc;
+    char** argv = boost::unit_test::framework::master_test_suite().argv;
+
+    cf_assert(argc == 4);
+    const Uint x_segs = boost::lexical_cast<Uint>(argv[1]);
+    const Uint y_segs = boost::lexical_cast<Uint>(argv[2]);
+    const Uint z_segs = boost::lexical_cast<Uint>(argv[3]);
+
+    CModel& model = Core::instance().root().create_component<CModel>(model_name);
+    Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
+    CDomain& dom = model.create_domain("Domain");
+    CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
+
+    CMesh& mesh = dom.create_component<CMesh>("mesh");
+
+    const Real ratio = 0.1;
+
+    BlockMesh::BlockData blocks;
+    Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
+    BlockMesh::build_mesh(blocks, mesh);
+
+    // Set up variables
+    phys_model.variable_manager().create_descriptor("volume", "CellVolume");
+
+    // Create field
+    boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    {
+      elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    }
+    FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+    solver.field_manager().create_field("volume", elems_P0);
+
+    return model;
+  }
+
+  CRoot& root;
+  const Real length;
+  const Real half_height;
+  const Real width;
+  typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
 };
 
-CMesh::Ptr ProtoBenchmarkFixture::grid_2d;
-CMesh::Ptr ProtoBenchmarkFixture::channel_3d;
-
-BOOST_AUTO_TEST_SUITE( ProtoBenchmarkSuite )
+BOOST_FIXTURE_TEST_SUITE( ProtoBenchmarkSuite, ProtoBenchmarkFixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
-// Must be run  before the next tests
-BOOST_FIXTURE_TEST_CASE( CreateMesh2D, ProtoBenchmarkFixture )
+BOOST_AUTO_TEST_CASE( SetupProto )
 {
-  ProtoBenchmarkFixture::grid_2d = allocate_component<CMesh>("grid_2d");
-  Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
+  CModel& model = setup("Proto");
+
+  MeshTerm<0, ScalarField> V("CellVolume", "volume");
+
+  model.solver() << create_proto_action("ComputeVolume", elements_expression(ElementsT(), V = volume));
+
+  std::vector<URI> root_regions;
+  root_regions.push_back(model.domain().get_child("mesh").as_type<CMesh>().topology().uri());
+  model.solver().configure_option_recursively(Solver::Tags::regions(), root_regions);
 }
 
+////////////////////////////////////////////////////////////////////////////////
 
-/// Non-proto calculation, as reference
-BOOST_FIXTURE_TEST_CASE( VolumeDirect2D, ProtoBenchmarkFixture ) // timed and profiled
+BOOST_AUTO_TEST_CASE( SetupDirect )
 {
-  Real volume = 0.0;
-  BOOST_FOREACH(const CElements& region, find_components_recursively<CElements>(*grid_2d))
+  CModel& model = setup("Direct");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
+{
+  CModel& model = setup("VolumeComputer");
+
+  CLoop& elem_loop = model.solver().create_component< CForAllElements >("elem_loop");
+  model.solver() << elem_loop;
+
+  std::vector<URI> root_regions;
+  root_regions.push_back(model.domain().get_child("mesh").as_type<CMesh>().topology().uri());
+  model.solver().configure_option_recursively(Solver::Tags::regions(), root_regions);
+
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
+  CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
+
+  CLoopOperation& volume_computer = elem_loop.create_loop_operation("CF.Solver.Actions.CComputeVolume");
+  volume_computer.configure_option("volume",vol_field.uri());
+  volume_computer.configure_option("elements",elements.uri());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( SimulateProto )
+{
+  root.get_child("Proto").as_type<CModel>().simulate();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( SimulateDirect )
+{
+  CModel& model = root.get_child("Direct").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+
+  const CTable<Real>& coords = mesh.geometry().coordinates();
+  SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
+
+  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
+  FieldGroup& field_group = vol_field.field_group();
+
+  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()))
   {
-    const CTable<Real>& coords = region.nodes().coordinates();
-    const CTable<Uint>::ArrayT& ctbl = region.node_connectivity().array();
-    const Uint element_count = ctbl.size();
-    SF::Quad2DLagrangeP1::NodeMatrixT nodes;
-    for(Uint element = 0; element != element_count; ++element)
+    if(elements.element_type().shape() != CF::Mesh::GeoShape::HEXA)
+      continue;
+
+    const CTable<Uint>::ArrayT conn = elements.node_connectivity().array();
+    const Uint nb_elems = conn.size();
+    CSpace& space = field_group.space(elements);
+
+    for(Uint elem = 0; elem != nb_elems; ++elem)
     {
-      fill(nodes, coords, ctbl[element]);
-      volume += (nodes(2, XX) - nodes(0, XX)) * (nodes(3, YY) - nodes(1, YY)) -
-          (nodes(2, YY) - nodes(0, YY)) * (nodes(3, XX) - nodes(1, XX));
+      fill(nodes, coords, conn[elem]);
+      vol_field[space.indexes_for_element(elem)[0]][0] = SF::Hexa3DLagrangeP1::volume(nodes);
     }
   }
-  volume *= 0.5;
-  BOOST_CHECK_CLOSE(volume, 1., 1e-8);
 }
 
-// Compute volume
-BOOST_FIXTURE_TEST_CASE( Volume2D, ProtoBenchmarkFixture )
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( SimulateVolumeComputer )
 {
-  Real vol = 0.;
-  
-  for_each_element<SF::CellTypes>(grid_2d->topology(), vol += volume);
-  
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
+  root.get_child("VolumeComputer").as_type<CModel>().simulate();
 }
 
-// Compute volume through integration
-BOOST_FIXTURE_TEST_CASE( Integral2D, ProtoBenchmarkFixture )
-{
-  Real vol = 0.;
-  
-  for_each_element<SF::CellTypes>(grid_2d->topology(), vol += integral<1>(jacobian_determinant));
-  
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
-}
+////////////////////////////////////////////////////////////////////////////////
 
-// Compute volume through 4th order integration
-BOOST_FIXTURE_TEST_CASE( IntegralOrder4, ProtoBenchmarkFixture )
+// Check the volume results (uses proto)
+BOOST_AUTO_TEST_CASE( CheckResult )
 {
-  Real vol = 0.;
-  
-  for_each_element<HigherIntegrationElements>(grid_2d->topology(), vol += integral<4>(jacobian_determinant));
-  
-  BOOST_CHECK_CLOSE(vol, 1., 0.0001);
-}
+  MeshTerm<0, ScalarField> V("CellVolume", "volume");
 
-BOOST_FIXTURE_TEST_CASE( CreateMesh3D, ProtoBenchmarkFixture )
-{
-  channel_3d = allocate_component<CMesh>("channel_3d");
-  BlockMesh::BlockData block_data;
-  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1); // 160, 80, 120
-  std::vector<Uint> nodes_dist;
-  BlockMesh::build_mesh(block_data, *channel_3d, nodes_dist);
-}
+  const Real wanted_volume = width*length*half_height*2.;
 
-// Compute volume
-BOOST_FIXTURE_TEST_CASE( Volume3D, ProtoBenchmarkFixture )
-{
-  Real vol = 0.;
-  
-  for_each_element<SF::CellTypes>(channel_3d->topology(), vol += volume);
-  
-  BOOST_CHECK_CLOSE(vol, 50., 1e-6);
-}
-
-// Compute volume through integration
-BOOST_FIXTURE_TEST_CASE( Integral3D, ProtoBenchmarkFixture )
-{
-  Real vol = 0.;
-  
-  for_each_element<SF::CellTypes>(channel_3d->topology(), vol += integral<1>(jacobian_determinant));
-  
-  BOOST_CHECK_CLOSE(vol, 50., 1e-6);
-}
-
-/// Non-proto calculation, as reference
-BOOST_FIXTURE_TEST_CASE( VolumeDirect3D, ProtoBenchmarkFixture ) // timed and profiled
-{
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
-  const CTable<Real>& coords = elems.nodes().coordinates();
-  const CTable<Uint>::ArrayT conn = elems.node_connectivity().array();
-  const Uint nb_elems = conn.size();
-  Real volume = 0.0;
-  SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
-  for(Uint elem = 0; elem != nb_elems; ++elem)
+  BOOST_FOREACH(CMesh& mesh, find_components_recursively_with_name<CMesh>(root, "mesh"))
   {
-    fill(nodes, coords, conn[elem]);
-    volume += SF::Hexa3DLagrangeP1::volume(nodes);
+    std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
+    Real vol_check = 0;
+    for_each_element< ElementsT >(mesh.topology(), vol_check += V);
+    BOOST_CHECK_CLOSE(vol_check, wanted_volume, 1e-10);
   }
-  BOOST_CHECK_CLOSE(volume, 50., 1e-6);
-}
-
-BOOST_FIXTURE_TEST_CASE( SurfaceIntegral3D, ProtoBenchmarkFixture )
-{
-  RealVector3 area;
-  area.setZero();
-  
-  CRegion& region = find_component_recursively_with_name<CRegion>(*channel_3d, "bottomWall");
-  
-  for_each_element< boost::mpl::vector<SF::Quad3DLagrangeP1> >
-  (
-    region,
-    area += integral<1>(normal)
-  );
-  
-  /// Normal vector on the bottom wall should point down, with a length equal to the area
-  BOOST_CHECK_SMALL(area[XX], 1e-10);
-  BOOST_CHECK_CLOSE(area[YY], -50., 1e-8);
-  BOOST_CHECK_SMALL(area[ZZ], 1e-10);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -28,6 +28,7 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -457,7 +458,7 @@ class SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>
 
 public:
   typedef ElementBased SF;
-  
+
   /// Type of returned value
   typedef Real& ValueResultT;
 
@@ -474,7 +475,7 @@ public:
   SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_field_group(m_field.field_group()),
+    m_space(m_field.field_group().space(elements)),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }
@@ -482,7 +483,7 @@ public:
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
-    m_field_idx = m_field_group.indexes_for_element(element_idx)[0];
+    m_field_idx = m_space.indexes_for_element(element_idx)[0];
   }
 
   Real& value()
@@ -493,7 +494,7 @@ public:
 private:
   Mesh::Field& m_field;
   const SupportT& m_support;
-  const Mesh::FieldGroup& m_field_group;
+  const Mesh::CSpace& m_space;
   Uint m_field_idx;
 
 public:

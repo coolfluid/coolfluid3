@@ -46,7 +46,6 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
-#include "Tools/Testing/ProfiledTestFixture.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -75,14 +74,14 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
   CMesh& mesh = dom.create_component<CMesh>("mesh");
-  
+
   // Simple graded mesh (to get non-constant volume)
   const Real length = 20.;
   const Real height = 20.;
   const Real ratio = 0.2;
   const Uint x_segs = 10;
   const Uint y_segs = 10;
-  
+
   BlockMesh::BlockData blocks;
 
   blocks.dimension = 2;
@@ -95,7 +94,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   blocks.patch_types += "wall", "wall",  "wall", "wall";
   blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
   blocks.block_distribution += 0, 1;
-  
+
   BlockMesh::build_mesh(blocks, mesh);
 
   // Declare a mesh variable
@@ -103,7 +102,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   // Store the total error
   Real total_error = 0;
-  
+
   // Accepted element types
   boost::mpl::vector2<Mesh::SF::SFQuadLagrangeP0, Mesh::SF::Quad2DLagrangeP1> allowed_elements;
 
@@ -113,7 +112,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
     allowed_elements,
     V = (nodes[1][0] - nodes[0][0]) * (nodes[3][1] - nodes[0][1])
   );
-  
+
   // Register the variables
   volumes->register_variables(phys_model);
   // Add actions
@@ -136,7 +135,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   // Run
   model.simulate();
-  
+
   BOOST_CHECK_SMALL(total_error, 1e-12);
 
   // Write mesh

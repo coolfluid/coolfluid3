@@ -31,7 +31,7 @@ namespace Proto {
 template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesSFT, typename NbVarsT, typename VarIdxT>
 struct ExpressionRunner
 {
-  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
+  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0) {}
 
   typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
 
@@ -72,6 +72,7 @@ struct ExpressionRunner
   template <typename SF>
   void operator() ( SF& T ) const
   {
+    
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
 
     // Find the field group for the variable
@@ -79,11 +80,20 @@ struct ExpressionRunner
     const Mesh::FieldGroup& var_field_group = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
     Mesh::CSpace& space = var_field_group.space(elements);
 
+    ++m_nb_tests;
+    
     // Compatibility is ensured higher-up, so we assume that the correct shape function is found if the order matches
     // This needs to be extended once non-Lagrange functions are added
     if(SF::order != space.shape_function().order())
+    {
+      if(m_nb_tests == boost::mpl::size<ShapeFunctionsT>::value)
+      {
+        throw Common::SetupError(FromHere(), "Needed shape function " + space.shape_function().name() + " for variable " + var.name() + " but it was not in the compiled list");
+      }
+      
       return;
-
+    }
+    
     typedef typename boost::mpl::push_back
     <
       VariablesSFT,
@@ -106,6 +116,8 @@ struct ExpressionRunner
   VariablesT& variables;
   const ExprT& expression;
   Mesh::CElements& elements;
+  // Number of times we tried a shape function
+  mutable Uint m_nb_tests;
 };
 
 
