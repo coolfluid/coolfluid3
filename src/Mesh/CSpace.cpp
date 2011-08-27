@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -71,7 +70,7 @@ CEntities& CSpace::support()
 {
   if(m_support.expired())
     throw SetupError(FromHere(), "Support not set for " + uri().string());
-  
+
   return *m_support.lock();
 }
 
@@ -79,7 +78,7 @@ const CEntities& CSpace::support() const
 {
   if(m_support.expired())
     throw SetupError(FromHere(), "Support not set for " + uri().string());
-  
+
   return *m_support.lock();
 }
 
@@ -142,7 +141,9 @@ void CSpace::make_proxy(const Uint elem_start_idx)
 
 RealMatrix CSpace::compute_coordinates(const Uint elem_idx) const
 {
-  return element_type().shape_function().value( shape_function().local_coordinates() ) * support().get_coordinates(elem_idx);
+  return support().get_coordinates(elem_idx);
+  // TODO: Wilem look at this, it didn't work as expected
+  //return element_type().shape_function().value( shape_function().local_coordinates() ) * support().get_coordinates(elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

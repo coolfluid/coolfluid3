@@ -14,6 +14,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
+#include "Mesh/ElementData.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 
@@ -90,9 +91,7 @@ RealMatrix CElements::get_coordinates(const Uint elem_idx) const
   const Uint dim=coords_table.row_size();
   RealMatrix elem_coords(nb_nodes,dim);
 
-  for(Uint node = 0; node != nb_nodes; ++node)
-    for (Uint d=0; d<dim; ++d)
-      elem_coords(node,d) = coords_table[elem_nodes[node]][d];
+  put_coordinates(elem_coords, elem_idx);
 
   return elem_coords;
 }
@@ -104,13 +103,7 @@ void CElements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) co
   const CTable<Real>& coords_table = geometry().coordinates();
   CConnectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
-  const Uint nb_nodes=elem_coords.rows();
-  const Uint dim=elem_coords.cols();
-
-
-  for(Uint node = 0; node != nb_nodes; ++node)
-    for (Uint d=0; d<dim; ++d)
-      elem_coords(node,d) = coords_table[elem_nodes[node]][d];
+  fill(elem_coords, coords_table, elem_nodes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
