@@ -1,25 +1,32 @@
 coolfluid_find_orphan_files()
 
-list( APPEND coolfluid_lssinterface_files
+list( APPEND coolfluid_lss_files
   System.hpp
   System.cpp
   Matrix.hpp
   Vector.hpp
   BlockAccumulator.hpp
+  EmptyLSS/EmptyLSSVector.hpp
+  EmptyLSS/EmptyLSSMatrix.hpp
 )
 
-list( APPEND coolfluid_lssinterface_libs coolfluid_common_libs ${CF_BOOST_LIBRARIES})
-
-set( coolfluid_lssinterface_kernellib TRUE )
-
-add_subdirectory( EmptyLSS )
+list( APPEND coolfluid_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES})
 
 # happen to have trilinos
-if(CF_HAVE_TRILINOS)
-add_subdirectory( Trilinos )
-endif()
+#if(CF_HAVE_TRILINOS)
+#list( APPEND coolfluid_lss_files
+#)
+#list( APPEND coolfluid_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES}
+#)
+#endif()
 
-coolfluid_add_library( coolfluid_lssinterface )
+
+set( coolfluid_lss_kernellib TRUE )
+
+coolfluid_add_library( coolfluid_lss )
+
+
+
 
 
 

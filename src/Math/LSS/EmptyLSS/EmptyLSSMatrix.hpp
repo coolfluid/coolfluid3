@@ -54,7 +54,8 @@ public:
     m_blockcol_size(0),
     m_blockrow_size(0),
     m_neq(0),
-    m_is_created(false)
+    m_is_created(false),
+    m_solvertype("EmptyLSS")
   { }
 
   /// Setup sparsity structure
@@ -137,7 +138,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(std::iostream& stream) { cf_assert(m_is_created); }
+  void print(std::ostream& stream) { cf_assert(m_is_created); }
 
   /// Print to file given by filename
   void print(const std::string& filename) { cf_assert(m_is_created); }
@@ -154,6 +155,9 @@ public:
   /// Accessor to the number of block columns
   const Uint blockcol_size() {  cf_assert(m_is_created); return m_blockcol_size; }
 
+  /// Accessor to solver type
+  virtual const std::string solvertype() { return m_solvertype; }
+
   //@} END MISCELLANEOUS
 
 private:
@@ -169,6 +173,9 @@ private:
 
   /// number of block columns
   Uint m_blockcol_size;
+
+  /// type of solver
+  std::string m_solvertype;
 
 }; // end of class EmptyLSSMatrix
 

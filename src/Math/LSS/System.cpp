@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <fstream>
 
 #include <boost/utility.hpp>
 
@@ -57,24 +58,24 @@ inline void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std
   std::string solvertype=options().option("solver").value_str();
 
   if (solvertype=="EmptyLSS"){
-      m_mat=new LSS::EmptyLSSMatrix("Matrix");
-      m_rhs=new LSS::EmptyLSSVector("RHS");
-      m_sol=new LSS::EmptyLSSVector("Solution");
+      m_mat=(LSS::Matrix::Ptr) new LSS::EmptyLSSMatrix("Matrix");
+      m_rhs=(LSS::Vector::Ptr) new LSS::EmptyLSSVector("RHS");
+      m_sol=(LSS::Vector::Ptr) new LSS::EmptyLSSVector("Solution");
   }
 
   if (solvertype=="Trilinos"){
     #ifdef CF_HAVE_TRILINOS
-      m_mat(new TrilinosMatrix("Matrix"));
-      m_rhs(new TrilinosVector("RHS"));
-      m_sol(new TrilinosVector("Solution"));
+      m_mat=(LSS::Matrix::Ptr) new LSS::TrilinosMatrix("Matrix");
+      m_rhs=(LSS::Vector::Ptr) new LSS::TrilinosVector("RHS");
+      m_sol=(LSS::Vector::Ptr) new LSS::TrilinosVector("Solution");
     #else
       throw Common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif
   }
 
-  m_mat.create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
-  m_rhs.create(cp.gid().size(),neq);
-  m_sol.create(cp.gid().size(),neq);
+  m_mat->create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
+  m_rhs->create(cp.gid()->size(),neq);
+  m_sol->create(cp.gid()->size(),neq);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -87,24 +88,22 @@ inline void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution
     throw Common::NotSupported(FromHere(),"Inconsistent linear solver types.");
   if ((matrix->neq()!=solution->neq())||(matrix->neq()!=rhs->neq()))
     throw Common::BadValue(FromHere(),"Inconsistent number of equations.");
-  if ((matrix->blockcol_size()!=solution->size())||(matrix->blockcol_size()!=rhs->size()))
+  if ((matrix->blockcol_size()!=solution->block_size())||(matrix->blockcol_size()!=rhs->block_size()))
     throw Common::BadValue(FromHere(),"Inconsistent number of block rows.");
-  if (m_mat!=matrix) delete m_mat;
-  if (m_rhs!=matrix) delete m_rhs;
-  if (m_sol!=matrix) delete m_sol;
-  m_mat=matrix;
-  m_rhs=rhs;
-  m_sol=solution;
-  options().option("solver").put_value(matrix->solvertype());
+  if (m_mat!=matrix) m_mat=matrix;
+  if (m_rhs!=rhs) m_rhs=rhs;
+  if (m_sol!=solution) m_sol=solution;
+  std::string val(matrix->solvertype());
+  options().option("solver").put_value(val);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 inline void LSS::System::destroy()
 {
-  delete m_mat;
-  delete m_sol;
-  delete m_rhs;
+  m_mat.reset();
+  m_sol.reset();
+  m_rhs.reset();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,7 +146,7 @@ inline void LSS::System::get_values(LSS::BlockAccumulator& values)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real value, bool preserve_symmetry=false)
+inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry)
 {
   cf_assert(is_created());
   std::vector<Real> v;
@@ -158,9 +157,9 @@ inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real va
       for (int i=0; i<(const int)v.size(); i++)
         m_rhs->add_value(i,-v[i]*value);
   }
-  m_mat->set_row(iblockrow,ieqn,1.,0.);
-  m_sol->set_value(iblockrow,ieqn,value);
-  m_rhs->set_value(iblockrow,ieqn,value);
+  m_mat->set_row(iblockrow,ieq,1.,0.);
+  m_sol->set_value(iblockrow,ieq,value);
+  m_rhs->set_value(iblockrow,ieq,value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,12 +167,12 @@ inline void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, Real va
 inline void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf_assert(is_created());
-  m_mat->tie_bockrow_pairs(iblockrow_to,iblockrow_from);
+  m_mat->tie_blockrow_pairs(iblockrow_to,iblockrow_from);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::set_diagonal(const Vector& diag)
+inline void LSS::System::set_diagonal(const std::vector<Real>& diag)
 {
   cf_assert(is_created());
   m_mat->set_diagonal(diag);
@@ -181,7 +180,7 @@ inline void LSS::System::set_diagonal(const Vector& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::add_diagonal(const LSS::Vector& diag)
+inline void LSS::System::add_diagonal(const std::vector<Real>& diag)
 {
   cf_assert(is_created());
   m_mat->add_diagonal(diag);
@@ -189,7 +188,7 @@ inline void LSS::System::add_diagonal(const LSS::Vector& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::get_diagonal(LSS::Vector& diag)
+inline void LSS::System::get_diagonal(std::vector<Real>& diag)
 {
   cf_assert(is_created());
   m_mat->get_diagonal(diag);
@@ -197,7 +196,7 @@ inline void LSS::System::get_diagonal(LSS::Vector& diag)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::reset(Real reset_to=0.)
+inline void LSS::System::reset(Real reset_to)
 {
   cf_assert(is_created());
   m_mat->reset(reset_to);
@@ -207,7 +206,7 @@ inline void LSS::System::reset(Real reset_to=0.)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline void LSS::System::print(std::iostream& stream)
+inline void LSS::System::print(std::ostream& stream)
 {
   if (is_created())
   {
@@ -233,7 +232,7 @@ inline void LSS::System::print(const std::string& filename)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-inline bool LSS::System::is_created()
+inline const bool LSS::System::is_created()
 {
   int numcreated=0;
   if (m_mat!=nullptr) if (m_mat->is_created()) numcreated+=1;

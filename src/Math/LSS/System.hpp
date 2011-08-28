@@ -106,7 +106,7 @@ public:
 
   /// Apply dirichlet-type boundary conditions.
   /// When preserve_symmetry is true than blockrow*numequations+eq column is is zeroed by moving it to the right hand side (however this usually results in performance penalties).
-  inline void dirichlet(const Uint iblockrow, const Uint ieq, bool preserve_symmetry=false);
+  inline void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
 
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
   /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two blocks).
@@ -131,7 +131,7 @@ public:
   //@{
 
   /// Print to wherever
-  inline void print(std::iostream& stream);
+  inline void print(std::ostream& stream);
 
   /// Print to file given by filename
   inline void print(const std::string& filename);

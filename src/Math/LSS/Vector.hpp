@@ -110,7 +110,7 @@ public:
   //@{
 
   /// Print to wherever
-  virtual void print(std::iostream& stream) = 0;
+  virtual void print(std::ostream& stream) = 0;
 
   /// Print to file given by filename
   virtual void print(const std::string& filename) = 0;
@@ -123,6 +123,9 @@ public:
 
   /// Accessor to the number of block rows
   virtual const Uint block_size() = 0;
+
+  /// Accessor to solver type
+  virtual const std::string solvertype() = 0;
 
   //@} END MISCELLANEOUS
 

@@ -52,9 +52,11 @@ coolfluid_add_unit_test( utest-math-variablemanager )
 
 ################################################################################
 
-list( APPEND utest-lss-system-emptylss_cflibs coolfluid_math )
+list( APPEND utest-lss-system-emptylss_cflibs coolfluid_lss coolfluid_math coolfluid_common )
 list( APPEND utest-lss-system-emptylss_files  utest-lss-system-emptylss.cpp)
 
+set(utest-lss-system-emptylss_mpi_test TRUE)
+set(utest-lss-system-emptylss_mpi_nprocs 1)
 coolfluid_add_unit_test( utest-lss-system-emptylss )
 
 ################################################################################
@@ -72,9 +74,11 @@ list( APPEND utest-lss-distributed-matrix_files
   utest-lss-test-matrix.hpp
 )
 
-set(utest-parallel-environment_mpi_test TRUE)
-set(utest-parallel-environment_mpi_nprocs 4)
+set(utest-lss-distributed-matrix_mpi_test TRUE)
+set(utest-lss-distributed-matrix_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-lss-distributed-matrix )
+
+################################################################################
 
 #if( CMAKE_COMPILER_IS_GNUCC )
 #    set_source_files_properties( utest-eigen-vs-matrixt.cpp

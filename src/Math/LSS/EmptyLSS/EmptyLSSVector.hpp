@@ -53,7 +53,8 @@ public:
     LSS::Vector(name),
     m_is_created(false),
     m_neq(0),
-    m_block_size(0)
+    m_block_size(0),
+    m_solvertype("EmptyLSS")
   { }
 
   /// Setup sparsity structure
@@ -124,7 +125,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(std::iostream& stream) { cf_assert(m_is_created); }
+  void print(std::ostream& stream) { cf_assert(m_is_created); }
 
   /// Print to file given by filename
   void print(const std::string& filename) { cf_assert(m_is_created); }
@@ -138,6 +139,9 @@ public:
   /// Accessor to the number of block rows
   const Uint block_size() { cf_assert(m_is_created); return m_block_size; }
 
+  /// Accessor to solver type
+  virtual const std::string solvertype() { return m_solvertype; }
+
   //@} END MISCELLANEOUS
 
 private:
@@ -150,6 +154,9 @@ private:
 
   /// number of block columns
   Uint m_block_size;
+
+  /// type of solver
+  std::string m_solvertype;
 
 };
 
