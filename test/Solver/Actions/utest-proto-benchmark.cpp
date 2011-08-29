@@ -111,12 +111,34 @@ struct ProtoBenchmarkFixture :
     return model;
   }
 
+  struct DirectArrays
+  {
+    DirectArrays(const CTable<Real>& p_coords, const CTable<Uint>::ArrayT& p_conn, Field& p_vol_field, const Uint p_offset) :
+      coords(p_coords),
+      conn(p_conn),
+      vol_field(p_vol_field),
+      offset(p_offset)
+    {
+    }
+
+    const CTable<Real>& coords;
+    const CTable<Uint>::ArrayT& conn;
+    Field& vol_field;
+    const Uint offset;
+  };
+
   CRoot& root;
   const Real length;
   const Real half_height;
   const Real width;
   typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
+
+  /// Arrays used by the direct method
+  static boost::shared_ptr<DirectArrays> direct_arrays;
 };
+
+boost::shared_ptr<ProtoBenchmarkFixture::DirectArrays> ProtoBenchmarkFixture::direct_arrays;
+
 
 BOOST_FIXTURE_TEST_SUITE( ProtoBenchmarkSuite, ProtoBenchmarkFixture )
 
@@ -140,6 +162,17 @@ BOOST_AUTO_TEST_CASE( SetupProto )
 BOOST_AUTO_TEST_CASE( SetupDirect )
 {
   CModel& model = setup("Direct");
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
+  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
+
+  direct_arrays.reset(new DirectArrays
+  (
+    mesh.geometry().coordinates(),
+    elements.node_connectivity().array(),
+    vol_field,
+    vol_field.field_group().space(elements).elements_begin()
+  ));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -175,29 +208,18 @@ BOOST_AUTO_TEST_CASE( SimulateProto )
 
 BOOST_AUTO_TEST_CASE( SimulateDirect )
 {
-  CModel& model = root.get_child("Direct").as_type<CModel>();
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  const CTable<Uint>::ArrayT& conn = direct_arrays->conn;
+  const CTable<Real>& coords = direct_arrays->coords;
+  Field& vol_field = direct_arrays->vol_field;
 
-  const CTable<Real>& coords = mesh.geometry().coordinates();
   SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
-
-  Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
-  FieldGroup& field_group = vol_field.field_group();
-
-  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()))
+  const Uint offset = direct_arrays->offset;
+  const Uint elems_begin = 0;
+  const Uint elems_end = conn.size();
+  for(Uint elem = elems_begin; elem != elems_end; ++elem)
   {
-    if(elements.element_type().shape() != CF::Mesh::GeoShape::HEXA)
-      continue;
-
-    const CTable<Uint>::ArrayT conn = elements.node_connectivity().array();
-    const Uint nb_elems = conn.size();
-    CSpace& space = field_group.space(elements);
-
-    for(Uint elem = 0; elem != nb_elems; ++elem)
-    {
-      fill(nodes, coords, conn[elem]);
-      vol_field[space.indexes_for_element(elem)[0]][0] = SF::Hexa3DLagrangeP1::volume(nodes);
-    }
+    fill(nodes, coords,  conn[elem]);
+    vol_field[elem+offset][0] = SF::Hexa3DLagrangeP1::volume(nodes);
   }
 }
 

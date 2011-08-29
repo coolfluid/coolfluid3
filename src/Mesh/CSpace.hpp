@@ -57,7 +57,7 @@ public: // functions
 
   /// Set the geometric support that is associated with this space
   void set_support(CEntities& support);
-  
+
   /// Access the geometric support
   /// @return a reference to the entities
   /// @throws SetupError if not set.
@@ -90,6 +90,10 @@ public: // functions
   void put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const;
 
   void allocate_coordinates(RealMatrix& coordinates) const;
+
+  /// Gives the index relative to global field arrays
+  /// @returns the index in global element-based arrays for the first element
+  Uint elements_begin() const { return m_elem_start_idx; }
 
 private: // functions
 

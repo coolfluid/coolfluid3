@@ -29,7 +29,8 @@ Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 
 CSpace::CSpace ( const std::string& name ) :
   Component ( name ),
-  m_is_proxy(false)
+  m_is_proxy(false),
+  m_elem_start_idx(0)
 {
   mark_basic();
 
