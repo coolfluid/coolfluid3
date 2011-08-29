@@ -14,6 +14,7 @@
 #include "Math/LibMath.hpp"
 #include "Common/Component.hpp"
 #include "Common/MPI/CommPattern.hpp"
+#include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Matrix.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -137,6 +138,9 @@ public:
   /// @name MISCELLANEOUS
   //@{
 
+  /// Print to logstream
+  void print(Common::LogStream& stream);
+
   /// Print to wherever
   void print(std::ostream& stream);
 
@@ -144,16 +148,19 @@ public:
   void print(const std::string& filename);
 
   /// Accessor to matrix
-  LSS::Matrix::ConstPtr matrix() { return m_mat; };
+  const LSS::Matrix::Ptr matrix() { return m_mat; };
 
   /// Accessor to right hand side
-  LSS::Vector::ConstPtr rhs() { return m_rhs; };
+  const LSS::Vector::Ptr rhs() { return m_rhs; };
 
   /// Accessor to solution
-  LSS::Vector::ConstPtr sol() { return m_sol; };
+  const LSS::Vector::Ptr solution() { return m_sol; };
 
   /// Accessor to the state of create
   const bool is_created();
+
+  /// Accessor to string option describing the type of the solver
+  const std::string solvertype() { return options().option("solver").value_str(); }
 
   //@} END MISCELLANEOUS
 

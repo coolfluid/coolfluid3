@@ -23,6 +23,8 @@
 
   EmptyLSSVector is intended to use for testing purposes only.
   It acts like a fully operational linear solver, but it does not solve and allocate any memory.
+
+  // @todo turn it into a testing suite and throws for everything incorrect
 **/
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +55,7 @@ public:
     LSS::Vector(name),
     m_is_created(false),
     m_neq(0),
-    m_block_size(0),
+    m_blockrow_size(0),
     m_solvertype("EmptyLSS")
   { }
 
@@ -62,7 +64,7 @@ public:
   {
     destroy();
     m_neq=neq;
-    m_block_size=nblockrows;
+    m_blockrow_size=nblockrows;
     m_is_created=true;
   }
 
@@ -125,7 +127,10 @@ public:
   //@{
 
   /// Print to wherever
-  void print(std::ostream& stream) { cf_assert(m_is_created); }
+  void print(Common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSVector::print of '" << name() << "'.\n"; }
+
+  /// Print to wherever
+  void print(std::ostream& stream) { cf_assert(m_is_created); stream << "EmptyLSSVector::print of '" << name() << "'.\n"; }
 
   /// Print to file given by filename
   void print(const std::string& filename) { cf_assert(m_is_created); }
@@ -137,7 +142,7 @@ public:
   const Uint neq() { cf_assert(m_is_created); return m_neq; }
 
   /// Accessor to the number of block rows
-  const Uint block_size() { cf_assert(m_is_created); return m_block_size; }
+  const Uint blockrow_size() { cf_assert(m_is_created); return m_blockrow_size; }
 
   /// Accessor to solver type
   virtual const std::string solvertype() { return m_solvertype; }
@@ -153,7 +158,7 @@ private:
   Uint m_neq;
 
   /// number of block columns
-  Uint m_block_size;
+  Uint m_blockrow_size;
 
   /// type of solver
   std::string m_solvertype;

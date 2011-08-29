@@ -38,6 +38,14 @@ public:
     indices.resize(numnodes);
   };
 
+  /// reset the values to the value of reset_to
+  void reset(Real reset_to=0.)
+  {
+    mat.setConstant(reset_to);
+    sol.setConstant(reset_to);
+    rhs.setConstant(reset_to);
+  }
+
   /// entering the indices where the local matrix is lying
   template<typename T> void neighbour_indices(const T& idx_vector )
   {

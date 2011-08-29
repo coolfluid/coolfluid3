@@ -13,6 +13,7 @@
 
 #include "Math/LibMath.hpp"
 #include "Common/MPI/CommPattern.hpp"
+#include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,6 +111,9 @@ public:
   //@{
 
   /// Print to wherever
+  virtual void print(Common::LogStream& stream) = 0;
+
+  /// Print to wherever
   virtual void print(std::ostream& stream) = 0;
 
   /// Print to file given by filename
@@ -122,7 +126,7 @@ public:
   virtual const Uint neq() = 0;
 
   /// Accessor to the number of block rows
-  virtual const Uint block_size() = 0;
+  virtual const Uint blockrow_size() = 0;
 
   /// Accessor to solver type
   virtual const std::string solvertype() = 0;

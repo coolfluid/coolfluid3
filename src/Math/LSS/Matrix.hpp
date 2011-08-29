@@ -13,6 +13,7 @@
 
 #include "Math/LibMath.hpp"
 #include "Common/MPI/CommPattern.hpp"
+#include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Vector.hpp"
 
@@ -125,6 +126,9 @@ public:
 
   /// @name MISCELLANEOUS
   //@{
+
+  /// Print to wherever
+  virtual void print(Common::LogStream& stream) = 0;
 
   /// Print to wherever
   virtual void print(std::ostream& stream) = 0;

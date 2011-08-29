@@ -23,6 +23,7 @@
 
   EmptyLSSMatrix is intended to use for testing purposes only.
   It acts like a fully operational linear solver but it does not solve and allocate any memory.
+  // @todo turn it into a testing suite and throws for everything incorrect
 **/
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -64,7 +65,7 @@ public:
     destroy();
     m_neq=neq;
     m_blockrow_size=cp.gid()->size();
-    m_blockcol_size=*max_element(node_connectivity.begin(),node_connectivity.end(),std::less<Uint>());
+    m_blockcol_size=(*max_element(node_connectivity.begin(),node_connectivity.end(),std::less<Uint>()))+1;
     m_is_created=true;
   }
 
@@ -121,13 +122,13 @@ public:
   void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from) { cf_assert(m_is_created); }
 
   /// Set the diagonal
-  void set_diagonal(const std::vector<Real>& diag) { cf_assert(m_is_created); }
+  void set_diagonal(const std::vector<Real>& diag) { cf_assert(m_is_created); cf_assert(diag.size()==m_blockrow_size*m_neq); }
 
   /// Add to the diagonal
-  void add_diagonal(const std::vector<Real>& diag) { cf_assert(m_is_created); }
+  void add_diagonal(const std::vector<Real>& diag) { cf_assert(m_is_created); cf_assert(diag.size()==m_blockrow_size*m_neq); }
 
   /// Get the diagonal
-  void get_diagonal(std::vector<Real>& diag) {  cf_assert(m_is_created); diag.resize(m_blockcol_size*m_neq,0.); }
+  void get_diagonal(std::vector<Real>& diag) {  cf_assert(m_is_created); diag.assign(m_blockrow_size*m_neq,0.); }
 
   /// Reset Matrix
   void reset(Real reset_to=0.) { cf_assert(m_is_created); }
@@ -138,7 +139,10 @@ public:
   //@{
 
   /// Print to wherever
-  void print(std::ostream& stream) { cf_assert(m_is_created); }
+  void print(Common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
+
+  /// Print to wherever
+  void print(std::ostream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
 
   /// Print to file given by filename
   void print(const std::string& filename) { cf_assert(m_is_created); }

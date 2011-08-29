@@ -92,7 +92,7 @@ void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::
     throw Common::NotSupported(FromHere(),"Inconsistent linear solver types.");
   if ((matrix->neq()!=solution->neq())||(matrix->neq()!=rhs->neq()))
     throw Common::BadValue(FromHere(),"Inconsistent number of equations.");
-  if ((matrix->blockcol_size()!=solution->block_size())||(matrix->blockcol_size()!=rhs->block_size()))
+  if ((matrix->blockcol_size()!=solution->blockrow_size())||(matrix->blockcol_size()!=rhs->blockrow_size()))
     throw Common::BadValue(FromHere(),"Inconsistent number of block rows.");
   if (m_mat!=matrix) m_mat=matrix;
   if (m_rhs!=rhs) m_rhs=rhs;
@@ -205,6 +205,18 @@ void LSS::System::reset(Real reset_to)
   m_mat->reset(reset_to);
   m_sol->reset(reset_to);
   m_rhs->reset(reset_to);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void LSS::System::print(Common::LogStream& stream)
+{
+  if (is_created())
+  {
+    m_mat->print(stream);
+    m_sol->print(stream);
+    m_rhs->print(stream);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
