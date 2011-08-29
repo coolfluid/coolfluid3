@@ -475,7 +475,7 @@ public:
   SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
-    m_space(m_field.field_group().space(elements)),
+    m_elements_begin(m_field.field_group().space(elements).elements_begin()),
     offset(m_field.descriptor().offset(placeholder.name()))
   {
   }
@@ -483,7 +483,7 @@ public:
   /// Update nodes for the current element
   void set_element(const Uint element_idx)
   {
-    m_field_idx = m_space.indexes_for_element(element_idx)[0];
+    m_field_idx = element_idx + m_elements_begin;
   }
 
   Real& value()
@@ -494,7 +494,7 @@ public:
 private:
   Mesh::Field& m_field;
   const SupportT& m_support;
-  const Mesh::CSpace& m_space;
+  const Uint m_elements_begin;
   Uint m_field_idx;
 
 public:
