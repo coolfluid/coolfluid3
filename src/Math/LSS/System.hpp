@@ -79,14 +79,14 @@ public:
 
   /// Setup sparsity structure
   /// @todo action for it
-  inline void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it
-  inline void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
 
   /// Deallocate underlying data
-  inline void destroy();
+  void destroy();
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 
@@ -95,7 +95,7 @@ public:
 
   /// solving the system
   /// @todo action for it
-  inline void solve();
+  void solve();
 
   //@} END SOLVE THE SYSTEM
 
@@ -103,34 +103,34 @@ public:
   //@{
 
   /// Set a list of values
-  inline void set_values(const BlockAccumulator& values);
+  void set_values(const BlockAccumulator& values);
 
   /// Add a list of values
-  inline void add_values(const BlockAccumulator& values);
+  void add_values(const BlockAccumulator& values);
 
   /// Add a list of values
-  inline void get_values(BlockAccumulator& values);
+  void get_values(BlockAccumulator& values);
 
   /// Apply dirichlet-type boundary conditions.
   /// When preserve_symmetry is true than blockrow*numequations+eq column is is zeroed by moving it to the right hand side (however this usually results in performance penalties).
-  inline void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
+  void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
 
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
   /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two blocks).
   /// Note that only structural symmetry can be preserved (again, if sparsity input was symmetric).
-  inline void periodicity (const Uint iblockrow_to, const Uint iblockrow_from);
+  void periodicity (const Uint iblockrow_to, const Uint iblockrow_from);
 
   /// Set the diagonal
-  inline void set_diagonal(const std::vector<Real>& diag);
+  void set_diagonal(const std::vector<Real>& diag);
 
   /// Add to the diagonal
-  inline void add_diagonal(const std::vector<Real>& diag);
+  void add_diagonal(const std::vector<Real>& diag);
 
   /// Get the diagonal
-  inline void get_diagonal(std::vector<Real>& diag);
+  void get_diagonal(std::vector<Real>& diag);
 
   /// Reset Matrix
-  inline void reset(Real reset_to=0.);
+  void reset(Real reset_to=0.);
 
   //@} END EFFICCIENT ACCESS
 
@@ -138,33 +138,22 @@ public:
   //@{
 
   /// Print to wherever
-  inline void print(std::ostream& stream);
+  void print(std::ostream& stream);
 
   /// Print to file given by filename
-  inline void print(const std::string& filename);
+  void print(const std::string& filename);
 
   /// Accessor to matrix
-  inline LSS::Matrix::ConstPtr matrix() { return m_mat; };
+  LSS::Matrix::ConstPtr matrix() { return m_mat; };
 
   /// Accessor to right hand side
-  inline LSS::Vector::ConstPtr rhs() { return m_rhs; };
+  LSS::Vector::ConstPtr rhs() { return m_rhs; };
 
   /// Accessor to solution
-  inline LSS::Vector::ConstPtr sol() { return m_sol; };
+  LSS::Vector::ConstPtr sol() { return m_sol; };
 
   /// Accessor to the state of create
-  inline const bool is_created()
-{
-  int numcreated=0;
-  if (m_mat!=nullptr) if (m_mat->is_created()) numcreated+=1;
-  if (m_sol!=nullptr) if (m_sol->is_created()) numcreated+=2;
-  if (m_rhs!=nullptr) if (m_rhs->is_created()) numcreated+=4;
-  switch (numcreated) {
-    case 0 : return false;
-    case 7 : return true;
-    default: throw Common::SetupError(FromHere(),"LSS System is in inconsistent state.");
-  }
-}
+  const bool is_created();
 
   //@} END MISCELLANEOUS
 

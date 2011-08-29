@@ -14,7 +14,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
-#include "Math/LSS/Interface.hpp"
+#include "Math/LSS/System.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

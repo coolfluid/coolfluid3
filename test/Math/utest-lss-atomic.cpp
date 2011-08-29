@@ -13,7 +13,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Math/LSS/Interface.hpp"
+#include "Math/LSS/System.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
