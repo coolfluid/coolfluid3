@@ -50,14 +50,6 @@ namespace CF {
 namespace Math {
 namespace LSS {
 
-class stupidclass
-{
-  stupidclass();
-  int stupidmemberfunc(int x);
-  int stupidfunc2(double y);
-  int stupidint;
-};
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 class Math_API System : public Common::Component {

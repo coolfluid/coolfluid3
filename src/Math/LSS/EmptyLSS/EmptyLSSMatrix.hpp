@@ -49,14 +49,16 @@ public:
   /// name of the type
   static std::string type_name () { return "EmptyLSSMatrix"; }
 
+  /// Accessor to solver type
+  virtual const std::string solvertype() { return "EmptyLSS"; }
+
   /// Default constructor
   EmptyLSSMatrix(const std::string& name) :
     LSS::Matrix(name),
     m_blockcol_size(0),
     m_blockrow_size(0),
     m_neq(0),
-    m_is_created(false),
-    m_solvertype("EmptyLSS")
+    m_is_created(false)
   { }
 
   /// Setup sparsity structure
@@ -159,9 +161,6 @@ public:
   /// Accessor to the number of block columns
   const Uint blockcol_size() {  cf_assert(m_is_created); return m_blockcol_size; }
 
-  /// Accessor to solver type
-  virtual const std::string solvertype() { return m_solvertype; }
-
   //@} END MISCELLANEOUS
 
 private:
@@ -177,9 +176,6 @@ private:
 
   /// number of block columns
   Uint m_blockcol_size;
-
-  /// type of solver
-  std::string m_solvertype;
 
 }; // end of class EmptyLSSMatrix
 

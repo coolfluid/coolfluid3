@@ -50,13 +50,15 @@ public:
   /// name of the type
   static std::string type_name () { return "EmptyLSSVector"; }
 
+  /// Accessor to solver type
+  const std::string solvertype() { return "EmptyLSS"; }
+
   /// Default constructor
   EmptyLSSVector(const std::string& name) :
     LSS::Vector(name),
     m_is_created(false),
     m_neq(0),
-    m_blockrow_size(0),
-    m_solvertype("EmptyLSS")
+    m_blockrow_size(0)
   { }
 
   /// Setup sparsity structure
@@ -144,9 +146,6 @@ public:
   /// Accessor to the number of block rows
   const Uint blockrow_size() { cf_assert(m_is_created); return m_blockrow_size; }
 
-  /// Accessor to solver type
-  virtual const std::string solvertype() { return m_solvertype; }
-
   //@} END MISCELLANEOUS
 
 private:
@@ -159,9 +158,6 @@ private:
 
   /// number of block columns
   Uint m_blockrow_size;
-
-  /// type of solver
-  std::string m_solvertype;
 
 };
 

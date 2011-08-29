@@ -4,23 +4,31 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_Vector_hpp
-#define CF_Math_LSS_Vector_hpp
+#ifndef CF_Math_LSS_TrilinosVector_hpp
+#define CF_Math_LSS_TrilinosVector_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+/*
 #include <boost/utility.hpp>
 
 #include "Math/LibMath.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
+*/
+
+#include <Epetra_Vector.h>
+
+#include "Math/LSS/Vector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file Vector.hpp implementation of LSS::Vector
+  @file Implementation of LSS::vector interface for Trilinos package.
   @author Tamas Banyai
+
+  The chosen tool is epetra vector which has been implemented.
 **/
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,32 +39,32 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API Vector : public CF::Common::Component {
+class Math_API TrilinosVector : public CF::Common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
   //@{
 
   /// pointer to this type
-  typedef boost::shared_ptr<Vector> Ptr;
+  typedef boost::shared_ptr<TrilinosVector> Ptr;
 
   /// const pointer to this type
-  typedef boost::shared_ptr<Vector const> ConstPtr;
+  typedef boost::shared_ptr<TrilinosVector const> ConstPtr;
 
   /// name of the type
-  static std::string type_name () { return "Vector"; }
+  static std::string type_name () { return "TrilinosVector"; }
 
   /// Accessor to solver type
-  virtual const std::string solvertype() = 0;
+  const std::string solvertype() { return "Trilinos"; }
 
   /// Default constructor
-  Vector(const std::string& name) : Component(name) { }
+  TrilinosVector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(Uint nblockrows, Uint neq) = 0;
+  void create(Uint nblockrows, Uint neq);
 
   /// Deallocate underlying data
-  virtual void destroy() = 0;
+  void destroy();
 
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -65,22 +73,22 @@ public:
   //@{
 
   /// Set value at given location in the matrix
-  virtual void set_value(const Uint irow, const Real value) = 0;
+  void set_value(const Uint irow, const Real value);
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint irow, const Real value) = 0;
+  void add_value(const Uint irow, const Real value);
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint irow, Real& value) = 0;
+  void get_value(const Uint irow, Real& value);
 
   /// Set value at given location in the matrix
-  virtual void set_value(const Uint iblockrow, const Uint ieq, const Real value) = 0;
+  void set_value(const Uint iblockrow, const Uint ieq, const Real value);
 
   /// Add value at given location in the matrix
-  virtual void add_value(const Uint iblockrow, const Uint ieq, const Real value) = 0;
+  void add_value(const Uint iblockrow, const Uint ieq, const Real value);
 
   /// Get value at given location in the matrix
-  virtual void get_value(const Uint iblockrow, const Uint ieq, Real& value) = 0;
+  void get_value(const Uint iblockrow, const Uint ieq, Real& value);
 
   //@} END INDIVIDUAL ACCESS
 
@@ -88,25 +96,25 @@ public:
   //@{
 
   /// Set a list of values to rhs
-  virtual void set_rhs_values(const BlockAccumulator& values) = 0;
+  void set_rhs_values(const BlockAccumulator& values);
 
   /// Add a list of values to rhs
-  virtual void add_rhs_values(const BlockAccumulator& values) = 0;
+  void add_rhs_values(const BlockAccumulator& values);
 
   /// Get a list of values from rhs
-  virtual void get_rhs_values(BlockAccumulator& values) = 0;
+  void get_rhs_values(BlockAccumulator& values);
 
   /// Set a list of values to sol
-  virtual void set_sol_values(const BlockAccumulator& values) = 0;
+  void set_sol_values(const BlockAccumulator& values);
 
   /// Add a list of values to sol
-  virtual void add_sol_values(const BlockAccumulator& values) = 0;
+  void add_sol_values(const BlockAccumulator& values);
 
   /// Get a list of values from sol
-  virtual void get_sol_values(BlockAccumulator& values) = 0;
+  void get_sol_values(BlockAccumulator& values);
 
   /// Reset Vector
-  virtual void reset(Real reset_to=0.) = 0;
+  void reset(Real reset_to=0.);
 
   //@} END EFFICCIENT ACCESS
 
@@ -114,24 +122,38 @@ public:
   //@{
 
   /// Print to wherever
-  virtual void print(Common::LogStream& stream) = 0;
+  void print(Common::LogStream& stream);
 
   /// Print to wherever
-  virtual void print(std::ostream& stream) = 0;
+  void print(std::ostream& stream);
 
   /// Print to file given by filename
-  virtual void print(const std::string& filename) = 0;
+  void print(const std::string& filename);
 
   /// Accessor to the state of create
-  virtual const bool is_created() = 0;
+  const bool is_created() { return m_is_created; };
 
   /// Accessor to the number of equations
-  virtual const Uint neq() = 0;
+  const Uint neq() { return m_neq; };
 
   /// Accessor to the number of block rows
-  virtual const Uint blockrow_size() = 0;
+  const Uint blockrow_size() { return m_blockrow_size; };
 
   //@} END MISCELLANEOUS
+
+private:
+
+  /// teuchos style smart pointer wrapping an epetra vector
+  Teuchos::RCP<Epetra_Vector> m_vector;
+
+  /// number of equations
+  Uint m_neq;
+
+  /// number of blocks
+  Uint m_blockrow_size;
+
+  /// status of the vector
+  bool m_is_created;
 
 };
 
@@ -141,4 +163,4 @@ public:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_Vector_hpp
+#endif // CF_Math_LSS_TrilinosVector_hpp

@@ -47,6 +47,9 @@ public:
   /// name of the type
   static std::string type_name () { return "Matrix"; }
 
+  /// Accessor to solver type
+  virtual const std::string solvertype() = 0;
+
   /// Default constructor
   Matrix(const std::string& name) : Component(name) { }
 
@@ -147,9 +150,6 @@ public:
 
   /// Accessor to the number of block columns
   virtual const Uint blockcol_size() = 0;
-
-  /// Accessor to solver type
-  virtual const std::string solvertype() = 0;
 
   //@} END MISCELLANEOUS
 
