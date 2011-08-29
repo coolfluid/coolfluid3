@@ -53,6 +53,21 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
+  list( APPEND utest-proto-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-parallel_files  utest-proto-parallel.cpp )
+  if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
+    list( APPEND utest-proto-parallel_args 160 160 120 )
+  else()
+    list( APPEND utest-proto-parallel_args 16 16 12 )
+  endif()
+
+  set(utest-proto-parallel_mpi_test TRUE)
+  set(utest-proto-parallel_mpi_nprocs 4)
+
+  coolfluid_add_unit_test( utest-proto-parallel )
+
+  ################################################################################
+
 else()
 
   coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp)

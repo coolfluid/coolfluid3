@@ -1006,12 +1006,17 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
+    
+    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
+      gids_list[i] = gids[i];
       ranks[i] = rank;
+      ranks_list[i] = rank;
     }
 
     std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
@@ -1023,6 +1028,8 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
+      gids_list[local_id] = global_id;
+      ranks_list[local_id] = ranks[local_id];
     }
 
     Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
@@ -1241,12 +1248,17 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
+    
+    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
+      gids_list[i] = gids[i];
       ranks[i] = rank;
+      ranks_list[i] = rank;
     }
 
     // Ghosts
@@ -1256,6 +1268,8 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
+      gids_list[local_id] = global_id;
+      ranks_list[local_id] = ranks[local_id];
     }
 
     Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
