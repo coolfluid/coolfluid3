@@ -11,10 +11,9 @@
 
 //#include <boost/utility.hpp>
 
-//#include "Math/LibMath.hpp"
-//#include "Common/MPI/PE.hpp"
-//#include "Common/Component.hpp"
-//#include "Common/MPI/CommPattern.hpp"
+#include "Math/LibMath.hpp"
+#include "Common/Component.hpp"
+#include "Common/MPI/CommPattern.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Matrix.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -49,6 +48,14 @@
 namespace CF {
 namespace Math {
 namespace LSS {
+
+class stupidclass
+{
+  stupidclass();
+  int stupidmemberfunc(int x);
+  int stupidfunc2(double y);
+  int stupidint;
+};
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +153,18 @@ public:
   inline LSS::Vector::ConstPtr sol() { return m_sol; };
 
   /// Accessor to the state of create
-  inline const bool is_created();
+  inline const bool is_created()
+{
+  int numcreated=0;
+  if (m_mat!=nullptr) if (m_mat->is_created()) numcreated+=1;
+  if (m_sol!=nullptr) if (m_sol->is_created()) numcreated+=2;
+  if (m_rhs!=nullptr) if (m_rhs->is_created()) numcreated+=4;
+  switch (numcreated) {
+    case 0 : return false;
+    case 7 : return true;
+    default: throw Common::SetupError(FromHere(),"LSS System is in inconsistent state.");
+  }
+}
 
   //@} END MISCELLANEOUS
 

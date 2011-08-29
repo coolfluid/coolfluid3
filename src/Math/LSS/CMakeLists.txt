@@ -1,8 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_lss_files
-  System.hpp
   System.cpp
+  System.hpp
   Matrix.hpp
   Vector.hpp
   BlockAccumulator.hpp
@@ -19,7 +19,6 @@ list( APPEND coolfluid_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES})
 #list( APPEND coolfluid_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES}
 #)
 #endif()
-
 
 set( coolfluid_lss_kernellib TRUE )
 
