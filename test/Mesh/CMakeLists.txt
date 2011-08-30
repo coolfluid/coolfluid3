@@ -355,6 +355,13 @@ set( utest-mesh-parallel-overlap_mpi_nprocs 2 )
 coolfluid_add_unit_test( utest-mesh-parallel-overlap )
 
 ##########################################################################
+# test simple mesh generator
+list( APPEND utest-mesh-shapefunctions_cflibs coolfluid_common )
+list( APPEND utest-mesh-shapefunctions_files  utest-mesh-shapefunctions.cpp )
+
+coolfluid_add_unit_test( utest-mesh-shapefunctions )
+
+##########################################################################
 # test Actions
 add_subdirectory( Actions )
 
