@@ -9,23 +9,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/*
-#include <boost/utility.hpp>
+#include <Epetra_Vector.h>
+#include <Teuchos_RCP.hpp>
 
 #include "Math/LibMath.hpp"
-#include "Common/MPI/CommPattern.hpp"
-#include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
-*/
-
-#include <Epetra_Vector.h>
-
 #include "Math/LSS/Vector.hpp"
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file Implementation of LSS::vector interface for Trilinos package.
+  @file TrilinosVector.hpp Definition of LSS::vector interface for Trilinos package.
   @author Tamas Banyai
 
   The chosen tool is epetra vector which has been implemented.
@@ -39,7 +34,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API TrilinosVector : public CF::Common::Component {
+class Math_API TrilinosVector : public LSS::Vector {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -58,10 +53,10 @@ public:
   const std::string solvertype() { return "Trilinos"; }
 
   /// Default constructor
-  TrilinosVector(const std::string& name) : Component(name) { }
+  TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(Uint nblockrows, Uint neq);
+  void create(const Common::Comm::CommPattern& cp, Uint neq);
 
   /// Deallocate underlying data
   void destroy();

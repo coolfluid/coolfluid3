@@ -53,7 +53,7 @@ public:
   Vector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(Uint nblockrows, Uint neq) = 0;
+  virtual void create(const Common::Comm::CommPattern& cp, Uint neq) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;

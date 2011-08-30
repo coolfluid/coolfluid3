@@ -77,8 +77,8 @@ void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vecto
     #endif
   }
 
-  m_rhs->create(cp.gid()->size(),neq);
-  m_sol->create(cp.gid()->size(),neq);
+  m_rhs->create(cp,neq);
+  m_sol->create(cp,neq);
   m_mat->create(cp,neq,node_connectivity,starting_indices,m_sol,m_rhs);
 }
 
@@ -86,6 +86,8 @@ void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vecto
 
 void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
+  if (m_mat->compatible(solution,rhs))
+  {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
     throw Common::SetupError(FromHere(),"Inconsistent states.");
   if ((matrix->solvertype()!=solution->solvertype())||(matrix->solvertype()!=rhs->solvertype()))
@@ -98,6 +100,9 @@ void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::
   if (m_rhs!=rhs) m_rhs=rhs;
   if (m_sol!=solution) m_sol=solution;
   options().option("solver").change_value(matrix->solvertype());
+  } else {
+    throw Common::NotSupported(FromHere(),"System of '" + matrix->name() + "' x '" + solution->name() + "' = '" + rhs->name() + "' is incompatible." );
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

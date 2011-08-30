@@ -62,11 +62,11 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(Uint nblockrows, Uint neq)
+  void create(const Common::Comm::CommPattern& cp, Uint neq)
   {
     destroy();
     m_neq=neq;
-    m_blockrow_size=nblockrows;
+    m_blockrow_size=cp.gid()->size();
     m_is_created=true;
   }
 
