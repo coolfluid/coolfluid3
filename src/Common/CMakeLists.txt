@@ -168,6 +168,7 @@ list( APPEND coolfluid_common_files
       MPI/datatype.hpp
       MPI/operations.hpp
       MPI/debug.hpp
+      MPI/debug.cpp
       MPI/scatter.hpp
       MPI/gather.hpp
       MPI/all_gather.hpp
