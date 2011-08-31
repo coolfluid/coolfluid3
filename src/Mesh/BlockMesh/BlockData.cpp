@@ -14,9 +14,11 @@
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/BlockMesh/WriteDict.hpp"
 
+#include "Mesh/CCells.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
+#include "Mesh/CMeshElements.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CRegion.hpp"
@@ -73,7 +75,8 @@ void create_block_mesh_3d(const BlockData& block_data, CMesh& mesh, std::map<std
   }
 
   // Define the volume cells, i.e. the blocks
-  CElements& block_elements = block_mesh_region.create_region("blocks").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1", block_nodes);
+  CCells& block_elements = block_mesh_region.create_region("blocks").create_component<CCells>("interior");
+  block_elements.initialize("CF.Mesh.SF.Hexa3DLagrangeP1", block_nodes);
   CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][8]);
@@ -131,7 +134,8 @@ void create_block_mesh_2d(const BlockData& block_data, CMesh& mesh, std::map<std
   }
 
   // Define the volume cells, i.e. the blocks
-  CElements& block_elements = block_mesh_region.create_region("blocks").create_elements("CF.Mesh.SF.Quad2DLagrangeP1", block_nodes);
+  CCells& block_elements = block_mesh_region.create_region("blocks").create_component<CCells>("interior");
+  block_elements.initialize("CF.Mesh.SF.Quad2DLagrangeP1", block_nodes);
   CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][4]);
@@ -770,7 +774,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
-  const CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
+  const CElements& block_elements = find_component_recursively<CCells>(block_mesh);
   const CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const CTable<Real>& block_coordinates = block_mesh.geometry().coordinates();
 
@@ -806,7 +810,8 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   const Uint nb_nodes_local = nodes_end - nodes_begin;
 
   CRegion& root_region = mesh.topology().create_region("root_region");
-  CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Hexa3DLagrangeP1");
+  CElements& volume_elements = root_region.create_region("volume").create_component<CCells>("interior");
+  volume_elements.initialize("CF.Mesh.SF.Hexa3DLagrangeP1");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   CTable<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
@@ -1006,9 +1011,9 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
-    
-    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
+
+    CList<Uint>& gids_list = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks_list = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
@@ -1062,7 +1067,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
-  const CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Quad2DLagrangeP1");
+  const CElements& block_elements = find_component_recursively<CCells>(block_mesh);
   const CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const CTable<Real>& block_coordinates = block_mesh.geometry().coordinates();
 
@@ -1098,7 +1103,8 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
   const Uint nb_nodes_local = nodes_end - nodes_begin;
 
   CRegion& root_region = mesh.topology().create_region("root_region");
-  CElements& volume_elements = root_region.create_region("volume").create_elements("CF.Mesh.SF.Quad2DLagrangeP1");
+  CElements& volume_elements = root_region.create_region("volume").create_component<CCells>("interior");
+  volume_elements.initialize("CF.Mesh.SF.Quad2DLagrangeP1");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   CTable<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
@@ -1248,7 +1254,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     // Commpattern arrays
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
-    
+
     CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
     CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
 
@@ -1293,18 +1299,45 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   else
     throw BadValue(FromHere(), "Only 2D and 3D meshes are supported by the blockmesher. Requested dimension was " + to_str(block_data.dimension));
 
-  const Uint rank = Comm::PE::instance().rank();
-
-  // Update the element ranks
-  boost_foreach(CElements& elements , find_components_recursively<CElements>(mesh))
+  if(Comm::PE::instance().is_active())
   {
-    const Uint nb_elems = elements.size();
-    elements.rank().resize(nb_elems);
-    for (Uint elem=0; elem != nb_elems; ++elem)
+    const Uint rank = Comm::PE::instance().rank();
+    const Uint nb_procs = Comm::PE::instance().size();
+
+    // Total number of elements on this rank
+    Uint mesh_nb_elems = 0;
+    boost_foreach(CElements& elements , find_components_recursively<CElements>(mesh))
     {
-      elements.rank()[elem] = rank;
+      mesh_nb_elems += elements.size();
+    }
+
+    std::vector<Uint> nb_elements_accumulated;
+    // Get the total number of elements on each rank
+    Comm::PE::instance().all_gather(mesh_nb_elems, nb_elements_accumulated);
+    cf_assert(nb_elements_accumulated.size() == nb_procs);
+    // Sum up the values
+    for(Uint i = 1; i != nb_procs; ++i)
+      nb_elements_accumulated[i] += nb_elements_accumulated[i-1];
+
+    // Offset to start with for this rank
+    Uint element_offset = rank == 0 ? 0 : nb_elements_accumulated[rank-1];
+
+    // Update the element ranks and gids
+    boost_foreach(CElements& elements , find_components_recursively<CElements>(mesh))
+    {
+      const Uint nb_elems = elements.size();
+      elements.rank().resize(nb_elems);
+      elements.glb_idx().resize(nb_elems);
+
+      for (Uint elem=0; elem != nb_elems; ++elem)
+      {
+        elements.rank()[elem] = rank;
+        elements.glb_idx()[elem] = elem + element_offset;
+      }
+      element_offset += nb_elems;
     }
   }
+  mesh.elements().update();
 }
 
 
@@ -1315,7 +1348,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   detail::create_block_mesh_3d(blocks_in, block_mesh, patch_types);
   const Uint nb_blocks = blocks_in.block_points.size();
 
-  CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Hexa3DLagrangeP1");
+  CElements& block_elements = find_component_recursively<CCells>(block_mesh);
   CTable<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
@@ -1619,7 +1652,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   detail::create_block_mesh_2d(blocks_in, block_mesh, patch_types);
   const Uint nb_blocks = blocks_in.block_points.size();
 
-  CElements& block_elements = find_component_recursively_with_name<CElements>(block_mesh, "elements_CF.Mesh.SF.Quad2DLagrangeP1");
+  CElements& block_elements = find_component_recursively<CCells>(block_mesh);
   CTable<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 

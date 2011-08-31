@@ -16,6 +16,7 @@
 #include "Common/Log.hpp"
 
 #include "Common/MPI/all_reduce.hpp"
+#include "Common/MPI/debug.hpp"
 #include "Common/MPI/PE.hpp"
 
 #include "Math/MatrixTypes.hpp"
@@ -75,19 +76,17 @@ struct ProtoParallelFixture :
     half_height(0.5),
     width(6.)
   {
+    int argc = boost::unit_test::framework::master_test_suite().argc;
+    char** argv = boost::unit_test::framework::master_test_suite().argv;
+    cf_assert(argc == 4);
+    x_segs = boost::lexical_cast<Uint>(argv[1]);
+    y_segs = boost::lexical_cast<Uint>(argv[2]);
+    z_segs = boost::lexical_cast<Uint>(argv[3]);
   }
 
   // Setup a model under root
   CModel& setup(const std::string& model_name)
   {
-    int argc = boost::unit_test::framework::master_test_suite().argc;
-    char** argv = boost::unit_test::framework::master_test_suite().argv;
-
-    cf_assert(argc == 4);
-    const Uint x_segs = boost::lexical_cast<Uint>(argv[1]);
-    const Uint y_segs = boost::lexical_cast<Uint>(argv[2]);
-    const Uint z_segs = boost::lexical_cast<Uint>(argv[3]);
-
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
     Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
     CDomain& dom = model.create_domain("Domain");
@@ -123,6 +122,10 @@ struct ProtoParallelFixture :
   const Real half_height;
   const Real width;
   typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
+  
+  Uint x_segs;
+  Uint y_segs;
+  Uint z_segs;
 };
 
 
@@ -133,6 +136,7 @@ BOOST_AUTO_TEST_SUITE( ProtoParallelSuite )
 BOOST_AUTO_TEST_CASE( Initialize )
 {
   Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  //Common::Comm::wait_for_debugger(1);
 }
 
 BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
@@ -186,11 +190,6 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
   MeshTerm<1, ScalarField> R("CellRank", "variables");
 
-  CMeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
-  //grow_overlap.transform(mesh);
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
-  model.solver().field_manager().create_field("variables", elems_P0);
-
   model.solver()
   << create_proto_action
   (
@@ -211,6 +210,33 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
   model.solver().configure_option_recursively(Solver::Tags::regions(), root_regions);
 }
 
+BOOST_FIXTURE_TEST_CASE( BuildGlobalConn, ProtoParallelFixture )
+{
+  CModel& model = root.get_child("Overlap").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+
+  CMeshTransformer& global_conn = model.domain().create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+  global_conn.transform(mesh);
+}
+
+BOOST_FIXTURE_TEST_CASE( GrowOverlap, ProtoParallelFixture )
+{
+  CModel& model = root.get_child("Overlap").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+
+  CMeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+  grow_overlap.transform(mesh);
+}
+
+BOOST_FIXTURE_TEST_CASE( CreateOverlapFields, ProtoParallelFixture )
+{
+  CModel& model = root.get_child("Overlap").as_type<CModel>();
+  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  model.solver().field_manager().create_field("variables", elems_P0);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( SimulateOverlap, ProtoParallelFixture )
@@ -221,32 +247,59 @@ BOOST_FIXTURE_TEST_CASE( SimulateOverlap, ProtoParallelFixture )
 ////////////////////////////////////////////////////////////////////////////////
 
 // Check the volume results
-BOOST_FIXTURE_TEST_CASE( CheckResult, ProtoParallelFixture )
+BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 {
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
 
-  BOOST_FOREACH(CMesh& mesh, find_components_recursively_with_name<CMesh>(root, "mesh"))
+  CMesh& mesh = find_component_recursively_with_name<CMesh>(root.get_child("NoOverlap"), "mesh");
+  std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
+  Real vol_check = 0;
+  for_each_element< ElementsT >(mesh.topology(), vol_check += V);
+
+  if(Comm::PE::instance().is_active())
   {
-    std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
-    Real vol_check = 0;
-    for_each_element< ElementsT >(mesh.topology(), vol_check += V);
-
-    if(Comm::PE::instance().is_active())
-    {
-      Real total_volume_check;
-      Comm::all_reduce(Comm::PE::instance().communicator(), Comm::plus(), &vol_check, 1, &total_volume_check);
-      BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
-    }
-
-    CMeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<CMeshWriter>();
-    std::vector<Field::Ptr> fields;
-    fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
-    writer.set_fields(fields);
-    writer.write_from_to(mesh, URI("utest-proto-parallel_output-" + mesh.parent().parent().name() + ".pvtu"));
+    Real total_volume_check;
+    Comm::all_reduce(Comm::PE::instance().communicator(), Comm::plus(), &vol_check, 1, &total_volume_check);
+    BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
   }
+
+  CMeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<CMeshWriter>();
+  std::vector<Field::Ptr> fields;
+  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
+  writer.set_fields(fields);
+  writer.write_from_to(mesh, URI("utest-proto-parallel_output-" + mesh.parent().parent().name() + ".pvtu"));
 }
+
+// Check the volume results
+BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
+{
+  const Uint nb_procs = Comm::PE::instance().size();
+  MeshTerm<0, ScalarField> V("CellVolume", "variables");
+
+  const Real wanted_volume = width*length*half_height*2.;
+  std::cout << "wanted_volume: " << wanted_volume << ", nb_procs: " << nb_procs << ", x_segs: " << x_segs << std::endl;
+  const Real wanted_volume_overlap = wanted_volume + (nb_procs-1)*2.*wanted_volume/x_segs;
+
+  CMesh& mesh = find_component_recursively_with_name<CMesh>(root.get_child("Overlap"), "mesh");
+  Real vol_check = 0;
+  for_each_element< ElementsT >(mesh.topology(), vol_check += V);
+
+  if(Comm::PE::instance().is_active())
+  {
+    Real total_volume_check;
+    Comm::all_reduce(Comm::PE::instance().communicator(), Comm::plus(), &vol_check, 1, &total_volume_check);
+    BOOST_CHECK_CLOSE(total_volume_check, wanted_volume_overlap, 1e-6);
+  }
+
+  CMeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<CMeshWriter>();
+  std::vector<Field::Ptr> fields;
+  fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
+  writer.set_fields(fields);
+  writer.write_from_to(mesh, URI("utest-proto-parallel_output-" + mesh.parent().parent().name() + ".pvtu"));
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
