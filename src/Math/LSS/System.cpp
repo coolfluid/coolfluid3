@@ -175,7 +175,19 @@ void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real val
 void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf_assert(is_created());
+  LSS::BlockAccumulator ba;
+  const int neq=m_mat->neq();
+  ba.resize(2,neq);
+  ba.indices[0]=iblockrow_to;
+  ba.indices[1]=iblockrow_from;
   m_mat->tie_blockrow_pairs(iblockrow_to,iblockrow_from);
+  m_sol->get_rhs_values(ba);
+  for (int i=0; i<(const int)neq; i++)
+  {
+    ba.rhs[i]+=ba.rhs[neq+i];
+    ba.rhs[neq+i]=0.;
+  }
+  m_sol->set_rhs_values(ba);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

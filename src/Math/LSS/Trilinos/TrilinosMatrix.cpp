@@ -46,6 +46,9 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
 
 void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
+  /// @todo structurally symmetricize the matrix
+  /// @todo ensure main diagonal blocks always existent
+
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
 
@@ -153,6 +156,7 @@ void TrilinosMatrix::add_value(const Uint icol, const Uint irow, const Real valu
 
 void TrilinosMatrix::get_value(const Uint icol, const Uint irow, Real& value)
 {
+  /// @note maybe its more efficient by using the extractrowpointers and allocate a max number of columns persistent array of pointers as a member data
   cf_assert(m_is_created);
   const int colblock=(int)(icol/m_neq);
   const int colsub=(int)(icol%m_neq);
@@ -224,9 +228,8 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 
 void TrilinosMatrix::get_values(BlockAccumulator& values)
 {
-  /// @todo extracting values does not have a beginextract/submit/ensubmit scheme, needs to be implemented via extractrowview
-/*
   cf_assert(m_is_created);
+/*
   const int numblocks=values.indices.size();
   int* idxs=(int*)&values.indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
@@ -238,6 +241,19 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
   }
 
 int Epetra_VbrMatrix::ExtractGlobalBlockRowView 	( 	int 	BlockRow,
+    int & 	RowDim,
+    int & 	NumBlockEntries,
+    int *& 	BlockIndices,
+    Epetra_SerialDenseMatrix **& 	Values
+  ) 	const
+
+int Epetra_VbrMatrix::BeginExtractMyBlockRowView 	( 	int 	BlockRow,
+    int & 	RowDim,
+    int & 	NumBlockEntries,
+    int *& 	BlockIndices
+  ) 	const
+
+int Epetra_VbrMatrix::ExtractMyBlockRowView 	( 	int 	BlockRow,
     int & 	RowDim,
     int & 	NumBlockEntries,
     int *& 	BlockIndices,
@@ -270,8 +286,28 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
 
 void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
 {
+  /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
   cf_assert(m_is_created);
-  /// @todo implement
+  values.resize(m_blockrow_size*m_neq);
+  values.assign(m_blockrow_size*m_neq,0.);
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummy_neq;
+  for (int k=0; k<(const int)m_blockrow_size; k++)
+  {
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)k,dummy_neq,blockrowsize,colindices,val));
+    for (int i=0; i<blockrowsize; i++)
+      if (colindices[i]==iblockcol)
+      {
+        for (int j=0; j<m_neq; j++)
+        {
+          values[k*m_neq+j]=val[i][0](j,ieq);
+          val[i][0](j,ieq)=0.;
+        }
+        break;
+      }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -279,7 +315,27 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
 void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from)
 {
   cf_assert(m_is_created);
-  /// @todo implement
+  Epetra_SerialDenseMatrix **val_to,**val_from;
+  int* colindices_to, *colindices_from;
+  int blockrowsize_to,blockrowsize_from;
+  int diag=-1,pair=-1;
+  int dummy_neq;
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
+  if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
+  for (int i=0; i<blockrowsize_to; i++)
+  {
+    cf_assert(colindices_to[i]==colindices_from[i]);
+    if (colindices_from[i]==iblockrow_from) diag=i;
+    if (colindices_to[i]  ==iblockrow_to)   pair=i;
+    val_to[i][0]=val_from[i][0];
+    val_from[i][0].Scale(0.);
+  }
+  for (int i=0; i<m_neq; i++)
+  {
+    val_from[diag][0](i,i)=1.;
+    val_to[pair][0](i,i)=-1.;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
