@@ -110,7 +110,8 @@ public:
   virtual void set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval) = 0;
 
   /// Get a column and replace it to zero (dirichlet-type boundaries, when trying to preserve symmetry)
-  /// Note that sparsity info is lost, values will contain zeros where no matrix entry is present
+  /// @note that sparsity info is lost, values will contain zeros where no matrix entry is present
+  /// @attention by the definitiona of the compresssed sparse row matrices, this operation tends to be very heavy
   virtual void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values) = 0;
 
   /// Add one line to another and tie to it via dirichlet-style (applying periodicity)

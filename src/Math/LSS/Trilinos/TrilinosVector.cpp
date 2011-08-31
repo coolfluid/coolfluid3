@@ -6,6 +6,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Assertions.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
@@ -31,7 +32,8 @@ TrilinosVector::TrilinosVector(const std::string& name) :
   m_neq(0),
   m_blockrow_size(0),
   m_is_created(false),
-  m_vector(0)
+  m_vec(0),
+  m_comm(Common::Comm::PE::instance().communicator())
 {
 }
 
@@ -147,6 +149,9 @@ void TrilinosVector::print(std::ostream& stream)
 
 void TrilinosVector::print(const std::string& filename)
 {
+  std::ofstream stream(filename.c_str());
+  print(stream);
+  stream.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

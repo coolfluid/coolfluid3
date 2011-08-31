@@ -14,7 +14,6 @@
 
 #include "Common/Log.hpp"
 #include "Math/LSS/System.hpp"
-#include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +59,6 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( test_vector )
 {
-  LSS::Vector::Ptr vec(new LSS::TrilinosVector("testvector"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

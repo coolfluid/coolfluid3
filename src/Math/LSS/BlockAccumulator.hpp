@@ -57,6 +57,9 @@ public:
   /// how many rows/columns
   const Uint size() { return sol.size(); };
 
+  /// how many rows/columns
+  const Uint block_size() { return indices.size(); };
+
   /// accessor to blockaccumulator's RealMatrix
   RealMatrix mat;
 

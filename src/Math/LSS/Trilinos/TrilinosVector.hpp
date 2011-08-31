@@ -9,6 +9,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/lexical_cast.hpp>
+
+#include <Epetra_MpiComm.h>
 #include <Epetra_Vector.h>
 #include <Teuchos_RCP.hpp>
 
@@ -31,6 +34,15 @@
 namespace CF {
 namespace Math {
 namespace LSS {
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+#define TRILINOS_ASSERT(a) cf_assert((a)==0)
+#define TRILINOS_THROW(trilinos_function_call)  { \
+  int trilinos_check_error=trilinos_function_call; \
+  if ((trilinos_check_error)!=0) \
+    throw Common::FailedAssertion(FromHere(),"Call to '" + boost::lexical_cast<std::string>(#trilinos_function_call) + "' in Trilinos dependency returned a non-zero (" +  boost::lexical_cast<std::string>(trilinos_check_error) + ") error code."); \
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +151,10 @@ public:
 private:
 
   /// teuchos style smart pointer wrapping an epetra vector
-  Teuchos::RCP<Epetra_Vector> m_vector;
+  Teuchos::RCP<Epetra_Vector> m_vec;
+
+  /// epetra mpi environment
+  Epetra_MpiComm m_comm;
 
   /// number of equations
   Uint m_neq;

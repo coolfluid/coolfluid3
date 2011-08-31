@@ -75,7 +75,13 @@ public:
   }
 
   /// Deallocate underlying data
-  void destroy() { m_is_created=false; }
+  void destroy()
+  {
+    m_is_created=false;
+    m_blockcol_size=0;
+    m_blockrow_size=0;
+    m_neq=0;
+  }
 
   //@} END CREATION, DESTRUCTION AND COMPONENT SYSTEM
 

@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <Epetra_MpiComm.h>
 #include <Epetra_FEVbrMatrix.h>
 #include <Teuchos_RCP.hpp>
 
@@ -156,7 +157,10 @@ public:
 private:
 
   /// teuchos style smart pointer wrapping an epetra fevbrmatrix
-  Teuchos::RCP<Epetra_FEVbrMatrix> m_matrix;
+  Teuchos::RCP<Epetra_FEVbrMatrix> m_mat;
+
+  /// epetra mpi environment
+  Epetra_MpiComm m_comm;
 
   /// state of creation
   bool m_is_created;
