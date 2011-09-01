@@ -17,7 +17,6 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CMeshWriter.hpp"
-#include "Mesh/SimpleCommunicationPattern.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/BlockMesh/WriteDict.hpp"
