@@ -395,6 +395,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
 {
   blocks.scaling_factor = 1.;
+  blocks.dimension = 3;
 
   blocks.points += list_of(0.    )(-half_height)(0.   )
                  , list_of(length)(-half_height)(0.   )

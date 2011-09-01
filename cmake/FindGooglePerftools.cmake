@@ -26,7 +26,7 @@ option( CF_SKIP_GOOGLEPERFTOOLS "Skip search for google-perftools" OFF )
   set( GOOGLEPERFTOOLS_LIBRARIES ${GOOGLEPERFTOOLS_PROFILER_LIBRARY} ${GOOGLEPERFTOOLS_TCMALLOC_LIBRARY} )
 
   # tools used for profiling post-processing
-  find_program(CF_PPROF_COMMAND pprof)
+  find_program(CF_PPROF_COMMAND NAMES pprof google-pprof)
   find_program(CF_DOT_COMMAND dot)
 
   mark_as_advanced( CF_PPROF_COMMAND CF_DOT_COMMAND )

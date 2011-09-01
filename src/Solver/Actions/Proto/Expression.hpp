@@ -186,7 +186,7 @@ public:
     // Traverse all CElements under the region and evaluate the expression
     BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region) )
     {
-      boost::mpl::for_each<ElementTypes>( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
+      boost::mpl::for_each<boost::mpl::filter_view< ElementTypes, Mesh::SF::IsMinimalOrder<1> > >( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
     }
   }
 };

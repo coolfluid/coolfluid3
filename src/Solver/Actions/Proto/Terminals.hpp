@@ -69,12 +69,23 @@ struct Var : I
   type variable_value;
 };
 
+/// Extract an index-type from a var
+template<typename T>
+struct IndexType
+{
+  typedef T type;
+};
+
+template<typename I, typename T>
+struct IndexType< Var<I, T> >
+{
+  typedef I type;
+};
+
 /// Base class for field data
 struct FieldBase
 {
-  FieldBase() :
-    m_name("aName"),
-    m_field_tag("a_field_tag")
+  FieldBase()
   {
   }
 

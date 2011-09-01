@@ -44,6 +44,8 @@ protected:
   std::string m_prefix;
   /// Directory to store the profile data in
   boost::filesystem::path m_profile_dir;
+  /// If set to true, the profiling tool will be run
+  bool m_process_profile;
 private:
   /// Storage for the file being profiled to
   std::string m_current_filename;

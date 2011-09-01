@@ -16,6 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
@@ -28,6 +29,7 @@
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
 
@@ -198,7 +200,9 @@ Common::ComponentBuilder < VTKXML::CWriter, CMeshWriter, LibVTKXML> aVTKXMLWrite
 CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
-
+    m_options.add_option< OptionT<bool> >("distributed_files", false)
+    ->pretty_name("Distributed Files")
+    ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -217,8 +221,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
   boost::filesystem::path my_path(file_path.path());
+  const boost::filesystem::path my_dir = my_path.parent_path();
   const std::string basename = boost::filesystem::basename(my_path);
-  my_path = basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu";
+  my_path = my_dir / (basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
 
@@ -368,8 +373,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = field.size();
+      const Uint field_size = FieldGroup::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
+      const Uint var_end = var_begin + var_size;
 
       XmlNode data_array = FieldGroup::Basis::POINT_BASED == field.basis()
         ? point_data.add_node("DataArray")
@@ -382,9 +388,31 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       data_array.set_attribute("offset", to_str(appended_data.offset()));
 
       appended_data.start_array(field_size*var_size, sizeof(Real));
-      for(Uint i = 0; i != field_size; ++i)
-        for(Uint j = 0; j != var_size; ++j)
-          appended_data.push_back(field[i][j]);
+
+      if(field.basis() == CF::Mesh::FieldGroup::Basis::POINT_BASED)
+      {
+        for(Uint i = 0; i != field_size; ++i)
+          for(Uint j = var_begin; j != var_end; ++j)
+            appended_data.push_back(field[i][j]);
+      }
+      else
+      {
+        boost_foreach(const CElements& elements, find_components_recursively<CElements>(mesh.topology()) )
+        {
+          const Uint elements_begin = field.field_group().space(elements).elements_begin();
+          if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
+          {
+            const Uint n_elems = elements.size();
+            const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
+            for(Uint i = 0; i != n_elems; ++i)
+            {
+              for(Uint j = var_begin; j != var_end; ++j)
+                appended_data.push_back(field[i+elements_begin][j]);
+            }
+          }
+        }
+      }
+
       appended_data.finish_array();
     }
   }
@@ -409,9 +437,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(Comm::PE::instance().rank() == 0)
+  if(Comm::PE::instance().rank() == 0 || option("distributed_files").value<bool>())
   {
-    boost::filesystem::path pvtu_path = basename + ".pvtu";
+    boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
 
     XmlDoc pvtu_doc("1.0", "ISO-8859-1");
 
@@ -427,7 +455,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     punstruc.set_name("UnstructuredGrid");
     detail::make_pvtu(punstruc);
     punstruc.set_attribute("GhostLevel", "0");
-    
+
     for(Uint i = 0; i != Comm::PE::instance().size(); ++i)
     {
       const std::string piece_path = basename + "_P" + to_str(i) + ".vtu";
