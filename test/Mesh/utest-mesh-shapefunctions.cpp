@@ -12,7 +12,7 @@
 #include "Common/Component.hpp"
 
 #include "Mesh/ShapeFunction.hpp"
-#include "Mesh/SF/LagrangeP0/Triag.hpp"
+#include "Mesh/LagrangeP0/Triag.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -41,15 +41,15 @@ BOOST_FIXTURE_TEST_SUITE( Test_ShapeFunction_TestSuite, Test_ShapeFunction_Fixtu
 
 BOOST_AUTO_TEST_CASE( static_version )
 {
-  SF::LagrangeP0::Triag::MappedCoordsT mapped_coord = (SF::LagrangeP0::Triag::MappedCoordsT() << 0, 0 ).finished();
+  LagrangeP0::Triag::MappedCoordsT mapped_coord = (LagrangeP0::Triag::MappedCoordsT() << 0, 0 ).finished();
 
-  SF::LagrangeP0::Triag::ValueT values       = SF::LagrangeP0::Triag::value( mapped_coord );
-  const RealMatrix&             local_coords = SF::LagrangeP0::Triag::local_coordinates();
+  LagrangeP0::Triag::ValueT values       = LagrangeP0::Triag::value( mapped_coord );
+  const RealMatrix&             local_coords = LagrangeP0::Triag::local_coordinates();
 
   std::cout << "static : values       = " << values       << std::endl;
   std::cout << "static : local_coords = " << local_coords << std::endl;
 
-  SF::LagrangeP0::Triag::compute_value(mapped_coord, values);
+  LagrangeP0::Triag::compute_value(mapped_coord, values);
   std::cout << "static : values       = " << values       << std::endl;
 }
 
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( dynamic_version )
 {
   RealVector mapped_coord = (RealVector(2) << 0, 0).finished();
 
-  std::auto_ptr<ShapeFunction> sf (new SF::LagrangeP0::Triag);
+  std::auto_ptr<ShapeFunction> sf (new LagrangeP0::Triag);
 
   RealRowVector     values       = sf->value(mapped_coord);
   const RealMatrix& local_coords = sf->local_coordinates();

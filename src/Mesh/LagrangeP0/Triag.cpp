@@ -6,12 +6,11 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Mesh/SF/LagrangeP0/LibLagrangeP0.hpp"
-#include "Mesh/SF/LagrangeP0/Triag.hpp"
+#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "Mesh/LagrangeP0/Triag.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace SF {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +51,5 @@ RealMatrix Triag::m_local_coordinates =  ( RealMatrix(Triag::nb_nodes, Triag::di
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // SF
 } // Mesh
 } // CF

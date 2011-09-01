@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_SF_LagrangeP0_LibLagrangeP0_hpp
-#define CF_Mesh_SF_LagrangeP0_LibLagrangeP0_hpp
+#ifndef CF_Mesh_LagrangeP0_LibLagrangeP0_hpp
+#define CF_Mesh_LagrangeP0_LibLagrangeP0_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,30 +14,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SF_API
-/// @note build system defines COOLFLUID_MESH_SF_LAGRANGEP0_EXPORTS when compiling SF files
-#ifdef COOLFLUID_MESH_SF_EXPORTS
-#   define Mesh_SF_LagrangeP0_API      CF_EXPORT_API
-#   define Mesh_SF_LagrangeP0_TEMPLATE
+/// @note build system defines COOLFLUID_MESH_LAGRANGEP0_EXPORTS when compiling SF files
+#ifdef COOLFLUID_MESH_LAGRANGEP0_EXPORTS
+#   define Mesh_LagrangeP0_API      CF_EXPORT_API
+#   define Mesh_LagrangeP0_TEMPLATE
 #else
-#   define Mesh_SF_LagrangeP0_API      CF_IMPORT_API
-#   define Mesh_SF_LagrangeP0_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Mesh_LagrangeP0_API      CF_IMPORT_API
+#   define Mesh_LagrangeP0_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
 namespace Mesh {
-namespace SF {
 
-/// @brief namespace holding LagrangeP0 shape functions
+/// @brief namespace holding LagrangeP0 shape functions and elements
 /// @author Willem Deconinck
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Shape functions module for LagrangeP0
-/// @author Tiago Quintino, Willem Deconinck, Bart Janssens
-class Mesh_SF_LagrangeP0_API LibLagrangeP0 : public Common::CLibrary
+/// @author Tiago Quintino, Willem Deconinck
+class Mesh_LagrangeP0_API LibLagrangeP0 : public Common::CLibrary
 {
 public:
 
@@ -83,7 +82,6 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // SF
 } // Mesh
 } // CF
 

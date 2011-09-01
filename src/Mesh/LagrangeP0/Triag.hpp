@@ -4,16 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_SF_LagrangeP0_Triag_hpp
-#define CF_Mesh_SF_LagrangeP0_Triag_hpp
+#ifndef CF_Mesh_LagrangeP0_Triag_hpp
+#define CF_Mesh_LagrangeP0_Triag_hpp
 
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/GeoShape.hpp"
-#include "Mesh/SF/LagrangeP0/LibLagrangeP0.hpp"
+#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace SF {
 namespace LagrangeP0 {
 
 /// @class Triag
@@ -28,7 +27,7 @@ namespace LagrangeP0 {
 ///             ------------
 /// Reference domain: <0,1> x <0,1>
 /// @endverbatim
-class Mesh_SF_LagrangeP0_API Triag  : public ShapeFunctionT<Triag> {
+class Mesh_LagrangeP0_API Triag  : public ShapeFunctionT<Triag> {
 public:
 
   enum { dimensionality = 2 };
@@ -86,8 +85,7 @@ public:
 };
 
 } // LagrangeP0
-} // SF
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_SF_LagrangeP0_Triag_hpp
+#endif // CF_Mesh_LagrangeP0_Triag_hpp

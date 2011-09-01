@@ -138,6 +138,8 @@ coolfluid_add_library( coolfluid_mesh )
 ############################################################################################
 # sub modules of CF.Mesh
 
+add_subdirectory(LagrangeP0)      # LagrangeP0 elements / shape functions
+
 add_subdirectory( SF )            # Shape functions
 
 add_subdirectory( Neu )           # Neutral file IO
