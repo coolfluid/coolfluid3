@@ -254,11 +254,9 @@ void LSS::System::print(const std::string& filename)
 {
   if (is_created())
   {
-    std::ofstream ofs(filename.c_str());
-    m_mat->print(ofs);
-    m_sol->print(ofs);
-    m_rhs->print(ofs);
-    ofs.close();
+    m_mat->print(filename,std::ios_base::out);
+    m_sol->print(filename,std::ios_base::app);
+    m_rhs->print(filename,std::ios_base::app);
   }
 }
 

@@ -135,7 +135,7 @@ public:
   void print(std::ostream& stream);
 
   /// Print to file given by filename
-  void print(const std::string& filename);
+  void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; };
@@ -147,6 +147,15 @@ public:
   const Uint blockrow_size() { return m_blockrow_size; };
 
   //@} END MISCELLANEOUS
+
+  /// @name TEST ONLY
+  //@{
+
+  /// exports the vector into big linear array
+  /// @attention only for debug and utest purposes
+  void data(std::vector<Real>& values);
+
+  //@} END TEST ONLY
 
 private:
 

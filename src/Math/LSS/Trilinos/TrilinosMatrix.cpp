@@ -14,6 +14,9 @@
 #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
+/// @todo remove this header when done
+#include "Common/MPI/debug.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -38,6 +41,7 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_neq(0),
   m_blockrow_size(0),
   m_blockcol_size(0),
+  m_p2m(0),
   m_comm(Common::Comm::PE::instance().communicator())
 {
 }
@@ -52,11 +56,11 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
 
-  // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
+  // prepare intermediate data
   int nmyglobalelements=0;
   int maxrowentries=0;
-  std::vector<int> myglobalelements(0);
   std::vector<int> rowelements(0);
+  std::vector<int> myglobalelements(0);
 
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
@@ -69,32 +73,48 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   std::vector<double>dummy_entries(maxrowentries*neq*neq,0.);
   std::vector<int>global_columns(maxrowentries);
 
+  // process local to matrix local numbering mapper
+  int iupd=0;
+  int ighost=nmyglobalelements;
+  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
+  {
+    if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
+    else { m_p2m.push_back(ighost++); }
+  }
+
+  // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
   Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,neq,0,m_comm);
-  myglobalelements.resize(0);
-  myglobalelements.reserve(0);
+  myglobalelements.clear();
 
-  // matrix
+  // create matrix
   m_mat=Teuchos::rcp(new Epetra_FEVbrMatrix(Copy,rowmap,colmap,&rowelements[0]));
+/*must be a bug in Trilinos, Epetra_FEVbrMatrix constructor is in Copy mode but it hangs up anyway
+  more funny, when it gets out of scope and gets dealloc'd, everything survives according to memcheck
   rowmap.~Epetra_BlockMap();
+  colmap.~Epetra_BlockMap();
+*/
+  rowelements.clear();
 
-  for(int i=0; i<(const int)nmyglobalelements; i++)
-  {
-    for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[node_connectivity[j]];
-    TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],rowelements[i],&global_columns[0]));
-    for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
-      TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,3,3));
-    TRILINOS_THROW(m_mat->EndSubmitEntries());
-  }
+  // prepare the entries
+  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
+    if (cp.isUpdatable()[i])
+    {
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[node_connectivity[j]];
+      TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],(int)(starting_indices[i+1]-starting_indices[i]),&global_columns[0]));
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
+        TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
+      TRILINOS_THROW(m_mat->EndSubmitEntries());
+    }
   TRILINOS_THROW(m_mat->FillComplete());
   TRILINOS_THROW(m_mat->OptimizeStorage()); // in theory fillcomplete calls optimizestorage from Trilinos 8.x+
-  delete gid;
+  delete[] gid;
 
   // set class properties
   m_is_created=true;
   m_neq=neq;
   m_blockrow_size=nmyglobalelements;
-  m_blockcol_size=maxrowentries;
+  m_blockcol_size=cp.gid()->size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +122,8 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
 void TrilinosMatrix::destroy()
 {
   if (m_is_created) m_mat.reset();
+  m_p2m.resize(0);
+  m_p2m.reserve(0);
   m_neq=0;
   m_blockrow_size=0;
   m_blockcol_size=0;
@@ -228,38 +250,24 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 
 void TrilinosMatrix::get_values(BlockAccumulator& values)
 {
+  /// @attention MODERATE EXPENSIVE, AVOID USAGE
   cf_assert(m_is_created);
-/*
-  const int numblocks=values.indices.size();
   int* idxs=(int*)&values.indices[0];
-  for (int irow=0; irow<(const int)numblocks; irow++)
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummy_neq;
+  const int block_size=values.block_size();
+  for (int i=0; i<(const int)block_size; i++)
   {
-    TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
-    for (int icol=0; icol<numblocks; icol++)
-      TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-    TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
+    for (int j=0; j<(const int)blockrowsize; j++)
+      for (int k=0; k<(const int)block_size; k++)
+        if (idxs[k]==colindices[j])
+          for (int l=0; l<(const int)m_neq; l++)
+            for (int m=0; m<(const int)m_neq; m++)
+              values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
   }
-
-int Epetra_VbrMatrix::ExtractGlobalBlockRowView 	( 	int 	BlockRow,
-    int & 	RowDim,
-    int & 	NumBlockEntries,
-    int *& 	BlockIndices,
-    Epetra_SerialDenseMatrix **& 	Values
-  ) 	const
-
-int Epetra_VbrMatrix::BeginExtractMyBlockRowView 	( 	int 	BlockRow,
-    int & 	RowDim,
-    int & 	NumBlockEntries,
-    int *& 	BlockIndices
-  ) 	const
-
-int Epetra_VbrMatrix::ExtractMyBlockRowView 	( 	int 	BlockRow,
-    int & 	RowDim,
-    int & 	NumBlockEntries,
-    int *& 	BlockIndices,
-    Epetra_SerialDenseMatrix **& 	Values
-  ) 	const
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -287,6 +295,7 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
 void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values)
 {
   /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
+  /// @attention COMPUTATIONALLY VERY EXPENSIVE!
   cf_assert(m_is_created);
   values.resize(m_blockrow_size*m_neq);
   values.assign(m_blockrow_size*m_neq,0.);
@@ -417,8 +426,8 @@ void TrilinosMatrix::print(Common::LogStream& stream)
   {
     int sumentries=0;
     int maxcol=0;
-    double *vals=new double[m_blockcol_size];
-    int *idxs=new int[m_blockcol_size];
+    double *vals=new double[m_blockcol_size*m_neq];
+    int *idxs=new int[m_blockcol_size*m_neq];
     for (int i=0; i<(const int)m_mat->NumMyRows(); i++)
     {
       int rowentries;
@@ -432,6 +441,7 @@ void TrilinosMatrix::print(Common::LogStream& stream)
     delete[] idxs;
     stream << "# name:                 " << name() << "\n";
     stream << "# type_name:            " << type_name() << "\n";
+    stream << "# process:              " << m_comm.MyPID() << "\n";
     stream << "# number of equations:  " << m_neq << "\n";
     stream << "# number of rows:       " << m_blockrow_size*m_neq << "\n";
     stream << "# number of cols:       " << m_blockcol_size*m_neq << "\n";
@@ -451,8 +461,8 @@ void TrilinosMatrix::print(std::ostream& stream)
   {
     int sumentries=0;
     int maxcol=0;
-    double *vals=new double[m_blockcol_size];
-    int *idxs=new int[m_blockcol_size];
+    double *vals=new double[m_blockcol_size*m_neq];
+    int *idxs=new int[m_blockcol_size*m_neq];
     for (int i=0; i<(const int)m_mat->NumMyRows(); i++)
     {
       int rowentries;
@@ -466,6 +476,7 @@ void TrilinosMatrix::print(std::ostream& stream)
     delete[] idxs;
     stream << "# name:                 " << name() << "\n";
     stream << "# type_name:            " << type_name() << "\n";
+    stream << "# process:              " << m_comm.MyPID() << "\n";
     stream << "# number of equations:  " << m_neq << "\n";
     stream << "# number of rows:       " << m_blockrow_size*m_neq << "\n";
     stream << "# number of cols:       " << m_blockcol_size*m_neq << "\n";
@@ -479,12 +490,38 @@ void TrilinosMatrix::print(std::ostream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::print(const std::string& filename)
+void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode mode )
 {
-  std::ofstream stream(filename.c_str());
+  std::ofstream stream(filename.c_str(),mode);
+  stream << "ZONE T=\"" << type_name() << "::" << name() << "\"\n" << std::flush;
   print(stream);
   stream.close();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosMatrix::data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
+{
+  cf_assert(m_is_created);
+  row_indices.clear();
+  col_indices.clear();
+  values.clear();
+  int rowentries;
+  double *vals=new double[m_blockcol_size*m_neq];
+  int *idxs=new int[m_blockcol_size*m_neq];
+  for (int i=0; i<(const int)m_mat->NumMyRows(); i++)
+  {
+    m_mat->NumMyRowEntries(i,rowentries);
+    TRILINOS_ASSERT(m_mat->ExtractMyRowCopy(i,rowentries,rowentries,vals,idxs));
+    for (int j=0; j<rowentries; j++)
+    {
+      row_indices.push_back(i);
+      col_indices.push_back(idxs[j]);
+      values.push_back(vals[j]);
+    }
+  }
+  delete[] vals;
+  delete[] idxs;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////

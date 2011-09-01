@@ -256,7 +256,7 @@ public:
 
   /// accessor to global indexing
   /// @return const CommWrapper pointer to the data
-  CommWrapper::ConstPtr gid() const { return m_gid; }
+  const CommWrapper::Ptr gid() const { return m_gid; }
 
   /// accessor to the m_isUpdatable vector
   /// @return vector of bools

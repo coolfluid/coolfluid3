@@ -138,7 +138,7 @@ public:
   void print(std::ostream& stream);
 
   /// Print to file given by filename
-  void print(const std::string& filename);
+  void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out );
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; }
@@ -153,6 +153,15 @@ public:
   const Uint blockcol_size() {  cf_assert(m_is_created); return m_blockcol_size; }
 
   //@} END MISCELLANEOUS
+
+  /// @name TEST ONLY
+  //@{
+
+  /// exports the matrix into big linear arrays
+  /// @attention only for debug and utest purposes
+  void data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
+
+  //@} END TEST ONLY
 
 private:
 
@@ -173,6 +182,9 @@ private:
 
   /// number of block columns
   Uint m_blockcol_size;
+
+  /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
+  std::vector<int> m_p2m;
 
 
 }; // end of class Matrix

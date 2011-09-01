@@ -120,7 +120,7 @@ public:
   virtual void print(std::ostream& stream) = 0;
 
   /// Print to file given by filename
-  virtual void print(const std::string& filename) = 0;
+  virtual void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) = 0;
 
   /// Accessor to the state of create
   virtual const bool is_created() = 0;
@@ -132,6 +132,15 @@ public:
   virtual const Uint blockrow_size() = 0;
 
   //@} END MISCELLANEOUS
+
+  /// @name TEST ONLY
+  //@{
+
+  /// exports the vector into big linear array
+  /// @attention only for debug and utest purposes
+  virtual void data(std::vector<Real>& values) = 0;
+
+  //@} END TEST ONLY
 
 };
 

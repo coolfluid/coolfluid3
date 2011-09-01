@@ -47,6 +47,7 @@ void TrilinosVector::create(const Common::Comm::CommPattern& cp, Uint neq)
   m_vector=Teuchos::rcp(new Epetra_Vector());
   delete gids;
 */
+  m_is_created=true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -147,11 +148,17 @@ void TrilinosVector::print(std::ostream& stream)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::print(const std::string& filename)
+void TrilinosVector::print(const std::string& filename, std::ios_base::openmode mode)
 {
-  std::ofstream stream(filename.c_str());
+  std::ofstream stream(filename.c_str(),mode);
   print(stream);
   stream.close();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::data(std::vector<Real>& values)
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

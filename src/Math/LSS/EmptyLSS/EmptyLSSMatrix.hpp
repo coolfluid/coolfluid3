@@ -156,7 +156,7 @@ public:
   void print(std::ostream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
 
   /// Print to file given by filename
-  void print(const std::string& filename) { cf_assert(m_is_created); }
+  void print(const std::string& filename, std::ios_base::openmode mode = std::ios_base::out ) { cf_assert(m_is_created); }
 
   /// Accessor to the state of create
   const bool is_created() { return m_is_created; }
@@ -171,6 +171,15 @@ public:
   const Uint blockcol_size() {  cf_assert(m_is_created); return m_blockcol_size; }
 
   //@} END MISCELLANEOUS
+
+  /// @name TEST ONLY
+  //@{
+
+  /// exports the matrix into big linear arrays
+  /// @attention only for debug and utest purposes
+  virtual void data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values) { cf_assert(m_is_created); }
+
+  //@} END TEST ONLY
 
 private:
 
