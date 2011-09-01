@@ -40,6 +40,12 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < BoundaryConditions, CActionDirector, LibUFEM > BoundaryConditions_Builder;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 struct BoundaryConditions::Implementation
 {
   Implementation(CActionDirector& comp) :
