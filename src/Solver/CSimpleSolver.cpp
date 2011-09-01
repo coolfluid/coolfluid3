@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/BasicExceptions.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 
@@ -22,6 +23,8 @@ namespace Solver {
 
 using namespace Common;
 using namespace Mesh;
+
+Common::ComponentBuilder < CSimpleSolver, CSolver, LibSolver > Builder_CSimpleSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 

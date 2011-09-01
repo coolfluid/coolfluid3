@@ -13,6 +13,7 @@
 
 #include "Solver/Actions/Proto/EigenTransforms.hpp"
 #include "Solver/Actions/Proto/ElementOperations.hpp"
+#include "Solver/Actions/Proto/ElementData.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 /// @file 
@@ -79,6 +80,37 @@ struct SFOps :
 {
 };
 
+/// Filter to extract the value from an element-based field
+struct ElementValue : boost::proto::transform<ElementValue>
+{
+  template<typename ExprT, typename StateT, typename DataT>
+  struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
+  {
+    
+    typedef typename VarDataType<ExprT, DataT>::type VarDataT;
+    // TODO: Result type deduction (needed only for element-based vector fields)
+    typedef Real& result_type;
+    
+    result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
+    {
+      return dispatch(typename VarDataT::SF(), data.var_data(var), var);
+    }
+    
+    /// static dispatch in case of node-based field, giving an error
+    template<typename SF>
+    result_type dispatch(const SF&, VarDataT&, typename impl::expr_param var)
+    {
+      throw Common::SetupError(FromHere(), "Variable " + var.variable_value.name() + " is used like an element-based variable, but it is stored in a node-based field");
+    }
+    
+    /// static dispatch in case of element-based field
+    result_type dispatch(const ElementBased&, VarDataT& var, typename impl::expr_param)
+    {
+      return var.value();
+    }
+  };
+};
+
 struct NodalValuesTag
 {
 };
@@ -87,10 +119,18 @@ static boost::proto::terminal<NodalValuesTag>::type const nodal_values = {};
 
 /// Get nodal values
 struct NodalValues :
-  boost::proto::when
+  boost::proto::or_
   <
-    boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
-    VarValue(boost::proto::_value(boost::proto::_child1))
+    boost::proto::when
+    <
+      boost::proto::function<boost::proto::terminal<NodalValuesTag>, FieldTypes>,
+      VarValue(boost::proto::_value(boost::proto::_child1))
+    >,
+    boost::proto::when
+    <
+      FieldTypes,
+      ElementValue(boost::proto::_value)
+    >
   >
 {
 };

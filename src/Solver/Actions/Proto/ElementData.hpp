@@ -28,6 +28,7 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -237,9 +238,13 @@ private:
 inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
 {
   Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-  Mesh::FieldGroup& field_group =  mesh.geometry();
-  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+  return Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
 }
+
+/// Dummy shape function type used for element-based fields
+struct ElementBased
+{
+};
 
 /// Data associated with field variables
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, bool IsEquationVar>
@@ -440,6 +445,63 @@ private:
   InterpolationImpl<Dim> m_eval;
 };
 
+/// Data for element-based fields
+template<typename SupportSF, Uint Dim, bool IsEquationVar>
+class SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>
+{
+
+  BOOST_MPL_ASSERT_MSG(
+    Dim == 1
+    , VECTOR_ELEMENT_FIELDS_NOT_SUPPORTED
+    , (SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>)
+  );
+
+public:
+  typedef ElementBased SF;
+
+  /// Type of returned value
+  typedef Real& ValueResultT;
+
+  /// Data type for the geometric support
+  typedef GeometricSupport<SupportSF> SupportT;
+
+  /// The dimension of the variable
+  static const Uint dimension = Dim;
+
+  /// True if this variable is an unknow in the system of equations
+  static const bool is_equation_variable = IsEquationVar;
+
+  template<typename VariableT>
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+    m_field(find_field(elements, placeholder.field_tag())),
+    m_support(support),
+    m_elements_begin(m_field.field_group().space(elements).elements_begin()),
+    offset(m_field.descriptor().offset(placeholder.name()))
+  {
+  }
+
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+    m_field_idx = element_idx + m_elements_begin;
+  }
+
+  Real& value()
+  {
+    return m_field[m_field_idx][offset];
+  }
+
+private:
+  Mesh::Field& m_field;
+  const SupportT& m_support;
+  const Uint m_elements_begin;
+  Uint m_field_idx;
+
+public:
+  /// Index in the field array for this variable
+  const Uint offset;
+};
+
 /// Predicate to check if data belongs to an equation variable
 struct IsEquationData
 {
@@ -468,11 +530,13 @@ struct MakeVarData
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
 
+    typedef typename boost::mpl::if_c<SF::order == 0, ElementBased, SF>::type ESF;
+
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
+      SFVariableData<ESF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -611,7 +675,7 @@ public:
   template<typename I>
   typename DataType<I>::type& var_data(const I&)
   {
-    return *boost::fusion::at<I>(m_variables_data);
+    return *boost::fusion::at<typename IndexType<I>::type>(m_variables_data);
   }
 
   /// Return the variable stored at index I

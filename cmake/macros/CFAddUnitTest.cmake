@@ -98,16 +98,6 @@ macro( coolfluid_prepare_test UTESTNAME )
       target_link_libraries( ${UTESTNAME} ${${UTESTNAME}_libs} )
     endif(DEFINED ${UTESTNAME}_libs)
 
-    # profiling gloabally selected
-    if( CF_ENABLE_PROFILING AND CF_PROFILER_IS_GOOGLE AND coolfluid_googleperftools_builds )
-      list( APPEND ${UTESTNAME}_cflibs coolfluid_googleperftools )
-    endif()
-
-    # profiling selected for specific target
-    if( ${UTESTNAME}_profile AND coolfluid_googleperftools_builds )
-      list( APPEND ${UTESTNAME}_cflibs coolfluid_googleperftools )
-    endif()
-
     # internal dependencies
     if( DEFINED ${UTESTNAME}_cflibs )
         list(REMOVE_DUPLICATES ${UTESTNAME}_cflibs)
