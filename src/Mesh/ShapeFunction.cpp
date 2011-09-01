@@ -14,7 +14,7 @@ namespace Mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 ShapeFunction::ShapeFunction( const std::string& name ) : Common::Component(name)
-{   
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,13 @@ RealRowVector ShapeFunction::value(const RealVector& local_coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void ShapeFunction::compute_value(const RealVector& local_coordinate, RealRowVector& value) const
+{
+  throw Common::NotImplemented(FromHere(),"compute_value not implemented for " + derived_type_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 RealMatrix ShapeFunction::gradient(const RealVector& local_coord) const
 {
   throw Common::NotImplemented(FromHere(),"shape function gradient not implemented for " + derived_type_name());
@@ -41,9 +48,16 @@ RealMatrix ShapeFunction::gradient(const RealVector& local_coord) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void ShapeFunction::compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const
+{
+  throw Common::NotImplemented(FromHere(),"compute_gradient not implemented for " + derived_type_name());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 const RealMatrix& ShapeFunction::local_coordinates() const
 {
-  throw Common::NotImplemented(FromHere(),"local coordinates not implemented for " + derived_type_name());
+  throw Common::NotImplemented(FromHere(),"local_coordinates not implemented for " + derived_type_name());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

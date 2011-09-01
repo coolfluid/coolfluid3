@@ -41,7 +41,7 @@ void ElementType::compute_centroid(const NodesT& coord , RealVector& centroid) c
 const ShapeFunction& ElementType::shape_function() const
 {
   throw Common::NotImplemented(FromHere(),"shape_function() not implemented for "+derived_type_name()+"\nThis element type is not compatible yet. It should have a dedicated separate shape function.\nCheck src/Mesh/SF/Line.hpp and the LineLagrange element types for examples.");
-  static const ShapeFunction f;
+  static const ShapeFunction f("tmp");
   return f;
 }
 

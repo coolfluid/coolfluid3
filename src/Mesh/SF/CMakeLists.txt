@@ -90,4 +90,5 @@ set( coolfluid_mesh_sf_kernellib TRUE )
 
 coolfluid_add_library( coolfluid_mesh_sf )
 
+add_subdirectory(LagrangeP0)
 
