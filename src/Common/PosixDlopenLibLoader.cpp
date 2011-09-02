@@ -138,17 +138,8 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
   if( is_not_null(hdl) ) return;
 
   // react on failure
-
-  CFerror << "dlopen() failed to load library : \'" << lib << "\'" << CFendl;
   const char * msg = dlerror();
-  if ( is_null(msg) )
-    CFerror << "dlerror() said nothing." << CFendl;
-  else
-    CFerror << "dlerror() says : " << msg  <<  CFendl;
-  CFerror.flush();
-
-  throw LibLoadingError (FromHere(),"Library failed to load");
-
+  throw LibLoadingError (FromHere(),"Library " + lib + " failed to load with dlopen error: " + std::string(msg));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

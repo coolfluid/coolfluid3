@@ -132,14 +132,14 @@ protected: // helper function
     case 2:
 
       rkalphas(0,0) =  1.  ;
-      rkalphas(1,0) =  0.  ;
-      rkalphas(0,1) =  0.5 ;
+      rkalphas(0,1) =  0.  ;
+      rkalphas(1,0) =  0.5 ;
       rkalphas(1,1) =  0.5 ;
 
-      rkbetas (0,0) =  0.0;
-      rkbetas (0,1) =  0.0;
-      rkbetas (1,0) = -1.0;
-      rkbetas (1,1) =  1.0;
+      rkbetas (0,0) =  0.0 ;
+      rkbetas (0,1) =  0.0 ;
+      rkbetas (1,0) = -1.0 ;
+      rkbetas (1,1) =  1.0 ;
 
       break;
 

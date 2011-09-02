@@ -13,11 +13,17 @@
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
+#include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"
+#include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldGroup.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -33,7 +39,12 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
+  Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+
+  const Uint nb_procs = Comm::PE::instance().size();
+  const Uint rank = Comm::PE::instance().rank();
+
+  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
 
   const Real length = 1.;
   const Real half_height = 1.;
@@ -71,22 +82,40 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
   domain.add_component(writer);
-  CMesh& mesh = domain.create_component<CMesh>("mesh");
 
-  BlockMesh::build_mesh(blocks, mesh);
-
-  BOOST_CHECK_EQUAL(mesh.dimension(), 2);
-
-  writer->write_from_to(mesh, URI("grid-2d.vtk"));
-  
   // Test block partitioning
   CMesh& serial_blocks = domain.create_component<CMesh>("serial_blocks");
   BlockMesh::BlockData parallel_blocks;
-  BlockMesh::partition_blocks(blocks, serial_blocks, 4, XX, parallel_blocks);
-  
-  CMesh& parallel_block_mesh = domain.create_component<CMesh>("parallel_blocks");
-  BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
-  writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
+  BlockMesh::partition_blocks(blocks, serial_blocks, nb_procs, XX, parallel_blocks);
+
+  // Build the mesh
+  CMesh& mesh = domain.create_component<CMesh>("mesh");
+  BlockMesh::build_mesh(parallel_blocks, mesh);
+
+  // Store element ranks
+  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+  {
+    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+  }
+  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  Field& elem_rank = elems_P0.create_field("elem_rank");
+
+  boost_foreach(CElements& elements , elems_P0.elements_range())
+  {
+    CSpace& space = elems_P0.space(elements);
+    for (Uint elem=0; elem<elements.size(); ++elem)
+    {
+      Uint field_idx = space.indexes_for_element(elem)[0];
+      elem_rank[field_idx][0] = elements.rank()[elem];
+    }
+  }
+
+  // Write to disk
+  std::vector<Field::Ptr> fields;
+  fields.push_back(mesh.geometry().coordinates().as_ptr<Field>());
+  fields.push_back(elem_rank.as_ptr<Field>());
+  writer->set_fields(fields);
+  writer->write_from_to(mesh, URI("utest-blockmesh-2d-mpi_output.pvtu"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

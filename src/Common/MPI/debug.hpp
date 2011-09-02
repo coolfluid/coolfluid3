@@ -112,6 +112,13 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Called to wait for a debugger. You need to use the debugger interface to set the variable
+/// stopped to 0
+/// @param rank Rank that has to wait, or if -1 all processes will wait
+void wait_for_debugger(const int rank = -1);
+
+////////////////////////////////////////////////////////////////////////////////
+
     } // end namespace Comm
   } // end namespace Common
 } // end namespace CF
