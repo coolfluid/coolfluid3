@@ -169,17 +169,19 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
   // diagonal access check
   mat->reset();
-  std::vector<Real> diag(blockrow_size*neq,1.);
+  std::vector<Real> diag(blockcol_size*neq);
+  for (int i=0; i<diag.size(); i++) diag[i]=i;
   mat->set_diagonal(diag);
   mat->add_diagonal(diag);
   diag.clear();
   mat->get_diagonal(diag);
-  BOOST_CHECK_EQUAL(diag.size(),blockrow_size*neq);
-  BOOST_FOREACH(double i, diag) BOOST_CHECK_EQUAL(i,2.);
+  BOOST_CHECK_EQUAL(diag.size(),blockcol_size*neq);
   mat->data(rows,cols,vals);
   for (int i=0; i<(const int)vals.size(); i++)
   {
-    if (rows[i]==cols[i]) { BOOST_CHECK_EQUAL(vals[i],2.); }
+    if (cp.isUpdatable()[rows[i]/neq]) { BOOST_CHECK_EQUAL(diag[rows[i]],2.*rows[i]); }
+    else { BOOST_CHECK_EQUAL(diag[rows[i]],0.); }
+    if (rows[i]==cols[i]) { BOOST_CHECK_EQUAL(vals[i],diag[rows[i]]); }
     else { BOOST_CHECK_EQUAL(vals[i],0.); }
   }
 
@@ -210,13 +212,55 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
         BOOST_CHECK_EQUAL(vals[i],0.);
   }
 
-
   // bc-related functions
   mat->reset(1.);
   if (irank==0)
   {
-//    mat->get_column_and_replace_to_zero(5,1,vals);
-    PEDebugVector(vals,vals.size());
+    mat->get_column_and_replace_to_zero(5,1,vals);
+    // check return vector
+    // check with non-constant pattern
+  }
+
+  mat->reset(1.);
+  if (irank==0)
+  {
+    mat->tie_blockrow_pairs(2,5);
+    // check with non-constant pattern
+  }
+
+  mat->reset(-1.);
+  if (irank==0)
+  {
+    mat->set_row(3,1,1.,0.);
+    mat->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if (rows[i]==7)
+      {
+        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      } else {
+        BOOST_CHECK_EQUAL(vals[i],-1.);
+      }
+    }
+  }
+
+  // performant access
+  mat->reset();
+  if (irank==0)
+  {
+/*
+    LSS::BlockAccumulator ba;
+    ba.resize(3,neq);
+    ba.mat << 11, 12, 21, 22,
+              13, 14, 23, 24,
+              41, 42, 51, 52,
+              43, 44, 53, 54;
+    ba.indices[0]=1;
+    ba.indices[1]=3;
+    ba.indices[2]=5;
+    mat->set_values(ba);
+*/
   }
 
   // post-destroy checks
@@ -225,16 +269,12 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
 /*
   virtual const bool compatible(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) = 0;
-  virtual void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
-  virtual void destroy() = 0;
   virtual void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
   virtual void set_values(const BlockAccumulator& values) = 0;
   virtual void add_values(const BlockAccumulator& values) = 0;
   virtual void get_values(BlockAccumulator& values) = 0;
-  virtual void set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval) = 0;
-  virtual void get_column_and_replace_to_zero(const Uint iblockcol, Uint ieq, std::vector<Real>& values) = 0;
-  virtual void tie_blockrow_pairs (const Uint iblockrow_to, const Uint iblockrow_from) = 0;
 
+  virtual void destroy() = 0;
 destroy  virtual const bool is_created() = 0;
 destroy  virtual const Uint neq() = 0;
 destroy  virtual const Uint blockrow_size() = 0;

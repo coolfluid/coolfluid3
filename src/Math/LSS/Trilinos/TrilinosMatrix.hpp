@@ -54,7 +54,7 @@ public:
   const std::string solvertype() { return "Trilinos"; }
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  const bool compatible(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
+  const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
 
   /// Default constructor
   TrilinosMatrix(const std::string& name);
@@ -185,6 +185,9 @@ private:
 
   /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
   std::vector<int> m_p2m;
+
+  /// a helper array used in set/add/get_values to avoid frequent new+free combo
+  std::vector<int> m_converted_indices;
 
 
 }; // end of class Matrix

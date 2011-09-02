@@ -86,7 +86,7 @@ void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vecto
 
 void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
-  if (m_mat->compatible(solution,rhs))
+  if (m_mat->is_swappable(solution,rhs))
   {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
     throw Common::SetupError(FromHere(),"Inconsistent states.");

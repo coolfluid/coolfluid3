@@ -42,6 +42,7 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_blockrow_size(0),
   m_blockcol_size(0),
   m_p2m(0),
+  m_converted_indices(0),
   m_comm(Common::Comm::PE::instance().communicator())
 {
 }
@@ -81,8 +82,6 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
     if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
     else { m_p2m.push_back(ighost++); }
   }
-
-PEDebugVector(m_p2m,m_p2m.size());
 
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
@@ -218,7 +217,9 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
-  int* idxs=(int*)&values.indices[0];
+  if (m_converted_indices.size()<values.indices.size()) m_converted_indices.resize(values.indices.size());
+  for (int i=0; i<(const int)values.indices.size(); i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
   {
     TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
@@ -284,10 +285,11 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
   int blockrowsize;
   int diagonalblock=-1;
   int dummy_neq;
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow,dummy_neq,blockrowsize,colindices,val));
+  const int br=m_p2m[iblockrow];
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br,dummy_neq,blockrowsize,colindices,val));
   for (int i=0; i<blockrowsize; i++)
   {
-    if (colindices[i]==iblockrow) diagonalblock=i;
+    if (colindices[i]==br) diagonalblock=i;
     for (int j=0; j<m_neq; j++)
       val[i][0](ieq,j)=offdiagval;
   }
@@ -301,28 +303,27 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
   /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
   /// @attention COMPUTATIONALLY VERY EXPENSIVE!
   cf_assert(m_is_created);
-  values.resize(m_blockrow_size*m_neq);
-  values.assign(m_blockrow_size*m_neq,0.);
+  values.resize(m_blockcol_size*m_neq);
+  values.assign(m_blockcol_size*m_neq,0.);
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
   int dummy_neq;
-PEDebugVector(m_p2m,m_p2m.size());
-  for (int k=0; k<(const int)m_blockrow_size; k++)
-  {
-std::cout << k << " " << m_p2m[k] << "\n" << std::flush;
-    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(m_p2m[k],dummy_neq,blockrowsize,colindices,val));
-    for (int i=0; i<blockrowsize; i++)
-      if (colindices[i]==m_p2m[iblockcol])
-      {
-        for (int j=0; j<m_neq; j++)
+  for (int k=0; k<(const int)m_blockcol_size; k++)
+    if (m_p2m[k]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(m_p2m[k],dummy_neq,blockrowsize,colindices,val));
+      for (int i=0; i<blockrowsize; i++)
+        if (colindices[i]==m_p2m[iblockcol])
         {
-          values[k*m_neq+j]=val[i][0](j,ieq);
-          val[i][0](j,ieq)=0.;
+          for (int j=0; j<m_neq; j++)
+          {
+            values[k*m_neq+j]=val[i][0](j,ieq);
+            val[i][0](j,ieq)=0.;
+          }
+          break;
         }
-        break;
-      }
-  }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,22 +336,26 @@ void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint ibl
   int blockrowsize_to,blockrowsize_from;
   int diag=-1,pair=-1;
   int dummy_neq;
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
+  const int br_to=m_p2m[iblockrow_to];
+  const int br_from=m_p2m[iblockrow_from];
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
   if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
   for (int i=0; i<blockrowsize_to; i++)
   {
     cf_assert(colindices_to[i]==colindices_from[i]);
-    if (colindices_from[i]==iblockrow_from) diag=i;
-    if (colindices_to[i]  ==iblockrow_to)   pair=i;
-    val_to[i][0]=val_from[i][0];
+    if (colindices_from[i]==br_from) diag=i;
+    if (colindices_to[i]  ==br_to)   pair=i;
+    val_to[i][0]+=val_from[i][0];
     val_from[i][0].Scale(0.);
   }
   for (int i=0; i<m_neq; i++)
   {
     val_from[diag][0](i,i)=1.;
-    val_to[pair][0](i,i)=-1.;
+    val_from[pair][0](i,i)=-1.;
   }
+  val_to[pair][0]+=val_to[diag][0];
+  val_to[diag][0].Scale(0.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,10 +369,11 @@ void TrilinosMatrix::set_diagonal(const std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  cf_assert(diag.size()==numblocks*m_neq);
-  double *diagvals=(double*)&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  cf_assert(diag.size()==m_blockcol_size*m_neq);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *ev=*diagvals++;
@@ -385,10 +391,11 @@ void TrilinosMatrix::add_diagonal(const std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  cf_assert(diag.size()==numblocks*m_neq);
-  double *diagvals=(double*)&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  cf_assert(diag.size()==m_blockcol_size*m_neq);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *ev+=*diagvals++;
@@ -406,10 +413,12 @@ void TrilinosMatrix::get_diagonal(std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  diag.resize(numblocks*m_neq);
-  double *diagvals=&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  diag.clear();
+  diag.resize(m_blockcol_size*m_neq,0.);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *diagvals++=*ev;
