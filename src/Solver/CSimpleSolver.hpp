@@ -22,8 +22,6 @@ namespace Solver {
 
 /// Base class for solvers that work under the following assumptions:
 /// - There is only one mesh for the solution. Whenever a mesh is loaded into the domain, that mesh is used by the solver
-/// - Fields are created when the mesh is loaded, based on the physical model
-/// An option named "physical_model" is created, if this is not set automatic field creation does nothing
 /// @author Bart Janssens
 class Solver_API CSimpleSolver : public CSolver {
 
