@@ -34,49 +34,59 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
   CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
-  
+
   const Real length = 1.;
-  const Real height = 1.;
-  const Uint x_segs = 10;
+  const Real half_height = 1.;
+  const Real ratio = 0.2;
+  const Uint x_segs = 12;
   const Uint y_segs = 10;
-  
+
   BlockMesh::BlockData blocks;
-  
+
+  blocks.dimension = 2;
   blocks.scaling_factor = 1.;
 
-  blocks.points += list_of(0.    )(0.    )(0.)
-                 , list_of(length)(0.    )(0.)
-                 , list_of(length)(height)(0.)
-                 , list_of(0.    )(height)(0.)
-                 , list_of(0.    )(0.    )(1.)
-                 , list_of(length)(0.    )(1.)
-                 , list_of(length)(height)(1.)
-                 , list_of(0.    )(height)(1.);
+  blocks.points += list_of(0.    )(-half_height)
+                 , list_of(length)(-half_height)
+                 , list_of(0.    )( 0.         )
+                 , list_of(length)( 0.         )
+                 , list_of(0.    )( half_height)
+                 , list_of(length)( half_height);
 
-  blocks.block_points += list_of(0)(1)(2)(3)(4)(5)(6)(7);
-  blocks.block_subdivisions += list_of(x_segs)(y_segs)(1);
-  blocks.block_gradings += list_of(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.)(1.);
+  blocks.block_points += list_of(0)(1)(3)(2),
+                         list_of(2)(3)(5)(4);
+  blocks.block_subdivisions += list_of(x_segs)(y_segs),
+                               list_of(x_segs)(y_segs);
+  blocks.block_gradings += list_of(1.)(1.)(1./ratio)(1./ratio),
+                           list_of(1.)(1.)(ratio)(ratio);
 
-  blocks.patch_names += "left", "right", "top",  "bottom", "front", "back";
-  blocks.patch_types += "wall", "wall",  "wall", "wall",   "empty", "empty";
-  blocks.patch_points += list_of(0)(4)(7)(3),
-                         list_of(2)(6)(5)(1),
-                         list_of(3)(7)(6)(2),
-                         list_of(0)(1)(5)(4),
-                         list_of(0)(3)(2)(1),
-                         list_of(4)(5)(6)(7);
+  blocks.patch_names += "left", "right", "top",  "bottom";
+  blocks.patch_types += "wall", "wall",  "wall", "wall";
+  blocks.patch_points += list_of(2)(0)(4)(2),
+                         list_of(1)(3)(3)(5),
+                         list_of(5)(4),
+                         list_of(0)(1);
 
-  blocks.block_distribution += 0, 1;
-  
+  blocks.block_distribution += 0, 2;
+
   CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
   domain.add_component(writer);
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  
+
   BlockMesh::build_mesh(blocks, mesh);
-  
+
   BOOST_CHECK_EQUAL(mesh.dimension(), 2);
-  
+
   writer->write_from_to(mesh, URI("grid-2d.vtk"));
+  
+  // Test block partitioning
+  CMesh& serial_blocks = domain.create_component<CMesh>("serial_blocks");
+  BlockMesh::BlockData parallel_blocks;
+  BlockMesh::partition_blocks(blocks, serial_blocks, 4, XX, parallel_blocks);
+  
+  CMesh& parallel_block_mesh = domain.create_component<CMesh>("parallel_blocks");
+  BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
+  writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

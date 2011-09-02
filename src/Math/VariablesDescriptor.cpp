@@ -17,6 +17,7 @@
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
+#include "Common/Tags.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -37,7 +38,7 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >("dimension", 0)
+    m_component.options().add_option< OptionT<Uint> >(Common::Tags::dimension(), 0)
       ->pretty_name("Dimension")
       ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
@@ -55,6 +56,8 @@ struct VariablesDescriptor::Implementation
       CFdebug << "Ignoring double registration of variable " << name << CFendl;
       return;
     }
+
+    CFdebug << "Registering variable " << name << " at position " << m_types.size() << CFendl;
 
     m_types.push_back(type);
     m_offsets.push_back(m_size);
@@ -131,7 +134,7 @@ struct VariablesDescriptor::Implementation
   }
 
   /// Implementation based on Willem Deconincks code for Field
-  void set_variables(const std::string& description, const Uint dimension)
+  void set_variables(const std::string& description)
   {
     const boost::regex e_variable("([[:word:]]+)[[:space:]]*(\\[[[:space:]]*[[:word:]]+[[:space:]]*\\])?");
     const boost::regex e_scalar  ("((s(cal(ar)?)?)?)|1"     ,boost::regex::perl|boost::regex::icase);
@@ -194,7 +197,6 @@ struct VariablesDescriptor::Implementation
     {
       push_back(names_to_add[i], types_to_add[i]);
     }
-    m_component.configure_option("dimension",dimension);
   }
 
   std::string description() const
@@ -373,6 +375,14 @@ bool VariablesDescriptor::has_variable(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+VariablesDescriptor::Dimensionalities::Type VariablesDescriptor::dimensionality(const std::string& name) const
+{
+  return m_implementation->m_types[m_implementation->checked_index(name)];
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
 Uint VariablesDescriptor::var_number ( const std::string& name ) const
 {
   return m_implementation->checked_index(name);
@@ -416,9 +426,16 @@ std::string VariablesDescriptor::description() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void VariablesDescriptor::set_variables(const std::string& description)
+{
+  m_implementation->set_variables(description);
+}
+
+
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  m_implementation->set_variables(description,dimension);
+  configure_option(Common::Tags::dimension(), dimension);
+  m_implementation->set_variables(description);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

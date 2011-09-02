@@ -916,6 +916,10 @@ void Component::signal_configure ( SignalArgs& args )
        XmlNode node(itr);
        opt->second->configure_option( node );
      }
+     else
+     {
+       CFdebug << "Option " << att->value() << " not found in " << uri().string() << CFendl;
+     }
    }
  }
 

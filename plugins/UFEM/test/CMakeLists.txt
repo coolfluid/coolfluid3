@@ -43,12 +43,14 @@ set( utest-proto-navier-stokes_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-navier-stokes )
 
 # Disable debugging on the compiled expressions, since this takes huge amounts of memory
-set_source_files_properties(
-  NavierStokes.cpp
-  PROPERTIES COMPILE_FLAGS "-g0")
+set_source_files_properties(NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0")
 
 set( UFEM_LSS_CONFIG_FILE ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( UFEM_HEAT_INPUT_MESH ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu )
 
 coolfluid_add_acceptance_test( NAME    atest-ufem-heat-steady
                                SCRIPT  atest-ufem-heat-steady.cfscript )
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-python
+                                SCRIPT atest-ufem-python.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)

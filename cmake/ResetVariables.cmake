@@ -32,9 +32,3 @@ if( NOT DEFINED MPI_ROOT )
   set( MPI_ROOT  ${DEPS_ROOT} CACHE INTERNAL "" )
   set( MPI_HOME  ${DEPS_ROOT} CACHE INTERNAL "" )
 endif()
-
-# temporary
-
-if( NOT DEFINED CF_TMP_HAVE_SIMPLECOMM )
-  option( CF_TMP_HAVE_SIMPLECOMM "Use SimpleComm" OFF )
-endif()

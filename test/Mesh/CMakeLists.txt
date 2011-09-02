@@ -136,6 +136,13 @@ coolfluid_add_unit_test( utest-vtklegacy-writer )
 
 ################################################################################
 
+list( APPEND utest-vtkxml-writer_cflibs coolfluid_mesh_vtkxml coolfluid_mesh_sf coolfluid_mesh_generation )
+list( APPEND utest-vtkxml-writer_files  utest-vtkxml-writer.cpp )
+
+coolfluid_add_unit_test( utest-vtkxml-writer )
+
+################################################################################
+
 list( APPEND utest-connectivity-data_cflibs coolfluid_mesh_neu coolfluid_mesh_generation coolfluid_mesh_sf )
 list( APPEND utest-connectivity-data_files  utest-connectivity-data.cpp )
 
@@ -234,7 +241,7 @@ coolfluid_add_unit_test( utest-mesh-fieldgroup )
 
 ################################################################################
 
-list( APPEND utest-mesh-fieldmanager_cflibs coolfluid_mesh_sf )
+list( APPEND utest-mesh-fieldmanager_cflibs coolfluid_mesh_sf coolfluid_mesh_generation)
 list( APPEND utest-mesh-fieldmanager_files  utest-mesh-fieldmanager.cpp )
 
 coolfluid_add_unit_test( utest-mesh-fieldmanager )

@@ -25,6 +25,7 @@
 
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/TimeLoop.hpp"
+#include "UFEM/Tags.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -56,19 +57,14 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
-  model.create_physics("CF.Physics.DynamicModel");
-
-  // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-  solver.solve_action().configure_option("lss", lss.uri());
+  solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
-  MeshTerm<0, VectorField> v("VectorVariable", "v");
+  MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
@@ -104,9 +100,12 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
       << create_proto_action("Increment", nodes_expression(v += solver.solution(v)))
     );
 
-  // Creating the physics here makes sure everything is up-to-date
+  // Setup physics
   model.create_physics("CF.Physics.DynamicModel");
-  solver.mesh_loaded(mesh);
+
+  // Setup mesh
+  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);

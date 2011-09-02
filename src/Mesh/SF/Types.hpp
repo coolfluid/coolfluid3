@@ -87,6 +87,17 @@ struct IsCompatibleWith
   };
 };
 
+/// Compile-time predicate to determine if the given shape function has at least the given order
+template<Uint Order>
+struct IsMinimalOrder
+{
+  template<typename SF>
+  struct apply
+  {
+    typedef boost::mpl::bool_< SF::order >= Order > type;
+  };
+};
+
 /// List of all supported shapefunctions for volume elements, 
 typedef boost::mpl::filter_view<Types, IsVolumeElement> CellTypes;
 

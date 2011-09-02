@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE( CreateVariableDescriptor )
   VariableManager::Ptr manager = allocate_component<VariableManager>("manager");
   VariablesDescriptor& descriptor = manager->create_descriptor("solution", "a, b[v], c[t]");
 
-  descriptor.configure_option("dimensions", 2u);
+  descriptor.configure_option(Common::Tags::dimension(), 2u);
 
   BOOST_CHECK(descriptor.has_tag("solution"));
   BOOST_CHECK_EQUAL(descriptor.size(), 7);

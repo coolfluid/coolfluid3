@@ -9,7 +9,11 @@
 #include "Common/Signal.hpp"
 #include "Common/CBuilder.hpp"
 
+#include "Math/VariableManager.hpp"
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/CDomain.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/Geometry.hpp"
 
 #include "Solver/CEigenLSS.hpp"
@@ -17,15 +21,15 @@
 #include "Solver/Actions/CSolveSystem.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "LinearSolver.hpp"
-
+#include "Tags.hpp"
 
 namespace CF {
 namespace UFEM {
 
 using namespace Common;
+using namespace Math;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -62,29 +66,39 @@ struct LinearSolver::Implementation
    m_solver(comp.create_static_component<CSolveSystem>("LSSSolveAction")),
    m_bc(comp.create_static_component<BoundaryConditions>("BoundaryConditions")),
    m_zero_action(comp.create_static_component<ZeroAction>("ZeroLSS")),
-   m_proxy(m_solver.option("lss"), m_component.option(Solver::Tags::physical_model())),
-   system_matrix(m_proxy),
-   system_rhs(m_proxy),
-   dirichlet(m_proxy),
-   solution(m_proxy)
+   system_matrix(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss")->pretty_name("LSS"))),
+   system_rhs(m_component.option("lss")),
+   dirichlet(m_component.option("lss")),
+   solution(m_component.option("lss")),
+   m_updating(false)
   {
-    m_solver.option("lss").link_to(&m_lss)->attach_trigger(boost::bind(&Implementation::trigger_lss, this));
+    m_component.option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
   }
   
   void trigger_lss()
   {
-    if(m_lss.expired())
+    if(m_updating) // avoid recursion
       return;
-
-    m_bc.option("lss").change_value(m_lss.lock()->uri());
+    
+    m_updating = true;
+    
+    m_lss = dynamic_cast<OptionComponent<CEigenLSS>&>(m_component.option("lss")).component().as_ptr<CEigenLSS>();
+    if(m_lss.expired())
+    {
+      CFdebug << "Triggering on bad LSS in " << m_solver.uri().string() << CFendl;
+      m_updating = false;
+      return;
+    }
+    
+    m_component.configure_option_recursively("lss", m_component.option("lss").value<URI>());
     m_zero_action.m_lss = m_lss;
+    m_updating = false;
   }
 
   Component& m_component;
   CSolveSystem& m_solver;
   BoundaryConditions& m_bc;
   ZeroAction& m_zero_action;
-  LSSProxy m_proxy;
 
   SystemMatrix system_matrix;
   SystemRHS system_rhs;
@@ -92,6 +106,8 @@ struct LinearSolver::Implementation
   SolutionVector solution;
   
   boost::weak_ptr<CEigenLSS> m_lss;
+  
+  bool m_updating;
 };
 
 LinearSolver::LinearSolver(const std::string& name) :
@@ -113,13 +129,19 @@ void LinearSolver::execute()
   if(m_implementation->m_lss.expired())
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
   
-  m_implementation->m_lss.lock()->resize(physics().variable_manager().nb_dof() * mesh().topology().geometry().size());
+  VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
+  
+  m_implementation->m_lss.lock()->resize(descriptor.size() * mesh().topology().geometry().size());
   CSimpleSolver::execute();
 }
 
 void LinearSolver::mesh_loaded(CMesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
+  
+  // Create fields using the known tags
+  field_manager().create_field(Tags::solution(), mesh.geometry());
+  field_manager().create_field(Tags::source_terms(), mesh.geometry());
   
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;

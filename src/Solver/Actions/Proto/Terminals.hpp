@@ -69,31 +69,33 @@ struct Var : I
   type variable_value;
 };
 
+/// Extract an index-type from a var
+template<typename T>
+struct IndexType
+{
+  typedef T type;
+};
+
+template<typename I, typename T>
+struct IndexType< Var<I, T> >
+{
+  typedef I type;
+};
+
 /// Base class for field data
 struct FieldBase
 {
-  FieldBase() :
-    m_name("aName"),
-    m_symbol("aSymbol")
+  FieldBase()
   {
   }
 
   /// Construct a new field placeholder
-  /// @param name Readable name for the represented quantity (i.e. Temperature)
-  /// @param symbol Short symbol to name the variable (i.e. T)
-  FieldBase(const std::string& name, const std::string& symbol) :
-    field_name(name),
-    variable_name(symbol),
+  /// @param name Variable name for the represented quantity (i.e. Temperature)
+  /// @param field_tag Tag to identify the field
+  FieldBase(const std::string& name, const std::string& field_tag) :
     m_name(name),
-    m_symbol(symbol)
+    m_field_tag(field_tag)
   {
-  }
-
-  /// Get the element type, based on the CElements currently traversed.
-  const Mesh::ElementType& element_type(const Mesh::CElements& elements) const
-  {
-    return elements.element_type();
-    //return is_const ? elements.element_type() : elements.get_field_elements(field_name).element_type();
   }
   
   inline const std::string& name() const
@@ -101,36 +103,28 @@ struct FieldBase
     return m_name;
   }
   
-  inline const std::string& symbol() const
+  inline const std::string& field_tag() const
   {
-    return m_symbol;
+    return m_field_tag;
   }
-  
-  /// Current run-time configured field name for this variable
-  /// Link to an appropriate Option in order to keep current
-  std::string field_name;
-  
-  /// Current run-time configured variable name for this variable (with respect to the Field)
-  /// Link to an appropriate Option in order to keep current
-  std::string variable_name;
 
 private:
   std::string m_name;
-  std::string m_symbol;
+  std::string m_field_tag;
 };
 
 /// Field data for a scalar field
 struct ScalarField : FieldBase
 {
   ScalarField() : FieldBase() {}
-  ScalarField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol) {}
+  ScalarField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
 };
 
 /// Field data for a vector having the dimension of the problem
 struct VectorField : FieldBase
 {
   VectorField() : FieldBase() {}
-  VectorField(const std::string& varname, const std::string& symbol) : FieldBase(varname, symbol) {}
+  VectorField(const std::string& varname, const std::string& field_tag) : FieldBase(varname, field_tag) {}
 };
 
 /// Shorthand for terminals containing a numbered variable

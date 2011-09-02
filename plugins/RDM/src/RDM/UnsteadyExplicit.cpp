@@ -34,6 +34,7 @@
 #include "RDM/TimeStepping.hpp"
 #include "RDM/Reset.hpp"
 #include "RDM/RK.hpp"
+#include "RDM/CopySolution.hpp"
 #include "RDM/SetupMultipleSolutions.hpp"
 #include "RDM/ComputeDualArea.hpp"
 
@@ -118,10 +119,13 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4b) setup iterative solver reset action
 
+  CopySolution::Ptr cps  = allocate_component<CopySolution>("CopySolution");
+  solver.time_stepping().pre_actions().append( cps );
+
+  // (4b) setup iterative solver reset action
+
   Reset::Ptr reset  = allocate_component<Reset>("Reset");
   solver.iterative_solver().pre_actions().append( reset );
-
-  /// @todo this reset configuation must be corrected
 
   std::vector<std::string> reset_fields;
   reset_fields.push_back( RDM::Tags::residual() );
@@ -135,9 +139,9 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   solver.iterative_solver().get_child("MaxIterations").configure_option("maxiter", rkorder); // eg: 2nd order -> 2 rk iterations
 
-  // (4d) setup solver fields
+  solver.iterative_solver().get_child("PostActions").get_child("IterationSummary").configure_option("print_rate", 0u); // dont print under unsteady iterations
 
-  /// @todo add here any other actions to allocte more fields or storage
+  // (4d) setup solver fields
 
   SetupMultipleSolutions::Ptr setup = allocate_component<SetupMultipleSolutions>("SetupFields");
   solver.prepare_mesh().append(setup);
@@ -146,8 +150,6 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   ComputeDualArea::Ptr dual_area = allocate_component<ComputeDualArea>("ComputeDualArea");
   solver.prepare_mesh().append(dual_area);
-
-
 
   // (5) configure domain, physical model and solver in all subcomponents
 

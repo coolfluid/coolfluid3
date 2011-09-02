@@ -30,6 +30,7 @@ namespace SF {
 class MESH_SF_API SFQuadLagrangeP0  : public ShapeFunction {
 public:
 
+  static const Uint dimension = 2;
   static const Uint dimensionality = 2;
   static const Uint nb_nodes = 1;
   static const Uint order = 0;

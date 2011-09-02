@@ -10,6 +10,7 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/MPI/PE.hpp"
 
 #include "Python/Core.hpp"
 #include "Python/Component.hpp"
@@ -47,6 +48,7 @@ struct Core
     }
 
     Common::Core::instance().initiate(argc, argv);
+    Common::Comm::PE::instance().init(argc, argv);
   }
 };
 

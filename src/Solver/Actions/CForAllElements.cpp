@@ -29,7 +29,7 @@ ComponentBuilder < CForAllElements, CLoop, LibActions > CForAllElements_builder;
 CForAllElements::CForAllElements ( const std::string& name ) :
   CLoop(name)
 {
-   
+
 }
 
 void CForAllElements::execute()

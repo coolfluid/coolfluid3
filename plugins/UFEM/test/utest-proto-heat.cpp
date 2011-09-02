@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp" 
+#include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
@@ -23,6 +23,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "UFEM/LinearSolver.hpp"
+#include "UFEM/Tags.hpp"
 
 using namespace CF;
 using namespace CF::Solver;
@@ -65,7 +66,7 @@ BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
   Core::instance().environment().configure_option("log_level", 4u);
-  
+
   // Parameters
   Real length            = 5.;
   const Uint nb_segments = 5 ;
@@ -78,14 +79,14 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(solver_config);
-  solver.solve_action().configure_option("lss", lss.uri());
+  solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> temperature("Temperature", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
-  
+
   // add the top-level actions (assembly, BC and solve)
   solver
     << create_proto_action
@@ -107,19 +108,19 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
     << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
     << create_proto_action("Output", nodes_expression(_cout << "T(" << coordinates(0,0) << ") = " << temperature << "\n"))
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
-  
-  // Creating the physics here makes sure everything is up-to-date
+
+  // Setup physics
   model.create_physics("CF.Physics.DynamicModel");
-  
+
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
-    
+
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);
   solver.boundary_conditions().add_constant_bc("xpos", "Temperature", 35.);
-  
-  
+
+
   // Run the solver
   model.simulate();
 }

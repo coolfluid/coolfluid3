@@ -30,6 +30,8 @@ list( APPEND coolfluid_solver_actions_files
   CForAllFaces.cpp
   CLoop.hpp
   CLoop.cpp
+  CPrintIterationSummary.hpp
+  CPrintIterationSummary.cpp
   CSynchronizeFields.hpp
   CSynchronizeFields.cpp
   CComputeArea.hpp
@@ -50,6 +52,7 @@ list( APPEND coolfluid_solver_actions_files
 
 list( APPEND coolfluid_solver_actions_proto_files
     Proto/BlockAccumulator.hpp
+    Proto/ComponentWrapper.hpp
     Proto/ConfigurableConstant.hpp
     Proto/CProtoAction.hpp
     Proto/CProtoAction.cpp
@@ -68,8 +71,6 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/ForEachDimension.hpp
     Proto/Functions.hpp
     Proto/IndexLooping.hpp
-    Proto/LSSProxy.hpp
-    Proto/LSSProxy.cpp
     Proto/NeumannBC.hpp
     Proto/NodeData.hpp
     Proto/NodeGrammar.hpp

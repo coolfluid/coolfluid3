@@ -24,6 +24,7 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 #include "UFEM/LinearSolverUnsteady.hpp"
+#include "UFEM/Tags.hpp"
 #include "UFEM/TimeLoop.hpp"
 
 
@@ -132,20 +133,15 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
-  model.create_physics("CF.Physics.DynamicModel");
-
-  // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
   CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
   lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
-  solver.solve_action().configure_option("lss", lss.uri());
+  solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
-  MeshTerm<0, ScalarField> temperature("Temperature", "T");
-  MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", "T");
+  MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
+  MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
@@ -182,9 +178,12 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
       << create_proto_action("Increment", nodes_expression(temperature += solver.solution(temperature)))
     );
 
-  // Creating the physics here makes sure everything is up-to-date
+  // Setup physics
   model.create_physics("CF.Physics.DynamicModel");
-  solver.mesh_loaded(mesh);
+
+  // Setup mesh
+  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", ambient_temp);
   solver.boundary_conditions().add_constant_bc("xpos", "Temperature", ambient_temp);
@@ -200,7 +199,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Check result
   t = model.time().current_time();
   std::cout << "Checking solution at time " << t << std::endl;
-  set_analytical_solution(mesh.topology(), "TemperatureAnalytical", "T");
+  set_analytical_solution(mesh.topology(), "TemperatureAnalytical", UFEM::Tags::source_terms());
   for_each_node
   (
     mesh.topology(),

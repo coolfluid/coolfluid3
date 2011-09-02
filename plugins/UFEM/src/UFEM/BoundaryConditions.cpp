@@ -14,6 +14,9 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
+#include "Math/VariableManager.hpp"
+#include "Math/VariablesDescriptor.hpp"
+
 #include "Mesh/Geometry.hpp"
 
 #include "Solver/CEigenLSS.hpp"
@@ -24,12 +27,14 @@
 #include "Solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"
+#include "Tags.hpp"
 
 namespace CF {
 namespace UFEM {
 
 using namespace Common;
 using namespace Common::XML;
+using namespace Math;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -40,24 +45,23 @@ struct BoundaryConditions::Implementation
   Implementation(CActionDirector& comp) :
     m_component(comp),
     m_physical_model(),
-    m_proxy(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
+    dirichlet(*m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
               ->pretty_name("LSS")
-              ->description("The referenced linear system solver")),
-            *(m_component.options().add_option( OptionComponent<Physics::PhysModel>::create(Solver::Tags::physical_model(), &m_physical_model) )
-              ->pretty_name("Physical Model")
-              ->description("Physical Model"))
-           ),
-    dirichlet(m_proxy)
+              ->description("The referenced linear system solver"))
   {
     m_component.options().add_option< OptionArrayT < URI > > (Solver::Tags::regions())
       ->pretty_name("Regions")
       ->description("Regions the boundary condition applies to")
       ->link_to(&m_region_uris);
+    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(Solver::Tags::physical_model())
+      ->pretty_name("Physical Model")
+      ->description("Physical Model")
+      ->link_to(&m_physical_model);
   }
 
   CAction::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
   {
-    MeshTerm<0, ScalarField> var(variable_name, variable_name);
+    MeshTerm<0, ScalarField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -65,7 +69,7 @@ struct BoundaryConditions::Implementation
 
   CAction::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
   {
-    MeshTerm<0, VectorField> var(variable_name, variable_name);
+    MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
 
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
@@ -93,7 +97,6 @@ struct BoundaryConditions::Implementation
 
   CActionDirector& m_component;
   boost::weak_ptr<Physics::PhysModel> m_physical_model;
-  LSSProxy m_proxy;
   DirichletBC dirichlet;
   std::vector<URI> m_region_uris;
 };
@@ -115,7 +118,9 @@ BoundaryConditions::~BoundaryConditions()
 
 void BoundaryConditions::add_constant_bc(const std::string& region_name, const std::string& variable_name, const boost::any default_value)
 {
-  CAction::Ptr result = m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR ?
+  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
+
+  CAction::Ptr result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
 
@@ -163,7 +168,9 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
   const std::string region_name = options.value<std::string>("region_name");
   const std::string variable_name = options.value<std::string>("variable_name");
 
-  if(m_implementation->physical_model().variable_manager().variable_type(variable_name) == Physics::VariableManager::SCALAR)
+  const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
+
+  if(descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR)
     add_constant_bc(region_name, variable_name, 0.);
   else
     add_constant_bc(region_name, variable_name, RealVector());

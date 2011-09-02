@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "Common/BasicExceptions.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 
@@ -13,7 +14,6 @@
 #include "Mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
-#include "Physics/VariableManager.hpp"
 
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
@@ -23,6 +23,8 @@ namespace Solver {
 
 using namespace Common;
 using namespace Mesh;
+
+Common::ComponentBuilder < CSimpleSolver, CSolver, LibSolver > Builder_CSimpleSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,11 +42,8 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
 {
   m_mesh = mesh.as_ptr<CMesh>();
 
-  Physics::PhysModel& phys_model = physics();
-
-
   // Update the dimensions on the physics
-  phys_model.variable_manager().configure_option("dimensions", mesh.topology().geometry().dim());
+  physics().configure_option(Common::Tags::dimension(), mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

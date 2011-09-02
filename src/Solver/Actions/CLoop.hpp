@@ -57,12 +57,6 @@ public: // functions
   virtual CLoopOperation& action(const std::string& name);
 
   virtual void execute() = 0;
-
-protected:
-
-  /// Regions to loop over
-  std::vector<boost::shared_ptr<Mesh::CRegion> > m_loop_regions;
-
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

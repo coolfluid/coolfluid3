@@ -82,6 +82,8 @@ void SetupSingleSolution::execute()
     }
   }
 
+  solution_group->add_tag( solution_space );
+
   // configure solution
 
   Field::Ptr solution = find_component_ptr_with_tag<Field>( *solution_group, RDM::Tags::solution() );

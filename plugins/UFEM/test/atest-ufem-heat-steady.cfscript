@@ -15,7 +15,7 @@ call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=
 ### create LSS
 create HotModel/LSS CF.Solver.CEigenLSS
 configure HotModel/LSS config_file:uri=file:@UFEM_LSS_CONFIG_FILE@
-configure HotModel/HeatConductionSteady/LSSSolveAction lss:uri=cpath://Root/HotModel/LSS
+configure HotModel/HeatConductionSteady lss:uri=cpath://Root/HotModel/LSS
 
 #############################################################################
 ### Create and set boundary conditions

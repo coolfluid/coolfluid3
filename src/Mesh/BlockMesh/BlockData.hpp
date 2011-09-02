@@ -38,6 +38,7 @@ struct BlockMesh_API BlockData
 
 
   Real scaling_factor;
+  Uint dimension;
 
   /// The coordinates for all the nodes
   std::vector<PointT> points;
@@ -69,7 +70,12 @@ void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, 
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks
-void BlockMesh_API partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
+/// @param blocks_in Unpartitioned block data
+/// @param block_mesh Storage for a mesh containing only the (serial) blocks
+/// @param nb_partitions Number of partitions to create
+/// @param direction Axis along which to partition
+/// @param blocks_out Will store the paritioned block data, ready for parallel mesh generation
+void BlockMesh_API partition_blocks(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
 
 /// Creates a mesh containing only the blocks as elements
 void BlockMesh_API create_block_mesh(const BlockData& block_data, CMesh& mesh);
