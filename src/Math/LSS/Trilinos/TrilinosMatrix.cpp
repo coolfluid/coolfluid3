@@ -82,6 +82,8 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
     else { m_p2m.push_back(ighost++); }
   }
 
+PEDebugVector(m_p2m,m_p2m.size());
+
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
   Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,neq,0,m_comm);
@@ -299,15 +301,16 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
   /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
   /// @attention COMPUTATIONALLY VERY EXPENSIVE!
   cf_assert(m_is_created);
-/*
   values.resize(m_blockrow_size*m_neq);
   values.assign(m_blockrow_size*m_neq,0.);
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
   int dummy_neq;
+PEDebugVector(m_p2m,m_p2m.size());
   for (int k=0; k<(const int)m_blockrow_size; k++)
   {
+std::cout << k << " " << m_p2m[k] << "\n" << std::flush;
     TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(m_p2m[k],dummy_neq,blockrowsize,colindices,val));
     for (int i=0; i<blockrowsize; i++)
       if (colindices[i]==m_p2m[iblockcol])
@@ -320,7 +323,6 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
         break;
       }
   }
-*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

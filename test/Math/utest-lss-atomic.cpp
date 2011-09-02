@@ -187,9 +187,9 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   mat->reset();
   if (irank==0)
   {
+    mat->set_value(6,6,1.);
     mat->set_value(7,6,1.);
     mat->add_value(7,6,1.);
-    mat->set_value(6,6,1.);
     mat->set_value(6,7,3.);
     mat->add_value(7,7,4.);
     Real v;
@@ -213,8 +213,11 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
   // bc-related functions
   mat->reset(1.);
-  mat->get_column_and_replace_to_zero(5,1,vals);
-PEDebugVector(vals,vals.size());
+  if (irank==0)
+  {
+//    mat->get_column_and_replace_to_zero(5,1,vals);
+    PEDebugVector(vals,vals.size());
+  }
 
   // post-destroy checks
   mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");

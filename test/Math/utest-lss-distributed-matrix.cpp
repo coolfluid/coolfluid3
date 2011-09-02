@@ -51,7 +51,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSDistributedMatrixSuite, LSSDistributedMatrixFixture
 
 BOOST_AUTO_TEST_CASE( init_parallel_environment )
 {
-  Comm::PE::instance().init(m_argc,m_argv);
+  Common::Comm::PE::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -60,7 +61,8 @@ BOOST_AUTO_TEST_CASE( init_parallel_environment )
 BOOST_AUTO_TEST_CASE( finalize_parallel_environment )
 {
   CFinfo.setFilterRankZero(true);
-  Comm::PE::instance().finalize();
+  Common::Comm::PE::instance().finalize();
+  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
