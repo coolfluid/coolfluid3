@@ -109,7 +109,7 @@ public:
   void dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry=false);
 
   /// Applying periodicity by adding one line to another and dirichlet-style fixing it to
-  /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two blocks).
+  /// Note that prerequisite for this is to work that the matrix sparsity should be compatible (same nonzero pattern for the two block rows).
   /// Note that only structural symmetry can be preserved (again, if sparsity input was symmetric).
   void periodicity (const Uint iblockrow_to, const Uint iblockrow_from);
 
