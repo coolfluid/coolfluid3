@@ -3,9 +3,9 @@ coolfluid_find_orphan_files()
 list( APPEND sandbox-lss-trilinos_files
   lss-trilinos.cpp
   lss-trilinos.hpp
-  lss-interface.hpp
-  blockaccumulator.hpp
-  test_matrix.hpp
+#  lss-interface.hpp
+#  blockaccumulator.hpp
+#  test_matrix.hpp
 )
 
 list( APPEND sandbox-lss-trilinos_includedirs ${TRILINOS_INCLUDE_DIR} )

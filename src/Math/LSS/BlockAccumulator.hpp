@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef blockaccumulator_hpp
-#define blockaccumulator_hpp
+#ifndef CF_Math_LSS_BlockAccumulator_hpp
+#define CF_Math_LSS_BlockAccumulator_hpp
 
 // blockaccumulator would keep local RealMatrix and rhs and solution together
 // time splitting could be implemented here?
@@ -14,17 +14,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#include <Math/MatrixTypes.hpp>
-#include <Common/CommonAPI.hpp>
+#include "Math/MatrixTypes.hpp"
+#include "Math/LibMath.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Common {
+namespace Math {
+namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API BlockAccumulator {
+class Math_API BlockAccumulator {
 public:
 
   /// setting up sizes
@@ -37,6 +38,14 @@ public:
     indices.resize(numnodes);
   };
 
+  /// reset the values to the value of reset_to
+  void reset(Real reset_to=0.)
+  {
+    mat.setConstant(reset_to);
+    sol.setConstant(reset_to);
+    rhs.setConstant(reset_to);
+  }
+
   /// entering the indices where the local matrix is lying
   template<typename T> void neighbour_indices(const T& idx_vector )
   {
@@ -47,6 +56,9 @@ public:
 
   /// how many rows/columns
   const Uint size() { return sol.size(); };
+
+  /// how many rows/columns
+  const Uint block_size() { return indices.size(); };
 
   /// accessor to blockaccumulator's RealMatrix
   RealMatrix mat;
@@ -66,7 +78,8 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Common
+} // namespace LSS
+} // namespace Math
 } // namespace CF
 
-#endif // blockaccumulator_hpp
+#endif // CF_Math_LSS_BlockAccumulator_hpp
