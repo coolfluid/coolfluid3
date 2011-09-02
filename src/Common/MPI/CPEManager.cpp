@@ -189,8 +189,13 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       send_to_parent( frame );
     }
 
+    std::cout << "Worker[" << PE::instance().rank() << "] -> waiting for sync" << std::endl;
     // synchronize with other buddies
     PE::instance().barrier();
+    std::cout << "Worker[" << PE::instance().rank() << "] -> synced" << std::endl;
+
+    if( PE::instance().rank() == 0 )
+      std::cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 
   }
 
