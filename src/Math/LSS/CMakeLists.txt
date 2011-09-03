@@ -20,6 +20,7 @@ list( APPEND coolfluid_lss_files
   Trilinos/TrilinosVector.hpp
   Trilinos/TrilinosVector.cpp
 )
+list(APPEND coolfluid_lss_includedirs ${TRILINOS_INCLUDE_DIR})
 list( APPEND coolfluid_lss_libs ${TRILINOS_LIBRARIES} )
 ADD_DEFINITIONS(-DCF_HAVE_TRILINOS)
 endif()
@@ -27,11 +28,3 @@ endif()
 set( coolfluid_lss_kernellib TRUE )
 
 coolfluid_add_library( coolfluid_lss )
-
-
-
-
-
-
-
-
