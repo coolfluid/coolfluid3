@@ -85,8 +85,8 @@ struct LSSAtomicFixture
       blockcol_size = 8;
       blockrow_size = 5;
     } else {
-      node_connectivity += 1,2,5,0,2,3,4,5,7,1,5,6,2,6,8;
-      starting_indices += 0,0,3,9,9,9,12,12,12,15;
+      node_connectivity += 1,2,5,2,5,8,0,7,3,1,2,4,5,6,7,8,2,5,8;
+      starting_indices += 0,0,3,9,9,9,16,16,16,19;
       blockcol_size = 9;
       blockrow_size = 4;
     }
@@ -221,6 +221,8 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     // check with non-constant pattern
   }
 
+  mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
   mat->reset(1.);
   if (irank==0)
   {
@@ -247,40 +249,90 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
   // performant access
   mat->reset();
-  if (irank==0)
+  if (irank==1)
   {
-/*
     LSS::BlockAccumulator ba;
     ba.resize(3,neq);
-    ba.mat << 11, 12, 21, 22,
-              13, 14, 23, 24,
-              41, 42, 51, 52,
-              43, 44, 53, 54;
-    ba.indices[0]=1;
-    ba.indices[1]=3;
-    ba.indices[2]=5;
+    ba.mat << 53, 54, 51, 52, 55, 56,
+              59, 60, 57, 58, 61, 62,
+              23, 24, 21, 22, 25, 26,
+              29, 30, 27, 28, 31, 32,
+              83, 84, 81, 82, 85, 86,
+              89, 90, 87, 88, 91, 92;
+    ba.indices[0]=5;
+    ba.indices[1]=2;
+    ba.indices[2]=8;
     mat->set_values(ba);
-*/
+    mat->add_values(ba);
+    ba.reset();
+    ba.indices[0]=2;
+    ba.indices[1]=5;
+    ba.indices[2]=8;
+    mat->get_values(ba);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(2,i-1),(double)((ba.indices[1]*10+i+0)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(3,i-1),(double)((ba.indices[1]*10+i+6)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i+0)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i+6)*2));
+    mat->data(rows,cols,vals);
+    Real ctr=1.;
+    for (int i=0; i<(const int)vals.size(); i++)
+      if (((rows[i]/neq==ba.indices[0])||(rows[i]/neq==ba.indices[1])||(rows[i]/neq==ba.indices[2]))&&
+          ((cols[i]/neq==ba.indices[0])||(cols[i]/neq==ba.indices[1])||(cols[i]/neq==ba.indices[2])))
+        {
+          BOOST_CHECK_EQUAL(vals[i],(double)((rows[i]/neq*10.+ctr)*2));
+          ctr+=1.;
+          if (ctr==13.) ctr=1.;
+        } else {
+          BOOST_CHECK_EQUAL(vals[i],0.);
+        }
   }
-
-  // post-destroy checks
-  mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
-
-
 /*
-  virtual const bool compatible(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) = 0;
-  virtual void solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
-  virtual void set_values(const BlockAccumulator& values) = 0;
-  virtual void add_values(const BlockAccumulator& values) = 0;
-  virtual void get_values(BlockAccumulator& values) = 0;
-
-  virtual void destroy() = 0;
-destroy  virtual const bool is_created() = 0;
-destroy  virtual const Uint neq() = 0;
-destroy  virtual const Uint blockrow_size() = 0;
-destroy  virtual const Uint blockcol_size() = 0;
+  // performant access - out of range access does not fail
+  mat->reset();
+  if (irank==1)
+  {
+    LSS::BlockAccumulator ba;
+    ba.resize(3,neq);
+    ba.mat << 53, 54, 51, 52, 55, 56,
+              59, 60, 57, 58, 61, 62,
+              23, 24, 21, 22, 25, 26,
+              29, 30, 27, 28, 31, 32,
+              83, 84, 81, 82, 85, 86,
+              89, 90, 87, 88, 91, 92;
+    ba.indices[0]=4;
+    ba.indices[1]=2;
+    ba.indices[2]=10;
+    mat->set_values(ba);
+    mat->add_values(ba);
+    ba.reset();
+    ba.indices[0]=2;
+    ba.indices[1]=4;
+    ba.indices[2]=10;
+    mat->get_values(ba);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(2,i-1),0.);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(3,i-1),0.);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),0.);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),0.);
+    mat->data(rows,cols,vals);
+    Real ctr=1.;
+    for (int i=0; i<(const int)vals.size(); i++)
+      if ((rows[i]/neq==ba.indices[0])&&(cols[i]/neq==ba.indices[0]))
+        {
+          BOOST_CHECK_EQUAL(vals[i],(double)((rows[i]/neq*10.+ctr)*2));
+          ctr+=1.;
+          if (ctr==13.) ctr=1.;
+        } else {
+          BOOST_CHECK_EQUAL(vals[i],0.);
+        }
+  }
 */
-
+  // post-destroy checks
+  mat->destroy();
+  BOOST_CHECK_EQUAL(mat->is_created(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

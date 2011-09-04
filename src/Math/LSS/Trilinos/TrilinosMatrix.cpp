@@ -217,8 +217,8 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
-  if (m_converted_indices.size()<values.indices.size()) m_converted_indices.resize(values.indices.size());
-  for (int i=0; i<(const int)values.indices.size(); i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
   {
@@ -241,7 +241,9 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 **/
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
-  int* idxs=(int*)&values.indices[0];
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
   {
     TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
@@ -257,7 +259,10 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
 {
   /// @attention MODERATE EXPENSIVE, AVOID USAGE
   cf_assert(m_is_created);
-  int* idxs=(int*)&values.indices[0];
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
@@ -508,7 +513,8 @@ void TrilinosMatrix::print(std::ostream& stream)
 void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode mode )
 {
   std::ofstream stream(filename.c_str(),mode);
-  stream << "ZONE T=\"" << type_name() << " " << name() << "\"\n" << std::flush;
+  stream << "VARIABLES=COL,ROW,VAL\n" << std::flush;
+  stream << "ZONE T=\"" << type_name() << "::" << name() <<  "\"\n" << std::flush;
   print(stream);
   stream.close();
 }
