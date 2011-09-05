@@ -144,6 +144,8 @@ add_subdirectory(LagrangeP0)      # LagrangeP0 shape functions
 
 add_subdirectory(LagrangeP1)      # LagrangeP1 elements / shape functions
 
+add_subdirectory(LagrangeP2)      # LagrangeP2 elements / shape functions
+
 add_subdirectory( SF )            # Shape functions
 
 add_subdirectory( Neu )           # Neutral file IO

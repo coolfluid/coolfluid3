@@ -39,7 +39,7 @@ Real Triag2DLagrangeP2::compute_volume(const NodesT& coord) const
 
 bool Triag2DLagrangeP2::is_coord_in_element(const RealVector& coord, const NodesT& nodes) const
 {
-	return in_element(coord,nodes);
+  return in_element(coord,nodes);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +50,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2DLagrangeP2::faces()
 
   if(connectivity.face_first_nodes.empty())
   {
-    connectivity.face_node_counts.assign(nb_nodes, 3);
+    connectivity.face_node_counts.assign(nb_faces, 3);
     connectivity.face_first_nodes = boost::assign::list_of(0)(3)(6);
     connectivity.face_nodes = boost::assign::list_of(0)(1)(3)
                                                     (1)(2)(4)

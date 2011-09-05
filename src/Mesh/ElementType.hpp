@@ -119,59 +119,60 @@ public: // functions
   //@{
 
   /// Compute Mapped Coordinates, a.k.a. local coordinates
-  /// @param coord        [in]  the coordinates to be mapped
-  /// @param nodes        [in]  coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] coord     the coordinates to be mapped
+  /// @param [in] nodes     coordinates of the element nodes (nb_nodes x dimension)
   /// @return mapped_coord
   virtual RealVector mapped_coordinate(const RealVector& coord, const RealMatrix& nodes) const = 0;
 
   /// Compute Mapped Coordinates, a.k.a. local coordinates
-  /// @param coord        [in]  the coordinates to be mapped
-  /// @param nodes        [in]  coordinates of the element nodes (nb_nodes x dimension)
-  /// @param mapped_coord [out] the result
+  /// @param [in]  coord         coordinates to be mapped
+  /// @param [in]  nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] mapped_coord  result
   virtual void compute_mapped_coordinate(const RealVector& coord, const RealMatrix& nodes, RealVector& mapped_coord) const = 0;
   /// Compute the determinant of the jacobian
-  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes         coordinates of the element nodes (nb_nodes x dimension)
   /// @return jacobian determinant
   virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const = 0;
 
   /// Compute the jacobian of the transformation
-  /// @param mapped_coord [in]  coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in]  coordinates of the element nodes (nb_nodes x dimension)
-  /// @param jacobian     [out] jacobian (size = dimensionality x dimension)
+  /// @param [in]  mapped_coord   coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes          coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] jacobian       jacobian (size = dimensionality x dimension)
   virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian) const = 0;
 
   /// Compute the jacobian of the transformation
-  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes         coordinates of the element nodes (nb_nodes x dimension)
   /// @return jacobian (size = dimensionality x dimension)
   virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const = 0;
 
   /// Compute the adjoint of the jacobian of the transformation
   /// Useful for computation of inverse jacobian = 1/jacobian_determinant * jacobian_adjoint
-  /// @param mapped_coord     [in]  coordinates in mapped space (dimensionality x 1)
-  /// @param nodes            [in]  coordinates of the element nodes (nb_nodes x dimension)
-  /// @param jacobian adjoint [out] jacobianadjoint (size = dimensionality x dimension)
+  /// @param [in]  mapped_coord      coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes             coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] jacobian adjoint  jacobianadjoint (size = dimensionality x dimension)
   virtual void compute_jacobian_adjoint(const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian_adjoint) const = 0;
 
   /// compute volume given coordinates
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] nodes  coordinates of the element nodes (nb_nodes x dimension)
   /// @note Only in elements of (dimensionality == dimension) will
   /// the volume be different from zero
   virtual Real volume(const RealMatrix& nodes) const = 0;
 
   /// compute area using given coordinates.
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] nodes  coordinates of the element nodes (nb_nodes x dimension)
   /// @note Only in elements of dimensionality == dimensionality-1
   /// will the area be different from zero
   virtual Real area(const RealMatrix& nodes) const = 0;
 
-  /// compute the normal to the element. The direction will be taken according
+  /// Compute the unit-normal to the face-element. The direction will be taken according
   /// to the order of the coordinates
   virtual void compute_normal(const RealMatrix& nodes, RealVector& normal) const = 0;
 
   /// compute centroid of element given coordinates
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in]  nodes      coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] centroid   coordinates of the centroid
   virtual void compute_centroid(const RealMatrix& nodes , RealVector& centroid) const = 0;
 
   /// @return if the coordinate is in the element with given nodes
@@ -183,9 +184,9 @@ public: // functions
   /// The section is given by a mapped coordinate, and a direction perpendicular
   /// to the plane.
   /// Only elements with the dimension == dimensionality implement this function
-  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
-  /// @param orientation  [in] direction normal to the plane
+  /// @param [in] mapped_coord coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes        coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] orientation  direction normal to the plane
   /// @return vector in mapped space scaled with the jacobian of the
   ///         section (not the volume).
   virtual RealVector plane_jacobian_normal(const RealVector& mapped_coord,
@@ -196,10 +197,10 @@ public: // functions
   /// The section is given by a mapped coordinate, and a direction perpendicular
   /// to the plane.
   /// Only elements with the dimension == dimensionality implement this function
-  /// @param mapped_coord [in]  coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in]  coordinates of the element nodes (nb_nodes x dimension)
-  /// @param orientation  [in]  direction normal to the plane
-  /// @param result       [out] vector in mapped space scaled with the jacobian of the
+  /// @param [in]  mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in]  orientation   direction normal to the plane
+  /// @param [out] result        vector in mapped space scaled with the jacobian of the
   ///                           section (not the volume).
   virtual void compute_plane_jacobian_normal(const RealVector& mapped_coord,
                                              const RealMatrix& nodes,

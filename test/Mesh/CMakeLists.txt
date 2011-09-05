@@ -356,7 +356,7 @@ coolfluid_add_unit_test( utest-mesh-parallel-overlap )
 
 ##########################################################################
 # test simple mesh generator
-list( APPEND utest-mesh-shapefunctions_cflibs coolfluid_mesh_lagrangep0 coolfluid_mesh_lagrangep1)
+list( APPEND utest-mesh-shapefunctions_cflibs coolfluid_mesh_lagrangep0 coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2)
 list( APPEND utest-mesh-shapefunctions_files  utest-mesh-shapefunctions.cpp )
 
 coolfluid_add_unit_test( utest-mesh-shapefunctions )

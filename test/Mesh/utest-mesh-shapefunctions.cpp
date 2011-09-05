@@ -107,7 +107,6 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   ElementType::Ptr etype = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Triag2D","etype");
   etype->compute_centroid(nodes,centroid);
   std::cout << "dynamic: centroid = " << centroid.transpose() << std::endl;
-  std::cout << "sf = " << etype->shape_function().derived_type_name() << std::endl;
 
   // Check if compute_normal throws, as it is not implemented in the static implementation
   Core::instance().environment().configure_option("exception_outputs",false);
@@ -115,6 +114,24 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),Common::NotImplemented);
   Core::instance().environment().configure_option("exception_outputs",true);
   Core::instance().environment().configure_option("exception_backtrace",true);
+
+  ElementType::Ptr quad_face = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Quad3D","etype");
+
+  RealMatrix quad_face_nodes = (RealMatrix(4,3) <<
+                      0, 0, 0,
+                      1, 0, 0,
+                      1, 1, 0,
+                      0, 1, 0
+                      ).finished();
+
+  RealVector normal(quad_face->dimension());
+  quad_face->compute_normal(quad_face_nodes,normal);
+  std::cout << "dynamic: normal = " << normal.transpose() << std::endl;
+  std::cout << "dynamic: sf = " << etype->shape_function().derived_type_name() << std::endl;
+  std::cout << "dynamic: sf = " << quad_face->shape_function().derived_type_name() << std::endl;
+  std::cout << "dynamic: sf = " << etype->face_type(0).derived_type_name() << std::endl;
+
+  std::cout << "dynamic: type = " << etype->derived_type_name() << std::endl;
 
 }
 

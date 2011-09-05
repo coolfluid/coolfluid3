@@ -8,22 +8,20 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
 #include "Mesh/ShapeFunctionT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Line2D.hpp"
+#include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
+#include "Mesh/LagrangeP2/Line2D.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeP1 {
+namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP1 >
-   Line2D_Builder(LibLagrangeP1::library_namespace()+"."+Line2D::type_name());
+Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP2 >
+   Line2D_Builder(LibLagrangeP2::library_namespace()+"."+Line2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,8 +39,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
   if(connectivity.displs.empty())
   {
     connectivity.displs = boost::assign::list_of(0);
-    connectivity.stride.assign(1, 2);
-    connectivity.nodes = boost::assign::list_of(0)(1);
+    connectivity.stride.assign(1, nb_nodes);
+    connectivity.nodes = boost::assign::list_of(0)(1)(2);
   }
   return connectivity;
 }
@@ -57,22 +55,6 @@ const CF::Mesh::ElementType& Line2D::face_type(const CF::Uint face)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Line2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
-{
-  centroid[XX] = 0.5*(nodes(0,XX)+nodes(1,XX));
-  centroid[YY] = 0.5*(nodes(0,YY)+nodes(1,YY));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Line2D::compute_normal(const NodesT& nodes , CoordsT& result)
-{
-  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
-  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 Real Line2D::volume(const NodesT& nodes)
 {
   return 0.;
@@ -80,13 +62,6 @@ Real Line2D::volume(const NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Line2D::area(const NodesT& nodes)
-{
-  return (nodes.row(1) - nodes.row(0)).norm();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-} // LagrangeP1
+} // LagrangeP2
 } // Mesh
 } // CF
