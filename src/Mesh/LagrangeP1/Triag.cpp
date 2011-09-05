@@ -7,16 +7,16 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP0/Triag.hpp"
+#include "Mesh/LagrangeP1/Triag.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeP0 {
+namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP0 >
-   Triag_Builder(LibLagrangeP0::library_namespace()+"."+Triag::type_name());
+Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP1 >
+   Triag_Builder(LibLagrangeP1::library_namespace()+"."+Triag::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,25 +40,33 @@ Triag::GradientT Triag::gradient(const MappedCoordsT& mapped_coord)
 
 void Triag::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  result[0] = 1.;
+  result[0] = 1. - mapped_coord[KSI] - mapped_coord[ETA];
+  result[1] = mapped_coord[KSI];
+  result[2] = mapped_coord[ETA];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Triag::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
-  result(KSI,0) = 0.;
-  result(ETA,0) = 0.;
+  result(KSI, 0) = -1.;
+  result(ETA, 0) = -1.;
+  result(KSI, 1) =  1.;
+  result(ETA, 1) =  0.;
+  result(KSI, 2) =  0.;
+  result(ETA, 2) =  1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RealMatrix Triag::m_local_coordinates =  ( RealMatrix(Triag::nb_nodes, Triag::dimensionality) <<
-   1./3., 1./3.
+    0.,  0.,
+    1.,  0.,
+    0.,  1.
 ).finished();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP0
+} // LagrangeP1
 } // Mesh
 } // CF

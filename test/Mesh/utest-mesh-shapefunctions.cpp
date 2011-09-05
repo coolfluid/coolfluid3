@@ -10,9 +10,12 @@
 #include <boost/test/unit_test.hpp>
 #include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/Core.hpp"
+#include "Common/CEnv.hpp"
 
-#include "Mesh/ShapeFunction.hpp"
+#include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/LagrangeP0/Triag.hpp"
+#include "Mesh/LagrangeP1/Triag2D.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -39,7 +42,7 @@ BOOST_FIXTURE_TEST_SUITE( Test_ShapeFunction_TestSuite, Test_ShapeFunction_Fixtu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( static_version )
+BOOST_AUTO_TEST_CASE( sf_static_version )
 {
   LagrangeP0::Triag::MappedCoordsT mapped_coord = (LagrangeP0::Triag::MappedCoordsT() << 0, 0 ).finished();
 
@@ -55,16 +58,16 @@ BOOST_AUTO_TEST_CASE( static_version )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( dynamic_version )
+BOOST_AUTO_TEST_CASE( sf_dynamic_version )
 {
   RealVector mapped_coord = (RealVector(2) << 0, 0).finished();
 
-  std::auto_ptr<ShapeFunction> sf (new LagrangeP0::Triag);
+  std::auto_ptr<ShapeFunction> sf (new ShapeFunctionT<LagrangeP0::Triag>);
 
-  RealRowVector     values       = sf->value(mapped_coord);
+  RealRowVector     values(1);//       = sf->value(mapped_coord);
   const RealMatrix& local_coords = sf->local_coordinates();
 
-  std::cout << "dynamic: values       = " << values       << std::endl;
+//  std::cout << "dynamic: values       = " << values       << std::endl;
   std::cout << "dynamic: local_coords = " << local_coords << std::endl;
 
   sf->compute_value(mapped_coord,values);
@@ -72,6 +75,46 @@ BOOST_AUTO_TEST_CASE( dynamic_version )
 }
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( etype_static_version )
+{
+  typedef LagrangeP1::Triag2D  ETYPE;
+  ETYPE::NodesT nodes = (ETYPE::NodesT() <<
+                         0, 0,
+                         1, 0,
+                         0, 1
+                         ).finished();
+  ETYPE::CoordsT centroid;
+  ETYPE::compute_centroid(nodes,centroid);
+  std::cout << "static : centroid = " << centroid.transpose() << std::endl;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( etype_dynamic_version )
+{
+  RealMatrix nodes = (RealMatrix(3,2) <<
+                      0, 0,
+                      1, 0,
+                      0, 1
+                      ).finished();
+  RealVector centroid(2);
+
+  ElementType::Ptr etype = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Triag2D","etype");
+  etype->compute_centroid(nodes,centroid);
+  std::cout << "dynamic: centroid = " << centroid.transpose() << std::endl;
+  std::cout << "sf = " << etype->shape_function().derived_type_name() << std::endl;
+
+  // Check if compute_normal throws, as it is not implemented in the static implementation
+  Core::instance().environment().configure_option("exception_outputs",false);
+  Core::instance().environment().configure_option("exception_backtrace",false);
+  BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),Common::NotImplemented);
+  Core::instance().environment().configure_option("exception_outputs",true);
+  Core::instance().environment().configure_option("exception_backtrace",true);
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
 

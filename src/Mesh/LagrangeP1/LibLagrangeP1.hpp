@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP0_LibLagrangeP0_hpp
-#define CF_Mesh_LagrangeP0_LibLagrangeP0_hpp
+#ifndef CF_Mesh_LagrangeP1_LibLagrangeP1_hpp
+#define CF_Mesh_LagrangeP1_LibLagrangeP1_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,13 +14,13 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro SF_API
-/// @note build system defines COOLFLUID_MESH_LAGRANGEP0_EXPORTS when compiling SF files
-#ifdef COOLFLUID_MESH_LAGRANGEP0_EXPORTS
-#   define Mesh_LagrangeP0_API      CF_EXPORT_API
-#   define Mesh_LagrangeP0_TEMPLATE
+/// @note build system defines COOLFLUID_MESH_LagrangeP1_EXPORTS when compiling SF files
+#ifdef COOLFLUID_MESH_LagrangeP1_EXPORTS
+#   define Mesh_LagrangeP1_API      CF_EXPORT_API
+#   define Mesh_LagrangeP1_TEMPLATE
 #else
-#   define Mesh_LagrangeP0_API      CF_IMPORT_API
-#   define Mesh_LagrangeP0_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Mesh_LagrangeP1_API      CF_IMPORT_API
+#   define Mesh_LagrangeP1_TEMPLATE CF_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,34 +28,34 @@
 namespace CF {
 namespace Mesh {
 
-/// @brief namespace holding LagrangeP0 shape functions and elements
+/// @brief namespace holding LagrangeP1 shape functions and elements
 /// @author Willem Deconinck
-namespace LagrangeP0 {
+namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Shape functions module for LagrangeP0
+/// Shape functions module for LagrangeP1
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_LagrangeP0_API LibLagrangeP0 : public Common::CLibrary
+class Mesh_LagrangeP1_API LibLagrangeP1 : public Common::CLibrary
 {
 public:
 
-  typedef boost::shared_ptr<LibLagrangeP0> Ptr;
-  typedef boost::shared_ptr<LibLagrangeP0 const> ConstPtr;
+  typedef boost::shared_ptr<LibLagrangeP1> Ptr;
+  typedef boost::shared_ptr<LibLagrangeP1 const> ConstPtr;
 
   /// Constructor
-  LibLagrangeP0 ( const std::string& name) : Common::CLibrary(name) {   }
+  LibLagrangeP1 ( const std::string& name) : Common::CLibrary(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.LagrangeP0"; }
+  static std::string library_namespace() { return "CF.Mesh.LagrangeP1"; }
 
 
   /// Static function that returns the library name.
   /// Must be implemented for CLibrary registration
   /// @return name of the library
-  static std::string library_name() { return "LagrangeP0"; }
+  static std::string library_name() { return "LagrangeP1"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for CLibrary registration
@@ -67,7 +67,7 @@ public: // functions
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibLagrangeP0"; }
+  static std::string type_name() { return "LibLagrangeP1"; }
 
 protected:
 
@@ -77,14 +77,14 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibLagrangeP0
+}; // end LibLagrangeP1
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP0
+} // LagrangeP1
 } // Mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LagrangeP0_LibLagrangeP0_hpp
+#endif // CF_Mesh_LagrangeP1_LibLagrangeP1_hpp

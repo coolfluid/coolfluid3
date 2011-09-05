@@ -4,32 +4,33 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP0_Triag_hpp
-#define CF_Mesh_LagrangeP0_Triag_hpp
+#ifndef CF_Mesh_LagrangeP1_Triag_hpp
+#define CF_Mesh_LagrangeP1_Triag_hpp
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "Mesh/GeoShape.hpp"
+#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeP0 {
+namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @class Triag
 /// @verbatim
 /// Local connectivity:
-///             .
+///             2
 ///             | .
 ///             |   .
 ///             |     .
-///             |   0   .
+///             |       .
 ///             |         .
-///             ------------
+///             0-----------1
 /// Reference domain: <0,1> x <0,1>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-struct Mesh_LagrangeP0_API Triag
+class Mesh_LagrangeP1_API Triag
 {
 public: // typedefs
 
@@ -37,13 +38,13 @@ public: // typedefs
   //  --------------------------------
   //@{
   enum { dimensionality = 2               };
-  enum { nb_nodes       = 1               };
-  enum { order          = 0               };
+  enum { nb_nodes       = 3               };
+  enum { order          = 1               };
   enum { shape          = GeoShape::TRIAG };
   //@}
 
   /// @name Matrix Types
-  //  ------------------
+  //  --------------------------------
   //@{
   typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
   typedef Eigen::Matrix<Real, 1, nb_nodes> ValueT;
@@ -90,8 +91,8 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP0
+} // LagrangeP1
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP0_Triag_hpp
+#endif // CF_Mesh_LagrangeP1_Triag_hpp

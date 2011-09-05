@@ -42,10 +42,10 @@ public: // functions
   //@{
 
   /// Default constructor without arguments
-  ShapeFunction( const std::string& name );
+  ShapeFunction( const std::string& name ) : Common::Component(name) {}
 
   /// Default destructor
-  virtual ~ShapeFunction();
+  virtual ~ShapeFunction() {}
 
   /// Type name: ShapeFunction
   static std::string type_name() { return "ShapeFunction"; }
@@ -72,7 +72,7 @@ public: // functions
   Uint dimensionality() const { return m_dimensionality; }
 
   /// @return a matrix with all local coordinates where the shape function is defined
-  virtual const RealMatrix& local_coordinates() const;
+  virtual const RealMatrix& local_coordinates() const = 0;
 
   //@}
 
@@ -83,22 +83,22 @@ public: // functions
   /// @brief Compute the shape function values in the given local coordinate
   /// @param [in] local_coordinate   local coordinate (size = dimensionality x 1)
   /// @return shape function values (size = 1 x nb_nodes)
-  virtual RealRowVector value(const RealVector& local_coordinate) const;
+  virtual RealRowVector value(const RealVector& local_coordinate) const = 0;
 
   /// @brief Compute the shape function values in the given local coordinate
   /// @param [in]  local_coordinate   local coordinate (size = dimensionality x 1)
   /// @param [out] value              computed value (size = 1 x nb_nodes)
-  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const;
+  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const = 0;
 
   /// @brief Compute the shape function gradient in the given local coordinate
   /// @param [in] local_coordinate   local coordinate (size = dimensionality x 1)
   /// @return shape function gradient (size = nb_nodes x dimensionality)
-  virtual RealMatrix gradient(const RealVector& local_coordinate) const;
+  virtual RealMatrix gradient(const RealVector& local_coordinate) const = 0;
 
   /// @brief Compute the shape function values in the given local coordinate
   /// @param [in]  local_coordinate   local coordinate (size = dimensionality x 1)
   /// @param [out] gradient           computed gradient (size = nb_nodes x dimensionality)
-  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const;
+  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const = 0;
 
   //@}
 
@@ -114,67 +114,6 @@ protected: // data
   Uint m_dimensionality;
 
 }; // ShapeFunction
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// @brief Translation class to link concrete static implementations to the dynamic API
-template <typename SF>
-class ShapeFunctionT : public ShapeFunction
-{
-public:
-  /// @name Constructor / Destructor / Type name
-  //  ------------------------------------------
-  //@{
-
-  /// Default constructor without arguments
-  ShapeFunctionT( const std::string& name ) : ShapeFunction(name) {}
-
-  /// Default destructor
-  virtual ~ShapeFunctionT() {}
-
-  /// Type name: ShapeFunction
-  static std::string type_name() { return "ShapeFunction"; }
-
-  //@}
-
-  //  Accessor functions
-  //  ------------------------
-
-  virtual const RealMatrix& local_coordinates() const
-  {
-    return SF::local_coordinates();
-  }
-
-
-  // Computation functions
-  // ---------------------------
-
-  virtual RealRowVector value(const RealVector& local_coordinate) const
-  {
-    return SF::value(local_coordinate);
-  }
-
-  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const
-  {
-    // This little hack is necessary and is documented on the Eigen website
-    // http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-    const typename SF::ValueT& val( const_cast<RealRowVector const&>(value) );
-    SF::compute_value(local_coordinate, const_cast<typename SF::ValueT&>(val));
-  }
-
-  virtual RealMatrix gradient(const RealVector& local_coordinate) const
-  {
-    return SF::gradient(local_coordinate);
-  }
-
-  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const
-  {
-    // This little hack is necessary and is documented on the Eigen website
-    // http://eigen.tuxfamily.org/dox/TopicFunctionTakingEigenTypes.html
-    const typename SF::GradientT& grad( const_cast<RealMatrix const&>(gradient));
-    SF::compute_gradient(local_coordinate, const_cast<typename SF::GradientT&>(grad));
-  }
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -19,7 +19,7 @@ namespace CF {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
-  
+
 /// This class defines a 2D Triangle mesh element
 /// @author Willem Deconinck
 struct Mesh_API Triag2D : public ElementType
@@ -27,7 +27,7 @@ struct Mesh_API Triag2D : public ElementType
 
   /// constructor
   Triag2D(const std::string& name);
-  
+
   /// Gets the Class name
   static std::string type_name() { return "Triag2D"; }
 
@@ -36,20 +36,20 @@ struct Mesh_API Triag2D : public ElementType
 
   /// @return number of faces
   static const Uint nb_faces = 3;
-  
+
   /// @return number of edges
   static const Uint nb_edges = 3;
-  
+
   /// @return m_dimensionality
   static const Uint dimensionality = 2;
-  
+
   /// @return m_dimension
   static const Uint dimension = 2;
 
-  virtual Real compute_area(const NodesT& coord) const { return 0.; }
+  virtual Real area(const RealMatrix& nodes) const { return 0.; }
 
 }; // end Triag2D
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh

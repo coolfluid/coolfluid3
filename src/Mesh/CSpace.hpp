@@ -49,7 +49,7 @@ public: // functions
 
   /// return the elementType
   /// @pre the shape function must be configured first
-  ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
+  const ShapeFunction& shape_function() const { cf_assert(is_not_null(m_shape_function)); return *m_shape_function; }
 
   /// The geometric support of this space. This is equal to the element type defined in CEntities
   ElementType& element_type() const { return support().element_type(); }

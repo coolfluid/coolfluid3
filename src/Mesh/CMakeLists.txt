@@ -79,7 +79,8 @@ list( APPEND coolfluid_mesh_files
   CUnifiedData.cpp
   ElementData.hpp
   ElementType.hpp
-  ElementType.cpp
+  ElementTypeT.hpp
+  ElementTypeT.cpp
   GeoShape.hpp
   GeoShape.cpp
   Hexa3D.hpp
@@ -101,7 +102,8 @@ list( APPEND coolfluid_mesh_files
   Quad3D.hpp
   Quad3D.cpp
   ShapeFunction.hpp
-  ShapeFunction.cpp
+  ShapeFunctionT.hpp
+  ShapeFunctionT.cpp
   Tetra3D.hpp
   Tetra3D.cpp
   Triag2D.hpp
@@ -138,7 +140,9 @@ coolfluid_add_library( coolfluid_mesh )
 ############################################################################################
 # sub modules of CF.Mesh
 
-add_subdirectory(LagrangeP0)      # LagrangeP0 elements / shape functions
+add_subdirectory(LagrangeP0)      # LagrangeP0 shape functions
+
+add_subdirectory(LagrangeP1)      # LagrangeP1 elements / shape functions
 
 add_subdirectory( SF )            # Shape functions
 
