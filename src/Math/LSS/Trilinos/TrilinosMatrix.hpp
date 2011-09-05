@@ -189,7 +189,6 @@ private:
   /// a helper array used in set/add/get_values to avoid frequent new+free combo
   std::vector<int> m_converted_indices;
 
-
 }; // end of class Matrix
 
 ////////////////////////////////////////////////////////////////////////////////////////////

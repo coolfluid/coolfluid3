@@ -14,9 +14,6 @@
 #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
-/// @todo remove this header when done
-#include "Common/MPI/debug.hpp"
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -54,6 +51,9 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
 
+  // if already created
+  if (m_is_created) destroy();
+
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
 
@@ -77,6 +77,8 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   // process local to matrix local numbering mapper
   int iupd=0;
   int ighost=nmyglobalelements;
+  m_p2m.resize(0);
+  m_p2m.reserve(cp.isUpdatable().size());
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
   {
     if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
@@ -221,12 +223,13 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
   for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
-  {
-    TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
-    for (int icol=0; icol<numblocks; icol++)
-      TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-    TRILINOS_ASSERT(m_mat->EndSubmitEntries());
-  }
+    if (idxs[irow]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
+      for (int icol=0; icol<numblocks; icol++)
+        TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
+      TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -245,12 +248,13 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
   for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
-  {
-    TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
-    for (int icol=0; icol<numblocks; icol++)
-      TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-    TRILINOS_ASSERT(m_mat->EndSubmitEntries());
-  }
+    if (idxs[irow]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
+      for (int icol=0; icol<numblocks; icol++)
+        TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
+      TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -269,15 +273,20 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
   int dummy_neq;
   const int block_size=values.block_size();
   for (int i=0; i<(const int)block_size; i++)
-  {
-    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
-    for (int j=0; j<(const int)blockrowsize; j++)
-      for (int k=0; k<(const int)block_size; k++)
-        if (idxs[k]==colindices[j])
-          for (int l=0; l<(const int)m_neq; l++)
-            for (int m=0; m<(const int)m_neq; m++)
-              values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
-  }
+    if (idxs[i]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
+      for (int j=0; j<(const int)blockrowsize; j++)
+        for (int k=0; k<(const int)block_size; k++)
+          if (idxs[k]==colindices[j])
+            for (int l=0; l<(const int)m_neq; l++)
+              for (int m=0; m<(const int)m_neq; m++)
+                values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
+    } else {
+      for (int j=0; j<(const int)(m_neq*numblocks); j++)
+        for (int m=0; m<(const int)m_neq; m++)
+          values.mat(i*m_neq+m,j)=0.;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

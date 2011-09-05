@@ -212,53 +212,18 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
         BOOST_CHECK_EQUAL(vals[i],0.);
   }
 
-  // bc-related functions
-  mat->reset(1.);
-  if (irank==0)
-  {
-    mat->get_column_and_replace_to_zero(5,1,vals);
-    // check return vector
-    // check with non-constant pattern
-  }
-
-  mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
-
-  mat->reset(1.);
-  if (irank==0)
-  {
-    mat->tie_blockrow_pairs(2,5);
-    // check with non-constant pattern
-  }
-
-  mat->reset(-1.);
-  if (irank==0)
-  {
-    mat->set_row(3,1,1.,0.);
-    mat->data(rows,cols,vals);
-    for (int i=0; i<(const int)vals.size(); i++)
-    {
-      if (rows[i]==7)
-      {
-        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],1.); }
-        else { BOOST_CHECK_EQUAL(vals[i],0.); }
-      } else {
-        BOOST_CHECK_EQUAL(vals[i],-1.);
-      }
-    }
-  }
-
   // performant access
   mat->reset();
   if (irank==1)
   {
     LSS::BlockAccumulator ba;
     ba.resize(3,neq);
-    ba.mat << 53, 54, 51, 52, 55, 56,
-              59, 60, 57, 58, 61, 62,
-              23, 24, 21, 22, 25, 26,
-              29, 30, 27, 28, 31, 32,
-              83, 84, 81, 82, 85, 86,
-              89, 90, 87, 88, 91, 92;
+    ba.mat << 53., 54., 51., 52., 55., 56.,
+              59., 60., 57., 58., 61., 62.,
+              23., 24., 21., 22., 25., 26.,
+              29., 30., 27., 28., 31., 32.,
+              83., 84., 81., 82., 85., 86.,
+              89., 90., 87., 88., 91., 92.;
     ba.indices[0]=5;
     ba.indices[1]=2;
     ba.indices[2]=8;
@@ -288,39 +253,44 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
           BOOST_CHECK_EQUAL(vals[i],0.);
         }
   }
-/*
+
   // performant access - out of range access does not fail
   mat->reset();
   if (irank==1)
   {
     LSS::BlockAccumulator ba;
     ba.resize(3,neq);
-    ba.mat << 53, 54, 51, 52, 55, 56,
-              59, 60, 57, 58, 61, 62,
-              23, 24, 21, 22, 25, 26,
-              29, 30, 27, 28, 31, 32,
-              83, 84, 81, 82, 85, 86,
-              89, 90, 87, 88, 91, 92;
-    ba.indices[0]=4;
+    ba.mat << 99., 99., 99., 99., 99., 99.,
+              99., 99., 99., 99., 99., 99.,
+              23., 24., 21., 22., 25., 26.,
+              29., 30., 27., 28., 31., 32.,
+              99., 99., 99., 99., 99., 99.,
+              99., 99., 99., 99., 99., 99.;
+    ba.indices[0]=3;
     ba.indices[1]=2;
-    ba.indices[2]=10;
+    ba.indices[2]=7;
     mat->set_values(ba);
     mat->add_values(ba);
-    ba.reset();
-    ba.indices[0]=2;
-    ba.indices[1]=4;
-    ba.indices[2]=10;
+    ba.reset(-1.);
+    ba.indices[0]=7;
+    ba.indices[1]=3;
+    ba.indices[2]=2;
     mat->get_values(ba);
-    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
-    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),0.);
+    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),0.);
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(2,i-1),0.);
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(3,i-1),0.);
-    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),0.);
-    for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),0.);
+    for (int i=1; i<3; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i+4+0)*2));
+    for (int i=1; i<3; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i+4+6)*2));
+    for (int i=3; i<5; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i+0+0)*2));
+    for (int i=3; i<5; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i+0+6)*2));
+    for (int i=5; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i-4+0)*2));
+    for (int i=5; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i-4+6)*2));
     mat->data(rows,cols,vals);
     Real ctr=1.;
     for (int i=0; i<(const int)vals.size(); i++)
-      if ((rows[i]/neq==ba.indices[0])&&(cols[i]/neq==ba.indices[0]))
+      if ((rows[i]/neq==ba.indices[2])&&
+          ((cols[i]/neq==ba.indices[0])||(cols[i]/neq==ba.indices[1])||(cols[i]/neq==ba.indices[2])))
         {
           BOOST_CHECK_EQUAL(vals[i],(double)((rows[i]/neq*10.+ctr)*2));
           ctr+=1.;
@@ -329,10 +299,161 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
           BOOST_CHECK_EQUAL(vals[i],0.);
         }
   }
-*/
-  // post-destroy checks
+
+  // bc-related: dirichlet-condition
+  mat->reset(-1.);
+  if (irank==0)
+  {
+    mat->set_row(3,1,1.,0.);
+    mat->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if (rows[i]==7)
+      {
+        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      } else {
+        BOOST_CHECK_EQUAL(vals[i],-1.);
+      }
+    }
+  }
+
+  // bc-related: symmetricizing a dirichlet
+  mat->reset(1.);
+  if (irank==0)
+  {
+    mat->set_value(11,4,5.);
+    mat->set_value(11,5,6.);
+    mat->set_value(11,6,7.);
+    mat->set_value(11,7,8.);
+    mat->set_value(11,10,11.);
+    mat->set_value(11,11,12.);
+    mat->set_value(11,12,13.);
+    mat->set_value(11,13,14.);
+    mat->get_column_and_replace_to_zero(5,1,vals);
+    vals[0]+=1.;
+    vals[1]+=2.;
+    vals[2]+=3.;
+    vals[3]+=4.;
+    vals[8]+=9.;
+    vals[9]+=10.;
+    vals[14]+=15.;
+    vals[15]+=16.;
+    for(int i=0; i<vals.size(); i++) BOOST_CHECK_EQUAL(vals[i],(double)(i+1));
+    mat->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if (cols[i]==11)
+      {
+        BOOST_CHECK_EQUAL(vals[i],0.);
+      } else {
+        BOOST_CHECK_EQUAL(vals[i],1.);
+      }
+    }
+  }
+
+  // bc-related: periodicity
+  mat->reset(-2.);
+  if (irank==0)
+  {
+    mat->set_value( 2, 4,40.);
+    mat->set_value( 3, 4,41.);
+    mat->set_value( 4, 4,21.);  // half!
+    mat->set_value( 5, 4,21.5); // half!
+    mat->set_value( 6, 4,44.);
+    mat->set_value( 7, 4,45.);
+    mat->set_value(10, 4,23.);  // half!
+    mat->set_value(11, 4,23.5); // half!
+    mat->set_value( 2, 5,48.);
+    mat->set_value( 3, 5,49.);
+    mat->set_value( 4, 5,25.);  // half!
+    mat->set_value( 5, 5,25.5); // half!
+    mat->set_value( 6, 5,52.);
+    mat->set_value( 7, 5,53.);
+    mat->set_value(10, 5,27.);  // half!
+    mat->set_value(11, 5,27.5); // half!
+
+    mat->set_value(11,11, 5.);  // half!
+    mat->set_value(10,11, 5.5); // half!
+    mat->set_value( 7,11,12.);
+    mat->set_value( 6,11,13.);
+    mat->set_value( 5,11, 7.);  // half!
+    mat->set_value( 4,11, 7.5); // half!
+    mat->set_value( 3,11,16.);
+    mat->set_value( 2,11,17.);
+    mat->set_value(11,10, 9.);  // half!
+    mat->set_value(10,10, 9.5); // half!
+    mat->set_value( 7,10,20.);
+    mat->set_value( 6,10,21.);
+    mat->set_value( 5,10,11.);  // half!
+    mat->set_value( 4,10,11.5); // half!
+    mat->set_value( 3,10,24.);
+    mat->set_value( 2,10,25.);
+
+    mat->tie_blockrow_pairs(2,5);
+
+    mat->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+      if ((rows[i]==4)||(rows[i]==5))
+      {
+        if ((cols[i]!=10)&&(cols[i]!=11)) { BOOST_CHECK_EQUAL(vals[i],65.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if (rows[i]==10)
+      {
+        if (cols[i]==4) { BOOST_CHECK_EQUAL(vals[i],-1.); }
+        else if (cols[i]==10) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if (rows[i]==11)
+      {
+        if (cols[i]==5) { BOOST_CHECK_EQUAL(vals[i],-1.); }
+        else if (cols[i]==11) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if ((rows[i]!=4)&&(rows[i]==5)&&(rows[i]!=10)&&(rows[i]==11))
+        BOOST_CHECK_EQUAL(vals[i],-2.);
+
+  }
+
+  // post-destroy check
   mat->destroy();
   BOOST_CHECK_EQUAL(mat->is_created(),false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_vector_only )
+{
+
+/*
+void TrilinosVector::create(const Common::Comm::CommPattern& cp, Uint neq)
+void TrilinosVector::destroy()
+void TrilinosVector::set_value(const Uint irow, const Real value)
+void TrilinosVector::add_value(const Uint irow, const Real value)
+void TrilinosVector::get_value(const Uint irow, Real& value)
+void TrilinosVector::set_value(const Uint iblockrow, const Uint ieq, const Real value)
+void TrilinosVector::add_value(const Uint iblockrow, const Uint ieq, const Real value)
+void TrilinosVector::get_value(const Uint iblockrow, const Uint ieq, Real& value)
+void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
+void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
+void TrilinosVector::get_rhs_values(BlockAccumulator& values)
+void TrilinosVector::set_sol_values(const BlockAccumulator& values)
+void TrilinosVector::add_sol_values(const BlockAccumulator& values)
+void TrilinosVector::get_sol_values(BlockAccumulator& values)
+void TrilinosVector::reset(Real reset_to)
+void TrilinosVector::print(Common::LogStream& stream)
+void TrilinosVector::print(std::ostream& stream)
+void TrilinosVector::print(const std::string& filename, std::ios_base::openmode mode)
+void TrilinosVector::data(std::vector<Real>& values)
+*/
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

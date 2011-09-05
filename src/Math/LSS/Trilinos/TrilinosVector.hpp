@@ -68,7 +68,7 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(const Common::Comm::CommPattern& cp, Uint neq);
+  void create(Common::Comm::CommPattern& cp, Uint neq);
 
   /// Deallocate underlying data
   void destroy();
@@ -173,6 +173,12 @@ private:
 
   /// status of the vector
   bool m_is_created;
+
+  /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
+  std::vector<int> m_p2m;
+
+  /// a helper array used in set/add/get_values to avoid frequent new+free combo
+  std::vector<int> m_converted_indices;
 
 };
 
