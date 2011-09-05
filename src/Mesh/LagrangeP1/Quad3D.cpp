@@ -125,6 +125,17 @@ Real Quad3D::area(const NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Quad3D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes , CoordsT& normal)
+{
+  JacobianT jac = jacobian(MappedCoordsT::Zero(), nodes);
+
+  normal[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
+  normal[YY] = jac(KSI,ZZ)*jac(ETA,XX) - jac(KSI,XX)*jac(ETA,ZZ);
+  normal[ZZ] = jac(KSI,XX)*jac(ETA,YY) - jac(KSI,YY)*jac(ETA,XX);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP1
 } // Mesh
 } // CF

@@ -92,6 +92,17 @@ public: // functions
 
   //@}
 
+  /// @name Non-API static functions
+  //  ------------------------------
+  //@{
+
+  /// Normal vector to the surface.
+  /// @param mappedCoord The mapped coordinates where the Jacobian should be calculated
+  /// @param result Storage for the resulting Jacobian matrix
+  /// @note this is not the unit normal, but scaled by 1/4*area
+  static void normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, CoordsT& result);
+
+  //@}
 };
 
 ////////////////////////////////////////////////////////////////////////////////

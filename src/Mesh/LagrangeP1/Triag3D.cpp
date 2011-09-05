@@ -8,8 +8,6 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
 #include "Mesh/ShapeFunctionT.hpp"
 
@@ -149,6 +147,17 @@ Real Triag3D::area(const NodesT& nodes)
   face_normal[ZZ] = jac(KSI,XX)*jac(ETA,YY) - jac(KSI,YY)*jac(ETA,XX);
 
   return 0.5*face_normal.norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Triag3D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, CoordsT& result)
+{
+  JacobianT jac = jacobian(MappedCoordsT::Zero(),nodes);
+
+  result[XX] = jac(KSI,YY)*jac(ETA,ZZ) - jac(KSI,ZZ)*jac(ETA,YY);
+  result[YY] = jac(KSI,ZZ)*jac(ETA,XX) - jac(KSI,XX)*jac(ETA,ZZ);
+  result[ZZ] = jac(KSI,XX)*jac(ETA,YY) - jac(KSI,YY)*jac(ETA,XX);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
