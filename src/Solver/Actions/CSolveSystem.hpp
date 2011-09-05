@@ -14,8 +14,8 @@
 #include "Solver/Actions/LibActions.hpp"
 
 namespace CF {
+  namespace Math { namespace LSS { class System; } }
 namespace Solver {
-  class CEigenLSS;
 namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ public: // functions
   void execute();
   
 private:
-  boost::weak_ptr<CEigenLSS> m_lss;
+  boost::weak_ptr<Math::LSS::System> m_lss;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
