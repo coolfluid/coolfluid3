@@ -7,20 +7,20 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP1/Triag.hpp"
+#include "Mesh/LagrangeP0/Point.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeP1 {
+namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP1 >
-   Triag_Builder(LibLagrangeP1::library_namespace()+"."+Triag::type_name());
+Common::ComponentBuilder < ShapeFunctionT<Point>, ShapeFunction, LibLagrangeP0 >
+   Point_Builder(LibLagrangeP0::library_namespace()+"."+Point::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Triag::ValueT Triag::value(const MappedCoordsT& mapped_coord)
+Point::ValueT Point::value(const MappedCoordsT& mapped_coord)
 {
   ValueT result;
   compute_value(mapped_coord,result);
@@ -29,7 +29,7 @@ Triag::ValueT Triag::value(const MappedCoordsT& mapped_coord)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Triag::GradientT Triag::gradient(const MappedCoordsT& mapped_coord)
+Point::GradientT Point::gradient(const MappedCoordsT& mapped_coord)
 {
   GradientT result;
   compute_gradient(mapped_coord,result);
@@ -38,35 +38,28 @@ Triag::GradientT Triag::gradient(const MappedCoordsT& mapped_coord)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
+void Point::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  result[0] = 1. - mapped_coord[KSI] - mapped_coord[ETA];
-  result[1] = mapped_coord[KSI];
-  result[2] = mapped_coord[ETA];
+  result[0] = 1.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
+void Point::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result)
 {
-  result(KSI, 0) = -1.;
-  result(ETA, 0) = -1.;
-  result(KSI, 1) =  1.;
-  result(ETA, 1) =  0.;
-  result(KSI, 2) =  0.;
-  result(ETA, 2) =  1.;
+  result(KSI,0) = 0.;
+  result(ETA,0) = 0.;
+  result(ZTA,0) = 0.;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const RealMatrix& Triag::local_coordinates()
+const RealMatrix& Point::local_coordinates()
 {
   static const RealMatrix loc_coord =
-      (RealMatrix(nb_nodes, dimensionality) <<
+      (RealMatrix(nb_nodes, 3) <<
 
-       0.,  0.,
-       1.,  0.,
-       0.,  1.
+       0.,  0., 0.
 
        ).finished();
   return loc_coord;
@@ -74,6 +67,6 @@ const RealMatrix& Triag::local_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP1
+} // LagrangeP0
 } // Mesh
 } // CF

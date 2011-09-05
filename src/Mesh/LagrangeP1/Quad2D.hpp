@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag2D_hpp
-#define CF_Mesh_LagrangeP1_Triag2D_hpp
+#ifndef CF_Mesh_LagrangeP1_Quad2D_hpp
+#define CF_Mesh_LagrangeP1_Quad2D_hpp
 
 #include "Mesh/ElementType.hpp"
-#include "Mesh/LagrangeP1/Triag.hpp"
+#include "Mesh/LagrangeP1/Quad.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -17,23 +17,23 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief 2D Lagrange P1 Triangular Element type
+/// @brief 2D Lagrange P1 Quadrilateral Element type
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
-/// triangular element.
+/// quadrilateral element.
 /// @see ElementType for documentation of undocumented functions
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Triag2D
+struct Mesh_LagrangeP1_API Quad2D
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Triag2D>       Ptr;
-  typedef boost::shared_ptr<Triag2D const> ConstPtr;
+  typedef boost::shared_ptr<Quad2D>       Ptr;
+  typedef boost::shared_ptr<Quad2D const> ConstPtr;
 
   /// The shape function of this element
-  typedef Triag SF;
+  typedef Quad SF;
 
   /// @name Element definitions
   //  -------------------------
@@ -44,8 +44,8 @@ public: // typedefs
   enum { order          = SF::order          };
 
   enum { dimension      = 2 };
-  enum { nb_faces       = 3 };
-  enum { nb_edges       = 3 };
+  enum { nb_faces       = 4 };
+  enum { nb_edges       = 4 };
   //@}
 
   /// @name Matrix Types
@@ -63,9 +63,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag2D() {}
-  ~Triag2D() {}
-  static std::string type_name() { return "Triag2D"; }
+  Quad2D() {}
+  ~Quad2D() {}
+  static std::string type_name() { return "Quad2D"; }
 
   //@}
 
@@ -93,8 +93,39 @@ public: // functions
   static Real area(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
   static bool is_coord_in_element(const CoordsT& coord, const NodesT& nodes);
+  static CoordsT plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation);
+  static void compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation, CoordsT& result);
 
   //@}
+
+private:
+  /// Convenience struct to easily access the elements that make up the jacobian
+  struct JacobianCoefficients
+  {
+    Real ax, bx, cx, dx;
+    Real ay, by, cy, dy;
+    template<typename NodesT>
+    JacobianCoefficients(const NodesT& nodes)
+    {
+      const Real x0 = nodes(0, XX);
+      const Real y0 = nodes(0, YY);
+      const Real x1 = nodes(1, XX);
+      const Real y1 = nodes(1, YY);
+      const Real x2 = nodes(2, XX);
+      const Real y2 = nodes(2, YY);
+      const Real x3 = nodes(3, XX);
+      const Real y3 = nodes(3, YY);
+
+      ax = 0.25*( x0 + x1 + x2 + x3);
+      bx = 0.25*(-x0 + x1 + x2 - x3);
+      cx = 0.25*(-x0 - x1 + x2 + x3);
+      dx = 0.25*( x0 - x1 + x2 - x3);
+      ay = 0.25*( y0 + y1 + y2 + y3);
+      by = 0.25*(-y0 + y1 + y2 - y3);
+      cy = 0.25*(-y0 - y1 + y2 + y3);
+      dy = 0.25*( y0 - y1 + y2 - y3);
+    }
+  };
 
 };
 
@@ -104,4 +135,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag2D_hpp
+#endif // CF_Mesh_LagrangeP1_Quad2D_hpp

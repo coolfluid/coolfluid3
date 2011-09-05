@@ -15,6 +15,7 @@
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Triag2D.hpp"
+#include "Mesh/LagrangeP1/Line2D.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -56,7 +57,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
   if(connectivity.displs.empty())
   {
     connectivity.displs = boost::assign::list_of(0)(2)(4);
-    connectivity.stride.assign(nb_nodes, 2);
+    connectivity.stride.assign(nb_faces, 2);
     connectivity.nodes = boost::assign::list_of(0)(1)
                                                (1)(2)
                                                (2)(0);
@@ -68,8 +69,7 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
 
 const CF::Mesh::ElementType& Triag2D::face_type(const CF::Uint face)
 {
-  throw Common::NotImplemented(FromHere(), "LagrangeP1::Line2D not yet implemented");
-  static const ElementTypeT<Triag2D> facetype;
+  static const ElementTypeT<LagrangeP1::Line2D> facetype;
   return facetype;
 }
 

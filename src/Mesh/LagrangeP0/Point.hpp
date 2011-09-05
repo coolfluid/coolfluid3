@@ -4,51 +4,45 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag_hpp
-#define CF_Mesh_LagrangeP1_Triag_hpp
+#ifndef CF_Mesh_LagrangeP0_Point_hpp
+#define CF_Mesh_LagrangeP0_Point_hpp
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 
 namespace CF {
 namespace Mesh {
-namespace LagrangeP1 {
+namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @class Triag
+/// @class Point
 /// @verbatim
 /// Local connectivity:
-///             2
-///             | .
-///             |   .
-///             |     .
-///             |       .
-///             |         .
-///             0-----------1
-/// Reference domain: <0,1> x <0,1>
+///
+///      0
+/// Reference domain: <0,0>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-class Mesh_LagrangeP1_API Triag
+struct Mesh_LagrangeP0_API Point
 {
 public: // typedefs
 
   /// @name Shape function definitions
   //  --------------------------------
   //@{
-  enum { dimensionality = 2               };
-  enum { nb_nodes       = 3               };
-  enum { order          = 1               };
-  enum { shape          = GeoShape::TRIAG };
+  enum { dimensionality = 0               };
+  enum { nb_nodes       = 1               };
+  enum { order          = 0               };
+  enum { shape          = GeoShape::POINT };
   //@}
 
   /// @name Matrix Types
-  //  --------------------------------
+  //  ------------------
   //@{
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ValueT;
-  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> GradientT;
+  typedef RealVector                                    MappedCoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_nodes>              ValueT;
+  typedef Eigen::Matrix<Real, 3, nb_nodes>              GradientT;
   //@}
 
 public: // functions
@@ -57,9 +51,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag() {}
-  ~Triag() {}
-  static std::string type_name() { return "Triag"; }
+  Point() {}
+  ~Point() {}
+  static std::string type_name() { return "Point"; }
 
   //@}
 
@@ -85,8 +79,8 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // LagrangeP1
+} // LagrangeP0
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag_hpp
+#endif // CF_Mesh_LagrangeP0_Point_hpp

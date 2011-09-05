@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag2D_hpp
-#define CF_Mesh_LagrangeP1_Triag2D_hpp
+#ifndef CF_Mesh_LagrangeP1_Hexa3D_hpp
+#define CF_Mesh_LagrangeP1_Hexa3D_hpp
 
 #include "Mesh/ElementType.hpp"
-#include "Mesh/LagrangeP1/Triag.hpp"
+#include "Mesh/LagrangeP1/Hexa.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -25,15 +25,15 @@ namespace LagrangeP1 {
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Triag2D
+struct Mesh_LagrangeP1_API Hexa3D
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Triag2D>       Ptr;
-  typedef boost::shared_ptr<Triag2D const> ConstPtr;
+  typedef boost::shared_ptr<Hexa3D>       Ptr;
+  typedef boost::shared_ptr<Hexa3D const> ConstPtr;
 
   /// The shape function of this element
-  typedef Triag SF;
+  typedef Hexa SF;
 
   /// @name Element definitions
   //  -------------------------
@@ -43,9 +43,9 @@ public: // typedefs
   enum { nb_nodes       = SF::nb_nodes       };
   enum { order          = SF::order          };
 
-  enum { dimension      = 2 };
-  enum { nb_faces       = 3 };
-  enum { nb_edges       = 3 };
+  enum { dimension      = 3  };
+  enum { nb_faces       = 6  };
+  enum { nb_edges       = 12 };
   //@}
 
   /// @name Matrix Types
@@ -63,9 +63,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag2D() {}
-  ~Triag2D() {}
-  static std::string type_name() { return "Triag2D"; }
+  Hexa3D() {}
+  ~Hexa3D() {}
+  static std::string type_name() { return "Hexa3D"; }
 
   //@}
 
@@ -96,6 +96,10 @@ public: // functions
 
   //@}
 
+private:
+
+  static bool is_orientation_inside(const CoordsT& coord, const NodesT& nodes, const Uint face);
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,4 +108,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag2D_hpp
+#endif // CF_Mesh_LagrangeP1_Hexa3D_hpp

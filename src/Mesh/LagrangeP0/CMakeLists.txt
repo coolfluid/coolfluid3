@@ -1,6 +1,14 @@
 list( APPEND coolfluid_mesh_lagrangep0_files
   LibLagrangeP0.hpp
   LibLagrangeP0.cpp
+  Point.hpp
+  Point.cpp
+  Point1D.hpp
+  Point1D.cpp
+  Point2D.hpp
+  Point2D.cpp
+  Point3D.hpp
+  Point3D.cpp
   Triag.hpp
   Triag.cpp
 )

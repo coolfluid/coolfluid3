@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag_hpp
-#define CF_Mesh_LagrangeP1_Triag_hpp
+#ifndef CF_Mesh_LagrangeP1_Hexa_hpp
+#define CF_Mesh_LagrangeP1_Hexa_hpp
 
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/GeoShape.hpp"
@@ -17,30 +17,38 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @class Triag
+/// @class Hexa
 /// @verbatim
 /// Local connectivity:
-///             2
-///             | .
-///             |   .
-///             |     .
-///             |       .
-///             |         .
-///             0-----------1
-/// Reference domain: <0,1> x <0,1>
+///                3-----------2
+///               /|          /|
+///              / |         / |
+///             7-----------6  |
+///             |  |        |  |
+///             |  |        |  |
+///             |  0--------|--1
+///             | /         | /
+///     ETA     |/          |/
+///      |      4-----------5
+///      |
+///      o--- KSI
+///     /
+///    /
+///  ZTA
+/// Reference domain: <-1,1> x <-1,1> x <-1,1>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-class Mesh_LagrangeP1_API Triag
+class Mesh_LagrangeP1_API Hexa
 {
 public: // typedefs
 
   /// @name Shape function definitions
   //  --------------------------------
   //@{
-  enum { dimensionality = 2               };
-  enum { nb_nodes       = 3               };
+  enum { dimensionality = 3               };
+  enum { nb_nodes       = 8               };
   enum { order          = 1               };
-  enum { shape          = GeoShape::TRIAG };
+  enum { shape          = GeoShape::HEXA  };
   //@}
 
   /// @name Matrix Types
@@ -57,9 +65,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag() {}
-  ~Triag() {}
-  static std::string type_name() { return "Triag"; }
+  Hexa() {}
+  ~Hexa() {}
+  static std::string type_name() { return "Hexa"; }
 
   //@}
 
@@ -89,4 +97,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag_hpp
+#endif // CF_Mesh_LagrangeP1_Hexa_hpp

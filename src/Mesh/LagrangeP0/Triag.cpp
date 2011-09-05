@@ -53,9 +53,16 @@ void Triag::compute_gradient(const MappedCoordsT& mapped_coord, GradientT& resul
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix Triag::m_local_coordinates =  ( RealMatrix(Triag::nb_nodes, Triag::dimensionality) <<
-   1./3., 1./3.
-).finished();
+const RealMatrix& Triag::local_coordinates()
+{
+  static const RealMatrix loc_coord =
+      (RealMatrix(nb_nodes, dimensionality) <<
+
+       1./3.,  1./3.
+
+       ).finished();
+  return loc_coord;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag2D_hpp
-#define CF_Mesh_LagrangeP1_Triag2D_hpp
+#ifndef CF_Mesh_LagrangeP1_Line1D_hpp
+#define CF_Mesh_LagrangeP1_Line1D_hpp
 
 #include "Mesh/ElementType.hpp"
-#include "Mesh/LagrangeP1/Triag.hpp"
+#include "Mesh/LagrangeP1/Line.hpp"
 
 namespace CF {
 namespace Mesh {
@@ -17,7 +17,7 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @brief 2D Lagrange P1 Triangular Element type
+/// @brief Lagrange P1 Triangular Element type
 /// This class provides the lagrangian shape function describing the
 /// representation of the solution and/or the geometry in a P1 (linear)
 /// triangular element.
@@ -25,15 +25,15 @@ namespace LagrangeP1 {
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Triag2D
+struct Mesh_LagrangeP1_API Line1D
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<Triag2D>       Ptr;
-  typedef boost::shared_ptr<Triag2D const> ConstPtr;
+  typedef boost::shared_ptr<Line1D>       Ptr;
+  typedef boost::shared_ptr<Line1D const> ConstPtr;
 
   /// The shape function of this element
-  typedef Triag SF;
+  typedef Line SF;
 
   /// @name Element definitions
   //  -------------------------
@@ -44,8 +44,8 @@ public: // typedefs
   enum { order          = SF::order          };
 
   enum { dimension      = 2 };
-  enum { nb_faces       = 3 };
-  enum { nb_edges       = 3 };
+  enum { nb_faces       = 2 };
+  enum { nb_edges       = 2 };
   //@}
 
   /// @name Matrix Types
@@ -63,9 +63,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag2D() {}
-  ~Triag2D() {}
-  static std::string type_name() { return "Triag2D"; }
+  Line1D() {}
+  ~Line1D() {}
+  static std::string type_name() { return "Line1D"; }
 
   //@}
 
@@ -93,6 +93,8 @@ public: // functions
   static Real area(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
   static bool is_coord_in_element(const CoordsT& coord, const NodesT& nodes);
+  static CoordsT plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation);
+  static void compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, const CoordRef orientation, CoordsT& result);
 
   //@}
 
@@ -104,4 +106,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag2D_hpp
+#endif // CF_Mesh_LagrangeP1_Line1D_hpp

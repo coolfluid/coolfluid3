@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag_hpp
-#define CF_Mesh_LagrangeP1_Triag_hpp
+#ifndef CF_Mesh_LagrangeP1_Line_hpp
+#define CF_Mesh_LagrangeP1_Line_hpp
 
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/GeoShape.hpp"
@@ -17,30 +17,24 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @class Triag
+/// @class Line
 /// @verbatim
 /// Local connectivity:
-///             2
-///             | .
-///             |   .
-///             |     .
-///             |       .
-///             |         .
 ///             0-----------1
-/// Reference domain: <0,1> x <0,1>
+/// Reference domain: <-1,1>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-class Mesh_LagrangeP1_API Triag
+class Mesh_LagrangeP1_API Line
 {
 public: // typedefs
 
   /// @name Shape function definitions
   //  --------------------------------
   //@{
-  enum { dimensionality = 2               };
-  enum { nb_nodes       = 3               };
+  enum { dimensionality = 1               };
+  enum { nb_nodes       = 2               };
   enum { order          = 1               };
-  enum { shape          = GeoShape::TRIAG };
+  enum { shape          = GeoShape::LINE };
   //@}
 
   /// @name Matrix Types
@@ -57,9 +51,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag() {}
-  ~Triag() {}
-  static std::string type_name() { return "Triag"; }
+  Line() {}
+  ~Line() {}
+  static std::string type_name() { return "Line"; }
 
   //@}
 
@@ -89,4 +83,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag_hpp
+#endif // CF_Mesh_LagrangeP1_Line_hpp

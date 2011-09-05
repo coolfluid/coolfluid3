@@ -15,6 +15,7 @@
 
 #include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/LagrangeP0/Triag.hpp"
+#include "Mesh/LagrangeP1/Line.hpp"
 #include "Mesh/LagrangeP1/Triag2D.hpp"
 
 using namespace CF;
@@ -54,6 +55,9 @@ BOOST_AUTO_TEST_CASE( sf_static_version )
 
   LagrangeP0::Triag::compute_value(mapped_coord, values);
   std::cout << "static : values       = " << values       << std::endl;
+
+  const RealMatrix&            line_local_coords = LagrangeP1::Line::local_coordinates();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

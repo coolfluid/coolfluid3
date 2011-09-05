@@ -52,8 +52,6 @@ public: // typedefs
 
 public: // functions
 
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   /// @name Constructor / Destructor / Type name
   //  ------------------------------------------
   //@{
@@ -68,7 +66,7 @@ public: // functions
   //  ------------------------
   //@{
 
-  static const RealMatrix& local_coordinates() { return m_local_coordinates; }
+  static const RealMatrix& local_coordinates();
 
   //@}
 
@@ -82,10 +80,6 @@ public: // functions
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
 
   //@}
-
-private: // data
-
-  static RealMatrix m_local_coordinates;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

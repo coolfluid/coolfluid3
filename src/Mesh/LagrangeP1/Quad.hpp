@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_Triag_hpp
-#define CF_Mesh_LagrangeP1_Triag_hpp
+#ifndef CF_Mesh_LagrangeP1_Quad_hpp
+#define CF_Mesh_LagrangeP1_Quad_hpp
 
 #include "Math/MatrixTypes.hpp"
 #include "Mesh/GeoShape.hpp"
@@ -17,20 +17,20 @@ namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// @class Triag
+/// @class Quad
 /// @verbatim
 /// Local connectivity:
-///             2
-///             | .
-///             |   .
-///             |     .
-///             |       .
-///             |         .
+///             3-----------2
+///             |           |
+///             |           |
+///             |           |
+///             |           |
+///             |           |
 ///             0-----------1
-/// Reference domain: <0,1> x <0,1>
+/// Reference domain: <-1,1> x <-1,1>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-class Mesh_LagrangeP1_API Triag
+class Mesh_LagrangeP1_API Quad
 {
 public: // typedefs
 
@@ -38,9 +38,9 @@ public: // typedefs
   //  --------------------------------
   //@{
   enum { dimensionality = 2               };
-  enum { nb_nodes       = 3               };
+  enum { nb_nodes       = 4               };
   enum { order          = 1               };
-  enum { shape          = GeoShape::TRIAG };
+  enum { shape          = GeoShape::QUAD  };
   //@}
 
   /// @name Matrix Types
@@ -57,9 +57,9 @@ public: // functions
   //  ------------------------------------------
   //@{
 
-  Triag() {}
-  ~Triag() {}
-  static std::string type_name() { return "Triag"; }
+  Quad() {}
+  ~Quad() {}
+  static std::string type_name() { return "Quad"; }
 
   //@}
 
@@ -89,4 +89,4 @@ public: // functions
 } // Mesh
 } // CF
 
-#endif // CF_Mesh_LagrangeP1_Triag_hpp
+#endif // CF_Mesh_LagrangeP1_Quad_hpp
