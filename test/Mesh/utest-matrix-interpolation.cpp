@@ -14,26 +14,24 @@
 #include "Common/CRoot.hpp"
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/SF/Triag2DLagrangeP1.hpp"
+#include "Mesh/LagrangeP1/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 #include "Mesh/CTable.hpp"
-#include "Mesh/SF/Triag2DLagrangeP1.hpp"
 
 using namespace boost::assign;
 using namespace CF;
 using namespace CF::Mesh;
-using namespace CF::Math;
-using namespace CF::Mesh::SF;
+using namespace CF::Mesh::LagrangeP1;
 
 //////////////////////////////////////////////////////////////////////////////
 
 struct MatrixInterpolationFixture
 {
 
-    typedef Triag2DLagrangeP1 ShapeFunc;
+    typedef Triag2D ETYPE;
 
-    const static Uint NDOF = ShapeFunc::nb_nodes;
+    const static Uint NDOF = ETYPE::nb_nodes;
     const static Uint nbQdPts = 4;
     const static RealVector4 xi_q;
     const static RealVector4 eta_q;
@@ -42,74 +40,74 @@ struct MatrixInterpolationFixture
   /// common setup for each test case
     MatrixInterpolationFixture()
     {
-  	CTable<Real>::Ptr      V (new CTable<Real>("V"));
+    CTable<Real>::Ptr      V (new CTable<Real>("V"));
         V->set_row_size(NDOF);
         V->resize(nbQdPts);
 
-  	CTable<Real>::Ptr  dVdxi (new CTable<Real>("dVdxi"));
+    CTable<Real>::Ptr  dVdxi (new CTable<Real>("dVdxi"));
         dVdxi->set_row_size(NDOF);
         dVdxi->resize(nbQdPts);
 
-  	CTable<Real>::Ptr dVdeta (new CTable<Real>("dVdeta"));
+    CTable<Real>::Ptr dVdeta (new CTable<Real>("dVdeta"));
         dVdeta->set_row_size(NDOF);
         dVdeta->resize(nbQdPts);
 
-        ShapeFunc::CoordsT ref_coord;
-        ShapeFunc::ShapeFunctionsT values;
-        ShapeFunc::MappedGradientT gradients;
-        ShapeFunc::ShapeFunctionsT dSFdxi;
-        ShapeFunc::ShapeFunctionsT dSFdeta;
+        ETYPE::CoordsT ref_coord;
+        ETYPE::SF::ValueT values;
+        ETYPE::SF::GradientT gradients;
+        ETYPE::SF::ValueT dSFdxi;
+        ETYPE::SF::ValueT dSFdeta;
 
 
-        // Loop over quadrature points and set the elements of 
-        // the generalized Vandermonde matrix and of the derivatives of 
+        // Loop over quadrature points and set the elements of
+        // the generalized Vandermonde matrix and of the derivatives of
         // the Vandermonde matrix
         for(Uint iq=0;iq<nbQdPts;++iq) {
-	   ref_coord[XX] =  xi_q[iq];
+     ref_coord[XX] =  xi_q[iq];
            ref_coord[YY] = eta_q[iq];
 
-           ShapeFunc::shape_function_value(ref_coord,values);
+           ETYPE::SF::compute_value(ref_coord,values);
            V->set_row<RealVector>(iq,values);
 
-	   ShapeFunc::shape_function_gradient(ref_coord,gradients);
-	   for(Uint i = 0; i<NDOF; ++i) {
+		 ETYPE::SF::compute_gradient(ref_coord,gradients);
+		 for(Uint i = 0; i<NDOF; ++i) {
 		dSFdxi[i]  = gradients(XX,i);
 		dSFdeta[i] = gradients(YY,i);
-	   }
+		 }
 
            dVdxi->set_row<RealVector>(iq,dSFdxi);
            dVdeta->set_row<RealVector>(iq,dSFdeta);
 
         }
 
-	/*
- 	//Some printouts:
+  /*
+  //Some printouts:
         //CFinfo << "Finished setting up the Vandermonde matrix" << CFendl;
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CTable<Real>::ConstRow row = (*V)[i];
+    CTable<Real>::ConstRow row = (*V)[i];
           for(Uint j=0; j<NDOF; ++j) {
-          	CFinfo << row[j] << " ";
-	  }
+            CFinfo << row[j] << " ";
+    }
           CFinfo << CFendl;
         }
         CFinfo << CFendl;
 
-	//Print the derivatives with respect to xi:
+  //Print the derivatives with respect to xi:
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CTable<Real>::ConstRow row = (*dVdxi)[i];
+    CTable<Real>::ConstRow row = (*dVdxi)[i];
           for(Uint j=0; j<NDOF; ++j) {
-          	CFinfo << row[j] << " ";
-	  }
+            CFinfo << row[j] << " ";
+    }
           CFinfo << CFendl;
         }
         CFinfo << CFendl;
 
-	//Print the derivatives with respect to eta:
+  //Print the derivatives with respect to eta:
         for(Uint i=0; i<nbQdPts; ++i) {
-	  CTable<Real>::ConstRow row = (*dVdeta)[i];
+    CTable<Real>::ConstRow row = (*dVdeta)[i];
           for(Uint j=0; j<NDOF; ++j) {
-          	CFinfo << row[j] << " ";
-	  }
+            CFinfo << row[j] << " ";
+    }
           CFinfo << CFendl;
         }
         CFinfo << CFendl;

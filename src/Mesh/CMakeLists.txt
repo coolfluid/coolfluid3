@@ -21,6 +21,7 @@ list( APPEND coolfluid_mesh_files
   CFaceCellConnectivity.cpp
   CFaces.hpp
   CFaces.cpp
+  ElementTypes.hpp
   Field.hpp
   Field.cpp
   FieldGroup.hpp
@@ -79,6 +80,7 @@ list( APPEND coolfluid_mesh_files
   CUnifiedData.cpp
   ElementData.hpp
   ElementType.hpp
+  ElementTypePredicates.hpp
   ElementTypeT.hpp
   ElementTypeT.cpp
   GeoShape.hpp

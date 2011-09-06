@@ -75,6 +75,31 @@ Real Line3D::area(const NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Real Line3D::length(const NodesT& nodes)
+{
+  return (nodes.row(1)-nodes.row(0)).norm();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Line3D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+{
+  result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
+  result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
+  result(KSI,ZZ) = 0.5*(nodes(1, ZZ) - nodes(0, ZZ));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Line3D::JacobianT Line3D::jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
+  JacobianT result;
+  compute_jacobian(mapped_coord, nodes, result);
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP1
 } // Mesh
 } // CF

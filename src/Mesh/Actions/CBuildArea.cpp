@@ -68,7 +68,7 @@ void CBuildArea::execute()
   CMesh& mesh = *m_mesh.lock();
 
   boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()))
-    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
+    faces.create_space("faces_P0","CF.Mesh.LagrangeP0."+faces.element_type().shape_name());
 
   FieldGroup& faces_P0 = mesh.create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
   Field& area = faces_P0.create_field(Mesh::Tags::area());
@@ -81,7 +81,7 @@ void CBuildArea::execute()
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().compute_area( coordinates );
+      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().area( coordinates );
     }
   }
 }

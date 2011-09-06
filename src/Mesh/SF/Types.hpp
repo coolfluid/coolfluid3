@@ -13,21 +13,6 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/vector.hpp>
 
-#include "Line1DLagrangeP1.hpp"
-#include "Line2DLagrangeP1.hpp"
-#include "Line2DLagrangeP2.hpp"
-#include "Line2DLagrangeP3.hpp"
-#include "Line3DLagrangeP1.hpp"
-#include "Triag2DLagrangeP1.hpp"
-#include "Triag2DLagrangeP2.hpp"
-#include "Triag2DLagrangeP3.hpp"
-#include "Triag3DLagrangeP1.hpp"
-#include "Quad2DLagrangeP1.hpp"
-#include "Quad2DLagrangeP2.hpp"
-#include "Quad3DLagrangeP1.hpp"
-#include "Tetra3DLagrangeP1.hpp"
-#include "Hexa3DLagrangeP1.hpp"
-
 namespace CF {
 namespace Mesh {
 namespace SF {
@@ -35,20 +20,8 @@ namespace SF {
 ///////////////////////////////////////////////////////////////////////////////
 
 /// List of all supported shapefunctions
-typedef boost::mpl::vector< Line1DLagrangeP1,
-                            Line2DLagrangeP1,
-                            Line2DLagrangeP2,
-                            Line2DLagrangeP3,
-                            Line3DLagrangeP1,
-                            Triag2DLagrangeP1,
-                            Triag2DLagrangeP2,
-                            Triag2DLagrangeP3,
-                            Triag3DLagrangeP1,
-                            Quad2DLagrangeP1,
-                            Quad2DLagrangeP2,
-                            Quad3DLagrangeP1,
-                            Hexa3DLagrangeP1,
-                            Tetra3DLagrangeP1
+typedef boost::mpl::vector<
+
 > Types;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,7 +60,7 @@ struct IsCompatibleWith
   };
 };
 
-/// List of all supported shapefunctions for volume elements, 
+/// List of all supported shapefunctions for volume elements,
 typedef boost::mpl::filter_view<Types, IsVolumeElement> CellTypes;
 
 ///////////////////////////////////////////////////////////////////////////////

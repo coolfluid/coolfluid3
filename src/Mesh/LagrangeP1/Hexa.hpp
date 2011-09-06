@@ -48,8 +48,11 @@ public: // typedefs
   enum { dimensionality = 3               };
   enum { nb_nodes       = 8               };
   enum { order          = 1               };
-  enum { shape          = GeoShape::HEXA  };
+  static const GeoShape::Type shape = GeoShape::HEXA;
   //@}
+
+  enum FaceNumbering { ZTA_NEG, ZTA_POS, ETA_NEG, KSI_POS, ETA_POS, KSI_NEG};
+
 
   /// @name Matrix Types
   //  --------------------------------

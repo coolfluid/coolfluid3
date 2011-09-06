@@ -74,7 +74,7 @@ void CComputeVolume::execute()
   Field& volume = *m_volume.lock();
 
   m_coordinates = space.compute_coordinates(idx());
-  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().compute_volume( m_coordinates );
+  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().volume( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

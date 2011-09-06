@@ -38,7 +38,7 @@ public: // typedefs
   /// @name Element definitions
   //  -------------------------
   //@{
-  enum { shape          = SF::shape          };
+  static const GeoShape::Type shape = SF::shape;
   enum { dimensionality = SF::dimensionality };
   enum { nb_nodes       = SF::nb_nodes       };
   enum { order          = SF::order          };

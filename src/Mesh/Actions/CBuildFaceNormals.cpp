@@ -84,7 +84,7 @@ void CBuildFaceNormals::execute()
 
 
   boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()))
-    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
+    faces.create_space("faces_P0","CF.Mesh.LagrangeP0."+faces.element_type().shape_name());
 
   FieldGroup& faces_P0 = mesh.create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
   Field& face_normals = faces_P0.create_field(Mesh::Tags::normal());
@@ -108,7 +108,7 @@ void CBuildFaceNormals::execute()
         CCells& cells = component->as_type<CCells>();
         CConnectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
         Uint i(0);
-        boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face][0]) )
+        boost_foreach(Uint node_id, cells.element_type().faces().nodes_range(face_nb[face][0]) )
         {
           Uint j(0);
           boost_foreach(const Real& coord, mesh.geometry().coordinates()[cell_nodes[node_id]])

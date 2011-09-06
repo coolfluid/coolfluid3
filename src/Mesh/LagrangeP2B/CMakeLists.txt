@@ -1,4 +1,5 @@
 list( APPEND coolfluid_mesh_lagrangep2b_files
+  ElementTypes.hpp
   LibLagrangeP2B.hpp
   LibLagrangeP2B.cpp
   Triag.hpp

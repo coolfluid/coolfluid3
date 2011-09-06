@@ -38,7 +38,7 @@ public: // typedefs
   /// @name Element definitions
   //  -------------------------
   //@{
-  enum { shape          = SF::shape          };
+  static const GeoShape::Type shape = SF::shape;
   enum { dimensionality = SF::dimensionality };
   enum { nb_nodes       = SF::nb_nodes       };
   enum { order          = SF::order          };
@@ -83,8 +83,11 @@ public: // functions
   //  ---------------------------
   //@{
 
+  static JacobianT jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes);
+  static void compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& jacobian);
   static Real volume(const NodesT& nodes);
   static Real area(const NodesT& nodes);
+  static Real length(const NodesT& nodes);
   static void compute_centroid(const NodesT& nodes , CoordsT& centroid);
 
   //@}

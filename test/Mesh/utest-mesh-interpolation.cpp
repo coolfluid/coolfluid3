@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   // Create P0 spaces
   boost_foreach(CEntities& elements, source.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   boost_foreach(CEntities& elements, target.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
 
   FieldGroup& source_elem_fields = source.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
   FieldGroup& target_elem_fields = target.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);

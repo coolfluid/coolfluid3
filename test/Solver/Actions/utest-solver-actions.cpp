@@ -40,9 +40,6 @@
 #include "Solver/Actions/CComputeVolume.hpp"
 #include "Solver/Actions/CComputeArea.hpp"
 
-#include "Mesh/SF/Triag2DLagrangeP1.hpp"
-#include "Mesh/SF/Quad2DLagrangeP1.hpp"
-
 using namespace boost::assign;
 
 using namespace CF;
@@ -167,7 +164,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
 
   boost_foreach(CCells& cells, find_components<CCells>(mesh->topology()))
-    cells.create_space("cells_P0","CF.Mesh.SF.SF"+cells.element_type().shape_name()+"LagrangeP0");
+    cells.create_space("cells_P0","CF.Mesh.LagrangeP0."+cells.element_type().shape_name());
 
   FieldGroup& cells_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
   Field& volumes = cells_P0.create_field("volume");
@@ -175,7 +172,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 
   boost_foreach(CEntities& faces, find_components_with_tag<CEntities>(mesh->topology(),Mesh::Tags::face_entity()))
-    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
+    faces.create_space("faces_P0","CF.Mesh.LagrangeP0."+faces.element_type().shape_name());
 
   FieldGroup& faces_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
   Field& areas = faces_P0.create_field("area");

@@ -72,7 +72,7 @@ protected: // helper functions
 
 protected: // typedefs
 
-  typedef typename SF::NodeMatrixT                                     NodeMT;
+  typedef typename SF::NodesT                                     NodeMT;
 
   typedef Eigen::Matrix<Real, QD::nb_points, 1u>                       WeightVT;
 

@@ -1,4 +1,5 @@
 list( APPEND coolfluid_mesh_lagrangep0_files
+  ElementTypes.hpp
   LibLagrangeP0.hpp
   LibLagrangeP0.cpp
   Point.hpp

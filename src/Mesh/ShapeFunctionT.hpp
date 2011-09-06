@@ -105,7 +105,7 @@ public:
     m_dimensionality = SF::dimensionality;
     m_nb_nodes = SF::nb_nodes;
     m_order = SF::order;
-    m_shape = (GeoShape::Type) SF::shape;
+    m_shape = SF::shape;
   }
 
   /// Default destructor

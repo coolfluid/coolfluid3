@@ -489,7 +489,7 @@ void CReader::read_groups()
     {
       CElements::Ptr tmp_elems = m_global_to_tmp[global_element].first;
       Uint local_element = m_global_to_tmp[global_element].second;
-      std::string etype = tmp_elems->element_type().builder_name();
+      std::string etype = tmp_elems->element_type().derived_type_name();
 
       Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
@@ -553,17 +553,18 @@ void CReader::read_boundaries()
         Uint faceIdx = m_faces_neu_to_cf[ETYPE][FACE];
 
         const ElementType& etype = tmp_elements->element_type();
-        const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
+        const ElementType::FaceConnectivity& face_connectivity = etype.faces();
 
         // make a row of nodes
         const CConnectivity::Row& elem_nodes = tmp_elements->node_connectivity()[local_element];
         std::vector<Uint> row;
-        row.reserve(face_connectivity.face_node_counts[faceIdx]);
-        boost_foreach(const Uint& node, face_connectivity.face_node_range(faceIdx))
+        row.reserve(face_connectivity.stride[faceIdx]);
+        boost_foreach(const Uint& node, face_connectivity.nodes_range(faceIdx))
           row.push_back(elem_nodes[node]);
 
         // add the row to the buffer of the face region
-        std::string face_type = etype.face_type(faceIdx).builder_name();
+        std::string face_type = etype.face_type(faceIdx).derived_type_name();
+        cf_assert_desc(to_str(row.size())+"!="+to_str(buffer[face_type]->get_appointed().shape()[1]),row.size() == buffer[face_type]->get_appointed().shape()[1]);
         buffer[face_type]->add_row(row);
 
       }
@@ -580,11 +581,11 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
 {
   std::string cf_type;
   std::string dim = to_str<int>(m_headerData.NDFCD);
-  if      (neu_type==LINE  && nb_nodes==2) cf_type = "CF.Mesh.SF.Line"  + dim + "DLagrangeP1";  // line
-  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "CF.Mesh.SF.Quad"  + dim + "DLagrangeP1";  // quadrilateral
-  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "CF.Mesh.SF.Triag" + dim + "DLagrangeP1";  // triangle
-  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "CF.Mesh.SF.Hexa"  + dim + "DLagrangeP1";  // hexahedron
-  else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.SF.Tetra" + dim + "DLagrangeP1";  // tetrahedron
+  if      (neu_type==LINE  && nb_nodes==2) cf_type = "CF.Mesh.LagrangeP1.Line"  + dim + "D";  // line
+  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "CF.Mesh.LagrangeP1.Quad"  + dim + "D";  // quadrilateral
+  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "CF.Mesh.LagrangeP1.Triag" + dim + "D";  // triangle
+  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "CF.Mesh.LagrangeP1.Hexa"  + dim + "D";  // hexahedron
+  else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.LagrangeP1.Tetra" + dim + "D";  // tetrahedron
   /// @todo to be implemented
   else if (neu_type==5 && nb_nodes==6) // wedge (prism)
     throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");

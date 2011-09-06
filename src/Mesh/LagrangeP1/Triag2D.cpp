@@ -120,7 +120,8 @@ Triag2D::MappedCoordsT Triag2D::mapped_coordinate(const CoordsT& coord, const No
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Real Triag2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes) {
+Real Triag2D::jacobian_determinant(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
   return jacobian_determinant_helper(nodes);
 }
 
@@ -145,7 +146,7 @@ Triag2D::JacobianT Triag2D::jacobian(const MappedCoordsT& mapped_coord, const No
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Triag2D::compute_jacobian_adjoint(const MappedCoordsT& mappedCoord, const NodesT& nodes, JacobianT& result)
+void Triag2D::compute_jacobian_adjoint(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
 {
   result(KSI,XX) = nodes(2, YY) - nodes(0, YY);
   result(KSI,YY) = nodes(0, YY) - nodes(1, YY);

@@ -94,6 +94,23 @@ void Line2D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, Coor
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void Line2D::compute_jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes, JacobianT& result)
+{
+  result(KSI,XX) = 0.5*(nodes(1, XX) - nodes(0, XX));
+  result(KSI,YY) = 0.5*(nodes(1, YY) - nodes(0, YY));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Line2D::JacobianT Line2D::jacobian(const MappedCoordsT& mapped_coord, const NodesT& nodes)
+{
+  JacobianT result;
+  compute_jacobian(mapped_coord, nodes, result);
+  return result;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 } // LagrangeP1
 } // Mesh
 } // CF

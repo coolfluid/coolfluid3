@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // Create space and field_group for Lagrange P0 elements
   boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()))
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   FieldGroup& elem_fields = mesh.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
 
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // Create space and field_group for Lagrange P0 cells
   boost_foreach(CCells& elements, find_components_recursively<CCells>(mesh.topology()))
-    elements.create_space("cells_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("cells_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   FieldGroup& cell_fields = mesh.create_field_group("cells_P0", FieldGroup::Basis::CELL_BASED);
 
   BOOST_CHECK_EQUAL( cell_fields.size() , 25);
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // Create space and field_group for Lagrange P0 faces
   boost_foreach(CFaces& elements, find_components_recursively<CFaces>(mesh.topology()))
-    elements.create_space("faces_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("faces_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   FieldGroup& face_fields = mesh.create_field_group("faces_P0", FieldGroup::Basis::FACE_BASED);
 
   BOOST_CHECK_EQUAL( face_fields.size() , 20);
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // Create space for Lagrange P1 elements
   boost_foreach(CEntities& elements, find_components_recursively<CEntities>(mesh.topology()))
-    elements.create_space("P1","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP1");
+    elements.create_space("P1","CF.Mesh.LagrangeP1."+elements.element_type().shape_name());
 
   // Create field group for the space "P1"
   FieldGroup& point_P1_fields = mesh.create_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "P1");
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // Create space for Lagrange P2 elements
   boost_foreach(CEntities& elements, find_components_recursively<CEntities>(mesh.topology()))
-    elements.create_space("P2","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP2");
+    elements.create_space("P2","CF.Mesh.LagrangeP2."+elements.element_type().shape_name());
 
   // Create field group for the space "P2"
   FieldGroup& point_P2_fields = mesh.create_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "P2");
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
     {
       boost_foreach( const Uint state, space.indexes_for_element(e))
       {
-        volume[state][0] = elements.element_type().compute_volume(elements.get_coordinates(e));
+        volume[state][0] = elements.element_type().volume(elements.get_coordinates(e));
       }
 
 

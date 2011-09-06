@@ -1,4 +1,5 @@
 list( APPEND coolfluid_mesh_lagrangep1_files
+  ElementTypes.hpp
   Hexa.hpp
   Hexa.cpp
   Hexa3D.hpp
@@ -19,6 +20,10 @@ list( APPEND coolfluid_mesh_lagrangep1_files
   Quad2D.cpp
   Quad3D.hpp
   Quad3D.cpp
+  Tetra.hpp
+  Tetra.cpp
+  Tetra3D.hpp
+  Tetra3D.cpp
   Triag.hpp
   Triag.cpp
   Triag2D.hpp

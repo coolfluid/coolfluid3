@@ -308,7 +308,7 @@ void CEntities::signature_create_space ( SignalArgs& node)
   options.add_option< OptionT<std::string> >("name" , std::string("space["+to_str(m_spaces.size())+"]") )
       ->description("Name to add to space");
 
-  options.add_option< OptionT<std::string> >("shape_function" , std::string("CF.Mesh.SF.SFLineP0Lagrange") )
+  options.add_option< OptionT<std::string> >("shape_function" , std::string("CF.Mesh.LagrangeP0.Line") )
       ->description("Shape Function to add as space");
 }
 

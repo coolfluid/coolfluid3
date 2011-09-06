@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   }
 
   boost_foreach(CEntities& elements, mesh.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
   Field& cell_centred = elems_P0.create_field("cell_centred","cell_centred[vector]");

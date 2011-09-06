@@ -34,7 +34,7 @@ public: // typedefs
   enum { dimensionality = 1               };
   enum { nb_nodes       = 4               };
   enum { order          = 3               };
-  enum { shape          = GeoShape::LINE };
+  static const GeoShape::Type shape = GeoShape::LINE;
   //@}
 
   /// @name Matrix Types

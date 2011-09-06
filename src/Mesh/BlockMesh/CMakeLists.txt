@@ -7,7 +7,7 @@ list( APPEND coolfluid_mesh_block_files
   WriteDict.hpp
 )
 
-list( APPEND coolfluid_mesh_block_cflibs coolfluid_mesh coolfluid_mesh_sf )
+list( APPEND coolfluid_mesh_block_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )
 
 set( coolfluid_mesh_block_kernellib TRUE )
 

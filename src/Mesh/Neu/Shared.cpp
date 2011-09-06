@@ -21,15 +21,15 @@ Shared::Shared() :
     m_nodes_neu_to_cf(10)
 {
   m_supported_types.reserve(9);
-  m_supported_types.push_back("CF.Mesh.SF.Line1DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Line3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Quad2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Quad3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line1D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Hexa3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Tetra3D");
 
   m_CFelement_to_NeuElement[GeoShape::LINE ]=LINE;
   m_CFelement_to_NeuElement[GeoShape::QUAD ]=QUAD;

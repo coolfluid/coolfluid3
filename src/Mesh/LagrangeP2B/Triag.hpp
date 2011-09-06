@@ -40,7 +40,7 @@ public: // typedefs
   enum { dimensionality = 2               };
   enum { nb_nodes       = 7               };
   enum { order          = 2               };
-  enum { shape          = GeoShape::TRIAG };
+  static const GeoShape::Type shape = GeoShape::TRIAG;
   //@}
 
   /// @name Matrix Types

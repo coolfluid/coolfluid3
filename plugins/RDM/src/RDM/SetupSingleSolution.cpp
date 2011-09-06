@@ -72,7 +72,7 @@ void SetupSingleSolution::execute()
     if ( is_null(solution_group) )
     {
       boost_foreach(CEntities& elements, mesh.topology().elements_range())
-          elements.create_space( RDM::Tags::solution(), "CF.Mesh.SF.SF"+elements.element_type().shape_name() + solution_space );
+          elements.create_space( RDM::Tags::solution(), "CF.Mesh."+solution_space+"."+elements.element_type().shape_name() );
       solution_group = mesh.create_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED).as_ptr<FieldGroup>();
     }
     else // not null so check that space is what user wants
