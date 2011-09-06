@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   // just to see if its crashing or not
 //  mat->print(std::cout);
 //  mat->print(CFinfo);
-//  mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
+  mat->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
 
   // counter-checking data
   std::vector<Uint> cols(0);
@@ -417,9 +417,8 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
       }
 
     for (int i=0; i<(const int)vals.size(); i++)
-      if ((rows[i]!=4)&&(rows[i]==5)&&(rows[i]!=10)&&(rows[i]==11))
+      if ((rows[i]!=4)&&(rows[i]!=5)&&(rows[i]!=10)&&(rows[i]!=11))
         BOOST_CHECK_EQUAL(vals[i],-2.);
-
   }
 
   // post-destroy check
@@ -451,7 +450,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   // just to see if its crashing or not
 //  sol->print(std::cout);
 //  sol->print(CFinfo);
-//  sol->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
+  sol->print("test_vector_" + boost::lexical_cast<std::string>(irank) + ".plt");
 
   // counter-checking data
   std::vector<Real> vals(0);
@@ -498,26 +497,252 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   sol->reset();
   BlockAccumulator ba;
   ba.resize(3,neq);
-  ba.reset(1.);
-  ba.indices[0]=1;
-  ba.indices[0]=3;
+  ba.rhs << 8.,9.   ,  2.,3.   ,  6.,7.;
   ba.indices[0]=4;
+  ba.indices[1]=1;
+  ba.indices[2]=3;
   sol->set_rhs_values(ba);
+  sol->add_rhs_values(ba);
+  ba.reset();
+  sol->get_rhs_values(ba);
+  sol->data(vals);
+  for (int i=0; i<vals.size(); i++)
+  {
+    if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2]))
+    {
+      BOOST_CHECK_EQUAL(vals[i],(double)(i*2));
+    } else {
+      BOOST_CHECK_EQUAL(vals[i],0.);
+    }
+  }
+  BOOST_CHECK_EQUAL(ba.rhs[0],16.);
+  BOOST_CHECK_EQUAL(ba.rhs[1],18.);
+  BOOST_CHECK_EQUAL(ba.rhs[2],4.);
+  BOOST_CHECK_EQUAL(ba.rhs[3],6.);
+  BOOST_CHECK_EQUAL(ba.rhs[4],12.);
+  BOOST_CHECK_EQUAL(ba.rhs[5],14.);
+  BOOST_CHECK_EQUAL(ba.sol.isConstant(0.,1.e-10),true);
 
-
-sol->print(std::cout);
-
-//void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
-//void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
-//void TrilinosVector::get_rhs_values(BlockAccumulator& values)
-//void TrilinosVector::set_sol_values(const BlockAccumulator& values)
-//void TrilinosVector::add_sol_values(const BlockAccumulator& values)
-//void TrilinosVector::get_sol_values(BlockAccumulator& values)
+  sol->reset();
+  ba.sol << 80.,90. ,  20.,30. ,  60.,70.;
+  sol->set_sol_values(ba);
+  sol->add_sol_values(ba);
+  ba.reset();
+  sol->get_sol_values(ba);
+  sol->data(vals);
+  for (int i=0; i<vals.size(); i++)
+  {
+    if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2]))
+    {
+      BOOST_CHECK_EQUAL(vals[i],(double)(i*20.));
+    } else {
+      BOOST_CHECK_EQUAL(vals[i],0.);
+    }
+  }
+  BOOST_CHECK_EQUAL(ba.sol[0],160.);
+  BOOST_CHECK_EQUAL(ba.sol[1],180.);
+  BOOST_CHECK_EQUAL(ba.sol[2],40.);
+  BOOST_CHECK_EQUAL(ba.sol[3],60.);
+  BOOST_CHECK_EQUAL(ba.sol[4],120.);
+  BOOST_CHECK_EQUAL(ba.sol[5],140.);
+  BOOST_CHECK_EQUAL(ba.rhs.isConstant(0.,1.e-10),true);
 
   // check destroy
   sol->destroy();
   BOOST_CHECK_EQUAL(sol->is_created(),false);
+}
 
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( test_complete_system )
+{
+  // build a commpattern and the two vectors
+  Common::Comm::CommPattern cp("commpattern");
+  build_commpattern(cp);
+  LSS::System::Ptr sys(new LSS::System("sys"));
+  sys->options().option("solver").change_value(solvertype);
+  build_system(sys,cp);
+  BOOST_CHECK_EQUAL(sys->is_created(),true);
+  BOOST_CHECK_EQUAL(sys->solvertype(),solvertype);
+
+  // just to see if its crashing or not
+//  sys->print(std::cout);
+//  sys->print(CFinfo);
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
+  // counter-checking data
+  std::vector<Uint> cols(0);
+  std::vector<Uint> rows(0);
+  std::vector<Real> vals(0);
+
+  // reset
+  sys->reset(1.);
+  sys->matrix()->data(rows,cols,vals);
+  BOOST_CHECK_EQUAL(cols.size(),node_connectivity.size()*neq*neq);
+  BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
+  BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
+  sys->solution()->data(vals);
+  BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
+  sys->rhs()->data(vals);
+  BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
+  sys->reset();
+  sys->matrix()->data(rows,cols,vals);
+  BOOST_CHECK_EQUAL(cols.size(),node_connectivity.size()*neq*neq);
+  BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
+  BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
+  sys->solution()->data(vals);
+  BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
+  sys->rhs()->data(vals);
+  BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
+  BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
+
+  // dirichlet bc
+  sys->matrix()->reset(2.);
+  sys->solution()->reset(3.);
+  sys->rhs()->reset(4.);
+  if (irank==0)
+  {
+    sys->dirichlet(3,1,5.,true);
+    sys->matrix()->data(rows,cols,vals);
+    for (int i=0; i<vals.size(); i++)
+    {
+      if (rows[i]==7)
+      {
+        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      } else {
+        if (cols[i]==7) { BOOST_CHECK_EQUAL(vals[i],0.); }
+        else { BOOST_CHECK_EQUAL(vals[i],2.); }
+      }
+    }
+    sys->solution()->data(vals);
+    for (int i=0; i<vals.size(); i++)
+    {
+      if (i==7) { BOOST_CHECK_EQUAL(vals[i],5.); }
+      else { BOOST_CHECK_EQUAL(vals[i],3.); }
+    }
+    sys->rhs()->data(vals);
+    for (int i=0; i<4; i++) BOOST_CHECK_EQUAL(vals[i],4.);
+    for (int i=4; i<7; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
+    for (int i=7; i<8; i++) BOOST_CHECK_EQUAL(vals[i],5.);
+    for (int i=8; i<10; i++) BOOST_CHECK_EQUAL(vals[i],4.);
+    for (int i=10; i<14; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
+    for (int i=14; i<16; i++) BOOST_CHECK_EQUAL(vals[i],4.);
+  }
+
+  // check periodicity
+  sys->matrix()->reset(-2.);
+  sys->solution()->reset(-3.);
+  sys->rhs()->reset(-4.);
+  if (irank==0)
+  {
+    sys->matrix()->set_value( 2, 4,40.);
+    sys->matrix()->set_value( 3, 4,41.);
+    sys->matrix()->set_value( 4, 4,21.);  // half!
+    sys->matrix()->set_value( 5, 4,21.5); // half!
+    sys->matrix()->set_value( 6, 4,44.);
+    sys->matrix()->set_value( 7, 4,45.);
+    sys->matrix()->set_value(10, 4,23.);  // half!
+    sys->matrix()->set_value(11, 4,23.5); // half!
+    sys->matrix()->set_value( 2, 5,48.);
+    sys->matrix()->set_value( 3, 5,49.);
+    sys->matrix()->set_value( 4, 5,25.);  // half!
+    sys->matrix()->set_value( 5, 5,25.5); // half!
+    sys->matrix()->set_value( 6, 5,52.);
+    sys->matrix()->set_value( 7, 5,53.);
+    sys->matrix()->set_value(10, 5,27.);  // half!
+    sys->matrix()->set_value(11, 5,27.5); // half!
+
+    sys->matrix()->set_value(11,11, 5.);  // half!
+    sys->matrix()->set_value(10,11, 5.5); // half!
+    sys->matrix()->set_value( 7,11,12.);
+    sys->matrix()->set_value( 6,11,13.);
+    sys->matrix()->set_value( 5,11, 7.);  // half!
+    sys->matrix()->set_value( 4,11, 7.5); // half!
+    sys->matrix()->set_value( 3,11,16.);
+    sys->matrix()->set_value( 2,11,17.);
+    sys->matrix()->set_value(11,10, 9.);  // half!
+    sys->matrix()->set_value(10,10, 9.5); // half!
+    sys->matrix()->set_value( 7,10,20.);
+    sys->matrix()->set_value( 6,10,21.);
+    sys->matrix()->set_value( 5,10,11.);  // half!
+    sys->matrix()->set_value( 4,10,11.5); // half!
+    sys->matrix()->set_value( 3,10,24.);
+    sys->matrix()->set_value( 2,10,25.);
+
+    sys->solution()->set_value(4,-1.);
+    sys->solution()->set_value(5, 0.);
+    sys->solution()->set_value(10,-5.);
+    sys->solution()->set_value(11,-6.);
+
+    sys->rhs()->set_value(4,3.);
+    sys->rhs()->set_value(5,4.);
+    sys->rhs()->set_value(10,-7.);
+    sys->rhs()->set_value(11,-8.);
+
+    sys->periodicity(2,5);
+
+    sys->matrix()->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+      if ((rows[i]==4)||(rows[i]==5))
+      {
+        if ((cols[i]!=10)&&(cols[i]!=11)) { BOOST_CHECK_EQUAL(vals[i],65.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if (rows[i]==10)
+      {
+        if (cols[i]==4) { BOOST_CHECK_EQUAL(vals[i],-1.); }
+        else if (cols[i]==10) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if (rows[i]==11)
+      {
+        if (cols[i]==5) { BOOST_CHECK_EQUAL(vals[i],-1.); }
+        else if (cols[i]==11) { BOOST_CHECK_EQUAL(vals[i],1.); }
+        else { BOOST_CHECK_EQUAL(vals[i],0.); }
+      }
+
+    for (int i=0; i<(const int)vals.size(); i++)
+      if ((rows[i]!=4)&&(rows[i]!=5)&&(rows[i]!=10)&&(rows[i]!=11))
+        BOOST_CHECK_EQUAL(vals[i],-2.);
+
+    sys->solution()->data(vals);
+    BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-3.);
+
+    sys->rhs()->data(vals);
+    for (int i=0; i<vals.size(); i++)
+    {
+      if ((i==10)||(i==11)) { BOOST_CHECK_EQUAL(vals[i],0.); }
+      else { BOOST_CHECK_EQUAL(vals[i],-4.); }
+    }
+  }
+
+
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
+/*
+  void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void solve();
+  void set_values(const BlockAccumulator& values);
+  void add_values(const BlockAccumulator& values);
+  void get_values(BlockAccumulator& values);
+  void set_diagonal(const std::vector<Real>& diag);
+  void add_diagonal(const std::vector<Real>& diag);
+  void get_diagonal(std::vector<Real>& diag);
+*/
+
+  // check destroy
+  sys->destroy();
+  BOOST_CHECK_EQUAL(sys->is_created(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

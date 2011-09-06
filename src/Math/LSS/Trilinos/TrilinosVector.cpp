@@ -81,7 +81,7 @@ void TrilinosVector::create(Common::Comm::CommPattern& cp, Uint neq)
 */
 
   // set private data
-  delete gid;
+  delete[] gid;
   m_neq=neq;
   m_blockrow_size=cp.isUpdatable().size();
   m_is_created=true;
@@ -163,61 +163,108 @@ void TrilinosVector::get_value(const Uint iblockrow, const Uint ieq, Real& value
 
 void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
 {
-/*
-  cf_assert(m_is_created);
-  const int numblocks=values.indices.size();
-  if (m_converted_indices.size()<m_neq*numblocks) m_converted_indices.resize(m_neq*numblocks);
-  int *conv=&m_converted_indices[0];
-  for (int i=0; i<(const int)numblocks; i++)
-    for (int j=0; j<(const int)m_neq; j++)
-      *conv++=m_p2m[values.indices[i]*m_neq+j];
-  TRILINOS_ASSERT(m_vec->ReplaceMyValues());
-*/
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
-  int *idxs=&m_converted_indices[0];
-  TRILINOS_ASSERT(m_vec->ReplaceMyValues(numblocks,0,&values.rhs[0],idxs));
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.rhs[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      (*m_vec)[idx*m_neq+j]=*vals++;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
 {
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
-  /// @todo finish
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.rhs[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      (*m_vec)[idx*m_neq+j]+=*vals++;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::get_rhs_values(BlockAccumulator& values)
 {
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
-  /// @todo finish
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.rhs[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      *vals++=(*m_vec)[idx*m_neq+j];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::set_sol_values(const BlockAccumulator& values)
 {
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
-  /// @todo finish
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.sol[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      (*m_vec)[idx*m_neq+j]=*vals++;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::add_sol_values(const BlockAccumulator& values)
 {
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
-  /// @todo finish
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.sol[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      (*m_vec)[idx*m_neq+j]+=*vals++;
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::get_sol_values(BlockAccumulator& values)
 {
+  /// @note looked up the code and access mechanism is a mess, much less cpu to access here in a for loop and directly do whats desired
   cf_assert(m_is_created);
-  /// @todo finish
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  int *conv=&m_converted_indices[0];
+  double *vals=(double*)&values.sol[0];
+  for (int i=0; i<(const int)numblocks; i++)
+  {
+    const int idx=m_p2m[values.indices[i]];
+    for (int j=0; j<(const int)m_neq; j++)
+      *vals++=(*m_vec)[idx*m_neq+j];
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
