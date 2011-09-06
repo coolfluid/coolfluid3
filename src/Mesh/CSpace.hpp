@@ -54,7 +54,7 @@ public: // functions
   /// The geometric support of this space. This is equal to the element type defined in CEntities
   ElementType& element_type() const { return support().element_type(); }
 
-  CEntities& support() const { return parent().as_type<CEntities>(); }
+  CEntities& support() const { return parent().parent().as_type<CEntities>(); }
 
   /// The number of nodes or states this element shape function provides
   Uint nb_states() const { return shape_function().nb_nodes(); }
