@@ -11,6 +11,9 @@
 #include "Common/MPI/PE.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
+/// @todo remove when no debug any more
+#include "Common/MPI/debug.hpp"
+
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
@@ -77,6 +80,7 @@ void TrilinosVector::create(Common::Comm::CommPattern& cp, Uint neq)
   map.~Epetra_BlockMap();
 */
 
+  // set private data
   delete gid;
   m_neq=neq;
   m_blockrow_size=cp.isUpdatable().size();
@@ -102,7 +106,7 @@ void TrilinosVector::set_value(const Uint irow, const Real value)
   cf_assert(m_is_created);
   const int iblockrow=m_p2m[irow/m_neq];
   const int ieq=irow%m_neq;
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   (*m_vec)[iblockrow*m_neq+ieq]=value;
 }
 
@@ -113,7 +117,7 @@ void TrilinosVector::add_value(const Uint irow, const Real value)
   cf_assert(m_is_created);
   const int iblockrow=m_p2m[irow/m_neq];
   const int ieq=irow%m_neq;
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   (*m_vec)[iblockrow*m_neq+ieq]+=value;
 }
 
@@ -124,7 +128,7 @@ void TrilinosVector::get_value(const Uint irow, Real& value)
   cf_assert(m_is_created);
   const int iblockrow=m_p2m[irow/m_neq];
   const int ieq=irow%m_neq;
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   value=(*m_vec)[iblockrow*m_neq+ieq];
 }
 
@@ -133,7 +137,7 @@ void TrilinosVector::get_value(const Uint irow, Real& value)
 void TrilinosVector::set_value(const Uint iblockrow, const Uint ieq, const Real value)
 {
   cf_assert(m_is_created);
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   (*m_vec)[m_p2m[iblockrow]*m_neq+ieq]=value;
 }
 
@@ -142,7 +146,7 @@ void TrilinosVector::set_value(const Uint iblockrow, const Uint ieq, const Real 
 void TrilinosVector::add_value(const Uint iblockrow, const Uint ieq, const Real value)
 {
   cf_assert(m_is_created);
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   (*m_vec)[m_p2m[iblockrow]*m_neq+ieq]+=value;
 }
 
@@ -151,7 +155,7 @@ void TrilinosVector::add_value(const Uint iblockrow, const Uint ieq, const Real 
 void TrilinosVector::get_value(const Uint iblockrow, const Uint ieq, Real& value)
 {
   cf_assert(m_is_created);
-  cf_assert(iblockrow>=m_blockrow_size);
+  cf_assert(iblockrow<m_blockrow_size);
   value=(*m_vec)[m_p2m[iblockrow]*m_neq+ieq];
 }
 
@@ -181,6 +185,7 @@ void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
 void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  /// @todo finish
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -188,6 +193,7 @@ void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
 void TrilinosVector::get_rhs_values(BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  /// @todo finish
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,6 +201,7 @@ void TrilinosVector::get_rhs_values(BlockAccumulator& values)
 void TrilinosVector::set_sol_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  /// @todo finish
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,6 +209,7 @@ void TrilinosVector::set_sol_values(const BlockAccumulator& values)
 void TrilinosVector::add_sol_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  /// @todo finish
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -209,6 +217,7 @@ void TrilinosVector::add_sol_values(const BlockAccumulator& values)
 void TrilinosVector::get_sol_values(BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  /// @todo finish
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -216,28 +225,56 @@ void TrilinosVector::get_sol_values(BlockAccumulator& values)
 void TrilinosVector::reset(Real reset_to)
 {
   cf_assert(m_is_created);
+  m_vec->PutScalar(reset_to);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::print(Common::LogStream& stream)
 {
-  cf_assert(m_is_created);
+  if (m_is_created)
+  {
+    for (int i=0; i<(const int)m_blockrow_size; i++)
+      for (int j=0; j<(const int)m_neq; j++)
+        stream << 0 << " " << -(int)(i*m_neq+j) << " " << (*m_vec)[m_p2m[i]*m_neq+j] << "\n";
+    stream << "# name:                 " << name() << "\n";
+    stream << "# type_name:            " << type_name() << "\n";
+    stream << "# process:              " << m_comm.MyPID() << "\n";
+    stream << "# number of equations:  " << m_neq << "\n";
+    stream << "# number of rows:       " << m_blockrow_size*m_neq << "\n";
+    stream << "# number of block rows: " << m_blockrow_size << "\n";
+  } else {
+    stream << name() << " of type " << type_name() << "::is_created() is false, nothing is printed.";
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::print(std::ostream& stream)
 {
-  cf_assert(m_is_created);
+  if (m_is_created)
+  {
+    for (int i=0; i<(const int)m_blockrow_size; i++)
+      for (int j=0; j<(const int)m_neq; j++)
+        stream << 0 << " " << -(int)(i*m_neq+j) << " " << (*m_vec)[m_p2m[i]*m_neq+j] << "\n" << std::flush;
+    stream << "# name:                 " << name() << "\n";
+    stream << "# type_name:            " << type_name() << "\n";
+    stream << "# process:              " << m_comm.MyPID() << "\n";
+    stream << "# number of equations:  " << m_neq << "\n";
+    stream << "# number of rows:       " << m_blockrow_size*m_neq << "\n";
+    stream << "# number of block rows: " << m_blockrow_size << "\n" << std::flush;
+  } else {
+    stream << name() << " of type " << type_name() << "::is_created() is false, nothing is printed.";
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosVector::print(const std::string& filename, std::ios_base::openmode mode)
 {
-  cf_assert(m_is_created);
   std::ofstream stream(filename.c_str(),mode);
+  stream << "VARIABLES=COL,ROW,VAL\n" << std::flush;
+  stream << "ZONE T=\"" << type_name() << "::" << name() <<  "\"\n" << std::flush;
   print(stream);
   stream.close();
 }
@@ -247,6 +284,10 @@ void TrilinosVector::print(const std::string& filename, std::ios_base::openmode 
 void TrilinosVector::data(std::vector<Real>& values)
 {
   cf_assert(m_is_created);
+  values.clear();
+  for (int i=0; i<(const int)m_blockrow_size; i++)
+    for (int j=0; j<(const int)m_neq; j++)
+      values.push_back((*m_vec)[m_p2m[i]*m_neq+j]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

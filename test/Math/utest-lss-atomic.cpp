@@ -431,28 +431,92 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
 BOOST_AUTO_TEST_CASE( test_vector_only )
 {
+  // build a commpattern and the two vectors
+  Common::Comm::CommPattern cp("commpattern");
+  build_commpattern(cp);
+  LSS::System::Ptr sys(new LSS::System("sys"));
+  sys->options().option("solver").change_value(solvertype);
+  build_system(sys,cp);
+  LSS::Vector::Ptr sol=sys->solution();
+  LSS::Vector::Ptr rhs=sys->rhs();
+  BOOST_CHECK_EQUAL(sol->is_created(),true);
+  BOOST_CHECK_EQUAL(rhs->is_created(),true);
+  BOOST_CHECK_EQUAL(sol->solvertype(),solvertype);
+  BOOST_CHECK_EQUAL(rhs->solvertype(),solvertype);
+  BOOST_CHECK_EQUAL(sol->neq(),neq);
+  BOOST_CHECK_EQUAL(rhs->neq(),neq);
+  BOOST_CHECK_EQUAL(sol->blockrow_size(),blockcol_size); // needs to include ghost entries
+  BOOST_CHECK_EQUAL(rhs->blockrow_size(),blockcol_size); // needs to include ghost entries
 
-/*
-void TrilinosVector::create(const Common::Comm::CommPattern& cp, Uint neq)
-void TrilinosVector::destroy()
-void TrilinosVector::set_value(const Uint irow, const Real value)
-void TrilinosVector::add_value(const Uint irow, const Real value)
-void TrilinosVector::get_value(const Uint irow, Real& value)
-void TrilinosVector::set_value(const Uint iblockrow, const Uint ieq, const Real value)
-void TrilinosVector::add_value(const Uint iblockrow, const Uint ieq, const Real value)
-void TrilinosVector::get_value(const Uint iblockrow, const Uint ieq, Real& value)
-void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
-void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
-void TrilinosVector::get_rhs_values(BlockAccumulator& values)
-void TrilinosVector::set_sol_values(const BlockAccumulator& values)
-void TrilinosVector::add_sol_values(const BlockAccumulator& values)
-void TrilinosVector::get_sol_values(BlockAccumulator& values)
-void TrilinosVector::reset(Real reset_to)
-void TrilinosVector::print(Common::LogStream& stream)
-void TrilinosVector::print(std::ostream& stream)
-void TrilinosVector::print(const std::string& filename, std::ios_base::openmode mode)
-void TrilinosVector::data(std::vector<Real>& values)
-*/
+  // just to see if its crashing or not
+//  sol->print(std::cout);
+//  sol->print(CFinfo);
+//  sol->print("test_matrix_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
+  // counter-checking data
+  std::vector<Real> vals(0);
+  Real val;
+
+  // check reset
+  sol->reset(1.);
+  sol->data(vals);
+  BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
+  BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,1.);
+  sol->reset();
+  sol->data(vals);
+  BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,0.);
+
+  // set by row-wise index
+  sol->reset();
+  sol->set_value(5,1.);
+  sol->add_value(5,1.);
+  val=0.;
+  sol->get_value(5,val);
+  BOOST_CHECK_EQUAL(val,2.);
+  sol->data(vals);
+  for (int i=0; i<vals.size(); i++)
+  {
+    if (i==5) { BOOST_CHECK_EQUAL(vals[i],2.); }
+    else { BOOST_CHECK_EQUAL(vals[i],0.); }
+  }
+
+  // set by block-wise index
+  sol->reset();
+  sol->set_value(2,1,1.);
+  sol->add_value(2,1,1.);
+  val=0.;
+  sol->get_value(2,1,val);
+  BOOST_CHECK_EQUAL(val,2.);
+  sol->data(vals);
+  for (int i=0; i<vals.size(); i++)
+  {
+    if (i==5) { BOOST_CHECK_EQUAL(vals[i],2.); }
+    else { BOOST_CHECK_EQUAL(vals[i],0.); }
+  }
+
+  // set via blockaccumulator
+  sol->reset();
+  BlockAccumulator ba;
+  ba.resize(3,neq);
+  ba.reset(1.);
+  ba.indices[0]=1;
+  ba.indices[0]=3;
+  ba.indices[0]=4;
+  sol->set_rhs_values(ba);
+
+
+sol->print(std::cout);
+
+//void TrilinosVector::set_rhs_values(const BlockAccumulator& values)
+//void TrilinosVector::add_rhs_values(const BlockAccumulator& values)
+//void TrilinosVector::get_rhs_values(BlockAccumulator& values)
+//void TrilinosVector::set_sol_values(const BlockAccumulator& values)
+//void TrilinosVector::add_sol_values(const BlockAccumulator& values)
+//void TrilinosVector::get_sol_values(BlockAccumulator& values)
+
+  // check destroy
+  sol->destroy();
+  BOOST_CHECK_EQUAL(sol->is_created(),false);
 
 }
 

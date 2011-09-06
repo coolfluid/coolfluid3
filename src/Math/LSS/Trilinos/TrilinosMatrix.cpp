@@ -511,7 +511,7 @@ void TrilinosMatrix::print(std::ostream& stream)
     stream << "# number of cols:       " << m_blockcol_size*m_neq << "\n";
     stream << "# number of block rows: " << m_blockrow_size << "\n";
     stream << "# number of block cols: " << m_blockcol_size << "\n";
-    stream << "# number of entries:    " << sumentries << "\n";
+    stream << "# number of entries:    " << sumentries << "\n" << std::flush;
   } else {
     stream << name() << " of type " << type_name() << "::is_created() is false, nothing is printed.";
   }
