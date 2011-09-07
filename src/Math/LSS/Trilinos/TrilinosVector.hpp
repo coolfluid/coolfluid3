@@ -68,7 +68,7 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(const Common::Comm::CommPattern& cp, Uint neq);
+  void create(Common::Comm::CommPattern& cp, Uint neq);
 
   /// Deallocate underlying data
   void destroy();
@@ -146,6 +146,10 @@ public:
   /// Accessor to the number of block rows
   const Uint blockrow_size() { return m_blockrow_size; };
 
+  /// Accessor to the trilinos data
+  /// @attention this function is not (and should never be) part of the interface itself, only used between trilinoses
+  Teuchos::RCP<Epetra_Vector> epetra_vector() { return m_vec; }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY
@@ -173,6 +177,12 @@ private:
 
   /// status of the vector
   bool m_is_created;
+
+  /// mapper array, maps from process local numbering to matrix local numbering (because ghost nodes need to be ordered to the back)
+  std::vector<int> m_p2m;
+
+  /// a helper array used in set/add/get_values to avoid frequent new+free combo
+  std::vector<int> m_converted_indices;
 
 };
 

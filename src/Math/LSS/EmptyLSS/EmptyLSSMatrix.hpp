@@ -53,7 +53,7 @@ public:
   const std::string solvertype() { return "EmptyLSS"; }
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  virtual const bool compatible(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
+  virtual const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
 
   /// Default constructor
   EmptyLSSMatrix(const std::string& name) :
