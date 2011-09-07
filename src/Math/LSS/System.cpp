@@ -86,7 +86,7 @@ void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vecto
 
 void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
-  if (m_mat->compatible(solution,rhs))
+  if (m_mat->is_swappable(solution,rhs))
   {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
     throw Common::SetupError(FromHere(),"Inconsistent states.");
@@ -157,13 +157,12 @@ void LSS::System::get_values(LSS::BlockAccumulator& values)
 void LSS::System::dirichlet(const Uint iblockrow, const Uint ieq, const Real value, const bool preserve_symmetry)
 {
   cf_assert(is_created());
-  std::vector<Real> v;
   if (preserve_symmetry)
   {
+    std::vector<Real> v;
     m_mat->get_column_and_replace_to_zero(iblockrow,ieq,v);
-    if (preserve_symmetry)
-      for (int i=0; i<(const int)v.size(); i++)
-        m_rhs->add_value(i,-v[i]*value);
+    for (int i=0; i<(const int)v.size(); i++)
+      m_rhs->add_value(i,-v[i]*value);
   }
   m_mat->set_row(iblockrow,ieq,1.,0.);
   m_sol->set_value(iblockrow,ieq,value);
@@ -181,13 +180,20 @@ void LSS::System::periodicity (const Uint iblockrow_to, const Uint iblockrow_fro
   ba.indices[0]=iblockrow_to;
   ba.indices[1]=iblockrow_from;
   m_mat->tie_blockrow_pairs(iblockrow_to,iblockrow_from);
-  m_sol->get_rhs_values(ba);
+  m_rhs->get_rhs_values(ba);
   for (int i=0; i<(const int)neq; i++)
   {
     ba.rhs[i]+=ba.rhs[neq+i];
     ba.rhs[neq+i]=0.;
   }
-  m_sol->set_rhs_values(ba);
+  m_rhs->set_rhs_values(ba);
+  m_sol->get_sol_values(ba);
+  for (int i=0; i<(const int)neq; i++)
+  {
+    ba.sol[neq+i]=0.5*(ba.sol[i]+ba.sol[neq+i]);
+    ba.sol[i]=ba.sol[neq+i];
+  }
+  m_sol->set_sol_values(ba);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -8,14 +8,25 @@
 
 #include <iostream>
 
+#include <boost/pointer_cast.hpp>
+
+#include "Stratimikos_DefaultLinearSolverBuilder.hpp"
+#include "Thyra_LinearOpWithSolveFactoryHelpers.hpp"
+#include "Thyra_EpetraThyraWrappers.hpp"
+#include "Thyra_EpetraLinearOp.hpp"
+#include "Epetra_MsrMatrix.h"
+#include "Epetra_Vector.h"
+#include "Teuchos_GlobalMPISession.hpp"
+#include "Teuchos_VerboseObject.hpp"
+#include "Teuchos_XMLParameterListHelpers.hpp"
+#include "Teuchos_CommandLineProcessor.hpp"
+
 #include "Common/Assertions.hpp"
 #include "Common/MPI/PE.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionT.hpp"
 #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
-
-/// @todo remove this header when done
-#include "Common/MPI/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,8 +53,10 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_blockrow_size(0),
   m_blockcol_size(0),
   m_p2m(0),
+  m_converted_indices(0),
   m_comm(Common::Comm::PE::instance().communicator())
 {
+  options().add_option< CF::Common::OptionT<std::string> >( "settings_file" , "trilinos_settings.xml" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -52,6 +65,9 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
+
+  // if already created
+  if (m_is_created) destroy();
 
   // get global ids vector
   int *gid=(int*)cp.gid()->pack();
@@ -76,17 +92,20 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   // process local to matrix local numbering mapper
   int iupd=0;
   int ighost=nmyglobalelements;
+  m_p2m.resize(0);
+  m_p2m.reserve(cp.isUpdatable().size());
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
   {
     if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
     else { m_p2m.push_back(ighost++); }
   }
 
-PEDebugVector(m_p2m,m_p2m.size());
-
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
-  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,neq,0,m_comm);
+  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
+    if (!cp.isUpdatable()[i])
+      myglobalelements.push_back((int)gid[i]);
+  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),&myglobalelements[0],neq,0,m_comm);
   myglobalelements.clear();
 
   // create matrix
@@ -102,7 +121,8 @@ PEDebugVector(m_p2m,m_p2m.size());
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
     {
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
+//      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=myglobalelements[m_p2m[node_connectivity[j]]];
       TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],(int)(starting_indices[i+1]-starting_indices[i]),&global_columns[0]));
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
         TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));
@@ -209,7 +229,81 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   cf_assert(solution->is_created());
   cf_assert(rhs->is_created());
 
-  /// @todo finish solve
+
+  // general setup phase
+  Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
+  /// @todo decouple from fancyostream to ostream or to C stdout when possible
+  Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
+  Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
+  linearSolverBuilder.setupCLP(&clp); // not used, TODO: see if can be removed safely since not really used
+  /// @todo check whgats wrtong with input options via string
+  //clp.setOption( "tol",            &tol,            "Tolerance to check against the scaled residual norm." ); // input options via string, not working for some reason
+  int argc=0; char** argv=0; Teuchos::CommandLineProcessor::EParseCommandLineReturn parse_return = clp.parse(argc,argv);
+  if( parse_return != Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL ) throw Common::ParsingFailed(FromHere(),"Emulated command line parsing for stratimikos failed");
+
+  // wrapping epetra to thyra
+  Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( m_mat );
+  boost::shared_ptr<LSS::TrilinosVector> tsol = boost::dynamic_pointer_cast<LSS::TrilinosVector>(solution);
+  Teuchos::RCP<Thyra::VectorBase<double> >         x = Thyra::create_Vector( tsol->epetra_vector() , A->domain() );
+  boost::shared_ptr<LSS::TrilinosVector> trhs = boost::dynamic_pointer_cast<LSS::TrilinosVector>(rhs);
+  Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs->epetra_vector() , A->range() );
+
+/*
+  // r = b - A*x, initial L2 norm
+  double nrm_r=0.;
+  {
+    Epetra_Vector epetra_r(*trhs->epetra_vector());
+    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
+    m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
+    epetra_r.Update(-1.0,m_mat_x,1.0);
+    epetra_r.Norm2(&nrm_r);
+  }
+*/
+
+  // Reading in the solver parameters from the parameters file and/or from
+  // the command line.  This was setup by the command-line options
+  // set by the setupCLP(...) function above.
+  linearSolverBuilder.readParameters(0); // out.get() if want confirmation about the xml file within trilinos
+  Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
+/// @todo verbosity level from option
+  lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)4); // set verbosity
+
+
+  // print back default and current settings
+  if (false) {
+    std::ofstream ofs("./trilinos_default.txt");
+    linearSolverBuilder.getValidParameters()->print(ofs,Teuchos::ParameterList::PrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
+    ofs.flush();ofs.close();
+    ofs.open("./trilinos_default.xml");
+    Teuchos::writeParameterListToXmlOStream(*linearSolverBuilder.getValidParameters(),ofs);
+    ofs.flush();ofs.close();
+  }
+  if (false) {
+    linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
+  }
+
+
+  // solve the matrix
+  Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);
+  Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
+
+/*
+  // r = b - A*x, final L2 norm
+  {
+    Epetra_Vector epetra_r(*trhs->epetra_vector());
+    Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
+    m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
+    epetra_r.Update(-1.0,m_mat_x,1.0);
+    opts->systemResidual=1./nrm_r;
+    nrm_r=0.;
+    epetra_r.Norm2(&nrm_r);
+    opts->systemResidual*=nrm_r;
+  }
+
+  // print relative residual
+  fflush(stdout); cout << flush;
+  _MMESSAGE_(0,0,"L2 norm of linear system: % 8.8e\n",opts->systemResidual);
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,14 +312,17 @@ void TrilinosMatrix::set_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
-  int* idxs=(int*)&values.indices[0];
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
-  {
-    TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
-    for (int icol=0; icol<numblocks; icol++)
-      TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-    TRILINOS_ASSERT(m_mat->EndSubmitEntries());
-  }
+    if (idxs[irow]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
+      for (int icol=0; icol<numblocks; icol++)
+        TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
+      TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -240,14 +337,17 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 **/
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
-  int* idxs=(int*)&values.indices[0];
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
-  {
-    TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
-    for (int icol=0; icol<numblocks; icol++)
-      TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-    TRILINOS_ASSERT(m_mat->EndSubmitEntries());
-  }
+    if (idxs[irow]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->BeginSumIntoMyValues(idxs[irow],numblocks,idxs));
+      for (int icol=0; icol<numblocks; icol++)
+        TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
+      TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -256,22 +356,30 @@ void TrilinosMatrix::get_values(BlockAccumulator& values)
 {
   /// @attention MODERATE EXPENSIVE, AVOID USAGE
   cf_assert(m_is_created);
-  int* idxs=(int*)&values.indices[0];
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
   int dummy_neq;
   const int block_size=values.block_size();
   for (int i=0; i<(const int)block_size; i++)
-  {
-    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
-    for (int j=0; j<(const int)blockrowsize; j++)
-      for (int k=0; k<(const int)block_size; k++)
-        if (idxs[k]==colindices[j])
-          for (int l=0; l<(const int)m_neq; l++)
-            for (int m=0; m<(const int)m_neq; m++)
-              values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
-  }
+    if (idxs[i]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
+      for (int j=0; j<(const int)blockrowsize; j++)
+        for (int k=0; k<(const int)block_size; k++)
+          if (idxs[k]==colindices[j])
+            for (int l=0; l<(const int)m_neq; l++)
+              for (int m=0; m<(const int)m_neq; m++)
+                values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
+    } else {
+      for (int j=0; j<(const int)(m_neq*numblocks); j++)
+        for (int m=0; m<(const int)m_neq; m++)
+          values.mat(i*m_neq+m,j)=0.;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -284,10 +392,11 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
   int blockrowsize;
   int diagonalblock=-1;
   int dummy_neq;
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow,dummy_neq,blockrowsize,colindices,val));
+  const int br=m_p2m[iblockrow];
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br,dummy_neq,blockrowsize,colindices,val));
   for (int i=0; i<blockrowsize; i++)
   {
-    if (colindices[i]==iblockrow) diagonalblock=i;
+    if (colindices[i]==br) diagonalblock=i;
     for (int j=0; j<m_neq; j++)
       val[i][0](ieq,j)=offdiagval;
   }
@@ -301,28 +410,27 @@ void TrilinosMatrix::get_column_and_replace_to_zero(const Uint iblockcol, Uint i
   /// @note this could be made faster if structural symmetry is ensured during create, because then involved rows could be determined by indices in the ibloccol-th row
   /// @attention COMPUTATIONALLY VERY EXPENSIVE!
   cf_assert(m_is_created);
-  values.resize(m_blockrow_size*m_neq);
-  values.assign(m_blockrow_size*m_neq,0.);
+  values.resize(m_blockcol_size*m_neq);
+  values.assign(m_blockcol_size*m_neq,0.);
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
   int dummy_neq;
-PEDebugVector(m_p2m,m_p2m.size());
-  for (int k=0; k<(const int)m_blockrow_size; k++)
-  {
-std::cout << k << " " << m_p2m[k] << "\n" << std::flush;
-    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(m_p2m[k],dummy_neq,blockrowsize,colindices,val));
-    for (int i=0; i<blockrowsize; i++)
-      if (colindices[i]==m_p2m[iblockcol])
-      {
-        for (int j=0; j<m_neq; j++)
+  for (int k=0; k<(const int)m_blockcol_size; k++)
+    if (m_p2m[k]<m_blockrow_size)
+    {
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(m_p2m[k],dummy_neq,blockrowsize,colindices,val));
+      for (int i=0; i<blockrowsize; i++)
+        if (colindices[i]==m_p2m[iblockcol])
         {
-          values[k*m_neq+j]=val[i][0](j,ieq);
-          val[i][0](j,ieq)=0.;
+          for (int j=0; j<m_neq; j++)
+          {
+            values[k*m_neq+j]=val[i][0](j,ieq);
+            val[i][0](j,ieq)=0.;
+          }
+          break;
         }
-        break;
-      }
-  }
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,22 +443,26 @@ void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint ibl
   int blockrowsize_to,blockrowsize_from;
   int diag=-1,pair=-1;
   int dummy_neq;
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView((int)iblockrow_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
+  const int br_to=m_p2m[iblockrow_to];
+  const int br_from=m_p2m[iblockrow_from];
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
+  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
   if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
   for (int i=0; i<blockrowsize_to; i++)
   {
     cf_assert(colindices_to[i]==colindices_from[i]);
-    if (colindices_from[i]==iblockrow_from) diag=i;
-    if (colindices_to[i]  ==iblockrow_to)   pair=i;
-    val_to[i][0]=val_from[i][0];
+    if (colindices_from[i]==br_from) diag=i;
+    if (colindices_to[i]  ==br_to)   pair=i;
+    val_to[i][0]+=val_from[i][0];
     val_from[i][0].Scale(0.);
   }
   for (int i=0; i<m_neq; i++)
   {
     val_from[diag][0](i,i)=1.;
-    val_to[pair][0](i,i)=-1.;
+    val_from[pair][0](i,i)=-1.;
   }
+  val_to[pair][0]+=val_to[diag][0];
+  val_to[diag][0].Scale(0.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -364,10 +476,11 @@ void TrilinosMatrix::set_diagonal(const std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  cf_assert(diag.size()==numblocks*m_neq);
-  double *diagvals=(double*)&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  cf_assert(diag.size()==m_blockcol_size*m_neq);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *ev=*diagvals++;
@@ -385,10 +498,11 @@ void TrilinosMatrix::add_diagonal(const std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  cf_assert(diag.size()==numblocks*m_neq);
-  double *diagvals=(double*)&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  cf_assert(diag.size()==m_blockcol_size*m_neq);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *ev+=*diagvals++;
@@ -406,10 +520,12 @@ void TrilinosMatrix::get_diagonal(std::vector<Real>& diag)
   const unsigned long stride=m_neq+1;
   const unsigned long blockadvance=m_neq*m_neq;
   TRILINOS_ASSERT(m_mat->BeginExtractBlockDiagonalView(numblocks,dummy_rowcoldim));
-  diag.resize(numblocks*m_neq);
-  double *diagvals=&diag[0];
-  for (int i=0; i<(const int)numblocks; i++)
+  diag.clear();
+  diag.resize(m_blockcol_size*m_neq,0.);
+  for (int i=0; i<(const int)m_blockcol_size; i++)
+    if (m_p2m[i]<m_blockrow_size)
   {
+    double *diagvals=(double*)&diag[i*m_neq];
     TRILINOS_ASSERT(m_mat->ExtractBlockDiagonalEntryView(entryvals,dummy_stride));
     for (double* ev=entryvals; ev<(const double*)(&entryvals[blockadvance]); ev+=stride)
       *diagvals++=*ev;
@@ -488,7 +604,7 @@ void TrilinosMatrix::print(std::ostream& stream)
     stream << "# number of cols:       " << m_blockcol_size*m_neq << "\n";
     stream << "# number of block rows: " << m_blockrow_size << "\n";
     stream << "# number of block cols: " << m_blockcol_size << "\n";
-    stream << "# number of entries:    " << sumentries << "\n";
+    stream << "# number of entries:    " << sumentries << "\n" << std::flush;
   } else {
     stream << name() << " of type " << type_name() << "::is_created() is false, nothing is printed.";
   }
@@ -499,7 +615,8 @@ void TrilinosMatrix::print(std::ostream& stream)
 void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode mode )
 {
   std::ofstream stream(filename.c_str(),mode);
-  stream << "ZONE T=\"" << type_name() << " " << name() << "\"\n" << std::flush;
+  stream << "VARIABLES=COL,ROW,VAL\n" << std::flush;
+  stream << "ZONE T=\"" << type_name() << "::" << name() <<  "\"\n" << std::flush;
   print(stream);
   stream.close();
 }

@@ -51,7 +51,7 @@ public:
   virtual const std::string solvertype() = 0;
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  virtual const bool compatible(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) = 0;
+  virtual const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) = 0;
 
   /// Default constructor
   Matrix(const std::string& name) : Component(name) { }

@@ -62,7 +62,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(const Common::Comm::CommPattern& cp, Uint neq)
+  void create(Common::Comm::CommPattern& cp, Uint neq)
   {
     destroy();
     m_neq=neq;
