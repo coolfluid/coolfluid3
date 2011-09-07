@@ -69,6 +69,7 @@ void Line2D::compute_normal(const NodesT& nodes , CoordsT& result)
 {
   result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
   result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
+  result.normalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,7 +90,8 @@ Real Line2D::area(const NodesT& nodes)
 
 void Line2D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, CoordsT& result)
 {
-  compute_normal(nodes,result);
+  result[XX] = 0.5*( nodes(1, YY) - nodes(0, YY));
+  result[YY] = 0.5*(-nodes(1, XX) + nodes(0, XX));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

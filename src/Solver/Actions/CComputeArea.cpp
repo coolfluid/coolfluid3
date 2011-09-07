@@ -72,7 +72,7 @@ void CComputeArea::execute()
   CSpace& space = *m_area_field_space.lock();
   Field& area = *m_area.lock();
 
-  m_coordinates = space.compute_coordinates(idx());
+  space.put_coordinates(m_coordinates,idx());
   area[space.indexes_for_element(idx())[0]][0] = elements().element_type().area( m_coordinates );
 }
 

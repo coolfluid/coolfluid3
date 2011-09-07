@@ -534,6 +534,13 @@ CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
+bool FieldGroup::has_coordinates() const
+{
+  return is_not_null(m_coordinates);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Field& FieldGroup::coordinates() const
 {
   if (is_null(m_coordinates))

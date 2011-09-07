@@ -132,7 +132,7 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
           {
             s_field_indexes.push_back(state_idx);
           }
-          for (Uint i=0; i<space_coords.size(); ++i)
+          for (Uint i=0; i<space_coords.rows(); ++i)
           {
             s_nodes.push_back(space_coords.row(i));
           }
@@ -206,13 +206,16 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
     {
       CSpace& t_space = target.space(t_elements);
       t_space.allocate_coordinates(elem_coordinates);
+      RealVector t_node(m_dim);  t_node.setZero();
       for (Uint t_elm_idx=0; t_elm_idx<t_elements.size(); ++t_elm_idx)
       {
         CConnectivity::ConstRow t_field_indexes = target.indexes_for_element(t_elements,t_elm_idx);
         t_space.put_coordinates(elem_coordinates,t_elm_idx);
         for (Uint t_elm_point_idx=0; t_elm_point_idx<elem_coordinates.rows(); ++t_elm_point_idx)
         {
-          const RealVector& t_node = elem_coordinates.row(t_elm_point_idx);
+          for (Uint d=0; d<elem_coordinates.cols(); ++d)
+            t_node[d] = elem_coordinates(t_elm_point_idx,d);
+
 
           if (find_point_in_octtree(t_node,m_point_idx))
           {
@@ -224,12 +227,12 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
             {
               boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
               CElements const& elements = component->as_type<CElements const>();
-              RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
+              RealMatrix space_coords = source.space(elements).get_coordinates(s_elm_idx);
               boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
               {
                 s_field_indexes.push_back(state_idx);
               }
-              for (Uint i=0; i<space_coords.size(); ++i)
+              for (Uint i=0; i<space_coords.rows(); ++i)
               {
                 s_nodes.push_back(space_coords.row(i));
               }

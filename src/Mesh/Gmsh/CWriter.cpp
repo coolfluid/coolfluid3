@@ -272,6 +272,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
+    cf_assert(field_ptr.expired() == false);
     Field& field = *field_ptr.lock();
 //    if (field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
 //        field.basis() == FieldGroup::Basis::CELL_BASED    ||

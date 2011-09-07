@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 
-  mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr<Field>(*mesh)));
+  mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,Mesh::Tags::normal())));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");
   BOOST_CHECK(true);
 

@@ -168,9 +168,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
     for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
     {
       coordinates = space.compute_coordinates( elem_idx );
+      cf_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());
       boost_foreach(const Uint state, space.indexes_for_element(elem_idx))
       {
-        const RealVector& coords = coordinates.row(state);
+        const RealRowVector& coords = coordinates.row(0);
         s_elembased[state][0]=coords[XX]+2.*coords[YY]+2.*coords[ZZ];
         s_elembased[state][1]=coords[XX];
         s_elembased[state][2]=coords[YY];
