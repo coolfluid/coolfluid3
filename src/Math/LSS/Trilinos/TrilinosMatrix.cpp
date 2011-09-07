@@ -230,7 +230,6 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
   /// @todo decouple from fancyostream to ostream or to C stdout when possible
   Teuchos::RCP<Teuchos::FancyOStream> out = Teuchos::VerboseObjectBase::getDefaultOStream();
-//  typedef Teuchos::ParameterList::PrintOptions PLPrintOptions;
   Teuchos::CommandLineProcessor  clp(false); // false: don't throw exceptions
   linearSolverBuilder.setupCLP(&clp); // not used, TODO: see if can be removed safely since not really used
   /// @todo check whgats wrtong with input options via string
@@ -265,26 +264,20 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 /// @todo verbosity level from option
   lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)4); // set verbosity
 
-/*
+
   // print back default and current settings
-  if (opts->trilinos.dumpDefault!=0) {
-    fflush(stdout); cout << flush;
-    _MMESSAGE_(0,1,"Dumping Trilinos/Stratimikos solver defaults to files: 'trilinos_default.txt' and 'trilinos_default.xml'...\n");
-    fflush(stdout); cout << flush;
+  if (false) {
     std::ofstream ofs("./trilinos_default.txt");
-    linearSolverBuilder.getValidParameters()->print(ofs,PLPrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
+    linearSolverBuilder.getValidParameters()->print(ofs,Teuchos::ParameterList::PrintOptions().indent(2).showTypes(true).showDoc(true)); // the last true-false is the deciding about whether printing documentation to option or not
     ofs.flush();ofs.close();
     ofs.open("./trilinos_default.xml");
     Teuchos::writeParameterListToXmlOStream(*linearSolverBuilder.getValidParameters(),ofs);
     ofs.flush();ofs.close();
   }
-  if (opts->trilinos.dumpCurrXML!=0) {
-    fflush(stdout); cout << flush;
-    _MMESSAGE_(0,1,"Dumping Trilinos/Stratimikos current settings to file: 'trilinos_current.xml'...\n");
-    fflush(stdout); cout << flush;
+  if (false) {
     linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
   }
-*/
+
 
   // solve the matrix
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);

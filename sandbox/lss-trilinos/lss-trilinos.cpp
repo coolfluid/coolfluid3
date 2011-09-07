@@ -9,75 +9,227 @@
   Will use Epetra::FEVbrMatrix for the time beign, TPetra does not support Stratimikos. Conversion seems reasonably simple according to trilinos doc.
 **/
 
-#include "Math/MatrixTypes.hpp"
-#include "lss-trilinos.hpp"
-#include "test_matrix.hpp"
+#include <fstream>
 
+#include <boost/assign/std/vector.hpp>
+#include <boost/lexical_cast.hpp>
+
+#include "Common/MPI/PE.hpp"
+#include "Common/MPI/CommPattern.hpp"
+#include "Math/LSS/System.hpp"
+
+#include "Common/MPI/debug.hpp"
+
+using namespace std;
+using namespace boost;
+using namespace boost::assign;
+
+using namespace CF;
 using namespace CF::Common;
 using namespace CF::Common::Comm;
+using namespace CF::Math;
+using namespace CF::Math::LSS;
+
 
 int main(void)
 {
   // get to business
-  Comm::PE::instance().init();
+  PE::instance().init();
+  int irank=PE::instance().rank();
+  int nproc=PE::instance().size();
 
-  // reference matrix
-  boost::assign::test_matrix m;
+  // build commpattern
+  CommPattern cp("commpattern");
+  std::vector<Uint> gid;
+  std::vector<Uint> rank_updatable;
+  if (irank==0)
+  {
+    gid += 0,1,2,3,4;
+    rank_updatable += 0,0,0,0,1;
+  } else {
+//    gid += 4,5,6,7,8,9,3;
+//    rank_updatable += 1,1,1,1,1,1,0;
+    gid += 3,4,5,6,7,8,9;
+    rank_updatable += 0,1,1,1,1,1,1;
+  }
+  cp.insert("gid",gid,1,false);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<CommWrapper>(),rank_updatable);
 
-  // make a commpattern as the most likely input
-  CommPattern cp("cp");
-  cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<CommWrapper>(),m.irank_updatable);
+  // build system
+  std::vector<Uint> nodeconn;
+  std::vector<Uint> startidxs;
+  if (irank==0)
+  {
+    nodeconn += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    startidxs += 0,2,5,8,11,13;
+  } else {
+//    nodeconn += 0,1,6,0,1,2,1,2,3,2,3,4,3,4,5,4,5,0,6;
+//    startidxs +=  0,3,6,9,12,15,17,19;
+    nodeconn += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6   ;
+    startidxs +=  0,2,5,8,11,14,17,19;
+  }
+  System::Ptr sys(new System("sys"));
+  sys->options().option("solver").change_value(lexical_cast<string>("Trilinos"));
+  sys->create(cp,2,nodeconn,startidxs);
 
-  // setting up the matrix
-  LSSTrilinosMatrix lssm("lssm");
-  lssm.create_sparsity(cp,m.column_indices,m.rowstart_positions);
+//  // write a settings file for trilinos, solving with a direct solver
+//  ofstream trilinos_xml("trilinos_settings.xml");
+//  trilinos_xml << "<ParameterList>\n";
+//  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
+//  trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+//  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
+//  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
+//  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
+//  trilinos_xml << "    </ParameterList>\n";
+//  trilinos_xml << "  </ParameterList>\n";
+//  trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+//  trilinos_xml << "</ParameterList>\n";
+//  trilinos_xml.close();
 
-  // manual filling every entry
-  lssm.reset();
-  int irow=0;
-  int ientry=0;
-  PEProcessSortedExecute(1,
-  for (int i=0; i<m.rowstart_positions.size()-1; i++)
-    if (m.irank_updatable[i]==Comm::PE::instance().rank())
-    {
-      for (int ieq=0; ieq<3; ieq++)
-        for (int j=m.rowstart_positions[i]; j<m.rowstart_positions[i+1]; j++)
-        {
-          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+0,m.mat_presolve[ientry++]);
-          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+1,m.mat_presolve[ientry++]);
-          lssm.add_value(3*irow+ieq,3*m.column_indices[j]+2,m.mat_presolve[ientry++]);
-        }
-      irow++;
-    }
-  );
+  // set intital values
+  sys->matrix()->reset(-0.5);
+  sys->solution()->reset(1.);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(10,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,1.);
+    sys->dirichlet(0,1,1.);
+  } else {
+    std::vector<Real> diag(14,1.);
+    sys->set_diagonal(diag);
+//    sys->dirichlet(5,0,10.);
+//    sys->dirichlet(5,1,10.);
+    sys->dirichlet(6,0,10.);
+    sys->dirichlet(6,1,10.);
+  }
 
-  // performance fill
-  lssm.reset();
-  BlockAccumulator ba;
-  ba.resize(3,3);
-PEProcessSortedExecute(1,
-  ba.mat.setConstant(-10.);
-  ba.mat(0,0)=1.;
-  ba.mat(0,3)=2.;
-  ba.mat(0,6)=3.;
-  ba.mat(3,0)=4.;
-  ba.mat(3,3)=5.;
-  ba.mat(3,6)=6.;
-  ba.mat(6,0)=7.;
-  ba.mat(6,3)=8.;
-  ba.mat(6,6)=9.;
-  ba.indices[0]=0;
-  ba.indices[1]=2;
-  ba.indices[2]=10;
-  lssm.set_values(ba);
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
+  sys->print(std::cout);
+
+
+//  // printing a reference matrix for matlab
+//  std::vector<Uint> rows;
+//  std::vector<Uint> cols;
+//  std::vector<Real> vals;
+//  RealMatrix m(20,20);
+//  m.setConstant(0.);
+//  sys->matrix()->data(rows,cols,vals);
+//PEProcessSortedExecute(-1,
+//  for (int i=0; i<vals.size(); i++) m(rows[i],cols[i])=vals[i];
+//  cout << "A =  [" << flush;
+//  for (int i=0; i<20; i++)
+//  {
+//    cout << m(i,0) << flush;
+//    for (int j=1; j<20; j++) cout << ", " << m(i,j) << flush;
+//    if (i!=19) cout << "; " << flush;
+//  }
+//  cout <<  "]\n" << flush;
+//  sys->rhs()->data(vals);
+//  cout << "b =  [" << vals[0] << flush;
+//  for (int i=1; i<vals.size(); i++) cout << "; " << vals[i] << flush;
+//  cout <<  "]\n" << flush;
+//);
+
+  // solve and print
+  sys->solve();
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
+PEProcessSortedExecute(-1,
+  sys->solution()->print(std::cout);
 );
-
-  // dirichletbc
-  lssm.set_row(20,1,3.,4.);
-  lssm.print_to_screen();
-
 
   // afscheid
   Comm::PE::instance().finalize();
 };
+
+
+
+
+
+/*
+int main(void)
+{
+  // get to business
+  PE::instance().init();
+  int irank=PE::instance().rank();
+  int nproc=PE::instance().size();
+
+  // build commpattern
+  CommPattern cp("commpattern");
+  std::vector<Uint> gid;
+  std::vector<Uint> rank_updatable;
+  gid += 0,1,2,3,4,5,6,7,8,9;
+  rank_updatable += 0,0,0,0,0,0,0,0,0,0;
+  cp.insert("gid",gid,1,false);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<CommWrapper>(),rank_updatable);
+
+  // build system
+  std::vector<Uint> nodeconn;
+  nodeconn += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6,7,6,7,8,7,8,9,8,9;
+  std::vector<Uint> startidxs;
+  startidxs += 0,2,5,8,11,14,17,20,23,26,28;
+  System::Ptr sys(new System("sys"));
+  sys->options().option("solver").change_value(lexical_cast<string>("Trilinos"));
+  sys->create(cp,2,nodeconn,startidxs);
+
+  // write a settings file for trilinos, solving with a direct solver
+  ofstream trilinos_xml("trilinos_settings.xml");
+  trilinos_xml << "<ParameterList>\n";
+  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
+  trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
+  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
+  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
+  trilinos_xml << "    </ParameterList>\n";
+  trilinos_xml << "  </ParameterList>\n";
+  trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+  trilinos_xml << "</ParameterList>\n";
+  trilinos_xml.close();
+
+  // set intital values
+  sys->matrix()->reset(-0.5);
+  sys->solution()->reset(1.);
+  sys->rhs()->reset(0.);
+  std::vector<Real> diag(20,1.);
+  sys->set_diagonal(diag);
+  sys->dirichlet(0,0,1.);
+  sys->dirichlet(0,1,1.);
+  sys->dirichlet(9,0,10.);
+  sys->dirichlet(9,1,10.);
+
+  // printing a reference matrix for matlab
+  std::vector<Uint> rows;
+  std::vector<Uint> cols;
+  std::vector<Real> vals;
+  RealMatrix m(20,20);
+  m.setConstant(0.);
+  sys->matrix()->data(rows,cols,vals);
+PEProcessSortedExecute(-1,
+  for (int i=0; i<vals.size(); i++) m(rows[i],cols[i])=vals[i];
+  cout << "A =  [" << flush;
+  for (int i=0; i<20; i++)
+  {
+    cout << m(i,0) << flush;
+    for (int j=1; j<20; j++) cout << ", " << m(i,j) << flush;
+    if (i!=19) cout << "; " << flush;
+  }
+  cout <<  "]\n" << flush;
+  sys->rhs()->data(vals);
+  cout << "b =  [" << vals[0] << flush;
+  for (int i=1; i<vals.size(); i++) cout << "; " << vals[i] << flush;
+  cout <<  "]\n" << flush;
+
+);
+
+  // solve and print
+  sys->solve();
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
+PEProcessSortedExecute(-1,
+  sys->solution()->print(std::cout);
+);
+
+  // afscheid
+  Comm::PE::instance().finalize();
+};
+*/
