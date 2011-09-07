@@ -47,8 +47,6 @@ int main(void)
     gid += 0,1,2,3,4;
     rank_updatable += 0,0,0,0,1;
   } else {
-//    gid += 4,5,6,7,8,9,3;
-//    rank_updatable += 1,1,1,1,1,1,0;
     gid += 3,4,5,6,7,8,9;
     rank_updatable += 0,1,1,1,1,1,1;
   }
@@ -63,8 +61,6 @@ int main(void)
     nodeconn += 0,1,0,1,2,1,2,3,2,3,4,3,4;
     startidxs += 0,2,5,8,11,13;
   } else {
-//    nodeconn += 0,1,6,0,1,2,1,2,3,2,3,4,3,4,5,4,5,0,6;
-//    startidxs +=  0,3,6,9,12,15,17,19;
     nodeconn += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6   ;
     startidxs +=  0,2,5,8,11,14,17,19;
   }
@@ -72,21 +68,29 @@ int main(void)
   sys->options().option("solver").change_value(lexical_cast<string>("Trilinos"));
   sys->create(cp,2,nodeconn,startidxs);
 
-//  // write a settings file for trilinos, solving with a direct solver
-//  ofstream trilinos_xml("trilinos_settings.xml");
-//  trilinos_xml << "<ParameterList>\n";
-//  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
-//  trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-//  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
-//  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
-//  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
-//  trilinos_xml << "    </ParameterList>\n";
-//  trilinos_xml << "  </ParameterList>\n";
-//  trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
-//  trilinos_xml << "</ParameterList>\n";
-//  trilinos_xml.close();
+  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  if (irank==0)
+  {
+    ofstream trilinos_xml("trilinos_settings.xml");
+    trilinos_xml << "<ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
+    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
+    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+    trilinos_xml << "        </ParameterList>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"400\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
+    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    </ParameterList>\n";
+    trilinos_xml << "  </ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+    trilinos_xml << "</ParameterList>\n";
+    trilinos_xml.close();
+  }
 
-  // set intital values
+  // set intital values and boundary conditions
   sys->matrix()->reset(-0.5);
   sys->solution()->reset(1.);
   sys->rhs()->reset(0.);
@@ -99,38 +103,9 @@ int main(void)
   } else {
     std::vector<Real> diag(14,1.);
     sys->set_diagonal(diag);
-//    sys->dirichlet(5,0,10.);
-//    sys->dirichlet(5,1,10.);
     sys->dirichlet(6,0,10.);
     sys->dirichlet(6,1,10.);
   }
-
-  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
-  sys->print(std::cout);
-
-
-//  // printing a reference matrix for matlab
-//  std::vector<Uint> rows;
-//  std::vector<Uint> cols;
-//  std::vector<Real> vals;
-//  RealMatrix m(20,20);
-//  m.setConstant(0.);
-//  sys->matrix()->data(rows,cols,vals);
-//PEProcessSortedExecute(-1,
-//  for (int i=0; i<vals.size(); i++) m(rows[i],cols[i])=vals[i];
-//  cout << "A =  [" << flush;
-//  for (int i=0; i<20; i++)
-//  {
-//    cout << m(i,0) << flush;
-//    for (int j=1; j<20; j++) cout << ", " << m(i,j) << flush;
-//    if (i!=19) cout << "; " << flush;
-//  }
-//  cout <<  "]\n" << flush;
-//  sys->rhs()->data(vals);
-//  cout << "b =  [" << vals[0] << flush;
-//  for (int i=1; i<vals.size(); i++) cout << "; " << vals[i] << flush;
-//  cout <<  "]\n" << flush;
-//);
 
   // solve and print
   sys->solve();
@@ -145,9 +120,37 @@ PEProcessSortedExecute(-1,
 
 
 
-
-
 /*
+THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+inv(A)*b
+WHICH RESULTS IN GID ORDER:
+    1.0000
+    1.0000
+  -13.5789
+  -13.5789
+   -7.7895
+   -7.7895
+    9.6842
+    9.6842
+   12.6316
+   12.6316
+   -3.3684
+   -3.3684
+  -14.3158
+  -14.3158
+   -3.7895
+   -3.7895
+   12.4211
+   12.4211
+   10.0000
+   10.0000
+*/
+
+
+
+/* SINGLE PROCESSOR CASE
 int main(void)
 {
   // get to business
@@ -173,14 +176,19 @@ int main(void)
   sys->options().option("solver").change_value(lexical_cast<string>("Trilinos"));
   sys->create(cp,2,nodeconn,startidxs);
 
-  // write a settings file for trilinos, solving with a direct solver
+  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
   ofstream trilinos_xml("trilinos_settings.xml");
   trilinos_xml << "<ParameterList>\n";
-  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
+  trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
   trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
-  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
-  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
+  trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
+  trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
+  trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
+  trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+  trilinos_xml << "        </ParameterList>\n";
+  trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"400\"/>\n";
+  trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
+  trilinos_xml << "      </ParameterList>\n";
   trilinos_xml << "    </ParameterList>\n";
   trilinos_xml << "  </ParameterList>\n";
   trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";

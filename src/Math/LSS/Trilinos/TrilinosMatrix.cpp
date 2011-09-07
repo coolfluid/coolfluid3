@@ -102,7 +102,10 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
 
   // blockmaps (colmap is gid 1 to 1, rowmap is gid with ghosts filtered out)
   Epetra_BlockMap rowmap(-1,nmyglobalelements,&myglobalelements[0],neq,0,m_comm);
-  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),gid,neq,0,m_comm);
+  for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
+    if (!cp.isUpdatable()[i])
+      myglobalelements.push_back((int)gid[i]);
+  Epetra_BlockMap colmap(-1,cp.isUpdatable().size(),&myglobalelements[0],neq,0,m_comm);
   myglobalelements.clear();
 
   // create matrix
@@ -118,7 +121,8 @@ void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::ve
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
     {
-      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
+//      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=gid[m_p2m[node_connectivity[j]]];
+      for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++) global_columns[j-starting_indices[i]]=myglobalelements[m_p2m[node_connectivity[j]]];
       TRILINOS_THROW(m_mat->BeginInsertGlobalValues(gid[i],(int)(starting_indices[i+1]-starting_indices[i]),&global_columns[0]));
       for(int j=(const int)starting_indices[i]; j<(const int)starting_indices[i+1]; j++)
         TRILINOS_THROW(m_mat->SubmitBlockEntry(&dummy_entries[0],0,neq,neq));

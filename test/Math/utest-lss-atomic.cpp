@@ -825,28 +825,41 @@ BOOST_AUTO_TEST_CASE( solve_system )
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
 
-  // write a settings file for trilinos, solving with a direct solver
-  std::ofstream trilinos_xml("trilinos_settings.xml");
-  trilinos_xml << "<ParameterList>\n";
-  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
-  trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
-  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
-  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
-  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
-  trilinos_xml << "    </ParameterList>\n";
-  trilinos_xml << "  </ParameterList>\n";
-  trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
-  trilinos_xml << "</ParameterList>\n";
-  trilinos_xml.close();
+  // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
+  if (irank==0)
+  {
+    std::ofstream trilinos_xml("trilinos_settings.xml");
+    trilinos_xml << "<ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Linear Solver Type\" type=\"string\" value=\"AztecOO\"/>\n";
+    trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+    trilinos_xml << "    <ParameterList name=\"AztecOO\">\n";
+    trilinos_xml << "      <ParameterList name=\"Forward Solve\">\n";
+    trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
+    trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
+    trilinos_xml << "        </ParameterList>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"400\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
+    trilinos_xml << "      </ParameterList>\n";
+    trilinos_xml << "    </ParameterList>\n";
+    trilinos_xml << "  </ParameterList>\n";
+    trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+    trilinos_xml << "</ParameterList>\n";
+    trilinos_xml.close();
+  }
 
   // initialize
-  sys->reset(0.);
+  sys->reset(1.);
   sys->solution()->reset(1.);
   std::vector<Real> diag(gid.size()*neq,2.);
   sys->set_diagonal(diag);
 
   // and solve
-//  sys->solve();
+  sys->solve();
+PEProcessSortedExecute(-1,
+  sys->solution()->print(std::cout);
+);
+
+
 
 }
 

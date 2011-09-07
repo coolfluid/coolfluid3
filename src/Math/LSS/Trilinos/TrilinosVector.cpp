@@ -54,10 +54,14 @@ void TrilinosVector::create(Common::Comm::CommPattern& cp, Uint neq)
 
   // prepare intermediate data
   int nmyglobalelements=0;
+  std::vector<int> myglobalelements(0);
 
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
     if (cp.isUpdatable()[i])
+    {
+      myglobalelements.push_back((int)gid[i]);
       ++nmyglobalelements;
+    }
 
   // process local to matrix local numbering mapper
   int iupd=0;
@@ -66,12 +70,19 @@ void TrilinosVector::create(Common::Comm::CommPattern& cp, Uint neq)
   m_p2m.reserve(cp.isUpdatable().size());
   for (int i=0; i<(const int)cp.isUpdatable().size(); i++)
   {
-    if (cp.isUpdatable()[i]) { m_p2m.push_back(iupd++); }
-    else { m_p2m.push_back(ighost++); }
+    if (cp.isUpdatable()[i])
+    {
+      m_p2m.push_back(iupd++);
+    }
+    else
+    {
+      myglobalelements.push_back((int)gid[i]);
+      m_p2m.push_back(ighost++);
+    }
   }
 
   // map (its actually blockmap insteady of rowmap, to involve ghosts)
-  Epetra_BlockMap map(-1,cp.isUpdatable().size(),gid,neq,0,m_comm);
+  Epetra_BlockMap map(-1,cp.isUpdatable().size(),&myglobalelements[0],neq,0,m_comm);
 
   // create matrix
   m_vec=Teuchos::rcp(new Epetra_Vector(map));
