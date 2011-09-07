@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <set>
+
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
@@ -12,11 +14,12 @@
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
 
+#include "Math/LSS/System.hpp"
+
 #include "Mesh/CDomain.hpp"
 #include "Mesh/FieldManager.hpp"
 #include "Mesh/Geometry.hpp"
 
-#include "Solver/CEigenLSS.hpp"
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
 
@@ -24,6 +27,10 @@
 
 #include "LinearSolver.hpp"
 #include "Tags.hpp"
+
+
+#include "Mesh/CMesh.hpp"
+#include "Mesh/CCells.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -35,28 +42,70 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
+namespace detail
+{
+  /// Build the sparsity
+  void build_sparsity(const CMesh& mesh, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices)
+  {
+    const Uint nb_nodes = mesh.geometry().coordinates().size();
+    std::vector< std::set<Uint> > connectivity_sets;
+    start_indices.assign(nb_nodes+1, 0);
+
+    // Determine the number of connected nodes for each element
+    BOOST_FOREACH(const CElements& elements, find_components_recursively<CCells>(mesh.topology()))
+    {
+      const CConnectivity& connectivity = elements.node_connectivity();
+      const Uint nb_elems = connectivity.size();
+      const Uint nb_elem_nodes = connectivity.row_size();
+      for(Uint elem = 0; elem != nb_elems; ++elem)
+      {
+        BOOST_FOREACH(const Uint node_a, connectivity[elem])
+        {
+          BOOST_FOREACH(const Uint node_b, connectivity[elem])
+          {
+            connectivity_sets[node_a].insert(node_b);
+          }
+        }
+      }
+    }
+
+    // Sum the number of connected nodes to get the real start indices
+    const Uint start_indices_end = start_indices.size();
+    for(Uint i = 1; i != start_indices_end; ++i)
+    {
+      start_indices[i] += connectivity_sets[i-1].size();
+    }
+
+    node_connectivity.resize(start_indices.back());
+    for(Uint node = 0; node != nb_nodes; ++node)
+    {
+      node_connectivity.insert(node_connectivity.begin() + start_indices[node], connectivity_sets[node].begin(), connectivity_sets[node].end());
+    }
+  }
+}
+
 class ZeroAction : public Common::CAction
 {
 public:
-  
+
   typedef boost::shared_ptr<ZeroAction> Ptr;
   typedef boost::shared_ptr<ZeroAction const> ConstPtr;
-    
+
   ZeroAction(const std::string& name) : CAction(name)
   {
   }
-  
+
   static std::string type_name () { return "ZeroAction"; }
-  
+
   virtual void execute()
   {
     if(m_lss.expired())
       throw SetupError(FromHere(), "No LSS found when running " + uri().string());
-    
-    m_lss.lock()->set_zero();
+
+    m_lss.lock()->reset();
   }
-  
-  boost::weak_ptr<CEigenLSS> m_lss;
+
+  boost::weak_ptr<LSS::System> m_lss;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,33 +121,17 @@ struct LinearSolver::Implementation
    m_solver(comp.create_static_component<CSolveSystem>("LSSSolveAction")),
    m_bc(comp.create_static_component<BoundaryConditions>("BoundaryConditions")),
    m_zero_action(comp.create_static_component<ZeroAction>("ZeroLSS")),
-   system_matrix(*(m_component.options().add_option< OptionComponent<CEigenLSS> >("lss")->pretty_name("LSS"))),
+   system_matrix(*(m_component.options().add_option< OptionComponent<LSS::System> >("lss")->pretty_name("LSS"))),
    system_rhs(m_component.option("lss")),
    dirichlet(m_component.option("lss")),
    solution(m_component.option("lss")),
    m_updating(false)
   {
-    m_component.option("lss").attach_trigger(boost::bind(&Implementation::trigger_lss, this));
   }
-  
+
   void trigger_lss()
   {
-    if(m_updating) // avoid recursion
-      return;
     
-    m_updating = true;
-    
-    m_lss = dynamic_cast<OptionComponent<CEigenLSS>&>(m_component.option("lss")).component().as_ptr<CEigenLSS>();
-    if(m_lss.expired())
-    {
-      CFdebug << "Triggering on bad LSS in " << m_solver.uri().string() << CFendl;
-      m_updating = false;
-      return;
-    }
-    
-    m_component.configure_option_recursively("lss", m_component.option("lss").value<URI>());
-    m_zero_action.m_lss = m_lss;
-    m_updating = false;
   }
 
   Component& m_component;
@@ -110,9 +143,9 @@ struct LinearSolver::Implementation
   SystemRHS system_rhs;
   DirichletBC dirichlet;
   SolutionVector solution;
-  
-  boost::weak_ptr<CEigenLSS> m_lss;
-  
+
+  boost::weak_ptr<LSS::System> m_lss;
+
   bool m_updating;
 };
 
@@ -124,6 +157,7 @@ LinearSolver::LinearSolver(const std::string& name) :
   dirichlet(m_implementation->dirichlet),
   solution(m_implementation->solution)
 {
+  option("lss").attach_trigger(boost::bind(&LinearSolver::trigger_lss, this));
 }
 
 LinearSolver::~LinearSolver()
@@ -134,25 +168,24 @@ void LinearSolver::execute()
 {
   if(m_implementation->m_lss.expired())
     throw SetupError(FromHere(), "Error executing " + uri().string() + ": Invalid LSS");
-  
-  VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
-  
-  m_implementation->m_lss.lock()->resize(descriptor.size() * mesh().topology().geometry().size());
+
   CSimpleSolver::execute();
 }
 
 void LinearSolver::mesh_loaded(CMesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
-  
+
   // Create fields using the known tags
   field_manager().create_field(Tags::solution(), mesh.geometry());
   field_manager().create_field(Tags::source_terms(), mesh.geometry());
-  
+
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively(Solver::Tags::regions(), root_regions);
+
+  m_implementation->trigger_lss();
 }
 
 CAction& LinearSolver::zero_action()
@@ -169,6 +202,37 @@ BoundaryConditions& LinearSolver::boundary_conditions()
 {
   return m_implementation->m_bc;
 }
+
+void LinearSolver::trigger_lss()
+{
+  if(m_implementation->m_updating) // avoid recursion
+      return;
+
+  m_implementation->m_updating = true;
+
+  m_implementation->m_lss = dynamic_cast<OptionComponent<LSS::System>&>(option("lss")).component().as_ptr<LSS::System>();
+  cf_assert(!m_implementation->m_lss.expired());
+
+  // Create the LSS if the mesh is set
+  if(!m_mesh.expired())
+  {
+    VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
+
+    std::vector<Uint> node_connectivity, starting_indices;
+    detail::build_sparsity(mesh(), node_connectivity, starting_indices);
+
+    Component::Ptr comm_pattern_comp = mesh().get_child_ptr("comm_pattern_node_based");
+    if(is_null(comm_pattern_comp))
+      throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());
+
+    m_implementation->m_lss.lock()->create(comm_pattern_comp->as_type<Comm::CommPattern>(), descriptor.size(), node_connectivity, starting_indices);
+  }
+
+  configure_option_recursively("lss", option("lss").value<URI>());
+  m_implementation->m_zero_action.m_lss = m_implementation->m_lss;
+  m_implementation->m_updating = false;
+}
+
 
 
 } // UFEM

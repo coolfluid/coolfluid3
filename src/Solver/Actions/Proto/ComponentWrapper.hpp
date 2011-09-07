@@ -13,7 +13,6 @@
 #include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 
-#include "Solver/CEigenLSS.hpp"
 #include "Physics/PhysModel.hpp"
 
 /// @file

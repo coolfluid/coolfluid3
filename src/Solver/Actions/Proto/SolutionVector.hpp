@@ -10,7 +10,8 @@
 #include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
-#include "Solver/CEigenLSS.hpp"
+#include "Math/LSS/System.hpp"
+#include "Math/LSS/Vector.hpp"
 
 #include "ComponentWrapper.hpp"
 #include "Transforms.hpp"
@@ -26,7 +27,7 @@ struct SolutionVectorTag
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef ComponentWrapper<CEigenLSS, SolutionVectorTag> SolutionVector;
+typedef ComponentWrapper<Math::LSS::System, SolutionVectorTag> SolutionVector;
 
 struct GetSolutionVector :
   boost::proto::transform< GetSolutionVector >
@@ -38,16 +39,17 @@ struct GetSolutionVector :
     typedef typename impl::data::template DataType<typename impl::state>::type VarDataT;
     typedef typename VarDataT::ValueT result_type;
 
-    template<typename T>
-    void convert_result(Real& output, const T& input) const
+    // Used in case result is a scalar
+    Real& result_at(Real& result, const Uint) const
     {
-      output = input[0];
+      return result;
     }
 
-    template<typename T1, typename T2>
-    void convert_result(T1& output, const T2& input) const
+    // Used if the result is a vector
+    template<typename T>
+    Real& result_at(T& result, const Uint i) const
     {
-      output = input;
+      return result[i];
     }
 
     result_type operator ()(
@@ -56,10 +58,11 @@ struct GetSolutionVector :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = expr.component();
+      Math::LSS::System& lss = expr.component();
       const Uint sys_idx = data.node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
-      convert_result(result, lss.solution().segment<VarDataT::dimension>(sys_idx));
+      for(Uint i = 0; i != VarDataT::dimension; ++i)
+        lss.solution()->get_value(sys_idx, result_at(result, i));
       return result;
     }
   };
@@ -71,7 +74,7 @@ struct SolutionVectorGrammar :
   <
     boost::proto::function
     <
-      boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, SolutionVectorTag> >,
+      boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, SolutionVectorTag> >,
       FieldTypes
     >,
     GetSolutionVector(boost::proto::_value(boost::proto::_child0), boost::proto::_value(boost::proto::_child1))

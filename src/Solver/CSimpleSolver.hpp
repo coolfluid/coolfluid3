@@ -52,7 +52,7 @@ protected:
   /// Checked access to the mesh
   Mesh::CMesh& mesh();
 
-private:
+  /// Weak pointer to the mesh that was last loaded, or expired otherwise
   boost::weak_ptr<Mesh::CMesh> m_mesh;
 };
 

@@ -17,9 +17,10 @@
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
 
+#include "Math/LSS/System.hpp"
+
 #include "Mesh/Geometry.hpp"
 
-#include "Solver/CEigenLSS.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
@@ -51,7 +52,7 @@ struct BoundaryConditions::Implementation
   Implementation(CActionDirector& comp) :
     m_component(comp),
     m_physical_model(),
-    dirichlet(*m_component.options().add_option< OptionComponent<CEigenLSS> >("lss", URI())
+    dirichlet(*m_component.options().add_option< OptionComponent<LSS::System> >("lss", URI())
               ->pretty_name("LSS")
               ->description("The referenced linear system solver"))
   {
