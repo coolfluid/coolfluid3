@@ -818,12 +818,61 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
 BOOST_AUTO_TEST_CASE( solve_system )
 {
-  // build a commpattern and the system
+/*
+THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+inv(A)*b
+WHICH RESULTS IN GID ORDER:
+*/
+  std::vector<Real> refvals(0);
+  refvals +=
+   1.00000000000000e+00,
+   1.00000000000000e+00,
+  -1.35789473684210e+01,
+  -1.35789473684210e+01,
+  -7.78947368421052e+00,
+  -7.78947368421052e+00,
+   9.68421052631579e+00,
+   9.68421052631579e+00,
+   1.26315789473684e+01,
+   1.26315789473684e+01,
+  -3.36842105263158e+00,
+  -3.36842105263158e+00,
+  -1.43157894736842e+01,
+  -1.43157894736842e+01,
+  -3.78947368421053e+00,
+  -3.78947368421052e+00,
+   1.24210526315789e+01,
+   1.24210526315789e+01,
+   1.00000000000000e+01,
+   1.00000000000000e+01;
+
+  // commpattern
+  if (irank==0)
+  {
+    gid += 0,1,2,3,4;
+    rank_updatable += 0,0,0,0,1;
+  } else {
+    gid += 3,4,5,6,7,8,9;
+    rank_updatable += 0,1,1,1,1,1,1;
+  }
   Common::Comm::CommPattern cp("commpattern");
-  build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
-  sys->options().option("solver").change_value(solvertype);
-  build_system(sys,cp);
+  cp.insert("gid",gid,1,false);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),rank_updatable);
+
+  // lss
+  if (irank==0)
+  {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    starting_indices += 0,2,5,8,11,13;
+  } else {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
+    starting_indices +=  0,2,5,8,11,14,17,19;
+  }
+  System::Ptr sys(new System("sys"));
+  sys->options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
+  sys->create(cp,2,node_connectivity,starting_indices);
 
   // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
   if (irank==0)
@@ -846,21 +895,32 @@ BOOST_AUTO_TEST_CASE( solve_system )
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
+  Common::Comm::PE::instance().barrier();
 
-  // initialize
-  sys->reset(1.);
+  // set intital values and boundary conditions
+  sys->matrix()->reset(-0.5);
   sys->solution()->reset(1.);
-  std::vector<Real> diag(gid.size()*neq,2.);
-  sys->set_diagonal(diag);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(10,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,1.);
+    sys->dirichlet(0,1,1.);
+  } else {
+    std::vector<Real> diag(14,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(6,0,10.);
+    sys->dirichlet(6,1,10.);
+  }
 
-  // and solve
+  // solve and check
   sys->solve();
-PEProcessSortedExecute(-1,
-  sys->solution()->print(std::cout);
-);
-
-
-
+  std::vector<Real> vals;
+  sys->solution()->data(vals);
+  for (int i=0; i<vals.size(); i++)
+    if (cp.isUpdatable()[i/neq])
+      BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
