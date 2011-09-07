@@ -10,6 +10,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <fstream>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
@@ -556,7 +558,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
 
 BOOST_AUTO_TEST_CASE( test_complete_system )
 {
-  // build a commpattern and the two vectors
+  // build a commpattern and the system
   Common::Comm::CommPattern cp("commpattern");
   build_commpattern(cp);
   LSS::System::Ptr sys(new LSS::System("sys"));
@@ -634,6 +636,53 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     for (int i=10; i<14; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
     for (int i=14; i<16; i++) BOOST_CHECK_EQUAL(vals[i],4.);
   }
+
+  // performant access - out of range access does not fail
+  sys->reset();
+  if (irank==1)
+  {
+    LSS::BlockAccumulator ba;
+    ba.resize(3,neq);
+    ba.mat << 99., 99., 99., 99., 99., 99.,
+              99., 99., 99., 99., 99., 99.,
+              1.,   1.,  1.,  1.,  1.,  1.,
+              1.,   1.,  1.,  1.,  1.,  1.,
+              99., 99., 99., 99., 99., 99.,
+              99., 99., 99., 99., 99., 99.;
+    ba.rhs << 2., 2., 2., 2., 2., 2.;
+    ba.sol << 3., 3., 3., 3., 3., 3.;
+    ba.indices[0]=3;
+    ba.indices[1]=2;
+    ba.indices[2]=7;
+    sys->set_values(ba);
+    sys->add_values(ba);
+    ba.reset();
+    ba.indices[0]=7;
+    ba.indices[1]=3;
+    ba.indices[2]=2;
+    sys->get_values(ba);
+    sys->matrix()->data(rows,cols,vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if ((rows[i]/neq==ba.indices[2])&&
+          ((cols[i]/neq==ba.indices[0])||(cols[i]/neq==ba.indices[1])||(cols[i]/neq==ba.indices[2]))) { BOOST_CHECK_EQUAL(vals[i],2.); }
+      else { BOOST_CHECK_EQUAL(vals[i],0.); }
+    }
+    sys->rhs()->data(vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2])) { BOOST_CHECK_EQUAL(vals[i],4.); }
+      else { BOOST_CHECK_EQUAL(vals[i],0.); }
+    }
+    sys->solution()->data(vals);
+    for (int i=0; i<(const int)vals.size(); i++)
+    {
+      if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2])) { BOOST_CHECK_EQUAL(vals[i],6.); }
+      else { BOOST_CHECK_EQUAL(vals[i],0.); }
+    }
+  }
+
+  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
 
   // check periodicity
   sys->matrix()->reset(-2.);
@@ -726,23 +775,79 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     }
   }
 
+  // diagonal access check
+  sys->reset();
+  std::vector<Real> diag(blockcol_size*neq);
+  for (int i=0; i<diag.size(); i++) diag[i]=i;
+  sys->set_diagonal(diag);
+  sys->add_diagonal(diag);
+  diag.clear();
+  sys->get_diagonal(diag);
+  BOOST_CHECK_EQUAL(diag.size(),blockcol_size*neq);
+  sys->matrix()->data(rows,cols,vals);
+  for (int i=0; i<(const int)vals.size(); i++)
+  {
+    if (cp.isUpdatable()[rows[i]/neq]) { BOOST_CHECK_EQUAL(diag[rows[i]],2.*rows[i]); }
+    else { BOOST_CHECK_EQUAL(diag[rows[i]],0.); }
+    if (rows[i]==cols[i]) { BOOST_CHECK_EQUAL(vals[i],diag[rows[i]]); }
+    else { BOOST_CHECK_EQUAL(vals[i],0.); }
+  }
 
-  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
-
-/*
-  void swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
-  void solve();
-  void set_values(const BlockAccumulator& values);
-  void add_values(const BlockAccumulator& values);
-  void get_values(BlockAccumulator& values);
-  void set_diagonal(const std::vector<Real>& diag);
-  void add_diagonal(const std::vector<Real>& diag);
-  void get_diagonal(std::vector<Real>& diag);
-*/
+  // test swapping rhs and sol
+  LSS::System::Ptr sys2(new LSS::System("sys2"));
+  sys->options().option("solver").change_value(solvertype);
+  build_system(sys2,cp);
+  BOOST_CHECK_EQUAL(sys2->is_created(),true);
+  BOOST_CHECK_EQUAL(sys2->solvertype(),solvertype);
+  sys->reset(1.);
+  sys2->reset(2.);
+  sys->swap(sys->matrix(),sys2->solution(),sys2->rhs());
+  sys->matrix()->data(rows,cols,vals);
+  BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,1.);
+  sys->solution()->data(vals);
+  BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,2.);
+  sys->rhs()->data(vals);
+  BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,2.);
 
   // check destroy
   sys->destroy();
   BOOST_CHECK_EQUAL(sys->is_created(),false);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( solve_system )
+{
+  // build a commpattern and the system
+  Common::Comm::CommPattern cp("commpattern");
+  build_commpattern(cp);
+  LSS::System::Ptr sys(new LSS::System("sys"));
+  sys->options().option("solver").change_value(solvertype);
+  build_system(sys,cp);
+
+  // write a settings file for trilinos, solving with a direct solver
+  std::ofstream trilinos_xml("trilinos_settings.xml");
+  trilinos_xml << "<ParameterList>\n";
+  trilinos_xml << "  <Parameter isUsed=\"true\" name=\"Linear Solver Type\" type=\"string\" value=\"Amesos\"/>\n";
+  trilinos_xml << "  <ParameterList name=\"Linear Solver Types\">\n";
+  trilinos_xml << "    <ParameterList name=\"Amesos\">\n";
+  trilinos_xml << "      <ParameterList name=\"Amesos Settings\"/>\n";
+  trilinos_xml << "      <Parameter name=\"Solver Type\" type=\"string\" value=\"Klu\"/>\n";
+  trilinos_xml << "    </ParameterList>\n";
+  trilinos_xml << "  </ParameterList>\n";
+  trilinos_xml << "  <Parameter name=\"Preconditioner Type\" type=\"string\" value=\"None\"/>\n";
+  trilinos_xml << "</ParameterList>\n";
+  trilinos_xml.close();
+
+  // initialize
+  sys->reset(0.);
+  sys->solution()->reset(1.);
+  std::vector<Real> diag(gid.size()*neq,2.);
+  sys->set_diagonal(diag);
+
+  // and solve
+//  sys->solve();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

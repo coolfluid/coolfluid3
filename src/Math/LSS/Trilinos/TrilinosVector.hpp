@@ -146,6 +146,10 @@ public:
   /// Accessor to the number of block rows
   const Uint blockrow_size() { return m_blockrow_size; };
 
+  /// Accessor to the trilinos data
+  /// @attention this function is not (and should never be) part of the interface itself, only used between trilinoses
+  Teuchos::RCP<Epetra_Vector> epetra_vector() { return m_vec; }
+
   //@} END MISCELLANEOUS
 
   /// @name TEST ONLY
