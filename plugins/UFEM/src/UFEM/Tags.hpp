@@ -14,14 +14,14 @@ namespace UFEM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the tags for the math components
+/// Class defines the tags for the UFEM solvers
 /// @author Bart Janssens
 class UFEM_API Tags : public NonInstantiable<Tags> {
 public:
-  
+
   /// Tag used for i.e. the solution field.
   static const char * solution ();
-  
+
   /// Tag used for the source terms
   static const char * source_terms();
 

@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <set>
-
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
@@ -17,6 +15,7 @@
 #include "Math/LSS/System.hpp"
 
 #include "Mesh/CDomain.hpp"
+#include "Mesh/CMesh.hpp"
 #include "Mesh/FieldManager.hpp"
 #include "Mesh/Geometry.hpp"
 
@@ -26,11 +25,8 @@
 #include "Physics/PhysModel.hpp"
 
 #include "LinearSolver.hpp"
+#include "SparsityBuilder.hpp"
 #include "Tags.hpp"
-
-
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CCells.hpp"
 
 namespace CF {
 namespace UFEM {
@@ -41,48 +37,6 @@ using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
-
-namespace detail
-{
-  /// Build the sparsity
-  void build_sparsity(const CMesh& mesh, std::vector<Uint>& node_connectivity, std::vector<Uint>& start_indices)
-  {
-    const Uint nb_nodes = mesh.geometry().coordinates().size();
-    std::vector< std::set<Uint> > connectivity_sets;
-    start_indices.assign(nb_nodes+1, 0);
-
-    // Determine the number of connected nodes for each element
-    BOOST_FOREACH(const CElements& elements, find_components_recursively<CCells>(mesh.topology()))
-    {
-      const CConnectivity& connectivity = elements.node_connectivity();
-      const Uint nb_elems = connectivity.size();
-      const Uint nb_elem_nodes = connectivity.row_size();
-      for(Uint elem = 0; elem != nb_elems; ++elem)
-      {
-        BOOST_FOREACH(const Uint node_a, connectivity[elem])
-        {
-          BOOST_FOREACH(const Uint node_b, connectivity[elem])
-          {
-            connectivity_sets[node_a].insert(node_b);
-          }
-        }
-      }
-    }
-
-    // Sum the number of connected nodes to get the real start indices
-    const Uint start_indices_end = start_indices.size();
-    for(Uint i = 1; i != start_indices_end; ++i)
-    {
-      start_indices[i] += connectivity_sets[i-1].size();
-    }
-
-    node_connectivity.resize(start_indices.back());
-    for(Uint node = 0; node != nb_nodes; ++node)
-    {
-      node_connectivity.insert(node_connectivity.begin() + start_indices[node], connectivity_sets[node].begin(), connectivity_sets[node].end());
-    }
-  }
-}
 
 class ZeroAction : public Common::CAction
 {
@@ -131,7 +85,7 @@ struct LinearSolver::Implementation
 
   void trigger_lss()
   {
-    
+
   }
 
   Component& m_component;
@@ -219,7 +173,7 @@ void LinearSolver::trigger_lss()
     VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
 
     std::vector<Uint> node_connectivity, starting_indices;
-    detail::build_sparsity(mesh(), node_connectivity, starting_indices);
+    build_sparsity(mesh(), node_connectivity, starting_indices);
 
     Component::Ptr comm_pattern_comp = mesh().get_child_ptr("comm_pattern_node_based");
     if(is_null(comm_pattern_comp))
