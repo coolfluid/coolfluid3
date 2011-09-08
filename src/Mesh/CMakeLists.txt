@@ -122,17 +122,6 @@ list( APPEND coolfluid_mesh_files
   Integrators/GaussImplementation.hpp
 )
 
-list( APPEND simplecomm_files
-  SimpleCommunicationPattern.hpp
-  SimpleCommunicationPattern.cpp
-)
-
-if(CF_TMP_HAVE_SIMPLECOMM)
-  list( APPEND coolfluid_mesh_files ${simplecomm_files} )
-else()
-  coolfluid_mark_not_orphan( ${simplecomm_files} )
-endif()
-
 list( APPEND coolfluid_mesh_cflibs coolfluid_common coolfluid_math )
 
 set( coolfluid_mesh_kernellib TRUE )

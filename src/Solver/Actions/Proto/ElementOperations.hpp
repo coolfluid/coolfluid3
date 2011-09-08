@@ -62,7 +62,7 @@ struct NodesOp : boost::proto::transform< NodesOp >
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef const typename boost::remove_reference<DataT>::type::SupportT::SF::NodeMatrixT& result_type;
+    typedef const typename boost::remove_reference<DataT>::type::SupportT::SF::NodesT& result_type;
 
     result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
     {
@@ -261,7 +261,7 @@ struct NablaOp : boost::proto::transform< NablaOp >
   template<typename VarDataT>
   struct ResultType
   {
-    typedef const typename VarDataT::SF::MappedGradientT& type;
+    typedef const typename VarDataT::SF::SF::GradientT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
@@ -285,7 +285,7 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   template<typename VarDataT>
   struct ResultType
   {
-    typedef const typename VarDataT::SF::ShapeFunctionsT& type;
+    typedef const typename VarDataT::SF::SF::ValueT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>

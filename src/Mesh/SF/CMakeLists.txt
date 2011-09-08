@@ -1,7 +1,7 @@
 list( APPEND coolfluid_mesh_sf_files
   LibSF.cpp
   LibSF.hpp
-  Types.hpp
+#  Types.hpp
 )
 
 list( APPEND coolfluid_mesh_sf_cflibs coolfluid_mesh )

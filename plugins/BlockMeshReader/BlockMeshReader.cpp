@@ -10,8 +10,6 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 
-#include "Mesh/SimpleCommunicationPattern.hpp"
-
 #include "Mesh/BlockMesh/BlockData.hpp"
 
 #include "BlockMeshReader.hpp"
@@ -59,8 +57,7 @@ void BlockMeshReader::do_read_mesh_into(boost::filesystem::path& path, const CMe
   
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
-  SimpleCommunicationPattern::IndicesT unused;
-  build_mesh(block_data, *mesh, unused);
+  build_mesh(block_data, *mesh);
 }
 
 } // BlockMeshReader

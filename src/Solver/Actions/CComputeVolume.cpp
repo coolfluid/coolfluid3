@@ -49,7 +49,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 void CComputeVolume::config_field()
 {
   URI uri;
-  option("Volume").put_value(uri);
+  option("volume").put_value(uri);
   m_volume = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
 }
 
@@ -62,7 +62,6 @@ void CComputeVolume::trigger_elements()
   {
     elements().allocate_coordinates(m_coordinates);
     m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<CSpace>();
-    m_volume_field_space.lock()->allocate_coordinates(m_coordinates);
   }
 }
 
@@ -73,7 +72,7 @@ void CComputeVolume::execute()
   CSpace& space = *m_volume_field_space.lock();
   Field& volume = *m_volume.lock();
 
-  space.put_coordinates(m_coordinates,idx());
+  elements().put_coordinates(m_coordinates,idx());
   volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().volume( m_coordinates );
 }
 

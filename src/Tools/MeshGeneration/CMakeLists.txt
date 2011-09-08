@@ -7,9 +7,5 @@ list(APPEND coolfluid_mesh_generation_files
 
 list( APPEND coolfluid_mesh_generation_cflibs coolfluid_mesh_lagrangep1 )
 
-if( CF_ENABLE_PROFILING AND coolfluid_googleperftools_builds )
-  list( APPEND coolfluid_mesh_generation_cflibs coolfluid_googleperftools )
-endif()
-
 coolfluid_add_library( coolfluid_mesh_generation )
 

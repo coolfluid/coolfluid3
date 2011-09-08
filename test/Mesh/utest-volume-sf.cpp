@@ -203,15 +203,6 @@ struct VolumeSFFixture
         1.0, 1.5,
         1.0, 1.5,
         0.75,1.6
-      ).finished() ),
-      boost::fusion::make_pair< LagrangeP2B::Triag2D>( ( LagrangeP2B::Triag2D::NodesT() <<
-        0.5, 0.3,
-        1.1, 1.2,
-        0.8, 2.1,
-        0.9, 0.5,
-        1.0, 1.5,
-        0.75,1.6,
-        0.8, 1.2
       ).finished() )
     ) // end nodes(...) construction
   {

@@ -228,6 +228,7 @@ CSpace& CEntities::create_space( const std::string& name, const std::string& sha
   Uint nb_existing_spaces = m_spaces.size();
   CSpace::Ptr space = m_spaces_group->create_component_ptr<CSpace>(name);
   space->configure_option("shape_function",shape_function_builder_name);
+  space->set_support(*this);
   m_spaces.push_back(space);
   return *space;
 }

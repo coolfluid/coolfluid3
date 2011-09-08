@@ -4,7 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-
 #include "Common/FindComponents.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
@@ -30,7 +29,8 @@ Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 
 CSpace::CSpace ( const std::string& name ) :
   Component ( name ),
-  m_is_proxy(false)
+  m_is_proxy(false),
+  m_elem_start_idx(0)
 {
   mark_basic();
 
@@ -53,6 +53,36 @@ CSpace::CSpace ( const std::string& name ) :
 CSpace::~CSpace()
 {
 }
+
+const ShapeFunction& CSpace::shape_function() const
+{
+  if(is_null(m_shape_function))
+    throw SetupError(FromHere(), "Shape function not configured for " + uri().string());
+  return *m_shape_function;
+}
+
+
+void CSpace::set_support(CEntities& support)
+{
+  m_support = support.as_ptr<CEntities>();
+}
+
+CEntities& CSpace::support()
+{
+  if(m_support.expired())
+    throw SetupError(FromHere(), "Support not set for " + uri().string());
+
+  return *m_support.lock();
+}
+
+const CEntities& CSpace::support() const
+{
+  if(m_support.expired())
+    throw SetupError(FromHere(), "Support not set for " + uri().string());
+
+  return *m_support.lock();
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

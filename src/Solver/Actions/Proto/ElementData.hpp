@@ -28,6 +28,7 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
+#include "Mesh/CSpace.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ElementData.hpp"
 
@@ -73,7 +74,7 @@ public:
   typedef ShapeFunctionT SF ;
 
   /// The value type for all element nodes
-  typedef typename SF::NodeMatrixT ValueT;
+  typedef typename SF::NodesT ValueT;
 
   /// Return type of the value() method
   typedef const ValueT& ValueResultT;
@@ -113,7 +114,7 @@ public:
 
   const typename SF::CoordsT& coordinates(const typename SF::MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
+    SF::SF::compute_value(mapped_coords, m_sf);
     m_eval_result.noalias() = m_sf * m_nodes;
     return m_eval_result;
   }
@@ -127,7 +128,7 @@ public:
   /// Jacobian matrix computed by the shape function
   const typename SF::JacobianT& jacobian(const typename SF::MappedCoordsT& mapped_coords) const
   {
-    SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
+    SF::compute_jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
     return m_jacobian_matrix;
   }
 
@@ -169,7 +170,7 @@ public:
   /// Precompute the shape function matrix
   void compute_shape_functions(const typename SF::MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
+    SF::SF::compute_value(mapped_coords, m_sf);
   }
 
   /// Precompute jacobian for the given mapped coordinates
@@ -206,7 +207,7 @@ private:
 
   void compute_jacobian_dispatch(boost::mpl::true_, const typename SF::MappedCoordsT& mapped_coords) const
   {
-    SF::jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
+    SF::compute_jacobian(mapped_coords, m_nodes, m_jacobian_matrix);
     bool is_invertible;
     m_jacobian_matrix.computeInverseAndDetWithCheck(m_jacobian_inverse, m_jacobian_determinant, is_invertible);
     cf_assert(is_invertible);
@@ -225,7 +226,7 @@ private:
   Uint m_element_idx;
 
   /// Temp storage for non-scalar results
-  mutable typename SF::ShapeFunctionsT m_sf;
+  mutable typename SF::SF::ValueT m_sf;
   mutable typename SF::CoordsT m_eval_result;
   mutable typename SF::JacobianT m_jacobian_matrix;
   mutable typename SF::JacobianT m_jacobian_inverse;
@@ -237,9 +238,13 @@ private:
 inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
 {
   Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-  Mesh::FieldGroup& field_group =  mesh.geometry();
-  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+  return Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
 }
+
+/// Dummy shape function type used for element-based fields
+struct ElementBased
+{
+};
 
 /// Data associated with field variables
 template<typename ShapeFunctionT, typename SupportSF, Uint Dim, bool IsEquationVar>
@@ -260,7 +265,7 @@ private:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     template<typename NodeValuesT>
-    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    result_type operator()(const typename SF::SF::ValueT& sf, const NodeValuesT& values) const
     {
       stored_result.noalias() = sf * values;
       return stored_result;
@@ -276,7 +281,7 @@ private:
     typedef Real result_type;
 
     template<typename NodeValuesT>
-    result_type operator()(const typename SF::ShapeFunctionsT& sf, const NodeValuesT& values) const
+    result_type operator()(const typename SF::SF::ValueT& sf, const NodeValuesT& values) const
     {
       stored_result = sf * values;
       return stored_result;
@@ -305,7 +310,7 @@ public:
   BOOST_MPL_ASSERT_NOT(( boost::is_same<EvalT, const Eigen::Matrix<Real, 1, 1>&> ));
 
   /// Type of the gradient
-  typedef typename SF::MappedGradientT GradientT;
+  typedef typename SF::SF::GradientT GradientT;
 
   /// Type of the linearized form of the divergence
   typedef Eigen::Matrix<Real, 1, Dim * SF::nb_nodes> DivergenceLinT;
@@ -361,7 +366,7 @@ public:
   /// Calculate and return the interpolation at given mapped coords
   EvalT eval(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
+    SF::SF::compute_value(mapped_coords, m_sf);
     return m_eval(m_sf, m_element_values);
   }
 
@@ -373,14 +378,14 @@ public:
 
 
   /// Shape function matrix at mapped coordinates (calculates and returns)
-  const typename SF::ShapeFunctionsT& shape_function(const MappedCoordsT& mapped_coords) const
+  const typename SF::SF::ValueT& shape_function(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
+    SF::SF::compute_value(mapped_coords, m_sf);
     return m_sf;
   }
 
   /// Previously calculated shape function matrix
-  const typename SF::ShapeFunctionsT& shape_function() const
+  const typename SF::SF::ValueT& shape_function() const
   {
     return m_sf;
   }
@@ -388,7 +393,7 @@ public:
   /// Return the gradient matrix
   const GradientT& nabla(const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
+    SF::SF::compute_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = m_support.jacobian(mapped_coords).inverse() * m_mapped_gradient_matrix;
     return m_gradient;
   }
@@ -406,7 +411,7 @@ private:
   /// Precompute for non-volume SF
   void compute_values_dispatch(boost::mpl::false_, const MappedCoordsT& mapped_coords) const
   {
-    SF::shape_function_value(mapped_coords, m_sf);
+    SF::SF::compute_value(mapped_coords, m_sf);
     m_eval(m_sf, m_element_values);
   }
 
@@ -414,7 +419,7 @@ private:
   void compute_values_dispatch(boost::mpl::true_, const MappedCoordsT& mapped_coords) const
   {
     compute_values_dispatch(boost::mpl::false_(), mapped_coords);
-    SF::shape_function_gradient(mapped_coords, m_mapped_gradient_matrix);
+    SF::SF::compute_gradient(mapped_coords, m_mapped_gradient_matrix);
     m_gradient.noalias() = m_support.jacobian_inverse() * m_mapped_gradient_matrix;
   }
 
@@ -433,11 +438,68 @@ private:
   Uint m_element_idx;
 
   /// Cached data
-  mutable typename SF::ShapeFunctionsT m_sf;
-  mutable typename SF::MappedGradientT m_mapped_gradient_matrix;
+  mutable typename SF::SF::ValueT m_sf;
+  mutable typename SF::SF::GradientT m_mapped_gradient_matrix;
   mutable GradientT m_gradient;
 
   InterpolationImpl<Dim> m_eval;
+};
+
+/// Data for element-based fields
+template<typename SupportSF, Uint Dim, bool IsEquationVar>
+class SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>
+{
+
+  BOOST_MPL_ASSERT_MSG(
+    Dim == 1
+    , VECTOR_ELEMENT_FIELDS_NOT_SUPPORTED
+    , (SFVariableData<ElementBased, SupportSF, Dim, IsEquationVar>)
+  );
+
+public:
+  typedef ElementBased SF;
+
+  /// Type of returned value
+  typedef Real& ValueResultT;
+
+  /// Data type for the geometric support
+  typedef GeometricSupport<SupportSF> SupportT;
+
+  /// The dimension of the variable
+  static const Uint dimension = Dim;
+
+  /// True if this variable is an unknow in the system of equations
+  static const bool is_equation_variable = IsEquationVar;
+
+  template<typename VariableT>
+  SFVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+    m_field(find_field(elements, placeholder.field_tag())),
+    m_support(support),
+    m_elements_begin(m_field.field_group().space(elements).elements_begin()),
+    offset(m_field.descriptor().offset(placeholder.name()))
+  {
+  }
+
+  /// Update nodes for the current element
+  void set_element(const Uint element_idx)
+  {
+    m_field_idx = element_idx + m_elements_begin;
+  }
+
+  Real& value()
+  {
+    return m_field[m_field_idx][offset];
+  }
+
+private:
+  Mesh::Field& m_field;
+  const SupportT& m_support;
+  const Uint m_elements_begin;
+  Uint m_field_idx;
+
+public:
+  /// Index in the field array for this variable
+  const Uint offset;
 };
 
 /// Predicate to check if data belongs to an equation variable
@@ -468,11 +530,13 @@ struct MakeVarData
     typedef typename boost::mpl::at<EquationVariablesT, I>::type IsEquationVar;
     typedef typename boost::mpl::if_<IsEquationVar, EMatrixSizeT, typename boost::mpl::at<MatrixSizesT, I>::type>::type MatSize;
 
+    typedef typename boost::mpl::if_c<SF::order == 0, ElementBased, SF>::type ESF;
+
     typedef typename boost::mpl::if_
     <
       boost::mpl::is_void_<VarT>,
       boost::mpl::void_,
-      SFVariableData<SF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
+      SFVariableData<ESF, SupportSF, FieldWidth<VarT, SF>::value, IsEquationVar::value>*
     >::type type;
   };
 };
@@ -611,7 +675,7 @@ public:
   template<typename I>
   typename DataType<I>::type& var_data(const I&)
   {
-    return *boost::fusion::at<I>(m_variables_data);
+    return *boost::fusion::at<typename IndexType<I>::type>(m_variables_data);
   }
 
   /// Return the variable stored at index I

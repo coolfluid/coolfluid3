@@ -23,7 +23,7 @@
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
-
+#include "Mesh/LagrangeP1/ElementTypes.hpp"
 #include "Physics/PhysModel.hpp"
 
 #include "ConfigurableConstant.hpp"
@@ -56,7 +56,7 @@ public:
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(Physics::PhysModel& physical_model) = 0;
 
-	virtual ~Expression() {}
+  virtual ~Expression() {}
 };
 
 /// Boilerplate implementation
@@ -186,7 +186,7 @@ public:
     // Traverse all CElements under the region and evaluate the expression
     BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region) )
     {
-      boost::mpl::for_each<ElementTypes>( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
+      boost::mpl::for_each<boost::mpl::filter_view< ElementTypes, Mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
     }
   }
 };
@@ -215,7 +215,7 @@ public:
 };
 
 /// Default element types supported by elements expressions
-typedef boost::mpl::vector4<Mesh::SF::Line1DLagrangeP1, Mesh::SF::Triag2DLagrangeP1, Mesh::SF::Quad2DLagrangeP1, Mesh::SF::Hexa3DLagrangeP1> DefaultElementTypes;
+typedef boost::mpl::vector4<Mesh::LagrangeP1::Line1D, Mesh::LagrangeP1::Triag2D, Mesh::LagrangeP1::Quad2D, Mesh::LagrangeP1::Hexa3D> DefaultElementTypes;
 
 /// Convenience method to construct an Expression to loop over elements
 /// @returns a shared pointer to the constructed expression

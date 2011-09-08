@@ -254,6 +254,10 @@ public:
   /// @return true or false, respectively
   bool isFreeze() const { return m_isFreeze; }
 
+  /// accessor to global indexing
+  /// @return const CommWrapper pointer to the data
+  const CommWrapper::Ptr gid() const { return m_gid; }
+
   /// accessor to the m_isUpdatable vector
   /// @return vector of bools
   std::vector<bool>& isUpdatable() { return m_isUpdatable; }

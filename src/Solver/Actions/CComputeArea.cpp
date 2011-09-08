@@ -61,7 +61,6 @@ void CComputeArea::trigger_elements()
   {
     elements().allocate_coordinates(m_coordinates);
     m_area_field_space = m_area.lock()->space(elements()).as_ptr<CSpace>();
-    m_area_field_space.lock()->allocate_coordinates(m_coordinates);
   }
 }
 
@@ -72,7 +71,7 @@ void CComputeArea::execute()
   CSpace& space = *m_area_field_space.lock();
   Field& area = *m_area.lock();
 
-  space.put_coordinates(m_coordinates,idx());
+  elements().put_coordinates(m_coordinates,idx());
   area[space.indexes_for_element(idx())[0]][0] = elements().element_type().area( m_coordinates );
 }
 

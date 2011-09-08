@@ -203,20 +203,20 @@ void CommPattern::setup()
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
-  // look up the nodes to on send side (brute force searching for now)
+  // Reverse GID mapping
+  typedef std::map<Uint, Uint> GidMapT;
+  GidMapT gid_reverse;
+  const int gid_count = m_gid->size();
+  for(int i=0; i<gid_count; i++)
+    gid_reverse[gid[i]] = i;
+  
   BOOST_FOREACH(int& si, m_sendMap)
   {
     bool found = false;
-    for (int i=0; i<m_gid->size(); i++)
-    {
-      if (gid[i]==si)
-      {
-        si=i;
-        found = true;
-        break;
-      }
-    }
-    if (found == false)
+    GidMapT::const_iterator match = gid_reverse.find(si);
+    if(match != gid_reverse.end())
+      si = match->second;
+    else
       throw ValueNotFound(FromHere(), "requested global id " + to_str(si) + " not found in gid list" );
   }
 

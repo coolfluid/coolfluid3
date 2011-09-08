@@ -163,18 +163,20 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  boost_foreach(CCells& cells, find_components<CCells>(mesh->topology()))
-    cells.create_space("cells_P0","CF.Mesh.LagrangeP0."+cells.element_type().shape_name());
+  BOOST_CHECK(find_components_recursively<CCells>(mesh->topology()).size() > 0);
+  boost_foreach(CCells& cells, find_components_recursively<CCells>(mesh->topology()))
+    CSpace& space = cells.create_space("cells_P0","CF.Mesh.LagrangeP0."+cells.element_type().shape_name());
 
   FieldGroup& cells_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
   Field& volumes = cells_P0.create_field("volume");
 
+  BOOST_CHECK(true);
 
 
-  boost_foreach(CEntities& faces, find_components_with_tag<CEntities>(mesh->topology(),Mesh::Tags::face_entity()))
+  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh->topology(),Mesh::Tags::face_entity()))
     faces.create_space("faces_P0","CF.Mesh.LagrangeP0."+faces.element_type().shape_name());
 
-  FieldGroup& faces_P0 = mesh->create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
+  FieldGroup& faces_P0 = mesh->create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
   Field& areas = faces_P0.create_field("area");
 
 
@@ -189,7 +191,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   BOOST_CHECK(true);
   compute_volume->configure_option("elements",elems.uri());
   BOOST_CHECK(true);
-  compute_volume->configure_option("LoopIndex",12u);
+  compute_volume->configure_option("loop_index",12u);
   BOOST_CHECK(true);
   compute_volume->execute();
   BOOST_CHECK(true);

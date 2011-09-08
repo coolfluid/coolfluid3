@@ -21,6 +21,9 @@ list( APPEND coolfluid_math_files
   VectorialFunction.cpp
 )
 
+# lssinterface provide connection with linear system solvers
+add_subdirectory( LSS )
+
 list( APPEND coolfluid_math_cflibs coolfluid_fparser coolfluid_common )
 
 set( coolfluid_math_kernellib TRUE )

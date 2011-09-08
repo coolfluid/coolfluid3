@@ -68,8 +68,8 @@ struct IsCompatibleWith
     <
       boost::mpl::equal_to
       <
-        boost::mpl::int_<ETYPE::dimension>,
-        boost::mpl::int_<OTHER_ETYPE::dimension>
+        boost::mpl::int_<ETYPE::dimensionality>,
+        boost::mpl::int_<OTHER_ETYPE::dimensionality>
       >,
       boost::mpl::equal_to
       <
@@ -77,6 +77,17 @@ struct IsCompatibleWith
         boost::mpl::int_<OTHER_ETYPE::shape>
       >
     >::type type;
+  };
+};
+
+/// Compile-time predicate to determine if the given shape function or element type has at least the given order
+template<Uint Order>
+struct IsMinimalOrder
+{
+  template<typename SF> // template valid for both concrete ElementType as concrete ShapeFunction
+  struct apply
+  {
+    typedef boost::mpl::bool_< SF::order >= Order > type;
   };
 };
 

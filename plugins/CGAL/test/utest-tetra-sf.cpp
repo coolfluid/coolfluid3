@@ -23,8 +23,8 @@
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Geometry.hpp"
 
-#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
-#include "Mesh/SF/Types.hpp"
+#include "Mesh/LagrangeP1/Tetra3D.hpp"
+#include "Mesh/ElementTypes.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
@@ -90,7 +90,7 @@ struct LoopElems
     // loop on elements
     BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)
     {
-      typename EType::NodeMatrixT nodes;
+      typename EType::NodesT nodes;
       fill(nodes, coords, elem );
       functor(nodes, T);
     }
@@ -104,7 +104,7 @@ struct LoopElems
 template<typename RangeT, typename FunctorT>
 void loop_over_regions(const RangeT& range, FunctorT functor) {
   BOOST_FOREACH(const CElements& region, range) {
-    boost::mpl::for_each<SF::Types>( LoopElems<FunctorT> ( region, functor ) );
+    boost::mpl::for_each<ElementTypes>( LoopElems<FunctorT> ( region, functor ) );
   }
 }
 

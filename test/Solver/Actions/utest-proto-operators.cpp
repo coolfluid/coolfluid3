@@ -36,7 +36,7 @@
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
+#include "Mesh/ElementTypes.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -68,16 +68,16 @@ static boost::proto::terminal< void(*)(const RealMatrix2&, const RealMatrix2&, R
 ////////////////////////////////////////////////////
 
 /// List of all supported shapefunctions that allow high order integration
-typedef boost::mpl::vector3< SF::Line1DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1
+typedef boost::mpl::vector3< LagrangeP1::Line1D,
+                             LagrangeP1::Quad2D,
+                             LagrangeP1::Hexa3D
 > HigherIntegrationElements;
 
-typedef boost::mpl::vector5< SF::Line1DLagrangeP1,
-                            SF::Triag2DLagrangeP1,
-                            SF::Quad2DLagrangeP1,
-                            SF::Hexa3DLagrangeP1,
-                            SF::Tetra3DLagrangeP1
+typedef boost::mpl::vector5< LagrangeP1::Line1D,
+                             LagrangeP1::Triag2D,
+                             LagrangeP1::Quad2D,
+                             LagrangeP1::Hexa3D,
+                             LagrangeP1::Tetra3D
 > VolumeTypes;
 
 BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
   // For an all-quad mesh, this is the same... cool or what?
   Real vol2 = 0.;
-  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
     mesh->topology(),
     vol2 += 0.5*((nodes[2][0] - nodes[0][0]) * (nodes[3][1] - nodes[1][1])
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     boost::proto::lit(result) = 0.5 * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * integral<1>(transpose(nabla(temperature))*nabla(temperature)) * transpose(nabla(temperature, mapped_coords)) * nabla(temperature, mapped_coords)
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
 
   check_close(result, 8*exact, 1e-10);
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     boost::proto::lit(result) = integral<1>(transpose(nabla(temperature))*nabla(temperature)) * 0.5
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
-  typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
+  typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
 
   RealVector2 force;
   force.setZero();
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
 
   MeshTerm<1, ScalarField > p("Pressure", "solution"); // Pressure field
 
-  typedef boost::mpl::vector1< SF::Line2DLagrangeP1> SurfaceTypes;
+  typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
 
   // Set a field with the pressures
   for_each_node
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   RealMatrix2 exact; exact << 1., -1., -1., 1;
   RealMatrix2 result;
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     boost::proto::lit(result) = integral<1>(laplacian_cust(temperature)) * 0.5
@@ -292,7 +292,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
   // Check if the counter really counts
   int count = 0;
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     counter(count)
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   RealMatrix2 result;
   RealMatrix2 zero;  zero.setZero();
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     group <<
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
   check_close(result, exact, 1e-10);
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     group <<
@@ -356,7 +356,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
 
   Real total = 0;
 
-  for_each_element< boost::mpl::vector1<SF::Line1DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
   (
     mesh->topology(),
     group <<
@@ -414,7 +414,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   int result_j = 0;
   int result_ij = 0;
 
-  for_each_element< boost::mpl::vector1<SF::Quad2DLagrangeP1> >
+  for_each_element< boost::mpl::vector1<LagrangeP1::Quad2D> >
   (
     mesh->topology(),
     group <<
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   // Run a vector product
   elements_expression
   (
-    boost::mpl::vector1<SF::Quad2DLagrangeP1>(),
+    boost::mpl::vector1<LagrangeP1::Quad2D>(),
     element_quadrature(boost::proto::lit(result) += u*nabla(u))
   )->loop(mesh.topology());
 

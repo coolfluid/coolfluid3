@@ -86,7 +86,7 @@ void Line1D::compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes
 {
   const Real& x0 = nodes(0, XX);
   const Real& x1 = nodes(1, XX);
-  mapped_coord[KSI] = (2*coord[0] - (x1 + x0)) / (x1 - x0);
+  mapped_coord[KSI] = (2*coord[XX] - (x1 + x0)) / (x1 - x0);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
