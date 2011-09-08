@@ -320,6 +320,15 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     }
   }
 
+  // bc-related: dirichlet-condition doesnt fail for ghost node
+  mat->reset(-1.);
+  if (irank==0)
+  {
+    mat->set_row(1,1,1.,0.);
+    mat->data(rows,cols,vals);
+    BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-1.);
+  }
+
   // bc-related: symmetricizing a dirichlet
   mat->reset(1.);
   if (irank==0)
@@ -421,6 +430,15 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]!=4)&&(rows[i]!=5)&&(rows[i]!=10)&&(rows[i]!=11))
         BOOST_CHECK_EQUAL(vals[i],-2.);
+  }
+
+  // bc-related: periodicity does not fail
+  mat->reset(-2.);
+  if (irank==0)
+  {
+    mat->tie_blockrow_pairs(1,4);
+    mat->data(rows,cols,vals);
+    BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-2.);
   }
 
   // post-destroy check

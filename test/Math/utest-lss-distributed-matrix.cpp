@@ -89,6 +89,16 @@ BOOST_AUTO_TEST_CASE( system_solve )
     2       | 329032         | 242850           | 37709       | 298537437
     3       | 388584         | 280844           | 13722       | 299270122
   */
+  BlockAccumulator ba;
+  ba.resize(3,m.nbeqs);
+  ba.reset(1.);
+  for (int i=0; i<(const int)(m.elem_nodes.size()/3); i++)
+  {
+    ba.indices[0]=m.elem_nodes[3*i+0];
+    ba.indices[1]=m.elem_nodes[3*i+1];
+    ba.indices[2]=m.elem_nodes[3*i+2];
+    sys.add_values(ba);
+  }
 
 
   // fastly filling with pre-boundary condition values, THIS IS NOT THE WAY YOU NORMALLY ASSEMBLE

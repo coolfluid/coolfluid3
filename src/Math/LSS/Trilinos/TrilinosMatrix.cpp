@@ -393,14 +393,17 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
   int diagonalblock=-1;
   int dummy_neq;
   const int br=m_p2m[iblockrow];
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br,dummy_neq,blockrowsize,colindices,val));
-  for (int i=0; i<blockrowsize; i++)
+  if (br<m_blockrow_size)
   {
-    if (colindices[i]==br) diagonalblock=i;
-    for (int j=0; j<m_neq; j++)
-      val[i][0](ieq,j)=offdiagval;
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br,dummy_neq,blockrowsize,colindices,val));
+    for (int i=0; i<blockrowsize; i++)
+    {
+      if (colindices[i]==br) diagonalblock=i;
+      for (int j=0; j<m_neq; j++)
+        val[i][0](ieq,j)=offdiagval;
+    }
+    val[diagonalblock][0](ieq,ieq)=diagval;
   }
-  val[diagonalblock][0](ieq,ieq)=diagval;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -445,24 +448,28 @@ void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint ibl
   int dummy_neq;
   const int br_to=m_p2m[iblockrow_to];
   const int br_from=m_p2m[iblockrow_from];
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
-  TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
-  if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
-  for (int i=0; i<blockrowsize_to; i++)
+  cf_assert(!(((br_to>=m_blockrow_size)&&(br_from<m_blockrow_size))||((br_to<m_blockrow_size)&&(br_from>=m_blockrow_size))));
+  if ((br_to<m_blockrow_size)&&(br_from<m_blockrow_size))
   {
-    cf_assert(colindices_to[i]==colindices_from[i]);
-    if (colindices_from[i]==br_from) diag=i;
-    if (colindices_to[i]  ==br_to)   pair=i;
-    val_to[i][0]+=val_from[i][0];
-    val_from[i][0].Scale(0.);
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
+    if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
+    for (int i=0; i<blockrowsize_to; i++)
+    {
+      cf_assert(colindices_to[i]==colindices_from[i]);
+      if (colindices_from[i]==br_from) diag=i;
+      if (colindices_to[i]  ==br_to)   pair=i;
+      val_to[i][0]+=val_from[i][0];
+      val_from[i][0].Scale(0.);
+    }
+    for (int i=0; i<m_neq; i++)
+    {
+      val_from[diag][0](i,i)=1.;
+      val_from[pair][0](i,i)=-1.;
+   }
+    val_to[pair][0]+=val_to[diag][0];
+    val_to[diag][0].Scale(0.);
   }
-  for (int i=0; i<m_neq; i++)
-  {
-    val_from[diag][0](i,i)=1.;
-    val_from[pair][0](i,i)=-1.;
-  }
-  val_to[pair][0]+=val_to[diag][0];
-  val_to[diag][0].Scale(0.);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
