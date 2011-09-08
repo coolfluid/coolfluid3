@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
 
   // Parameters
   Real length            = 5.;
-  const Uint nb_segments = 25 ;
+  const Uint nb_segments = 5 ;
   const Uint nb_nodes = nb_segments + 1;
 
   // Setup a model
@@ -83,6 +83,8 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
+  
+
 
   // Check result
   BOOST_CHECK_EQUAL(starting_indices[0], 0u);

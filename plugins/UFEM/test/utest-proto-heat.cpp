@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
   Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
-  lss.option("solver").change_value(std::string("EmptyLSS"));
+  lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
@@ -122,6 +122,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  
+  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);
@@ -129,6 +131,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Run the solver
   model.simulate();
+  lss.matrix()->print("utest-proto-heat.plt");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

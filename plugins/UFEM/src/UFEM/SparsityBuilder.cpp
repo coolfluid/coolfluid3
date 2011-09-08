@@ -54,7 +54,7 @@ void build_sparsity(const CMesh& mesh, std::vector< Uint >& node_connectivity, s
     start_indices[i] = connectivity_sets[i-1].size() + start_indices[i-1];
   }
 
-  node_connectivity.resize(start_indices.back());
+  node_connectivity.reserve(start_indices.back());
   for(Uint node = 0; node != nb_nodes; ++node)
   {
     node_connectivity.insert(node_connectivity.begin() + start_indices[node], connectivity_sets[node].begin(), connectivity_sets[node].end());

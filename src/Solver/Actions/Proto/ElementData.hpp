@@ -635,13 +635,13 @@ public:
   }
 
   /// Update block accumulator only if a system of equations is accessed in the expressions
-  void update_blocks(boost::mpl::true_)
+  void update_blocks(boost::mpl::false_)
   {
     block_accumulator.reset();
     m_support.update_block_connectivity(block_accumulator);
   }
 
-  void update_blocks(boost::mpl::false_)
+  void update_blocks(boost::mpl::true_)
   {
   }
 

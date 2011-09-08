@@ -166,7 +166,7 @@ void LinearSolver::trigger_lss()
   cf_assert(!m_implementation->m_lss.expired());
 
   // Create the LSS if the mesh is set
-  if(!m_mesh.expired())
+  if(!m_mesh.expired() && !m_implementation->m_lss.lock()->is_created())
   {
     VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(physics().variable_manager(), UFEM::Tags::solution());
 
@@ -175,11 +175,11 @@ void LinearSolver::trigger_lss()
 
     Comm::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<Comm::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
     // In a serial case, create a default comm pattern if it doesn't exist already
+    const Uint nb_nodes = mesh().geometry().coordinates().size();
+    std::vector<Uint> gids(nb_nodes);
+    std::vector<Uint> ranks(nb_nodes);
     if(Comm::PE::instance().size() == 1 && is_null(comm_pattern))
     {
-      const Uint nb_nodes = mesh().geometry().coordinates().size();
-      std::vector<Uint> gids(nb_nodes);
-      std::vector<Uint> ranks(nb_nodes);
       for(Uint i = 0; i != nb_nodes; ++i)
       {
         ranks[i] = 0;
@@ -191,7 +191,7 @@ void LinearSolver::trigger_lss()
     }
     if(is_null(comm_pattern))
       throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());
-
+    
     m_implementation->m_lss.lock()->create(*comm_pattern, descriptor.size(), node_connectivity, starting_indices);
   }
 
