@@ -682,8 +682,6 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     }
   }
 
-  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
-
   // check periodicity
   sys->matrix()->reset(-2.);
   sys->solution()->reset(-3.);
@@ -871,7 +869,7 @@ WHICH RESULTS IN GID ORDER:
     starting_indices +=  0,2,5,8,11,14,17,19;
   }
   System::Ptr sys(new System("sys"));
-  sys->options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
+  sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
   sys->create(cp,2,node_connectivity,starting_indices);
 
   // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
@@ -886,7 +884,7 @@ WHICH RESULTS IN GID ORDER:
     trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
     trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
     trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"400\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
     trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
     trilinos_xml << "      </ParameterList>\n";
     trilinos_xml << "    </ParameterList>\n";

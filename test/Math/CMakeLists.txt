@@ -70,7 +70,7 @@ coolfluid_add_unit_test( utest-lss-atomic )
 
 ################################################################################
 
-list( APPEND utest-lss-distributed-matrix_cflibs coolfluid_math )
+list( APPEND utest-lss-distributed-matrix_cflibs coolfluid_math coolfluid_lss )
 list( APPEND utest-lss-distributed-matrix_files
   utest-lss-distributed-matrix.cpp
   utest-lss-test-matrix.hpp

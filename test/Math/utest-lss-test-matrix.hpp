@@ -706,9 +706,6 @@ CF::Real bc_value3[16]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace boost {
-  namespace assign {
-
 /// @brief Holding all the data and the constructor sets everything up, everything is public.
 class test_matrix {
 
@@ -867,8 +864,5 @@ test_matrix::test_matrix()
     std::sort(column_indices.begin()+rowstart_positions[i], column_indices.begin()+rowstart_positions[i+1]);
 
 };
-
-  } // namespace assign
-} // namespace boost
 
 #endif // tes_matrix_hpp
