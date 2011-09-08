@@ -14,14 +14,21 @@ list( APPEND coolfluid_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES})
 
 # happen to have trilinos
 if(CF_HAVE_TRILINOS)
-list( APPEND coolfluid_lss_files
+  list( APPEND coolfluid_lss_files
+    Trilinos/TrilinosMatrix.hpp
+    Trilinos/TrilinosMatrix.cpp
+    Trilinos/TrilinosVector.hpp
+    Trilinos/TrilinosVector.cpp
+    )
+    list( APPEND coolfluid_lss_libs ${TRILINOS_LIBRARIES} )
+    ADD_DEFINITIONS(-DCF_HAVE_TRILINOS)
+else()
+  coolfluid_mark_not_orphan(
   Trilinos/TrilinosMatrix.hpp
   Trilinos/TrilinosMatrix.cpp
   Trilinos/TrilinosVector.hpp
   Trilinos/TrilinosVector.cpp
-)
-list( APPEND coolfluid_lss_libs ${TRILINOS_LIBRARIES} )
-ADD_DEFINITIONS(-DCF_HAVE_TRILINOS)
+  )
 endif()
 
 set( coolfluid_lss_kernellib TRUE )
