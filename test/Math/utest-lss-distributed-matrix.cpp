@@ -79,22 +79,46 @@ BOOST_AUTO_TEST_CASE( system_solve )
   sys.create(cp,m.nbeqs,m.column_indices,m.rowstart_positions);
   sys.reset();
 
-  // filling the system
-  Real* vals=&m.mat_presolve[0];
+  // mimicing the assembly for performance measuring
+  /*
+    with az_msrmatrix and native written fill, the suminto part takes the following number of ticks in morpheus (for one step):
+    process | assembly_ticks | matrixfill_ticks | setbc_ticks | solve_ticks
+    -----------------------------------------------------------------------
+    0       | 330499         | 239996           | 24888       | 295230350
+    1       | 337050         | 248826           | 49497       | 306481891
+    2       | 329032         | 242850           | 37709       | 298537437
+    3       | 388584         | 280844           | 13722       | 299270122
+  */
+
+
+  // fastly filling with pre-boundary condition values, THIS IS NOT THE WAY YOU NORMALLY ASSEMBLE
+  Real* vals=&m.mat_prebc[0];
+  sys.reset();
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     if (cp.isUpdatable()[i])
       for (int j=0; j<(const int)m.nbeqs; j++)
         for (int k=m.rowstart_positions[i]; k<(const int)(m.rowstart_positions[i+1]); k++)
           for (int l=0; l<(const int)m.nbeqs; l++)
             sys.matrix()->set_value(m.column_indices[k]*m.nbeqs+l,i*m.nbeqs+j,*vals++);
-  vals=&m.rhs_presolve[0];
+  vals=&m.rhs_prebc[0];
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     for (int j=0; j<(const int)m.nbeqs; j++)
       sys.rhs()->set_value(i,j,*vals++);
-  vals=&m.sol_presolve[0];
+  vals=&m.sol_prebc[0];
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     for (int j=0; j<(const int)m.nbeqs; j++)
       sys.solution()->set_value(i,j,*vals++);
+
+  // applying boundary conditions
+  for (int i=0; i<(const int)m.bc_node.size(); i++)
+    if (cp.isUpdatable()[m.bc_node[i]])
+      sys.dirichlet(m.bc_node[i],m.bc_eqn[i],m.bc_value[i]);
+  for (int i=0; i<(const int)m.periodic_pairs.size(); i+=2)
+//    if (cp.isUpdatable()[m.periodic_pairs[i]])
+      sys.periodicity(m.periodic_pairs[i+0],m.periodic_pairs[i+1]);
+
+
+//sys.print("sys_prebc_bc_" + boost::lexical_cast<std::string>(m.irank) + ".plt");
 
   // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
   if (m.irank==0)
@@ -119,7 +143,25 @@ BOOST_AUTO_TEST_CASE( system_solve )
   }
   Common::Comm::PE::instance().barrier();
 
-  sys.print("distributed_system_" + boost::lexical_cast<std::string>(m.irank) + ".plt");
+//  // filling the system with prescribed values
+//  sys.reset();
+//  vals=&m.mat_presolve[0];
+//  for (int i=0; i<(const int)m.global_numbering.size(); i++)
+//    if (cp.isUpdatable()[i])
+//      for (int j=0; j<(const int)m.nbeqs; j++)
+//        for (int k=m.rowstart_positions[i]; k<(const int)(m.rowstart_positions[i+1]); k++)
+//          for (int l=0; l<(const int)m.nbeqs; l++)
+//            sys.matrix()->set_value(m.column_indices[k]*m.nbeqs+l,i*m.nbeqs+j,*vals++);
+//  vals=&m.rhs_presolve[0];
+//  for (int i=0; i<(const int)m.global_numbering.size(); i++)
+//    for (int j=0; j<(const int)m.nbeqs; j++)
+//      sys.rhs()->set_value(i,j,*vals++);
+//  vals=&m.sol_presolve[0];
+//  for (int i=0; i<(const int)m.global_numbering.size(); i++)
+//    for (int j=0; j<(const int)m.nbeqs; j++)
+//      sys.solution()->set_value(i,j,*vals++);
+
+//sys.print("sys_orig_" + boost::lexical_cast<std::string>(m.irank) + ".plt");
 
   // and solve the system
   sys.solve();
@@ -131,6 +173,19 @@ BOOST_AUTO_TEST_CASE( system_solve )
     if (cp.isUpdatable()[i])
       for (int j=0; j<(const int)m.nbeqs; j++)
         BOOST_CHECK_CLOSE(v[i*m.nbeqs+j],m.result[i*m.nbeqs+j],1e-3);
+
+//  sys.print("distributed_system_" + boost::lexical_cast<std::string>(m.irank) + ".plt");
+
+  // print a test file
+  std::ofstream fres(std::string("coords_with_sol_" + boost::lexical_cast<std::string>(m.irank) + ".plt").c_str());
+  fres << "VARIABLES=\"X\",\"Y\",\"V0\",\"V1\",\"V2\"\nZONE T=\"Solve results of utest-lss-distributed-matrix.\"" << std::flush;
+  fres.precision(15);
+  sys.solution()->data(v);
+  for (int i=0; i<(const int)m.global_numbering.size(); i++)
+    if (cp.isUpdatable()[i])
+      fres << m.nodal_coordinates[2*i+0] << " " << m.nodal_coordinates[2*i+1] << " " << v[m.nbeqs*i+0] << " " << v[m.nbeqs*i+1] << " " << v[m.nbeqs*i+2] << "\n" << std::flush;
+  fres.close();
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
