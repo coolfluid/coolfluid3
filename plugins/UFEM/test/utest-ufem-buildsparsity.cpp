@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
                          list_of(6)(4)(0)(2),
                          list_of(2)(3)(7)(6);
   BlockMesh::build_mesh(blocks, mesh);
-  
+
   BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry().coordinates().size());
 
   // Setup sparsity
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   BlockMesh::BlockData blocks;
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
   BlockMesh::build_mesh(blocks, mesh);
-  
+
   BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry().coordinates().size());
 
   // Setup sparsity
@@ -361,19 +361,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
-  
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
-  
+
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());

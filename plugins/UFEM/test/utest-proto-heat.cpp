@@ -13,6 +13,8 @@
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Math/LSS/System.hpp"
+
 #include "Mesh/CDomain.hpp"
 
 #include "Solver/CModel.hpp"
@@ -63,6 +65,12 @@ struct ProtoHeatFixture
 
 BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().size(), 1);
+}
+
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
   Core::instance().environment().configure_option("log_level", 4u);
@@ -76,9 +84,8 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
-  // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-  lss.set_config_file(solver_config);
+  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  lss.option("solver").change_value(std::string("EmptyLSS"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
@@ -119,7 +126,6 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);
   solver.boundary_conditions().add_constant_bc("xpos", "Temperature", 35.);
-
 
   // Run the solver
   model.simulate();

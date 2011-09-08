@@ -83,11 +83,6 @@ struct LinearSolver::Implementation
   {
   }
 
-  void trigger_lss()
-  {
-
-  }
-
   Component& m_component;
   CSolveSystem& m_solver;
   BoundaryConditions& m_bc;
@@ -139,7 +134,7 @@ void LinearSolver::mesh_loaded(CMesh& mesh)
   root_regions.push_back(mesh.topology().uri());
   configure_option_recursively(Solver::Tags::regions(), root_regions);
 
-  m_implementation->trigger_lss();
+  trigger_lss();
 }
 
 CAction& LinearSolver::zero_action()
@@ -159,6 +154,9 @@ BoundaryConditions& LinearSolver::boundary_conditions()
 
 void LinearSolver::trigger_lss()
 {
+  if(!dynamic_cast<OptionComponent<LSS::System>&>(option("lss")).check())
+    return;
+
   if(m_implementation->m_updating) // avoid recursion
       return;
 
@@ -175,11 +173,26 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
-    Component::Ptr comm_pattern_comp = mesh().get_child_ptr("comm_pattern_node_based");
-    if(is_null(comm_pattern_comp))
+    Comm::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<Comm::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
+    // In a serial case, create a default comm pattern if it doesn't exist already
+    if(Comm::PE::instance().size() == 1 && is_null(comm_pattern))
+    {
+      const Uint nb_nodes = mesh().geometry().coordinates().size();
+      std::vector<Uint> gids(nb_nodes);
+      std::vector<Uint> ranks(nb_nodes);
+      for(Uint i = 0; i != nb_nodes; ++i)
+      {
+        ranks[i] = 0;
+        gids[i] = i;
+      }
+      comm_pattern = mesh().create_component_ptr<Common::Comm::CommPattern>("comm_pattern_node_based");
+      comm_pattern->insert("gid",gids,1,false);
+      comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<CommWrapper>(),ranks);
+    }
+    if(is_null(comm_pattern))
       throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());
 
-    m_implementation->m_lss.lock()->create(comm_pattern_comp->as_type<Comm::CommPattern>(), descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss.lock()->create(*comm_pattern, descriptor.size(), node_connectivity, starting_indices);
   }
 
   configure_option_recursively("lss", option("lss").value<URI>());
