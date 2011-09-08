@@ -82,7 +82,7 @@ struct LSSSystem_EmptyLSSFixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,refval) { \
+#define CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,refval) { \
   BOOST_CHECK_EQUAL(ba.mat.isConstant(refval,1.e-10),true); \
   Real sum=ba.mat.sum(); \
   Real numentries=(Real)(ba.mat.rows()*ba.mat.cols()); \
@@ -150,9 +150,9 @@ BOOST_AUTO_TEST_CASE( blockaccumulator )
 {
   ba.resize(2,4);
   ba.reset(1.0);
-  CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,1.);
+  CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,1.);
   ba.reset();
-  CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,0.);
+  CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,0.);
   BOOST_CHECK_EQUAL(ba.mat.rows(),8);
   BOOST_CHECK_EQUAL(ba.mat.cols(),8);
   BOOST_CHECK_EQUAL(ba.rhs.rows(),8);
@@ -162,9 +162,9 @@ BOOST_AUTO_TEST_CASE( blockaccumulator )
 
   ba.resize(5,2);
   ba.reset(1.0);
-  CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,1.);
+  CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,1.);
   ba.reset();
-  CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,0.);
+  CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,0.);
   BOOST_CHECK_EQUAL(ba.mat.rows(),10);
   BOOST_CHECK_EQUAL(ba.mat.cols(),10);
   BOOST_CHECK_EQUAL(ba.rhs.rows(),10);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( check_emptylss_implementations )
   BOOST_TEST_CHECKPOINT( "get_values" );
   ba.reset(1.0);
   sys->get_values(ba);
-  CHECK_BLOCKACUMULATOR_IS_CONSTANT(ba,0.);
+  CHECK_BLOCKACCUMULATOR_IS_CONSTANT(ba,0.);
 
   BOOST_TEST_CHECKPOINT( "set_values" );
   sys->set_values(ba);
