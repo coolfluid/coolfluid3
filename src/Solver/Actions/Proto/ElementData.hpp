@@ -616,7 +616,9 @@ public:
     for(Uint i = 0; i != CF_PROTO_MAX_ELEMENT_MATRICES; ++i)
       m_element_matrices[i].setZero();
 
-    block_accumulator.resize(SupportShapeFunction::nb_nodes, boost::fusion::size(m_equation_data));
+    // TODO Fix for multi-shapefunction case
+    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (boost::mpl::int_<SupportShapeFunction::nb_nodes>));
+    block_accumulator.resize(SupportShapeFunction::nb_nodes, EMatrixSizeT::value/SupportShapeFunction::nb_nodes);
   }
 
   ~ElementData()

@@ -42,6 +42,12 @@ typedef std::vector<Uint> SizesT;
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().size(), 1);
+}
+
 BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
@@ -49,8 +55,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   outside_temp << 1., 1;
   const RealVector2 initial_temp(100., 200.);
   const Uint nb_segments = 10;
-  const Real end_time = 0.5;
-  const Real dt = 0.1;
+  const Real end_time = 0.01;
+  const Real dt = 0.01;
   const boost::proto::literal<RealVector> alpha(RealVector2(1., 2.));
 
   // Setup a model
@@ -59,8 +65,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
@@ -91,7 +97,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
               _T(v[_i], v[_i]) += solver.invdt() * (transpose(N(v)) * N(v))
             ),
             solver.system_matrix += _T + 0.5 * _A,
-            solver.system_rhs -= _A * _b
+            solver.system_rhs += -(_A * _b)
           )
         )
       )
@@ -106,6 +112,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
+  
+  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);
