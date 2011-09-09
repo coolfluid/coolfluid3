@@ -23,7 +23,7 @@ Common::ComponentBuilder < ShapeFunctionT<Quad>, ShapeFunction, LibLagrangeP1 >
 
 void Quad::compute_value(const MappedCoordsT& mapped_coord, ValueT& result)
 {
-  const Real ksi  = mapped_coord[KSI];
+  const Real ksi = mapped_coord[KSI];
   const Real eta = mapped_coord[ETA];
 
   result[0] = 0.25 * (1.0 - ksi) * (1.0 - eta);

@@ -140,26 +140,6 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( element_types )
-{
-  struct PrintType
-  {
-    public: // functions
-
-      /// Operator
-      template < typename ETYPE >
-      void operator() ( ETYPE& T )
-      {
-        std::cout << ETYPE::type_name() << std::endl;
-      }
-
-  } print_type;
-
-  boost::mpl::for_each< Mesh::ElementTypes >(print_type);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 
 BOOST_AUTO_TEST_SUITE_END()
 
