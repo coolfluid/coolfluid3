@@ -236,6 +236,9 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     ba.indices[1]=5;
     ba.indices[2]=8;
     mat->get_values(ba);
+
+  mat->print("test_ba_assembly_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(2,i-1),(double)((ba.indices[1]*10+i+0)*2));
@@ -255,6 +258,8 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
           BOOST_CHECK_EQUAL(vals[i],0.);
         }
   }
+
+
 
   // performant access - out of range access does not fail
   mat->reset();
@@ -318,6 +323,15 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
         BOOST_CHECK_EQUAL(vals[i],-1.);
       }
     }
+  }
+
+  // bc-related: dirichlet-condition doesnt fail for ghost node
+  mat->reset(-1.);
+  if (irank==0)
+  {
+    mat->set_row(1,1,1.,0.);
+    mat->data(rows,cols,vals);
+    BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-1.);
   }
 
   // bc-related: symmetricizing a dirichlet
@@ -421,6 +435,15 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]!=4)&&(rows[i]!=5)&&(rows[i]!=10)&&(rows[i]!=11))
         BOOST_CHECK_EQUAL(vals[i],-2.);
+  }
+
+  // bc-related: periodicity does not fail
+  mat->reset(-2.);
+  if (irank==0)
+  {
+    mat->tie_blockrow_pairs(1,4);
+    mat->data(rows,cols,vals);
+    BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-2.);
   }
 
   // post-destroy check
@@ -682,8 +705,6 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     }
   }
 
-  sys->print("test_system_" + boost::lexical_cast<std::string>(irank) + ".plt");
-
   // check periodicity
   sys->matrix()->reset(-2.);
   sys->solution()->reset(-3.);
@@ -818,12 +839,61 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
 BOOST_AUTO_TEST_CASE( solve_system )
 {
-  // build a commpattern and the system
+/*
+THE SERIAL IS EQUIVALENT WITH THE FOLLOWING OCTAVE/MATLAB CODE
+A =  [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5, 0, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, 1, -0.5, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.5, -0.5, -0.5, 1, -0.5, -0.5; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1]
+b =  [1; 1; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 10; 10]
+inv(A)*b
+WHICH RESULTS IN GID ORDER:
+*/
+  std::vector<Real> refvals(0);
+  refvals +=
+   1.00000000000000e+00,
+   1.00000000000000e+00,
+  -1.35789473684210e+01,
+  -1.35789473684210e+01,
+  -7.78947368421052e+00,
+  -7.78947368421052e+00,
+   9.68421052631579e+00,
+   9.68421052631579e+00,
+   1.26315789473684e+01,
+   1.26315789473684e+01,
+  -3.36842105263158e+00,
+  -3.36842105263158e+00,
+  -1.43157894736842e+01,
+  -1.43157894736842e+01,
+  -3.78947368421053e+00,
+  -3.78947368421052e+00,
+   1.24210526315789e+01,
+   1.24210526315789e+01,
+   1.00000000000000e+01,
+   1.00000000000000e+01;
+
+  // commpattern
+  if (irank==0)
+  {
+    gid += 0,1,2,3,4;
+    rank_updatable += 0,0,0,0,1;
+  } else {
+    gid += 3,4,5,6,7,8,9;
+    rank_updatable += 0,1,1,1,1,1,1;
+  }
   Common::Comm::CommPattern cp("commpattern");
-  build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
-  sys->options().option("solver").change_value(solvertype);
-  build_system(sys,cp);
+  cp.insert("gid",gid,1,false);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),rank_updatable);
+
+  // lss
+  if (irank==0)
+  {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4;
+    starting_indices += 0,2,5,8,11,13;
+  } else {
+    node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
+    starting_indices +=  0,2,5,8,11,14,17,19;
+  }
+  System::Ptr sys(new System("sys"));
+  sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
+  sys->create(cp,2,node_connectivity,starting_indices);
 
   // write a settings file for trilinos, solving with plain bicgstab, no preconditioning
   if (irank==0)
@@ -837,7 +907,7 @@ BOOST_AUTO_TEST_CASE( solve_system )
     trilinos_xml << "        <ParameterList name=\"AztecOO Settings\">\n";
     trilinos_xml << "          <Parameter name=\"Aztec Solver\" type=\"string\" value=\"BiCGStab\"/>\n";
     trilinos_xml << "        </ParameterList>\n";
-    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"400\"/>\n";
+    trilinos_xml << "        <Parameter name=\"Max Iterations\" type=\"int\" value=\"5000\"/>\n";
     trilinos_xml << "        <Parameter name=\"Tolerance\" type=\"double\" value=\"1e-13\"/>\n";
     trilinos_xml << "      </ParameterList>\n";
     trilinos_xml << "    </ParameterList>\n";
@@ -846,21 +916,32 @@ BOOST_AUTO_TEST_CASE( solve_system )
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
+  Common::Comm::PE::instance().barrier();
 
-  // initialize
-  sys->reset(1.);
+  // set intital values and boundary conditions
+  sys->matrix()->reset(-0.5);
   sys->solution()->reset(1.);
-  std::vector<Real> diag(gid.size()*neq,2.);
-  sys->set_diagonal(diag);
+  sys->rhs()->reset(0.);
+  if (irank==0)
+  {
+    std::vector<Real> diag(10,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(0,0,1.);
+    sys->dirichlet(0,1,1.);
+  } else {
+    std::vector<Real> diag(14,1.);
+    sys->set_diagonal(diag);
+    sys->dirichlet(6,0,10.);
+    sys->dirichlet(6,1,10.);
+  }
 
-  // and solve
+  // solve and check
   sys->solve();
-PEProcessSortedExecute(-1,
-  sys->solution()->print(std::cout);
-);
-
-
-
+  std::vector<Real> vals;
+  sys->solution()->data(vals);
+  for (int i=0; i<vals.size(); i++)
+    if (cp.isUpdatable()[i/neq])
+      BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
