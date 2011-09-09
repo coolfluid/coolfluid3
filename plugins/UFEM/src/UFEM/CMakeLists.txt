@@ -10,6 +10,8 @@ list( APPEND coolfluid_ufem_files
   LinearSolverUnsteady.hpp
   LinearSolverUnsteady.cpp
   NavierStokesOps.hpp
+  SparsityBuilder.hpp
+  SparsityBuilder.cpp
   Tags.hpp
   Tags.cpp
   TimeLoop.hpp

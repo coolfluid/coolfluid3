@@ -11,7 +11,7 @@
 
 #include <boost/utility.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Math/LSS/Vector.hpp"
 
@@ -35,7 +35,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API EmptyLSSVector : public LSS::Vector {
+class LSS_API EmptyLSSVector : public LSS::Vector {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM

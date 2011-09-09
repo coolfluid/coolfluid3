@@ -23,6 +23,7 @@
 #include "Common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
+#include "Math/LSS/BlockAccumulator.hpp"
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/Field.hpp"
@@ -88,11 +89,16 @@ public:
   {
   }
 
-  /// Update nodes for the current element
+  /// Update nodes for the current element and set the connectivity for the passed block accumulator
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
     Mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
+  }
+
+  void update_block_connectivity(Math::LSS::BlockAccumulator& block_accumulator)
+  {
+    block_accumulator.neighbour_indices(m_connectivity[m_element_idx]);
   }
 
   /// Reference to the current nodes
@@ -609,6 +615,10 @@ public:
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data, m_support));
     for(Uint i = 0; i != CF_PROTO_MAX_ELEMENT_MATRICES; ++i)
       m_element_matrices[i].setZero();
+
+    // TODO Fix for multi-shapefunction case
+    BOOST_MPL_ASSERT_MSG(EMatrixSizeT::value%SupportShapeFunction::nb_nodes == 0, ERROR_CALCULATING_NUMBER_OF_DOFS, (boost::mpl::int_<SupportShapeFunction::nb_nodes>));
+    block_accumulator.resize(SupportShapeFunction::nb_nodes, EMatrixSizeT::value/SupportShapeFunction::nb_nodes);
   }
 
   ~ElementData()
@@ -623,6 +633,18 @@ public:
     m_support.set_element(element_idx);
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(SetElement(m_variables_data, element_idx));
     boost::fusion::for_each(m_equation_data, FillRhs(m_element_rhs));
+    update_blocks(typename boost::fusion::result_of::empty<EquationDataT>::type());
+  }
+
+  /// Update block accumulator only if a system of equations is accessed in the expressions
+  void update_blocks(boost::mpl::false_)
+  {
+    block_accumulator.reset();
+    m_support.update_block_connectivity(block_accumulator);
+  }
+
+  void update_blocks(boost::mpl::true_)
+  {
   }
 
   /// Precompute element matrices, for the variables found in expr
@@ -707,6 +729,9 @@ public:
   {
     return m_element_rhs;
   };
+
+  /// Stores a mutable block accululator, always up-to-date with index mapping and correct size
+  mutable Math::LSS::BlockAccumulator block_accumulator;
 
 private:
   /// Variables used in the expression
