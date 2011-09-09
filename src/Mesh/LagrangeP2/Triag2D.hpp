@@ -7,15 +7,23 @@
 #ifndef CF_Mesh_LagrangeP2_Triag2D_hpp
 #define CF_Mesh_LagrangeP2_Triag2D_hpp
 
-#include "Mesh/ElementType.hpp"
+#include "Mesh/ElementTypeBase.hpp"
 #include "Mesh/LagrangeP2/Triag.hpp"
 
 namespace CF {
 namespace Mesh {
-  template <typename SF> class ShapeFunctionT;
 namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct Mesh_LagrangeP2_API Triag2D_traits
+{
+  typedef Triag SF;
+
+  enum { dimension      = 2 };
+  enum { nb_faces       = 3 };
+  enum { nb_edges       = 3 };
+};
 
 /// @brief 2D Lagrange P2 Triangular Element type
 /// This class provides the lagrangian shape function describing the
@@ -25,56 +33,13 @@ namespace LagrangeP2 {
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP2_API Triag2D
+struct Mesh_LagrangeP2_API Triag2D : public ElementTypeBase<Triag2D,Triag2D_traits>
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<Triag2D>       Ptr;
-  typedef boost::shared_ptr<Triag2D const> ConstPtr;
-
-  /// The shape function of this element
-  typedef Triag SF;
-
-  /// @name Element definitions
-  //  -------------------------
-  //@{
-  static const GeoShape::Type shape = SF::shape;
-  enum { dimensionality = SF::dimensionality };
-  enum { nb_nodes       = SF::nb_nodes       };
-  enum { order          = SF::order          };
-
-  enum { dimension      = 2 };
-  enum { nb_faces       = 3 };
-  enum { nb_edges       = 3 };
-  //@}
-
-  /// @name Matrix Types
-  //  --------------------------------
-  //@{
-  typedef SF::MappedCoordsT                              MappedCoordsT;
-  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodesT;
-  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
-  //@}
-
-public: // functions
-
-  /// @name Constructor / Destructor / Type name
-  //  ------------------------------------------
-  //@{
-
-  Triag2D() {}
-  ~Triag2D() {}
-  static std::string type_name() { return "Triag2D"; }
-
-  //@}
-
   /// @name Accessor functions
   //  ------------------------
   //@{
 
-  static const ShapeFunctionT<SF>& shape_function();
-  static const ElementType::FaceConnectivity& faces();
+  static const ElementTypeFaceConnectivity& faces();
   static const ElementType& face_type(const Uint face);
 
   //@}

@@ -82,15 +82,11 @@ list( APPEND coolfluid_mesh_files
   ElementType.hpp
   ElementTypePredicates.hpp
   ElementTypeT.hpp
-  ElementTypeT.cpp
+  ElementTypeBase.hpp
   GeoShape.hpp
   GeoShape.cpp
-  Hexa3D.hpp
-  Hexa3D.cpp
   LibMesh.hpp
   LibMesh.cpp
-  Line2D.hpp
-  Line2D.cpp
   ListBufferT.hpp
   ListBufferIterator.hpp
   LoadMesh.hpp
@@ -99,19 +95,9 @@ list( APPEND coolfluid_mesh_files
   Manipulations.cpp
   MeshMetadata.hpp
   MeshMetadata.cpp
-  Quad2D.hpp
-  Quad2D.cpp
-  Quad3D.hpp
-  Quad3D.cpp
   ShapeFunction.hpp
   ShapeFunctionT.hpp
-  ShapeFunctionT.cpp
-  Tetra3D.hpp
-  Tetra3D.cpp
-  Triag2D.hpp
-  Triag2D.cpp
-  Triag3D.hpp
-  Triag3D.cpp
+  ShapeFunctionBase.hpp
   Tags.hpp
   Tags.cpp
   WriteMesh.hpp
@@ -140,8 +126,6 @@ add_subdirectory(LagrangeP2)      # LagrangeP2 elements / shape functions
 add_subdirectory(LagrangeP2B)     # LagrangeP2 bubble elements / shape functions
 
 add_subdirectory(LagrangeP3)      # LagrangeP3 elements / shape functions
-
-add_subdirectory( SF )            # Shape functions
 
 add_subdirectory( Neu )           # Neutral file IO
 

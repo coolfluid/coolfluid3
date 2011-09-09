@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
 #include "Math/MatrixTypes.hpp"
@@ -24,6 +24,8 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+struct ElementTypeFaceConnectivity;
+
 /// This class represents the the data related to an ElementType
 /// @author Tiago Quintino
 /// @author Willem Deconinck
@@ -34,32 +36,8 @@ public: // typedefs
   typedef boost::shared_ptr< ElementType > Ptr;
   typedef boost::shared_ptr< ElementType const> ConstPtr;
 
+  typedef ElementTypeFaceConnectivity FaceConnectivity;
 public: // functions
-
-  /// Stores connectivity information about the faces that form the cell boundary
-  struct FaceConnectivity
-  {
-    /// Range of const indices
-    typedef boost::iterator_range<std::vector<Uint>::const_iterator> RangeT;
-
-    /// Index of the first node of each face, relative to the numbering of the parent cell
-    std::vector<Uint> displs;
-
-    /// Number of nodes for each face
-    std::vector<Uint> stride;
-
-    /// Node indices for each face
-    std::vector<Uint> nodes;
-
-    /// Iterator range over the nodes of the given face
-    RangeT nodes_range(const Uint face) const
-    {
-      if(displs.empty())
-        return boost::make_iterator_range(nodes.begin(), nodes.end());
-      std::vector<Uint>::const_iterator begin = nodes.begin() + displs[face];
-      return boost::make_iterator_range(begin, begin + stride[face]);
-    }
-  };
 
   /// @name Constructor / Destructor / Type name
   //  ------------------------------------------
@@ -227,6 +205,33 @@ protected: // data
   Uint m_nb_faces;
 
 }; // ElementType
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Stores connectivity information about the faces that form the cell boundary
+struct ElementTypeFaceConnectivity
+{
+  /// Range of const indices
+  typedef boost::iterator_range<std::vector<Uint>::const_iterator> RangeT;
+
+  /// Index of the first node of each face, relative to the numbering of the parent cell
+  std::vector<Uint> displs;
+
+  /// Number of nodes for each face
+  std::vector<Uint> stride;
+
+  /// Node indices for each face
+  std::vector<Uint> nodes;
+
+  /// Iterator range over the nodes of the given face
+  RangeT nodes_range(const Uint face) const
+  {
+    if(displs.empty())
+      return boost::make_iterator_range(nodes.begin(), nodes.end());
+    std::vector<Uint>::const_iterator begin = nodes.begin() + displs[face];
+    return boost::make_iterator_range(begin, begin + stride[face]);
+  }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 

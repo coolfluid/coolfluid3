@@ -11,7 +11,6 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
 #include "Mesh/LagrangeP2/Quad2D.hpp"
@@ -25,14 +24,6 @@ namespace LagrangeP2 {
 
 Common::ComponentBuilder < ElementTypeT<Quad2D>, ElementType , LibLagrangeP2 >
    Quad2D_Builder(LibLagrangeP2::library_namespace()+"."+Quad2D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Quad2D::SF>& Quad2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

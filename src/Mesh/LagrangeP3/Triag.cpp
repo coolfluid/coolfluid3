@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
 #include "Mesh/LagrangeP3/Triag.hpp"
 
 namespace CF {
@@ -17,24 +18,6 @@ namespace LagrangeP3 {
 
 Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP3 >
    Triag_Builder(LibLagrangeP3::library_namespace()+"."+Triag::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-Triag::ValueT Triag::value(const MappedCoordsT& mapped_coord)
-{
-  ValueT result;
-  compute_value(mapped_coord,result);
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Triag::GradientT Triag::gradient(const MappedCoordsT& mapped_coord)
-{
-  GradientT result;
-  compute_gradient(mapped_coord,result);
-  return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

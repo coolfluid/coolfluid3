@@ -25,14 +25,6 @@ Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP3 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ShapeFunctionT<Line2D::SF>& Line2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;

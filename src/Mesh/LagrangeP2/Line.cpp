@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
 #include "Mesh/LagrangeP2/Line.hpp"
 
 namespace CF {
@@ -17,24 +18,6 @@ namespace LagrangeP2 {
 
 Common::ComponentBuilder < ShapeFunctionT<Line>, ShapeFunction, LibLagrangeP2 >
    Line_Builder(LibLagrangeP2::library_namespace()+"."+Line::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-Line::ValueT Line::value(const MappedCoordsT& mapped_coord)
-{
-  ValueT result;
-  compute_value(mapped_coord,result);
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Line::GradientT Line::gradient(const MappedCoordsT& mapped_coord)
-{
-  GradientT result;
-  compute_gradient(mapped_coord,result);
-  return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

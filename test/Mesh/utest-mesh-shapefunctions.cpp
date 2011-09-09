@@ -13,6 +13,7 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 
+#include "Mesh/ElementType.hpp"
 #include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/LagrangeP0/Triag.hpp"
 #include "Mesh/LagrangeP1/Line.hpp"
@@ -39,6 +40,51 @@ struct Test_ShapeFunction_Fixture
   }
 };
 
+
+template <typename SF, typename TR>
+class FallBack
+{
+public:
+
+  enum { nb_nodes       = TR::nb_nodes };
+  enum { dimensionality = TR::dimensionality };
+  enum { order          = TR::order };
+  static const GeoShape::Type shape = TR::shape;
+  typedef Eigen::Matrix<Real, dimensionality, 1       >  MappedCoordsT;
+  typedef Eigen::Matrix<Real, 1             , nb_nodes>  ValueT;
+  typedef Eigen::Matrix<Real, dimensionality, nb_nodes>  GradientT;
+
+  static const RealMatrix& local_coordinates()
+  {
+    throw Common::NotImplemented(FromHere(),"");
+    const static RealMatrix real_matrix_obj;
+    return real_matrix_obj;
+  }
+
+  static ValueT value(const MappedCoordsT& mapped_coord)
+  {
+    throw Common::NotImplemented(FromHere(),"");
+    return ValueT();
+  }
+};
+
+template <typename SF,typename TR>
+const GeoShape::Type FallBack<SF,TR>::shape;
+
+struct ConcreteSF_traits
+{
+  enum { nb_nodes       = 2              };
+  enum { dimensionality = 1              };
+  enum { order          = 1              };
+  enum { shape          = GeoShape::LINE };
+};
+
+
+struct Mesh_API ConcreteSF : public FallBack<ConcreteSF,ConcreteSF_traits>
+{
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( Test_ShapeFunction_TestSuite, Test_ShapeFunction_Fixture )
@@ -47,6 +93,9 @@ BOOST_FIXTURE_TEST_SUITE( Test_ShapeFunction_TestSuite, Test_ShapeFunction_Fixtu
 
 BOOST_AUTO_TEST_CASE( sf_static_version )
 {
+  std::cout << "nb_nodes = " << ConcreteSF::nb_nodes << std::endl;
+  std::cout << "shape = " << ConcreteSF::shape << std::endl;
+
   LagrangeP0::Triag::MappedCoordsT mapped_coord = (LagrangeP0::Triag::MappedCoordsT() << 0, 0 ).finished();
 
   LagrangeP0::Triag::ValueT values       = LagrangeP0::Triag::value( mapped_coord );
@@ -156,7 +205,6 @@ BOOST_AUTO_TEST_CASE( element_types )
 
   boost::mpl::for_each< Mesh::ElementTypes >(print_type);
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 

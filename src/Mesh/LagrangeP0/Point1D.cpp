@@ -8,10 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 #include "Mesh/LagrangeP0/Point1D.hpp"
@@ -24,14 +21,6 @@ namespace LagrangeP0 {
 
 Common::ComponentBuilder < ElementTypeT<Point1D>, ElementType , LibLagrangeP0 >
    Point1D_Builder(LibLagrangeP0::library_namespace()+"."+Point1D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Point1D::SF>& Point1D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

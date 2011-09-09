@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Hexa.hpp"
 
 namespace CF {
@@ -17,24 +18,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ShapeFunctionT<Hexa>, ShapeFunction, LibLagrangeP1 >
    Hexa_Builder(LibLagrangeP1::library_namespace()+"."+Hexa::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-Hexa::ValueT Hexa::value(const MappedCoordsT& mapped_coord)
-{
-  ValueT result;
-  compute_value(mapped_coord,result);
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Hexa::GradientT Hexa::gradient(const MappedCoordsT& mapped_coord)
-{
-  GradientT result;
-  compute_gradient(mapped_coord,result);
-  return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

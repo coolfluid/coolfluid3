@@ -1,4 +1,4 @@
-list( APPEND utest-mesh-generation_cflibs coolfluid_mesh_generation coolfluid_mesh_sf coolfluid_mesh )
+list( APPEND utest-mesh-generation_cflibs coolfluid_mesh_generation coolfluid_mesh_lagrangep1 coolfluid_mesh )
 list( APPEND utest-mesh-generation_files
   utest-mesh-generation.cpp )
 

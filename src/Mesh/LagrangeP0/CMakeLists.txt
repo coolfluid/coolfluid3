@@ -1,4 +1,5 @@
 list( APPEND coolfluid_mesh_lagrangep0_files
+  API.hpp
   ElementTypes.hpp
   Hexa.hpp
   Hexa.cpp

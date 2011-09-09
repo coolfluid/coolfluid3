@@ -7,13 +7,21 @@
 #ifndef CF_Mesh_LagrangeP1_Hexa3D_hpp
 #define CF_Mesh_LagrangeP1_Hexa3D_hpp
 
-#include "Mesh/ElementType.hpp"
+#include "Mesh/ElementTypeBase.hpp"
 #include "Mesh/LagrangeP1/Hexa.hpp"
 
 namespace CF {
 namespace Mesh {
-  template <typename SF> class ShapeFunctionT;
 namespace LagrangeP1 {
+
+struct Mesh_LagrangeP1_API Hexa3D_traits
+{
+  typedef Hexa SF;
+
+  enum { dimension      = 3  };
+  enum { nb_faces       = 6  };
+  enum { nb_edges       = 12 };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,56 +33,13 @@ namespace LagrangeP1 {
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Hexa3D
+struct Mesh_LagrangeP1_API Hexa3D : public ElementTypeBase<Hexa3D,Hexa3D_traits>
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<Hexa3D>       Ptr;
-  typedef boost::shared_ptr<Hexa3D const> ConstPtr;
-
-  /// The shape function of this element
-  typedef Hexa SF;
-
-  /// @name Element definitions
-  //  -------------------------
-  //@{
-  static const GeoShape::Type shape = SF::shape;
-  enum { dimensionality = SF::dimensionality };
-  enum { nb_nodes       = SF::nb_nodes       };
-  enum { order          = SF::order          };
-
-  enum { dimension      = 3  };
-  enum { nb_faces       = 6  };
-  enum { nb_edges       = 12 };
-  //@}
-
-  /// @name Matrix Types
-  //  --------------------------------
-  //@{
-  typedef SF::MappedCoordsT                              MappedCoordsT;
-  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodesT;
-  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
-  //@}
-
-public: // functions
-
-  /// @name Constructor / Destructor / Type name
-  //  ------------------------------------------
-  //@{
-
-  Hexa3D() {}
-  ~Hexa3D() {}
-  static std::string type_name() { return "Hexa3D"; }
-
-  //@}
-
   /// @name Accessor functions
   //  ------------------------
   //@{
 
-  static const ShapeFunctionT<SF>& shape_function();
-  static const ElementType::FaceConnectivity& faces();
+  static const ElementTypeFaceConnectivity& faces();
   static const ElementType& face_type(const Uint face);
 
   //@}

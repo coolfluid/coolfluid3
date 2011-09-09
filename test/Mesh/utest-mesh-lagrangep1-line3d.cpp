@@ -15,6 +15,7 @@
 
 #include "Math/Consts.hpp"
 
+#include "Mesh/ElementType.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Integrators/Gauss.hpp"

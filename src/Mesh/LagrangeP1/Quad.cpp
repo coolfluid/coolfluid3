@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Quad.hpp"
 
 namespace CF {
@@ -17,24 +18,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ShapeFunctionT<Quad>, ShapeFunction, LibLagrangeP1 >
    Quad_Builder(LibLagrangeP1::library_namespace()+"."+Quad::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-Quad::ValueT Quad::value(const MappedCoordsT& mapped_coord)
-{
-  ValueT result;
-  compute_value(mapped_coord,result);
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Quad::GradientT Quad::gradient(const MappedCoordsT& mapped_coord)
-{
-  GradientT result;
-  compute_gradient(mapped_coord,result);
-  return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

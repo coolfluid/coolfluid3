@@ -9,7 +9,6 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
 #include "Mesh/LagrangeP2/Line2D.hpp"
@@ -22,14 +21,6 @@ namespace LagrangeP2 {
 
 Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP2 >
    Line2D_Builder(LibLagrangeP2::library_namespace()+"."+Line2D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Line2D::SF>& Line2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

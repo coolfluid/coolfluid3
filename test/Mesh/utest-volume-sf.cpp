@@ -7,8 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Common tests for shape functions that can be used to model the volume of a mesh"
 
-#error Does not compile, as some "not-implemented" static functions seem to be expected
-
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/transform_view.hpp>
 #include <boost/assign/list_of.hpp>
@@ -27,13 +26,32 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/GeoShape.hpp"
-
+#include "Mesh/ElementType.hpp"
 #include "Mesh/ElementTypes.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
 using namespace boost::assign;
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef boost::mpl::vector<
+LagrangeP1::Line1D,
+LagrangeP1::Quad2D,
+LagrangeP1::Triag2D,
+LagrangeP1::Hexa3D,
+LagrangeP1::Tetra3D,
+LagrangeP2::Quad2D,
+LagrangeP2::Triag2D,
+LagrangeP3::Quad2D,
+LagrangeP3::Triag2D
+> TestTypes;
+
+typedef boost::mpl::filter_view<TestTypes, IsCellType> TestCellTypes;
+typedef boost::mpl::filter_view<TestTypes, IsFaceType> TestFaceTypes;
+typedef boost::mpl::filter_view<TestTypes, IsEdgeType> TestEdgeTypes;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +132,7 @@ struct VolumeSFFixture
   <
     boost::mpl::transform_view
     <
-      CellTypes,
+      TestTypes,
       MakeSFNodesPair<boost::mpl::_1>
     >
   >::type NodesMapT;
@@ -328,7 +346,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
   Core::instance().environment().configure_option("exception_outputs",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -336,7 +354,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 {
   VolumeMPLFunctor<CheckJacobianInverse> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -344,7 +362,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 BOOST_AUTO_TEST_CASE( TestGradientX )
 {
   VolumeMPLFunctor<CheckGradientX> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,6 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Line3D.hpp"
@@ -25,14 +24,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ElementTypeT<Line3D>, ElementType , LibLagrangeP1 >
    Line3D_Builder(LibLagrangeP1::library_namespace()+"."+Line3D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Line3D::SF>& Line3D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

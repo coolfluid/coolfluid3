@@ -248,7 +248,7 @@ coolfluid_add_unit_test( utest-mesh-fieldmanager )
 
 ################################################################################
 
-list( APPEND utest-volume-sf_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh )
+list( APPEND utest-volume-sf_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3)
 list( APPEND utest-volume-sf_files  utest-volume-sf.cpp )
 
 coolfluid_add_unit_test( utest-volume-sf )

@@ -13,6 +13,7 @@
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Mesh/ElementType.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
 #include "Mesh/LagrangeP1/Line1D.hpp"

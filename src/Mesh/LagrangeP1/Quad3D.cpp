@@ -8,10 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Quad3D.hpp"
@@ -24,14 +21,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ElementTypeT<Quad3D>, ElementType , LibLagrangeP1 >
    Quad3D_Builder(LibLagrangeP1::library_namespace()+"."+Quad3D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Quad3D::SF>& Quad3D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

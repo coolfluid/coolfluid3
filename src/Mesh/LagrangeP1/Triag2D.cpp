@@ -11,7 +11,6 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Triag2D.hpp"
@@ -39,14 +38,6 @@ Real jacobian_determinant_helper(const Triag2D::NodesT& nodes)
   const Real y1 = nodes(1, YY);
   const Real y2 = nodes(2, YY);
   return (x1 - x0) * (y2 - y0) - (x2 - x0) * (y1 - y0);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Triag2D::SF>& Triag2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

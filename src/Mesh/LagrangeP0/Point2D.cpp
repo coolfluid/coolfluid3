@@ -8,10 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 #include "Mesh/LagrangeP0/Point2D.hpp"
@@ -24,14 +21,6 @@ namespace LagrangeP0 {
 
 Common::ComponentBuilder < ElementTypeT<Point2D>, ElementType , LibLagrangeP0 >
    Point2D_Builder(LibLagrangeP0::library_namespace()+"."+Point2D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Point2D::SF>& Point2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

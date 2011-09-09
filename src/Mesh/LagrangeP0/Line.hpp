@@ -7,12 +7,22 @@
 #ifndef CF_Mesh_LagrangeP0_Line_hpp
 #define CF_Mesh_LagrangeP0_Line_hpp
 
-#include "Math/MatrixTypes.hpp"
-#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "Mesh/ShapeFunctionBase.hpp"
+#include "Mesh/LagrangeP0/API.hpp"
 
 namespace CF {
 namespace Mesh {
 namespace LagrangeP0 {
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct Mesh_LagrangeP0_API Line_traits
+{
+  enum { nb_nodes       = 1               };
+  enum { dimensionality = 1               };
+  enum { order          = 0               };
+  enum { shape          = GeoShape::LINE  };
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,57 +33,11 @@ namespace LagrangeP0 {
 /// Reference domain: <-1,1>
 /// @endverbatim
 /// @see ShapeFunction for documentation on undocumented static functions
-struct Mesh_LagrangeP0_API Line
+struct Mesh_LagrangeP0_API Line : ShapeFunctionBase<Line,Line_traits>
 {
-public: // typedefs
-
-  /// @name Shape function definitions
-  //  --------------------------------
-  //@{
-  enum { dimensionality = 1               };
-  enum { nb_nodes       = 1               };
-  enum { order          = 0               };
-  static const GeoShape::Type shape = GeoShape::LINE;
-  //@}
-
-  /// @name Matrix Types
-  //  ------------------
-  //@{
-  typedef Eigen::Matrix<Real, dimensionality, 1> MappedCoordsT;
-  typedef Eigen::Matrix<Real, 1, nb_nodes> ValueT;
-  typedef Eigen::Matrix<Real, dimensionality, nb_nodes> GradientT;
-  //@}
-
-public: // functions
-
-  /// @name Constructor / Destructor / Type name
-  //  ------------------------------------------
-  //@{
-
-  Line() {}
-  ~Line() {}
-  static std::string type_name() { return "Line"; }
-
-  //@}
-
-  /// @name Accessor functions
-  //  ------------------------
-  //@{
-
   static const RealMatrix& local_coordinates();
-
-  //@}
-
-  /// @name Computation functions
-  //  ---------------------------
-  //@{
-
-  static ValueT value(const MappedCoordsT& mapped_coord);
   static void compute_value(const MappedCoordsT& mapped_coord, ValueT& result);
-  static GradientT gradient(const MappedCoordsT& mapped_coord);
   static void compute_gradient(const MappedCoordsT& mapped_coord, GradientT& result);
-
-  //@}
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -7,15 +7,22 @@
 #ifndef CF_Mesh_LagrangeP1_Line2D_hpp
 #define CF_Mesh_LagrangeP1_Line2D_hpp
 
-#include "Mesh/ElementType.hpp"
+#include "Mesh/ElementTypeBase.hpp"
 #include "Mesh/LagrangeP1/Line.hpp"
 
 namespace CF {
 namespace Mesh {
-  template <typename SF> class ShapeFunctionT;
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
+
+struct Mesh_LagrangeP1_API Line2D_traits
+{
+  typedef Line SF;
+  enum { dimension      = 2 };
+  enum { nb_faces       = 1 };
+  enum { nb_edges       = 2 };
+};
 
 /// @brief Lagrange P1 Triangular Element type
 /// This class provides the lagrangian shape function describing the
@@ -25,56 +32,13 @@ namespace LagrangeP1 {
 /// @author Willem Deconinck
 /// @author Tiago Quintino
 /// @author Bart Janssens
-struct Mesh_LagrangeP1_API Line2D
+struct Mesh_LagrangeP1_API Line2D : public ElementTypeBase<Line2D,Line2D_traits>
 {
-public: // typedefs
-
-  typedef boost::shared_ptr<Line2D>       Ptr;
-  typedef boost::shared_ptr<Line2D const> ConstPtr;
-
-  /// The shape function of this element
-  typedef Line SF;
-
-  /// @name Element definitions
-  //  -------------------------
-  //@{
-  static const GeoShape::Type shape = SF::shape;
-  enum { dimensionality = SF::dimensionality };
-  enum { nb_nodes       = SF::nb_nodes       };
-  enum { order          = SF::order          };
-
-  enum { dimension      = 2 };
-  enum { nb_faces       = 1 };
-  enum { nb_edges       = 2 };
-  //@}
-
-  /// @name Matrix Types
-  //  --------------------------------
-  //@{
-  typedef SF::MappedCoordsT                              MappedCoordsT;
-  typedef Eigen::Matrix<Real, dimension, 1>              CoordsT;
-  typedef Eigen::Matrix<Real, nb_nodes, dimension>       NodesT;
-  typedef Eigen::Matrix<Real, dimensionality, dimension> JacobianT;
-  //@}
-
-public: // functions
-
-  /// @name Constructor / Destructor / Type name
-  //  ------------------------------------------
-  //@{
-
-  Line2D() {}
-  ~Line2D() {}
-  static std::string type_name() { return "Line2D"; }
-
-  //@}
-
   /// @name Accessor functions
   //  ------------------------
   //@{
 
-  static const ShapeFunctionT<SF>& shape_function();
-  static const ElementType::FaceConnectivity& faces();
+  static const ElementTypeFaceConnectivity& faces();
   static const ElementType& face_type(const Uint face);
 
   //@}

@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Tetra.hpp"
 
 namespace CF {
@@ -17,24 +18,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ShapeFunctionT<Tetra>, ShapeFunction, LibLagrangeP1 >
    Tetra_Builder(LibLagrangeP1::library_namespace()+"."+Tetra::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-Tetra::ValueT Tetra::value(const MappedCoordsT& mapped_coord)
-{
-  ValueT result;
-  compute_value(mapped_coord,result);
-  return result;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Tetra::GradientT Tetra::gradient(const MappedCoordsT& mapped_coord)
-{
-  GradientT result;
-  compute_gradient(mapped_coord,result);
-  return result;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

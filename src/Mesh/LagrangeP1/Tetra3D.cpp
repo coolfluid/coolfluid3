@@ -11,7 +11,6 @@
 #include "Math/Consts.hpp"
 
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Tetra3D.hpp"
@@ -25,14 +24,6 @@ namespace LagrangeP1 {
 
 Common::ComponentBuilder < ElementTypeT<Tetra3D>, ElementType , LibLagrangeP1 >
    Tetra3D_Builder(LibLagrangeP1::library_namespace()+"."+Tetra3D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Tetra3D::SF>& Tetra3D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 

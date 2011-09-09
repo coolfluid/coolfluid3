@@ -8,10 +8,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
-
 #include "Mesh/ElementTypeT.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
 
 #include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
 #include "Mesh/LagrangeP3/Triag2D.hpp"
@@ -25,14 +22,6 @@ namespace LagrangeP3 {
 
 Common::ComponentBuilder < ElementTypeT<Triag2D>, ElementType , LibLagrangeP3 >
    Triag2D_Builder(LibLagrangeP3::library_namespace()+"."+Triag2D::type_name());
-
-////////////////////////////////////////////////////////////////////////////////
-
-const ShapeFunctionT<Triag2D::SF>& Triag2D::shape_function()
-{
-  const static ShapeFunctionT<SF> shape_function_obj;
-  return shape_function_obj;
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
