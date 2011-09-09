@@ -236,6 +236,9 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     ba.indices[1]=5;
     ba.indices[2]=8;
     mat->get_values(ba);
+
+  mat->print("test_ba_assembly_" + boost::lexical_cast<std::string>(irank) + ".plt");
+
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(0,i-1),(double)((ba.indices[0]*10+i+0)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(1,i-1),(double)((ba.indices[0]*10+i+6)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(2,i-1),(double)((ba.indices[1]*10+i+0)*2));
@@ -255,6 +258,8 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
           BOOST_CHECK_EQUAL(vals[i],0.);
         }
   }
+
+
 
   // performant access - out of range access does not fail
   mat->reset();

@@ -100,6 +100,8 @@ BOOST_AUTO_TEST_CASE( system_solve )
     sys.add_values(ba);
   }
 
+sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + ".plt");
+
 
   // fastly filling with pre-boundary condition values, THIS IS NOT THE WAY YOU NORMALLY ASSEMBLE
   Real* vals=&m.mat_prebc[0];

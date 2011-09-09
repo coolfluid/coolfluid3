@@ -229,7 +229,6 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   cf_assert(solution->is_created());
   cf_assert(rhs->is_created());
 
-
   // general setup phase
   Stratimikos::DefaultLinearSolverBuilder linearSolverBuilder(options().option("settings_file").value_str());
   /// @todo decouple from fancyostream to ostream or to C stdout when possible
@@ -248,17 +247,15 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   boost::shared_ptr<LSS::TrilinosVector> trhs = boost::dynamic_pointer_cast<LSS::TrilinosVector>(rhs);
   Teuchos::RCP<const Thyra::VectorBase<double> >   b = Thyra::create_Vector( trhs->epetra_vector() , A->range() );
 
-/*
   // r = b - A*x, initial L2 norm
-  double nrm_r=0.;
+  double norm2_in=0.;
   {
     Epetra_Vector epetra_r(*trhs->epetra_vector());
     Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
     m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
     epetra_r.Update(-1.0,m_mat_x,1.0);
-    epetra_r.Norm2(&nrm_r);
+    epetra_r.Norm2(&norm2_in);
   }
-*/
 
   // Reading in the solver parameters from the parameters file and/or from
   // the command line.  This was setup by the command-line options
@@ -267,7 +264,6 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   Teuchos::RCP<Thyra::LinearOpWithSolveFactoryBase<double> > lowsFactory = linearSolverBuilder.createLinearSolveStrategy(""); // create linear solver strategy
 /// @todo verbosity level from option
   lowsFactory->setVerbLevel((Teuchos::EVerbosityLevel)4); // set verbosity
-
 
   // print back default and current settings
   if (false) {
@@ -282,28 +278,22 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
     linearSolverBuilder.writeParamsFile(*lowsFactory,"./trilinos_current.xml");
   }
 
-
   // solve the matrix
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);
   Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
 
-/*
   // r = b - A*x, final L2 norm
+  double norm2_out=0.;
   {
     Epetra_Vector epetra_r(*trhs->epetra_vector());
     Epetra_Vector m_mat_x(m_mat->OperatorRangeMap());
     m_mat->Apply(*tsol->epetra_vector(),m_mat_x);
     epetra_r.Update(-1.0,m_mat_x,1.0);
-    opts->systemResidual=1./nrm_r;
-    nrm_r=0.;
-    epetra_r.Norm2(&nrm_r);
-    opts->systemResidual*=nrm_r;
+    epetra_r.Norm2(&norm2_out);
   }
 
-  // print relative residual
-  fflush(stdout); cout << flush;
-  _MMESSAGE_(0,0,"L2 norm of linear system: % 8.8e\n",opts->systemResidual);
-*/
+  // print in and out residuals
+  CFinfo << "Solver residuals: in " << norm2_in << ", out " << norm2_out << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -335,6 +325,7 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
  * issue3: investigate performance if matrix is View mode, the copy due to issue2 could be circumvented (then epetra only stores pointers to values)
  * issue4: investigate prformance of extracting a blockrowview and fill manually, all blocks at once in the current blockrow
 **/
+/*
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
@@ -348,6 +339,38 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
         TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
       TRILINOS_ASSERT(m_mat->EndSubmitEntries());
     }
+/*/
+  cf_assert(m_is_created);
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummyneq;
+  int hits=0;
+  const int numblocks=values.indices.size();
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
+//  double *valuesmat=(double*)values.mat.data();
+  for (int irow=0; irow<(const int)numblocks; irow++)
+  {
+    if (idxs[irow]<m_blockrow_size)
+    {
+      int irowneq=irow*m_neq;
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[irow],dummyneq,blockrowsize,colindices,val));
+      for (int j=0; j<(const int)blockrowsize; j++)
+        for (int k=0; k<(const int)numblocks; k++)
+          if (colindices[j]==idxs[k])
+            for (int l=0; l<(const int)m_neq; l++)
+            {
+              for (int m=0; m<(const int)m_neq; m++)
+                val[j][0](l,m)+=values.mat(irowneq+l,k*m_neq+m);
+//                val[j][0](l,m)+=*valuesmat++;
+            }
+      hits++;
+    }
+    if (hits==numblocks) break;
+  }
+/**/
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
