@@ -11,7 +11,7 @@
 
 #include <boost/utility.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
@@ -31,7 +31,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API Vector : public CF::Common::Component {
+class LSS_API Vector : public CF::Common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM

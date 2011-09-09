@@ -8,12 +8,16 @@
 #ifndef CF_Solver_Actions_Proto_BlockAccumulator_hpp
 #define CF_Solver_Actions_Proto_BlockAccumulator_hpp
 
+#include <boost/mpl/assert.hpp>
 #include <boost/proto/core.hpp>
 #include <boost/proto/traits.hpp>
 
+
 #include "Math/MatrixTypes.hpp"
 
-#include "Solver/CEigenLSS.hpp"
+#include "Math/LSS/System.hpp"
+#include "Math/LSS/BlockAccumulator.hpp"
+#include "Math/LSS/Matrix.hpp"
 
 #include "ComponentWrapper.hpp"
 #include "Terminals.hpp"
@@ -32,7 +36,7 @@ struct SystemMatrixTag
 };
 
 /// Represents a system matrix
-typedef ComponentWrapper<CEigenLSS, SystemMatrixTag> SystemMatrix;
+typedef ComponentWrapper<Math::LSS::System, SystemMatrixTag> SystemMatrix;
 
 /// Tag for RHS
 struct SystemRHSTag
@@ -40,12 +44,12 @@ struct SystemRHSTag
 };
 
 /// Represents an RHS
-typedef ComponentWrapper<CEigenLSS, SystemRHSTag> SystemRHS;
+typedef ComponentWrapper<Math::LSS::System, SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, TagT> >
+  boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, TagT> >
 {
 };
 
@@ -61,21 +65,38 @@ struct MatrixAssignOpsCases
 };
 
 /// Translate tag to operator
-inline void do_assign_op(boost::proto::tag::assign, Real& lhs, const Real rhs)
+inline void do_assign_op_matrix(boost::proto::tag::assign, Math::LSS::Matrix& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
 {
-  lhs = rhs;
+  lss_matrix.set_values(block_accumulator);
 }
 
 /// Translate tag to operator
-inline void do_assign_op(boost::proto::tag::plus_assign, Real& lhs, const Real rhs)
+inline void do_assign_op_matrix(boost::proto::tag::plus_assign, Math::LSS::Matrix& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
 {
-  lhs += rhs;
+  lss_matrix.add_values(block_accumulator);
 }
 
 /// Translate tag to operator
-inline void do_assign_op(boost::proto::tag::minus_assign, Real& lhs, const Real rhs)
+inline void do_assign_op_rhs(boost::proto::tag::assign, Math::LSS::Vector& lss_rhs, const Math::LSS::BlockAccumulator& block_accumulator)
 {
-  lhs -= rhs;
+  lss_rhs.set_rhs_values(block_accumulator);
+}
+
+/// Translate tag to operator
+inline void do_assign_op_rhs(boost::proto::tag::plus_assign, Math::LSS::Vector& lss_rhs, const Math::LSS::BlockAccumulator& block_accumulator)
+{
+  lss_rhs.add_rhs_values(block_accumulator);
+}
+
+/// Translate tag to operator
+template<typename TagT, typename TargetT>
+inline void do_assign_op(TagT, Real& lhs, TargetT& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
+{
+  BOOST_MPL_ASSERT_MSG(
+    false
+    , UNSUPPORTED_ASSIGNMENT_OPERATION
+    , (TagT)
+  );
 }
 
 /// Helper struct for assignment to a matrix or RHS
@@ -86,20 +107,24 @@ template<typename OpTagT>
 struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
 {
   template<typename RhsT, typename DataT>
-  void operator()(Solver::CEigenLSS& lss, const RhsT& rhs, const DataT& data) const
+  void operator()(Math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
-    const Mesh::CTable<Uint>::ConstRow connectivity = data.support().element_connectivity();
+    Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+
     for(Uint row = 0; row != mat_size; ++row)
     {
-      const Uint i_gid = connectivity[row % DataT::SupportT::SF::nb_nodes]*nb_dofs + row / DataT::SupportT::SF::nb_nodes;
+      // This converts u1,u2...pn to u1v1p1...
+      const Uint block_row = (row % DataT::SupportT::SF::nb_nodes)*nb_dofs + row / DataT::SupportT::SF::nb_nodes;
       for(Uint col = 0; col != mat_size; ++col)
       {
-        do_assign_op(OpTagT(), lss.at(i_gid, connectivity[col % DataT::SupportT::SF::nb_nodes]*nb_dofs + col / DataT::SupportT::SF::nb_nodes), rhs(row, col));
+        const Uint block_col = (col % DataT::SupportT::SF::nb_nodes)*nb_dofs + col / DataT::SupportT::SF::nb_nodes;
+        block_accumulator.mat(block_row, block_col) = rhs(row, col);
       }
     }
+    do_assign_op_matrix(OpTagT(), *lss.matrix(), block_accumulator);
   }
 };
 
@@ -107,16 +132,20 @@ template<typename OpTagT>
 struct BlockAssignmentOp<SystemRHSTag, OpTagT>
 {
   template<typename RhsT, typename DataT>
-  void operator()(Solver::CEigenLSS& lss, const RhsT& rhs, const DataT& data) const
+  void operator()(Math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
-    const Mesh::CTable<Uint>::ConstRow connectivity = data.support().element_connectivity();
+    Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
     for(Uint i = 0; i != mat_size; ++i)
     {
-      do_assign_op(OpTagT(), lss.rhs()[connectivity[i % DataT::SupportT::SF::nb_nodes]*nb_dofs + i / DataT::SupportT::SF::nb_nodes], rhs[i]);
+      // This converts u1,u2...pn to u1v1p1...
+      const Uint block_idx = (i % DataT::SupportT::SF::nb_nodes)*nb_dofs + i / DataT::SupportT::SF::nb_nodes;
+      block_accumulator.rhs[block_idx] = rhs[i];
     }
+
+    do_assign_op_rhs(OpTagT(), *lss.rhs(), block_accumulator);
   }
 };
 

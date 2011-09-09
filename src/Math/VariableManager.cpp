@@ -8,6 +8,7 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include "Common/CBuilder.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/OptionT.hpp"
 
@@ -23,7 +24,12 @@ namespace Math {
 using namespace Common;
 using namespace Common::XML;
 
-////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Common::ComponentBuilder < VariableManager, Component, LibMath > VariableManager_Builder;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 
 VariableManager::VariableManager(const std::string& name): Component(name)
 {

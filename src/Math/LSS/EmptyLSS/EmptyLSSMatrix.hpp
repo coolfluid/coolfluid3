@@ -11,7 +11,7 @@
 
 #include <boost/utility.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Math/LSS/Matrix.hpp"
 
@@ -34,7 +34,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API EmptyLSSMatrix : public LSS::Matrix {
+class LSS_API EmptyLSSMatrix : public LSS::Matrix {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
