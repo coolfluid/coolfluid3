@@ -8,8 +8,9 @@
 
 #include <boost/utility.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Common/MPI/PE.hpp"
+#include "Common/CBuilder.hpp"
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/MPI/CommPattern.hpp"
@@ -44,6 +45,8 @@ using namespace CF::Math;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+Common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builder;
+
 LSS::System::System(const std::string& name) :
   Component(name)
 {
@@ -62,16 +65,16 @@ void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vecto
   std::string solvertype=options().option("solver").value_str();
 
   if (solvertype=="EmptyLSS"){
-      m_mat=(LSS::Matrix::Ptr) new LSS::EmptyLSSMatrix("Matrix");
-      m_rhs=(LSS::Vector::Ptr) new LSS::EmptyLSSVector("RHS");
-      m_sol=(LSS::Vector::Ptr) new LSS::EmptyLSSVector("Solution");
+      m_mat=create_component_ptr<LSS::EmptyLSSMatrix>("Matrix");
+      m_rhs=create_component_ptr<LSS::EmptyLSSVector>("RHS");
+      m_sol=create_component_ptr<LSS::EmptyLSSVector>("Solution");
   }
 
   if (solvertype=="Trilinos"){
     #ifdef CF_HAVE_TRILINOS
-      m_mat=(LSS::Matrix::Ptr) new LSS::TrilinosMatrix("Matrix");
-      m_rhs=(LSS::Vector::Ptr) new LSS::TrilinosVector("RHS");
-      m_sol=(LSS::Vector::Ptr) new LSS::TrilinosVector("Solution");
+    m_mat=create_component_ptr<LSS::TrilinosMatrix>("Matrix");
+    m_rhs=create_component_ptr<LSS::TrilinosVector>("RHS");
+    m_sol=create_component_ptr<LSS::TrilinosVector>("Solution");
     #else
       throw Common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif

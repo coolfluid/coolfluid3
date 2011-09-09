@@ -25,9 +25,10 @@ domain = model.get_child('Domain')
 domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # lss setup
-lss = model.create_component('LSS', 'CF.Solver.CEigenLSS')
-lss.configure_option('config_file', cf.URI(sys.argv[2]))
+lss = model.create_component('LSS', 'CF.Math.LSS.System')
+lss.configure_option('solver', 'Trilinos');
 solver.configure_option('lss', lss.uri())
+lss.get_child('Matrix').configure_option('settings_file', sys.argv[2]);
 
 # Boundary conditions
 bc = solver.get_child('BoundaryConditions')

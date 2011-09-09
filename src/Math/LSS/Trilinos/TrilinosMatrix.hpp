@@ -13,7 +13,7 @@
 #include <Epetra_FEVbrMatrix.h>
 #include <Teuchos_RCP.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Vector.hpp"
 #include "Math/LSS/Matrix.hpp"
@@ -35,7 +35,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API TrilinosMatrix : public LSS::Matrix {
+class LSS_API TrilinosMatrix : public LSS::Matrix {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM

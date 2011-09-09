@@ -4,7 +4,7 @@ list( APPEND sandbox-lss-trilinos_files
   lss-trilinos.cpp
 )
 
-list( APPEND sandbox-lss-trilinos_cflibs coolfluid_common coolfluid_math coolfluid_lss)
+list( APPEND sandbox-lss-trilinos_cflibs coolfluid_common coolfluid_math coolfluid_math_lss)
 
 set( sandbox-lss-trilinos_sandbox_app TRUE )
 
