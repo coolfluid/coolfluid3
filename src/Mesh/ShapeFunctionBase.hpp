@@ -44,7 +44,7 @@ public:
 
   // Information coming from Traits
   // ------------------------------
-  static const GeoShape::Type shape = TR::shape;
+  static const GeoShape::Type shape = (GeoShape::Type) TR::shape;
   enum { nb_nodes       = TR::nb_nodes       };
   enum { dimensionality = TR::dimensionality };
   enum { order          = TR::order          };

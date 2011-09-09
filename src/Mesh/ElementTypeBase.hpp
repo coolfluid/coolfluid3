@@ -46,7 +46,7 @@ public:
   // Information coming from Traits
   // ------------------------------
   typedef typename TR::SF SF;
-  static const GeoShape::Type shape = TR::SF::shape;
+  static const GeoShape::Type shape = (GeoShape::Type) TR::SF::shape;
   enum { order          = TR::SF::order          };
   enum { dimensionality = TR::SF::dimensionality };
   enum { dimension      = TR::dimension          };
