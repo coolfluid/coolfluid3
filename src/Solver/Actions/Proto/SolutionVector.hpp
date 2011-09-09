@@ -62,7 +62,7 @@ struct GetSolutionVector :
       const Uint sys_idx = data.node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
       for(Uint i = 0; i != VarDataT::dimension; ++i)
-        lss.solution()->get_value(sys_idx, result_at(result, i));
+        lss.solution()->get_value(sys_idx+i, result_at(result, i));
       return result;
     }
   };

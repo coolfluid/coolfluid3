@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   outside_temp << 1., 1;
   const RealVector2 initial_temp(100., 200.);
   const Uint nb_segments = 10;
-  const Real end_time = 0.01;
-  const Real dt = 0.01;
+  const Real end_time = 0.5;
+  const Real dt = 0.1;
   const boost::proto::literal<RealVector> alpha(RealVector2(1., 2.));
 
   // Setup a model
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
-  
+
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);

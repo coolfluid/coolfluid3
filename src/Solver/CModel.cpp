@@ -41,7 +41,7 @@ using namespace Common;
 using namespace Common::XML;
 using namespace Mesh;
 
-Common::ComponentBuilder < CModel, Component, LibSolver > CModel_Builder;
+Common::ComponentBuilder < CModel, CModel, LibSolver > CModel_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
