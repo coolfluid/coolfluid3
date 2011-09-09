@@ -111,7 +111,7 @@ struct ProtoParallelFixture :
     // Create field
     boost_foreach(CEntities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+      elements.create_space("elems_P0","CF.Mesh.LagrngeP0."+elements.element_type().shape_name());
     }
 
     return model;

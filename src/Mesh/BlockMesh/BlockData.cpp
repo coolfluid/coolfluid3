@@ -137,7 +137,7 @@ void create_block_mesh_2d(const BlockData& block_data, CMesh& mesh, std::map<std
 
   // Define the volume cells, i.e. the blocks
   CCells& block_elements = block_mesh_region.create_region("blocks").create_component<CCells>("interior");
-  block_elements.initialize("CF.Mesh.SF.Quad2DLagrangeP1", block_nodes);
+  block_elements.initialize("CF.Mesh.LagrangeP1.Quad2D", block_nodes);
   CTable<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][4]);

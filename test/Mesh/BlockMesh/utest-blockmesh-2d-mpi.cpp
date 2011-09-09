@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   // Store element ranks
   boost_foreach(CEntities& elements, mesh.topology().elements_range())
   {
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   }
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
   Field& elem_rank = elems_P0.create_field("elem_rank");
