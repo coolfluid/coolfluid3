@@ -74,6 +74,6 @@ if(CF_ENABLE_PROTO)
 
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp)
+  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp utest-proto-parallel.cpp)
 
 endif()
