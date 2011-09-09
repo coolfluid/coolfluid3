@@ -11,7 +11,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Solver/CEigenLSS.hpp"
+#include "Math/LSS/System.hpp"
 
 #include "ComponentWrapper.hpp"
 #include "Terminals.hpp"
@@ -27,24 +27,20 @@ struct DirichletBCTag
 };
 
 /// Used to create placeholders for a Dirichlet condition
-typedef ComponentWrapper<CEigenLSS, DirichletBCTag> DirichletBC;
+typedef ComponentWrapper<Math::LSS::System, DirichletBCTag> DirichletBC;
 
 /// Helper function for assignment
-inline void assign_dirichlet(CEigenLSS& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
+inline void assign_dirichlet(Math::LSS::System& lss, const Real new_value, const Real old_value, const Uint node_idx, const Uint offset)
 {
-  // Index in the global system
-  const Uint sys_idx = node_idx*nb_dofs + offset;
-  lss.set_dirichlet_bc(sys_idx, new_value - old_value);
+  lss.dirichlet(node_idx, offset, new_value - old_value);
 }
 
 /// Overload for vector types
 template<typename NewT, typename OldT>
-inline void assign_dirichlet(CEigenLSS& lss, const NewT& new_value, const OldT& old_value, const Uint node_idx, const Uint offset, const Uint nb_dofs)
+inline void assign_dirichlet(Math::LSS::System& lss, const NewT& new_value, const OldT& old_value, const Uint node_idx, const Uint offset)
 {
-  // Index in the global system
-  const Uint sys_idx = node_idx*nb_dofs + offset;
   for(Uint i = 0; i != OldT::RowsAtCompileTime; ++i)
-    lss.set_dirichlet_bc(sys_idx+i, new_value[i] - old_value[i]);
+    lss.dirichlet(node_idx, offset+i, new_value[i] - old_value[i]);
 }
 
 struct DirichletBCSetter :
@@ -61,14 +57,13 @@ struct DirichletBCSetter :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
+      Math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
       assign_dirichlet(
         lss,
         state,
         data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).value(), // old value
         data.node_idx,
-        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset,
-        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs
+        data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset
       );
     }
   };
@@ -83,7 +78,7 @@ struct DirichletBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, DirichletBCTag> >,
+        boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, DirichletBCTag> >,
         FieldTypes
       >,
       GrammarT

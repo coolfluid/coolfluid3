@@ -52,7 +52,7 @@ coolfluid_add_unit_test( utest-math-variablemanager )
 
 ################################################################################
 
-list( APPEND utest-lss-system-emptylss_cflibs coolfluid_lss coolfluid_math coolfluid_common)
+list( APPEND utest-lss-system-emptylss_cflibs coolfluid_math_lss coolfluid_math coolfluid_common)
 list( APPEND utest-lss-system-emptylss_files  utest-lss-system-emptylss.cpp)
 
 set(utest-lss-system-emptylss_mpi_test TRUE)
@@ -61,7 +61,7 @@ coolfluid_add_unit_test( utest-lss-system-emptylss )
 
 ################################################################################
 
-list( APPEND utest-lss-atomic_cflibs coolfluid_math coolfluid_lss coolfluid_common)
+list( APPEND utest-lss-atomic_cflibs coolfluid_math coolfluid_math_lss coolfluid_common)
 list( APPEND utest-lss-atomic_files  utest-lss-atomic.cpp)
 
 set(utest-lss-system-emptylss_mpi_test TRUE)

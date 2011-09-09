@@ -367,8 +367,8 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
 //                val[j][0](l,m)+=*valuesmat++;
             }
       hits++;
+      if (hits==numblocks) break;
     }
-    if (hits==numblocks) break;
   }
 /**/
 }
