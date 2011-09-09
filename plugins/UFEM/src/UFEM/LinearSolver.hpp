@@ -10,7 +10,6 @@
 #include "Common/CActionDirector.hpp"
 #include "Common/OptionURI.hpp"
 
-#include "Solver/CEigenLSS.hpp"
 #include "Solver/CSimpleSolver.hpp"
 
 #include "Solver/Actions/Proto/BlockAccumulator.hpp"
@@ -64,6 +63,9 @@ public: // functions
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
+  
+  /// Trigerred when the LSS is set
+  void trigger_lss();
   
 public:
   /// Proto placeholder for the system matrix

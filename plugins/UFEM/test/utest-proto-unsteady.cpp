@@ -124,6 +124,12 @@ struct ProtoUnsteadyFixture
 
 BOOST_FIXTURE_TEST_SUITE( ProtoUnsteadySuite, ProtoUnsteadyFixture )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().size(), 1);
+}
+
 BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 {
   // debug output
@@ -135,8 +141,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
@@ -169,7 +175,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
               _T(temperature) += solver.invdt() * transpose(N(temperature))*N(temperature)
             ),
             solver.system_matrix += _T + 0.5 * _A,
-            solver.system_rhs -= _A * nodal_values(temperature)
+            solver.system_rhs += -_A * nodal_values(temperature)
           )
         )
       )
@@ -184,6 +190,8 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  
+  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", ambient_temp);
   solver.boundary_conditions().add_constant_bc("xpos", "Temperature", ambient_temp);

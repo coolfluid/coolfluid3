@@ -13,3 +13,6 @@ from libcoolfluid_python import *
 
 # restore the dlopen flags to default
 sys.setdlopenflags(flags)
+
+#initiate the CF3 environment
+Core.initiate(sys.argv)

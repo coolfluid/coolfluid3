@@ -560,7 +560,11 @@ int NTree::rowCount(const QModelIndex & parent) const
   if (!parent.isValid())
     return 1;
 
-  return this->indexToTreeNode(parent)->childCount();
+  TreeNode* tree_node = this->indexToTreeNode(parent);
+  if(is_not_null(tree_node))
+    return tree_node->childCount();
+
+  return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////

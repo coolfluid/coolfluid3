@@ -7,7 +7,7 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/CBuilder.hpp"
 
-#include "Solver/CEigenLSS.hpp"
+#include "Math/LSS/System.hpp"
 
 #include "CSolveSystem.hpp"
 
@@ -16,7 +16,7 @@ namespace Solver {
 namespace Actions {
 
 using namespace Common;
-using namespace Mesh;
+using namespace Math;
 
 Common::ComponentBuilder < CSolveSystem, CAction, LibActions > CSolveSystem_Builder;
 
@@ -32,7 +32,7 @@ CSolveSystem::CSolveSystem( const std::string& name  ) :
     "This object executes a linear system solver\n";
   properties()["description"] = description;
 
-  options().add_option( OptionComponent<CEigenLSS>::create("lss", &m_lss))
+  options().add_option( OptionComponent<LSS::System>::create("lss", &m_lss))
       ->description("Linear System solver that gets executed")
       ->pretty_name("LSS")
       ->mark_basic();
@@ -45,15 +45,13 @@ void CSolveSystem::execute ()
   if(m_lss.expired())
     throw SetupError(FromHere(), "LSS not set for component " + uri().string());
 
-  CEigenLSS& lss = *m_lss.lock();
+  LSS::System& lss = *m_lss.lock();
 
-  if(!lss.size())
-    throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is empty!");
+  if(!lss.is_created())
+    throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is not created!");
 
   lss.solve();
 }
-
-////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 

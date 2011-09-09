@@ -45,10 +45,10 @@ struct Core
         argv[i] = new char[arg_i.size()];
         arg_i.copy(argv[i], arg_i.size());
       }
-    }
 
-    Common::Core::instance().initiate(argc, argv);
-    Common::Comm::PE::instance().init(argc, argv);
+      Common::Core::instance().initiate(argc, argv);
+      Common::Comm::PE::instance().init(argc, argv);
+    }
   }
 };
 

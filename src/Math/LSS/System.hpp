@@ -11,7 +11,7 @@
 
 //#include <boost/utility.hpp>
 
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 #include "Common/Component.hpp"
 #include "Common/MPI/CommPattern.hpp"
 #include "Common/Log.hpp"
@@ -52,7 +52,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API System : public Common::Component {
+class LSS_API System : public Common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM

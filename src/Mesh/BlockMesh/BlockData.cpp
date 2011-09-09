@@ -1049,7 +1049,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
 
-    //mesh.geometry().coordinates().synchronize();
+    mesh.geometry().coordinates().synchronize();
     std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }

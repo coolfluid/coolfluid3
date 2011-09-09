@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/MatrixTypes.hpp"
-#include "Math/LibMath.hpp"
+#include "Math/LSS/LibLSS.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Math_API BlockAccumulator {
+class LSS_API BlockAccumulator {
 public:
 
   /// setting up sizes
@@ -49,7 +49,7 @@ public:
   /// entering the indices where the local matrix is lying
   template<typename T> void neighbour_indices(const T& idx_vector )
   {
-    CF_ASSERT(indices.size()==idx_vector.size());
+    cf_assert(indices.size()==idx_vector.size());
     for (Uint i=0; i<(const Uint)indices.size(); i++)
       indices[i]=idx_vector[i];
   };
