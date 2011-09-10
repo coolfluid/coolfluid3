@@ -42,7 +42,7 @@ set( utest-proto-navier-stokes_mpi_nprocs 1 )
 set( utest-proto-navier-stokes_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-navier-stokes )
 
-list( APPEND utest-ufem-buildsparsity_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_block)
+list( APPEND utest-ufem-buildsparsity_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_block)
 list( APPEND utest-ufem-buildsparsity_files
   utest-ufem-buildsparsity.cpp )
 set( utest-ufem-buildsparsity_mpi_test TRUE )
