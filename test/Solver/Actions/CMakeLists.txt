@@ -17,7 +17,7 @@ foreach( mfile ${mesh_files} )
                     )
 endforeach()
 
-list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
+list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
 list( APPEND utest-solver-solvesystem_files utest-solver-solvesystem.cpp )
 coolfluid_add_unit_test( utest-solver-solvesystem )
 
