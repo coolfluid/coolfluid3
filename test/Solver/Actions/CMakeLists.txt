@@ -17,7 +17,7 @@ foreach( mfile ${mesh_files} )
                     )
 endforeach()
 
-list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
+list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
 list( APPEND utest-solver-solvesystem_files utest-solver-solvesystem.cpp )
 coolfluid_add_unit_test( utest-solver-solvesystem )
 
@@ -74,6 +74,6 @@ if(CF_ENABLE_PROTO)
 
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp)
+  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp utest-proto-parallel.cpp)
 
 endif()

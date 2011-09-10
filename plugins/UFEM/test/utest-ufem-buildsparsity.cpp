@@ -19,6 +19,7 @@
 #include "Math/LSS/System.hpp"
 
 #include "Mesh/CDomain.hpp"
+#include "Mesh/LagrangeP1/Line1D.hpp"
 
 #include "Solver/CModel.hpp"
 
@@ -334,7 +335,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
+  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver

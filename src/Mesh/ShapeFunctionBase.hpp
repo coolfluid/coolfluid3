@@ -44,10 +44,10 @@ public:
 
   // Information coming from Traits
   // ------------------------------
-  static const GeoShape::Type shape = (GeoShape::Type) TR::shape;
-  enum { nb_nodes       = TR::nb_nodes       };
-  enum { dimensionality = TR::dimensionality };
-  enum { order          = TR::order          };
+  static const GeoShape::Type shape          = (GeoShape::Type) TR::shape;
+  static const Uint           nb_nodes       = (Uint) TR::nb_nodes;
+  static const Uint           dimensionality = (Uint) TR::dimensionality;
+  static const Uint           order          = (Uint) TR::order;
 
   static std::string type_name() { return GeoShape::Convert::instance().to_str(shape); }
 
@@ -78,6 +78,15 @@ private:
 
 template <typename SF,typename TR>
 const GeoShape::Type ShapeFunctionBase<SF,TR>::shape;
+
+template <typename SF,typename TR>
+const Uint ShapeFunctionBase<SF,TR>::nb_nodes;
+
+template <typename SF,typename TR>
+const Uint ShapeFunctionBase<SF,TR>::dimensionality;
+
+template <typename SF,typename TR>
+const Uint ShapeFunctionBase<SF,TR>::order;
 
 ////////////////////////////////////////////////////////////////////////////////
 
