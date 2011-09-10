@@ -47,12 +47,12 @@ public:
   // ------------------------------
   typedef typename TR::SF SF;
   static const GeoShape::Type shape = (GeoShape::Type) TR::SF::shape;
-  enum { order          = TR::SF::order          };
-  enum { dimensionality = TR::SF::dimensionality };
-  enum { dimension      = TR::dimension          };
-  enum { nb_faces       = TR::nb_faces           };
-  enum { nb_edges       = TR::nb_edges           };
-  enum { nb_nodes       = TR::SF::nb_nodes       };
+  static const Uint order          = (Uint) TR::SF::order          ;
+  static const Uint dimensionality = (Uint) TR::SF::dimensionality ;
+  static const Uint dimension      = (Uint) TR::dimension          ;
+  static const Uint nb_faces       = (Uint) TR::nb_faces           ;
+  static const Uint nb_edges       = (Uint) TR::nb_edges           ;
+  static const Uint nb_nodes       = (Uint) TR::SF::nb_nodes       ;
 
   static std::string type_name() { return GeoShape::Convert::instance().to_str(shape)+Common::to_str((Uint)dimension)+"D"; }
 
@@ -92,6 +92,24 @@ private:
 
 template <typename ETYPE,typename TR>
 const GeoShape::Type ElementTypeBase<ETYPE,TR>::shape;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::order;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::dimensionality;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::dimension;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::nb_faces;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::nb_edges;
+
+template <typename ETYPE,typename TR>
+const Uint ElementTypeBase<ETYPE,TR>::nb_nodes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
