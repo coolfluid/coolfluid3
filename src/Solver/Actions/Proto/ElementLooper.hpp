@@ -23,6 +23,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementTypePredicates.hpp"
+#include "Mesh/ShapeFunctionT.hpp"
 
 namespace CF {
 namespace Solver {
@@ -207,7 +208,7 @@ struct ElementLooper
         , (SF)
         );
 
-    if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
+    if(is_null(dynamic_cast<const Mesh::ShapeFunctionT<typename SF::SF>*>(&m_elements.element_type().shape_function())))
       return;
 
     dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ShapeFunctionsT, Mesh::IsCompatibleWith<SF> > >::value>(), sf);
