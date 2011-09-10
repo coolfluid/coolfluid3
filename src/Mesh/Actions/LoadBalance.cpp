@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "coolfluid-packages.hpp"
 
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
@@ -40,10 +41,13 @@ LoadBalance::LoadBalance( const std::string& name )
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
+#ifdef CF_HAVE_PTSCOTCH
+  m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+#elif CF_HAVE_ZOLTAN
   m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-  add_static_component(*m_partitioner);
-
   m_partitioner->configure_option("graph_package", std::string("PHG"));
+#endif
+  add_static_component(*m_partitioner);
 }
 
 /////////////////////////////////////////////////////////////////////////////
