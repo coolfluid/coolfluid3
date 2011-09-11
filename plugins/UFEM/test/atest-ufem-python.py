@@ -39,4 +39,7 @@ bc.get_child('BCouterTemperature').configure_option('value', 35)
 
 # run the simulation
 model.simulate()
-domain.write_mesh(cf.URI('atest-ufem-heat-steady-output-py.msh'))
+
+# Write result
+domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
+domain.write_mesh(cf.URI('atest-ufem-heat-steady-output-py.pvtu'))

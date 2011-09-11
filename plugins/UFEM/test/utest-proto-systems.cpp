@@ -129,7 +129,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.simulate();
 
   // Write result
-  domain.write_mesh(URI("systems.msh"));
+  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.CWriter");
+  domain.write_mesh(URI("systems.pvtu"));
 };
 
 // Expected matrices:

@@ -23,7 +23,7 @@
 #include "Terminals.hpp"
 
 /// @file
-/// System matrix block accumultation. Current prototype uses dense a dense Eigen matrix and is purely for proof-of-concept
+/// System matrix block accumulation.
 
 namespace CF {
 namespace Solver {
