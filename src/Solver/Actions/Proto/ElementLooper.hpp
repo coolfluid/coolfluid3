@@ -208,7 +208,7 @@ struct ElementLooper
         , (SF)
         );
 
-    if(is_null(dynamic_cast<const Mesh::ShapeFunctionT<typename SF::SF>*>(&m_elements.element_type().shape_function())))
+    if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
       return;
 
     dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ShapeFunctionsT, Mesh::IsCompatibleWith<SF> > >::value>(), sf);

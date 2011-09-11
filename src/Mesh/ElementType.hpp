@@ -15,6 +15,7 @@
 #include "Math/MatrixTypes.hpp"
 
 #include "Mesh/ShapeFunction.hpp"
+#include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,7 +242,7 @@ struct IsElementType
   /// Return true if etype is of concrete type ETYPE
   bool operator()(const ElementType& etype)
   {
-    return dynamic_cast<ETYPE const*>(&etype) != nullptr;
+    return ETYPE::dimension == etype.dimension() && is_not_null(dynamic_cast<const ShapeFunctionT<typename ETYPE::SF>*>(&etype.shape_function()));
   }
 };
 

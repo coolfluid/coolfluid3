@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
   );
   BOOST_CHECK_CLOSE(vol1, vol2, 1e-5);
 }
-/*
+
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
   CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
@@ -469,7 +469,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   std::cout << result << std::endl;
 }
-*/
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
