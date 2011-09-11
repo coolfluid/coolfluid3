@@ -230,17 +230,17 @@ struct CustomLaplacian
   template<typename This, typename FieldDataT>
   struct result<This(FieldDataT)>
   {
-    typedef const Eigen::Matrix<Real, FieldDataT::dimension*FieldDataT::SF::nb_nodes, FieldDataT::dimension*FieldDataT::SF::nb_nodes>& type;
+    typedef const Eigen::Matrix<Real, FieldDataT::dimension*FieldDataT::EtypeT::nb_nodes, FieldDataT::dimension*FieldDataT::EtypeT::nb_nodes>& type;
   };
 
   template<typename StorageT, typename FieldDataT>
   const StorageT& operator()(StorageT& result, const FieldDataT& field) const
   {
-    typedef typename FieldDataT::SF SF;
-    const Eigen::Matrix<Real, SF::nb_nodes, SF::nb_nodes> m = field.nabla().transpose() * field.nabla();
+    typedef typename FieldDataT::EtypeT EtypeT;
+    const Eigen::Matrix<Real, EtypeT::nb_nodes, EtypeT::nb_nodes> m = field.nabla().transpose() * field.nabla();
     for(Uint d = 0; d != FieldDataT::dimension; ++d)
     {
-      result.template block<SF::nb_nodes, SF::nb_nodes>(SF::nb_nodes*d, SF::nb_nodes*d).noalias() = m;
+      result.template block<EtypeT::nb_nodes, EtypeT::nb_nodes>(EtypeT::nb_nodes*d, EtypeT::nb_nodes*d).noalias() = m;
     }
     return result;
   }

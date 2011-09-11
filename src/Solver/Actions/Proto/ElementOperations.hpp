@@ -62,7 +62,7 @@ struct NodesOp : boost::proto::transform< NodesOp >
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef const typename boost::remove_reference<DataT>::type::SupportT::SF::NodesT& result_type;
+    typedef const typename boost::remove_reference<DataT>::type::SupportT::EtypeT::NodesT& result_type;
 
     result_type operator()(typename impl::expr_param, typename impl::state_param, typename impl::data_param data)
     {
@@ -79,7 +79,7 @@ struct MappedOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   /// Type of the geometric support
   typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
   /// Type of the mapped coordinates
-  typedef typename SupportT::SF::MappedCoordsT MappedCoordsT;
+  typedef typename SupportT::EtypeT::MappedCoordsT MappedCoordsT;
 
   typedef typename ResultType<SupportT>::type result_type;
 
@@ -112,7 +112,7 @@ struct MappedVarOpBase : boost::proto::transform_impl<ExprT, StateT, DataT>
   /// Type of the geometric support
   typedef typename boost::remove_reference<DataT>::type::SupportT SupportT;
   /// Type of the mapped coordinates
-  typedef typename SupportT::SF::MappedCoordsT MappedCoordsT;
+  typedef typename SupportT::EtypeT::MappedCoordsT MappedCoordsT;
 
   typedef typename ResultType<VarDataT>::type result_type;
 
@@ -140,7 +140,7 @@ struct CoordinatesOp : boost::proto::transform< CoordinatesOp >
   template<typename SupportT>
   struct ResultType
   {
-    typedef const typename SupportT::SF::CoordsT& type;
+    typedef const typename SupportT::EtypeT::CoordsT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
@@ -166,7 +166,7 @@ struct InterpolationOp : boost::proto::transform< InterpolationOp >
   {
     typedef typename VarDataType<VarT, DataT>::type VarDataT;
     typedef typename VarDataT::EvalT result_type;
-    typedef typename VarDataT::SF::MappedCoordsT MappedCoordsT;
+    typedef typename VarDataT::EtypeT::MappedCoordsT MappedCoordsT;
 
     /// Mapped coords supplied explicitely
     result_type operator()(typename impl::expr_param, const MappedCoordsT& mapped_coords, typename impl::data_param data)
@@ -237,7 +237,7 @@ struct NormalOp : boost::proto::transform< NormalOp >
   template<typename SupportT>
   struct ResultType
   {
-    typedef const typename SupportT::SF::CoordsT& type;
+    typedef const typename SupportT::EtypeT::CoordsT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
@@ -261,7 +261,7 @@ struct NablaOp : boost::proto::transform< NablaOp >
   template<typename VarDataT>
   struct ResultType
   {
-    typedef const typename VarDataT::SF::SF::GradientT& type;
+    typedef const typename VarDataT::EtypeT::SF::GradientT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
@@ -285,7 +285,7 @@ struct ShapeFunctionOp : boost::proto::transform< ShapeFunctionOp >
   template<typename VarDataT>
   struct ResultType
   {
-    typedef const typename VarDataT::SF::SF::ValueT& type;
+    typedef const typename VarDataT::EtypeT::SF::ValueT& type;
   };
 
   template<typename ExprT, typename StateT, typename DataT>
