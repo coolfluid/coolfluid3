@@ -104,7 +104,7 @@ struct LoopElems
 template<typename RangeT, typename FunctorT>
 void loop_over_regions(const RangeT& range, FunctorT functor) {
   BOOST_FOREACH(const CElements& region, range) {
-    boost::mpl::for_each<ElementTypes>( LoopElems<FunctorT> ( region, functor ) );
+    boost::mpl::for_each<LagrangeP1::CellTypes>( LoopElems<FunctorT> ( region, functor ) );
   }
 }
 
