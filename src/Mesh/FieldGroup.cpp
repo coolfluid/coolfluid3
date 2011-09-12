@@ -398,7 +398,7 @@ void FieldGroup::bind_space()
   if (m_basis == Basis::INVALID)
     throw SetupError(FromHere(), "type of field_group ["+uri().string()+"] not configured");
 
-  if (m_space != CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES))
+  if (m_space != Mesh::Tags::geometry())
     create_connectivity_in_space();
   // else the connectivity must be manually created by mesh reader or mesh transformer
 

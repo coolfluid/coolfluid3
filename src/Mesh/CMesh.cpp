@@ -87,7 +87,7 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf_assert(dimension > 0);
 
   geometry().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
-  geometry().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
+  geometry().configure_option("space",   std::string(Tags::geometry()));
   geometry().configure_option("topology",topology().uri());
 
   geometry().coordinates().set_field_group(geometry());
