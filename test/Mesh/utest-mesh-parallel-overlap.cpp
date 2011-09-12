@@ -854,9 +854,7 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  boost_foreach(CEntities& elements, mesh.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 

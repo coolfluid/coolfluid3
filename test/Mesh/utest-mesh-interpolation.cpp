@@ -124,14 +124,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  // Create P0 spaces
-  boost_foreach(CEntities& elements, source.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
-  boost_foreach(CEntities& elements, target.topology().elements_range())
-    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
-
-  FieldGroup& source_elem_fields = source.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
-  FieldGroup& target_elem_fields = target.create_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& source_elem_fields = source.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "CF.Mesh.LagrangeP0");
+  FieldGroup& target_elem_fields = target.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "CF.Mesh.LagrangeP0");
   FieldGroup& source_node_fields = source.geometry();
   FieldGroup& target_node_fields = target.geometry();
 

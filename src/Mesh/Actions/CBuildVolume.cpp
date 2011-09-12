@@ -67,10 +67,7 @@ void CBuildVolume::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  boost_foreach(CCells& cells, find_components_recursively<CCells>(mesh.topology()) )
-    cells.create_space("cells_P0","CF.Mesh.LagrangeP0."+cells.element_type().shape_name());
-
-  FieldGroup& cells_P0 = mesh.create_field_group("cells_P0",FieldGroup::Basis::CELL_BASED);
+  FieldGroup& cells_P0 = mesh.create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
   Field& volume = cells_P0.create_field(Mesh::Tags::volume());
   volume.add_tag(Mesh::Tags::volume());
 

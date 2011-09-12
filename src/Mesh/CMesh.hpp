@@ -53,14 +53,30 @@ public: // functions
   // functions specific to the CMesh component
 
   /// @return the geometry topology
-  const CRegion& topology() const { return *m_topology; }
+  CRegion& topology() const { return *m_topology; }
 
-  /// @return the geometry topology
-  CRegion& topology() { return *m_topology; }
+  void create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name);
+  void create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology);
 
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base);
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space);
-  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion&);
+  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion& topology);
+
+  /// @brief Create new space and field-group matching the space
+  /// @param [in] name            Name to be given to the space, and the field group
+  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
+  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. CF.Mesh.LagrangeP1)
+  /// @return newly created field group
+  /// @note The topology this field group applies to is by default the entire mesh topology
+  FieldGroup& create_space_and_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name);
+
+  /// @brief Create new space and field-group matching the space
+  /// @param [in] name            Name to be given to the space, and the field group
+  /// @param [in] base            Basis of the space (POINT_BASED, CELL_BASED, FACE_BASED)
+  /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. CF.Mesh.LagrangeP1)
+  /// @param [in] topology        The topology of the mesh this field group applies to.
+  /// @return newly created field group
+  FieldGroup& create_space_and_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology);
 
   void update_statistics();
 

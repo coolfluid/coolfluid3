@@ -360,7 +360,7 @@ void FieldGroup::update()
         elements_lookup().add(cells);
       break;
     case Basis::FACE_BASED:
-      boost_foreach(CFaces& faces, find_components_recursively<CFaces>(topology()))
+      boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
         elements_lookup().add(faces);
       break;
     default:

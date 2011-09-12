@@ -82,11 +82,7 @@ void CBuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry().coordinates().row_size();
 
-
-  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()))
-    faces.create_space("faces_P0","CF.Mesh.LagrangeP0."+faces.element_type().shape_name());
-
-  FieldGroup& faces_P0 = mesh.create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
+  FieldGroup& faces_P0 = mesh.space_and_create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
   Field& face_normals = faces_P0.create_field(Mesh::Tags::normal(),std::string(Mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(Mesh::Tags::normal());
 
