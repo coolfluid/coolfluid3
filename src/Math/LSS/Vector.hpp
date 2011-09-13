@@ -12,7 +12,7 @@
 #include <boost/utility.hpp>
 
 #include "Math/LSS/LibLSS.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 
@@ -53,7 +53,7 @@ public:
   Vector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(Common::Comm::CommPattern& cp, Uint neq) = 0;
+  virtual void create(Common::PE::CommPattern& cp, Uint neq) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;

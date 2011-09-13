@@ -13,11 +13,11 @@
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "Common/MPI/types.hpp"
-#include <Common/MPI/operations.hpp>
-#include <Common/MPI/datatype.hpp>
+#include "Common/PE/types.hpp"
+#include <Common/PE/operations.hpp>
+#include <Common/PE/datatype.hpp>
 
-// #include "Common/MPI/debug.hpp" // for debugging mpi
+// #include "Common/PE/debug.hpp" // for debugging mpi
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@
 
 namespace CF {
   namespace Common {
-    namespace Comm {
+    namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 

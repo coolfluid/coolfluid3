@@ -53,11 +53,11 @@ CReader::CReader( const std::string& name )
       ->description("Reads Neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
-  m_options.add_option<OptionT <Uint> >("part", Comm::PE::instance().rank())
+  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", Comm::PE::instance().size())
+  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
       ->description("Total nb_partitions. (e.g. number of processors)");
 
   m_options.add_option<OptionT <bool> >("read_boundaries", true)
@@ -285,7 +285,7 @@ void CReader::read_coordinates()
 
   Geometry& nodes = m_mesh->geometry();
 
-  nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(Comm::PE::instance().rank()) + m_ghost_nodes.size());
+  nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
   // skip one line
   getline(m_file,line);

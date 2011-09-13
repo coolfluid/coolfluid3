@@ -9,7 +9,7 @@
 
 #include "Common/CF.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/OSystemLayer.hpp"
@@ -50,7 +50,7 @@ void AssertionManager::do_assert ( bool condition,
     CodeLocation code_position (file,line,func);
 
     std::ostringstream oss;
-    oss << "Assertion failed on rank " << Comm::PE::instance().rank() << ": [" << cond_str << "] ";
+    oss << "Assertion failed on rank " << PE::Comm::instance().rank() << ": [" << cond_str << "] ";
 
     if (desc)
       oss << "'" << desc << "' ";

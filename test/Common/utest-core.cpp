@@ -11,7 +11,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 using namespace std;
 using namespace boost;

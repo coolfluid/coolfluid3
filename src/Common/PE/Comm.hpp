@@ -13,17 +13,17 @@
 #include "Common/StringConversion.hpp"
 #include "Common/WorkerStatus.hpp"
 
-#include "Common/MPI/types.hpp"
-#include "Common/MPI/all_to_all.hpp"
-#include "Common/MPI/gather.hpp"
-#include "Common/MPI/all_gather.hpp"
-#include "Common/MPI/scatter.hpp"
-#include "Common/MPI/reduce.hpp"
-#include "Common/MPI/all_reduce.hpp"
-#include "Common/MPI/broadcast.hpp"
+#include "Common/PE/types.hpp"
+#include "Common/PE/all_to_all.hpp"
+#include "Common/PE/gather.hpp"
+#include "Common/PE/all_gather.hpp"
+#include "Common/PE/scatter.hpp"
+#include "Common/PE/reduce.hpp"
+#include "Common/PE/all_reduce.hpp"
+#include "Common/PE/broadcast.hpp"
 
 
-/// @file PE.hpp
+/// @file Comm.hpp
 /// @author Tamas Banyai
 ///
 /// This header defines the the parallel environment interface.
@@ -37,7 +37,7 @@ namespace CF {
 namespace Common {
 
 /// @brief Classes offering a %MPI interface for %COOLFluiD
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,18 +48,18 @@ namespace Comm {
 /// and to give a unique number to each process, from zero to the size
 /// of the communicator-1 (i.e., the "rank" of the process)
 
-class Common_API PE : public boost::noncopyable {
+class Common_API Comm : public boost::noncopyable {
 
 public:
 
   /// public constructor
-  PE(int argc, char** args);
+  Comm(int argc, char** args);
 
   /// destructor
-  ~PE();
+  ~Comm();
 
   /// Return a reference to the current PE
-  static PE& instance();
+  static Comm& instance();
 
   /// @returns the generic communication channel
   Communicator communicator() { cf_assert( is_active() ); return m_comm; }
@@ -127,27 +127,27 @@ public:
 
   template<typename T> inline T*   all_to_all(const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return Comm::all_to_all(communicator(), in_values, in_n, out_values, stride);
+    return PE::all_to_all(communicator(), in_values, in_n, out_values, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           Comm::all_to_all(communicator(), in_values, out_values, stride);
+           PE::all_to_all(communicator(), in_values, out_values, stride);
   }
   template<typename T> inline T*   all_to_all(const T* in_values, const int *in_n, T* out_values, int *out_n, const int stride=1)
   {
-    return Comm::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
+    return PE::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline T*   all_to_all(const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
   {
-    return Comm::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+    return PE::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
   {
-           Comm::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
+           PE::all_to_all(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline void all_to_all(const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
   {
-           Comm::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+           PE::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
 
   //@}
@@ -157,27 +157,27 @@ public:
 
   template<typename T> inline T*   gather(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return Comm::gather(communicator(), in_values, in_n, out_values, root, stride);
+    return PE::gather(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           Comm::gather(communicator(), in_values, out_values, root, stride);
+           PE::gather(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int root, const int stride=1)
   {
-    return Comm::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
+    return PE::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline T*   gather(const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int root, const int stride=1)
   {
-    return Comm::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+    return PE::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int root, const int stride=1)
   {
-           Comm::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
+           PE::gather(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline void gather(const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           Comm::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+           PE::gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
 
   //@}
@@ -187,31 +187,31 @@ public:
 
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return Comm::all_gather(communicator(), in_values, in_n, out_values, stride);
+    return PE::all_gather(communicator(), in_values, in_n, out_values, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           Comm::all_gather(communicator(), in_values, out_values, stride);
+           PE::all_gather(communicator(), in_values, out_values, stride);
   }
   template<typename T> inline void all_gather(const T& in_value, std::vector<T>& out_values)
   {
-           Comm::all_gather(communicator(), in_value, out_values);
+           PE::all_gather(communicator(), in_value, out_values);
   }
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
   {
-    return Comm::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
+    return PE::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline T*   all_gather(const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1)
   {
-    return Comm::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+    return PE::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
   {
-           Comm::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
+           PE::all_gather(communicator(), in_values, in_n, out_values, out_n, stride);
   }
   template<typename T> inline void all_gather(const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
   {
-           Comm::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+           PE::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
 
   //@}
@@ -221,27 +221,27 @@ public:
 
   template<typename T> inline T*   scatter(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return Comm::scatter(communicator(), in_values, in_n, out_values, root, stride);
+    return PE::scatter(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           Comm::scatter(communicator(), in_values, out_values, root, stride);
+           PE::scatter(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   scatter(const T* in_values, const int* in_n, T* out_values, int& out_n, const int root, const int stride=1)
   {
-    return Comm::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
+    return PE::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline T*   scatter(const T* in_values, const int *in_n, const int *in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride=1)
   {
-    return Comm::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+    return PE::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, int& out_n, const int root, const int stride=1)
   {
-           Comm::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
+           PE::scatter(communicator(), in_values, in_n, out_values, out_n, root, stride);
   }
   template<typename T> inline void scatter(const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, int& out_n, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           Comm::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
+           PE::scatter(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, root, stride);
   }
 
   //@}
@@ -251,19 +251,19 @@ public:
 
   template<typename T, typename Op> inline T*   reduce(const Op& op, const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return Comm::reduce(communicator(), op, in_values, in_n, out_values, root, stride);
+    return PE::reduce(communicator(), op, in_values, in_n, out_values, root, stride);
   }
   template<typename T, typename Op> inline void reduce(const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           Comm::reduce(communicator(), op, in_values, out_values, root, stride);
+           PE::reduce(communicator(), op, in_values, out_values, root, stride);
   }
   template<typename T, typename Op> inline T*   reduce(const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
   {
-    return Comm::reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, root, stride);
+    return PE::reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, root, stride);
   }
   template<typename T, typename Op> inline void reduce(const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           Comm::reduce(communicator(), op, in_values, in_map, out_values, out_map, root, stride);
+           PE::reduce(communicator(), op, in_values, in_map, out_values, out_map, root, stride);
   }
 
   //@}
@@ -273,19 +273,19 @@ public:
 
   template<typename T, typename Op> inline T*   all_reduce(const Op& op, const T* in_values, const int in_n, T* out_values, const int stride=1)
   {
-    return Comm::all_reduce(communicator(), op, in_values, in_n, out_values, stride);
+    return PE::all_reduce(communicator(), op, in_values, in_n, out_values, stride);
   }
   template<typename T, typename Op> inline void all_reduce(const Op& op, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
   {
-           Comm::all_reduce(communicator(), op, in_values, out_values, stride);
+           PE::all_reduce(communicator(), op, in_values, out_values, stride);
   }
   template<typename T, typename Op> inline T*   all_reduce(const Op& op, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int stride=1)
   {
-    return Comm::all_reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, stride);
+    return PE::all_reduce(communicator(), op, in_values, in_n, in_map, out_values, out_map, stride);
   }
   template<typename T, typename Op> inline void all_reduce(const Op& op, const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int stride=1)
   {
-           Comm::all_reduce(communicator(), op, in_values, in_map, out_values, out_map, stride);
+           PE::all_reduce(communicator(), op, in_values, in_map, out_values, out_map, stride);
   }
 
   //@}
@@ -295,36 +295,36 @@ public:
 
   template<typename T> inline T*   broadcast(const T* in_values, const int in_n, T* out_values, const int root, const int stride=1)
   {
-    return Comm::broadcast(communicator(), in_values, in_n, out_values, root, stride);
+    return PE::broadcast(communicator(), in_values, in_n, out_values, root, stride);
   }
   template<typename T> inline void broadcast(const std::vector<T>& in_values, std::vector<T>& out_values, const int root, const int stride=1)
   {
-           Comm::broadcast(communicator(), in_values, out_values, root, stride);
+           PE::broadcast(communicator(), in_values, out_values, root, stride);
   }
   template<typename T> inline T*   broadcast(const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_map, const int root, const int stride=1)
   {
-    return Comm::broadcast(communicator(), in_values, in_n, in_map, out_values, out_map, root, stride);
+    return PE::broadcast(communicator(), in_values, in_n, in_map, out_values, out_map, root, stride);
   }
   template<typename T> inline void broadcast(const std::vector<T>& in_values, const std::vector<int>& in_map, std::vector<T>& out_values, const std::vector<int>& out_map, const int root, const int stride=1)
   {
-           Comm::broadcast(communicator(), in_values, in_map, out_values, out_map, root, stride);
+           PE::broadcast(communicator(), in_values, in_map, out_values, out_map, root, stride);
   }
 
   //@}
 
 private:
 
-  PE(); ///< private constructor
+  Comm(); ///< private constructor
 
   Communicator m_comm; ///< comm_world
 
   WorkerStatus::Type m_current_status; ///< Current status, default value is @c #NOT_RUNNING.
 
-}; // PE
+}; // Comm
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Comm
+} // namespace PE
 } // namespace Common
 } // namespace CF
 

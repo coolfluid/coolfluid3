@@ -6,7 +6,7 @@
 
 #include <boost/tokenizer.hpp>
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/Log.hpp"
 #include "Common/FindComponents.hpp"
@@ -54,7 +54,7 @@ Core::Core()
   Logger::instance();
   AssertionManager::instance();
   OSystem::instance().layer()->platform_name();
-  Comm::PE::instance();
+  PE::Comm::instance();
 
   // create singleton objects inside core
   m_event_handler.reset ( new EventHandler() );

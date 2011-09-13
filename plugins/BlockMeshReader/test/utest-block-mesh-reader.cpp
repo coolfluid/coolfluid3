@@ -12,7 +12,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
+//#include "Common/CreateComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -148,8 +148,8 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
 {
   BOOST_CHECK(true);
 
-  if(!PE::instance().is_init())
-    PE::instance().init(0,0);
+  if(!Comm::instance().is_init())
+    Comm::instance().init(0,0);
   
   boost::filesystem::path path = base_dir / boost::filesystem::path("channel3d.dict");
   boost::filesystem::fstream file;
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( PartitionBlocks )
 //   boost::filesystem::path outf("PartitionBlocks.msh");
 //   msh_writer->write_from_to(block_mesh, outf);
   
-  if( PE::instance().rank() == 0)
+  if( Comm::instance().rank() == 0)
     std::cout << "-------------- Partitioned blocks ----------------\n" << partitioned_blocks << std::endl;
 }
 #endif

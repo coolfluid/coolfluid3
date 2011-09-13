@@ -27,7 +27,7 @@
 
 
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::Mesh;
 
 namespace CF {

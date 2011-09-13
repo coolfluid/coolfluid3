@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/MPI/CPEManager.hpp"
+#include "Common/PE/CPEManager.hpp"
 
 #include "Tools/Solver/Notifier.hpp"
 
@@ -18,7 +18,7 @@ namespace Solver {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Notifier::Notifier( boost::shared_ptr<Common::Comm::CPEManager> manager )
+Notifier::Notifier( boost::shared_ptr<Common::PE::CPEManager> manager )
   : m_manager(manager)
 {
   cf_assert( is_not_null(manager) );

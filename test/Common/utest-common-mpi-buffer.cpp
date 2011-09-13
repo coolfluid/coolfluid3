@@ -19,14 +19,14 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/Buffer.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/Buffer.hpp"
+#include "Common/PE/debug.hpp"
 
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,14 +60,14 @@ BOOST_FIXTURE_TEST_SUITE( MPIBufferTests_TestSuite, MPIBufferTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  Comm::PE::instance().init(m_argc,m_argv);
+  PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( test_pack_unpack )
 {
-  Comm::Buffer buf;
+  PE::Buffer buf;
   buf << 1u << 2u << 3.0 << 4 << true;
   BOOST_CHECK_EQUAL( buf.more_to_unpack(), true);
 
@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
   // Initialize some data, different for every processor
 
-  int first = PE::instance().rank();
-  Real second = (1+static_cast<Real>(PE::instance().rank()))*1e-6;
+  int first = Comm::instance().rank();
+  Real second = (1+static_cast<Real>(Comm::instance().rank()))*1e-6;
   bool third = (first == 0);
   std::string fourth = "from_proc_" + to_str(first);
   std::vector<int> fifth(3,first);
@@ -144,25 +144,25 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   // Create a buffer
-  Common::Comm::Buffer buffer;
+  Common::PE::Buffer buffer;
   int root = 0;
 
   // pack the buffer on root processor
-  if (PE::instance().rank() == root)
+  if (Comm::instance().rank() == root)
     buffer << first << second << third << fourth << fifth;
 
   // broad cast the buffer from root processor
   buffer.broadcast(root);
 
   // unpack the buffer on other processors
-  if (PE::instance().rank() != root)
+  if (Comm::instance().rank() != root)
     buffer >> first >> second >> third >> fourth >> fifth;
 
   // ----------------------------------
 
   BOOST_CHECK_EQUAL(buffer.packed_size(), 51);
 
-  if (PE::instance().rank() != root)
+  if (Comm::instance().rank() != root)
   {
     BOOST_CHECK_EQUAL(buffer.size(), 51);
     BOOST_CHECK_EQUAL(buffer.more_to_unpack(), false);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  PE::instance().finalize();
+  Comm::instance().finalize();
   Core::instance().terminate();
 }
 

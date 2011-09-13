@@ -12,16 +12,16 @@
 
 #include <boost/thread/thread.hpp>
 
-#include "Common/MPI/debug.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/debug.hpp"
+#include "Common/PE/Comm.hpp"
 
 namespace CF {
   namespace Common {
-    namespace Comm {
+    namespace PE {
 
 void wait_for_debugger(const int rank)
 {
-  const Uint irank = PE::instance().rank();
+  const Uint irank = Comm::instance().rank();
   if(rank >= 0 && rank != irank)
     return;
     

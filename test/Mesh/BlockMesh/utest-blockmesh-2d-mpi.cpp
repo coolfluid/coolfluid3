@@ -13,7 +13,7 @@
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
@@ -39,10 +39,10 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
 
-  const Uint nb_procs = Comm::PE::instance().size();
-  const Uint rank = Comm::PE::instance().rank();
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
 
   CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
 

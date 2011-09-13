@@ -14,7 +14,7 @@
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 
 #include "Math/LSS/System.hpp"
 
@@ -57,8 +57,8 @@ BOOST_FIXTURE_TEST_SUITE( UFEMBuildSparsitySuite, UFEMBuildSparsityFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
-  Common::Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().size(), 1);
+  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( Sparsity1D )
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
     ranks[i] = 0;
     gids[i] = i;
   }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
+  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
     ranks[i] = 0;
     gids[i] = i;
   }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
+  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
     ranks[i] = 0;
     gids[i] = i;
   }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
+  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 
@@ -258,7 +258,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
     ranks[i] = 0;
     gids[i] = i;
   }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
+  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
     ranks[i] = 0;
     gids[i] = i;
   }
-  Common::Comm::CommPattern& comm_pattern = mesh.create_component<Common::Comm::CommPattern>("comm_pattern_node_based");
+  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
 

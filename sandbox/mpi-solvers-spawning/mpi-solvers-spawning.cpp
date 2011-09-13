@@ -9,8 +9,8 @@
 #include "Common/CGroup.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/CPEManager.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/CPEManager.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::mpi;
@@ -18,7 +18,7 @@ using namespace CF::Common::mpi;
 int main(int argc, char * argv[])
 {
   Core::instance().initiate( argc, argv );
-  PE::instance().init(argc, argv);
+  Comm::instance().init(argc, argv);
 
   CPEManager & manager = Core::instance().tools().create_component<CPEManager>("PEManager");
 
@@ -28,7 +28,7 @@ int main(int argc, char * argv[])
 
   manager.spawn_group("Group2", 1, "../../src/Tools/Solver/coolfluid-solver");
 
-  PE::instance().finalize();
+  Comm::instance().finalize();
   Core::instance().terminate();
   return 0;
 }

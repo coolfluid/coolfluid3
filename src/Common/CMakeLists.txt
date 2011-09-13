@@ -148,35 +148,35 @@ list( APPEND coolfluid_common_files
 # MPI Files
 if(CF_HAVE_MPI)
 list( APPEND coolfluid_common_files
-      MPI/Buffer.hpp
-      MPI/CPEManager.cpp
-      MPI/CPEManager.hpp
-      MPI/CWorkerGroup.cpp
-      MPI/CWorkerGroup.hpp
-      MPI/ListeningInfo.cpp
-      MPI/ListeningInfo.hpp
-      MPI/ListeningThread.cpp
-      MPI/ListeningThread.hpp
-      MPI/PE.hpp
-      MPI/PE.cpp
-      MPI/CommWrapper.cpp
-      MPI/CommWrapper.hpp
-      MPI/CommWrapperMArray.hpp
-      MPI/CommWrapperMArray.cpp
-      MPI/CommPattern.hpp
-      MPI/CommPattern.cpp
-      MPI/datatype.hpp
-      MPI/operations.hpp
-      MPI/debug.hpp
-      MPI/debug.cpp
-      MPI/scatter.hpp
-      MPI/gather.hpp
-      MPI/all_gather.hpp
-      MPI/all_to_all.hpp
-      MPI/all_reduce.hpp
-      MPI/broadcast.hpp
-      MPI/reduce.hpp
-      MPI/types.hpp
+      PE/Buffer.hpp
+      PE/CPEManager.cpp
+      PE/CPEManager.hpp
+      PE/CWorkerGroup.cpp
+      PE/CWorkerGroup.hpp
+      PE/ListeningInfo.cpp
+      PE/ListeningInfo.hpp
+      PE/ListeningThread.cpp
+      PE/ListeningThread.hpp
+      PE/Comm.hpp
+      PE/Comm.cpp
+      PE/CommWrapper.cpp
+      PE/CommWrapper.hpp
+      PE/CommWrapperMArray.hpp
+      PE/CommWrapperMArray.cpp
+      PE/CommPattern.hpp
+      PE/CommPattern.cpp
+      PE/datatype.hpp
+      PE/operations.hpp
+      PE/debug.hpp
+      PE/debug.cpp
+      PE/scatter.hpp
+      PE/gather.hpp
+      PE/all_gather.hpp
+      PE/all_to_all.hpp
+      PE/all_reduce.hpp
+      PE/broadcast.hpp
+      PE/reduce.hpp
+      PE/types.hpp
 )
 endif()
 

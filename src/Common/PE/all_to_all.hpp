@@ -4,31 +4,32 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_all_gather_hpp
-#define CF_Common_MPI_all_gather_hpp
+#ifndef CF_Common_MPI_all_to_all_hpp
+#define CF_Common_MPI_all_to_all_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Assertions.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
-#include "Common/CodeLocation.hpp"
-#include "Common/MPI/types.hpp"
-#include "Common/MPI/datatype.hpp"
 
-// #include "Common/MPI/debug.hpp" // for debugging mpi
+#include "Common/PE/types.hpp"
+#include "Common/PE/datatype.hpp"
+
+// #include "Common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  @file all_gather.hpp
+  @file all_to_all.hpp
   @author Tamas Banyai
-  all_gather collective communication interface to MPI standard.
+  All to all collective communication interface to MPI standard.
   Due to the nature of MPI standard, at the lowest level the memory required to be linear meaning &xyz[0] should give a single and continous block of memory.
   Some functions support automatic evaluation of number of items on the receive side but be very cautious with using them because it requires two collective communication and may end up with degraded performance.
   Currently, the interface supports raw pointers and std::vectors.
   Three types of communications is implemented:
-  - Constant size send and receive on all processors via MPI_all_gather
-  - Variable size send and receive via MPI_all_gatherv
+  - Constant size send and receive on all processors via MPI_alltoall
+  - Variable size send and receive via MPI_alltoallv
   - Extension of the variable sized communication to support mapped storage both on send and receive side.
 **/
 
@@ -36,7 +37,7 @@
 
 namespace CF {
   namespace Common {
-    namespace Comm {
+    namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,8 +46,8 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the all_gather interface with constant size communication.
-    Don't call this function directly, use MPI::all_gather instead.
+    Implementation to the all to all interface with constant size communication.
+    Don't call this function directly, use MPI::alltoall instead.
     In_values and out_values must be linear in memory and their sizes should be #processes*n.
     @param comm Comm::Communicator
     @param in_values pointer to the send buffer
@@ -56,10 +57,10 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  all_gatherc_impl(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride )
+  all_to_allc_impl(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const  int stride )
   {
     // get data type and number of processors
-    Datatype type = Comm::get_mpi_datatype(*in_values);
+    Datatype type = PE::get_mpi_datatype(*in_values);
     int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
@@ -67,21 +68,15 @@ namespace detail {
     cf_assert( stride>0 );
 
     // set up out_buf
-    T* out_buf=out_values;
+    T* out_buf=0;
     if (in_values==out_values) {
       if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+    } else {
+      out_buf=out_values;
     }
 
     // do the communication
-    /// @bug (in OpenMPI ) MPI_CHECK_RESULT(MPI_Allgather, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
-    /// @todo check if in later versions it is fixed
-    int *displs=new int[nproc];
-    for (int i=0; i<nproc; i++) displs[i]=i*in_n*stride;
-    int *counts=new int[nproc];
-    for (int i=0; i<nproc; i++) counts[i]=in_n*stride;
-    MPI_CHECK_RESULT(MPI_Allgatherv, (const_cast<T*>(in_values), in_n*stride, type, out_buf, counts, displs, type, comm ));
-    delete[] displs;
-    delete[] counts;
+    MPI_CHECK_RESULT(MPI_Alltoall, (const_cast<T*>(in_values), in_n*stride, type, out_buf, in_n*stride, type, comm));
 
     // deal with out_buf
     if (in_values==out_values) {
@@ -93,8 +88,8 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
   /**
-    Implementation to the all_gather interface with variable size communication through in and out map.
-    Don't call this function directly, use MPI::all_gathervm instead.
+    Implementation to the all to all interface with variable size communication through in and out map.
+    Don't call this function directly, use MPI::alltoallvm instead.
     In_values and out_values must be linear in memory and their sizes should be sum(in_n[i]) and sum(out_n[i]) i=0..#processes-1.
     @param comm Comm::Communicator
     @param in_values pointer to the send buffer
@@ -107,10 +102,10 @@ namespace detail {
   **/
   template<typename T>
   inline void
-  all_gathervm_impl(const Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int stride )
+  all_to_allvm_impl(const Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, const int *out_n, const int *out_map, const int stride )
   {
     // get data type and number of processors
-    Datatype type = Comm::get_mpi_datatype(*in_values);
+    Datatype type = PE::get_mpi_datatype(*in_values);
     int nproc;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
@@ -119,35 +114,45 @@ namespace detail {
 
     // compute displacements both on send an receive side
     // also compute stride-multiplied send and receive counts
+    int *in_nstride=new int[nproc];
     int *out_nstride=new int[nproc];
+    int *in_disp=new int[nproc];
     int *out_disp=new int[nproc];
+    in_disp[0]=0;
     out_disp[0]=0;
     for(int i=0; i<nproc-1; i++) {
+      in_nstride[i]=stride*in_n[i];
       out_nstride[i]=stride*out_n[i];
+      in_disp[i+1]=in_disp[i]+in_nstride[i];
       out_disp[i+1]=out_disp[i]+out_nstride[i];
     }
+    in_nstride[nproc-1]=in_n[nproc-1]*stride;
     out_nstride[nproc-1]=out_n[nproc-1]*stride;
 
     // compute total number of send and receive items
-    const int in_sum=stride*in_n;
+    const int in_sum=in_disp[nproc-1]+stride*in_n[nproc-1];
     const int out_sum=out_disp[nproc-1]+stride*out_n[nproc-1];
 
     // set up in_buf
-    T *in_buf=(T*)in_values;
+    T *in_buf=0;
     if (in_map!=0) {
       if ( (in_buf=new T[in_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_sum; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<in_sum/stride; i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
+    } else {
+      in_buf=(T*)in_values;
     }
 
     // set up out_buf
-    T *out_buf=out_values;
+    T *out_buf=0;
     if ((out_map!=0)||(in_values==out_values)) {
       if ( (out_buf=new T[out_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+    } else {
+      out_buf=out_values;
     }
 
     // do the communication
-    MPI_CHECK_RESULT(MPI_Allgatherv, (in_buf, in_sum, type, out_buf, out_nstride, out_disp, type, comm));
+    MPI_CHECK_RESULT(MPI_Alltoallv, (in_buf, in_nstride, in_disp, type, out_buf, out_nstride, out_disp, type, comm));
 
     // re-populate out_values
     if (out_map!=0) {
@@ -161,7 +166,9 @@ namespace detail {
 
     // free internal memory
     if (in_map!=0) delete[] in_buf;
+    delete[] in_disp;
     delete[] out_disp;
+    delete[] in_nstride;
     delete[] out_nstride;
   }
 
@@ -172,7 +179,7 @@ namespace detail {
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all_gather communication with specialization to raw pointer.
+  Interface to the constant size all to all communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   @param comm Comm::Communicator
   @param in_values pointer to the send buffer
@@ -182,9 +189,9 @@ namespace detail {
 **/
 template<typename T>
 inline T*
-all_gather(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const int stride=1)
+all_to_all(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const int stride=1)
 {
-  // get nproc, irank
+  // get nproc
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
@@ -196,14 +203,14 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, T* out_
   }
 
   // call c_impl
-  detail::all_gatherc_impl(comm, in_values, in_n, out_buf, stride);
+  detail::all_to_allc_impl(comm, in_values, in_n, out_buf, stride);
   return out_buf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all_gather communication with specialization to std::vector.
+  Interface to the constant size all to all communication with specialization to std::vector.
   @param comm Comm::Communicator
   @param in_values send buffer
   @param out_values receive buffer
@@ -211,45 +218,19 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, T* out_
 **/
 template<typename T>
 inline void
-all_gather(const Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
+all_to_all(const Communicator& comm, const std::vector<T>& in_values, std::vector<T>& out_values, const int stride=1)
 {
-  // get nproc, irank
+  // get number of processors
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
   // set out_values's sizes
-  cf_assert( in_values.size() % (stride) == 0 );
-  int in_n=(int)in_values.size();
-  out_values.resize(in_n*nproc);
-  out_values.reserve(in_n*nproc);
+  cf_assert( in_values.size() % (nproc*stride) == 0 );
+  out_values.resize(in_values.size());
+  out_values.reserve(in_values.size());
 
   // call c_impl
-  detail::all_gatherc_impl(comm, (T*)(&in_values[0]), in_n/(stride), (T*)(&out_values[0]), stride);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-/**
-  Interface to the constant size all_gather communication with specialization to std::vector.
-  @param comm Comm::Communicator
-  @param in_values send buffer
-  @param out_values receive buffer
-  @param stride is the number of items of type T forming one array element, for example if communicating coordinates together, then stride==3:  X0,Y0,Z0,X1,Y1,Z1,...,Xn-1,Yn-1,Zn-1
-**/
-template<typename T>
-inline void
-all_gather(const Communicator& comm, const T& in_value, std::vector<T>& out_values)
-{
-  // get nproc, irank
-  int nproc;
-  MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
-
-  // set out_values's sizes
-  out_values.resize(nproc);
-  out_values.reserve(nproc);
-
-  // call c_impl
-  detail::all_gatherc_impl(comm, (T*)(&in_value), 1, (T*)(&out_values[0]), 1);
+  detail::all_to_allc_impl(comm, (T*)(&in_values[0]), in_values.size()/(nproc*stride), (T*)(&out_values[0]), stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -257,10 +238,10 @@ all_gather(const Communicator& comm, const T& in_value, std::vector<T>& out_valu
 //needs a forward
 template<typename T>
 inline T*
-all_gather(const Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1);
+all_to_all(const Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride=1);
 
 /**
-  Interface to the variable size all_gather communication with specialization to raw pointer.
+  Interface to the variable size all to all communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated and the pointer to it is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
   @param comm Comm::Communicator
@@ -272,10 +253,10 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, const i
 **/
 template<typename T>
 inline T*
-all_gather(const Communicator& comm, const T* in_values, const int in_n, T* out_values, int *out_n, const int stride=1)
+all_to_all(const Communicator& comm, const T* in_values, const int *in_n, T* out_values, int *out_n, const int stride=1)
 {
-  // call mapped variable all_gather
-  return all_gather(comm,in_values,in_n,0,out_values,out_n,0,stride);
+  // call mapped variable all_to_all
+  return all_to_all(comm,in_values,in_n,0,out_values,out_n,0,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -283,10 +264,10 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, T* out_
 //needs a forward
 template<typename T>
 inline void
-all_gather(const Communicator& comm, const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1);
+all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1);
 
 /**
-  Interface to the constant size all_gather communication with specialization to std::vector.
+  Interface to the constant size all to all communication with specialization to std::vector.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
@@ -299,21 +280,21 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, const int 
 **/
 template<typename T>
 inline void
-all_gather(const Communicator& comm, const std::vector<T>& in_values, const int in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
+all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, std::vector<T>& out_values, std::vector<int>& out_n, const int stride=1)
 {
-  // call mapped variable all_gather
+  // call mapped variable all_to_all
   std::vector<int> in_map(0);
   std::vector<int> out_map(0);
-  all_gather(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
+  all_to_all(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the variable size mapped all_gather communication with specialization to raw pointer.
+  Interface to the variable size mapped all to all communication with specialization to raw pointer.
   If null pointer passed for out_values then memory is allocated to fit the max in map and the pointer is returned, otherwise out_values is returned.
   If out_n (receive counts) contains only -1, then a pre communication occurs to fill out_n.
-  However due to the fact that map already needs all the information if you use all_gather to allocate out_values and fill out_n then you most probably doing something wrong.
+  However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm Comm::Communicator
   @param in_values pointer to the send buffer
   @param in_n array holding send counts of size #processes
@@ -325,9 +306,9 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, const int 
 **/
 template<typename T>
 inline T*
-all_gather(const Communicator& comm, const T* in_values, const int in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride)
+all_to_all(const Communicator& comm, const T* in_values, const int *in_n, const int *in_map, T* out_values, int *out_n, const int *out_map, const int stride)
 {
-  // get nproc, irank
+  // number of processes
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
 
@@ -336,7 +317,7 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, const i
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
     if (out_map!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
-    detail::all_gatherc_impl(comm,&in_n,1,out_n,1);
+    detail::all_to_allc_impl(comm,in_n,1,out_n,1);
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   }
@@ -353,18 +334,18 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, const i
   }
 
   // call vm_impl
-  detail::all_gathervm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map, stride);
+  detail::all_to_allvm_impl(comm, in_values, in_n, in_map, out_buf, out_n, out_map, stride);
   return out_buf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /**
-  Interface to the constant size all_gather communication with specialization to raw pointer.
+  Interface to the constant size all to all communication with specialization to raw pointer.
   If out_values's size is zero then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
-  However due to the fact that map already needs all the information if you use all_gather to allocate out_values and fill out_n then you most probably doing something wrong.
+  However due to the fact that map already needs all the information if you use all_to_all to allocate out_values and fill out_n then you most probably doing something wrong.
   @param comm Comm::Communicator
   @param in_values send buffer
   @param in_n send counts of size #processes
@@ -376,21 +357,24 @@ all_gather(const Communicator& comm, const T* in_values, const int in_n, const i
 **/
 template<typename T>
 inline void
-all_gather(const Communicator& comm, const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride)
+all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std::vector<int>& in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride)
 {
   // number of processes and checking in_n and out_n (out_n deliberately throws exception because the vector can arrive from arbitrary previous usage)
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
+  cf_assert( (int)in_n.size() == nproc );
   if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
+  int in_sum=0;
   int out_sum=0;
+  boost_foreach( int i, in_n ) in_sum+=i;
   boost_foreach( int i, out_n ) out_sum+=i;
 
   // if necessary, do communication for out_n
   if (out_sum == -nproc){
     if (out_map.size()!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
-    detail::all_gatherc_impl(comm,&in_n,1,&out_n[0],1);
+    detail::all_to_allc_impl(comm,&in_n[0],1,&out_n[0],1);
     out_sum=0;
     boost_foreach( int & i, out_n ) out_sum+=i;
   }
@@ -407,15 +391,15 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, const int 
   }
 
   // call vm_impl
-  detail::all_gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
+  detail::all_to_allvm_impl(comm, (T*)(&in_values[0]), &in_n[0], &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Comm
+} // namespace PE
 } // namespace Common
 } // namespace CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_all_gather_hpp
+#endif // CF_Common_MPI_all_to_all_hpp

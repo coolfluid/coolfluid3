@@ -173,19 +173,19 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
-    Comm::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<Comm::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
+    PE::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<PE::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
     // In a serial case, create a default comm pattern if it doesn't exist already
     const Uint nb_nodes = mesh().geometry().coordinates().size();
     std::vector<Uint> gids(nb_nodes);
     std::vector<Uint> ranks(nb_nodes);
-    if(Comm::PE::instance().size() == 1 && is_null(comm_pattern))
+    if(PE::Comm::instance().size() == 1 && is_null(comm_pattern))
     {
       for(Uint i = 0; i != nb_nodes; ++i)
       {
         ranks[i] = 0;
         gids[i] = i;
       }
-      comm_pattern = mesh().create_component_ptr<Common::Comm::CommPattern>("comm_pattern_node_based");
+      comm_pattern = mesh().create_component_ptr<Common::PE::CommPattern>("comm_pattern_node_based");
       comm_pattern->insert("gid",gids,1,false);
       comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<CommWrapper>(),ranks);
     }

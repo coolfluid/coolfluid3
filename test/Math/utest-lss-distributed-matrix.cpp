@@ -16,8 +16,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Math/LSS/System.hpp"
 #include "test/Math/utest-lss-test-matrix.hpp"
 
@@ -56,8 +56,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSDistributedMatrixSuite, LSSDistributedMatrixFixture
 
 BOOST_AUTO_TEST_CASE( init_parallel_environment )
 {
-  Common::Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),true);
+  Common::PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( system_solve )
   test_matrix m;
 
   // commpattern
-  Common::Comm::CommPattern cp("commpattern");
+  Common::PE::CommPattern cp("commpattern");
   cp.insert("gid",m.global_numbering,1,false);
   cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),m.irank_updatable);
 
@@ -153,7 +153,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
-  Common::Comm::PE::instance().barrier();
+  Common::PE::Comm::instance().barrier();
 
 //  // filling the system with prescribed values
 //  sys.reset();
@@ -205,8 +205,8 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
 BOOST_AUTO_TEST_CASE( finalize_parallel_environment )
 {
   CFinfo.setFilterRankZero(true);
-  Common::Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),false);
+  Common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

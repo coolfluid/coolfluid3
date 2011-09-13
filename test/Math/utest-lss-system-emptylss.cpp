@@ -15,8 +15,8 @@
 
 #include "Common/Log.hpp"
 #include "Math/LSS/System.hpp"
-#include "Common/MPI/CommPattern.hpp"
-#include "Common/MPI/CommWrapper.hpp"
+#include "Common/PE/CommPattern.hpp"
+#include "Common/PE/CommWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ struct LSSSystem_EmptyLSSFixture
   /// create a dummy commpattern
   void build_input_data()
   {
-    cp = (Common::Comm::CommPattern::Ptr) new Common::Comm::CommPattern("commpattern");
+    cp = (Common::PE::CommPattern::Ptr) new Common::PE::CommPattern("commpattern");
     gid += 0,1,2,3,4,5,6,7,8,9;
     rnk += 0,0,0,0,0,0,0,0,0,0;
     conn += 0,2,1,2,2,7,3,8,4,5,5,2,6,0,7,1,8,7,9,8;
@@ -57,7 +57,7 @@ struct LSSSystem_EmptyLSSFixture
   std::vector<Uint> conn;
   std::vector<Uint> startidx;
   std::vector<Uint> rnk;
-  Common::Comm::CommPattern::Ptr cp;
+  Common::PE::CommPattern::Ptr cp;
 
   /// build a system
   void build_system()
@@ -105,8 +105,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSSystem_EmptyLSSSuite, LSSSystem_EmptyLSSFixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  Common::Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),true);
+  Common::PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -279,8 +279,8 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   CFinfo.setFilterRankZero(true);
-  Common::Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().is_active(),false);
+  Common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -22,7 +22,7 @@
 #include "Teuchos_CommandLineProcessor.hpp"
 
 #include "Common/Assertions.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
@@ -54,14 +54,14 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_blockcol_size(0),
   m_p2m(0),
   m_converted_indices(0),
-  m_comm(Common::Comm::PE::instance().communicator())
+  m_comm(Common::PE::Comm::instance().communicator())
 {
   options().add_option< CF::Common::OptionT<std::string> >( "settings_file" , "trilinos_settings.xml" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+void TrilinosMatrix::create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent

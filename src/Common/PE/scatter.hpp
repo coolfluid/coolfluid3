@@ -12,10 +12,10 @@
 #include "Common/Foreach.hpp"
 #include "Common/BasicExceptions.hpp"
 
-#include "Common/MPI/types.hpp"
-#include "Common/MPI/datatype.hpp"
+#include "Common/PE/types.hpp"
+#include "Common/PE/datatype.hpp"
 
-// #include "Common/MPI/debug.hpp" // for debugging mpi
+// #include "Common/PE/debug.hpp" // for debugging mpi
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@
 
 namespace CF {
   namespace Common {
-    namespace Comm {
+    namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ namespace detail {
   scatterc_impl(const Communicator& comm, const T* in_values, const int in_n, T* out_values, const int root, const  int stride )
   {
     // get data type and number of processors
-    Datatype type = Comm::get_mpi_datatype(*in_values);
+    Datatype type = PE::get_mpi_datatype(*in_values);
     int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
     MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
@@ -103,7 +103,7 @@ namespace detail {
   scattervm_impl(const Communicator& comm, const T* in_values, const int* in_n, const int* in_map, T* out_values, int& out_n, const int *out_map, const int root, const int stride )
   {
     // get data type and number of processors
-    Datatype type = Comm::get_mpi_datatype(*in_values);
+    Datatype type = PE::get_mpi_datatype(*in_values);
     int nproc,irank;
     MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
     MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
@@ -414,7 +414,7 @@ scatter(const Communicator& comm, const std::vector<T>& in_values, const std::ve
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Comm
+} // namespace PE
 } // namespace Common
 } // namespace CF
 

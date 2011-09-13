@@ -25,7 +25,7 @@ template<typename T> class QList;
 
 namespace CF {
 
-namespace Common { namespace Comm { class CPEManager; } }
+namespace Common { namespace PE { class CPEManager; } }
 namespace Solver { class CPlotter; }
 
 namespace UI {
@@ -57,9 +57,9 @@ namespace Server {
 
     Common::CJournal::ConstPtr journal() const { return m_journal; }
 
-    boost::shared_ptr<Common::Comm::CPEManager> manager() { return m_manager; }
+    boost::shared_ptr<Common::PE::CPEManager> manager() { return m_manager; }
 
-    boost::shared_ptr<Common::Comm::CPEManager const> manager() const { return m_manager; }
+    boost::shared_ptr<Common::PE::CPEManager const> manager() const { return m_manager; }
 
     void process_signal(const std::string & target,
                        const Common::URI & receiver,
@@ -107,7 +107,7 @@ namespace Server {
 
     QList< Common::URI > m_local_components;
 
-    boost::shared_ptr<Common::Comm::CPEManager> m_manager;
+    boost::shared_ptr<Common::PE::CPEManager> m_manager;
 
     boost::shared_ptr<Solver::CPlotter> m_plotter;
 

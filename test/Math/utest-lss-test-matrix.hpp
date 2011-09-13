@@ -19,8 +19,8 @@
 
 #include <boost/assign/std/vector.hpp>
 #include <Common/CF.hpp>
-#include <Common/MPI/PE.hpp>
-#include <Common/MPI/debug.hpp>
+#include <Common/PE/Comm.hpp>
+#include <Common/PE/debug.hpp>
 #include <Common/BasicExceptions.hpp>
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -796,8 +796,8 @@ class test_matrix {
 
 test_matrix::test_matrix()
 {
-  irank=CF::Common::Comm::PE::instance().rank();
-  nproc=CF::Common::Comm::PE::instance().size();
+  irank=CF::Common::PE::Comm::instance().rank();
+  nproc=CF::Common::PE::Comm::instance().size();
   if (nproc!=4) CF::Common::BadValue(FromHere(),"This test can only be run on 4 processors, not more and not less.");
 
   nbeqs=3;

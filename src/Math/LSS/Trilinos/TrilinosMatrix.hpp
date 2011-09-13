@@ -60,7 +60,7 @@ public:
   TrilinosMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
 
   /// Deallocate underlying data
   void destroy();

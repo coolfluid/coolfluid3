@@ -12,12 +12,12 @@
 #include "Common/BoostFilesystem.hpp"
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/Log.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
-#include "Common/MPI/CPEManager.hpp"
+#include "Common/PE/CPEManager.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"

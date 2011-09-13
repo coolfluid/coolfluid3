@@ -20,7 +20,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/CFactories.hpp"
 #include "Common/FindComponents.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
@@ -77,9 +77,9 @@ void ProfiledTestFixture::test_unit_start( boost::unit_test::test_unit const& un
 {
   std::stringstream job_suffix;
 
-  if(Comm::PE::instance().is_active())
+  if(PE::Comm::instance().is_active())
   {
-    job_suffix << "-" << Comm::PE::instance().rank();
+    job_suffix << "-" << PE::Comm::instance().rank();
   }
 
   if( Core::instance().profiler() )
@@ -98,7 +98,7 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
   {
     Core::instance().profiler()->stop_profiling();
 
-    if(Comm::PE::instance().rank() > 0)
+    if(PE::Comm::instance().rank() > 0)
       return;
 
     cf_assert(boost::algorithm::ends_with(m_current_filename, ".pprof"));

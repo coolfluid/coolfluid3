@@ -9,13 +9,13 @@
 
 #include "Common/Component.hpp"
 #include "Common/BoostArray.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/CommWrapper.hpp"
-#include "Common/MPI/CommWrapperMArray.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/CommWrapper.hpp"
+#include "Common/PE/CommWrapperMArray.hpp"
 
 namespace CF {
 namespace Common {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

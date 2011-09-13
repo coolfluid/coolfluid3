@@ -37,7 +37,7 @@
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionURI.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/Timer.hpp"
 
 #include "Mesh/Field.hpp"
@@ -61,8 +61,8 @@ CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
       ->mark_basic()
       ->cast_to<OptionURI>()->supported_protocol(URI::Scheme::FILE);
 
-  if(!Comm::PE::instance().is_active())
-    Comm::PE::instance().init();
+  if(!PE::Comm::instance().is_active())
+    PE::Comm::instance().init();
 }
 
 void CEigenLSS::set_config_file(const URI& path)

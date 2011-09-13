@@ -10,8 +10,8 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/StringConversion.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 #include "Common/Log.hpp"
 #include "Common/CMap.hpp"
 
@@ -23,9 +23,9 @@ namespace Mesh {
 namespace Zoltan {
 
   using namespace Common;
-  using namespace Common::Comm;
+  using namespace Common::PE;
 
-#define RANK "[" << PE::instance().rank() << "] "
+#define RANK "[" << Comm::instance().rank() << "] "
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -72,11 +72,11 @@ CPartitioner::~CPartitioner ( )
 
 ZoltanHandle& CPartitioner::zoltan_handle()
 {
-  cf_assert( PE::instance().is_initialized() );
+  cf_assert( Comm::instance().is_initialized() );
 
   if ( is_null(m_zz) ) // create it
   {
-    m_zz.reset( new ZoltanHandle( PE::instance().communicator() ) );
+    m_zz.reset( new ZoltanHandle( Comm::instance().communicator() ) );
     cf_assert (m_zz != nullptr);
   }
 
@@ -231,7 +231,7 @@ int CPartitioner::query_nb_of_objects(void *data, int *ierr)
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  return p.nb_objects_owned_by_part(Comm::PE::instance().rank());
+  return p.nb_objects_owned_by_part(PE::Comm::instance().rank());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -243,7 +243,7 @@ void CPartitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.list_of_objects_owned_by_part(Comm::PE::instance().rank(),globalID);
+  p.list_of_objects_owned_by_part(PE::Comm::instance().rank(),globalID);
 
 
   // for debugging
@@ -268,7 +268,7 @@ void CPartitioner::query_nb_connected_objects(void *data, int sizeGID, int sizeL
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.nb_connected_objects_in_part(Comm::PE::instance().rank(),numEdges);
+  p.nb_connected_objects_in_part(PE::Comm::instance().rank(),numEdges);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -282,8 +282,8 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
   CMeshPartitioner& p = *(CMeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
-  p.list_of_connected_objects_in_part(Comm::PE::instance().rank(),nborGID);
-  p.list_of_connected_procs_in_part(Comm::PE::instance().rank(),nborProc);
+  p.list_of_connected_objects_in_part(PE::Comm::instance().rank(),nborGID);
+  p.list_of_connected_procs_in_part(PE::Comm::instance().rank(),nborProc);
 
 
 

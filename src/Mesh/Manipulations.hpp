@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/MPI/Buffer.hpp"
+#include "Common/PE/Buffer.hpp"
 
 #include "Mesh/CList.hpp"
 #include "Mesh/CTable.hpp"
@@ -51,7 +51,7 @@ struct RemoveElements
 };
 
 
-struct PackUnpackElements: Common::Comm::PackedObject
+struct PackUnpackElements: Common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -61,9 +61,9 @@ struct PackUnpackElements: Common::Comm::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::Comm::Buffer& buf);
+  virtual void pack(Common::PE::Buffer& buf);
 
-  virtual void unpack(Common::Comm::Buffer& buf);
+  virtual void unpack(Common::PE::Buffer& buf);
 
   void flush();
 
@@ -76,7 +76,7 @@ struct PackUnpackElements: Common::Comm::PackedObject
 };
 
 
-struct PackUnpackNodes: Common::Comm::PackedObject
+struct PackUnpackNodes: Common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -86,9 +86,9 @@ struct PackUnpackNodes: Common::Comm::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::Comm::Buffer& buf);
+  virtual void pack(Common::PE::Buffer& buf);
 
-  virtual void unpack(Common::Comm::Buffer& buf);
+  virtual void unpack(Common::PE::Buffer& buf);
 
   void flush();
 

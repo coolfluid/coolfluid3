@@ -10,7 +10,7 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-#include "Common/MPI/CWorkerGroup.hpp"
+#include "Common/PE/CWorkerGroup.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -19,7 +19,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ int CWorkerGroup::nbworkers () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Comm
+} // namespace PE
 } // namespace Common
 } // namespace CF
 
