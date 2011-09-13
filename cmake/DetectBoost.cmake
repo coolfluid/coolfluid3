@@ -6,8 +6,8 @@ set( Boost_USE_MULTITHREAD ON  )
 set( CF_Boost_MINIMAL_VERSION "1.46.1" )
 set( Boost_ADDITIONAL_VERSIONS "1.47" "1.46" )
 
-#allow looking in system paths
-set(Boost_NO_SYSTEM_PATHS OFF)
+#disable looking in system paths
+set(Boost_NO_SYSTEM_PATHS ON)
 
 # components to search for
 list( APPEND CF_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
