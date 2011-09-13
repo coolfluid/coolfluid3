@@ -187,7 +187,7 @@ void LinearSolver::trigger_lss()
       }
       comm_pattern = mesh().create_component_ptr<Common::PE::CommPattern>("comm_pattern_node_based");
       comm_pattern->insert("gid",gids,1,false);
-      comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<CommWrapper>(),ranks);
+      comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
     }
     if(is_null(comm_pattern))
       throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());

@@ -119,7 +119,7 @@ void wait_for_debugger(const int rank = -1);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace Comm
+    } // end namespace PE
   } // end namespace Common
 } // end namespace CF
 

@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   }
   Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
@@ -146,7 +146,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   }
   Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   }
   Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
@@ -260,7 +260,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   }
   Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   }
   Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
   comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
   // Create the LSS
   lss.create(comm_pattern, 1u, node_connectivity, starting_indices);

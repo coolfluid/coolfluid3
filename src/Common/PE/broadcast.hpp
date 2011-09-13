@@ -266,7 +266,7 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace Comm
+    } // end namespace PE
   } // end namespace Common
 } // end namespace CF
 

@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( system_solve )
   // commpattern
   Common::PE::CommPattern cp("commpattern");
   cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),m.irank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),m.irank_updatable);
 
   // system
   LSS::System sys("system");

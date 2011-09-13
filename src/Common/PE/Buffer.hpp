@@ -590,7 +590,7 @@ inline std::ostream& operator<< (std::ostream& out, const Buffer& buffer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Comm
+} // PE
 } // Common
 } // CF
 

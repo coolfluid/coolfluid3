@@ -1043,7 +1043,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 
     comm_pattern.insert("gid",gids,1,false);
     timer.restart();
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
     std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
 
     timer.restart();
@@ -1283,7 +1283,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
     mesh.geometry().coordinates().synchronize();

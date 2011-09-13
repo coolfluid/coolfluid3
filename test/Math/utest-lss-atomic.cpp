@@ -74,7 +74,7 @@ struct LSSAtomicFixture
       rank_updatable += 0,1,1,0,0,1,0,0,1;
     }
     cp.insert("gid",gid,1,false);
-    cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),rank_updatable);
+    cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
   }
 
   /// build a test system
@@ -880,7 +880,7 @@ WHICH RESULTS IN GID ORDER:
   }
   Common::PE::CommPattern cp("commpattern");
   cp.insert("gid",gid,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::CommWrapper>(),rank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
 
   // lss
   if (irank==0)
