@@ -64,8 +64,8 @@ coolfluid_add_unit_test( utest-lss-system-emptylss )
 list( APPEND utest-lss-atomic_cflibs coolfluid_math coolfluid_math_lss coolfluid_common)
 list( APPEND utest-lss-atomic_files  utest-lss-atomic.cpp)
 
-set(utest-lss-system-emptylss_mpi_test TRUE)
-set(utest-lss-system-emptylss_mpi_nprocs 2)
+set(utest-lss-atomic_mpi_test TRUE)
+set(utest-lss-atomic_mpi_nprocs 2)
 coolfluid_add_unit_test( utest-lss-atomic )
 
 ################################################################################
