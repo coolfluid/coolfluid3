@@ -301,31 +301,48 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 void TrilinosMatrix::set_values(const BlockAccumulator& values)
 {
   cf_assert(m_is_created);
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummyneq;
+  int hits=0;
   const int numblocks=values.indices.size();
+  const int rowoffset=(numblocks-1)*m_neq;
+  const int neqneq=m_neq*m_neq;
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
   for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
   for (int irow=0; irow<(const int)numblocks; irow++)
+  {
     if (idxs[irow]<m_blockrow_size)
     {
-      TRILINOS_ASSERT(m_mat->BeginReplaceMyValues(idxs[irow],numblocks,idxs));
-      for (int icol=0; icol<numblocks; icol++)
-        TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
-      TRILINOS_ASSERT(m_mat->EndSubmitEntries());
+      hits=0;
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[irow],dummyneq,blockrowsize,colindices,val));
+      for (int j=0; j<(const int)blockrowsize; j++)
+      {
+        for (int icol=0; icol<(const int)numblocks; icol++)
+          if (colindices[j]==idxs[icol])
+          {
+            double *emv=val[j][0].A();
+            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
+            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+              for (double* m=emv; emv<(const double*)(m+m_neq);)
+                *emv++ = *bav++;
+
+            hits++;
+            //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
+          }
+        if (hits==numblocks) break;
+      }
     }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosMatrix::add_values(const BlockAccumulator& values)
 {
-/** @attention
- * issue1: its stupid to submitt each block separately, cant submit a single blockrow at once!!!
- * issue2: so it seems that on trilinos side there is another "blockaccumulator"
- * issue3: investigate performance if matrix is View mode, the copy due to issue2 could be circumvented (then epetra only stores pointers to values)
- * issue4: investigate prformance of extracting a blockrowview and fill manually, all blocks at once in the current blockrow
-**/
-/*
+/* TRILINOS-ADVICED
   cf_assert(m_is_created);
   const int numblocks=values.indices.size();
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
@@ -339,7 +356,8 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
         TRILINOS_ASSERT(m_mat->SubmitBlockEntry((double*)values.mat.data()+irow*m_neq+icol*m_neq*m_neq*numblocks,numblocks*m_neq,m_neq,m_neq));
       TRILINOS_ASSERT(m_mat->EndSubmitEntries());
     }
-/*/
+*/
+/* MANUAL FILL
   cf_assert(m_is_created);
   Epetra_SerialDenseMatrix **val;
   int* colindices;
@@ -350,65 +368,109 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
   for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
-//  double *valuesmat=(double*)values.mat.data();
   for (int irow=0; irow<(const int)numblocks; irow++)
   {
     if (idxs[irow]<m_blockrow_size)
     {
-      int irowneq=irow*m_neq;
       TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[irow],dummyneq,blockrowsize,colindices,val));
       for (int j=0; j<(const int)blockrowsize; j++)
         for (int k=0; k<(const int)numblocks; k++)
           if (colindices[j]==idxs[k])
             for (int l=0; l<(const int)m_neq; l++)
-            {
               for (int m=0; m<(const int)m_neq; m++)
-                val[j][0](l,m)+=values.mat(irowneq+l,k*m_neq+m);
-//                val[j][0](l,m)+=*valuesmat++;
-            }
+                val[j][0](l,m)+=values.mat(irow*m_neq+l,k*m_neq+m);
       hits++;
       if (hits==numblocks) break;
     }
   }
-/**/
+*/
+/* FINAL OPTIMIZED */
+  cf_assert(m_is_created);
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int dummyneq;
+  int hits=0;
+  const int numblocks=values.indices.size();
+  const int rowoffset=(numblocks-1)*m_neq;
+  const int neqneq=m_neq*m_neq;
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
+  for (int irow=0; irow<(const int)numblocks; irow++)
+  {
+    if (idxs[irow]<m_blockrow_size)
+    {
+      hits=0;
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[irow],dummyneq,blockrowsize,colindices,val));
+      for (int j=0; j<(const int)blockrowsize; j++)
+      {
+        for (int icol=0; icol<(const int)numblocks; icol++)
+          if (colindices[j]==idxs[icol])
+          {
+            double *emv=val[j][0].A();
+            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
+            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+              for (double* m=emv; emv<(const double*)(m+m_neq);)
+                *emv++ += *bav++;
+
+            hits++;
+            //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
+          }
+        if (hits==numblocks) break;
+      }
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosMatrix::get_values(BlockAccumulator& values)
 {
-  /// @attention MODERATE EXPENSIVE, AVOID USAGE
   cf_assert(m_is_created);
-  const int numblocks=values.indices.size();
-  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
-  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
-  int* idxs=(int*)&m_converted_indices[0];
   Epetra_SerialDenseMatrix **val;
   int* colindices;
   int blockrowsize;
-  int dummy_neq;
-  const int block_size=values.block_size();
-  for (int i=0; i<(const int)block_size; i++)
-    if (idxs[i]<m_blockrow_size)
+  int dummyneq;
+  int hits=0;
+  const int numblocks=values.indices.size();
+  const int rowoffset=(numblocks-1)*m_neq;
+  const int neqneq=m_neq*m_neq;
+  if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
+  for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
+  int* idxs=(int*)&m_converted_indices[0];
+  values.mat.setConstant(0.);
+  for (int irow=0; irow<(const int)numblocks; irow++)
+  {
+    if (idxs[irow]<m_blockrow_size)
     {
-      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[i],dummy_neq,blockrowsize,colindices,val));
+      hits=0;
+      TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(idxs[irow],dummyneq,blockrowsize,colindices,val));
       for (int j=0; j<(const int)blockrowsize; j++)
-        for (int k=0; k<(const int)block_size; k++)
-          if (idxs[k]==colindices[j])
-            for (int l=0; l<(const int)m_neq; l++)
-              for (int m=0; m<(const int)m_neq; m++)
-                values.mat(i*m_neq+l,k*m_neq+m)=val[j][0](l,m);
-    } else {
-      for (int j=0; j<(const int)(m_neq*numblocks); j++)
-        for (int m=0; m<(const int)m_neq; m++)
-          values.mat(i*m_neq+m,j)=0.;
+      {
+        for (int icol=0; icol<(const int)numblocks; icol++)
+          if (colindices[j]==idxs[icol])
+          {
+            double *emv=val[j][0].A();
+            double *bav=(double*)&values.mat(irow*m_neq,icol*m_neq);
+            for (double* l=emv; emv<(const double*)(l+neqneq); bav+=rowoffset)
+              for (double* m=emv; emv<(const double*)(m+m_neq);)
+                *bav++ = *emv++;
+
+            hits++;
+            //break; // this is arguable, can be that the blockaccumulator fills to the same id more than once (repetitive same id entries in values.indices)
+          }
+        if (hits==numblocks) break;
+      }
     }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval, Real offdiagval)
 {
+/* TRILINOS ADVICED
   cf_assert(m_is_created);
   Epetra_SerialDenseMatrix **val;
   int* colindices;
@@ -424,6 +486,28 @@ void TrilinosMatrix::set_row(const Uint iblockrow, const Uint ieq, Real diagval,
       if (colindices[i]==br) diagonalblock=i;
       for (int j=0; j<m_neq; j++)
         val[i][0](ieq,j)=offdiagval;
+    }
+    val[diagonalblock][0](ieq,ieq)=diagval;
+  }
+*/
+/* OPTIMIZED */
+  cf_assert(m_is_created);
+  Epetra_SerialDenseMatrix **val;
+  int* colindices;
+  int blockrowsize;
+  int diagonalblock=-1;
+  int dummy_neq;
+  const int br=m_p2m[iblockrow];
+  const int neqneq=m_neq*m_neq;
+  if (br<m_blockrow_size)
+  {
+    TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br,dummy_neq,blockrowsize,colindices,val));
+    for (int i=0; i<(const int)blockrowsize; i++)
+    {
+      if (*colindices++==br) diagonalblock=i;
+      double *emv=&val[i][0](ieq,0);
+      for (double* j=emv; emv<(const double*)(j+neqneq); emv+=m_neq)
+        *emv = offdiagval;
     }
     val[diagonalblock][0](ieq,ieq)=diagval;
   }
