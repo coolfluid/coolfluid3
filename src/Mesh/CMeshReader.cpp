@@ -15,9 +15,9 @@
 #include "Common/FindComponents.hpp"
 
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/all_reduce.hpp"
-#include "Common/MPI/operations.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/all_reduce.hpp"
+#include "Common/PE/operations.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
 
@@ -191,8 +191,8 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
     Uint empty_on_all_ranks = empty_on_this_rank;
 
     /// @todo boolean type had to be converted to Uint for it to work
-    if (Comm::PE::instance().is_active())
-      Comm::PE::instance().instance().all_reduce( Comm::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
+    if (PE::Comm::instance().is_active())
+      PE::Comm::instance().instance().all_reduce( PE::logical_and(), &empty_on_this_rank, 1, &empty_on_all_ranks);
 
     if ( empty_on_all_ranks )
     {

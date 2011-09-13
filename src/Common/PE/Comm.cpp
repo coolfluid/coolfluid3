@@ -7,17 +7,17 @@
 #include "Common/Log.hpp"
 
 #include "Common/BasicExceptions.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
-//#include "Common/MPI/debug.hpp"
+//#include "Common/PE/debug.hpp"
 
 namespace CF {
 namespace Common {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::PE(int argc, char** args)
+Comm::Comm(int argc, char** args)
 {
   m_comm = nullptr;
   init(argc,args);
@@ -26,7 +26,7 @@ PE::PE(int argc, char** args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::PE()
+Comm::Comm()
 {
   m_comm = nullptr;
   m_current_status = WorkerStatus::NOT_RUNNING;
@@ -34,22 +34,22 @@ PE::PE()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE::~PE()
+Comm::~Comm()
 {
   finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PE& PE::instance()
+Comm& Comm::instance()
 {
-  static PE pe_instance;
-  return pe_instance;
+  static Comm comm_instance;
+  return comm_instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PE::is_initialized() const
+bool Comm::is_initialized() const
 {
   int is_initialized = 0;
   MPI_CHECK_RESULT(MPI_Initialized,(&is_initialized));
@@ -58,7 +58,7 @@ bool PE::is_initialized() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool PE::is_finalized() const
+bool Comm::is_finalized() const
 {
   int is_finalized = 0;
   MPI_CHECK_RESULT(MPI_Finalized,(&is_finalized));
@@ -67,7 +67,7 @@ bool PE::is_finalized() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string PE::version() const
+std::string Comm::version() const
 {
   int version = 0;
   int subversion = 0;
@@ -77,10 +77,10 @@ std::string PE::version() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::init(int argc, char** args)
+void Comm::init(int argc, char** args)
 {
   if ( is_finalized() )
-    throw SetupError( FromHere(), "Should not call PE::initialize() after PE::finalize()" );
+    throw SetupError( FromHere(), "Should not call Comm::initialize() after Comm::finalize()" );
 
   if( !is_initialized() && !is_finalized() ) // then initialize
   {
@@ -93,7 +93,7 @@ void PE::init(int argc, char** args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::finalize()
+void Comm::finalize()
 {
   if( is_initialized() && !is_finalized() ) // then finalized
   {
@@ -115,14 +115,14 @@ void PE::finalize()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::barrier()
+void Comm::barrier()
 {
   if ( is_active() ) MPI_CHECK_RESULT(MPI_Barrier,(m_comm));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::barrier( Communicator comm )
+void Comm::barrier( Communicator comm )
 {
   cf_assert( comm != MPI_COMM_NULL );
 
@@ -132,7 +132,7 @@ void PE::barrier( Communicator comm )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PE::rank() const
+Uint Comm::rank() const
 {
   if ( !is_active() ) return 0;
   int irank;
@@ -142,7 +142,7 @@ Uint PE::rank() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Uint PE::size() const
+Uint Comm::size() const
 {
   if ( !is_active() ) return 1;
   int nproc;
@@ -153,7 +153,7 @@ Uint PE::size() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PE::change_status(WorkerStatus::Type status)
+void Comm::change_status(WorkerStatus::Type status)
 {
   cf_assert ( WorkerStatus::Convert::instance().is_valid(status) );
   m_current_status = status;
@@ -161,14 +161,14 @@ void PE::change_status(WorkerStatus::Type status)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-WorkerStatus::Type PE::status()
+WorkerStatus::Type Comm::status()
 {
   return m_current_status;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Communicator PE::spawn( int count, const char * command, char ** args,
+Communicator Comm::spawn( int count, const char * command, char ** args,
                             const char * hosts )
 {
   ::MPI::Info info = ::MPI::Info::Create();
@@ -199,16 +199,16 @@ Communicator PE::spawn( int count, const char * command, char ** args,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Communicator PE::get_parent() const
+Communicator Comm::get_parent() const
 {
-  Comm::Communicator comm;
+  PE::Communicator comm;
   MPI_CHECK_RESULT(MPI_Comm_get_parent,(&comm));
   return comm;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // namespace Comm
+} // namespace PE
 } // namespace Common
 } // namespace CF
 

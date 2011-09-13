@@ -22,7 +22,7 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 using namespace boost;
 
@@ -116,13 +116,13 @@ LogStream & Logger::getStream(LogLevel type)
 
 void Logger::openFiles()
 {
-  if(Comm::PE::instance().is_active())
+  if(PE::Comm::instance().is_active())
   {
     std::ostringstream logFile;
 
     iostreams::file_descriptor_sink fdLogFile;
 
-    int rank = Comm::PE::instance().rank();
+    int rank = PE::Comm::instance().rank();
 
     filesystem::remove(logFile.str());
 

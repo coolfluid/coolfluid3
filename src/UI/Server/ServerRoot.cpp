@@ -15,7 +15,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/NotificationQueue.hpp"
-#include "Common/MPI/CPEManager.hpp"
+#include "Common/PE/CPEManager.hpp"
 //#include "Common/XML/SignalFrame.hpp"
 #include "Common/XML/Protocol.hpp"
 
@@ -31,7 +31,7 @@
 #include "UI/Server/ServerRoot.hpp"
 
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Solver;

@@ -12,7 +12,7 @@
 #include "Common/Log.hpp"
 #include "Common/Signal.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Tools/Solver/CWorker.hpp"
 
@@ -51,7 +51,7 @@ CWorker::~CWorker()
 
 void CWorker::signal_solve ( SignalArgs & args )
 {
-  CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Starting to solve." << CFendl;
+  CFinfo << "Worker[" <<  PE::Comm::instance().rank() << "] Starting to solve." << CFendl;
 
   Real data[500000]; // 500 thousand elements
 
@@ -68,8 +68,8 @@ void CWorker::signal_solve ( SignalArgs & args )
       Real value = std::sqrt( std::pow(data[j],3) * 2.71 / 3.141592 );
     }
 
-    Comm::PE::instance().barrier();
-    CFinfo << "Worker[" <<  Comm::PE::instance().rank() << "] Iteration " << i << CFendl;
+    PE::Comm::instance().barrier();
+    CFinfo << "Worker[" <<  PE::Comm::instance().rank() << "] Iteration " << i << CFendl;
   }
 }
 

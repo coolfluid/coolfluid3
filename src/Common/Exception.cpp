@@ -10,7 +10,7 @@
 #include "Common/Exception.hpp"
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
   {
     std::string backtrace = OSystem::instance().layer()->back_trace();
     CFerror << "\n\n";
-    CFerror << "+++ Exception backtrace on rank " << Comm::PE::instance().rank() << " ++++++++++++++++++++++++++++++++++++++++++\n";
+    CFerror << "+++ Exception backtrace on rank " << PE::Comm::instance().rank() << " ++++++++++++++++++++++++++++++++++++++++++\n";
     CFerror << backtrace << "\n";
     CFerror << "++++++++++++++++++++++++++++++++++++++" << CFendl;
   }
@@ -60,7 +60,7 @@ Exception::Exception(CodeLocation where, std::string msg, std::string className)
   if ( ExceptionManager::instance().ExceptionAborts )
   {
     CFerror << CFendl << CFendl;
-    CFerror << "+++ Exception aborting on rank " << Comm::PE::instance().rank() << " ... " << CFendl;
+    CFerror << "+++ Exception aborting on rank " << PE::Comm::instance().rank() << " ... " << CFendl;
     abort();
   }
 }
@@ -97,7 +97,7 @@ const char* Exception::what() const throw()
 std::string Exception::full_description () const throw ()
 {
   std::string desc;
-  desc += "+++ Exception thrown on rank "+ to_str(Comm::PE::instance().rank()) + " ++++++++++++++++++++++++++++++++++++++++++++++\n";
+  desc += "+++ Exception thrown on rank "+ to_str(PE::Comm::instance().rank()) + " ++++++++++++++++++++++++++++++++++++++++++++++\n";
   desc += "From : \'";
   desc += m_where.str();
   desc += "\'\n";

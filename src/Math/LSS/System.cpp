@@ -9,11 +9,11 @@
 #include <boost/utility.hpp>
 
 #include "Math/LSS/LibLSS.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Math/LSS/System.hpp"
 #include "Math/LSS/Matrix.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -58,7 +58,7 @@ LSS::System::System(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
+void LSS::System::create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
 {
 
   if (is_created()) destroy();

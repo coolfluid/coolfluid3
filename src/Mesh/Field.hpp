@@ -17,7 +17,7 @@ namespace CF {
 namespace Common
 {
   class CLink;
-  namespace Comm { class CommPattern; }
+  namespace PE { class CommPattern; }
 }
 namespace Math { class VariablesDescriptor; }
 
@@ -109,9 +109,9 @@ public: // functions
 
   Field& coordinates() const { return field_group().coordinates(); }
 
-  Common::Comm::CommPattern& parallelize_with( Common::Comm::CommPattern& comm_pattern );
+  Common::PE::CommPattern& parallelize_with( Common::PE::CommPattern& comm_pattern );
 
-  Common::Comm::CommPattern& parallelize();
+  Common::PE::CommPattern& parallelize();
 
   void synchronize();
 
@@ -132,7 +132,7 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
-  boost::weak_ptr< Common::Comm::CommPattern > m_comm_pattern;
+  boost::weak_ptr< Common::PE::CommPattern > m_comm_pattern;
 
   boost::weak_ptr< Math::VariablesDescriptor > m_descriptor;
 };

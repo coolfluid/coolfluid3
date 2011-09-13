@@ -14,7 +14,7 @@
 #include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
 #include "Common/XML/SignalOptions.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/CConnectivity.hpp"
 #include "Mesh/CList.hpp"
@@ -277,7 +277,7 @@ bool CEntities::is_ghost(const Uint idx) const
   cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf_assert(size() == m_rank->size());
   cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != Comm::PE::instance().rank();
+  return (*m_rank)[idx] != PE::Comm::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 #include <boost/utility.hpp>
 
 #include "Math/LSS/LibLSS.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -62,7 +62,7 @@ public:
   /// maybe 2 ctable csr style
   /// local numbering
   /// needs global numbering for communication - ??? commpattern ???
-  virtual void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
+  virtual void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;

@@ -13,7 +13,7 @@
 
 #include "Math/LSS/LibLSS.hpp"
 #include "Common/Component.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Common/Log.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 #include "Math/LSS/Matrix.hpp"
@@ -72,7 +72,7 @@ public:
 
   /// Setup sparsity structure
   /// @todo action for it
-  void create(CF::Common::Comm::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it

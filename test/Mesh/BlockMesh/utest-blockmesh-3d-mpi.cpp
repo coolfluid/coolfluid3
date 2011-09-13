@@ -14,7 +14,7 @@
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
@@ -50,8 +50,8 @@ struct BockMesh3DFixture :
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);
 
-    if(!Comm::PE::instance().is_active())
-      Comm::PE::instance().init(argc, argv);
+    if(!PE::Comm::instance().is_active())
+      PE::Comm::instance().init(argc, argv);
 
     CRoot& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
@@ -137,13 +137,13 @@ BOOST_FIXTURE_TEST_SUITE( BlockMesh3D, BockMesh3DFixture )
 BOOST_AUTO_TEST_CASE( Setup )
 {
   // Make sure MPI is up before running the first test
-  BOOST_CHECK(Comm::PE::instance().is_active());
+  BOOST_CHECK(PE::Comm::instance().is_active());
 }
 
 BOOST_AUTO_TEST_CASE( GenerateMesh )
 {
-  const Uint nb_procs = Comm::PE::instance().size();
-  const Uint rank = Comm::PE::instance().rank();
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
 
   const Real length = 12.;
   const Real half_height = 0.5;

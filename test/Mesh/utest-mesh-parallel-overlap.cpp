@@ -21,10 +21,10 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/CommPattern.hpp"
-#include "Common/MPI/CommWrapperMArray.hpp"
-#include "Common/MPI/Buffer.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/CommPattern.hpp"
+#include "Common/PE/CommWrapperMArray.hpp"
+#include "Common/PE/Buffer.hpp"
+#include "Common/PE/debug.hpp"
 
 #include "Math/Consts.hpp"
 
@@ -48,7 +48,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::Math::Consts;
 
 template <typename T>
@@ -66,7 +66,7 @@ template <typename T>
 void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
 {
   std::vector<int> strides;
-  Comm::PE::instance().all_gather((int)send.size(),strides);
+  PE::Comm::instance().all_gather((int)send.size(),strides);
   std::vector<int> displs(strides.size());
   if (strides.size())
   {
@@ -78,7 +78,7 @@ void my_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& rec
       sum_strides += strides[i];
     }
     std::vector<Uint> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), Comm::PE::instance().communicator()));
+    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::Comm::instance().communicator()));
     recv.resize(strides.size());
     for (Uint i=0; i<strides.size(); ++i)
     {
@@ -112,15 +112,15 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
     for (Uint j=0; j<send[i].size(); ++j)
       send_linear[send_displs[i]+j] = send[i][j];
 
-  std::vector<int> recv_strides(Comm::PE::instance().size());
-  std::vector<int> recv_displs(Comm::PE::instance().size());
-  Comm::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(PE::Comm::instance().size());
+  std::vector<int> recv_displs(PE::Comm::instance().size());
+  PE::Comm::instance().all_to_all(send_strides,recv_strides);
   recv_displs[0] = 0;
-  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
+  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
   std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], Comm::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), Comm::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::Comm::instance().communicator()));
 
   recv.resize(recv_strides.size());
   for (Uint i=0; i<recv_strides.size(); ++i)
@@ -133,7 +133,7 @@ void my_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::ve
   }
 }
 
-void my_all_to_all(const std::vector<Comm::Buffer>& send, Comm::Buffer& recv)
+void my_all_to_all(const std::vector<PE::Buffer>& send, PE::Buffer& recv)
 {
   std::vector<int> send_strides(send.size());
   std::vector<int> send_displs(send.size());
@@ -144,42 +144,42 @@ void my_all_to_all(const std::vector<Comm::Buffer>& send, Comm::Buffer& recv)
   for (Uint i=1; i<send.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  Comm::Buffer send_linear;
+  PE::Buffer send_linear;
 
   send_linear.resize(send_displs.back()+send_strides.back());
   for (Uint i=0; i<send.size(); ++i)
     send_linear.pack(send[i].buffer(),send[i].packed_size());
 
-  std::vector<int> recv_strides(Comm::PE::instance().size());
-  std::vector<int> recv_displs(Comm::PE::instance().size());
-  Comm::PE::instance().all_to_all(send_strides,recv_strides);
+  std::vector<int> recv_strides(PE::Comm::instance().size());
+  std::vector<int> recv_displs(PE::Comm::instance().size());
+  PE::Comm::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
+  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send_linear.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void my_all_to_all(const Comm::Buffer& send, std::vector<int>& send_strides, Comm::Buffer& recv, std::vector<int>& recv_strides)
+void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::Buffer& recv, std::vector<int>& recv_strides)
 {
   std::vector<int> send_displs(send_strides.size());
   if (send_strides.size()) send_displs[0] = 0;
   for (Uint i=1; i<send_strides.size(); ++i)
     send_displs[i] = send_displs[i-1] + send_strides[i-1];
 
-  recv_strides.resize(Comm::PE::instance().size());
-  std::vector<int> recv_displs(Comm::PE::instance().size());
-  Comm::PE::instance().all_to_all(send_strides,recv_strides);
+  recv_strides.resize(PE::Comm::instance().size());
+  std::vector<int> recv_displs(PE::Comm::instance().size());
+  PE::Comm::instance().all_to_all(send_strides,recv_strides);
   if (recv_displs.size()) recv_displs[0] = 0;
-  for (Uint i=1; i<Comm::PE::instance().size(); ++i)
+  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
   recv.reset();
   recv.resize(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, Comm::PE::instance().communicator()));
+  MPI_CHECK_RESULT(MPI_Alltoallv, ((void*)send.buffer(), &send_strides[0], &send_displs[0], MPI_PACKED, (void*)recv.buffer(), &recv_strides[0], &recv_displs[0], MPI_PACKED, PE::Comm::instance().communicator()));
   recv.packed_size()=recv_displs.back()+recv_strides.back();
 }
 
@@ -283,7 +283,7 @@ BOOST_FIXTURE_TEST_SUITE( ParallelOverlapTests_TestSuite, ParallelOverlapTests_F
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  Comm::PE::instance().init(m_argc,m_argv);
+  PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -320,7 +320,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   Geometry& nodes = mesh.geometry();
 
   PackUnpackNodes copy_node(nodes);
-  Comm::Buffer buf;
+  PE::Buffer buf;
   buf << copy_node(0);
   buf << copy_node(1);
   copy_node.flush();
@@ -566,7 +566,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // SEARCH FOR CONNECTED ELEMENTS
   // in  : nodes                            std::vector<Uint>
-  // out : buffer with packed elements      Comm::Buffer(nodes)
+  // out : buffer with packed elements      PE::Buffer(nodes)
 
   // COMMUNICATE NODES TO LOOK FOR
 
@@ -582,15 +582,15 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // elem_idx_to_send[from_comp][to_proc][elem_idx]
   std::vector< std::vector < std::set<Uint> > > elem_ids_to_send(mesh_elements.size());
   for (Uint comp_idx=0; comp_idx<elem_ids_to_send.size(); ++comp_idx)
-    elem_ids_to_send[comp_idx].resize(Comm::PE::instance().size());
+    elem_ids_to_send[comp_idx].resize(PE::Comm::instance().size());
 
 
   // storage for nodes that will need to be fetched after elements have been received
   std::set<Uint> new_ghost_nodes;
 
-  for (Uint proc=0; proc<PE::instance().size(); ++proc)
+  for (Uint proc=0; proc<Comm::instance().size(); ++proc)
   {
-    if (proc != PE::instance().rank())
+    if (proc != Comm::instance().rank())
     {
 
       for (Uint n=0; n<recv_nodes[proc].size(); ++n)
@@ -646,11 +646,11 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       CElements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
 
-      std::vector<Comm::Buffer> elements_to_send(PE::instance().size());
-      Comm::Buffer elements_to_recv;
+      std::vector<PE::Buffer> elements_to_send(Comm::instance().size());
+      PE::Buffer elements_to_recv;
 
       // Pack
-      for (Uint to_proc = 0; to_proc<Comm::PE::instance().size(); ++to_proc)
+      for (Uint to_proc = 0; to_proc<PE::Comm::instance().size(); ++to_proc)
       {
         boost_foreach(const Uint elem_idx, elem_ids_to_send[comp_idx][to_proc])
         {
@@ -727,7 +727,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // SEARCH FOR REQUESTED NODES
   // in  : requested nodes                std::vector<Uint>
-  // out : buffer with packed nodes       Comm::Buffer(nodes)
+  // out : buffer with packed nodes       PE::Buffer(nodes)
   {
 
     // COMMUNICATE NODES TO LOOK FOR
@@ -741,10 +741,10 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
     PackUnpackNodes copy_node(nodes);
-    std::vector<Comm::Buffer> nodes_to_send(PE::instance().size());
-    for (Uint proc=0; proc<PE::instance().size(); ++proc)
+    std::vector<PE::Buffer> nodes_to_send(Comm::instance().size());
+    for (Uint proc=0; proc<Comm::instance().size(); ++proc)
     {
-      if (proc != PE::instance().rank())
+      if (proc != Comm::instance().rank())
       {
 
         for (Uint n=0; n<recv_request_nodes[proc].size(); ++n)
@@ -767,7 +767,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     BOOST_CHECK(check_nodes_sanity(nodes));
     // COMMUNICATE FOUND NODES BACK TO RANK THAT REQUESTED IT
 
-    Comm::Buffer received_nodes_buffer;
+    PE::Buffer received_nodes_buffer;
     my_all_to_all(nodes_to_send,received_nodes_buffer);
 
     // out: buffer containing requested nodes
@@ -889,7 +889,7 @@ BOOST_CHECK(true);
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  Comm::PE::instance().finalize();
+  PE::Comm::instance().finalize();
   Core::instance().terminate();
 }
 

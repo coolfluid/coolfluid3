@@ -8,7 +8,7 @@
 
 #include "Common/OptionT.hpp"
 #include "Common/OptionArray.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/Log.hpp"
@@ -29,7 +29,7 @@ CMixedHash::CMixedHash ( const std::string& name ) :
     Component(name),
     m_nb_obj(),
     m_base(0),
-    m_nb_parts(Comm::PE::instance().size())
+    m_nb_parts(PE::Comm::instance().size())
 {
   m_options.add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
       ->description("Total number of objects of each subhash. Subhashes will "
@@ -91,7 +91,7 @@ Uint CMixedHash::part_of_obj(const Uint obj) const
 
 Uint CMixedHash::proc_of_part(const Uint part) const
 {
-  return std::min(Comm::PE::instance().size()-1, part / (m_nb_parts/Comm::PE::instance().size()));
+  return std::min(PE::Comm::instance().size()-1, part / (m_nb_parts/PE::Comm::instance().size()));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ Uint CMixedHash::proc_of_obj(const Uint obj) const
 
 bool CMixedHash::owns(const Uint obj) const
 {
-  if (proc_of_obj(obj) == Comm::PE::instance().rank())
+  if (proc_of_obj(obj) == PE::Comm::instance().rank())
     return true;
   else
     return false;
@@ -132,8 +132,8 @@ Uint CMixedHash::nb_objects_in_part(const Uint part) const
 
 Uint CMixedHash::nb_objects_in_proc(const Uint proc) const
 {
-  Uint part_begin = m_nb_parts/Comm::PE::instance().size()*proc;
-  Uint part_end = (proc == Comm::PE::instance().size()-1) ? m_nb_parts : m_nb_parts/Comm::PE::instance().size()*(proc+1);
+  Uint part_begin = m_nb_parts/PE::Comm::instance().size()*proc;
+  Uint part_end = (proc == PE::Comm::instance().size()-1) ? m_nb_parts : m_nb_parts/PE::Comm::instance().size()*(proc+1);
   Uint nb_obj = 0;
   for (Uint part = part_begin ; part < part_end; ++part)
     nb_obj += nb_objects_in_part(part);
@@ -164,7 +164,7 @@ Uint CMixedHash::end_idx_in_part(const Uint part) const
 
 Uint CMixedHash::start_idx_in_proc(const Uint proc) const
 {
-  Uint part_begin = m_nb_parts/Comm::PE::instance().size()*proc;
+  Uint part_begin = m_nb_parts/PE::Comm::instance().size()*proc;
   return start_idx_in_part(part_begin);
 }
 

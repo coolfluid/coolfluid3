@@ -22,8 +22,8 @@
 #include "Common/OptionArray.hpp"
 #include "Common/CreateComponentDataType.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 
 #include "Mesh/Actions/CGlobalNumberingNodes.hpp"
 #include "Mesh/CCellFaces.hpp"
@@ -115,7 +115,7 @@ void CGlobalNumberingNodes::execute()
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
-      std::cout << "["<<Comm::PE::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
+      std::cout << "["<<PE::Comm::instance().rank() << "]  hashing node ("<< to_vector(coords).transpose() << ") to " << glb_node_hash.data()[i] << std::endl;
     ++i;
   }
 
@@ -156,24 +156,24 @@ void CGlobalNumberingNodes::execute()
     if (nodes.is_ghost(i))
       ++nb_ghost;
     else
-      nodes_rank[i] = Comm::PE::instance().rank();
+      nodes_rank[i] = PE::Comm::instance().rank();
   }
 
 
   Uint tot_nb_owned_ids=nodes.size()-nb_ghost;
-  if (m_debug) std::cout << "["<<Comm::PE::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
-  if (m_debug) std::cout << "["<<Comm::PE::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
+  if (m_debug) std::cout << "["<<PE::Comm::instance().rank()<<"] nodes owned: " << tot_nb_owned_ids << std::endl;
+  if (m_debug) std::cout << "["<<PE::Comm::instance().rank()<<"] nb ghost: " << nb_ghost << std::endl;
 
 
-  std::vector<Uint> nb_ids_per_proc(Comm::PE::instance().size());
+  std::vector<Uint> nb_ids_per_proc(PE::Comm::instance().size());
 
   // avoid mpi call if PE not active
-  if( Comm::PE::instance().is_active() )
-    Comm::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  if( PE::Comm::instance().is_active() )
+    PE::Comm::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
   else
     nb_ids_per_proc[0] = tot_nb_owned_ids;
 
-  std::vector<Uint> start_id_per_proc(Comm::PE::instance().size());
+  std::vector<Uint> start_id_per_proc(PE::Comm::instance().size());
 
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
@@ -193,7 +193,7 @@ void CGlobalNumberingNodes::execute()
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
-  Uint glb_id = start_id_per_proc[Comm::PE::instance().rank()];
+  Uint glb_id = start_id_per_proc[PE::Comm::instance().rank()];
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if ( ! nodes.is_ghost(i) )
@@ -205,22 +205,22 @@ void CGlobalNumberingNodes::execute()
     }
   }
 
-  for (Uint root=0; root<Comm::PE::instance().size(); ++root)
+  for (Uint root=0; root<PE::Comm::instance().size(); ++root)
   {
     //std::vector<std::size_t> rcv_node_from = MPI::broadcast(node_from, root);
     //std::vector<Uint>        rcv_node_to   = MPI::broadcast(node_to, root);
     // PECheckPoint(100,"001");
     std::vector<std::size_t> rcv_node_from(0);//node_from.size());
-    Comm::PE::instance().broadcast(node_from,rcv_node_from,root);
+    PE::Comm::instance().broadcast(node_from,rcv_node_from,root);
     //PECheckPoint(100,"002");
     std::vector<Uint>        rcv_node_to(0);//node_to.size());
-    Comm::PE::instance().broadcast(node_to,rcv_node_to,root);
+    PE::Comm::instance().broadcast(node_to,rcv_node_to,root);
     //PECheckPoint(100,"003");
-    if (Comm::PE::instance().rank() != root)
+    if (PE::Comm::instance().rank() != root)
     {
-      for (Uint p=0; p<Comm::PE::instance().size(); ++p)
+      for (Uint p=0; p<PE::Comm::instance().size(); ++p)
       {
-        if (p == Comm::PE::instance().rank())
+        if (p == PE::Comm::instance().rank())
         {
           Uint rcv_idx(0);
           boost_foreach(const std::size_t node_hash, rcv_node_from)
@@ -229,7 +229,7 @@ void CGlobalNumberingNodes::execute()
             if ( node_glb2loc_it != hash_not_found )
             {
               if (m_debug)
-                std::cout << "["<<Comm::PE::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
+                std::cout << "["<<PE::Comm::instance().rank() << "]  will change node "<< node_glb2loc_it->first << " (" << node_glb2loc_it->second << ") to " << rcv_node_to[rcv_idx] << std::endl;
               nodes_glb_idx[node_glb2loc_it->second]=rcv_node_to[rcv_idx];
               nodes_rank[node_glb2loc_it->second]=root;
             }

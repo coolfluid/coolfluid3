@@ -82,8 +82,10 @@ BOOST_AUTO_TEST_CASE( SVDInverterTest )
   BOOST_CHECK_CLOSE(svd.singularValues()[2]+1.,0.+1.,tol[0]);
 
   RealVector s_inv = svd.singularValues();
+
+  // zeroize small values below treshold
   for (Uint i=0; i<3; ++i)
-    s_inv[i] = !is_equal_with_error(s_inv[i],0.0,eps()*10.) ? 1./s_inv[i] : 0.;
+    s_inv[i] = !is_equal_with_error(s_inv[i]+1.,1.,eps()*10.) ? 1./s_inv[i] : 0.;
 
   RealVector3 x = svd.matrixV().leftCols(s_inv.size())
                 * s_inv.asDiagonal()

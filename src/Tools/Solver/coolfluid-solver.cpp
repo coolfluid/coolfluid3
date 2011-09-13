@@ -13,9 +13,9 @@
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/MPI/CPEManager.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/ListeningThread.hpp"
+#include "Common/PE/CPEManager.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/ListeningThread.hpp"
 
 #include "Tools/Solver/CWorker.hpp"
 #include "Tools/Solver/LogForwarder.hpp"
@@ -24,7 +24,7 @@
 using namespace boost;
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::Tools::Solver;
 
 int main(int argc, char ** argv)
@@ -36,10 +36,10 @@ int main(int argc, char ** argv)
 
   // initiate the CF core and MPI environment
   Core::instance().initiate(argc, argv);
-  PE::instance().init(argc, argv);
+  Comm::instance().init(argc, argv);
 
-  parent_comm = PE::instance().get_parent();
-  rank = PE::instance().rank();
+  parent_comm = Comm::instance().get_parent();
+  rank = Comm::instance().rank();
 
   if( parent_comm == MPI_COMM_NULL )
   {
@@ -60,7 +60,7 @@ int main(int argc, char ** argv)
   notifier->listen_to_event("tree_updated", true);
 
   // set the forwarder, if needed
-  //  if( forward == "all" || (forward == "rank0" && PE::instance().rank() == 0) )
+  //  if( forward == "all" || (forward == "rank0" && Comm::instance().rank() == 0) )
     {
       forwarder = new LogForwarder();
       Logger::instance().getStream(INFO).addStringForwarder(forwarder);
@@ -71,7 +71,7 @@ int main(int argc, char ** argv)
   CFinfo.setFilterRankZero(LogStream::SCREEN, false);
 
   CFinfo << "Worker[" << rank << "] -> Syncing with the parent..." << CFendl;
-  PE::instance().barrier();
+  Comm::instance().barrier();
   MPI_Barrier( parent_comm );
   CFinfo << "Worker[" << rank << "] -> Synced with the parent!" << CFendl;
 
@@ -85,7 +85,7 @@ int main(int argc, char ** argv)
   MPI_Barrier( parent_comm );
 
   // terminate the CF core and MPI environment
-  PE::instance().finalize();
+  Comm::instance().finalize();
   Core::instance().terminate();
 
   delete forwarder;

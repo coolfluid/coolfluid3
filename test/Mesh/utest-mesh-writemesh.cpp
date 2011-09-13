@@ -119,8 +119,8 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 
   CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
-  meshreader->configure_option("number_of_processors",(Uint) PE::instance().size());
-  meshreader->configure_option("rank",(Uint) PE::instance().rank());
+  meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
+  meshreader->configure_option("rank",(Uint) Comm::instance().rank());
   meshreader->configure_option("Repartition",false);
   meshreader->configure_option("OutputRank",(Uint) 2);
 

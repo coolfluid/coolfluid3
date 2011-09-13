@@ -11,8 +11,8 @@
 
 #include "Common/Signal.hpp"
 
-#include "Common/MPI/types.hpp"
-#include "Common/MPI/CWorkerGroup.hpp"
+#include "Common/PE/types.hpp"
+#include "Common/PE/CWorkerGroup.hpp"
 
 #include "Common/Component.hpp"
 
@@ -22,7 +22,7 @@ namespace Common {
 class NotificationQueue;
 namespace XML { class XmlDoc; }
 
-namespace Comm {
+namespace PE {
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -115,7 +115,7 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Comm
+} // PE
 } // Common
 } // CF
 

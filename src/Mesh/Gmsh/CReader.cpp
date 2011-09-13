@@ -52,11 +52,11 @@ CReader::CReader( const std::string& name )
 
   // options
 
-  m_options.add_option<OptionT <Uint> >("part", Comm::PE::instance().rank() )
+  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank() )
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", Comm::PE::instance().size() )
+  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size() )
       ->description("Total number of parts. (e.g. number of processors)")
       ->pretty_name("nb_parts");
 

@@ -9,7 +9,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/Actions/LoadBalance.hpp"
 #include "Mesh/CMesh.hpp"
@@ -23,7 +23,7 @@ namespace Mesh {
 namespace Actions {
 
 using namespace Common;
-using namespace Common::Comm;
+using namespace Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,7 +58,7 @@ void LoadBalance::execute()
   CMesh& mesh = *m_mesh.lock();
 
   // balance if parallel run with multiple processors
-  if( PE::instance().is_active() && PE::instance().size() > 1 )
+  if( Comm::instance().is_active() && Comm::instance().size() > 1 )
   {
 
     CFinfo << "loadbalancing mesh:" << CFendl;
