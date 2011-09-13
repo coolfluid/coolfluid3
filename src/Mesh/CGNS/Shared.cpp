@@ -11,37 +11,37 @@
 namespace CF {
 namespace Mesh {
 namespace CGNS {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 Shared::Shared()
 {
   m_supported_element_types.reserve(9);
-  m_supported_element_types.push_back("CF.Mesh.SF.Line1DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Line2DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Line3DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Triag2DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Quad2DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Quad3DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
-  m_supported_element_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Line1D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Line2D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Line3D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Triag2D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Triag3D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Quad2D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Quad3D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Tetra3D");
+  m_supported_element_types.push_back("CF.Mesh.LagrangeP1.Hexa3D");
 
-  m_elemtype_CGNS_to_CF[BAR_2  ] = "CF.Mesh.SF.Line";
-  m_elemtype_CGNS_to_CF[TRI_3  ] = "CF.Mesh.SF.Triag";
-  m_elemtype_CGNS_to_CF[QUAD_4 ] = "CF.Mesh.SF.Quad";
-  m_elemtype_CGNS_to_CF[TETRA_4] = "CF.Mesh.SF.Tetra";
-  m_elemtype_CGNS_to_CF[HEXA_8 ] = "CF.Mesh.SF.Hexa";
+  m_elemtype_CGNS_to_CF[BAR_2  ] = "CF.Mesh.LagrangeP1.Line";
+  m_elemtype_CGNS_to_CF[TRI_3  ] = "CF.Mesh.LagrangeP1.Triag";
+  m_elemtype_CGNS_to_CF[QUAD_4 ] = "CF.Mesh.LagrangeP1.Quad";
+  m_elemtype_CGNS_to_CF[TETRA_4] = "CF.Mesh.LagrangeP1.Tetra";
+  m_elemtype_CGNS_to_CF[HEXA_8 ] = "CF.Mesh.LagrangeP1.Hexa";
 
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Line1DLagrangeP1" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Line2DLagrangeP1" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Line3DLagrangeP1" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Triag2DLagrangeP1"] = TRI_3;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Triag3DLagrangeP1"] = TRI_3;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Quad2DLagrangeP1" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Quad3DLagrangeP1" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Tetra3DLagrangeP1"] = TETRA_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.SF.Hexa3DLagrangeP1" ] = HEXA_8;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line1D" ] = BAR_2;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line2D" ] = BAR_2;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line3D" ] = BAR_2;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Triag2D"] = TRI_3;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Triag3D"] = TRI_3;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Quad2D" ] = QUAD_4;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Quad3D" ] = QUAD_4;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Tetra3D"] = TETRA_4;
+  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Hexa3D" ] = HEXA_8;
 }
 
 //////////////////////////////////////////////////////////////////////////////

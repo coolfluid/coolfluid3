@@ -9,14 +9,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/ptr_container/ptr_vector.hpp>
+//#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
-
-#include "Common/Component.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Mesh/ShapeFunction.hpp"
+#include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -26,9 +25,7 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-template <typename T> class VolumeComputer;
-
-////////////////////////////////////////////////////////////////////////////////
+struct ElementTypeFaceConnectivity;
 
 /// This class represents the the data related to an ElementType
 /// @author Tiago Quintino
@@ -40,52 +37,31 @@ public: // typedefs
   typedef boost::shared_ptr< ElementType > Ptr;
   typedef boost::shared_ptr< ElementType const> ConstPtr;
 
+  typedef ElementTypeFaceConnectivity FaceConnectivity;
 public: // functions
 
-  /// Type used to pass node coordinates of an element.
-  /// Each row of the matrix represents the coordinates of a node
-  typedef RealMatrix NodesT;
-
-  /// Stores connectivity information about the faces that form the cell boundary
-  struct FaceConnectivity
-  {
-    /// Storage for index arrays
-    typedef std::vector<Uint> IndicesT;
-
-    /// Range of const indices
-    typedef boost::iterator_range<IndicesT::const_iterator> RangeT;
-
-    /// Index of the first node of each face, relative to the numbering of the parent cell
-    IndicesT face_first_nodes;
-
-    /// Number of nodes for each face
-    IndicesT face_node_counts;
-
-    /// Node indices for each face
-    IndicesT face_nodes;
-
-    /// Iterator range over the nodes of the given face
-    RangeT face_node_range(const Uint face) const
-    {
-      if(face_first_nodes.empty())
-        return boost::make_iterator_range(face_nodes.begin(), face_nodes.end());
-      IndicesT::const_iterator begin = face_nodes.begin() + face_first_nodes[face];
-      return boost::make_iterator_range(begin, begin + face_node_counts[face]);
-    }
-  };
+  /// @name Constructor / Destructor / Type name
+  //  ------------------------------------------
+  //@{
 
   /// Default constructor without arguments
-  ElementType( const std::string& name = type_name() );
+  ElementType( const std::string& name ) : Common::Component(name) {}
 
   /// Default destructor
-  virtual ~ElementType();
+  virtual ~ElementType() {}
 
   static std::string type_name() { return "ElementType"; }
 
-  /// @return m_nameShape
+  // @}
+
+  /// @name Accessor functions
+  //  ------------------------
+  //@{
+
+  /// @return shape as string
   std::string shape_name() const { return Mesh::GeoShape::Convert::instance().to_str( m_shape ); }
 
-  /// @return m_geoShape
+  /// @return shape as enum
   GeoShape::Type shape() const  {  return m_shape; }
 
   /// @return number of faces
@@ -106,57 +82,112 @@ public: // functions
   /// @return m_dimension
   Uint dimension() const { return m_dimension; }
 
+  /// @return the shape function defining this geometric element
+  virtual const ShapeFunction& shape_function() const = 0;
+
+  /// @return the face connectivity information
+  virtual const FaceConnectivity& faces() const = 0;
+
+  /// @return the face type for the given face
+  virtual const ElementType& face_type(const Uint face) const = 0;
+
+  //@}
+
+  /// @name Computation functions
+  //  ---------------------------
+  //@{
+
+  /// Compute Mapped Coordinates, a.k.a. local coordinates
+  /// @param [in] coord     the coordinates to be mapped
+  /// @param [in] nodes     coordinates of the element nodes (nb_nodes x dimension)
+  /// @return mapped_coord
+  virtual RealVector mapped_coordinate(const RealVector& coord, const RealMatrix& nodes) const = 0;
+
+  /// Compute Mapped Coordinates, a.k.a. local coordinates
+  /// @param [in]  coord         coordinates to be mapped
+  /// @param [in]  nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] mapped_coord  result
+  virtual void compute_mapped_coordinate(const RealVector& coord, const RealMatrix& nodes, RealVector& mapped_coord) const = 0;
   /// Compute the determinant of the jacobian
-  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
-  virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const;
+  /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @return jacobian determinant
+  virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const = 0;
 
-  virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const;
+  /// Compute the jacobian of the transformation
+  /// @param [in]  mapped_coord   coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes          coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] jacobian       jacobian (size = dimensionality x dimension)
+  virtual void compute_jacobian(const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian) const = 0;
 
-  std::string builder_name() const;
+  /// Compute the jacobian of the transformation
+  /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @return jacobian (size = dimensionality x dimension)
+  virtual RealMatrix jacobian(const RealVector& mapped_coord, const RealMatrix& nodes) const = 0;
 
-  virtual const ShapeFunction& shape_function() const;
+  /// Compute the adjoint of the jacobian of the transformation
+  /// Useful for computation of inverse jacobian = 1/jacobian_determinant * jacobian_adjoint
+  /// @param [in]  mapped_coord      coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes             coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] jacobian adjoint  jacobianadjoint (size = dimensionality x dimension)
+  virtual void compute_jacobian_adjoint(const RealVector& mapped_coord, const RealMatrix& nodes, RealMatrix& jacobian_adjoint) const = 0;
 
   /// compute volume given coordinates
-  /// @note Only in elements of dimensionality == dimension will
+  /// @param [in] nodes  coordinates of the element nodes (nb_nodes x dimension)
+  /// @note Only in elements of (dimensionality == dimension) will
   /// the volume be different from zero
-  virtual Real compute_volume(const NodesT& coord) const;
+  virtual Real volume(const RealMatrix& nodes) const = 0;
 
   /// compute area using given coordinates.
+  /// @param [in] nodes  coordinates of the element nodes (nb_nodes x dimension)
   /// @note Only in elements of dimensionality == dimensionality-1
   /// will the area be different from zero
-  virtual Real compute_area(const NodesT& coord) const;
+  virtual Real area(const RealMatrix& nodes) const = 0;
 
-  /// compute the normal to the element. The direction will be taken according
+  /// Compute the unit-normal to the face-element. The direction will be taken according
   /// to the order of the coordinates
-  virtual void compute_normal(const NodesT& coord, RealVector& normal) const;
+  virtual void compute_normal(const RealMatrix& nodes, RealVector& normal) const = 0;
 
   /// compute centroid of element given coordinates
-  virtual void compute_centroid(const NodesT& coord , RealVector& centroid) const;
-
-  /// Return the face connectivity information
-  virtual const FaceConnectivity& face_connectivity() const;
-
-  /// Return the face type for the given face
-  virtual const ElementType& face_type(const Uint face) const;
+  /// @param [in]  nodes      coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [out] centroid   coordinates of the centroid
+  virtual void compute_centroid(const RealMatrix& nodes , RealVector& centroid) const = 0;
 
   /// @return if the coordinate is in the element with given nodes
   /// @param [in] coord  the coordinates that will be checked
   /// @param [in] nodes  the nodes of the element
-  virtual bool is_coord_in_element(const RealVector& coord, const NodesT& nodes) const;
+  virtual bool is_coord_in_element(const RealVector& coord, const RealMatrix& nodes) const = 0;
 
   /// Compute the jacobian of the plane or section of the element.
   /// The section is given by a mapped coordinate, and a direction perpendicular
   /// to the plane.
   /// Only elements with the dimension == dimensionality implement this function
-  /// @param mapped_coord [in] coordinates in mapped space (dimensionality x 1)
-  /// @param nodes        [in] coordinates of the element nodes (nb_nodes x dimension)
-  /// @param orientation  [in] direction normal to the plane
+  /// @param [in] mapped_coord coordinates in mapped space (dimensionality x 1)
+  /// @param [in] nodes        coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in] orientation  direction normal to the plane
   /// @return vector in mapped space scaled with the jacobian of the
   ///         section (not the volume).
-  virtual RealVector plane_jacobian_normal(const RealVector& mapped_coords,
+  virtual RealVector plane_jacobian_normal(const RealVector& mapped_coord,
                                            const RealMatrix& nodes,
-                                           const CoordRef orientation) const;
+                                           const CoordRef orientation) const = 0;
+
+  /// Compute the jacobian of the plane or section of the element.
+  /// The section is given by a mapped coordinate, and a direction perpendicular
+  /// to the plane.
+  /// Only elements with the dimension == dimensionality implement this function
+  /// @param [in]  mapped_coord  coordinates in mapped space (dimensionality x 1)
+  /// @param [in]  nodes         coordinates of the element nodes (nb_nodes x dimension)
+  /// @param [in]  orientation   direction normal to the plane
+  /// @param [out] result        vector in mapped space scaled with the jacobian of the
+  ///                           section (not the volume).
+  virtual void compute_plane_jacobian_normal(const RealVector& mapped_coord,
+                                             const RealMatrix& nodes,
+                                             const CoordRef orientation,
+                                             RealVector& result) const = 0;
+
+  //@}
+
 protected: // data
 
   /// the GeoShape::Type corresponding to the shape
@@ -178,13 +209,40 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Stores connectivity information about the faces that form the cell boundary
+struct ElementTypeFaceConnectivity
+{
+  /// Range of const indices
+  typedef boost::iterator_range<std::vector<Uint>::const_iterator> RangeT;
+
+  /// Index of the first node of each face, relative to the numbering of the parent cell
+  std::vector<Uint> displs;
+
+  /// Number of nodes for each face
+  std::vector<Uint> stride;
+
+  /// Node indices for each face
+  std::vector<Uint> nodes;
+
+  /// Iterator range over the nodes of the given face
+  RangeT nodes_range(const Uint face) const
+  {
+    if(displs.empty())
+      return boost::make_iterator_range(nodes.begin(), nodes.end());
+    std::vector<Uint>::const_iterator begin = nodes.begin() + displs[face];
+    return boost::make_iterator_range(begin, begin + stride[face]);
+  }
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
 template <typename ETYPE>
 struct IsElementType
 {
   /// Return true if etype is of concrete type ETYPE
   bool operator()(const ElementType& etype)
   {
-    return dynamic_cast<ETYPE const*>(&etype) != nullptr;
+    return ETYPE::dimension == etype.dimension() && is_not_null(dynamic_cast<const ShapeFunctionT<typename ETYPE::SF>*>(&etype.shape_function()));
   }
 };
 

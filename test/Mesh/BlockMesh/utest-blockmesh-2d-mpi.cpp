@@ -93,11 +93,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks
-  boost_foreach(CEntities& elements, mesh.topology().elements_range())
-  {
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
-  }
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(CElements& elements , elems_P0.elements_range())

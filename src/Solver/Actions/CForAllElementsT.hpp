@@ -12,7 +12,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/FindComponents.hpp"
 
-#include "Mesh/SF/Types.hpp"
+#include "Mesh/ElementTypes.hpp"
 #include "Mesh/CRegion.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
@@ -120,9 +120,9 @@ public: // functions
     boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
     {
       CFinfo << region->uri().string() << CFendl;
-      
+
       ElementLooper loop_elements(*m_action,*region);
-      boost::mpl::for_each< Mesh::SF::Types >(loop_elements);
+      boost::mpl::for_each< Mesh::ElementTypes >(loop_elements);
     }
   }
 

@@ -32,8 +32,8 @@
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/SF/SFHexaLagrangeP0.hpp"
+#include "Mesh/LagrangeP0/Hexa.hpp"
+#include "Mesh/LagrangeP1/Hexa3D.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
@@ -111,7 +111,7 @@ struct ProtoParallelFixture :
     // Create field
     boost_foreach(CEntities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+      elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
     }
 
     return model;
@@ -121,8 +121,8 @@ struct ProtoParallelFixture :
   const Real length;
   const Real half_height;
   const Real width;
-  typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
-  
+  typedef boost::mpl::vector2<LagrangeP1::Hexa3D, LagrangeP0::Hexa> ElementsT;
+
   Uint x_segs;
   Uint y_segs;
   Uint z_segs;

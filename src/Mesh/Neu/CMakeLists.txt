@@ -9,7 +9,7 @@ list( APPEND coolfluid_mesh_neu_files
   Shared.cpp
 )
 
-list( APPEND coolfluid_mesh_neu_cflibs coolfluid_mesh_sf)
+list( APPEND coolfluid_mesh_neu_cflibs coolfluid_mesh_lagrangep1)
 
 set( coolfluid_mesh_neu_kernellib TRUE )
 

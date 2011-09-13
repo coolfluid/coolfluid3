@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
+  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver

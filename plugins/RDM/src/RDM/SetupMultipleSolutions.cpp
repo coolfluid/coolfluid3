@@ -77,9 +77,7 @@ void SetupMultipleSolutions::execute()
     solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      boost_foreach(CEntities& elements, mesh.topology().elements_range())
-          elements.create_space( RDM::Tags::solution(), "CF.Mesh.SF.SF"+elements.element_type().shape_name() + solution_space );
-      solution_group = mesh.create_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED).as_ptr<FieldGroup>();
+      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "CF.Mesh."+solution_space).as_ptr<FieldGroup>();
     }
     else // not null so check that space is what user wants
     {

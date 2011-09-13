@@ -9,7 +9,7 @@
 
 #include <boost/proto/core.hpp>
 
-/// @file 
+/// @file
 /// Loop over indices that range over the dimension of the problem
 
 namespace CF {
@@ -29,7 +29,7 @@ struct ElementQuadratureMatch :
   >
 {
 };
-  
+
 /// Tag terminals used as index
 template<typename T>
 struct IndexTag
@@ -99,25 +99,25 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
     typedef typename boost::result_of<HasIdx<0>(ExprT)>::type HasIT;
     /// True if index _j is used
     typedef typename boost::result_of<HasIdx<1>(ExprT)>::type HasJT;
-    
+
     /// Dimension of the problem
-    typedef boost::mpl::int_<boost::remove_reference<DataT>::type::SupportT::SF::dimension> DimensionT;
+    typedef boost::mpl::int_<boost::remove_reference<DataT>::type::SupportT::EtypeT::dimension> DimensionT;
     /// Number iterations over _i
     typedef typename boost::mpl::if_< HasIT, DimensionT, boost::mpl::int_<1> >::type IterationsIT;
     /// Number iterations over _j
     typedef typename boost::mpl::if_< HasJT, DimensionT, boost::mpl::int_<1> >::type IterationsJT;
-    
+
     template<Uint NI, Uint NJ, Uint Dummy = 0>
     struct OuterLoop
     {
       typedef void result_type;
-      
+
       void operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
       {
         boost::mpl::for_each< boost::mpl::range_c<int, 0, NI> >(InnerLoop<NJ>(expr, state, data));
       }
     };
-    
+
     template<Uint Dummy>
     struct OuterLoop<1, 1, Dummy>
     {
@@ -126,20 +126,20 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
       (
         typename impl::expr_param, typename impl::state_param, typename impl::data_param
       )>::type result_type;
-      
+
       result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
       {
         return ConcreteGrammarT()(expr, state, data);
       }
     };
-    
+
     typedef typename OuterLoop<IterationsIT::value, IterationsJT::value>::result_type result_type;
-    
+
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       return OuterLoop<IterationsIT::value, IterationsJT::value>()(expr, state, data);
     }
-    
+
     template<Uint NJ>
     struct InnerLoop
     {
@@ -149,18 +149,18 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
         m_data(data)
       {
       }
-      
+
       template<typename I>
       void operator()(const I&) const
       {
         boost::mpl::for_each< boost::mpl::range_c<int, 0, NJ> >(EvalExpr<I>(m_expr, m_state, m_data));
       }
-      
+
       typename impl::expr_param m_expr;
       typename impl::state_param m_state;
       typename impl::data_param m_data;
     };
-    
+
     template<typename I>
     struct EvalExpr
     {
@@ -170,13 +170,13 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
         m_data(data)
       {
       }
-      
+
       template<typename J>
       void operator()(const J&) const
       {
         GrammarT<I, J>()(m_expr, m_state, m_data);
       }
-      
+
       typename impl::expr_param m_expr;
       typename impl::state_param m_state;
       typename impl::data_param m_data;

@@ -445,7 +445,7 @@ void CReader::read_section(CRegion& parent_region)
         row[n-1]=start_idx+(elemNodes[0][n]-1); // -1 because cgns has index-base 1 instead of 0
 
       // Convert the cgns element type to the CF element type
-      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+ to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      const std::string& etype_CF = m_elemtype_CGNS_to_CF[etype_cgns]+to_str<int>(m_base.phys_dim)+"D";
 
       // Add the nodes to the correct CElements component using its buffer
       Uint table_idx = buffer[etype_CF]->add_row(row);
@@ -467,7 +467,7 @@ void CReader::read_section(CRegion& parent_region)
 
 
     // Convert the CGNS element type to the CF element type
-    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+    const std::string& etype_CF = m_elemtype_CGNS_to_CF[m_section.type]+to_str<int>(m_base.phys_dim)+"D";
 
     // Create element component in this region for this CF element type, automatically creates connectivity_table
     this_region.create_elements(etype_CF,all_nodes);
@@ -529,13 +529,13 @@ void CReader::create_structured_elements(CRegion& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "CF.Mesh.SF.Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 1: // Segments
-      etype_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }
@@ -664,7 +664,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().builder_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -714,7 +714,7 @@ void CReader::read_boco_unstructured(CRegion& parent_region)
         Uint local_element = m_global_to_region[global_element].second;
 
         // Add the local element to the correct CElements component through its buffer
-        buffer[element_region->element_type().builder_name()]->add_row(element_region->node_connectivity()[local_element]);
+        buffer[element_region->element_type().derived_type_name()]->add_row(element_region->node_connectivity()[local_element]);
       }
 
       // Flush all buffers and remove empty element regions
@@ -762,16 +762,16 @@ void CReader::read_boco_structured(CRegion& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "CF.Mesh.SF.Hexa"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "CF.Mesh.SF.Quad"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
+      etype_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 1: // Segments
-      etype_CF = "CF.Mesh.SF.Line"+to_str<int>(m_base.phys_dim)+"DLagrangeP1";
-      etypeBC_CF = "CF.Mesh.SF.Point"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "CF.Mesh.LagrangeP1.Point"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }

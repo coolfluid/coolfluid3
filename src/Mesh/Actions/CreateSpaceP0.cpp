@@ -6,7 +6,7 @@
 
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
@@ -50,7 +50,7 @@ void CreateSpaceP0::execute()
 
   boost_foreach(CEntities& entities, find_components_recursively<CEntities>(mesh))
   {
-    entities.create_space("P0","CF.Mesh.SF.SF"+entities.element_type().shape_name()+"LagrangeP0");
+    entities.create_space("P0","CF.Mesh.LagrangeP0."+entities.element_type().shape_name());
   }
 }
 

@@ -93,7 +93,7 @@ struct ElementValue : boost::proto::transform<ElementValue>
     
     result_type operator()(typename impl::expr_param var, typename impl::state_param, typename impl::data_param data)
     {
-      return dispatch(typename VarDataT::SF(), data.var_data(var), var);
+      return dispatch(typename VarDataT::EtypeT(), data.var_data(var), var);
     }
     
     /// static dispatch in case of node-based field, giving an error

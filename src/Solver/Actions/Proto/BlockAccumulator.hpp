@@ -23,7 +23,7 @@
 #include "Terminals.hpp"
 
 /// @file
-/// System matrix block accumultation. Current prototype uses dense a dense Eigen matrix and is purely for proof-of-concept
+/// System matrix block accumulation.
 
 namespace CF {
 namespace Solver {
@@ -111,16 +111,16 @@ struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
-    static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
+    static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
 
     for(Uint row = 0; row != mat_size; ++row)
     {
       // This converts u1,u2...pn to u1v1p1...
-      const Uint block_row = (row % DataT::SupportT::SF::nb_nodes)*nb_dofs + row / DataT::SupportT::SF::nb_nodes;
+      const Uint block_row = (row % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + row / DataT::SupportT::EtypeT::nb_nodes;
       for(Uint col = 0; col != mat_size; ++col)
       {
-        const Uint block_col = (col % DataT::SupportT::SF::nb_nodes)*nb_dofs + col / DataT::SupportT::SF::nb_nodes;
+        const Uint block_col = (col % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + col / DataT::SupportT::EtypeT::nb_nodes;
         block_accumulator.mat(block_row, block_col) = rhs(row, col);
       }
     }
@@ -136,12 +136,12 @@ struct BlockAssignmentOp<SystemRHSTag, OpTagT>
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
-    static const Uint nb_dofs = mat_size / DataT::SupportT::SF::nb_nodes;
+    static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
     Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
     for(Uint i = 0; i != mat_size; ++i)
     {
       // This converts u1,u2...pn to u1v1p1...
-      const Uint block_idx = (i % DataT::SupportT::SF::nb_nodes)*nb_dofs + i / DataT::SupportT::SF::nb_nodes;
+      const Uint block_idx = (i % DataT::SupportT::EtypeT::nb_nodes)*nb_dofs + i / DataT::SupportT::EtypeT::nb_nodes;
       block_accumulator.rhs[block_idx] = rhs[i];
     }
 

@@ -4,9 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/fstream.hpp>
-
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 
@@ -31,7 +28,7 @@ CF::Common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshR
 
 BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
 {
-   
+
 }
 
 std::vector< std::string > BlockMeshReader::get_extensions()
@@ -54,7 +51,7 @@ void BlockMeshReader::do_read_mesh_into(boost::filesystem::path& path, const CMe
      throw boost::filesystem::filesystem_error( path.string() + " does not exist",
                                                 boost::system::error_code() );
   }
-  
+
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
   build_mesh(block_data, *mesh);

@@ -112,7 +112,7 @@ protected: // helper functions
 
 protected: // typedefs
 
-  typedef typename SF::NodeMatrixT                          NodeMT;
+  typedef typename SF::NodesT                               NodeMT;
   typedef Eigen::Matrix<Real, QD::nb_points, 1u>            WeightVT;
   typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes>  SFMatrixT;
   typedef Eigen::Matrix<Real, 1u, SF::nb_nodes >            SFVectorT;
@@ -178,9 +178,9 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   // initializations
 
   // Gradient of the shape functions in reference space
-  typename SF::MappedGradientT GradSF;
+  typename SF::SF::GradientT GradSF;
   // Values of shape functions in reference space
-  typename SF::ShapeFunctionsT ValueSF;
+  typename SF::SF::ValueT ValueSF;
 
   // initialize the interpolation matrix
 
@@ -188,8 +188,8 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   {
     // compute values of all functions in this quadrature point
 
-    SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
-    SF::shape_function_value   ( m_quadrature.coords.col(q), ValueSF );
+    SF::SF::compute_gradient( m_quadrature.coords.col(q), GradSF  );
+    SF::SF::compute_value   ( m_quadrature.coords.col(q), ValueSF );
 
     // copy the values to interpolation matrix
 

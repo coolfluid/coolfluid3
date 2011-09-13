@@ -60,7 +60,7 @@ public:
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
     /// Mapped coordinate type to use is obtained from the support
-    typedef typename boost::remove_reference<DataT>::type::SupportT::SF ShapeFunctionT;
+    typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
     typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
     
     /// function argument 0 contains the terminal representing the function, and thus also the integration order
@@ -173,7 +173,7 @@ struct ElementQuadrature :
               , typename impl::data_param data
     ) const
     {
-      typedef typename boost::remove_reference<DataT>::type::SupportT::SF ShapeFunctionT;
+      typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
       typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
       typedef Mesh::Integrators::GaussMappedCoords<2, ShapeFunctionT::shape> GaussT;
       

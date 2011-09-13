@@ -16,6 +16,7 @@
 #include "Common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
+#include "Math/Consts.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"
@@ -27,8 +28,8 @@
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/SF/SFQuadLagrangeP0.hpp"
+#include "Mesh/ElementTypes.hpp"
+#include "Mesh/LagrangeP0/Quad.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
@@ -104,7 +105,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   Real total_error = 0;
 
   // Accepted element types
-  boost::mpl::vector2<Mesh::SF::SFQuadLagrangeP0, Mesh::SF::Quad2DLagrangeP1> allowed_elements;
+  boost::mpl::vector2<Mesh::LagrangeP0::Quad, Mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Expression to compute volumes, assuming rectangles
   boost::shared_ptr<Expression> volumes = elements_expression
@@ -123,7 +124,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   // Create the fields
   boost_foreach(CEntities& elements, mesh.topology().elements_range())
   {
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+    elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   }
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
   solver.field_manager().create_field("volumes", elems_P0);

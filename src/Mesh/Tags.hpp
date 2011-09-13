@@ -26,6 +26,7 @@ public:
   static const char * area ();
   static const char * volume ();
 
+  static const char * geometry ();
   static const char * coordinates ();
   static const char * nodes ();
   static const char * nodes_used ();

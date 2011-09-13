@@ -1,7 +1,7 @@
 ################################################################################
 # test Component CAction
 
-list( APPEND utest-solver-actions_cflibs coolfluid_solver_actions coolfluid_mesh_actions coolfluid_mesh_sf coolfluid_mesh_gmsh coolfluid_mesh_neu)
+list( APPEND utest-solver-actions_cflibs coolfluid_solver_actions coolfluid_mesh_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_gmsh coolfluid_mesh_neu)
 list( APPEND utest-solver-actions_files
   CDummyLoopOperation.hpp
   CDummyLoopOperation.cpp
@@ -17,7 +17,7 @@ foreach( mfile ${mesh_files} )
                     )
 endforeach()
 
-list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
+list( APPEND utest-solver-solvesystem_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss )
 list( APPEND utest-solver-solvesystem_files utest-solver-solvesystem.cpp )
 coolfluid_add_unit_test( utest-solver-solvesystem )
 
@@ -28,7 +28,7 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
-  list( APPEND utest-proto-benchmark_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-benchmark_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-benchmark_files  utest-proto-benchmark.cpp )
   if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
     list( APPEND utest-proto-benchmark_args 160 160 120 )
@@ -39,25 +39,25 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
-  list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-operators_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-operators_files utest-proto-operators.cpp )
   coolfluid_add_unit_test( utest-proto-operators )
 
   ################################################################################
 
-  list( APPEND utest-proto-components_cflibs coolfluid_mesh coolfluid_mesh_sf coolfluid_mesh_generation coolfluid_solver_actions coolfluid_solver )
+  list( APPEND utest-proto-components_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver_actions coolfluid_solver )
   list( APPEND utest-proto-components_files utest-proto-components.cpp )
   coolfluid_add_unit_test( utest-proto-components )
 
   ################################################################################
 
-  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_solver )
+  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_solver )
   list( APPEND utest-proto-elements_files utest-proto-elements.cpp )
   coolfluid_add_unit_test( utest-proto-elements )
 
   ################################################################################
 
-  list( APPEND utest-proto-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_sf coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-parallel_files  utest-proto-parallel.cpp )
   if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
     list( APPEND utest-proto-parallel_args 160 160 120 )
@@ -74,6 +74,6 @@ if(CF_ENABLE_PROTO)
 
 else()
 
-  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp)
+  coolfluid_mark_not_orphan(utest-proto-benchmark.cpp utest-proto-operators.cpp utest-proto-components.cpp utest-proto-elements.cpp utest-proto-parallel.cpp)
 
 endif()

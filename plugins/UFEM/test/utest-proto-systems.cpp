@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
+  boost::mpl::vector1<Mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // build up the solver out of different actions
   solver
@@ -129,7 +129,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.simulate();
 
   // Write result
-  domain.write_mesh(URI("systems.msh"));
+  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.CWriter");
+  domain.write_mesh(URI("systems.pvtu"));
 };
 
 // Expected matrices:

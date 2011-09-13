@@ -142,26 +142,52 @@ void CSpace::make_proxy(const Uint elem_start_idx)
 
 RealMatrix CSpace::compute_coordinates(const Uint elem_idx) const
 {
-  return support().get_coordinates(elem_idx);
-  // TODO: Wilem look at this, it didn't work as expected
-  //return element_type().shape_function().value( shape_function().local_coordinates() ) * support().get_coordinates(elem_idx);
+  const ShapeFunction& space_sf       = shape_function();
+  const CEntities&     geometry       = support();
+  const ElementType&   geometry_etype = element_type();
+  const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
+  RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
+  RealMatrix space_coordinates(space_sf.nb_nodes(),geometry_etype.dimension());
+  for (Uint node=0; node<space_sf.nb_nodes(); ++node)
+  {
+    space_coordinates.row(node) = geometry_sf.value( space_sf.local_coordinates().row(node) ) * geometry_coordinates;
+  }
+  return space_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CSpace::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
-  CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
-  Field& coordinates_field = bound_fields().coordinates();
-
-  cf_assert(coordinates.rows() == indexes.size());
-  cf_assert(coordinates.cols() == coordinates_field.row_size());
-
-  for (Uint i=0; i<coordinates.rows(); ++i)
+  if (bound_fields().has_coordinates())
   {
-    for (Uint j=0; j<coordinates.cols(); ++j)
+    CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
+    Field& coordinates_field = bound_fields().coordinates();
+
+    cf_assert(coordinates.rows() == indexes.size());
+    cf_assert(coordinates.cols() == coordinates_field.row_size());
+
+    for (Uint i=0; i<coordinates.rows(); ++i)
     {
-      coordinates(i,j) = coordinates_field[i][j];
+      for (Uint j=0; j<coordinates.cols(); ++j)
+      {
+        coordinates(i,j) = coordinates_field[i][j];
+      }
+    }
+  }
+  else
+  {
+    const ShapeFunction& space_sf       = shape_function();
+    const CEntities&     geometry       = support();
+    const ElementType&   geometry_etype = element_type();
+    const ShapeFunction& geometry_sf    = geometry_etype.shape_function();
+    RealMatrix geometry_coordinates = geometry.get_coordinates(elem_idx);
+
+    cf_assert(coordinates.rows() == space_sf.nb_nodes());
+    cf_assert(coordinates.cols() == geometry_etype.dimension());
+    for (Uint node=0; node<space_sf.nb_nodes(); ++node)
+    {
+      coordinates.row(node) = geometry_sf.value( space_sf.local_coordinates().row(node) ) * geometry_coordinates;
     }
   }
 }
@@ -177,17 +203,25 @@ void CSpace::allocate_coordinates(RealMatrix& coordinates) const
 
 RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
 {
-  CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
-  Field& coordinates_field = bound_fields().coordinates();
-  RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
-  for (Uint i=0; i<coordinates.rows(); ++i)
+  if (bound_fields().has_coordinates())
   {
-    for (Uint j=0; j<coordinates.cols(); ++j)
+
+    CConnectivity::ConstRow indexes = indexes_for_element(elem_idx);
+    Field& coordinates_field = bound_fields().coordinates();
+    RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
+    for (Uint i=0; i<coordinates.rows(); ++i)
     {
-      coordinates(i,j) = coordinates_field[i][j];
+      for (Uint j=0; j<coordinates.cols(); ++j)
+      {
+        coordinates(i,j) = coordinates_field[i][j];
+      }
     }
+    return coordinates;
   }
-  return coordinates;
+  else
+  {
+    return compute_coordinates(elem_idx);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -18,7 +18,7 @@ list( APPEND coolfluid_ufem_files
   TimeLoop.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions coolfluid_physics)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_actions coolfluid_physics)
 
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )
 

@@ -34,7 +34,7 @@ list( APPEND coolfluid_mesh_block_reader_files
 
 list( APPEND coolfluid_mesh_block_reader_cflibs coolfluid_mesh coolfluid_mesh_generation coolfluid_mesh_block coolfluid_mesh_sf )
 
-set( coolfluid_mesh_block_reader_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( coolfluid_mesh_block_reader_condition FALSE)
 
 coolfluid_add_library( coolfluid_mesh_block_reader )
 

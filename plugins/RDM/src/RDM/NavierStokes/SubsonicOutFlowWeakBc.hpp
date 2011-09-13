@@ -92,17 +92,17 @@ public: // functions
    regist_typeinfo(this);
 
    // Gradient of the shape functions in reference space
-   typename SF::MappedGradientT GradSF;
+   typename SF::SF::GradientT GradSF;
    // Values of shape functions in reference space
-   typename SF::ShapeFunctionsT ValueSF;
+   typename SF::SF::ValueT ValueSF;
 
    // initialize the interpolation matrix
 
    for(Uint q = 0; q < QD::nb_points; ++q)
      for(Uint n = 0; n < SF::nb_nodes; ++n)
      {
-        SF::shape_function_gradient( m_quadrature.coords.col(q), GradSF  );
-        SF::shape_function_value   ( m_quadrature.coords.col(q), ValueSF );
+        SF::SF::compute_gradient( m_quadrature.coords.col(q), GradSF  );
+        SF::SF::compute_value   ( m_quadrature.coords.col(q), ValueSF );
 
         Ni(q,n)     = ValueSF[n];
         dNdKSI(q,n) = GradSF[n];
@@ -129,7 +129,7 @@ protected: // data
 
  typedef Eigen::Matrix<Real, QD::nb_points, 1u>               WeightVT;
 
- typedef typename SF::NodeMatrixT                             NodeMT;
+ typedef typename SF::NodesT                             NodeMT;
 
  typedef Eigen::Matrix<Real, QD::nb_points, SF::nb_nodes >     SFMatrixT;
  typedef Eigen::Matrix<Real, QD::nb_points, PHYS::MODEL::_ndim   >     QCoordMT;

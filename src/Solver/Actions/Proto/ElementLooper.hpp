@@ -14,6 +14,7 @@
 
 #include <boost/mpl/assert.hpp>
 #include <boost/mpl/for_each.hpp>
+#include <boost/mpl/filter_view.hpp>
 
 #include "ElementData.hpp"
 #include "ElementExpressionWrapper.hpp"
@@ -21,14 +22,42 @@
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CSpace.hpp"
+#include "Mesh/ElementTypePredicates.hpp"
 
 namespace CF {
 namespace Solver {
 namespace Actions {
 namespace Proto {
 
-/// Find the shape function of each field variable
-template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesSFT, typename NbVarsT, typename VarIdxT>
+/// Check if all variables are on fields with element type ETYPE
+template<typename ETYPE>
+struct CheckSameEtype
+{
+  CheckSameEtype(Mesh::CElements& elems) : elements(elems) {}
+
+  template <typename VarT>
+  void operator() ( const VarT& var ) const
+  {
+    // Find the field group for the variable
+    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
+    const Mesh::FieldGroup& var_field_group = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
+    Mesh::CSpace& space = var_field_group.space(elements);
+
+    if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
+    {
+      throw Common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+    }
+  }
+
+  void operator() ( const boost::mpl::void_& ) const
+  {
+  }
+
+  Mesh::CElements& elements;
+};
+
+/// Find the concrete element type of each field variable
+template<typename ElementTypesT, typename ExprT, typename SupportETYPE, typename VariablesT, typename VariablesEtypesT, typename NbVarsT, typename VarIdxT>
 struct ExpressionRunner
 {
   ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0), m_found(false) {}
@@ -45,19 +74,19 @@ struct ExpressionRunner
   {
     typedef typename boost::mpl::push_back
     <
-      VariablesSFT,
+      VariablesEtypesT,
       boost::mpl::void_
-    >::type NewVariablesSFT;
+    >::type NewVariablesEtypesT;
 
     typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
 
     ExpressionRunner
     <
-      ShapeFunctionsT,
+      ElementTypesT,
       ExprT,
-      SupportSF,
+      SupportETYPE,
       VariablesT,
-      NewVariablesSFT,
+      NewVariablesEtypesT,
       NbVarsT,
       NextIdxT
     >(variables, expression, elements).run();
@@ -66,13 +95,13 @@ struct ExpressionRunner
   // Chosen otherwise
   void static_dispatch(boost::mpl::false_) const
   {
-    boost::mpl::for_each<ShapeFunctionsT>( *this );
+    boost::mpl::for_each<ElementTypesT>( *this );
   }
 
-  template <typename SF>
-  void operator() ( SF& T ) const
+  template <typename ETYPE>
+  void operator() ( ETYPE& T ) const
   {
-    
+
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
 
     // Find the field group for the variable
@@ -81,35 +110,35 @@ struct ExpressionRunner
     Mesh::CSpace& space = var_field_group.space(elements);
 
     ++m_nb_tests;
-    
+
     // Compatibility is ensured higher-up, so we assume that the correct shape function is found if the order matches
     // This needs to be extended once non-Lagrange functions are added
-    if(SF::order != space.shape_function().order())
+    if(ETYPE::order != space.shape_function().order())
     {
-      if(m_nb_tests == boost::mpl::size<ShapeFunctionsT>::value && !m_found)
+      if(m_nb_tests == boost::mpl::size<ElementTypesT>::value && !m_found)
       {
-        throw Common::SetupError(FromHere(), "Needed shape function " + space.shape_function().name() + " for variable " + var.name() + " but it was not in the compiled list");
+        throw Common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
       }
-      
+
       return;
     }
-    
+
     m_found = true;
-    
+
     typedef typename boost::mpl::push_back
     <
-      VariablesSFT,
-      SF
-    >::type NewVariablesSFT;
+      VariablesEtypesT,
+      ETYPE
+    >::type NewVariablesEtypesT;
     typedef typename boost::mpl::next<VarIdxT>::type NextIdxT;
 
     ExpressionRunner
     <
-      ShapeFunctionsT,
+      ElementTypesT,
       ExprT,
-      SupportSF,
+      SupportETYPE,
       VariablesT,
-      NewVariablesSFT,
+      NewVariablesEtypesT,
       NbVarsT,
       NextIdxT
     >(variables, expression, elements).run();
@@ -152,12 +181,12 @@ private:
 };
 
 /// When we recursed to the last variable, actually run the expression
-template<typename ShapeFunctionsT, typename ExprT, typename SupportSF, typename VariablesT, typename VariablesSFT, typename NbVarsT>
-struct ExpressionRunner<ShapeFunctionsT, ExprT, SupportSF, VariablesT, VariablesSFT, NbVarsT, NbVarsT>
+template<typename ElementTypesT, typename ExprT, typename SupportETYPE, typename VariablesT, typename VariablesEtypesT, typename NbVarsT>
+struct ExpressionRunner<ElementTypesT, ExprT, SupportETYPE, VariablesT, VariablesEtypesT, NbVarsT, NbVarsT>
 {
   ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
 
-  typedef ElementData<VariablesT, VariablesSFT, SupportSF, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
+  typedef ElementData<VariablesT, VariablesEtypesT, SupportETYPE, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
 
   void run() const
   {
@@ -179,7 +208,7 @@ private:
 };
 
 /// mpl::for_each compatible functor to loop over elements, using the correct shape function for the geometry
-template<typename ShapeFunctionsT, typename ExprT>
+template<typename ElementTypesT, typename ExprT>
 struct ElementLooper
 {
 
@@ -195,39 +224,40 @@ struct ElementLooper
 
 
   /// This looks up the support shape function
-  template < typename SF >
-  void operator() (const SF& sf) const
+  template < typename ETYPE >
+  void operator() (const ETYPE& sf) const
   {
 
     BOOST_MPL_ASSERT_MSG(
-          SF::order > 0
+          ETYPE::order > 0
         , ZERO_ORDER_SUPPORT_NOT_ALLOWED
-        , (SF)
+        , (ETYPE)
         );
 
-    if(!Mesh::IsElementType<SF>()(m_elements.element_type()))
+    if(!Mesh::IsElementType<ETYPE>()(m_elements.element_type()))
       return;
 
-    dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> > >::value>(), sf);
+    dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ElementTypesT, Mesh::IsCompatibleWith<ETYPE> > >::value>(), sf);
   }
 
-  /// Static dispatch in case everything has the same SF
-  template<typename SF>
-  void dispatch(const boost::mpl::int_<1>&, const SF& sf) const
+  /// Static dispatch in case everything has the same ETYPE
+  template<typename ETYPE>
+  void dispatch(const boost::mpl::int_<1>&, const ETYPE& sf) const
   {
     typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
-    typedef ElementData<VariablesT, SF, SF, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
+    typedef ElementData<VariablesT, ETYPE, ETYPE, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
 
-    // TODO: add static assert?
+    // Verify the types match, and throw an error if non-matchine fields are found
+    boost::fusion::for_each(m_variables, CheckSameEtype<ETYPE>(m_elements));
 
     DataT data(m_variables, m_elements);
 
     ElementLooperImpl<DataT>()(m_expr, data, m_elements.size());
   }
 
-  /// Static dispatch in case different SF are possible
-  template<typename T, typename SF>
-  void dispatch(const T&, const SF& sf) const
+  /// Static dispatch in case different ETYPE are possible
+  template<typename T, typename ETYPE>
+  void dispatch(const T&, const ETYPE& sf) const
   {
     // Number of variables (integral constant)
     typedef typename ExpressionProperties<ExprT>::NbVarsT NbVarsT;
@@ -236,11 +266,11 @@ struct ElementLooper
     // This recurses through the variables, selecting the appropriate shape function for each variable
     ExpressionRunner
     <
-      boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsCompatibleWith<SF> >, // MPL vector with the shape functions to consider
+      boost::mpl::filter_view< ElementTypesT, Mesh::IsCompatibleWith<ETYPE> >, // MPL vector with the element types to consider
       ExprT, // type of the expression
-      SF, // Shape function for the support
+      ETYPE, // Element type for the support
       VariablesT, // type of the fusion vector with the variables
-      boost::mpl::vector0<>, // Start with an empty vector for the per-variable shape functions
+      boost::mpl::vector0<>, // Start with an empty vector for the per-variable element types
       NbVarsT, // number of variables
       boost::mpl::int_<0> // Start index, as MPL integral constant
     >(m_variables, m_expr, m_elements).run();
@@ -252,7 +282,7 @@ private:
   VariablesT& m_variables;
 };
 
-template<typename ShapeFunctionsT, typename ExprT>
+template<typename ElementTypesT, typename ExprT>
 void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
 {
   // Store the variables
@@ -265,7 +295,7 @@ void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
   BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(root_region))
   {
     // We skip order 0 functions in the top-call, because first the support shape function is determined, and order 0 is not allowed there
-    boost::mpl::for_each< boost::mpl::filter_view< ShapeFunctionsT, Mesh::SF::IsMinimalOrder<1> > >( ElementLooper<ShapeFunctionsT, ExprT>(elements, expr, vars) );
+    boost::mpl::for_each< boost::mpl::filter_view< ElementTypesT, Mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypesT, ExprT>(elements, expr, vars) );
   }
 };
 

@@ -205,7 +205,7 @@ void CFaceCellConnectivity::build_connectivity()
         nb_nodes = elements.element_type().face_type(face_idx).nb_nodes();
         face_nodes.resize(nb_nodes);
         Uint i(0);
-        boost_foreach(const Uint face_node_idx, elements.element_type().face_connectivity().face_node_range(face_idx))
+        boost_foreach(const Uint face_node_idx, elements.element_type().faces().nodes_range(face_idx))
             face_nodes[i++] = elem[face_node_idx];
 
 
@@ -364,7 +364,7 @@ std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
   const CElements& elems = elem_comp->as_type<CElements>();
   std::vector<Uint> nodes(elems.element_type().face_type((*m_face_nb_in_elem)[face][0]).nb_nodes());
   Uint i(0);
-  boost_foreach (Uint node_in_face, elems.element_type().face_connectivity().face_node_range((*m_face_nb_in_elem)[face][0]))
+  boost_foreach (Uint node_in_face, elems.element_type().faces().nodes_range((*m_face_nb_in_elem)[face][0]))
   {
     cf_assert(elem_idx < elems.node_connectivity().size());
     nodes[i++] = elems.node_connectivity()[elem_idx][node_in_face];

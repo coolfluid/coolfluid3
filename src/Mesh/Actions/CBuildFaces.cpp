@@ -250,7 +250,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   {
     boost::tie(elem_comp,elem_idx) = face_to_cell.lookup().location(face_to_cell.connectivity()[f][0]);
     const Uint face_nb = face_number[f][0];
-    face_types.insert(elem_comp->as_type<CElements>().element_type().face_type(face_nb).builder_name());
+    face_types.insert(elem_comp->as_type<CElements>().element_type().face_type(face_nb).derived_type_name());
   }
 
   boost_foreach( const std::string& face_type , face_types)
@@ -280,7 +280,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     boost::tie(elem_comp,elem_idx) = face_to_cell.lookup().location(face_to_cell.connectivity()[f][0]);
     CElements& elements = elem_comp->as_type<CElements>();
     const Uint face_nb = face_number[f][0];
-    const std::string face_type = elements.element_type().face_type(face_nb).builder_name();
+    const std::string face_type = elements.element_type().face_type(face_nb).derived_type_name();
 
     if (is_inner)
     {
