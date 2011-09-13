@@ -350,7 +350,6 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
   if (m_converted_indices.size()<numblocks) m_converted_indices.resize(numblocks);
   for (int i=0; i<(const int)numblocks; i++) m_converted_indices[i]=m_p2m[values.indices[i]];
   int* idxs=(int*)&m_converted_indices[0];
-//  double *valuesmat=(double*)values.mat.data();
   for (int irow=0; irow<(const int)numblocks; irow++)
   {
     if (idxs[irow]<m_blockrow_size)
@@ -361,11 +360,8 @@ void TrilinosMatrix::add_values(const BlockAccumulator& values)
         for (int k=0; k<(const int)numblocks; k++)
           if (colindices[j]==idxs[k])
             for (int l=0; l<(const int)m_neq; l++)
-            {
               for (int m=0; m<(const int)m_neq; m++)
                 val[j][0](l,m)+=values.mat(irowneq+l,k*m_neq+m);
-//                val[j][0](l,m)+=*valuesmat++;
-            }
       hits++;
       if (hits==numblocks) break;
     }
