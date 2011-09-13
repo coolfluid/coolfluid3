@@ -31,8 +31,8 @@ public:
   virtual std::vector<std::string> get_extensions();
 
 private:
-  virtual void do_read_mesh_into(boost::filesystem::path& path, const Mesh::CMesh::Ptr& mesh);
-  
+  virtual void do_read_mesh_into(const Common::URI& path, Mesh::CMesh& mesh);
+
 }; // end BlockMeshReader
 
 

@@ -37,8 +37,9 @@ std::vector< std::string > BlockMeshReader::get_extensions()
   return result;
 }
 
-void BlockMeshReader::do_read_mesh_into(boost::filesystem::path& path, const CMesh::Ptr& mesh)
+void BlockMeshReader::do_read_mesh_into(const CF::Common::URI& path_uri, CF::Mesh::CMesh& mesh)
 {
+  boost::filesystem::path path(path_uri.path());
   // if the file is present open it
   boost::filesystem::fstream file;
   if( boost::filesystem::exists(path) )
@@ -54,7 +55,8 @@ void BlockMeshReader::do_read_mesh_into(boost::filesystem::path& path, const CMe
 
   BlockData block_data;
   parse_blockmesh_dict(file, block_data);
-  build_mesh(block_data, *mesh);
+  block_data.dimension = 3; // TODO add true 2D support
+  build_mesh(block_data, mesh);
 }
 
 } // BlockMeshReader
