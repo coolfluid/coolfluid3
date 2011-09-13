@@ -12,8 +12,8 @@
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/debug.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/debug.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/Actions/CGlobalConnectivity.hpp"
 #include "Mesh/Actions/CGlobalNumbering.hpp"
@@ -28,7 +28,7 @@ using namespace CF;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnecti
 BOOST_AUTO_TEST_CASE( Init )
 {
   Core::instance().initiate(m_argc,m_argv);
-  Comm::PE::instance().init(m_argc,m_argv);
+  PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( build )
   build_connectivity->execute();
 
   PEProcessSortedExecute(-1,
-      std::cout << "rank = " << PE::instance().rank() << std::endl;
+      std::cout << "rank = " << Comm::instance().rank() << std::endl;
       std::cout << "nodes = " << mesh->geometry().glb_idx() << std::endl;
       std::cout << "ranks = " << mesh->geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh->topology().elements_range())
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( build )
 
 BOOST_AUTO_TEST_CASE( Terminate )
 {
-  Comm::PE::instance().finalize();
+  PE::Comm::instance().finalize();
   Core::instance().terminate();
 }
 

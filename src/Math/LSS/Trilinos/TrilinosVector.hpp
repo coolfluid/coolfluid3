@@ -68,7 +68,7 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(Common::Comm::CommPattern& cp, Uint neq);
+  void create(Common::PE::CommPattern& cp, Uint neq);
 
   /// Deallocate underlying data
   void destroy();

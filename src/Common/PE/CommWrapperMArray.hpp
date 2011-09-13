@@ -12,7 +12,7 @@
 #include <boost/type_traits/is_pod.hpp>
 #include <boost/type_traits/is_same.hpp>
 
-#include "Common/MPI/CommWrapper.hpp"
+#include "Common/PE/CommWrapper.hpp"
 #include "Common/BoostArray.hpp"
 #include "Common/Foreach.hpp"
 
@@ -20,6 +20,7 @@
 
 namespace CF {
 namespace Common  {
+namespace PE  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -272,6 +273,7 @@ class CommWrapperMArray<T,2>: public CommWrapper{
 
 ////////////////////////////////////////////////////////////////////////////////
 
+} // PE
 } // Common
 } // CF
 

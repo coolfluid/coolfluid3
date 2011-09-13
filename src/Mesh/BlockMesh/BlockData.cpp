@@ -10,8 +10,8 @@
 #include "Common/Log.hpp"
 #include "Common/Timer.hpp"
 
-#include "Common/MPI/CommPattern.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/CommPattern.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/BlockMesh/WriteDict.hpp"
@@ -765,8 +765,8 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
 void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 {
   Common::Timer timer;
-  const Uint nb_procs = Comm::PE::instance().size();
-  const Uint rank = Comm::PE::instance().rank();
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
   cf_assert(block_data.block_distribution.size() == nb_procs+1);
 
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
@@ -1007,7 +1007,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
 
   if(nb_procs > 1)
   {
-    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
+    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
 
     // Commpattern arrays
@@ -1039,27 +1039,27 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       ranks_list[local_id] = ranks[local_id];
     }
 
-    Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
+    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
     timer.restart();
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
-    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
+    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
 
     timer.restart();
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
-    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
+    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
     timer.restart();
 
     mesh.geometry().coordinates().synchronize();
-    std::cout << "Rank " << Comm::PE::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
+    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }
 
 void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
 {
-  const Uint nb_procs = Comm::PE::instance().size();
-  const Uint rank = Comm::PE::instance().rank();
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
   cf_assert(block_data.block_distribution.size() == nb_procs+1);
 
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
@@ -1280,10 +1280,10 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       ranks_list[local_id] = ranks[local_id];
     }
 
-    Comm::CommPattern& comm_pattern = mesh.create_component<Comm::CommPattern>("comm_pattern_node_based");
+    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
 
     comm_pattern.insert("gid",gids,1,false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
 
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
     mesh.geometry().coordinates().synchronize();
@@ -1301,10 +1301,10 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
   else
     throw BadValue(FromHere(), "Only 2D and 3D meshes are supported by the blockmesher. Requested dimension was " + to_str(block_data.dimension));
 
-  if(Comm::PE::instance().is_active())
+  if(PE::Comm::instance().is_active())
   {
-    const Uint rank = Comm::PE::instance().rank();
-    const Uint nb_procs = Comm::PE::instance().size();
+    const Uint rank = PE::Comm::instance().rank();
+    const Uint nb_procs = PE::Comm::instance().size();
 
     // Total number of elements on this rank
     Uint mesh_nb_elems = 0;
@@ -1315,7 +1315,7 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
 
     std::vector<Uint> nb_elements_accumulated;
     // Get the total number of elements on each rank
-    Comm::PE::instance().all_gather(mesh_nb_elems, nb_elements_accumulated);
+    PE::Comm::instance().all_gather(mesh_nb_elems, nb_elements_accumulated);
     cf_assert(nb_elements_accumulated.size() == nb_procs);
     // Sum up the values
     for(Uint i = 1; i != nb_procs; ++i)

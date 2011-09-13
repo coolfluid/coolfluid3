@@ -24,7 +24,7 @@
 #include "Common/Tags.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -47,7 +47,7 @@ namespace Mesh {
 using namespace boost::assign;
 
 using namespace Common;
-using namespace Common::Comm;
+using namespace Common::PE;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
@@ -189,7 +189,7 @@ bool FieldGroup::is_ghost(const Uint idx) const
   cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf_assert(size() == m_rank->size());
   cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != PE::instance().rank();
+  return (*m_rank)[idx] != Comm::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

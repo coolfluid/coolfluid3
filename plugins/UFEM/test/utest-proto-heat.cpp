@@ -68,8 +68,8 @@ BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
-  Common::Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  BOOST_CHECK_EQUAL(Common::Comm::PE::instance().size(), 1);
+  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( Heat1DComponent )

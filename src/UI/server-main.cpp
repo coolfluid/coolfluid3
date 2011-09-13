@@ -21,8 +21,8 @@
 #include "Common/CEnv.hpp"
 #include "Common/NetworkInfo.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/CPEManager.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/CPEManager.hpp"
 
 
 #include "UI/Server/ServerExceptions.hpp"
@@ -31,12 +31,12 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::UI::Server;
 
 using namespace CF;
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 
 int main(int argc, char *argv[])
 {
@@ -88,10 +88,10 @@ int main(int argc, char *argv[])
     // cf_env.set_mpi_hostfile("./machine.txt"); // must be called before MPI_Init !
     cf_env.initiate ( argc, argv );        // initiate the environemnt
 
-    Comm::PE::instance().init( argc, argv );
+    PE::Comm::instance().init( argc, argv );
     ServerRoot::instance().root();
 
-    if( PE::instance().size() != 1 )
+    if( Comm::instance().size() != 1 )
       errorString = "This application is not designed to run in parallel.";
 
     if( nb_workers == 0 )
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
       return_value = app.exec();
     }
 
-    Comm::PE::instance().finalize();
+    PE::Comm::instance().finalize();
     // terminate the runtime environment
     cf_env.terminate();
 

@@ -17,8 +17,8 @@
 #include "Common/OSystem.hpp"
 #include "Common/OSystemLayer.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/Geometry.hpp"
@@ -33,7 +33,7 @@ using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_SUITE( ZoltanTests_TestSuite, ZoltanTests_Fixture )
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
   Core::instance().initiate(m_argc,m_argv);
-  Comm::PE::instance().init(m_argc,m_argv);
+  PE::Comm::instance().init(m_argc,m_argv);
 
 }
 
@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   Component::Ptr comp;
   Uint idx;
   bool found;
-  if ( Comm::PE::instance().rank() == 0)
+  if ( PE::Comm::instance().rank() == 0)
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
 
   PEProcessSortedExecute(-1,
-      std::cout << "rank  = "  << PE::instance().rank() << std::endl;
+      std::cout << "rank  = "  << Comm::instance().rank() << std::endl;
       std::cout << "nodes = " << mesh.geometry().glb_idx() << std::endl;
       std::cout << "ranks = " << mesh.geometry().rank() << std::endl;
       boost_foreach(const CEntities& entities, mesh.topology().elements_range())
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  Comm::PE::instance().finalize();
+  PE::Comm::instance().finalize();
 
   Core::instance().terminate();
 }

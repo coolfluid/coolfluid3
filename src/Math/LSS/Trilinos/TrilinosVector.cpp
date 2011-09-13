@@ -8,11 +8,11 @@
 
 #include "Common/Assertions.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Math/LSS/Trilinos/TrilinosVector.hpp"
 
 /// @todo remove when no debug any more
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,13 +38,13 @@ TrilinosVector::TrilinosVector(const std::string& name) :
   m_is_created(false),
   m_vec(0),
   m_converted_indices(0),
-  m_comm(Common::Comm::PE::instance().communicator())
+  m_comm(Common::PE::Comm::instance().communicator())
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::create(Common::Comm::CommPattern& cp, Uint neq)
+void TrilinosVector::create(Common::PE::CommPattern& cp, Uint neq)
 {
   // if built
   if (m_is_created) destroy();

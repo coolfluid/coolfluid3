@@ -29,11 +29,11 @@
 
 namespace CF {
   namespace Common {
-    namespace Comm {
+    namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define PERank "["<<::CF::Common::Comm::PE::instance().rank() << "] "
+#define PERank "["<<::CF::Common::PE::Comm::instance().rank() << "] "
 
 /**
   Macro for executing something ensured that the execution order is 0..nproc-1.
@@ -43,23 +43,23 @@ namespace CF {
 #define PEProcessSortedExecute(irank,expression) {                                                                           \
   if (irank<0){                                                                                                                 \
     int _process_sorted_execute_i_;                                                                                             \
-    int _process_sorted_execute_n_=(int)(::CF::Common::Comm::PE::instance().size());                                                                            \
-    int _process_sorted_execute_r_=(int)(::CF::Common::Comm::PE::instance().rank());                                                                            \
-    ::CF::Common::Comm::PE::instance().barrier();                                                                                                               \
+    int _process_sorted_execute_n_=(int)(::CF::Common::PE::Comm::instance().size());                                                                            \
+    int _process_sorted_execute_r_=(int)(::CF::Common::PE::Comm::instance().rank());                                                                            \
+    ::CF::Common::PE::Comm::instance().barrier();                                                                                                               \
     std::cout << std::flush;                                                                                                          \
-    ::CF::Common::Comm::PE::instance().barrier();                                                                                                               \
+    ::CF::Common::PE::Comm::instance().barrier();                                                                                                               \
     for(_process_sorted_execute_i_=0; _process_sorted_execute_i_<_process_sorted_execute_n_; _process_sorted_execute_i_++){     \
-      ::CF::Common::Comm::PE::instance().barrier();                                                                                                             \
+      ::CF::Common::PE::Comm::instance().barrier();                                                                                                             \
       if(_process_sorted_execute_i_ == _process_sorted_execute_r_){                                                             \
         expression;                                                                                                             \
         std::cout << std::flush;                                                                                                      \
-        ::CF::Common::Comm::PE::instance().barrier();                                                                                                           \
+        ::CF::Common::PE::Comm::instance().barrier();                                                                                                           \
       }                                                                                                                         \
     }                                                                                                                           \
-    ::CF::Common::Comm::PE::instance().barrier();                                                                                                               \
+    ::CF::Common::PE::Comm::instance().barrier();                                                                                                               \
     std::cout << std::flush;                                                                                                          \
-    ::CF::Common::Comm::PE::instance().barrier();                                                                                                               \
-  } else if (irank==(int)(::CF::Common::Comm::PE::instance().rank())){                                                                                          \
+    ::CF::Common::PE::Comm::instance().barrier();                                                                                                               \
+  } else if (irank==(int)(::CF::Common::PE::Comm::instance().rank())){                                                                                          \
     expression;                                                                                                                 \
   }                                                                                                                             \
 }
@@ -73,28 +73,28 @@ namespace CF {
 **/
 
 #define  PECheckPoint(msec,msg) {                                                                                               \
-::CF::Common::Comm::PE::instance().barrier();                                                                                                     \
+::CF::Common::PE::Comm::instance().barrier();                                                                                                     \
 std::cout << std::flush;                                                                                                      \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
-::CF::Common::Comm::PE::instance().barrier();                                                                                                     \
+::CF::Common::PE::Comm::instance().barrier();                                                                                                     \
 PEProcessSortedExecute(-1,                                                                                                    \
   std::cout << std::flush;                                                                                                    \
-  std::cout << "["<<::CF::Common::Comm::PE::instance().rank()  << ":" << __FILE__ << ":" << __LINE__ << "] " << msg << "\n";                                                                   \
+  std::cout << "["<<::CF::Common::PE::Comm::instance().rank()  << ":" << __FILE__ << ":" << __LINE__ << "] " << msg << "\n";                                                                   \
   std::cout << std::flush;                                                                                                    \
 );                                                                                                                            \
-::CF::Common::Comm::PE::instance().barrier();                                                                                                     \
+::CF::Common::PE::Comm::instance().barrier();                                                                                                     \
 std::cout << std::flush;                                                                                                      \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
-::CF::Common::Comm::PE::instance().barrier();                                                                                                     \
+::CF::Common::PE::Comm::instance().barrier();                                                                                                     \
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #define  PECheckArrivePoint(msec,msg) {                                                                                               \
 std::cout << std::flush;                                                                                                      \
-std::cout << "["<<::CF::Common::Comm::PE::instance().rank() << "] " << msg << "\n";                                                                   \
+std::cout << "["<<::CF::Common::PE::Comm::instance().rank() << "] " << msg << "\n";                                                                   \
 std::cout << std::flush;                                                                                                    \
-::CF::Common::Comm::PE::instance().barrier();                                                                                                     \
+::CF::Common::PE::Comm::instance().barrier();                                                                                                     \
 boost::this_thread::sleep(boost::posix_time::milliseconds(msec));                                                             \
 }
 
@@ -105,7 +105,7 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
  Macro for printing a vector
 **/
 #define PEDebugVector(v,length) { \
-  std::cout << ::CF::Common::Comm::PE::instance().rank() << "/" << ::CF::Common::Comm::PE::instance().size() << ": " << #v << " " << length << " ( " << std::flush; \
+  std::cout << ::CF::Common::PE::Comm::instance().rank() << "/" << ::CF::Common::PE::Comm::instance().size() << ": " << #v << " " << length << " ( " << std::flush; \
   for(int _tmp_i_=0; _tmp_i_<length; _tmp_i_++)  std::cout << v[_tmp_i_] << " "; \
   std::cout << " )\n" << std::flush; \
 }
@@ -119,7 +119,7 @@ void wait_for_debugger(const int rank = -1);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-    } // end namespace Comm
+    } // end namespace PE
   } // end namespace Common
 } // end namespace CF
 

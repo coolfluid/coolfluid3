@@ -20,11 +20,11 @@
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/ListeningThread.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/ListeningThread.hpp"
 
-#include "Common/MPI/CPEManager.hpp"
-#include "Common/MPI/CWorkerGroup.hpp"
+#include "Common/PE/CPEManager.hpp"
+#include "Common/PE/CWorkerGroup.hpp"
 
 #include "Common/Log.hpp"
 
@@ -35,7 +35,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -49,10 +49,10 @@ CPEManager::CPEManager ( const std::string & name )
   m_listener = new ListeningThread();
   m_queue = new NotificationQueue( Core::instance().root().as_ptr<CRoot>() );
 
-  if( PE::instance().get_parent() != MPI_COMM_NULL )
+  if( Comm::instance().get_parent() != MPI_COMM_NULL )
   {
-    m_groups["MPI_Parent"] = PE::instance().get_parent();
-    m_listener->add_communicator( PE::instance().get_parent() );
+    m_groups["MPI_Parent"] = Comm::instance().get_parent();
+    m_listener->add_communicator( Comm::instance().get_parent() );
     m_listener->start_listening();
   }
 
@@ -114,7 +114,7 @@ CPEManager::~CPEManager ()
 
 void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 {
-  if( PE::instance().instance().get_parent() == MPI_COMM_NULL )
+  if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {
     SignalFrame frame( sig );
     call_signal( "signal_to_forward", frame );
@@ -148,7 +148,7 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 
       comp->call_signal(target, signal_frame);
 
-      if( PE::instance().rank() == 0 ) // only rank 0 sends the reply
+      if( Comm::instance().rank() == 0 ) // only rank 0 sends the reply
       {
         SignalFrame reply = signal_frame.get_reply();
 
@@ -171,7 +171,7 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       message = "Unhandled exception.";
     }
 
-    if( PE::instance().rank() == 0 )
+    if( Comm::instance().rank() == 0 )
     {
       /// @todo change the receiver path to be not hardcoded
       SignalFrame frame("ack", uri(), "//Root/UI/NetworkQueue");
@@ -190,7 +190,7 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
     }
 
     // synchronize with other buddies
-    PE::instance().barrier();
+    Comm::instance().barrier();
 
   }
 
@@ -229,7 +229,7 @@ void CPEManager::spawn_group ( const std::string & name,
 
   char * args[] = { forw_cstr, nullptr };
 
-  Communicator comm = PE::instance().spawn(nb_workers, command, args, hosts);
+  Communicator comm = Comm::instance().spawn(nb_workers, command, args, hosts);
   m_groups[name] = comm;
   m_listener->add_communicator( comm );
 
@@ -237,7 +237,7 @@ void CPEManager::spawn_group ( const std::string & name,
   wg.set_communicator(comm);
   wg.mark_basic();
 
-  PE::instance().barrier( comm );
+  Comm::instance().barrier( comm );
 
   // if it is the first group, we start listening
   if( m_groups.size() == 1 )
@@ -260,7 +260,7 @@ void CPEManager::kill_group ( const std::string & name )
   send_to( it->second, frame );
 
   // workers have a barrier on their parent comm just before calling MPI_Finalize
-  PE::instance().barrier( it->second );
+  Comm::instance().barrier( it->second );
   m_listener->remove_comunicator( it->second );
 
   m_groups.erase(it);
@@ -335,7 +335,7 @@ void CPEManager::send_to ( Communicator comm, const SignalArgs &args )
 
   MPI_Comm_remote_size(comm, &remote_size);
 
-//  std::cout << "Worker[" << PE::instance().rank() << "]" << " -> Sending " << buffer << std::endl;
+//  std::cout << "Worker[" << Comm::instance().rank() << "]" << " -> Sending " << buffer << std::endl;
 
   for(int i = 0 ; i < remote_size ; ++i)
     MPI_Send( buffer, str.length() + 1, MPI_CHAR, i, 0, comm );
@@ -462,6 +462,6 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-} // Comm
+} // PE
 } // Common
 } // CF

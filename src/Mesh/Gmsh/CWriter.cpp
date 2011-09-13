@@ -8,7 +8,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
@@ -99,9 +99,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path (file_path.path());
-  if (Comm::PE::instance().size() > 1)
+  if (PE::Comm::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
   }
 //  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
@@ -222,7 +222,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
   Uint elm_number=0;
-  Uint partition_number = Comm::PE::instance().rank();
+  Uint partition_number = PE::Comm::instance().rank();
 
   boost_foreach(const CEntities& elements, m_mesh->topology().elements_range())
   {

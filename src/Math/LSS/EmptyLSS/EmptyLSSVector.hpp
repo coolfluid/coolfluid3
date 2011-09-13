@@ -12,7 +12,7 @@
 #include <boost/utility.hpp>
 
 #include "Math/LSS/LibLSS.hpp"
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 #include "Math/LSS/Vector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(Common::Comm::CommPattern& cp, Uint neq)
+  void create(Common::PE::CommPattern& cp, Uint neq)
   {
     destroy();
     m_neq=neq;

@@ -15,9 +15,9 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-#include "Common/MPI/ListeningInfo.hpp"
+#include "Common/PE/ListeningInfo.hpp"
 
-#include "Common/MPI/ListeningThread.hpp"
+#include "Common/PE/ListeningThread.hpp"
 
 using namespace boost;
 using namespace CF::Common::XML;
@@ -26,7 +26,7 @@ using namespace CF::Common::XML;
 
 namespace CF {
 namespace Common {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +201,7 @@ void ListeningThread::check_for_data()
 
 ////////////////////////////////////////////////////////////////////////////
 
-} // Comm
+} // PE
 } // Common
 } // CF
 

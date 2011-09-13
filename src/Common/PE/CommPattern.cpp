@@ -12,11 +12,11 @@
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/CommPattern.hpp"
-#include "Common/MPI/CommWrapper.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/CommPattern.hpp"
+#include "Common/PE/CommWrapper.hpp"
 
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/debug.hpp"
 
 /*
 TODO:
@@ -28,7 +28,7 @@ TODO:
 
 namespace CF {
 namespace Common  {
-namespace Comm {
+namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Provider
@@ -45,9 +45,9 @@ CommPattern::CommPattern(const std::string& name): Component(name), m_gid(new Co
   m_add_buffer(0),
   m_mov_buffer(0),
   m_rem_buffer(0),
-  m_sendCount(Comm::PE::instance().size(),0),
+  m_sendCount(PE::Comm::instance().size(),0),
   m_sendMap(0),
-  m_recvCount(Comm::PE::instance().size(),0),
+  m_recvCount(PE::Comm::instance().size(),0),
   m_recvMap(0)
 {
   //self->regist_signal ( "update" , "Executes communication patterns on all the registered data.", "" )->connect ( boost::bind ( &CommPattern2::update, self, _1 ) );
@@ -152,8 +152,8 @@ void CommPattern::setup()
 
   {  // begin fast
   // get stuff
-  const CPint irank=(CPint)Comm::PE::instance().rank();
-  const CPint nproc=(CPint)Comm::PE::instance().size();
+  const CPint irank=(CPint)PE::Comm::instance().rank();
+  const CPint nproc=(CPint)PE::Comm::instance().size();
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
@@ -197,7 +197,7 @@ void CommPattern::setup()
   m_sendMap.resize(0);
   m_sendMap.reserve(0);
   m_sendCount.assign(nproc,-1);
-  Comm::PE::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
+  PE::Comm::instance().all_to_all(receive_gids,m_recvCount,m_sendMap,m_sendCount);
 
 //PECheckPoint(100,"-- step 3 --:");
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendCount,m_sendCount.size()));
@@ -236,8 +236,8 @@ void CommPattern::setup()
 
   // -- 2 -- get environment data and gid
   // get stuff from environment
-  const CPint irank=(CPint)Comm::PE::instance().rank();
-  const CPint nproc=(CPint)Comm::PE::instance().size();
+  const CPint irank=(CPint)PE::Comm::instance().rank();
+  const CPint nproc=(CPint)PE::Comm::instance().size();
   // get gid and some tests
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
@@ -283,7 +283,7 @@ void CommPattern::setup()
       m_isUpdatable[i]=true;
     }
   std::vector<int> dist_nupdatables(nproc);
-  Comm::PE::instance().all_reduce(Comm::plus(),dist_nupdatable,dist_nupdatable);
+  PE::Comm::instance().all_reduce(PE::plus(),dist_nupdatable,dist_nupdatable);
   std::vector<int> dist_nupdatabledisp(nproc,0);
   for (int i=1; i<nproc; i++) dist_nupdatabledisp[i]=dist_nupdatable[i-1]+dist_nupdatabledisp[i-1];
 
@@ -350,7 +350,7 @@ void CommPattern::synchronize_this( const CommWrapper& pobj )
 
       char* snd_data = (char*)pobj.pack(m_sendMap);
 
-      char* rcv_data = Comm::PE::instance().all_to_all(snd_data,
+      char* rcv_data = PE::Comm::instance().all_to_all(snd_data,
                                                       &m_sendCount[0],
                                                       (char*)0,
                                                       &m_recvCount[0],
@@ -398,6 +398,6 @@ void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // MPI
+} // PE
 } // Common
 } // CF

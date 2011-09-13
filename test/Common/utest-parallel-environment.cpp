@@ -19,8 +19,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,31 +61,31 @@ BOOST_FIXTURE_TEST_SUITE( PESuite, PEFixture )
 
 BOOST_AUTO_TEST_CASE( isinit_preinit )
 {
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , false );
 }
 
 BOOST_AUTO_TEST_CASE( allrankzero_preinit )
 {
-  BOOST_CHECK_EQUAL( Comm::PE::instance().rank() , (Uint)0 );
+  BOOST_CHECK_EQUAL( PE::Comm::instance().rank() , (Uint)0 );
 }
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
+  PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , true );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " reports in." << CFendl;);
 }
 
 BOOST_AUTO_TEST_CASE( rank_and_size )
 {
-  BOOST_CHECK_LT( Comm::PE::instance().rank() , Comm::PE::instance().size() );
+  BOOST_CHECK_LT( PE::Comm::instance().rank() , PE::Comm::instance().size() );
 }
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
-  Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " says good bye." << CFendl;);
+  PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

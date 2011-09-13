@@ -9,8 +9,8 @@
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/CreateComponent.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/operations.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/operations.hpp"
 
 using namespace CF;
 using namespace CF::Common;
@@ -41,7 +41,7 @@ boost::shared_ptr<GRAPH_DATA> build_graph()
 {
   boost::shared_ptr<GRAPH_DATA> graph_ptr (new GRAPH_DATA);
   GRAPH_DATA& graph = *graph_ptr;
-  switch (PE::instance().rank())
+  switch (Comm::instance().rank())
   {
     case 0:
     {
@@ -122,7 +122,7 @@ boost::shared_ptr<GRAPH_DATA> build_element_node_graph()
   boost::shared_ptr<GRAPH_DATA> graph_ptr (new GRAPH_DATA);
   GRAPH_DATA& graph = *graph_ptr;
   Uint a=26, b=27, c=28, d=29, e=30, f=31, g=32, h=33, i=34, j=35, k=36, l=37, m=38, n=39, o=40, p=41;
-  switch (PE::instance().rank())
+  switch (Comm::instance().rank())
   {
     case 0:
     {
@@ -215,14 +215,14 @@ boost::shared_ptr<GRAPH_DATA> build_element_node_graph()
   }
   
   
-  if(PE::instance().rank()==2)
+  if(Comm::instance().rank()==2)
   {
     CFinfo.setFilterRankZero(false);
     for (Uint i=0; i<graph.globalID.size(); ++i)
     CFinfo << graph.globalID[i] << CFendl;
     CFinfo.setFilterRankZero(true);
   }
-  PE::instance().barrier();
+  Comm::instance().barrier();
   
   graph.glb_nb_vertices = 41;
   
@@ -240,8 +240,8 @@ void showGraphPartitions(GRAPH_DATA& graph, std::vector<int>& parts)
     part_assign_on_this_proc[graph.globalID[i]-1] = parts[i];
   }
 
-  //boost::mpi::reduce(PE::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
-  mpi::PE::instance().reduce(mpi::max(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), 0);
+  //boost::mpi::reduce(Comm::instance(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), boost::mpi::maximum<int>(),0);
+  mpi::Comm::instance().reduce(mpi::max(), to_ptr(part_assign_on_this_proc),  part_assign.size() , to_ptr(part_assign), 0);
   
   for (Uint i=0; i < part_assign.size(); i++){
     CFinfo << i+1 << "  -->  " << part_assign[i] << CFendl;;
@@ -249,9 +249,9 @@ void showGraphPartitions(GRAPH_DATA& graph, std::vector<int>& parts)
   
 int i, j, part, cuts, prevPart=-1;
 float imbal, localImbal, sum;
-std::vector<int> partCount(PE::instance().size());
+std::vector<int> partCount(Comm::instance().size());
 
-  if (PE::instance().rank() == 0){
+  if (Comm::instance().rank() == 0){
 
     cuts = 0;
 
@@ -290,13 +290,13 @@ std::vector<int> partCount(PE::instance().size());
     }
     printf("\n");
 
-    for (sum=0, i=0; i < (int)PE::instance().size(); i++){
+    for (sum=0, i=0; i < (int)Comm::instance().size(); i++){
       sum += partCount[i];
     }
     imbal = 0;
-    for (i=0; i < (int)PE::instance().size(); i++){
+    for (i=0; i < (int)Comm::instance().size(); i++){
       /* An imbalance measure.  1.0 is perfect balance, larger is worse */
-      localImbal = (PE::instance().size() * partCount[i]) / sum;
+      localImbal = (Comm::instance().size() * partCount[i]) / sum;
       if (localImbal > imbal) imbal = localImbal;
     }
 
@@ -389,8 +389,8 @@ void get_edges_list(void *data, int sizeGID, int sizeLID,
 
 int main(int argc, char** argv)
 {
-  PE::instance().init(argc,argv);
-  if (PE::instance().size() != 3)
+  Comm::instance().init(argc,argv);
+  if (Comm::instance().size() != 3)
   {
     CFinfo << "must run this testcase with 3 processors" << CFendl;
   }
@@ -403,12 +403,12 @@ int main(int argc, char** argv)
     
     
     
-    Zoltan *zz = new Zoltan(PE::instance());
+    Zoltan *zz = new Zoltan(Comm::instance());
     if (zz == NULL)
       throw BadValue(FromHere(),"Zoltan error");
 
     std::string graph_package = "PHG";
-    if (graph_package == "PHG" && PE::instance().size() != 3)
+    if (graph_package == "PHG" && Comm::instance().size() != 3)
     {
       throw NotImplemented(FromHere(),"PHG graph package needs processor information for each object. It assumes now 3 processors. Run with 3 processors.");
     }
@@ -457,24 +457,24 @@ int main(int argc, char** argv)
 
     
     
-    PE::instance().barrier();
+    Comm::instance().barrier();
     CFinfo << "before partitioning\n";
     CFinfo << "-------------------" << CFendl;
 
     std::vector<int> parts (graph.globalID.size());
 
     for (Uint i=0; i < parts.size(); i++){
-      parts[i] = PE::instance().rank();
+      parts[i] = Comm::instance().rank();
     }
     
-    if(PE::instance().rank()==2)
+    if(Comm::instance().rank()==2)
     {
       CFinfo.setFilterRankZero(false);
       for (Uint i=0; i<graph.globalID.size(); ++i)
       CFinfo << graph.globalID[i] << CFendl;
       CFinfo.setFilterRankZero(true);
     }
-    PE::instance().barrier();
+    Comm::instance().barrier();
     
     
     showGraphPartitions(graph,parts);
@@ -486,10 +486,10 @@ int main(int argc, char** argv)
 
     if (rc != (int)ZOLTAN_OK)
     {
-      CFinfo << "Partitioning failed on process " << PE::instance().rank() << CFendl;
+      CFinfo << "Partitioning failed on process " << Comm::instance().rank() << CFendl;
     }
     
-    PE::instance().barrier();
+    Comm::instance().barrier();
     CFinfo << "after partitioning\n";
     CFinfo << "------------------" << CFendl;
     

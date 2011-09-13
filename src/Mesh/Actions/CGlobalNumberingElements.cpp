@@ -22,8 +22,8 @@
 #include "Common/OptionArray.hpp"
 #include "Common/CreateComponentDataType.hpp"
 #include "Common/OptionT.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 
 #include "Mesh/Actions/CGlobalNumberingElements.hpp"
 #include "Mesh/CCellFaces.hpp"
@@ -116,7 +116,7 @@ void CGlobalNumberingElements::execute()
       elements.put_coordinates(element_coordinates,elem_idx);
       glb_elem_hash.data()[elem_idx]=hash_value(element_coordinates);
       if (m_debug)
-        std::cout << "["<<Comm::PE::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
+        std::cout << "["<<PE::Comm::instance().rank() << "]  hashing elem ("<< elements.uri().path() << "["<<elem_idx<<"]) to " << glb_elem_hash.data()[elem_idx] << std::endl;
 
       //CFinfo << "glb_elem_hash["<<elem_idx<<"] = " <<  glb_elem_hash.data()[elem_idx] << CFendl;
     }
@@ -150,11 +150,11 @@ void CGlobalNumberingElements::execute()
   boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
     tot_nb_owned_ids += elements.size();
 
-  std::vector<Uint> nb_ids_per_proc(Comm::PE::instance().size());
+  std::vector<Uint> nb_ids_per_proc(PE::Comm::instance().size());
   //boost::MPI::communicator world;
   //boost::MPI::all_gather(world, tot_nb_owned_ids, nb_ids_per_proc);
-  Comm::PE::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
-  std::vector<Uint> start_id_per_proc(Comm::PE::instance().size());
+  PE::Comm::instance().all_gather(tot_nb_owned_ids, nb_ids_per_proc);
+  std::vector<Uint> start_id_per_proc(PE::Comm::instance().size());
   Uint start_id=0;
   for (Uint p=0; p<nb_ids_per_proc.size(); ++p)
   {
@@ -166,7 +166,7 @@ void CGlobalNumberingElements::execute()
 
   //------------------------------------------------------------------------------
   // give glb idx to elements
-  Uint glb_id=start_id_per_proc[Comm::PE::instance().rank()];
+  Uint glb_id=start_id_per_proc[PE::Comm::instance().rank()];
   boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
   {
     CList<Uint>& elements_glb_idx = elements.glb_idx();
@@ -176,7 +176,7 @@ void CGlobalNumberingElements::execute()
     for (Uint e=0; e<elements.size(); ++e)
     {
       if (m_debug)
-        std::cout << "["<<Comm::PE::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
+        std::cout << "["<<PE::Comm::instance().rank() << "]  will change elem "<< glb_elem_hash[e] << " (" << elements.uri().path() << "["<<e<<"]) to " << glb_id << std::endl;
       elements_glb_idx[e] = glb_id;
       ++glb_id;
     }

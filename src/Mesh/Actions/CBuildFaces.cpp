@@ -8,7 +8,7 @@
 #include <boost/foreach.hpp>
 #include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/debug.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/StreamHelpers.hpp"
@@ -289,7 +289,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
-        rank_buffer_map[face_type]->add_row(Comm::PE::instance().rank());
+        rank_buffer_map[face_type]->add_row(PE::Comm::instance().rank());
       }
     }
     else
@@ -300,7 +300,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(dummy);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
-        rank_buffer_map[face_type]->add_row(Comm::PE::instance().rank());
+        rank_buffer_map[face_type]->add_row(PE::Comm::instance().rank());
       }
     }
   }

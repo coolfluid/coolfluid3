@@ -15,7 +15,7 @@
 
 #include "Common/CodeLocation.hpp"
 #include "Common/StringConversion.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Common/CommonAPI.hpp"
 
@@ -94,7 +94,7 @@ public:
       boost::algorithm::replace_all(stamp, "%time%", "TIME");
       boost::algorithm::replace_all(stamp, "%type%", m_streamName);
       boost::algorithm::replace_all(stamp, "%place%", m_place.short_str());
-      boost::algorithm::replace_all(stamp, "%rank%", to_str( Comm::PE::instance().rank() ));
+      boost::algorithm::replace_all(stamp, "%rank%", to_str( PE::Comm::instance().rank() ));
       
       m_newMessage = false;
       

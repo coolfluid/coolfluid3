@@ -10,8 +10,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
@@ -55,7 +55,7 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
       ->link_to(&m_lengths)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("nb_parts", Comm::PE::instance().size()))
+  m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
@@ -98,7 +98,7 @@ void CSimpleMeshGenerator::execute()
 
 void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts, const bool bdry)
 {
-  Uint part = Comm::PE::instance().rank();
+  Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
@@ -195,7 +195,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
 
 void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts , const bool bdry)
 {
-  Uint part = Comm::PE::instance().rank();
+  Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");

@@ -16,7 +16,7 @@
 #include "Common/Foreach.hpp"
 #include "Common/CLink.hpp"
 
-#include "Common/MPI/CommPattern.hpp"
+#include "Common/PE/CommPattern.hpp"
 
 #include "Mesh/Field.hpp"
 #include "Mesh/CRegion.hpp"
@@ -28,7 +28,7 @@
 using namespace boost::assign;
 
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 
 namespace CF {
 namespace Mesh {

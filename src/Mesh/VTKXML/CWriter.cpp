@@ -15,7 +15,7 @@
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
@@ -223,7 +223,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   boost::filesystem::path my_path(file_path.path());
   const boost::filesystem::path my_dir = my_path.parent_path();
   const std::string basename = boost::filesystem::basename(my_path);
-  my_path = my_dir / (basename + "_P" + to_str(Comm::PE::instance().rank()) + ".vtu");
+  my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
 
@@ -437,7 +437,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(Comm::PE::instance().rank() == 0 || option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || option("distributed_files").value<bool>())
   {
     boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
 
@@ -456,7 +456,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     detail::make_pvtu(punstruc);
     punstruc.set_attribute("GhostLevel", "0");
 
-    for(Uint i = 0; i != Comm::PE::instance().size(); ++i)
+    for(Uint i = 0; i != PE::Comm::instance().size(); ++i)
     {
       const std::string piece_path = basename + "_P" + to_str(i) + ".vtu";
       punstruc.add_node("Piece").set_attribute("Source", piece_path);
