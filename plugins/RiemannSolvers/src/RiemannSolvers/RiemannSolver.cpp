@@ -4,9 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "RiemannSolvers/RiemannSolver.hpp"
 #include "Common/OptionComponent.hpp"
-#include "Solver/State.hpp"
+
+#include "Physics/Variables.hpp"
+
+#include "RiemannSolvers/RiemannSolver.hpp"
 
 namespace CF {
 namespace RiemannSolvers {
@@ -21,29 +23,15 @@ RiemannSolver::RiemannSolver ( const std::string& name  )
   properties()["brief"] = std::string("Riemann Solver");
   properties()["description"] = std::string("Solves the Riemann problem");
 
-  m_options.add_option( OptionComponent<Solver::State>::create("solution_state","Solution State","The component describing the solution state",&m_sol_state) )
-      ->add_tag("solution_state");
+  m_options.add_option( OptionComponent<Physics::Variables>::create("solution_vars",&m_solution_vars) )
+      ->description("The component describing the solution")
+      ->pretty_name("Solution Variables");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 RiemannSolver::~RiemannSolver()
 {
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-RealVector RiemannSolver::interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal)
-{
-  RealVector interface_flux(left.size());
-  Real dummy; // not interested in wavespeeds
-  solve(
-          //input
-          left,right,normal,
-          //output
-          interface_flux,dummy,dummy
-        );
-  return interface_flux;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,17 +14,14 @@
 #include "RiemannSolvers/src/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace CF {
-namespace Solver {
-  class State;
-  class Physics;
-}
+namespace Physics { class Variables; }
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Willem Deconinck
-class RiemannSolvers_API RiemannSolver : public Common::Component {
-
+class RiemannSolvers_API RiemannSolver : public Common::Component
+{
 public: // typedefs
 
   typedef boost::shared_ptr<RiemannSolver> Ptr;
@@ -43,15 +40,58 @@ public: // functions
   static std::string type_name () { return "RiemannSolver"; }
 
   // functions specific to the RiemannSolver component
-  RealVector interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal);
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                      RealVector& flux, Real& wave_speed) = 0;
 
-  virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
-             RealVector& flux, Real& left_wave_speed, Real& right_wave_speed) = 0;
-  
+  const Physics::Variables& sol_vars() const { return *m_solution_vars.lock(); }
+
 protected:
+  boost::weak_ptr<Physics::Variables> m_solution_vars;
+};
 
-  boost::weak_ptr<Solver::State> m_sol_state;
-  
+////////////////////////////////////////////////////////////////////////////////
+
+template <class T>
+struct extract_var
+{
+};
+
+template <template <class> class Solver, class Var>
+struct extract_var< Solver<Var> >
+{
+  typedef Var type;
+};
+
+template <template <class,class> class Solver, class Var, class Avg>
+struct extract_var< Solver<Var,Avg> >
+{
+  typedef Var type;
+};
+
+template <typename RIEMANNSOLVER>
+class RiemannSolverT : public RiemannSolver
+{
+public:
+  typedef typename extract_var<RIEMANNSOLVER>::type VAR;
+//  typedef Eigen::Matrix<Real, VAR::MODEL::_neqs, 1> FluxT;
+//  typedef Eigen::Matrix<Real, VAR::MODEL::_ndim, 1> CoordsT;
+
+  typedef RIEMANNSOLVER SOLVER;
+
+public:
+  /// Contructor
+  /// @param name of the component
+  RiemannSolverT ( const std::string& name ) : RiemannSolver(name) {}
+
+  /// Virtual destructor
+  virtual ~RiemannSolverT() {};
+
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                      RealVector& flux, Real& wave_speed)
+  {
+    SOLVER::compute_interface_flux(left,right,normal,flux,wave_speed);
+  }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
