@@ -17,7 +17,7 @@
 
 namespace CF {
 
-namespace Common { namespace Comm { class CPEManager; } }
+namespace Common { namespace PE { class CPEManager; } }
 
 namespace Tools {
 namespace Solver {
@@ -28,7 +28,7 @@ namespace Solver {
   {
   public:
 
-    Notifier( boost::shared_ptr<Common::Comm::CPEManager> manager );
+    Notifier( boost::shared_ptr<Common::PE::CPEManager> manager );
 
     ~Notifier();
 
@@ -50,7 +50,7 @@ namespace Solver {
 
     std::map<std::string, bool> m_once_notifying_events;
 
-    boost::shared_ptr<Common::Comm::CPEManager> m_manager;
+    boost::shared_ptr<Common::PE::CPEManager> m_manager;
 
   }; // class Notifier
 

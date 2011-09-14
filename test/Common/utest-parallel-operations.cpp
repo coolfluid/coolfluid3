@@ -16,10 +16,10 @@
 #include <boost/test/unit_test.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/operations.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/operations.hpp"
 
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ struct PEOperationsFixture
       static const bool is_commutative=true;
 
       /// Implementation of the operation. See Operation_create in MPI standard documentation for details.
-      template<typename T> static void func(void* in, void* out, int* len, Comm::Datatype* type){
+      template<typename T> static void func(void* in, void* out, int* len, PE::Datatype* type){
         int rank,i;
         T *in_=(T*)in;
         T *out_=(T*)out;
@@ -61,7 +61,7 @@ struct PEOperationsFixture
   };
 
   /// mimicer function for templatization (basically a substituter for all_reudce)
-  template<typename T, typename Op> Comm::Operation mimic_usage( T& t, Op ) { return Comm::get_mpi_op<T, Op>::op(); };
+  template<typename T, typename Op> PE::Operation mimic_usage( T& t, Op ) { return PE::get_mpi_op<T, Op>::op(); };
 
   /// custom class for checking the non built-in way
   class optest {
@@ -84,16 +84,16 @@ struct PEOperationsFixture
   /// helper function for testing all operations on a type
   template <typename T> void test_all_operations(){
     T t;
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::max()),         MPI_MAX);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::min()),         MPI_MIN);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::plus()),        MPI_SUM);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::multiplies()),  MPI_PROD);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::logical_and()), MPI_LAND);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::logical_or()),  MPI_LOR);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::logical_xor()), MPI_LXOR);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::bitwise_and()), MPI_BAND);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::bitwise_or()),  MPI_BOR);
-    BOOST_CHECK_EQUAL( mimic_usage(t,Comm::bitwise_xor()), MPI_BXOR);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::max()),         MPI_MAX);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::min()),         MPI_MIN);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::plus()),        MPI_SUM);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::multiplies()),  MPI_PROD);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::logical_and()), MPI_LAND);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::logical_or()),  MPI_LOR);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::logical_xor()), MPI_LXOR);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::bitwise_and()), MPI_BAND);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::bitwise_or()),  MPI_BOR);
+    BOOST_CHECK_EQUAL( mimic_usage(t,PE::bitwise_xor()), MPI_BXOR);
   }
 
 };
@@ -101,12 +101,12 @@ struct PEOperationsFixture
 ////////////////////////////////////////////////////////////////////////////////
 
 /// data stays in scope for checking if registration is really static
-Comm::Operation mpi_op_customplus_i=(Comm::Operation)nullptr;
-Comm::Operation mpi_op_customplus_d=(Comm::Operation)nullptr;
-Comm::Operation mpi_op_customplus_o=(Comm::Operation)nullptr;
-Comm::Operation mpi_op_custommult_i=(Comm::Operation)nullptr;
-Comm::Operation mpi_op_custommult_d=(Comm::Operation)nullptr;
-Comm::Operation mpi_op_custommult_o=(Comm::Operation)nullptr;
+PE::Operation mpi_op_customplus_i=(PE::Operation)nullptr;
+PE::Operation mpi_op_customplus_d=(PE::Operation)nullptr;
+PE::Operation mpi_op_customplus_o=(PE::Operation)nullptr;
+PE::Operation mpi_op_custommult_i=(PE::Operation)nullptr;
+PE::Operation mpi_op_custommult_d=(PE::Operation)nullptr;
+PE::Operation mpi_op_custommult_o=(PE::Operation)nullptr;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -116,9 +116,9 @@ BOOST_FIXTURE_TEST_SUITE( PEOperationsSuite, PEOperationsFixture )
 
 BOOST_AUTO_TEST_CASE( init )
 {
-  Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
+  PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , true );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -163,18 +163,18 @@ BOOST_AUTO_TEST_CASE( operations_registered_types )
   optest o;
 
   // check if registering goes fine
-  mpi_op_customplus_i=mimic_usage(i,Comm::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_i,(Comm::Operation)nullptr);
-  mpi_op_customplus_d=mimic_usage(d,Comm::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_d,(Comm::Operation)nullptr);
-  mpi_op_customplus_o=mimic_usage(o,Comm::customplus());
-  BOOST_CHECK_NE(mpi_op_customplus_o,(Comm::Operation)nullptr);
+  mpi_op_customplus_i=mimic_usage(i,PE::customplus());
+  BOOST_CHECK_NE(mpi_op_customplus_i,(PE::Operation)nullptr);
+  mpi_op_customplus_d=mimic_usage(d,PE::customplus());
+  BOOST_CHECK_NE(mpi_op_customplus_d,(PE::Operation)nullptr);
+  mpi_op_customplus_o=mimic_usage(o,PE::customplus());
+  BOOST_CHECK_NE(mpi_op_customplus_o,(PE::Operation)nullptr);
   mpi_op_custommult_i=mimic_usage(i,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_i,(Comm::Operation)nullptr);
+  BOOST_CHECK_NE(mpi_op_custommult_i,(PE::Operation)nullptr);
   mpi_op_custommult_d=mimic_usage(d,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_d,(Comm::Operation)nullptr);
+  BOOST_CHECK_NE(mpi_op_custommult_d,(PE::Operation)nullptr);
   mpi_op_custommult_o=mimic_usage(o,     custommult());
-  BOOST_CHECK_NE(mpi_op_custommult_o,(Comm::Operation)nullptr);
+  BOOST_CHECK_NE(mpi_op_custommult_o,(PE::Operation)nullptr);
 
   // check if no glitch and separate types go to separate static variables
   BOOST_CHECK_NE(mpi_op_customplus_i,mpi_op_customplus_d);
@@ -192,9 +192,9 @@ BOOST_AUTO_TEST_CASE( operations_registered_types )
   BOOST_CHECK_NE(mpi_op_customplus_o,mpi_op_custommult_o);
 
   // check if re-registration does not alter the MPI_operations (avoid committing the same type over and over)
-  BOOST_CHECK_EQUAL(mpi_op_customplus_i,mimic_usage(i,Comm::customplus()));
-  BOOST_CHECK_EQUAL(mpi_op_customplus_d,mimic_usage(d,Comm::customplus()));
-  BOOST_CHECK_EQUAL(mpi_op_customplus_o,mimic_usage(o,Comm::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_i,mimic_usage(i,PE::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_d,mimic_usage(d,PE::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_o,mimic_usage(o,PE::customplus()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_i,mimic_usage(i,     custommult()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_d,mimic_usage(d,     custommult()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_o,mimic_usage(o,     custommult()));
@@ -209,9 +209,9 @@ BOOST_AUTO_TEST_CASE( operations_registered_types_are_really_static )
   optest o;
 
   // check if re-registration does not alter the MPI_operations (avoid committing the same type over and over)
-  BOOST_CHECK_EQUAL(mpi_op_customplus_i,mimic_usage(i,Comm::customplus()));
-  BOOST_CHECK_EQUAL(mpi_op_customplus_d,mimic_usage(d,Comm::customplus()));
-  BOOST_CHECK_EQUAL(mpi_op_customplus_o,mimic_usage(o,Comm::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_i,mimic_usage(i,PE::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_d,mimic_usage(d,PE::customplus()));
+  BOOST_CHECK_EQUAL(mpi_op_customplus_o,mimic_usage(o,PE::customplus()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_i,mimic_usage(i,     custommult()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_d,mimic_usage(d,     custommult()));
   BOOST_CHECK_EQUAL(mpi_op_custommult_o,mimic_usage(o,     custommult()));
@@ -223,25 +223,25 @@ BOOST_AUTO_TEST_CASE( built_in_operation_with_custom_datatype )
 {
   optest o;
   // check if non built-in datatype does not fall back to built-in Operation
-  BOOST_CHECK_NE( mimic_usage(o,Comm::max()),         MPI_MAX);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::min()),         MPI_MIN);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::plus()),        MPI_SUM);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::multiplies()),  MPI_PROD);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::logical_and()), MPI_LAND);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::logical_or()),  MPI_LOR);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::logical_xor()), MPI_LXOR);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::bitwise_and()), MPI_BAND);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::bitwise_or()),  MPI_BOR);
-  BOOST_CHECK_NE( mimic_usage(o,Comm::bitwise_xor()), MPI_BXOR);
+  BOOST_CHECK_NE( mimic_usage(o,PE::max()),         MPI_MAX);
+  BOOST_CHECK_NE( mimic_usage(o,PE::min()),         MPI_MIN);
+  BOOST_CHECK_NE( mimic_usage(o,PE::plus()),        MPI_SUM);
+  BOOST_CHECK_NE( mimic_usage(o,PE::multiplies()),  MPI_PROD);
+  BOOST_CHECK_NE( mimic_usage(o,PE::logical_and()), MPI_LAND);
+  BOOST_CHECK_NE( mimic_usage(o,PE::logical_or()),  MPI_LOR);
+  BOOST_CHECK_NE( mimic_usage(o,PE::logical_xor()), MPI_LXOR);
+  BOOST_CHECK_NE( mimic_usage(o,PE::bitwise_and()), MPI_BAND);
+  BOOST_CHECK_NE( mimic_usage(o,PE::bitwise_or()),  MPI_BOR);
+  BOOST_CHECK_NE( mimic_usage(o,PE::bitwise_xor()), MPI_BXOR);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( finalize )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
-  Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " says good bye." << CFendl;);
+  PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

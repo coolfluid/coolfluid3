@@ -22,17 +22,17 @@
 #include <boost/thread/thread.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
-#include "Common/MPI/datatype.hpp"
-#include "Common/MPI/operations.hpp"
-#include "Common/MPI/all_to_all.hpp"
-#include "Common/MPI/all_reduce.hpp"
-#include "Common/MPI/reduce.hpp"
-#include "Common/MPI/scatter.hpp"
-#include "Common/MPI/broadcast.hpp"
-#include "Common/MPI/gather.hpp"
-#include "Common/MPI/all_gather.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
+#include "Common/PE/datatype.hpp"
+#include "Common/PE/operations.hpp"
+#include "Common/PE/all_to_all.hpp"
+#include "Common/PE/all_reduce.hpp"
+#include "Common/PE/reduce.hpp"
+#include "Common/PE/scatter.hpp"
+#include "Common/PE/broadcast.hpp"
+#include "Common/PE/gather.hpp"
+#include "Common/PE/all_gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,10 +70,10 @@ BOOST_FIXTURE_TEST_SUITE( PECollectiveSuite, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 {
-  Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
+  PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,44 +83,44 @@ BOOST_FIXTURE_TEST_CASE( all_reduce, PECollectiveFixture )
   // double
 
   double sum = 0.;
-  for(Uint i = 0; i < Comm::PE::instance().size();  ++i)
+  for(Uint i = 0; i < PE::Comm::instance().size();  ++i)
     sum += (double) i ;
 
   double rk_result;
-  double rk = Comm::PE::instance().rank();
+  double rk = PE::Comm::instance().rank();
   int rk_size = 1;
 
-  Comm::PE::instance().all_reduce( Comm::plus(), &rk, rk_size, &rk_result );
+  PE::Comm::instance().all_reduce( PE::plus(), &rk, rk_size, &rk_result );
 
   BOOST_CHECK_EQUAL( rk_result, sum );
 
   // for vectors
 
   std::vector<double> v (2);
-  v[0] = Comm::PE::instance().rank();
-  v[1] = Comm::PE::instance().size();
+  v[0] = PE::Comm::instance().rank();
+  v[1] = PE::Comm::instance().size();
 
   /// @todo this should not compile ( but it does ) - Tamas to fix?
 #if 0
-  Comm::PE::instance().all_reduce( Comm::max(), &v, v.size(), &v );
+  PE::Comm::instance().all_reduce( Comm::max(), &v, v.size(), &v );
 #endif
 
   // this works
-  Comm::PE::instance().all_reduce( Comm::plus(), v, v );
+  PE::Comm::instance().all_reduce( PE::plus(), v, v );
 
   // this is equivalent
-//  Comm::PE::instance().all_reduce( Comm::plus(), &v[0], v.size(), &v[0] );
+//  PE::Comm::instance().all_reduce( Comm::plus(), &v[0], v.size(), &v[0] );
 
   BOOST_CHECK_EQUAL( v[0], sum );
-  BOOST_CHECK_EQUAL( v[1], Comm::PE::instance().size() * Comm::PE::instance().size() );
+  BOOST_CHECK_EQUAL( v[1], PE::Comm::instance().size() * PE::Comm::instance().size() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 {
-  int nproc = Comm::PE::instance().size();
-  int irank = Comm::PE::instance().rank();
+  int nproc = PE::Comm::instance().size();
+  int irank = PE::Comm::instance().rank();
 
   // neighbour to right
   int rkright = (irank + 1) % nproc;
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 
   // communications
 
-  Comm::PE::instance().all_to_all( v, send_num, send_map,  v, recv_num, recv_map);
+  PE::Comm::instance().all_to_all( v, send_num, send_map,  v, recv_num, recv_map);
 
 //  PEDebugVector(v,v.size()); // this prints debug info on a vector !!!
 
@@ -176,10 +176,10 @@ BOOST_FIXTURE_TEST_CASE( all_to_all_ring_topology, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( finalize, PECollectiveFixture )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
-  Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
+  PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -19,13 +19,9 @@
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
-#include "Mesh/SF/Types.hpp"
-
-
-
 namespace CF {
 namespace Mesh {
-  
+
 /// @brief Functions to provide integration over elements
 namespace Integrators {
 

@@ -15,19 +15,19 @@
 
 // 2D
 
-#include "Mesh/SF/Triag2DLagrangeP1.hpp"
-#include "Mesh/SF/Triag2DLagrangeP2.hpp"
-#include "Mesh/SF/Triag2DLagrangeP2B.hpp"
-#include "Mesh/SF/Triag2DLagrangeP3.hpp"
+#include "Mesh/LagrangeP1/Triag2D.hpp"
+#include "Mesh/LagrangeP2/Triag2D.hpp"
+#include "Mesh/LagrangeP2B/Triag2D.hpp"
+#include "Mesh/LagrangeP3/Triag2D.hpp"
 
-#include "Mesh/SF/Quad2DLagrangeP1.hpp"
-#include "Mesh/SF/Quad2DLagrangeP2.hpp"
-#include "Mesh/SF/Quad2DLagrangeP3.hpp"
+#include "Mesh/LagrangeP1/Quad2D.hpp"
+#include "Mesh/LagrangeP2/Quad2D.hpp"
+#include "Mesh/LagrangeP3/Quad2D.hpp"
 
 // 3D
 
-#include "Mesh/SF/Tetra3DLagrangeP1.hpp"
-#include "Mesh/SF/Hexa3DLagrangeP1.hpp"
+#include "Mesh/LagrangeP1/Tetra3D.hpp"
+#include "Mesh/LagrangeP1/Hexa3D.hpp"
 
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
@@ -44,13 +44,13 @@ namespace RDM {
 #ifdef RDM_ALL_CELLS
 /// List of supported 2d cell shapefunctions
 typedef boost::mpl::vector<
-  Mesh::SF::Triag2DLagrangeP1,
-  Mesh::SF::Triag2DLagrangeP2,
-  Mesh::SF::Triag2DLagrangeP2B,
-  Mesh::SF::Triag2DLagrangeP3,
-  Mesh::SF::Quad2DLagrangeP1,
-  Mesh::SF::Quad2DLagrangeP2,
-  Mesh::SF::Quad2DLagrangeP3
+  Mesh::LagrangeP1::Triag2D,
+  Mesh::LagrangeP2::Triag2D,
+  Mesh::LagrangeP2B::Triag2D,
+  Mesh::LagrangeP3::Triag2D,
+  Mesh::LagrangeP1::Quad2D,
+  Mesh::LagrangeP2::Quad2D,
+  Mesh::LagrangeP3::Quad2D
 > CellTypes2D;
 
 /// List of supported 3d cell shapefunctions
@@ -61,8 +61,8 @@ typedef boost::mpl::vector<
 
 #else
 
-typedef boost::mpl::vector<Mesh::SF::Triag2DLagrangeP1> CellTypes2D;
-typedef boost::mpl::vector<Mesh::SF::Tetra3DLagrangeP1> CellTypes3D;
+typedef boost::mpl::vector<Mesh::LagrangeP1::Triag2D> CellTypes2D;
+typedef boost::mpl::vector<Mesh::LagrangeP1::Tetra3D> CellTypes3D;
 
 #endif
 
@@ -86,44 +86,44 @@ template<> struct CellTypes<DIM_3D>
 
 /// Partial specialization for P1 triangles
 template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP1, 1 >
+struct DefaultQuadrature< Mesh::LagrangeP1::Triag2D, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP1::Triag2D::shape> type;
 };
 
 /// Partial specialization for P2 triangles
 template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2, 2 >
+struct DefaultQuadrature< Mesh::LagrangeP2::Triag2D, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP2::Triag2D::shape> type;
 };
 
 /// Partial specialization for P1 quadrilaterals
 template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP1, 1 >
+struct DefaultQuadrature< Mesh::LagrangeP1::Quad2D, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP1::Quad2D::shape> type;
 };
 
 /// Partial specialization for P2 quadrilaterals
 template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP2, 2 >
+struct DefaultQuadrature< Mesh::LagrangeP2::Quad2D, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Quad2DLagrangeP2::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP2::Quad2D::shape> type;
 };
 
 /// Partial specialization for P3 triangles
 template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP3, 3 >
+struct DefaultQuadrature< Mesh::LagrangeP3::Triag2D, 3 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::SF::Triag2DLagrangeP3::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 5, Mesh::LagrangeP3::Triag2D::shape> type;
 };
 
 /// Partial specialization for P3 quadrilaterals
 template <>
-struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
+struct DefaultQuadrature< Mesh::LagrangeP3::Quad2D, 3 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Quad2DLagrangeP3::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::LagrangeP3::Quad2D::shape> type;
 };
 
 //------------------------------------------------------------------------------------------
@@ -132,9 +132,9 @@ struct DefaultQuadrature< Mesh::SF::Quad2DLagrangeP3, 3 >
 /// Standard second order integration uses only boundary quadrature points,
 /// where bubble function is zero, thus has uncoupled modes.
 template <>
-struct DefaultQuadrature< Mesh::SF::Triag2DLagrangeP2B, 2 >
+struct DefaultQuadrature< Mesh::LagrangeP2B::Triag2D, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Triag2DLagrangeP2B::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP2B::Triag2D::shape> type;
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Common tests for shape functions that can be used to model the volume of a mesh"
 
+#include <boost/mpl/vector.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/transform_view.hpp>
 #include <boost/assign/list_of.hpp>
@@ -25,15 +26,32 @@
 #include "Common/FindComponents.hpp"
 
 #include "Mesh/GeoShape.hpp"
-
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/Tetra3D.hpp"
+#include "Mesh/ElementType.hpp"
+#include "Mesh/ElementTypes.hpp"
 
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
-using namespace CF::Mesh::SF;
 using namespace boost::assign;
+
+////////////////////////////////////////////////////////////////////////////////
+
+typedef boost::mpl::vector<
+LagrangeP1::Line1D,
+LagrangeP1::Quad2D,
+LagrangeP1::Triag2D,
+LagrangeP1::Hexa3D,
+LagrangeP1::Tetra3D,
+LagrangeP2::Quad2D,
+LagrangeP2::Triag2D,
+LagrangeP3::Quad2D,
+LagrangeP3::Triag2D
+> TestTypes;
+
+typedef boost::mpl::filter_view<TestTypes, IsCellType> TestCellTypes;
+typedef boost::mpl::filter_view<TestTypes, IsFaceType> TestFaceTypes;
+typedef boost::mpl::filter_view<TestTypes, IsEdgeType> TestEdgeTypes;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,14 +61,14 @@ struct FunctorForDim;
 template<>
 struct FunctorForDim<1>
 {
-  template<typename ShapeFunctionT, typename NodesT, typename FunctorT>
-  void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
+  template<typename ETYPE, typename NodesT, typename FunctorT>
+  void operator()(const Uint segments, const ETYPE& sf, const NodesT& nodes, FunctorT& functor)
   {
-    const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
+    const Real step = ((ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
+    const Real mapped_coord_min = (ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
-      typename ShapeFunctionT::MappedCoordsT mapped_coord;
+      typename ETYPE::MappedCoordsT mapped_coord;
       mapped_coord << mapped_coord_min + i * step;
       functor(sf, nodes, mapped_coord);
     }
@@ -60,16 +78,16 @@ struct FunctorForDim<1>
 template<>
 struct FunctorForDim<2>
 {
-  template<typename ShapeFunctionT, typename NodesT, typename FunctorT>
-  void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
+  template<typename ETYPE, typename NodesT, typename FunctorT>
+  void operator()(const Uint segments, const ETYPE& sf, const NodesT& nodes, FunctorT& functor)
   {
-    const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
+    const Real step = ((ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
+    const Real mapped_coord_min = (ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
       for(Uint j = 0; j <= segments; ++j)
       {
-        typename ShapeFunctionT::MappedCoordsT mapped_coord;
+        typename ETYPE::MappedCoordsT mapped_coord;
         mapped_coord << mapped_coord_min + i * step, mapped_coord_min + j * step;
         functor(sf, nodes, mapped_coord);
       }
@@ -80,18 +98,18 @@ struct FunctorForDim<2>
 template<>
 struct FunctorForDim<3>
 {
-  template<typename ShapeFunctionT, typename NodesT, typename FunctorT>
-  void operator()(const Uint segments, const ShapeFunctionT& sf, const NodesT& nodes, FunctorT& functor)
+  template<typename ETYPE, typename NodesT, typename FunctorT>
+  void operator()(const Uint segments, const ETYPE& sf, const NodesT& nodes, FunctorT& functor)
   {
-    const Real step = ((ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
-    const Real mapped_coord_min = (ShapeFunctionT::shape == GeoShape::TRIAG || ShapeFunctionT::shape == GeoShape::TETRA) ? 0. : -1.;
+    const Real step = ((ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 1. : 2.) / static_cast<Real>(segments);
+    const Real mapped_coord_min = (ETYPE::shape == GeoShape::TRIAG || ETYPE::shape == GeoShape::TETRA) ? 0. : -1.;
     for(Uint i = 0; i <= segments; ++i)
     {
       for(Uint j = 0; j <= segments; ++j)
       {
         for(Uint k = 0; k <= segments; ++k)
         {
-          typename ShapeFunctionT::MappedCoordsT mapped_coord;
+          typename ETYPE::MappedCoordsT mapped_coord;
           mapped_coord << mapped_coord_min + i * step, mapped_coord_min + j * step, mapped_coord_min + k * step;
           functor(sf, nodes, mapped_coord);
         }
@@ -106,7 +124,7 @@ struct VolumeSFFixture
   template<typename SF>
   struct MakeSFNodesPair
   {
-    typedef boost::fusion::pair<SF, typename SF::NodeMatrixT> type;
+    typedef boost::fusion::pair<SF, typename SF::NodesT> type;
   };
 
   /// Map between a shape function and its node matrix. Used to store nodes for each possible test
@@ -114,7 +132,7 @@ struct VolumeSFFixture
   <
     boost::mpl::transform_view
     <
-      CellTypes,
+      TestTypes,
       MakeSFNodesPair<boost::mpl::_1>
     >
   >::type NodesMapT;
@@ -124,53 +142,22 @@ struct VolumeSFFixture
     // If you get a compile error here, you forrgot to add nodes for a new volume shape function type
     nodes
     (
-      boost::fusion::make_pair<Line1DLagrangeP1>( (Line1DLagrangeP1::NodeMatrixT() <<
+      boost::fusion::make_pair< LagrangeP1::Line1D>( ( LagrangeP1::Line1D::NodesT() <<
         5.,
         10.
       ).finished() ),
-      boost::fusion::make_pair<Triag2DLagrangeP1>( (Triag2DLagrangeP1::NodeMatrixT() <<
-        0.5, 0.3,
-        1.1, 1.2,
-        0.8, 2.1
-      ).finished() ),
-      boost::fusion::make_pair<Triag2DLagrangeP2>( (Triag2DLagrangeP2::NodeMatrixT() <<
-        0.5, 0.3,
-        1.1, 1.2,
-        0.8, 2.1,
-        0.9, 0.5,
-        1.0, 1.5,
-        0.75,1.6
-      ).finished() ),
-      boost::fusion::make_pair<Triag2DLagrangeP3>( (Triag2DLagrangeP3::NodeMatrixT() <<
-        0.5, 0.3,
-        1.1, 1.2,
-        0.8, 2.1,
-        0.9, 0.5,
-        1.0, 1.5,
-        1.0, 1.5,
-        1.0, 1.5,
-        1.0, 1.5,
-        1.0, 1.5,
-        0.75,1.6
-      ).finished() ),
-      boost::fusion::make_pair<Quad2DLagrangeP1>( (Quad2DLagrangeP1::NodeMatrixT() <<
+      boost::fusion::make_pair< LagrangeP1::Quad2D>( ( LagrangeP1::Quad2D::NodesT() <<
         0.5, 0.3,
         1.1, 1.2,
         1.35, 1.9,
         0.8, 2.1
       ).finished() ),
-     boost::fusion::make_pair<Quad2DLagrangeP2>( (Quad2DLagrangeP2::NodeMatrixT() <<
+      boost::fusion::make_pair< LagrangeP1::Triag2D>( ( LagrangeP1::Triag2D::NodesT() <<
         0.5, 0.3,
         1.1, 1.2,
-        1.35, 1.9,
-        0.8, 2.1,
-        0.9, 0.5,
-        1.2, 1.3,
-        1.0,2.0,
-        0.75,1.6,
-        1.0,1.0
+        0.8, 2.1
       ).finished() ),
-      boost::fusion::make_pair<Hexa3DLagrangeP1>( (Hexa3DLagrangeP1::NodeMatrixT() <<
+      boost::fusion::make_pair< LagrangeP1::Hexa3D>( ( LagrangeP1::Hexa3D::NodesT() <<
         0.5, 0.5, 0.5,
         1., 0., 0.,
         1.,1.,0.,
@@ -180,11 +167,60 @@ struct VolumeSFFixture
         1.5, 1.5, 1.5,
         0., 1., 1.
       ).finished() ),
-      boost::fusion::make_pair<Tetra3DLagrangeP1>( (Tetra3DLagrangeP1::NodeMatrixT() <<
+      boost::fusion::make_pair< LagrangeP1::Tetra3D>( ( LagrangeP1::Tetra3D::NodesT() <<
         0.830434, 0.885201, 0.188108,
         0.89653, 0.899961, 0.297475,
         0.888273, 0.821744, 0.211428,
         0.950439, 0.904872, 0.20736
+      ).finished() ),
+      boost::fusion::make_pair< LagrangeP2::Quad2D>( ( LagrangeP2::Quad2D::NodesT() <<
+         0.5, 0.3,
+         1.1, 1.2,
+         1.35, 1.9,
+         0.8, 2.1,
+         0.9, 0.5,
+         1.2, 1.3,
+         1.0,2.0,
+         0.75,1.6,
+         1.0,1.0
+       ).finished() ),
+      boost::fusion::make_pair< LagrangeP2::Triag2D>( ( LagrangeP2::Triag2D::NodesT() <<
+        0.5, 0.3,
+        1.1, 1.2,
+        0.8, 2.1,
+        0.9, 0.5,
+        1.0, 1.5,
+        0.75,1.6
+      ).finished() ),
+      boost::fusion::make_pair< LagrangeP3::Quad2D>( ( LagrangeP3::Quad2D::NodesT() <<
+                                                       -1.,     -1.,
+                                                        1.,     -1.,
+                                                        1.,      1.,
+                                                       -1.,      1.,
+                                                       -1./3.,  -1.,
+                                                        1./3.,  -1.,
+                                                        1.,     -1./3.,
+                                                        1.,      1./3.,
+                                                        1./3.,   1.,
+                                                       -1./3.,   1.,
+                                                       -1.,      1./3.,
+                                                       -1.,     -1./3.,
+                                                       -1./3.,  -1./3.,
+                                                        1./3.,  -1./3.,
+                                                        1./3.,   1./3.,
+                                                       -1./3.,   1./3.
+      ).finished() ),
+      boost::fusion::make_pair< LagrangeP3::Triag2D>( ( LagrangeP3::Triag2D::NodesT() <<
+        0.5, 0.3,
+        1.1, 1.2,
+        0.8, 2.1,
+        0.9, 0.5,
+        1.0, 1.5,
+        1.0, 1.5,
+        1.0, 1.5,
+        1.0, 1.5,
+        1.0, 1.5,
+        0.75,1.6
       ).finished() )
     ) // end nodes(...) construction
   {
@@ -199,19 +235,19 @@ struct VolumeSFFixture
   {
     VolumeMPLFunctor(const NodesMapT& nodes) : m_nodes(nodes) {}
 
-    template<typename ShapeFunctionT> void operator()(const ShapeFunctionT& T)
+    template<typename ETYPE> void operator()(const ETYPE& T)
     {
       FunctorT functor;
-      cf_assert(ShapeFunctionT::dimension == ShapeFunctionT::dimensionality);
-      CFinfo << "---------------------- Start " << T.derived_type_name() << " test ----------------------" << CFendl;
+      cf_assert(ETYPE::dimension == ETYPE::dimensionality);
+      CFinfo << "---------------------- Start " << ElementTypeT<ETYPE>().derived_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
       try
       {
-        FunctorForDim<ShapeFunctionT::dimension>()(segments, T, boost::fusion::at_key<ShapeFunctionT>(m_nodes), functor);
+        FunctorForDim<ETYPE::dimension>()(segments, T, boost::fusion::at_key<ETYPE>(m_nodes), functor);
       }
       catch(...)
       {
-        CFinfo << "  Unimplemented method for " << T.derived_type_name() << CFendl;
+        CFinfo << "  Unimplemented method for " << T.type_name() << CFendl;
       }
     }
 
@@ -224,50 +260,50 @@ struct VolumeSFFixture
 /// @param nodes The node coordinates for the element
 /// @param mapped_coordinates Location where the gradient is to be calculated
 /// @param function_values Nodal values of the function for which the gradient will be calculated
-template<typename ShapeFunctionT, typename NodesT, typename MappedCoordsT>
-typename ShapeFunctionT::CoordsT gradient(const NodesT& nodes, const MappedCoordsT& mapped_coordinates, const RealVector& function_values)
+template<typename ETYPE, typename NodesT, typename MappedCoordsT>
+typename ETYPE::CoordsT gradient(const NodesT& nodes, const MappedCoordsT& mapped_coordinates, const RealVector& function_values)
 {
   // Get the gradient in mapped coordinates
-  typename ShapeFunctionT::MappedGradientT mapped_grad;
-  ShapeFunctionT::shape_function_gradient(mapped_coordinates,mapped_grad);
+  typename ETYPE::SF::GradientT mapped_grad;
+  ETYPE::SF::compute_gradient(mapped_coordinates,mapped_grad);
 
   // The Jacobian adjugate
-  typename ShapeFunctionT::JacobianT jacobian_adj;
-  ShapeFunctionT::jacobian_adjoint(mapped_coordinates, nodes, jacobian_adj);
+  typename ETYPE::JacobianT jacobian_adj;
+  ETYPE::compute_jacobian_adjoint(mapped_coordinates, nodes, jacobian_adj);
 
-  return ((jacobian_adj * mapped_grad) / ShapeFunctionT::jacobian_determinant(mapped_coordinates, nodes)) * function_values;
+  return ((jacobian_adj * mapped_grad) / ETYPE::jacobian_determinant(mapped_coordinates, nodes)) * function_values;
 }
 
 /// Checks if the jacobian_determinant function result is the same as det(jacobian)
 struct CheckJacobianDeterminant
 {
-  template<typename ShapeFunctionT, typename NodesT, typename CoordsT>
-  void operator()(const ShapeFunctionT& T, const NodesT& nodes, const CoordsT& mapped_coord)
+  template<typename ETYPE, typename NodesT, typename CoordsT>
+  void operator()(const ETYPE& T, const NodesT& nodes, const CoordsT& mapped_coord)
   {
-    typename ShapeFunctionT::JacobianT jacobian;
-    ShapeFunctionT::jacobian(mapped_coord, nodes, jacobian);
-    BOOST_CHECK_CLOSE(jacobian.determinant(), ShapeFunctionT::jacobian_determinant(mapped_coord, nodes), 1e-6);
+    typename ETYPE::JacobianT jacobian;
+    ETYPE::compute_jacobian(mapped_coord, nodes, jacobian);
+    BOOST_CHECK_CLOSE(jacobian.determinant(), ETYPE::jacobian_determinant(mapped_coord, nodes), 1e-6);
   }
 };
 
 /// Checks if the inverse of the jacobian matrix equals jacobian_adjoint / jacobian_determinant
 struct CheckJacobianInverse
 {
-  template<typename ShapeFunctionT, typename NodesT, typename CoordsT>
-  void operator()(const ShapeFunctionT& T, const NodesT& nodes, const CoordsT& mapped_coord)
+  template<typename ETYPE, typename NodesT, typename CoordsT>
+  void operator()(const ETYPE& T, const NodesT& nodes, const CoordsT& mapped_coord)
   {
-    typename ShapeFunctionT::JacobianT jacobian;
-    ShapeFunctionT::jacobian(mapped_coord, nodes, jacobian);
+    typename ETYPE::JacobianT jacobian;
+    ETYPE::compute_jacobian(mapped_coord, nodes, jacobian);
 
-    typename ShapeFunctionT::JacobianT jacobian_adjoint;
-    ShapeFunctionT::jacobian_adjoint(mapped_coord, nodes, jacobian_adjoint);
+    typename ETYPE::JacobianT jacobian_adjoint;
+    ETYPE::compute_jacobian_adjoint(mapped_coord, nodes, jacobian_adjoint);
 
-    typename ShapeFunctionT::JacobianT identity;
-    identity = jacobian * jacobian_adjoint / ShapeFunctionT::jacobian_determinant(mapped_coord, nodes);
+    typename ETYPE::JacobianT identity;
+    identity = jacobian * jacobian_adjoint / ETYPE::jacobian_determinant(mapped_coord, nodes);
 
-    for(Uint i = 0; i != ShapeFunctionT::dimensionality; ++i)
+    for(Uint i = 0; i != ETYPE::dimensionality; ++i)
     {
-      for(Uint j = 0; j != ShapeFunctionT::dimension; ++j)
+      for(Uint j = 0; j != ETYPE::dimension; ++j)
       {
         if(j == i)
           BOOST_CHECK_CLOSE(identity(i, j), 1., 1e-6);
@@ -281,16 +317,16 @@ struct CheckJacobianInverse
 /// Check if the gradient of X is one in the X direction and zero in the other directions
 struct CheckGradientX
 {
-  template<typename ShapeFunctionT, typename NodesT, typename CoordsT>
-  void operator()(const ShapeFunctionT& T, const NodesT& nodes, const CoordsT& mapped_coord)
+  template<typename ETYPE, typename NodesT, typename CoordsT>
+  void operator()(const ETYPE& T, const NodesT& nodes, const CoordsT& mapped_coord)
   {
     // Define the function values
-    RealVector function(ShapeFunctionT::nb_nodes);
-    for(Uint i = 0; i != ShapeFunctionT::nb_nodes; ++i)
+    RealVector function(ETYPE::nb_nodes);
+    for(Uint i = 0; i != ETYPE::nb_nodes; ++i)
       function[i] = nodes(i, XX);
 
     // Calculate the gradient
-    typename ShapeFunctionT::CoordsT grad = gradient<ShapeFunctionT>(nodes, mapped_coord, function);
+    typename ETYPE::CoordsT grad = gradient<ETYPE>(nodes, mapped_coord, function);
 
     // Check the result
     BOOST_CHECK_CLOSE(grad[0], 1, 1e-6);
@@ -310,7 +346,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
   Core::instance().environment().configure_option("exception_outputs",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
   VolumeMPLFunctor<CheckJacobianDeterminant> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,7 +354,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianDeterminant )
 BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 {
   VolumeMPLFunctor<CheckJacobianInverse> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -326,7 +362,7 @@ BOOST_AUTO_TEST_CASE( TestJacobianInverse )
 BOOST_AUTO_TEST_CASE( TestGradientX )
 {
   VolumeMPLFunctor<CheckGradientX> functor(nodes);
-  boost::mpl::for_each<CellTypes>(functor);
+  boost::mpl::for_each<TestCellTypes>(functor);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

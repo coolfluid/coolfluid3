@@ -14,7 +14,7 @@
 #include "Common/Core.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
@@ -49,9 +49,9 @@ struct BockMesh3DFixture :
     x_segs = boost::lexical_cast<Uint>(argv[1]);
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);
-    
-    if(!Comm::PE::instance().is_active())
-      Comm::PE::instance().init(argc, argv);
+
+    if(!PE::Comm::instance().is_active())
+      PE::Comm::instance().init(argc, argv);
 
     CRoot& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
@@ -89,13 +89,13 @@ struct BockMesh3DFixture :
     {
       m_mesh = domain().get_child("mesh").as_ptr<CMesh>();
     }
-    
+
     if(argc == 5)
     {
       writer().configure_option("distributed_files", true);
       base_dir = std::string(argv[4]) + "/";
     }
-    
+
   }
 
   CDomain& domain()
@@ -124,7 +124,7 @@ struct BockMesh3DFixture :
   boost::weak_ptr<CMesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
   boost::weak_ptr<CMesh> m_mesh; // Actual generated mesh
   boost::weak_ptr<CMeshWriter> m_writer;
-  
+
   std::string base_dir;
 };
 
@@ -137,13 +137,13 @@ BOOST_FIXTURE_TEST_SUITE( BlockMesh3D, BockMesh3DFixture )
 BOOST_AUTO_TEST_CASE( Setup )
 {
   // Make sure MPI is up before running the first test
-  BOOST_CHECK(Comm::PE::instance().is_active());
+  BOOST_CHECK(PE::Comm::instance().is_active());
 }
 
 BOOST_AUTO_TEST_CASE( GenerateMesh )
 {
-  const Uint nb_procs = Comm::PE::instance().size();
-  const Uint rank = Comm::PE::instance().rank();
+  const Uint nb_procs = PE::Comm::instance().size();
+  const Uint rank = PE::Comm::instance().rank();
 
   const Real length = 12.;
   const Real half_height = 0.5;
@@ -211,11 +211,7 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 BOOST_AUTO_TEST_CASE( RankField )
 {
   // Store element ranks
-  boost_foreach(CEntities& elements, mesh().topology().elements_range())
-  {
-    elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
-  }
-  FieldGroup& elems_P0 = mesh().create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  FieldGroup& elems_P0 = mesh().create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(CElements& elements , elems_P0.elements_range())

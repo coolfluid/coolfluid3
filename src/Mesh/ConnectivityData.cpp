@@ -19,7 +19,7 @@ using namespace Common;
 
 CNodeConnectivity::CNodeConnectivity(const std::string& name): Component(name)
 {
-   
+
 }
 
 CNodeConnectivity::~CNodeConnectivity()
@@ -41,7 +41,7 @@ CNodeConnectivity::ElementReferenceT CNodeConnectivity::element(const Uint globa
 
 CFaceConnectivity::CFaceConnectivity(const std::string& name): Component(name), m_node_connectivity(0)
 {
-   
+
 }
 
 CFaceConnectivity::~CFaceConnectivity()
@@ -52,7 +52,7 @@ void CFaceConnectivity::initialize(const CElements& own_celements, const CNodeCo
 {
   m_node_connectivity = &node_connectivity;
   m_element_nb_faces = own_celements.element_type().nb_faces();
-  
+
   create_face_element_connectivity(own_celements,
                                    m_node_connectivity->celements_vector(),
                                    m_node_connectivity->celements_first_elements(),
@@ -61,7 +61,7 @@ void CFaceConnectivity::initialize(const CElements& own_celements, const CNodeCo
                                    m_node_connectivity->node_elements(),
                                    m_face_has_neighbour,
                                    m_face_element_connectivity);
-                                   
+
   create_face_face_connectivity(own_celements,
                                 m_node_connectivity->celements_vector(),
                                 m_node_connectivity->celements_first_elements(),
@@ -106,7 +106,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
 {
   node_first_elements.resize(nb_nodes);
   node_element_counts.resize(nb_nodes, 0);
-  
+
   // Count the node usage
   const Uint celement_count = elements.size();
   for(Uint celement_idx = 0; celement_idx != celement_count; ++celement_idx)
@@ -121,7 +121,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
       }
     }
   }
-  
+
   // Calculate the size of node_elements, and build node_first_elements
   Uint sum = 0;
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
@@ -129,7 +129,7 @@ void create_node_element_connectivity(const Uint nb_nodes,
     node_first_elements[node_idx] = sum;
     sum += node_element_counts[node_idx];
   }
-  
+
   // Build node_elements
   node_elements.resize(sum);
   CFaceConnectivity::IndicesT last_added_element(nb_nodes, 0); // helper array to keep track of where we are in node_elements
@@ -162,14 +162,14 @@ void create_face_element_connectivity(const CElements& own_celements,
   const CConnectivity::ArrayT& element_connectivity = own_celements.node_connectivity().array();
   const Uint elem_count = element_connectivity.size();
   const ElementType& etype = own_celements.element_type();
-  const ElementType::FaceConnectivity& face_connectivity = etype.face_connectivity();
+  const ElementType::FaceConnectivity& face_connectivity = etype.faces();
   const Uint face_count = etype.nb_faces();
   const Uint total_face_count = face_count * elem_count;
-  
+
   // Init output arrays to the correct size
   face_has_neighbour.resize(total_face_count, false);
   face_element_connectivity.resize(total_face_count);
-  
+
   // Find out if own_celements is part of celements_vector
   Uint global_offset = 0;
   bool vector_has_own_celements = false;
@@ -183,7 +183,7 @@ void create_face_element_connectivity(const CElements& own_celements,
     }
   }
 
-  // fill the output arrays 
+  // fill the output arrays
   for(Uint elem_idx = 0; elem_idx != elem_count; ++elem_idx)
   {
     // loop over all faces of the element
@@ -193,11 +193,11 @@ void create_face_element_connectivity(const CElements& own_celements,
       CFaceConnectivity::IndicesT face_nodes;
       CFaceConnectivity::IndicesT adjacent_elements;
       adjacent_elements.reserve(32); // 32 in the case of a structured hexahedral mesh, just to avoid too many allocations in common cases
-      BOOST_FOREACH(const Uint local_face_node, face_connectivity.face_node_range(face_idx))
+      BOOST_FOREACH(const Uint local_face_node, face_connectivity.nodes_range(face_idx))
       {
         // global node index
         const Uint face_node = element_connectivity[elem_idx][local_face_node];
-        
+
         // collect other elements that use this node
         const Uint node_elements_begin = node_first_elements[face_node];
         const Uint node_elements_end = node_element_counts[face_node] + node_elements_begin;
@@ -215,7 +215,7 @@ void create_face_element_connectivity(const CElements& own_celements,
         if(!vector_has_own_celements || (vector_has_own_celements && adjacent_element != (global_offset + elem_idx)))
         {
           // If any other element was found to use every node of this face, it is adjacent to the current face
-          if((i - start_idx) == face_connectivity.face_node_counts[face_idx])
+          if((i - start_idx) == face_connectivity.stride[face_idx])
           {
             const Uint global_face_idx = elem_idx * face_count + face_idx;
             face_has_neighbour[global_face_idx] = true;
@@ -231,8 +231,8 @@ void create_face_element_connectivity(const CElements& own_celements,
 /// Gets a sorted list of face nodes
 void sorted_face_nodes(const CElements& celements, const CTable<Uint>::ArrayT& connectivity_table, const Uint element_idx, const Uint face_idx, CFaceConnectivity::IndicesT& face_nodes)
 {
-  face_nodes.reserve(celements.element_type().face_connectivity().face_node_counts[face_idx]);
-  BOOST_FOREACH(const Uint local_node, celements.element_type().face_connectivity().face_node_range(face_idx))
+  face_nodes.reserve(celements.element_type().faces().stride[face_idx]);
+  BOOST_FOREACH(const Uint local_node, celements.element_type().faces().nodes_range(face_idx))
   {
     face_nodes.push_back(connectivity_table[element_idx][local_node]);
   }
@@ -258,7 +258,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
       break;
     }
   }
-  
+
   const CConnectivity::ArrayT& connectivity_table = own_celements.node_connectivity().array();
   const Uint elements_begin = 0;
   const Uint elements_end = connectivity_table.size();
@@ -271,11 +271,11 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
       const Uint global_face_idx = nb_faces * element_idx + face_idx;
       if(!face_has_neighbour[global_face_idx])
         continue;
-      
+
       // find out what our adjacent element is
       const Uint adjacent_global_elem = face_element_connectivity[global_face_idx];
       const Uint adjacent_celements_idx = std::upper_bound(celements_first_elements.begin(), celements_first_elements.end(), adjacent_global_elem) - 1 - celements_first_elements.begin();
-      const CElements& adjacent_celements = *celements_vector[adjacent_celements_idx]; 
+      const CElements& adjacent_celements = *celements_vector[adjacent_celements_idx];
       const Uint adjacent_nb_faces = adjacent_celements.element_type().nb_faces();
       // if we have a neighbour inside own_celements, we can use the face_element_connectivity table for fast lookup of the connecting face
       if(vector_has_own_celements && adjacent_celements_idx == own_celements_idx)
@@ -302,7 +302,7 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
         {
           CFaceConnectivity::IndicesT adjacent_face_nodes;
           sorted_face_nodes(adjacent_celements, adjacent_connectivity_table, adjacent_local_elem, adjacent_face, adjacent_face_nodes);
-          
+
           if(face_nodes == adjacent_face_nodes)
           {
             face_face_connectivity[global_face_idx] = adjacent_face;

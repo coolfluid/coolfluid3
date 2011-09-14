@@ -18,7 +18,7 @@
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/WriteMesh.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -28,7 +28,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
-using namespace Common::Comm;
+using namespace Common::PE;
 
 Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 

@@ -42,11 +42,11 @@ const std::string Shared::gmsh_elem_geo_name[nb_gmsh_types] = { "Empty", "Line" 
 const std::string Shared::dim_name[4] = { "0D", "1D", "2D", "3D" };
 
 
-const std::string Shared::order_name[10] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9" }; 
+const std::string Shared::order_name[10] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9" };
 
 
 
-                                                            
+
 //////////////////////////////////////////////////////////////////////////////
 
 Shared::Shared() :
@@ -54,24 +54,24 @@ Shared::Shared() :
     m_nodes_gmsh_to_cf(nb_gmsh_types)
 {
   m_supported_types.reserve(20);
-  m_supported_types.push_back("CF.Mesh.SF.Line1DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP2");
-  m_supported_types.push_back("CF.Mesh.SF.Line2DLagrangeP3");
-  m_supported_types.push_back("CF.Mesh.SF.Line3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Quad2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Quad2DLagrangeP2");
-  m_supported_types.push_back("CF.Mesh.SF.Quad2DLagrangeP3");
-  m_supported_types.push_back("CF.Mesh.SF.Quad3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP2");
-  m_supported_types.push_back("CF.Mesh.SF.Triag2DLagrangeP3");
-  m_supported_types.push_back("CF.Mesh.SF.Triag3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Hexa3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Tetra3DLagrangeP1");
-  m_supported_types.push_back("CF.Mesh.SF.Point1DLagrangeP0");
-  m_supported_types.push_back("CF.Mesh.SF.Point2DLagrangeP0");
-  m_supported_types.push_back("CF.Mesh.SF.Point3DLagrangeP0");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line1D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP2.Line2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP3.Line2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP2.Quad2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP3.Quad2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP2.Triag2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP3.Triag2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Hexa3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP1.Tetra3D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point1D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point2D");
+  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point3D");
 
   m_CFelement_to_GmshElement[GeoShape::LINE ]=P1LINE;
   m_CFelement_to_GmshElement[GeoShape::TRIAG]=P1TRIAG;
@@ -376,9 +376,9 @@ Shared::Shared() :
 
 std::string Shared::gmsh_name_to_cf_name(const Uint dim, const Uint gmsh_type)
 {
-  //Compose the name of the form   "CF.Mesh.SF.Line1DLagrangeP1"
+  //Compose the name of the form   "CF.Mesh.LagrangeP1.Line1D"
   const Uint order = m_gmsh_elem_order[gmsh_type];
-  std::string name = "CF.Mesh.SF." + gmsh_elem_geo_name[gmsh_type] + dim_name[dim] + "Lagrange" + order_name[order];
+  std::string name = "CF.Mesh.Lagrange"+order_name[order]+"." + gmsh_elem_geo_name[gmsh_type] + dim_name[dim];
   return name;
 }
 

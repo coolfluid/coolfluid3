@@ -49,8 +49,8 @@ void CElements::initialize(const std::string& element_type_name)
 {
   CEntities::initialize(element_type_name);
   node_connectivity().set_row_size(m_element_type->nb_nodes());
-  CSpace& node_space = space(MeshSpaces::MESH_NODES);
-  node_space.connectivity().set_row_size(node_space.nb_states());
+  CSpace& geometry = space(Tags::geometry());
+  geometry.connectivity().set_row_size(geometry.nb_states());
 }
 
 void CElements::initialize(const std::string& element_type_name, Geometry& geo)
@@ -68,16 +68,10 @@ void CElements::assign_geometry(Geometry& geo)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CConnectivity& CElements::node_connectivity()
+CConnectivity& CElements::node_connectivity() const
 {
-  return space(MeshSpaces::MESH_NODES).connectivity();
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-const CConnectivity& CElements::node_connectivity() const
-{
-  return space(MeshSpaces::MESH_NODES).connectivity();
+  /// @todo make the line space(Tags::geometry()).connectivity() less computational
+  return space(Tags::geometry()).connectivity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

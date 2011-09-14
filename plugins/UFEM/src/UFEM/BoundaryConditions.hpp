@@ -10,7 +10,6 @@
 #include "Common/CActionDirector.hpp"
 #include "Common/OptionURI.hpp"
 
-#include "Solver/CEigenLSS.hpp"
 #include "Solver/CSolver.hpp"
 
 #include "Solver/Actions/Proto/BlockAccumulator.hpp"

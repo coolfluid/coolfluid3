@@ -7,7 +7,7 @@
 #include <cmath>
 #include <iomanip>
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Math/Checks.hpp"
 
@@ -55,7 +55,7 @@ CPrintIterationSummary::CPrintIterationSummary ( const std::string& name ) : CAc
 
 void CPrintIterationSummary::execute()
 {
-  if( Comm::PE::instance().rank() != 0 ) return;
+  if( PE::Comm::instance().rank() != 0 ) return;
 
   // get norm
 

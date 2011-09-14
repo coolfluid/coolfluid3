@@ -27,8 +27,7 @@
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/SF/SFHexaLagrangeP0.hpp"
+#include "Mesh/LagrangeP0/Hexa.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
@@ -103,7 +102,7 @@ struct ProtoBenchmarkFixture :
     // Create field
     boost_foreach(CEntities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+      elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
     }
     FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
     solver.field_manager().create_field("volume", elems_P0);
@@ -131,7 +130,7 @@ struct ProtoBenchmarkFixture :
   const Real length;
   const Real half_height;
   const Real width;
-  typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
+  typedef boost::mpl::vector2<LagrangeP1::Hexa3D, LagrangeP0::Hexa> ElementsT;
 
   /// Arrays used by the direct method
   static boost::shared_ptr<DirectArrays> direct_arrays;
@@ -212,14 +211,14 @@ BOOST_AUTO_TEST_CASE( SimulateDirect )
   const CTable<Real>& coords = direct_arrays->coords;
   Field& vol_field = direct_arrays->vol_field;
 
-  SF::Hexa3DLagrangeP1::NodeMatrixT nodes;
+  LagrangeP1::Hexa3D::NodesT nodes;
   const Uint offset = direct_arrays->offset;
   const Uint elems_begin = 0;
   const Uint elems_end = conn.size();
   for(Uint elem = elems_begin; elem != elems_end; ++elem)
   {
     fill(nodes, coords,  conn[elem]);
-    vol_field[elem+offset][0] = SF::Hexa3DLagrangeP1::volume(nodes);
+    vol_field[elem+offset][0] = LagrangeP1::Hexa3D::volume(nodes);
   }
 }
 

@@ -55,6 +55,12 @@ check_close(const Real a, const Real b, const Real threshold)
 
 static boost::proto::terminal< void(*)(Real, Real, Real) >::type const _check_close = {&check_close};
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
+}
+
 // Solve the Stokes equations with artificial dissipation
 BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 {
@@ -104,8 +110,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     LinearSolverUnsteady& solver = model.create_component<LinearSolverUnsteady>("Solver");
 
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
-    CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-    lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+    Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+    lss.configure_option("solver", std::string("Trilinos"));
     solver.configure_option("lss", lss.uri());
 
     // Expression variables
@@ -136,6 +142,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     // Setup mesh
     CMesh& mesh = domain.create_component<CMesh>("Mesh");
     Tools::MeshGeneration::create_rectangle(mesh, length, height, x_segments, y_segments);
+
+    lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
     solver.boundary_conditions().add_constant_bc("left", "Pressure", p0);
     solver.boundary_conditions().add_constant_bc("right", "Pressure", p1);

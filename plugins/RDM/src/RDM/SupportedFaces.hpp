@@ -15,14 +15,14 @@
 
 // 2D
 
-#include "Mesh/SF/Line2DLagrangeP1.hpp"
-#include "Mesh/SF/Line2DLagrangeP2.hpp"
-#include "Mesh/SF/Line2DLagrangeP3.hpp"
+#include "Mesh/LagrangeP1/Line2D.hpp"
+#include "Mesh/LagrangeP2/Line2D.hpp"
+#include "Mesh/LagrangeP3/Line2D.hpp"
 
 // 3D
 
-#include "Mesh/SF/Triag3DLagrangeP1.hpp"
-#include "Mesh/SF/Quad3DLagrangeP1.hpp"
+#include "Mesh/LagrangeP1/Triag3D.hpp"
+#include "Mesh/LagrangeP1/Quad3D.hpp"
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
@@ -35,16 +35,16 @@ namespace RDM {
 
 /// List of supported 2d face shapefunctions
 typedef boost::mpl::vector<
-  Mesh::SF::Line2DLagrangeP1,
-  Mesh::SF::Line2DLagrangeP2,
-  Mesh::SF::Line2DLagrangeP3
+  Mesh::LagrangeP1::Line2D,
+  Mesh::LagrangeP2::Line2D,
+  Mesh::LagrangeP3::Line2D
 > FaceTypes2D;
 
 
 /// List of supported 3d face shapefunctions
 typedef boost::mpl::vector<
-  Mesh::SF::Triag3DLagrangeP1,
-  Mesh::SF::Quad3DLagrangeP1
+  Mesh::LagrangeP1::Triag3D,
+  Mesh::LagrangeP1::Quad3D
 > FaceTypes3D;
 
 typedef boost::mpl::copy< FaceTypes2D, boost::mpl::back_inserter< FaceTypes3D > >::type AllFaceTypes;
@@ -67,24 +67,24 @@ template<> struct FaceTypes<DIM_3D>
 
 /// Partial specialization for P1 lines
 template <>
-struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP1, 1 >
+struct DefaultQuadrature< Mesh::LagrangeP1::Line2D, 1 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 777, Mesh::SF::Line2DLagrangeP1::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 777, Mesh::LagrangeP1::Line2D::shape> type;
 };
 
 /// Partial specialization for P2 lines
 template <>
-struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP2, 2 >
+struct DefaultQuadrature< Mesh::LagrangeP2::Line2D, 2 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::SF::Line2DLagrangeP2::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 8, Mesh::LagrangeP2::Line2D::shape> type;
 };
 
 
 /// Partial specialization for P3 lines
 template <>
-struct DefaultQuadrature< Mesh::SF::Line2DLagrangeP3, 3 >
+struct DefaultQuadrature< Mesh::LagrangeP3::Line2D, 3 >
 {
-  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::SF::Line2DLagrangeP3::shape> type;
+  typedef Mesh::Integrators::GaussMappedCoords< 4, Mesh::LagrangeP3::Line2D::shape> type;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

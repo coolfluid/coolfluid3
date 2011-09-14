@@ -1,7 +1,7 @@
 # list of plugins distributed with the kernel
 
 # reader of OpenFOAM block mesh format
-add_subdirectory( BlockMeshReader )
+#add_subdirectory( BlockMeshReader )
 
 # CGAL mesh generator
 add_subdirectory( CGAL )

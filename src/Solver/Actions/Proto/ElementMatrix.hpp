@@ -267,13 +267,13 @@ struct ElementMatrixRowsValue :
     typedef Eigen::Block
     <
       ElementMatrixT,
-      VarDataT::dimension * VarDataT::SF::nb_nodes,
+      VarDataT::dimension * VarDataT::EtypeT::nb_nodes,
       ElementMatrixT::ColsAtCompileTime
     > result_type;
 
     result_type operator ()(typename impl::expr_param var, typename impl::state_param state, typename impl::data_param data) const
     {
-      return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::SF::nb_nodes, ElementMatrixT::ColsAtCompileTime>(VarDataT::SF::nb_nodes*data.var_data(var).offset, 0);
+      return data.element_matrix(state).template block<VarDataT::dimension * VarDataT::EtypeT::nb_nodes, ElementMatrixT::ColsAtCompileTime>(VarDataT::EtypeT::nb_nodes*data.var_data(var).offset, 0);
     }
   };
 };
@@ -296,17 +296,17 @@ struct ElementMatrixBlockValue :
     typedef Eigen::Block
     <
       typename boost::remove_reference<DataT>::type::ElementMatrixT,
-      RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
-      ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
+      RowVarDataT::dimension * RowVarDataT::EtypeT::nb_nodes,
+      ColVarDataT::dimension * ColVarDataT::EtypeT::nb_nodes
     > result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param, typename impl::data_param data) const
     {
       return data.element_matrix(boost::proto::value(boost::proto::child_c<0>(expr))).template block
       <
-        RowVarDataT::dimension * RowVarDataT::SF::nb_nodes,
-        ColVarDataT::dimension * ColVarDataT::SF::nb_nodes
-        >(data.var_data(RowVarIdxT()).offset * RowVarDataT::SF::nb_nodes, data.var_data(ColVarIdxT()).offset * ColVarDataT::SF::nb_nodes);
+        RowVarDataT::dimension * RowVarDataT::EtypeT::nb_nodes,
+        ColVarDataT::dimension * ColVarDataT::EtypeT::nb_nodes
+        >(data.var_data(RowVarIdxT()).offset * RowVarDataT::EtypeT::nb_nodes, data.var_data(ColVarIdxT()).offset * ColVarDataT::EtypeT::nb_nodes);
     }
   };
 };
@@ -343,15 +343,15 @@ struct SubRows : boost::proto::transform< SubRows<I, J> >
     typedef Eigen::Block
     <
       MatrixT,
-      RowVarDataT::SF::nb_nodes,
+      RowVarDataT::EtypeT::nb_nodes,
       MatrixT::ColsAtCompileTime
     > result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
-      return matrix.template block<RowVarDataT::SF::nb_nodes, MatrixT::ColsAtCompileTime>
+      return matrix.template block<RowVarDataT::EtypeT::nb_nodes, MatrixT::ColsAtCompileTime>
       (
-        RowVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
+        RowVarDataT::EtypeT::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
         0
       );
     }
@@ -375,15 +375,15 @@ struct SubCols : boost::proto::transform< SubCols<I, J> >
     <
       MatrixT,
       MatrixT::RowsAtCompileTime,
-      ColVarDataT::SF::nb_nodes
+      ColVarDataT::EtypeT::nb_nodes
     > result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
-      return matrix.template block<MatrixT::RowsAtCompileTime, ColVarDataT::SF::nb_nodes>
+      return matrix.template block<MatrixT::RowsAtCompileTime, ColVarDataT::EtypeT::nb_nodes>
       (
         0,
-        ColVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
+        ColVarDataT::EtypeT::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
       );
     }
   };
@@ -408,16 +408,16 @@ struct SubMatrix : boost::proto::transform< SubMatrix<I, J> >
     typedef Eigen::Block
     <
       MatrixT,
-      RowVarDataT::SF::nb_nodes,
-      ColVarDataT::SF::nb_nodes
+      RowVarDataT::EtypeT::nb_nodes,
+      ColVarDataT::EtypeT::nb_nodes
     > result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename boost::remove_const<typename impl::state>::type matrix, typename impl::data_param data) const
     {
-      return matrix.template block<RowVarDataT::SF::nb_nodes, ColVarDataT::SF::nb_nodes>
+      return matrix.template block<RowVarDataT::EtypeT::nb_nodes, ColVarDataT::EtypeT::nb_nodes>
       (
-        RowVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
-        ColVarDataT::SF::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
+        RowVarDataT::EtypeT::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<1>(expr))),
+        ColVarDataT::EtypeT::nb_nodes * IndexValues<I, J>()(boost::proto::right(boost::proto::child_c<2>(expr)))
       );
     }
   };

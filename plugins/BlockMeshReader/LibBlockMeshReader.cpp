@@ -15,11 +15,11 @@ CF::Common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibBlockMeshReader::initiate()
+void LibBlockMeshReader::initiate_impl()
 {
 }
 
-void LibBlockMeshReader::terminate()
+void LibBlockMeshReader::terminate_impl()
 {
 }
 

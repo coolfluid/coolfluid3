@@ -82,12 +82,8 @@ void CBuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry().coordinates().row_size();
 
-
-  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(mesh.topology(),Mesh::Tags::face_entity()))
-    faces.create_space("faces_P0","CF.Mesh.SF.SF"+faces.element_type().shape_name()+"LagrangeP0");
-
-  FieldGroup& faces_P0 = mesh.create_field_group("faces_P0",FieldGroup::Basis::FACE_BASED);
-  Field& face_normals = faces_P0.create_field(Mesh::Tags::normal());
+  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
+  Field& face_normals = faces_P0.create_field(Mesh::Tags::normal(),std::string(Mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(Mesh::Tags::normal());
 
   Component::Ptr component;
@@ -108,7 +104,7 @@ void CBuildFaceNormals::execute()
         CCells& cells = component->as_type<CCells>();
         CConnectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
         Uint i(0);
-        boost_foreach(Uint node_id, cells.element_type().face_connectivity().face_node_range(face_nb[face][0]) )
+        boost_foreach(Uint node_id, cells.element_type().faces().nodes_range(face_nb[face][0]) )
         {
           Uint j(0);
           boost_foreach(const Real& coord, mesh.geometry().coordinates()[cell_nodes[node_id]])
@@ -132,6 +128,8 @@ void CBuildFaceNormals::execute()
         {
           faces.element_type().compute_normal(face_coordinates,normal);
           Uint field_index = face_normals.indexes_for_element(faces,face)[0];
+          cf_assert(field_index    < face_normals.size()    );
+          cf_assert(normal.size() == face_normals.row_size());
           for (Uint i=0; i<normal.size(); ++i)
             face_normals[field_index][i]=normal[i];
 

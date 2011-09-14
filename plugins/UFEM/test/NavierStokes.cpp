@@ -17,7 +17,7 @@ namespace UFEM {
 
 using namespace Solver::Actions::Proto;
 
-typedef boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> AllowedElmsT;
+typedef boost::mpl::vector1<Mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
 Expression::Ptr parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {
@@ -55,7 +55,7 @@ Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs
         _T(u[_i], u[_i]) += transpose(N(u))*N(u)
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
-      solver.system_rhs -= _A * _b
+      solver.system_rhs += -_A * _b
     )
   );
 }
@@ -86,7 +86,7 @@ Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
         _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
       ),
       solver.system_matrix += solver.invdt() * _T + 0.5 * _A,
-      solver.system_rhs -= _A * _b
+      solver.system_rhs += -_A * _b
     )
   );
 }
@@ -117,7 +117,7 @@ Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
         _T(u[_i], u[_i]) += transpose(N(u))         * N(u)          // Time, standard
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs -= _A * _b
+      solver.system_rhs += -_A * _b
     )
   );
 }
@@ -148,7 +148,7 @@ Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
         _T(u[_i], u[_i]) += transpose(N(u) + coefs.tau_su*u*nabla(u))         * N(u)          // Time, standard + SUPG
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs -= _A * _b
+      solver.system_rhs += -_A * _b
     )
   );
 }
@@ -180,7 +180,7 @@ Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coe
         _T(u[_i], u[_i]) += transpose(N(u) + coefs.tau_su*u*nabla(u))         * N(u)          // Time, standard
       ),
       solver.system_matrix += solver.invdt() * _T + 1.0 * _A,
-      solver.system_rhs -= _A * _b
+      solver.system_rhs += -_A * _b
     )
   );
 }

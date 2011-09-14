@@ -24,7 +24,7 @@
 #include "Common/Tags.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -47,7 +47,7 @@ namespace Mesh {
 using namespace boost::assign;
 
 using namespace Common;
-using namespace Common::Comm;
+using namespace Common::PE;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
@@ -189,7 +189,7 @@ bool FieldGroup::is_ghost(const Uint idx) const
   cf_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf_assert(size() == m_rank->size());
   cf_assert(idx<m_rank->size());
-  return (*m_rank)[idx] != PE::instance().rank();
+  return (*m_rank)[idx] != Comm::instance().rank();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ void FieldGroup::update()
         elements_lookup().add(cells);
       break;
     case Basis::FACE_BASED:
-      boost_foreach(CFaces& faces, find_components_recursively<CFaces>(topology()))
+      boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
         elements_lookup().add(faces);
       break;
     default:
@@ -398,7 +398,7 @@ void FieldGroup::bind_space()
   if (m_basis == Basis::INVALID)
     throw SetupError(FromHere(), "type of field_group ["+uri().string()+"] not configured");
 
-  if (m_space != CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES))
+  if (m_space != Mesh::Tags::geometry())
     create_connectivity_in_space();
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
@@ -530,6 +530,13 @@ CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) c
   Uint elem_idx;
   boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
   return indexes_for_element(component->as_type<CEntities>(),elem_idx);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool FieldGroup::has_coordinates() const
+{
+  return is_not_null(m_coordinates);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

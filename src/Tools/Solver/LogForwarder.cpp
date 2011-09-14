@@ -18,7 +18,7 @@
 #include "Common/Log.hpp"
 
 using namespace CF::Common;
-using namespace CF::Common::Comm;
+using namespace CF::Common::PE;
 using namespace CF::Common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ void LogForwarder::message(const std::string &data)
   /// @todo remove those hardcoded URIs
   SignalFrame frame("message", "cpath://Root/UI/Log", "cpath://Root/UI/Log");
   SignalOptions options(frame);
-  std::string header = "Worker[" + to_str( PE::instance().rank() ) + "] ";
+  std::string header = "Worker[" + to_str( Comm::instance().rank() ) + "] ";
 
   options.add_option< OptionT<std::string> >("type", "Info");
   options.add_option< OptionT<std::string> >("text", header + data);

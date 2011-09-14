@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP1",nodes);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Quad2D",nodes);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Triag2D",nodes);
 
   CTable<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
   CTable<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
@@ -190,12 +190,12 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     const CTable<Uint>& region_connTable = region.node_connectivity();
 
     // the loop
-    ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
+    RealMatrix elementCoordinates(elementType.nb_nodes(), elementType.dimension());
     for (Uint iElem=0; iElem<nbRows; ++iElem)
     {
       fill(elementCoordinates, region_coordinates, region_connTable[iElem]);
 
-      volumes[iElem]=elementType.compute_volume(elementCoordinates);
+      volumes[iElem]=elementType.volume(elementCoordinates);
 
       // check
       if(elementType.shape() == GeoShape::QUAD)
@@ -237,8 +237,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.SF.Quad2DLagrangeP2",nodes);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.SF.Triag2DLagrangeP2",nodes);
+  CElements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Quad2D",nodes);
+  CElements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Triag2D",nodes);
 
   CTable<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
   CTable<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();

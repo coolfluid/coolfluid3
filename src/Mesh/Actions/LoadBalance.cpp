@@ -4,11 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "coolfluid-packages.hpp"
 
 #include "Common/CBuilder.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/Actions/LoadBalance.hpp"
 #include "Mesh/CMesh.hpp"
@@ -22,7 +23,7 @@ namespace Mesh {
 namespace Actions {
 
 using namespace Common;
-using namespace Common::Comm;
+using namespace Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,10 +41,13 @@ LoadBalance::LoadBalance( const std::string& name )
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
+#if defined (CF_HAVE_PTSCOTCH)
+  m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+#elif defined (CF_HAVE_ZOLTAN)
   m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
-  add_static_component(*m_partitioner);
-
   m_partitioner->configure_option("graph_package", std::string("PHG"));
+#endif
+  add_static_component(*m_partitioner);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -54,7 +58,7 @@ void LoadBalance::execute()
   CMesh& mesh = *m_mesh.lock();
 
   // balance if parallel run with multiple processors
-  if( PE::instance().is_active() && PE::instance().size() > 1 )
+  if( Comm::instance().is_active() && Comm::instance().size() > 1 )
   {
 
     CFinfo << "loadbalancing mesh:" << CFendl;

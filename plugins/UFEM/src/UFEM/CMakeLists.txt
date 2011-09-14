@@ -10,13 +10,15 @@ list( APPEND coolfluid_ufem_files
   LinearSolverUnsteady.hpp
   LinearSolverUnsteady.cpp
   NavierStokesOps.hpp
+  SparsityBuilder.hpp
+  SparsityBuilder.cpp
   Tags.hpp
   Tags.cpp
   TimeLoop.hpp
   TimeLoop.cpp
 )
 
-list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_sf coolfluid_solver_actions coolfluid_physics)
+list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_actions coolfluid_physics)
 
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )
 

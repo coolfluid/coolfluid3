@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/debug.hpp"
 
 #include "Math/Consts.hpp"
 
@@ -16,7 +16,7 @@ namespace CF {
 namespace Mesh {
 
 using namespace Common;
-using namespace Common::Comm;
+using namespace Common::PE;
 using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ void PackUnpackElements::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::pack(Comm::Buffer& buf)
+void PackUnpackElements::pack(PE::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -138,7 +138,7 @@ void PackUnpackElements::pack(Comm::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackElements::unpack(Comm::Buffer& buf)
+void PackUnpackElements::unpack(PE::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;
@@ -205,7 +205,7 @@ void PackUnpackNodes::remove(const Uint idx)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::pack(Comm::Buffer& buf)
+void PackUnpackNodes::pack(PE::Buffer& buf)
 {
   cf_assert_desc("Must call using  object(idx).pack(buf), instead of object.pack(buf)" , m_idx != uint_max());
 
@@ -236,7 +236,7 @@ void PackUnpackNodes::pack(Comm::Buffer& buf)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void PackUnpackNodes::unpack(Comm::Buffer& buf)
+void PackUnpackNodes::unpack(PE::Buffer& buf)
 {
   Uint glb_idx_data;
   Uint rank_data;

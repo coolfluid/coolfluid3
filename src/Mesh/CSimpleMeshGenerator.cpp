@@ -10,8 +10,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
@@ -55,7 +55,7 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
       ->link_to(&m_lengths)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("nb_parts", Comm::PE::instance().size()))
+  m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
@@ -98,7 +98,7 @@ void CSimpleMeshGenerator::execute()
 
 void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts, const bool bdry)
 {
-  Uint part = Comm::PE::instance().rank();
+  Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
@@ -112,7 +112,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   CCells& cells = region.create_component<CCells>("Line");
-  cells.initialize("CF.Mesh.SF.Line1DLagrangeP1",nodes);
+  cells.initialize("CF.Mesh.LagrangeP1.Line1D",nodes);
   CConnectivity& connectivity = cells.node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
   CList<Uint>& elem_rank = cells.rank();
@@ -162,7 +162,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   {
     // Left boundary point
     CFaces& xneg = mesh.topology().create_region("xneg").create_component<CFaces>("Point");
-    xneg.initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
+    xneg.initialize("CF.Mesh.LagrangeP0.Point1D", nodes);
     if (part == 0)
     {
       CConnectivity& xneg_connectivity = xneg.node_connectivity();
@@ -175,7 +175,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
 
     // right boundary point
     CFaces& xpos = mesh.topology().create_region("xpos").create_component<CFaces>("Point");
-    xpos.initialize("CF.Mesh.SF.Point1DLagrangeP0", nodes);
+    xpos.initialize("CF.Mesh.LagrangeP0.Point1D", nodes);
     if(part == nb_parts-1)
     {
       CConnectivity& xpos_connectivity = xpos.node_connectivity();
@@ -195,7 +195,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
 
 void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts , const bool bdry)
 {
-  Uint part = Comm::PE::instance().rank();
+  Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
@@ -283,7 +283,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
   CCells::Ptr cells = region.create_component_ptr<CCells>("Quad");
-  cells->initialize("CF.Mesh.SF.Quad2DLagrangeP1",nodes);
+  cells->initialize("CF.Mesh.LagrangeP1.Quad2D",nodes);
 
   CConnectivity& connectivity = cells->node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
@@ -336,7 +336,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
   {
     std::vector<Real> line_nodes(2);
     CFaces::Ptr left = mesh.topology().create_region("left").create_component_ptr<CFaces>("Line");
-    left->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+    left->initialize("CF.Mesh.LagrangeP1.Line2D", nodes);
     CConnectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
     CList<Uint>::Buffer left_rank = left->rank().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
@@ -361,7 +361,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
 
     CFaces::Ptr right = mesh.topology().create_region("right").create_component_ptr<CFaces>("Line");
-    right->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+    right->initialize("CF.Mesh.LagrangeP1.Line2D", nodes);
     CConnectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
     CList<Uint>::Buffer right_rank = right->rank().create_buffer();
 
@@ -387,7 +387,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
 
     CFaces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<CFaces>("Line");
-    bottom->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+    bottom->initialize("CF.Mesh.LagrangeP1.Line2D", nodes);
     CConnectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
     CList<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
 
@@ -413,7 +413,7 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     }
 
     CFaces::Ptr top = mesh.topology().create_region("top").create_component_ptr<CFaces>("Line");
-    top->initialize("CF.Mesh.SF.Line2DLagrangeP1", nodes);
+    top->initialize("CF.Mesh.LagrangeP1.Line2D", nodes);
     CConnectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
     CList<Uint>::Buffer top_rank = top->rank().create_buffer();
 

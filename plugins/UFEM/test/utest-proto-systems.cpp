@@ -42,6 +42,12 @@ typedef std::vector<Uint> SizesT;
 
 BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
+}
+
 BOOST_AUTO_TEST_CASE( ProtoSystem )
 {
   const Real length = 5.;
@@ -59,15 +65,15 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-  lss.set_config_file(boost::unit_test::framework::master_test_suite().argv[1]);
+  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::SF::Quad2DLagrangeP1> allowed_elements;
+  boost::mpl::vector1<Mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // build up the solver out of different actions
   solver
@@ -91,7 +97,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
               _T(v[_i], v[_i]) += solver.invdt() * (transpose(N(v)) * N(v))
             ),
             solver.system_matrix += _T + 0.5 * _A,
-            solver.system_rhs -= _A * _b
+            solver.system_rhs += -(_A * _b)
           )
         )
       )
@@ -107,6 +113,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
+  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+
   solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);
   solver.boundary_conditions().add_constant_bc("bottom", "VectorVariable", outside_temp);
@@ -121,7 +129,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.simulate();
 
   // Write result
-  domain.write_mesh(URI("systems.msh"));
+  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.CWriter");
+  domain.write_mesh(URI("systems.pvtu"));
 };
 
 // Expected matrices:

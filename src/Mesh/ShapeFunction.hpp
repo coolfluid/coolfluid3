@@ -22,7 +22,11 @@ namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// This class represents the the data related to an ShapeFunction
+/// This class represents the API to a ShapeFunction.
+/// An object of this class is typically owned by a CSpace object,
+/// which in turn is owned by a CEntities object describing the element.
+/// A shape function only exists in local coordinates. It has only a
+/// dimensionality, and not a dimension.
 /// @author Willem Deconinck
 class Mesh_API ShapeFunction : public Common::Component {
 
@@ -33,15 +37,25 @@ public: // typedefs
 
 public: // functions
 
+  /// @name Constructor / Destructor / Type name
+  //  ------------------------------------------
+  //@{
+
   /// Default constructor without arguments
-  ShapeFunction( const std::string& name = type_name() );
+  ShapeFunction( const std::string& name ) : Common::Component(name) {}
 
   /// Default destructor
-  virtual ~ShapeFunction();
+  virtual ~ShapeFunction() {}
 
   /// Type name: ShapeFunction
   static std::string type_name() { return "ShapeFunction"; }
-  
+
+  //@}
+
+  /// @name Accessor functions
+  //  ------------------------
+  //@{
+
   /// @return shape as string
   std::string shape_name() const { return Mesh::GeoShape::Convert::instance().to_str( m_shape ); }
 
@@ -57,11 +71,36 @@ public: // functions
   /// @return dimensionality (e.g. shell in 3D world: dimensionality = 2)
   Uint dimensionality() const { return m_dimensionality; }
 
-  virtual RealRowVector value(const RealVector& local_coord) const;
+  /// @return a matrix with all local coordinates where the shape function is defined
+  virtual const RealMatrix& local_coordinates() const = 0;
 
-  virtual RealMatrix gradient(const RealVector& local_coord) const;
+  //@}
 
-  virtual const RealMatrix& local_coordinates() const;
+  /// @name Computation functions
+  //  ---------------------------
+  //@{
+
+  /// @brief Compute the shape function values in the given local coordinate
+  /// @param [in] local_coordinate   local coordinate (size = dimensionality x 1)
+  /// @return shape function values (size = 1 x nb_nodes)
+  virtual RealRowVector value(const RealVector& local_coordinate) const = 0;
+
+  /// @brief Compute the shape function values in the given local coordinate
+  /// @param [in]  local_coordinate   local coordinate (size = dimensionality x 1)
+  /// @param [out] value              computed value (size = 1 x nb_nodes)
+  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const = 0;
+
+  /// @brief Compute the shape function gradient in the given local coordinate
+  /// @param [in] local_coordinate   local coordinate (size = dimensionality x 1)
+  /// @return shape function gradient (size = nb_nodes x dimensionality)
+  virtual RealMatrix gradient(const RealVector& local_coordinate) const = 0;
+
+  /// @brief Compute the shape function values in the given local coordinate
+  /// @param [in]  local_coordinate   local coordinate (size = dimensionality x 1)
+  /// @param [out] gradient           computed gradient (size = nb_nodes x dimensionality)
+  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const = 0;
+
+  //@}
 
 protected: // data
 

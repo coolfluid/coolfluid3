@@ -13,9 +13,10 @@ call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=
 
 #############################################################################
 ### create LSS
-create HotModel/LSS CF.Solver.CEigenLSS
-configure HotModel/LSS config_file:uri=file:@UFEM_LSS_CONFIG_FILE@
+create HotModel/LSS CF.Math.LSS.System
+configure HotModel/LSS solver:uri=string:Trilinos
 configure HotModel/HeatConductionSteady lss:uri=cpath://Root/HotModel/LSS
+configure HotModel/LSS/Matrix settings_file:string=@UFEM_LSS_CONFIG_FILE@
 
 #############################################################################
 ### Create and set boundary conditions
@@ -27,4 +28,6 @@ configure HotModel/HeatConductionSteady/BoundaryConditions/BCouterTemperature va
 #############################################################################
 ### Run simulation and write the result
 call HotModel/simulate
-call HotModel/Domain/write_mesh file:uri=file:atest-ufem-heat-steady-output.msh
+
+create HotModel/Domain CF.Mesh.VTKXML.CWriter
+call HotModel/Domain/write_mesh file:uri=file:atest-ufem-heat-steady-output.pvtu

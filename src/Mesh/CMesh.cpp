@@ -87,7 +87,7 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   cf_assert(dimension > 0);
 
   geometry().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
-  geometry().configure_option("space",   CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES));
+  geometry().configure_option("space",   std::string(Tags::geometry()));
   geometry().configure_option("topology",topology().uri());
 
   geometry().coordinates().set_field_group(geometry());
@@ -154,6 +154,58 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
   field_group.configure_option("space",space);
   field_group.configure_option("topology",topology.uri());
   return field_group;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name)
+{
+  create_space(name,base,space_lib_name,topology());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology)
+{
+  switch (base)
+  {
+  case FieldGroup::Basis::POINT_BASED:
+  case FieldGroup::Basis::ELEMENT_BASED:
+    boost_foreach(CEntities& elements, find_components_recursively<CEntities>(topology))
+      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+    break;
+  case FieldGroup::Basis::CELL_BASED:
+    boost_foreach(CCells& elements, find_components_recursively<CCells>(topology))
+      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+    break;
+  case FieldGroup::Basis::FACE_BASED:
+    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(topology,Mesh::Tags::face_entity()))
+      elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
+    break;
+  case FieldGroup::Basis::INVALID:
+  default:
+    throw BadValue(FromHere(),"value "+FieldGroup::Basis::to_str(base)+" not supported for base");
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
+                                                 const FieldGroup::Basis::Type base,
+                                                 const std::string& space_lib_name )
+{
+  return create_space_and_field_group(name,base,space_lib_name,topology());
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
+                                                 const FieldGroup::Basis::Type base,
+                                                 const std::string& space_lib_name,
+                                                 CRegion& topology )
+{
+  create_space(name,base,space_lib_name);
+  return create_field_group(name,base,name,topology);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

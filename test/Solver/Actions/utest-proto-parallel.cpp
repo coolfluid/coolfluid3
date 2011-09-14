@@ -15,9 +15,9 @@
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
 
-#include "Common/MPI/all_reduce.hpp"
-#include "Common/MPI/debug.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/all_reduce.hpp"
+#include "Common/PE/debug.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -32,8 +32,8 @@
 #include "Mesh/Geometry.hpp"
 
 #include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/SF/Types.hpp"
-#include "Mesh/SF/SFHexaLagrangeP0.hpp"
+#include "Mesh/LagrangeP0/Hexa.hpp"
+#include "Mesh/LagrangeP1/Hexa3D.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
@@ -101,7 +101,7 @@ struct ProtoParallelFixture :
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
 
     BlockMesh::BlockData parallel_blocks;
-    BlockMesh::partition_blocks(blocks, serial_block_mesh, Comm::PE::instance().size(), XX, parallel_blocks);
+    BlockMesh::partition_blocks(blocks, serial_block_mesh, PE::Comm::instance().size(), XX, parallel_blocks);
 
     BlockMesh::build_mesh(parallel_blocks, mesh);
 
@@ -111,7 +111,7 @@ struct ProtoParallelFixture :
     // Create field
     boost_foreach(CEntities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.SF.SF"+elements.element_type().shape_name()+"LagrangeP0");
+      elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
     }
 
     return model;
@@ -121,8 +121,8 @@ struct ProtoParallelFixture :
   const Real length;
   const Real half_height;
   const Real width;
-  typedef boost::mpl::vector2<SF::Hexa3DLagrangeP1, SF::SFHexaLagrangeP0> ElementsT;
-  
+  typedef boost::mpl::vector2<LagrangeP1::Hexa3D, LagrangeP0::Hexa> ElementsT;
+
   Uint x_segs;
   Uint y_segs;
   Uint z_segs;
@@ -135,13 +135,13 @@ BOOST_AUTO_TEST_SUITE( ProtoParallelSuite )
 
 BOOST_AUTO_TEST_CASE( Initialize )
 {
-  Comm::PE::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  //Common::Comm::wait_for_debugger(1);
+  PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  //Common::PE::wait_for_debugger(1);
 }
 
 BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
 {
-  const Real rank = static_cast<Real>(Comm::PE::instance().rank());
+  const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
   CModel& model = setup("NoOverlap");
   CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
@@ -185,7 +185,7 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
   CModel& model = setup("Overlap");
   CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
 
-  const Real rank = static_cast<Real>(Comm::PE::instance().rank());
+  const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
   MeshTerm<1, ScalarField> R("CellRank", "variables");
@@ -258,10 +258,10 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
   Real vol_check = 0;
   for_each_element< ElementsT >(mesh.topology(), vol_check += V);
 
-  if(Comm::PE::instance().is_active())
+  if(PE::Comm::instance().is_active())
   {
     Real total_volume_check;
-    Comm::all_reduce(Comm::PE::instance().communicator(), Comm::plus(), &vol_check, 1, &total_volume_check);
+    PE::all_reduce(PE::Comm::instance().communicator(), PE::plus(), &vol_check, 1, &total_volume_check);
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
   }
 
@@ -275,7 +275,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 // Check the volume results
 BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
 {
-  const Uint nb_procs = Comm::PE::instance().size();
+  const Uint nb_procs = PE::Comm::instance().size();
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
 
   const Real wanted_volume = width*length*half_height*2.;
@@ -286,10 +286,10 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   Real vol_check = 0;
   for_each_element< ElementsT >(mesh.topology(), vol_check += V);
 
-  if(Comm::PE::instance().is_active())
+  if(PE::Comm::instance().is_active())
   {
     Real total_volume_check;
-    Comm::all_reduce(Comm::PE::instance().communicator(), Comm::plus(), &vol_check, 1, &total_volume_check);
+    PE::all_reduce(PE::Comm::instance().communicator(), PE::plus(), &vol_check, 1, &total_volume_check);
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume_overlap, 1e-6);
   }
 

@@ -54,11 +54,8 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CElements"; }
 
-  /// Mutable access to the connectivity table
-  CConnectivity& node_connectivity();
-
-  /// Const access to the connectivity table
-  const CConnectivity& node_connectivity() const;
+  /// Access to the connectivity table
+  CConnectivity& node_connectivity() const;
 
   /// return the number of elements
   virtual Uint size() const { return node_connectivity().size(); }

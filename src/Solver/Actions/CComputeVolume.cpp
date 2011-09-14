@@ -62,7 +62,6 @@ void CComputeVolume::trigger_elements()
   {
     elements().allocate_coordinates(m_coordinates);
     m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<CSpace>();
-    m_volume_field_space.lock()->allocate_coordinates(m_coordinates);
   }
 }
 
@@ -73,8 +72,8 @@ void CComputeVolume::execute()
   CSpace& space = *m_volume_field_space.lock();
   Field& volume = *m_volume.lock();
 
-  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().compute_volume( space.compute_coordinates(idx()) );
-
+  elements().put_coordinates(m_coordinates,idx());
+  volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().volume( m_coordinates );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

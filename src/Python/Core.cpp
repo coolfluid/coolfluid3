@@ -10,7 +10,7 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Python/Core.hpp"
 #include "Python/Component.hpp"
@@ -45,10 +45,10 @@ struct Core
         argv[i] = new char[arg_i.size()];
         arg_i.copy(argv[i], arg_i.size());
       }
-    }
 
-    Common::Core::instance().initiate(argc, argv);
-    Common::Comm::PE::instance().init(argc, argv);
+      Common::Core::instance().initiate(argc, argv);
+      Common::PE::Comm::instance().init(argc, argv);
+    }
   }
 };
 

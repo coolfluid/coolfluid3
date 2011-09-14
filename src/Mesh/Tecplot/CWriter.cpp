@@ -9,7 +9,7 @@
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
@@ -64,9 +64,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
-  if (Comm::PE::instance().size() > 1)
+  if (PE::Comm::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
   }
 //  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
@@ -225,7 +225,7 @@ void CWriter::write_file(std::fstream& file)
               CSpace& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());
 
-              ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.SF.SF"+to_str(elements.element_type().shape_name())+"LagrangeP0","tmp_shape_func")->as_ptr<ShapeFunction>();
+              ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
 
               for (Uint e=0; e<elements.size(); ++e)
               {

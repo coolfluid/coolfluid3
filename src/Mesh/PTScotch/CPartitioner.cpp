@@ -8,7 +8,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Mesh/PTScotch/CPartitioner.hpp"
 
 namespace CF {
@@ -16,7 +16,7 @@ namespace Mesh {
 namespace PTScotch {
 
   using namespace Common;
-  using namespace Common::mpi;
+  using namespace Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,11 +24,11 @@ CF::Common::ComponentBuilder < CPartitioner, CMeshPartitioner, LibPTScotch > pts
 
 //////////////////////////////////////////////////////////////////////////////
 
-CPartitioner::CPartitioner ( const std::string& name ) : 
+CPartitioner::CPartitioner ( const std::string& name ) :
     CMeshPartitioner(name)
 {
   // initialize the graph
-  if (SCOTCH_dgraphInit(&graph, PE::instance()))
+  if (SCOTCH_dgraphInit(&graph, Comm::instance().communicator()))
     throw BadValue(FromHere(),"ptscotch error");
 }
 
@@ -45,22 +45,22 @@ CPartitioner::~CPartitioner ( )
 void CPartitioner::build_graph()
 {
   CF_DEBUG_POINT;
-  
+
   // resize vertloctab to the number of owned objects
   // +1 because of compact form without holes in global numbering
-  vertloctab.resize(nb_owned_objects()+1,0);
-  
+  vertloctab.resize(nb_objects_owned_by_part(Comm::instance().rank())+1,0);
+
   // copy number of outgoing edges per object in vertloctab
-  nb_connected_objects(vertloctab);
+  nb_connected_objects_in_part(Comm::instance().rank(),vertloctab);
 
   // baseval is C style
   baseval = 0;
-  
-	// set local number of objects
-  vertlocnbr = nb_owned_objects();
+
+  // set local number of objects
+  vertlocnbr = nb_objects_owned_by_part(Comm::instance().rank());
 
   // set maximum local number of objects
-  vertlocmax = vertlocnbr;  
+  vertlocmax = vertlocnbr;
 
   // Convert vertloctab to pt-scotch format
   Uint nb_edges;
@@ -78,17 +78,17 @@ void CPartitioner::build_graph()
   edgelocsiz = total_nb_edges;
   edgegsttab.resize(total_nb_edges);
   edgeloctab.resize(total_nb_edges);
-  	
+
   cf_assert(edgelocsiz >= vertloctab[vertlocnbr]);
-  	
-  list_of_connected_objects(edgeloctab);
-  	
-  if (SCOTCH_dgraphBuild(&graph, 
-                         baseval, 
+
+  list_of_connected_objects_in_part(Comm::instance().rank(),edgeloctab);
+
+  if (SCOTCH_dgraphBuild(&graph,
+                         baseval,
                          vertlocnbr,      // number of local vertices (for creation of proccnttab)
                          vertlocmax,          // max number of local vertices to be created (for creation of procvrttab)
                          &vertloctab[0],  // local adjacency index array (size = vertlocnbr+1 if vendloctab matches or is null)
-                         &vertloctab[1],  //   (optional) local adjacency end index array 
+                         &vertloctab[1],  //   (optional) local adjacency end index array
                          NULL, //veloloctab,  //   (optional) local vertex load array
                          NULL,  //vlblocltab,  //   (optional) local vertex label array (size = vertlocnbr+1)
                          edgelocnbr,      // total number of arcs (twice number of edges)
@@ -97,21 +97,21 @@ void CPartitioner::build_graph()
                          &edgegsttab[0],  // edgegsttab,  //   (optional) if passed it is assumed an empty array that will be filled by SCOTHC_dgraphGhst if required
                          NULL))   //edloloctab)) //   (optional) arc load array of size edgelocsiz
     throw BadValue(FromHere(),"Could not build PT-scotch graph");
-    
-    
-    SCOTCH_dgraphSize(&graph, 
-                      &vertglbnbr, 
+
+
+    SCOTCH_dgraphSize(&graph,
+                      &vertglbnbr,
                       &vertlocnbr,
                       &edgeglbnbr,
                       &edgelocnbr);
 
-    proccnttab.resize(PE::instance().size());
-    procvrttab.resize(PE::instance().size()+1);
+    proccnttab.resize(Comm::instance().size());
+    procvrttab.resize(Comm::instance().size()+1);
 
     CF_DEBUG_POINT;
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
-    mpi::PE::instance().all_gather(vertlocnbr, proccnttab);
+    Comm::instance().all_gather(vertlocnbr, proccnttab);
 
     CF_DEBUG_POINT;
 
@@ -121,24 +121,24 @@ void CPartitioner::build_graph()
       procvrttab[p] = cnt;
       cnt += proccnttab[p];
     }
-    procvrttab[PE::instance().size()] = cnt;
-    
+    procvrttab[Comm::instance().size()] = cnt;
+
   // CFinfo << "\n" << CFendl;
   // CFinfo << "global graph info" << CFendl;
   // CFinfo << "-----------------" << CFendl;
   // CFLogVar(vertglbnbr);
   // CFLogVar(edgeglbnbr);
   // CFinfo << "proccnttab = [ ";
-  // for (Uint i=0; i<PE::instance().size(); ++i)
+  // for (Uint i=0; i<Comm::instance().size(); ++i)
   //   CFinfo << proccnttab[i] << " ";
   // CFinfo << "]" << CFendl;
   // CFinfo << "procvrttab = [ ";
-  // for (Uint i=0; i<PE::instance().size()+1; ++i)
+  // for (Uint i=0; i<Comm::instance().size()+1; ++i)
   //   CFinfo << procvrttab[i] << " ";
   // CFinfo << "]" << CFendl;
-  // 
-  // CFinfo << CFendl << CFendl;    
-  // 
+  //
+  // CFinfo << CFendl << CFendl;
+  //
   if (SCOTCH_dgraphCheck(&graph))
    throw BadValue(FromHere(),"There is an error in the PT-scotch graph");
 }
@@ -147,9 +147,9 @@ void CPartitioner::build_graph()
 
 void CPartitioner::partition_graph()
 {
-  //PECheckPoint(1,"begin partition_graph()");  
+  //PECheckPoint(1,"begin partition_graph()");
   CF_DEBUG_POINT;
-  
+
   SCOTCH_Strat stradat;
   if(SCOTCH_stratInit(&stradat))
     throw BadValue (FromHere(), "Could not initialze a PT-scotch strategy");
@@ -159,7 +159,7 @@ void CPartitioner::partition_graph()
 
   //PECheckPoint(1,"  begin SCOTCH_dgraphPart()");
   if (SCOTCH_dgraphPart(&graph,
-                       property("nb_partitions").value<Uint>(),
+                       option("nb_parts").value<Uint>(),
                        &stradat,
                        &partloctab[0]))
     throw BadValue (FromHere(), "Could not partition PT-scotch graph");
@@ -168,28 +168,42 @@ void CPartitioner::partition_graph()
   CF_DEBUG_POINT;
 
   std::vector<Uint> owned_objects(vertlocnbr);
-  list_of_owned_objects(owned_objects);
+  list_of_objects_owned_by_part(Comm::instance().rank(),owned_objects);
 
-  Uint nb_changes = 0;
+//  Uint nb_changes = 0;
+//  for (int i=0; i<vertlocnbr; ++i)
+//  {
+//    if ((Uint) partloctab[i] != Comm::instance().rank())
+//    {
+//      ++nb_changes;
+//    }
+//  }
+
+//  m_changes->reserve(nb_changes);
+//  for (int i=0; i<vertlocnbr; ++i)
+//  {
+//    if ((Uint)partloctab[i] != Comm::instance().rank())
+//    {
+//      m_changes->insert_blindly(owned_objects[i],partloctab[i]);
+//    }
+//  }
+
+//  m_changes->sort_keys();
+  CF_DEBUG_POINT;
+
+
+  Uint comp; Uint loc_idx; bool found;
   for (int i=0; i<vertlocnbr; ++i)
   {
-    if ((Uint) partloctab[i] != PE::instance().rank())
+    if ((Uint)partloctab[i] != Comm::instance().rank())
     {
-      ++nb_changes;
-    }
-  }   
-
-  m_changes->reserve(nb_changes);
-  for (int i=0; i<vertlocnbr; ++i)
-  {
-    if ((Uint)partloctab[i] != PE::instance().rank())
-    {
-      m_changes->insert_blindly(owned_objects[i],partloctab[i]);
+      boost::tie(comp,loc_idx) = location_idx(owned_objects[i]);
+      if (comp == 0) // if is node
+        m_nodes_to_export[partloctab[i]].push_back(loc_idx);
+      else
+        m_elements_to_export[comp-1][partloctab[i]].push_back(loc_idx);
     }
   }
-  
-  m_changes->sort_keys();
-  CF_DEBUG_POINT;
 
   // PECheckPoint(1,"end partition_graph()");
 }

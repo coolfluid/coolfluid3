@@ -21,17 +21,17 @@
 #include <boost/thread/thread.hpp>
 
 #include "Common/Log.hpp"
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
-#include "Common/MPI/datatype.hpp"
-#include "Common/MPI/operations.hpp"
-#include "Common/MPI/all_to_all.hpp"
-#include "Common/MPI/all_reduce.hpp"
-#include "Common/MPI/reduce.hpp"
-#include "Common/MPI/scatter.hpp"
-#include "Common/MPI/broadcast.hpp"
-#include "Common/MPI/gather.hpp"
-#include "Common/MPI/all_gather.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
+#include "Common/PE/datatype.hpp"
+#include "Common/PE/operations.hpp"
+#include "Common/PE/all_to_all.hpp"
+#include "Common/PE/all_reduce.hpp"
+#include "Common/PE/reduce.hpp"
+#include "Common/PE/scatter.hpp"
+#include "Common/PE/broadcast.hpp"
+#include "Common/PE/gather.hpp"
+#include "Common/PE/all_gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -66,10 +66,10 @@ BOOST_FIXTURE_TEST_SUITE( PECollectiveSuite, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 {
-  Comm::PE::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , true );
+  PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , true );
   CFinfo.setFilterRankZero(false);
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " reports in." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " reports in." << CFendl;);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -86,10 +86,10 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 
 BOOST_FIXTURE_TEST_CASE( finalize, PECollectiveFixture )
 {
-  PEProcessSortedExecute(-1,CFinfo << "Proccess " << Comm::PE::instance().rank() << "/" << Comm::PE::instance().size() << " says good bye." << CFendl;);
+  PEProcessSortedExecute(-1,CFinfo << "Proccess " << PE::Comm::instance().rank() << "/" << PE::Comm::instance().size() << " says good bye." << CFendl;);
   CFinfo.setFilterRankZero(true);
-  Comm::PE::instance().finalize();
-  BOOST_CHECK_EQUAL( Comm::PE::instance().is_active() , false );
+  PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL( PE::Comm::instance().is_active() , false );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

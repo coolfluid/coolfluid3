@@ -6,7 +6,7 @@ set( Boost_USE_MULTITHREAD ON  )
 set( CF_Boost_MINIMAL_VERSION "1.46.1" )
 set( Boost_ADDITIONAL_VERSIONS "1.47" "1.46" )
 
-#avoid looking in system paths
+#disable looking in system paths
 set(Boost_NO_SYSTEM_PATHS ON)
 
 # components to search for

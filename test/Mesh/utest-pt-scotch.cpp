@@ -9,19 +9,15 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
-#include <boost/foreach.hpp>
-#include <boost/filesystem/path.hpp>
 
-#include <mpi.h>
-#include <ptscotch.h>
-
-//#include "Common/ConfigObject.hpp"
+#include "Common/Core.hpp"
+#include "Common/CRoot.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
 #include "Common/StreamHelpers.hpp"
 
-#include "Common/MPI/PE.hpp"
-#include "Common/MPI/debug.hpp"
-#include "Common/CreateComponent.hpp"
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
 #include "Common/Foreach.hpp"
 
 #include "Math/MatrixTypes.hpp"
@@ -35,7 +31,7 @@
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/CMeshWriter.hpp"
 
-
+#include "Mesh/PTScotch/LibPTScotch.hpp"
 
 using namespace boost;
 using namespace CF;
@@ -54,9 +50,9 @@ struct PTScotchTests_Fixture
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
-    
+
     baseval=0;
-    
+
   }
 
   /// common tear-down for each test case
@@ -74,7 +70,7 @@ struct PTScotchTests_Fixture
     else
       return &vec[0];
   }
-  
+
 
   /// common values accessed by all tests goes here
   SCOTCH_Dgraph graph;
@@ -87,7 +83,7 @@ struct PTScotchTests_Fixture
   SCOTCH_Num vertlocnbr;              // number of vertices on this processor
   SCOTCH_Num vertgstnbr;              // number of vertices on this processor, including ghost vertices
   SCOTCH_Num edgelocnbr;              // number of connections to other vertices starting from each local vertex
-  
+
   SCOTCH_Num vertlocmax;
   SCOTCH_Num edgelocsiz;
   std::vector<SCOTCH_Num> vertloctab;
@@ -96,38 +92,38 @@ struct PTScotchTests_Fixture
   std::vector<SCOTCH_Num> partloctab;
   std::vector<SCOTCH_Num> proccnttab;// number of vertices per processor
   std::vector<SCOTCH_Num> procvrttab;// start_idx of the vertex for each processor + one extra index greater than vertglbnbr
-  
-  
+
+
   void gather_global_data()
   {
-    SCOTCH_dgraphSize(&graph, 
-                      &vertglbnbr, 
+    SCOTCH_dgraphSize(&graph,
+                      &vertglbnbr,
                       &vertlocnbr,
                       &edgeglbnbr,
                       &edgelocnbr);
-    
-    proccnttab.resize(Common::mpi::PE::instance().size());
-    procvrttab.resize(Common::mpi::PE::instance().size()+1);
-    
+
+    proccnttab.resize(Common::PE::Comm::instance().size());
+    procvrttab.resize(Common::PE::Comm::instance().size()+1);
+
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
-    mpi::PE::instance().all_gather(vertlocnbr, proccnttab);
+    PE::Comm::instance().all_gather(vertlocnbr, proccnttab);
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
     {
       procvrttab[p] = cnt;
       cnt += proccnttab[p];
     }
-    procvrttab[Common::mpi::PE::instance().size()] = cnt;
-    
-    
+    procvrttab[Common::PE::Comm::instance().size()] = cnt;
+
+
     if (SCOTCH_dgraphGhst(&graph))
       throw BadValue(FromHere(),"ptscotch error");
 
-    
+
     SCOTCH_dgraphData(&graph,
                       NULL,
-                      NULL, 
+                      NULL,
                       NULL,
                       NULL,
                       &vertgstnbr,
@@ -142,21 +138,21 @@ struct PTScotchTests_Fixture
                       NULL,
                       NULL,//&edloloctab,
                       NULL); // &comm
-    
+
 
   }
-  
+
   void build_graph()
   {
-    if (SCOTCH_dgraphInit(&graph, Common::mpi::PE::instance()))
+    if (SCOTCH_dgraphInit(&graph, Common::PE::Comm::instance().communicator()))
       throw BadValue(FromHere(),"ptscotch error");
 
-    if (SCOTCH_dgraphBuild(&graph, 
-                           baseval, 
+    if (SCOTCH_dgraphBuild(&graph,
+                           baseval,
                            vertlocnbr,      // number of local vertices (for creation of proccnttab)
                            vertlocmax,          // max number of local vertices to be created (for creation of procvrttab)
                            to_ptr(vertloctab),  // local adjacency index array (size = vertlocnbr+1 if vendloctab matches or is null)
-                           to_ptr(vertloctab)+1,  //   (optional) local adjacency end index array 
+                           to_ptr(vertloctab)+1,  //   (optional) local adjacency end index array
                            NULL, //veloloctab,  //   (optional) local vertex load array
                            NULL,  //vlblocltab,  //   (optional) local vertex label array (size = vertlocnbr+1)
                            edgelocnbr,      // total number of arcs (twice number of edges)
@@ -165,15 +161,15 @@ struct PTScotchTests_Fixture
                            to_ptr(edgegsttab),  // edgegsttab,  //   (optional) if passed it is assumed an empty array that will be filled by SCOTHC_dgraphGhst if required
                            NULL))   //edloloctab)) //   (optional) arc load array of size edgelocsiz
       throw BadValue(FromHere(),"ptscotch error");
-        
-    gather_global_data();    
+
+    gather_global_data();
 
   }
-  
-  
+
+
   void output_graph_info()
   {
-    if (Common::mpi::PE::instance().rank() == 0)
+    if (Common::PE::Comm::instance().rank() == 0)
     {
       CFinfo << "\n" << CFendl;
       CFinfo << "global graph info" << CFendl;
@@ -181,97 +177,97 @@ struct PTScotchTests_Fixture
       CFLogVar(vertglbnbr);
       CFLogVar(edgeglbnbr);
       CFinfo << "proccnttab = [ ";
-      for (Uint i=0; i<Common::mpi::PE::instance().size(); ++i)
+      for (Uint i=0; i<Common::PE::Comm::instance().size(); ++i)
         CFinfo << proccnttab[i] << " ";
       CFinfo << "]" << CFendl;
       CFinfo << "procvrttab = [ ";
-      for (Uint i=0; i<Common::mpi::PE::instance().size()+1; ++i)
+      for (Uint i=0; i<Common::PE::Comm::instance().size()+1; ++i)
         CFinfo << procvrttab[i] << " ";
       CFinfo << "]" << CFendl;
-      
+
       CFinfo << CFendl << CFendl;
     }
-    
+
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<Common::mpi::PE::instance().size(); ++proc)
+    for (Uint proc=0; proc<Common::PE::Comm::instance().size(); ++proc)
     {
-      if (Common::mpi::PE::instance().rank() == proc)
+      if (Common::PE::Comm::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
         CFLogVar(vertlocnbr);
         CFLogVar(vertlocmax);
         CFLogVar(vertgstnbr);
-        
+
         CFinfo << "vertloctab = [ ";
         for (int i=0; i<vertlocnbr; ++i)
           CFinfo << vertloctab[i] << " ";
         CFinfo << "]" << CFendl;
-        
+
         CFLogVar(edgelocnbr);
         CFinfo << "edgeloctab = [ ";
         for (int i=0; i<edgelocnbr; ++i)
           CFinfo << edgeloctab[i] << " ";
         CFinfo << "]" << CFendl;
-        
+
         CFinfo << "edgegsttab = [ ";
         for (int i=0; i<edgelocnbr; ++i)
           CFinfo << edgegsttab[i] << " ";
         CFinfo << "]" << CFendl;
-        
-        
-        CFinfo << CFendl;         
+
+
+        CFinfo << CFendl;
       }
-      Common::mpi::PE::instance().barrier();
+      Common::PE::Comm::instance().barrier();
     }
-    Common::mpi::PE::instance().barrier();
+    Common::PE::Comm::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
   }
-  
+
   void partition_graph(const Uint nb_parts)
   {
     SCOTCH_Strat stradat;
     if(SCOTCH_stratInit(&stradat))
       throw BadValue (FromHere(), "pt-scotch error");
-    
+
     partloctab.resize(vertlocmax);
-    
+
     if (SCOTCH_dgraphPart(&graph,
                           nb_parts,
                           &stradat,
                           to_ptr(partloctab)))
       throw BadValue (FromHere(), "pt-scotch error");
-    
+
     SCOTCH_stratExit(&stradat);
   }
-  
+
   void output_graph_partitions()
   {
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<Common::mpi::PE::instance().size(); ++proc)
+    for (Uint proc=0; proc<Common::PE::Comm::instance().size(); ++proc)
     {
-      if (Common::mpi::PE::instance().rank() == proc)
+      if (Common::PE::Comm::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
         CFLogVar(vertlocnbr);
         CFLogVar(vertlocmax);
         CFLogVar(vertgstnbr);
-        
+
         for (int i=0; i<vertlocnbr; ++i)
           CFinfo << procvrttab[proc]+i << " goes to part " << partloctab[i] << CFendl;
-        
-        CFinfo << CFendl;         
+
+        CFinfo << CFendl;
       }
-      Common::mpi::PE::instance().barrier();
+      Common::PE::Comm::instance().barrier();
     }
-    Common::mpi::PE::instance().barrier();
+    Common::PE::Comm::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
-    CFinfo << CFendl<< CFendl;    
+    CFinfo << CFendl<< CFendl;
   }
-  
+
   int m_argc;
   char** m_argv;
 };
@@ -284,27 +280,27 @@ BOOST_FIXTURE_TEST_SUITE( PTScotchTests_TestSuite, PTScotchTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  Common::mpi::PE::instance().init(m_argc,m_argv);
+  Common::PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 {
-  
-  if (Common::mpi::PE::instance().size() == 3)
+
+  if (Common::PE::Comm::instance().size() == 3)
   {
-    
+
     CFinfo << "+++++++++++++++++++ building graph ++++++++++++++++++++ \n" << CFendl;
-    
-    switch (Common::mpi::PE::instance().rank())
+
+    switch (Common::PE::Comm::instance().rank())
     {
       case 0:
       {
         vertloctab = list_of(0)(2)(6)(9) (0);
         vertlocnbr=vertloctab.size()-2;
         vertlocmax=vertlocnbr; // no expected growth
-        
+
         edgeloctab = list_of(2)(1)(2)(4)(3)(0)(3)(1)(0) (0)(0);
         edgelocnbr = edgeloctab.size()-2;
         edgelocsiz = edgeloctab.size();
@@ -335,23 +331,23 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
         edgegsttab.resize(edgeloctab.size());
         break;
       }
-    }   
-    
+    }
+
     build_graph();
-    
+
     BOOST_CHECK_EQUAL(SCOTCH_dgraphCheck(&graph),0);
-    
+
     CFinfo << "\n\n+++++++++++++++++++ graph info ++++++++++++++++++++ " << CFendl;
-    
-    
+
+
     output_graph_info();
 
     BOOST_CHECK(true);
-    
+
     CFinfo << "\n\n+++++++++++++++++++ partitioning ++++++++++++++++++++ \n" << CFendl;
-    
-    partition_graph(3);                
-                                       
+
+    partition_graph(3);
+
     output_graph_partitions();
   }
   else
@@ -364,31 +360,31 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 {
   CFinfo << "CMeshPartitioner_test" << CFendl;
-  CMeshReader::Ptr meshreader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  meshreader->configure_property("read_boundaries",false);
+  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
-  boost::filesystem::path fp_in ("quadtriag.neu");
+  URI fp_in ("file:quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
-  CMesh& mesh = *mesh_ptr;
-  CF_DEBUG_POINT;
-  
-  CMeshTransformer::Ptr glb_numbering = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
-  glb_numbering->transform(mesh_ptr);
-  CF_DEBUG_POINT;
-  
-  CMeshTransformer::Ptr glb_connectivity = create_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
-  glb_connectivity->transform(mesh_ptr);
+  CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
+  meshreader->read_mesh_into(fp_in,mesh);
   CF_DEBUG_POINT;
 
-  CMeshWriter::Ptr meshwriter = create_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
-  boost::filesystem::path fp_out_1 ("quadtriag.msh");
-  meshwriter->write_from_to(mesh_ptr,fp_out_1);
+  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  glb_numbering->transform(mesh);
   CF_DEBUG_POINT;
 
-  CMeshPartitioner::Ptr partitioner_ptr = create_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  glb_connectivity->transform(mesh);
+  CF_DEBUG_POINT;
+
+  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  URI fp_out_1 ("file:quadtriag.msh");
+  meshwriter->write_from_to(mesh,fp_out_1);
+  CF_DEBUG_POINT;
+
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
@@ -408,7 +404,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   BOOST_CHECK(true);
   p.migrate();
   BOOST_CHECK(true);
-  boost::filesystem::path fp_out_2 ("quadtriag_repartitioned.msh");
+  URI fp_out_2 ("file:quadtriag_repartitioned.msh");
   //meshwriter->write_from_to(mesh_ptr,fp_out_2);
 }
 
@@ -417,7 +413,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  Common::mpi::PE::instance().finalize();
+  Common::PE::Comm::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

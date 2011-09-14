@@ -13,8 +13,11 @@
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
 
+#include "Math/LSS/System.hpp"
+
 #include "Mesh/CDomain.hpp"
 
+#include "Mesh/LagrangeP1/Line1D.hpp"
 #include "Solver/CModel.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
@@ -63,6 +66,12 @@ struct ProtoHeatFixture
 
 BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
+BOOST_AUTO_TEST_CASE( InitMPI )
+{
+  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
+}
+
 BOOST_AUTO_TEST_CASE( Heat1DComponent )
 {
   Core::instance().environment().configure_option("log_level", 4u);
@@ -76,16 +85,15 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
-  // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  CEigenLSS& lss = model.create_component<CEigenLSS>("LSS");
-  lss.set_config_file(solver_config);
+  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
   // Proto placeholders
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::SF::Line1DLagrangeP1> allowed_elements;
+  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -115,14 +123,16 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
+  
+  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions
   solver.boundary_conditions().add_constant_bc("xneg", "Temperature", 10.);
   solver.boundary_conditions().add_constant_bc("xpos", "Temperature", 35.);
 
-
   // Run the solver
   model.simulate();
+  lss.matrix()->print("utest-proto-heat.plt");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -10,7 +10,8 @@
 #include <boost/proto/core.hpp>
 
 #include "Math/MatrixTypes.hpp"
-#include "Solver/CEigenLSS.hpp"
+#include "Math/LSS/System.hpp"
+#include "Math/LSS/Vector.hpp"
 
 #include "Transforms.hpp"
 
@@ -25,7 +26,7 @@ struct NeumannBCTag
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef ComponentWrapper<CEigenLSS, NeumannBCTag> NeumannBC;
+typedef ComponentWrapper<Math::LSS::System, NeumannBCTag> NeumannBC;
 
 struct NeumannBCSetter :
   boost::proto::transform< NeumannBCSetter >
@@ -41,9 +42,9 @@ struct NeumannBCSetter :
               , typename impl::data_param data
     ) const
     {
-      Solver::CEigenLSS& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
+      Math::LSS::System& lss = boost::proto::value( boost::proto::child_c<0>(expr) ).component();
       const Uint sys_idx = data.node_idx*data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).nb_dofs + data.var_data(boost::proto::value(boost::proto::child_c<1>(expr))).offset;
-      lss.rhs()[sys_idx] = state;
+      lss.rhs()->set_value(sys_idx, state);
     }
   };
 };
@@ -57,7 +58,7 @@ struct NeumannBCGrammar :
     <
       boost::proto::function
       <
-        boost::proto::terminal< ComponentWrapperImpl<CEigenLSS, NeumannBCTag> >,
+        boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, NeumannBCTag> >,
         FieldTypes
       >,
       GrammarT

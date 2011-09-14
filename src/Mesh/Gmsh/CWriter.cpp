@@ -8,7 +8,7 @@
 
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
 #include "Common/StringConversion.hpp"
@@ -44,36 +44,36 @@ CWriter::CWriter( const std::string& name )
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
-  m_elementTypes["CF.Mesh.SF.Point1DLagrangeP0"]=15;
-  m_elementTypes["CF.Mesh.SF.Point2DLagrangeP0"]=15;
-  m_elementTypes["CF.Mesh.SF.Point3DLagrangeP0"]=15;
+  m_elementTypes["CF.Mesh.LagrangeP0.Point1D"]=15;
+  m_elementTypes["CF.Mesh.LagrangeP0.Point2D"]=15;
+  m_elementTypes["CF.Mesh.LagrangeP0.Point3D"]=15;
 
-  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP1" ]=1;
-  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP1" ]=1;
-  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP1" ]=1;
-  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP1"]=2;
-  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP1"]=2;
-  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP1" ]=3;
-  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP1" ]=3;
-  m_elementTypes["CF.Mesh.SF.Tetra3DLagrangeP1"]=4;
-  m_elementTypes["CF.Mesh.SF.Hexa3DLagrangeP1" ]=5;
+  m_elementTypes["CF.Mesh.LagrangeP1.Line1D" ]=1;
+  m_elementTypes["CF.Mesh.LagrangeP1.Line2D" ]=1;
+  m_elementTypes["CF.Mesh.LagrangeP1.Line3D" ]=1;
+  m_elementTypes["CF.Mesh.LagrangeP1.Triag2D"]=2;
+  m_elementTypes["CF.Mesh.LagrangeP1.Triag3D"]=2;
+  m_elementTypes["CF.Mesh.LagrangeP1.Quad2D" ]=3;
+  m_elementTypes["CF.Mesh.LagrangeP1.Quad3D" ]=3;
+  m_elementTypes["CF.Mesh.LagrangeP1.Tetra3D"]=4;
+  m_elementTypes["CF.Mesh.LagrangeP1.Hexa3D" ]=5;
 
-  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP2" ]=8;
-  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP2" ]=8;
-  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP2" ]=8;
-  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP2"]=9;
-  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP2"]=9;
-  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP2" ]=10;
-  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP2" ]=10;
+  m_elementTypes["CF.Mesh.LagrangeP2.Line1D" ]=8;
+  m_elementTypes["CF.Mesh.LagrangeP2.Line2D" ]=8;
+  m_elementTypes["CF.Mesh.LagrangeP2.Line3D" ]=8;
+  m_elementTypes["CF.Mesh.LagrangeP2.Triag2D"]=9;
+  m_elementTypes["CF.Mesh.LagrangeP2.Triag3D"]=9;
+  m_elementTypes["CF.Mesh.LagrangeP2.Quad2D" ]=10;
+  m_elementTypes["CF.Mesh.LagrangeP2.Quad3D" ]=10;
 
-  m_elementTypes["CF.Mesh.SF.Line1DLagrangeP3" ]=26;
-  m_elementTypes["CF.Mesh.SF.Line2DLagrangeP3" ]=26;
-  m_elementTypes["CF.Mesh.SF.Line3DLagrangeP3" ]=26;
-  m_elementTypes["CF.Mesh.SF.Triag2DLagrangeP3"]=21;
-  m_elementTypes["CF.Mesh.SF.Triag3DLagrangeP3"]=21;
+  m_elementTypes["CF.Mesh.LagrangeP3.Line1D" ]=26;
+  m_elementTypes["CF.Mesh.LagrangeP3.Line2D" ]=26;
+  m_elementTypes["CF.Mesh.LagrangeP3.Line3D" ]=26;
+  m_elementTypes["CF.Mesh.LagrangeP3.Triag2D"]=21;
+  m_elementTypes["CF.Mesh.LagrangeP3.Triag3D"]=21;
 
-  m_elementTypes["CF.Mesh.SF.Quad2DLagrangeP3"] = 36;
-  m_elementTypes["CF.Mesh.SF.Quad3DLagrangeP3"] = 36;
+  m_elementTypes["CF.Mesh.LagrangeP3.Quad2D"] = 36;
+  m_elementTypes["CF.Mesh.LagrangeP3.Quad3D"] = 36;
 
   m_cf_2_gmsh_node = create_static_component_ptr<CMap<Uint,Uint> >("to_gmsh_node");
 
@@ -99,9 +99,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path (file_path.path());
-  if (Comm::PE::instance().size() > 1)
+  if (PE::Comm::instance().size() > 1)
   {
-    path = boost::filesystem::basename(path) + "_P" + to_str(Comm::PE::instance().rank()) + boost::filesystem::extension(path);
+    path = boost::filesystem::basename(path) + "_P" + to_str(PE::Comm::instance().rank()) + boost::filesystem::extension(path);
   }
 //  CFLog(VERBOSE, "Opening file " <<  path.string() << "\n");
   file.open(path,std::ios_base::out);
@@ -222,7 +222,7 @@ void CWriter::write_connectivity(std::fstream& file)
   Uint elm_type;
   Uint number_of_tags=3; // 1 for physical entity,  1 for elementary geometrical entity,  1 for mesh partition
   Uint elm_number=0;
-  Uint partition_number = Comm::PE::instance().rank();
+  Uint partition_number = PE::Comm::instance().rank();
 
   boost_foreach(const CEntities& elements, m_mesh->topology().elements_range())
   {
@@ -232,7 +232,7 @@ void CWriter::write_connectivity(std::fstream& file)
     m_element_start_idx[&elements]=elm_number;
 
     //file << "// Region " << elements.uri().string() << "\n";
-    elm_type = m_elementTypes[elements.element_type().builder_name()];
+    elm_type = m_elementTypes[elements.element_type().derived_type_name()];
     const Uint nb_elem = elements.size();
     for (Uint e=0; e<nb_elem; ++e, ++elm_number)
     {
@@ -272,6 +272,7 @@ void CWriter::write_elem_nodal_data(std::fstream& file)
 
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
+    cf_assert(field_ptr.expired() == false);
     Field& field = *field_ptr.lock();
 //    if (field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
 //        field.basis() == FieldGroup::Basis::CELL_BASED    ||

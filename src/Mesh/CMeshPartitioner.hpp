@@ -14,7 +14,7 @@
 #include "Common/FindComponents.hpp"
 #include "Common/CMap.hpp"
 #include "Common/Foreach.hpp"
-#include "Common/MPI/PE.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CHash.hpp"
