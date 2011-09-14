@@ -21,6 +21,7 @@ Common::ComponentBuilder < NavierStokes::Cons3D,
 
 Cons3D::Cons3D(const std::string& name) : VariablesT<Cons3D>(name)
 {
+  description().set_variables("Rho,RhoU[v],RhoE",MODEL::_ndim);
 }
 
 Cons3D::~Cons3D() {}

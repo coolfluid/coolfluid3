@@ -21,6 +21,7 @@ Common::ComponentBuilder < Scalar::Diffusion2D,
 
 Diffusion2D::Diffusion2D(const std::string& name) : VariablesT<Diffusion2D>(name)
 {
+  description().set_variables("U",MODEL::_ndim);
 }
 
 Diffusion2D::~Diffusion2D() {}

@@ -21,6 +21,7 @@ Common::ComponentBuilder < Scalar::LinearAdvSys2D,
 
 LinearAdvSys2D::LinearAdvSys2D(const std::string& name) : VariablesT<LinearAdvSys2D>(name)
 {
+  description().set_variables("U0,U1",MODEL::_ndim);
 }
 
 LinearAdvSys2D::~LinearAdvSys2D() {}
