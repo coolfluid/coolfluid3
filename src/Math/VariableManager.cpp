@@ -30,11 +30,6 @@ Common::ComponentBuilder < VariableManager, Component, LibMath > VariableManager
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-
-ComponentBuilder< VariableManager, Component, LibMath > VariableManager_Builder;
-
-////////////////////////////////////////////////////////////////////////////////
-
 VariableManager::VariableManager(const std::string& name): Component(name)
 {
 }
