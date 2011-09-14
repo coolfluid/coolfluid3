@@ -45,16 +45,6 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Roe2D"; }
 
-  template <typename SV>
-  static void compute_variables ( MODEL::Properties& p,
-                                  SV& sol)
-  {
-    sol[Z0] = sqrt(p.rho);
-    sol[Z1] = sol[Z0]*p.u;
-    sol[Z2] = sol[Z0]*p.v;
-    sol[Z3] = sol[Z0]*p.H;
-  }
-
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
   static void compute_properties ( const CV& coord,

@@ -21,7 +21,7 @@ Common::ComponentBuilder < NavierStokes::Roe2D,
 
 Roe2D::Roe2D(const std::string& name) : VariablesT<Roe2D>(name)
 {
-  description().set_variables("Z1,Z2,Z3,Z4",MODEL::_ndim);
+  description().set_variables("Z0,Z1,Z2,Z3",MODEL::_ndim);
 }
 
 Roe2D::~Roe2D() {}
