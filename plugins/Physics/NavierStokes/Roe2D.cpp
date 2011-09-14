@@ -6,7 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 
-#include "Cons3D.hpp"
+#include "Roe2D.hpp"
 
 namespace CF {
 namespace Physics {
@@ -14,17 +14,17 @@ namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Cons3D,
+Common::ComponentBuilder < NavierStokes::Roe2D,
                            Physics::Variables,
                            LibNavierStokes >
-                           Builder_Cons3D;
+                           Builder_Roe2D;
 
-Cons3D::Cons3D(const std::string& name) : VariablesT<Cons3D>(name)
+Roe2D::Roe2D(const std::string& name) : VariablesT<Roe2D>(name)
 {
-  description().set_variables("Rho,RhoU[v],RhoE",MODEL::_ndim);
+  description().set_variables("Z0,Z1,Z2,Z3",MODEL::_ndim);
 }
 
-Cons3D::~Cons3D() {}
+Roe2D::~Roe2D() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 

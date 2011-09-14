@@ -14,17 +14,14 @@
 #include "RiemannSolvers/src/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace CF {
-namespace Solver {
-  class State;
-  class Physics;
-}
+namespace Physics { class Variables; class PhysModel;}
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Willem Deconinck
-class RiemannSolvers_API RiemannSolver : public Common::Component {
-
+class RiemannSolvers_API RiemannSolver : public Common::Component
+{
 public: // typedefs
 
   typedef boost::shared_ptr<RiemannSolver> Ptr;
@@ -43,15 +40,16 @@ public: // functions
   static std::string type_name () { return "RiemannSolver"; }
 
   // functions specific to the RiemannSolver component
-  RealVector interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal);
+  virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                      RealVector& flux, Real& wave_speed) = 0;
 
-  virtual void solve(const RealVector& left, const RealVector& right, const RealVector& normal, 
-             RealVector& flux, Real& left_wave_speed, Real& right_wave_speed) = 0;
-  
+  Physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
+
+  Physics::PhysModel& model() const { return *m_model.lock(); }
 protected:
 
-  boost::weak_ptr<Solver::State> m_sol_state;
-  
+  boost::weak_ptr<Physics::PhysModel> m_model;
+  boost::weak_ptr<Physics::Variables> m_solution_vars;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

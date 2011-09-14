@@ -9,6 +9,8 @@ list( APPEND coolfluid_physics_navierstokes_files
   Cons2D.cpp
   Cons3D.hpp
   Cons3D.cpp
+  Roe2D.hpp
+  Roe2D.cpp
 )
 
 list( APPEND coolfluid_physics_navierstokes_cflibs coolfluid_physics )
