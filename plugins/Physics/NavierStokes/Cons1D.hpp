@@ -104,6 +104,14 @@ public: // functions
     p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uu;
   }
 
+  template < typename VectorT >
+  static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
+  {
+    vars[Rho]  = p.rho;
+    vars[RhoU] = p.rhou;
+    vars[RhoE] = p.rhoE;
+  }
+
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,
@@ -122,8 +130,8 @@ public: // functions
   {
     const Real um = p.u * direction[XX];
 
-    Dv << 
-            
+    Dv <<
+
       um,
       um + p.a,
       um - p.a;
@@ -142,8 +150,8 @@ public: // functions
 
     const Real op_um = op(um);
 
-    Dv << 
-            
+    Dv <<
+
       op_um,
       op_um + p.a,
       op_um - p.a;
@@ -174,21 +182,21 @@ public: // functions
     // matrix of right eigenvectors (columns)
 
     Rv <<
-    
+
       1.,       ra,                ra,
       p.u,      ra*(p.u+am),       ra*(p.u-am),
       0.5*p.uu, ra*(p.H+aum),      ra*(p.H-aum);
 
     // matrix of left eigenvectors (rows) = Rv.inverse()
     Lv <<
-    
+
       1.-coeffM2,                         uDivA*inv_a,             -p.gamma_minus_1*inv_a2,
       p.a*p.inv_rho*(coeffM2-um*inv_a),   p.inv_rho*(nx-uDivA),     gm1_ov_rhoa,
       p.a*p.inv_rho*(coeffM2+um*inv_a),  -p.inv_rho*(nx+uDivA),     gm1_ov_rhoa;
 
     // diagonal matrix of eigen values
-    Dv << 
-            
+    Dv <<
+
       um,
       um + p.a,
       um - p.a;

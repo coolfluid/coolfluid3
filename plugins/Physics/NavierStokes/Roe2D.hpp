@@ -107,6 +107,16 @@ public: // functions
     p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvv;
   }
 
+  template < typename VectorT >
+  static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
+  {
+    vars[Z0] = sqrt(p.rho);
+    vars[Z1] = vars[Z0]*(p.u);
+    vars[Z2] = vars[Z0]*(p.v);
+    vars[Z3] = vars[Z0]*(p.H);
+  }
+
+
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,

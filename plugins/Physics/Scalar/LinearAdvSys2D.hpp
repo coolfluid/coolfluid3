@@ -69,6 +69,13 @@ public: // functions
     p.mu[YY] = 0.;
   }
 
+  template < typename VectorT >
+  static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
+  {
+    vars[U0]  = p.u0;
+    vars[U1]  = p.u1;
+  }
+
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,

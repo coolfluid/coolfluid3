@@ -35,178 +35,6 @@ using namespace CF::Physics::NavierStokes;
 //////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Physics {
-
-//////////////////////////////////////////////////////////////////////////////
-
-class Physics_API VarTransformer : public Common::Component
-{
-public:
-  typedef boost::shared_ptr<VarTransformer>       Ptr;
-  typedef boost::shared_ptr<VarTransformer const> ConstPtr;
-
-  VarTransformer(const std::string& name) : Common::Component(name) {}
-  ~VarTransformer() {}
-  static std::string type_name() { return "VarTransformer"; }
-
-  virtual void transform(const RealVector& from, RealVector& to) = 0;
-
-  virtual void transform(const Physics::Properties&, RealVector& to) = 0;
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-} // Physics
-} // CF
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-namespace CF {
-namespace Physics {
-namespace NavierStokes {
-
-//////////////////////////////////////////////////////////////////////////////
-
-class NavierStokes_API Cons1DtoRoe1D : public VarTransformer
-{
-public:
-
-  typedef boost::shared_ptr<Cons1DtoRoe1D>       Ptr;
-  typedef boost::shared_ptr<Cons1DtoRoe1D const> ConstPtr;
-
-  Cons1DtoRoe1D(const std::string& name) : VarTransformer(name) {}
-  ~Cons1DtoRoe1D() {}
-  static std::string type_name() { return "Cons1DtoRoe1D"; }
-
-  virtual void transform(const RealVector& from, RealVector& to)
-  {
-    Cons1D::compute_properties(coord,from,grads,p);
-    to[Roe1D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe1D::Z1] = to[Roe1D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe1D::Z2] = to[Roe1D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-
-  /// @warning QUESTION: WHY CAN THIS FUNCTION NOT BE IN THE VARIABLES API? (caps for visibility)
-  virtual void transform(const Physics::Properties& from, RealVector& to)
-  {
-    const Roe1D::MODEL::Properties& p = *static_cast<Roe1D::MODEL::Properties const*>( &from );
-    to[Roe1D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe1D::Z1] = to[Roe1D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe1D::Z2] = to[Roe1D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-private:
-  Cons1D::MODEL::Properties p; //! properties, contains gamma
-  Cons1D::MODEL::GeoV coord;   //! dummy
-  Cons1D::MODEL::SolM grads;   //! dummy
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-Common::ComponentBuilder<Cons1DtoRoe1D,VarTransformer,LibNavierStokes> Cons1DtoRoe1D_builder;
-
-//////////////////////////////////////////////////////////////////////////////
-
-class NavierStokes_API Cons2DtoRoe2D : public VarTransformer
-{
-public:
-
-  typedef boost::shared_ptr<Cons2DtoRoe2D>       Ptr;
-  typedef boost::shared_ptr<Cons2DtoRoe2D const> ConstPtr;
-
-  Cons2DtoRoe2D(const std::string& name) : VarTransformer(name) {}
-  ~Cons2DtoRoe2D() {}
-  static std::string type_name() { return "Cons2DtoRoe2D"; }
-
-  virtual void transform(const RealVector& from, RealVector& to)
-  {
-    Cons2D::compute_properties(coord,from,grads,p);
-    to[Roe2D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe2D::Z1] = to[Roe2D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe2D::Z2] = to[Roe2D::Z0]*p.v;    // sqrt(rho)*v
-    to[Roe2D::Z3] = to[Roe2D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-
-  /// @warning QUESTION: WHY CAN THIS FUNCTION NOT BE IN THE VARIABLES API? (caps for visibility)
-  virtual void transform(const Physics::Properties& from, RealVector& to)
-  {
-    const Roe2D::MODEL::Properties& p = *static_cast<Roe2D::MODEL::Properties const*>( &from );
-    to[Roe2D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe2D::Z1] = to[Roe2D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe2D::Z2] = to[Roe2D::Z0]*p.v;    // sqrt(rho)*v
-    to[Roe2D::Z3] = to[Roe2D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-private:
-  Cons2D::MODEL::Properties p; //! properties, contains gamma
-  Cons2D::MODEL::GeoV coord;   //! dummy
-  Cons2D::MODEL::SolM grads;   //! dummy
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-Common::ComponentBuilder<Cons2DtoRoe2D,VarTransformer,LibNavierStokes> Cons2DtoRoe2D_builder;
-
-//////////////////////////////////////////////////////////////////////////////
-
-class NavierStokes_API Cons3DtoRoe3D : public VarTransformer
-{
-public:
-
-  typedef boost::shared_ptr<Cons3DtoRoe3D>       Ptr;
-  typedef boost::shared_ptr<Cons3DtoRoe3D const> ConstPtr;
-
-  Cons3DtoRoe3D(const std::string& name) : VarTransformer(name) {}
-  ~Cons3DtoRoe3D() {}
-  static std::string type_name() { return "Cons3DtoRoe3D"; }
-
-  virtual void transform(const RealVector& from, RealVector& to)
-  {
-    Cons3D::compute_properties(coord,from,grads,p);
-    to[Roe3D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe3D::Z1] = to[Roe3D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe3D::Z2] = to[Roe3D::Z0]*p.v;    // sqrt(rho)*v
-    to[Roe3D::Z3] = to[Roe3D::Z0]*p.w;    // sqrt(rho)*w
-    to[Roe3D::Z4] = to[Roe3D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-
-  /// @warning QUESTION: WHY CAN THIS FUNCTION NOT BE IN THE VARIABLES API? (caps for visibility)
-  virtual void transform(const Physics::Properties& from, RealVector& to)
-  {
-    const Roe3D::MODEL::Properties& p = *static_cast<Roe3D::MODEL::Properties const*>( &from );
-    to[Roe3D::Z0] = sqrt(p.rho);          // sqrt(rho)
-    to[Roe3D::Z1] = to[Roe3D::Z0]*p.u;    // sqrt(rho)*u
-    to[Roe3D::Z2] = to[Roe3D::Z0]*p.v;    // sqrt(rho)*v
-    to[Roe3D::Z3] = to[Roe3D::Z0]*p.w;    // sqrt(rho)*w
-    to[Roe3D::Z4] = to[Roe3D::Z0]*p.H;    // sqrt(rho)*H
-  }
-
-private:
-  Cons3D::MODEL::Properties p; //! properties, contains gamma
-  Cons3D::MODEL::GeoV coord;   //! dummy
-  Cons3D::MODEL::SolM grads;   //! dummy
-};
-
-//////////////////////////////////////////////////////////////////////////////
-
-Common::ComponentBuilder<Cons3DtoRoe3D,VarTransformer,LibNavierStokes> Cons3DtoRoe3D_builder;
-
-//////////////////////////////////////////////////////////////////////////////
-
-} // NavierStokes
-} // Physics
-} // CF
-
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////
-
-namespace CF {
 namespace RiemannSolvers {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -228,10 +56,6 @@ public:
     options().add_option( OptionComponent<Physics::Variables>::create("roe_vars",&m_roe_vars) )
         ->description("The component describing the Roe variables")
         ->pretty_name("Roe Variables");
-
-    options().add_option( OptionComponent<Physics::VarTransformer>::create("solution_to_roe",&m_solution_to_roe) )
-        ->description("The component describing the Roe Transformer")
-        ->pretty_name("Solution to Roe");
 
     option("phys_model").attach_trigger( boost::bind( &Roe::trigger_phys_model, this) );
   }
@@ -271,8 +95,8 @@ public:
 
     // Compute the Roe averaged properties
     // Roe-average = standard average of the Roe-parameter vectors
-    solution_to_roe().transform(*p_left, roe_left);    // left Roe parameter vector
-    solution_to_roe().transform(*p_right,roe_right);   // right Roe paramter vector
+    roe_vars().compute_variables(*p_left,  roe_left );
+    roe_vars().compute_variables(*p_right, roe_right);
     roe_avg = 0.5*(roe_left+roe_right);                // Roe-average is result
     roe_vars().compute_properties(coord, roe_avg, grads, *p_avg);
 
@@ -291,9 +115,7 @@ public:
 private:
 
   Physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
-  Physics::VarTransformer& solution_to_roe() { return *m_solution_to_roe.lock(); }
 
-  boost::weak_ptr<Physics::VarTransformer> m_solution_to_roe;
   boost::weak_ptr<Physics::Variables> m_roe_vars;
   std::auto_ptr<Physics::Properties> p_left;
   std::auto_ptr<Physics::Properties> p_right;
@@ -330,14 +152,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes1D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons1D","solution");
   Variables& roe_vars = *physics.create_variables("Roe1D","roe");
-  VarTransformer& solution_to_roe = physics.create_component("solution_to_roe","CF.Physics.NavierStokes.Cons1DtoRoe1D").as_type<VarTransformer>();
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component<Roe>("riemann").as_type<RiemannSolver>();
   riemann.configure_option("phys_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
-  riemann.configure_option("solution_to_roe",solution_to_roe.uri());
 
   // Check configuration
   BOOST_CHECK_EQUAL(sol_vars.uri().string() , riemann.solution_vars().uri().string());
@@ -379,14 +199,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons2D","solution");
   Variables& roe_vars = *physics.create_variables("Roe2D","roe");
-  VarTransformer& solution_to_roe = physics.create_component("solution_to_roe","CF.Physics.NavierStokes.Cons2DtoRoe2D").as_type<VarTransformer>();
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component<Roe>("riemann").as_type<RiemannSolver>();
   riemann.configure_option("phys_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
-  riemann.configure_option("solution_to_roe",solution_to_roe.uri());
 
   // Check configuration
   BOOST_CHECK_EQUAL(sol_vars.uri().string() , riemann.solution_vars().uri().string());
@@ -431,14 +249,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes3D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons3D","solution");
   Variables& roe_vars = *physics.create_variables("Roe3D","roe");
-  VarTransformer& solution_to_roe = physics.create_component("solution_to_roe","CF.Physics.NavierStokes.Cons3DtoRoe3D").as_type<VarTransformer>();
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component<Roe>("riemann").as_type<RiemannSolver>();
   riemann.configure_option("phys_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
-  riemann.configure_option("solution_to_roe",solution_to_roe.uri());
 
   // Check configuration
   BOOST_CHECK_EQUAL(sol_vars.uri().string() , riemann.solution_vars().uri().string());

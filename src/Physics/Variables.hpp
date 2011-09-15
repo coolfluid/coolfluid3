@@ -62,9 +62,13 @@ public: // functions
 
   /// compute physical properties
   virtual void compute_properties (const RealVector& coord,
-                                   const RealVector& sol,
-                                   const RealMatrix& grad_sol,
+                                   const RealVector& vars,
+                                   const RealMatrix& grad_vars,
                                    Physics::Properties& physp) = 0;
+
+  /// compute variables from properties
+  virtual void compute_variables (const Physics::Properties& physp,
+                                  RealVector& vars) = 0;
 
   /// compute the physical flux
   virtual void flux (const Physics::Properties& p,
@@ -137,6 +141,15 @@ public:
         static_cast<typename PHYS::MODEL::Properties&>( p );
 
     PHYS::compute_properties( coord, sol, grad_sol, cp );
+  }
+
+  virtual void compute_variables (const Physics::Properties& p,
+                                  RealVector& vars)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::compute_variables( cp, vars );
   }
 
   /// compute the physical flux
