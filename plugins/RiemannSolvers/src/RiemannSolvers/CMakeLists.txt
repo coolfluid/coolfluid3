@@ -3,12 +3,11 @@ list( APPEND coolfluid_riemannsolvers_files
   LibRiemannSolvers.cpp
   RiemannSolver.hpp
   RiemannSolver.cpp
-  #Roe.hpp
-  #Roe.cpp
+  Roe.hpp
+  Roe.cpp
 )
 
 list( APPEND coolfluid_riemannsolvers_cflibs coolfluid_math coolfluid_solver )
 
 coolfluid_add_library( coolfluid_riemannsolvers )
 
-coolfluid_mark_not_orphan(Roe.hpp Roe.cpp)

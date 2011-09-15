@@ -39,15 +39,20 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "RiemannSolver"; }
 
-  // functions specific to the RiemannSolver component
+  /// Compute interface flux and wavespeeds
+  virtual void compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                                     RealVector& flux, RealVector& wave_speeds) = 0;
+
+  /// Compute interface flux
   virtual void compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
-                                      RealVector& flux, Real& wave_speed) = 0;
+                                      RealVector& flux) = 0;
 
-  Physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
-
-  Physics::PhysModel& model() const { return *m_model.lock(); }
 protected:
 
+  Physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
+  Physics::PhysModel& model() const { return *m_model.lock(); }
+
+private:
   boost::weak_ptr<Physics::PhysModel> m_model;
   boost::weak_ptr<Physics::Variables> m_solution_vars;
 };
