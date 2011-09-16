@@ -21,6 +21,7 @@ Common::ComponentBuilder < Scalar::LinearAdv3D,
 
 LinearAdv3D::LinearAdv3D(const std::string& name) : VariablesT<LinearAdv3D>(name)
 {
+  description().set_variables("U",MODEL::_ndim);
 }
 
 LinearAdv3D::~LinearAdv3D() {}

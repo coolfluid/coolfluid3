@@ -62,6 +62,12 @@ public: // functions
     p.mu = 1.0;     // no diffusion
   }
 
+  template < typename VectorT >
+  static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
+  {
+    vars[U]  = p.u;
+  }
+
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,

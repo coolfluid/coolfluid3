@@ -51,6 +51,13 @@ public: // functions
     /// @todo to be implemented in the .cpp
   }
 
+  /// compute variables from properties
+  virtual void compute_variables (const Physics::Properties& physp,
+                                  RealVector& vars)
+  {
+    /// @todo to be implemented in the .cpp
+  }
+
   /// compute the physical flux
   virtual void flux (const Physics::Properties& p,
                      RealMatrix& flux)
@@ -94,6 +101,12 @@ public: // functions
     /// @todo to be implemented in the .cpp
   }
 
+  virtual Math::VariablesDescriptor& description()
+  {
+    throw Common::NotSupported(FromHere(),"querying description not supported for DynamicVars, see VariableManager");
+    static Math::VariablesDescriptor::Ptr desc (Common::allocate_component<Math::VariablesDescriptor>("desc"));
+    return *desc;
+  }
   //@} END INTERFACE
 
 }; // DynamicVars

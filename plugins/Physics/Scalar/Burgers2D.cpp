@@ -22,6 +22,7 @@ Common::ComponentBuilder < Scalar::Burgers2D,
 
 Burgers2D::Burgers2D(const std::string& name) : VariablesT<Burgers2D>(name)
 {
+  description().set_variables("U",MODEL::_ndim);
 }
 
 Burgers2D::~Burgers2D() {}

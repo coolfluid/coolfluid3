@@ -4,44 +4,46 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdv3D_hpp
-#define CF_Physics_Scalar_LinearAdv3D_hpp
+#ifndef CF_Physics_NavierStokes_Roe2D_hpp
+#define CF_Physics_NavierStokes_Roe2D_hpp
+
+#include <iostream>
 
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 
-#include "Scalar3D.hpp"
+#include "NavierStokes2D.hpp"
 
 namespace CF {
 namespace Physics {
-namespace Scalar {
+namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API LinearAdv3D : public VariablesT<LinearAdv3D> {
+class NavierStokes_API Roe2D : public VariablesT<Roe2D> {
 
 public: //typedefs
 
-  typedef Scalar3D     MODEL;
+  typedef NavierStokes2D     MODEL;
 
-  enum { U = 0 };
+  enum { Z0 = 0, Z1 = 1, Z2 = 2, Z3 = 3 };
 
-  typedef boost::shared_ptr<LinearAdv3D> Ptr;
-  typedef boost::shared_ptr<LinearAdv3D const> ConstPtr;
+  typedef boost::shared_ptr<Roe2D> Ptr;
+  typedef boost::shared_ptr<Roe2D const> ConstPtr;
 
 public: // functions
 
   /// constructor
   /// @param name of the component
-  LinearAdv3D ( const std::string& name );
+  Roe2D ( const std::string& name );
 
   /// virtual destructor
-  virtual ~LinearAdv3D();
+  virtual ~Roe2D();
 
   /// Get the class name
-  static std::string type_name () { return "LinearAdv3D"; }
+  static std::string type_name () { return "Roe2D"; }
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
@@ -54,29 +56,73 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.v[XX] = 1.0; // constant vx
-    p.v[YY] = 1.0; // constant vy
-    p.v[ZZ] = 0.0; // constant vz
+    p.R = 287.058;                 // air
+    p.gamma = 1.4;                 // diatomic ideal gas
+    p.gamma_minus_1 = p.gamma - 1.;
 
-    p.u = sol[U];
+    p.rho = sol[Z0]*sol[Z0];
+    p.u   = sol[Z1]/sol[Z0];
+    p.v   = sol[Z2]/sol[Z0];
+    p.H   = sol[Z3]/sol[Z0];
 
-    p.mu = 0.;     // no diffusion
+    p.uuvv = p.u*p.u + p.v*p.v;
+    p.P = p.gamma_minus_1/p.gamma * p.rho*(p.H - 0.5*p.uuvv);
+
+    p.rhou = p.rho * p.u;
+    p.rhov = p.rho * p.v;
+    p.rhoE = p.rho * p.E;
+
+
+    p.inv_rho = 1. / p.rho;
+
+    if( p.P <= 0. )
+    {
+          std::cout << "rho   : " << p.rho  << std::endl;
+          std::cout << "rhou  : " << p.rhou << std::endl;
+          std::cout << "rhov  : " << p.rhov << std::endl;
+          std::cout << "rhoE  : " << p.rhoE << std::endl;
+          std::cout << "P     : " << p.P    << std::endl;
+          std::cout << "u     : " << p.u    << std::endl;
+          std::cout << "v     : " << p.v    << std::endl;
+          std::cout << "uuvv  : " << p.uuvv << std::endl;
+
+
+      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + Common::to_str(coord[XX]) + ","
+                                   + Common::to_str(coord[YY])
+                                   + "]");
+    }
+
+    const Real RT = p.P * p.inv_rho;    // RT = p/rho
+
+    p.E = p.rhoE * p.inv_rho;           // E = rhoE / rho
+
+    p.a2 = p.gamma * RT;
+    p.a = sqrt( p.a2 );
+
+    p.Ma = sqrt( p.uuvv / p.a2 );
+
+    p.T = RT / p.R;
+
+    p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvv;
   }
 
   template < typename VectorT >
   static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
   {
-    vars[U]  = p.u;
+    vars[Z0] = sqrt(p.rho);
+    vars[Z1] = vars[Z0]*(p.u);
+    vars[Z2] = vars[Z0]*(p.v);
+    vars[Z3] = vars[Z0]*(p.H);
   }
+
 
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-    flux(0,XX)   = p.v[XX] * p.u;
-    flux(0,YY)   = p.v[YY] * p.u;
-    flux(0,ZZ)   = p.v[ZZ] * p.u;
+    throw Common::NotImplemented(FromHere(), "flux not implemented for Roe2D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -85,9 +131,7 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    Dv[0]   = p.v[XX] * direction[XX]
-            + p.v[YY] * direction[YY]
-            + p.v[ZZ] * direction[ZZ];
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe2D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -98,9 +142,7 @@ public: // functions
                                          OP& op )
 
   {
-    Dv[0] = op( p.v[XX] * direction[XX]
-              + p.v[YY] * direction[YY]
-              + p.v[ZZ] * direction[ZZ] );
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe2D");
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -111,11 +153,7 @@ public: // functions
                                             EM& Lv,
                                             EV& Dv)
   {
-    Rv(0,0) = 1.;
-    Lv(0,0) = 1.;
-    Dv[0]   = p.v[XX] * direction[XX]
-            + p.v[YY] * direction[YY]
-            + p.v[ZZ] * direction[ZZ];
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe2D");
   }
 
   /// compute the PDE residual
@@ -124,25 +162,15 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    JM& Jx = flux_jacob[XX];
-    JM& Jy = flux_jacob[YY];
-    JM& Jz = flux_jacob[ZZ];
-
-    Jx(0,0) = p.v[XX];
-    Jy(0,0) = p.v[YY];
-    Jz(0,0) = p.v[ZZ];
-
-    res = Jx * p.grad_vars.col(XX)
-        + Jy * p.grad_vars.col(YY)
-        + Jz * p.grad_vars.col(ZZ);
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe2D");
   }
 
-}; // LinearAdv3D
+}; // Roe2D
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Scalar
+} // NavierStokes
 } // Physics
 } // CF
 
-#endif // CF_Physics_Scalar_LinearAdv3D_hpp
+#endif // CF_Physics_NavierStokes_Roe2D_hpp

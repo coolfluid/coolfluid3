@@ -13,6 +13,7 @@
 
 #include "Common/Component.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
 #include "Math/MatrixTypes.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -61,9 +62,13 @@ public: // functions
 
   /// compute physical properties
   virtual void compute_properties (const RealVector& coord,
-                                   const RealVector& sol,
-                                   const RealMatrix& grad_sol,
+                                   const RealVector& vars,
+                                   const RealMatrix& grad_vars,
                                    Physics::Properties& physp) = 0;
+
+  /// compute variables from properties
+  virtual void compute_variables (const Physics::Properties& physp,
+                                  RealVector& vars) = 0;
 
   /// compute the physical flux
   virtual void flux (const Physics::Properties& p,
@@ -93,6 +98,8 @@ public: // functions
                         RealVector& res) = 0;
 
 
+  virtual Math::VariablesDescriptor& description() = 0;
+
   //@} END INTERFACE
 
 }; // Variables
@@ -107,9 +114,12 @@ class VariablesT : public Variables {
 public:
 
   /// constructor
-  VariablesT ( const std::string& name ) : Variables( name )
+  VariablesT ( const std::string& name ) :
+    Variables( name ),
+    m_description (Common::allocate_component<Math::VariablesDescriptor>("description"))
   {
     regist_typeinfo(this);
+    add_static_component (m_description);
   }
 
   /// virtual destructor
@@ -131,6 +141,15 @@ public:
         static_cast<typename PHYS::MODEL::Properties&>( p );
 
     PHYS::compute_properties( coord, sol, grad_sol, cp );
+  }
+
+  virtual void compute_variables (const Physics::Properties& p,
+                                  RealVector& vars)
+  {
+    typename PHYS::MODEL::Properties const& cp =
+        static_cast<typename PHYS::MODEL::Properties const&>( p );
+
+    PHYS::compute_variables( cp, vars );
   }
 
   /// compute the physical flux
@@ -192,6 +211,11 @@ public:
 
     PHYS::residual( cp, flux_jacob, res );
   }
+
+  virtual Math::VariablesDescriptor& description() { return *m_description; }
+
+private:
+  boost::shared_ptr<Math::VariablesDescriptor> m_description;
 
 }; // VariablesT
 
