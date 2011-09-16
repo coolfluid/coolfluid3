@@ -51,6 +51,22 @@ void mesh_loaded(CMesh& mesh)
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// Helper function to build the GIDS in a serial mesh
+void build_serial_gids(CMesh& mesh)
+{
+  const Uint nb_nodes = mesh.geometry().size();
+
+  CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+  CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+  for(Uint i = 0; i != nb_nodes; ++i)
+  {
+    ranks[i] = 0;
+    gids[i] = i;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 {
   CRegion& region = mesh.topology().create_region("fluid");
@@ -88,6 +104,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   xpos_connectivity[0][0] = x_segments;
 
   mesh_loaded(mesh);
+  build_serial_gids(mesh);
 }
 
 
@@ -195,6 +212,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
   mesh_loaded(mesh);
+  build_serial_gids(mesh);
 }
 
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
@@ -312,6 +330,7 @@ void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, cons
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
   mesh_loaded(mesh);
+  build_serial_gids(mesh);
 }
 
 
@@ -390,6 +409,7 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
     coord_row[YY] = radius * sin(end_angle);
   }
   mesh_loaded(mesh);
+  build_serial_gids(mesh);
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)

@@ -173,26 +173,7 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
-    PE::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<PE::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
-    // In a serial case, create a default comm pattern if it doesn't exist already
-    const Uint nb_nodes = mesh().geometry().coordinates().size();
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-    if(PE::Comm::instance().size() == 1 && is_null(comm_pattern))
-    {
-      for(Uint i = 0; i != nb_nodes; ++i)
-      {
-        ranks[i] = 0;
-        gids[i] = i;
-      }
-      comm_pattern = mesh().create_component_ptr<Common::PE::CommPattern>("comm_pattern_node_based");
-      comm_pattern->insert("gid",gids,1,false);
-      comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-    }
-    if(is_null(comm_pattern))
-      throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());
-    
-    m_implementation->m_lss.lock()->create(*comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss.lock()->create(mesh().geometry().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
   }
 
   configure_option_recursively("lss", option("lss").value<URI>());
