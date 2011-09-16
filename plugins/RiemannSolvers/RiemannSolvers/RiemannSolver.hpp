@@ -11,7 +11,7 @@
 
 
 #include "Math/MatrixTypes.hpp"
-#include "RiemannSolvers/src/RiemannSolvers/LibRiemannSolvers.hpp"
+#include "RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace CF {
 namespace Physics { class Variables; class PhysModel;}
