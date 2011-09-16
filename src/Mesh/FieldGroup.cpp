@@ -25,6 +25,7 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Common/PE/Comm.hpp"
+#include "Common/PE/CommPattern.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -180,6 +181,23 @@ void FieldGroup::resize(const Uint size)
 
   boost_foreach(Field& field, find_components<Field>(*this))
     field.resize(m_size);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+CommPattern& FieldGroup::comm_pattern()
+{
+  if(m_comm_pattern.expired())
+  {
+    PE::CommPattern& comm_pattern = create_component<PE::CommPattern>("CommPattern");
+
+    comm_pattern.insert("gid",glb_idx().array(),false);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),rank().array());
+
+    m_comm_pattern = comm_pattern.as_ptr<Common::PE::CommPattern>();
+  }
+
+  return *m_comm_pattern.lock();
 }
 
 //////////////////////////////////////////////////////////////////////////////

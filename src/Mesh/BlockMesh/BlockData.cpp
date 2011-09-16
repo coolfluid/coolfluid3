@@ -1026,12 +1026,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids.array(),false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks.array());
-
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
   }
 }
@@ -1252,12 +1247,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids.array(),false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks.array());
-
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
   }
 }
