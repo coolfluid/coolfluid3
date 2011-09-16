@@ -1005,28 +1005,17 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
-
-    std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
 
     // Ghosts
     for(detail::NodeIndices3D::IndexMapT::const_iterator ghost_it = nodes.global_to_local.begin(); ghost_it != nodes.global_to_local.end(); ++ghost_it)
@@ -1035,24 +1024,15 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
     PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
 
-    comm_pattern.insert("gid",gids,1,false);
-    timer.restart();
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
+    comm_pattern.insert("gid",gids.array(),false);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks.array());
 
-    timer.restart();
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
     mesh.geometry().coordinates().synchronize();
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }
 
@@ -1251,22 +1231,16 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
 
     // Ghosts
@@ -1276,14 +1250,12 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
     PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
 
-    comm_pattern.insert("gid",gids,1,false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
+    comm_pattern.insert("gid",gids.array(),false);
+    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks.array());
 
     mesh.geometry().coordinates().parallelize_with(comm_pattern);
     mesh.geometry().coordinates().synchronize();

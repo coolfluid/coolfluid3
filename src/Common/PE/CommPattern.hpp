@@ -136,6 +136,18 @@ public:
     ow->setup(data,stride,needs_update);
   }
 
+  /// register data coming from multiarrays by reference
+  /// @param name the component will appear under this name
+  /// @param data Multiarray holding the data (not copied)
+  /// @param stride number of array element grouping
+  template<typename ValueT, Uint NDims>
+  void insert(const std::string& name, boost::multi_array<ValueT, NDims>& data, const bool needs_update=true)
+  {
+    typedef CommWrapperMArray<ValueT, NDims> CommWrapperT;
+    CommWrapperT& ow = create_component<CommWrapperT>(name);
+    ow.setup(data,needs_update);
+  }
+
   /// register data coming from pointer to std::vector
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
