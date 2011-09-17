@@ -140,7 +140,7 @@ public:
   /// @param name the component will appear under this name
   /// @param data Multiarray holding the data (not copied)
   /// @param stride number of array element grouping
-  template<typename ValueT, Uint NDims>
+  template<typename ValueT, std::size_t NDims>
   void insert(const std::string& name, boost::multi_array<ValueT, NDims>& data, const bool needs_update=true)
   {
     typedef CommWrapperMArray<ValueT, NDims> CommWrapperT;

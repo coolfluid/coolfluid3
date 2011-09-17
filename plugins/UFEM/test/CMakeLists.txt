@@ -13,6 +13,15 @@ set( utest-proto-heat_mpi_nprocs 1 )
 set( utest-proto-heat_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-heat )
 
+list( APPEND utest-proto-heat-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_block)
+list( APPEND utest-proto-heat-parallel_files
+  utest-proto-heat-parallel.cpp )
+list( APPEND utest-proto-heat-parallel_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
+set( utest-proto-heat-parallel_mpi_test TRUE )
+set( utest-proto-heat-parallel_mpi_nprocs 1 )
+set( utest-proto-heat-parallel_condition ${coolfluid_ufem_builds} )
+coolfluid_add_unit_test( utest-proto-heat-parallel )
+
 list( APPEND utest-proto-unsteady_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem)
 list( APPEND utest-proto-unsteady_files
   utest-proto-unsteady.cpp )

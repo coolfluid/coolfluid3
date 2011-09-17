@@ -6,11 +6,15 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "Common/Core.hpp"
 #include "Common/Exception.hpp"
+#include "Common/EventHandler.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 #include "Common/Timer.hpp"
 
-#include "Common/PE/CommPattern.hpp"
 #include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
@@ -21,6 +25,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CRegion.hpp"
@@ -1254,7 +1259,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
 
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh)
+void build_mesh(const BlockData& block_data, CMesh& mesh, const Uint overlap)
 {
   if(block_data.dimension == 3)
     detail::build_mesh_3d(block_data, mesh);
@@ -1302,6 +1307,27 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     }
   }
   mesh.elements().update();
+
+  mesh.update_statistics();
+
+  if(overlap != 0 && PE::Comm::instance().size() > 1)
+  {
+    CMeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+    global_conn.transform(mesh);
+
+    CMeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+    for(Uint i = 0; i != overlap; ++i)
+      grow_overlap.transform(mesh);
+
+    mesh.geometry().remove_component("CommPattern");
+  }
+
+  // Raise an event to indicate that a mesh was loaded happened
+  XML::SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+
+  XML::SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
 }
 
 

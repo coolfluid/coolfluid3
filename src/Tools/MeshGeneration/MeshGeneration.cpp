@@ -103,8 +103,8 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
   xpos_connectivity.resize(1);
   xpos_connectivity[0][0] = x_segments;
 
-  mesh_loaded(mesh);
   build_serial_gids(mesh);
+  mesh_loaded(mesh);
 }
 
 
@@ -211,8 +211,8 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
-  mesh_loaded(mesh);
   build_serial_gids(mesh);
+  mesh_loaded(mesh);
 }
 
 void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
@@ -329,8 +329,8 @@ void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, cons
   center_point_connectivity.resize(1);
   center_point_connectivity[0][0] = y_segments/2 * (x_segments+1) + x_segments/2;
 
-  mesh_loaded(mesh);
   build_serial_gids(mesh);
+  mesh_loaded(mesh);
 }
 
 
@@ -408,8 +408,8 @@ void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, con
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
   }
-  mesh_loaded(mesh);
   build_serial_gids(mesh);
+  mesh_loaded(mesh);
 }
 
 void create_channel_3d(BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio)
