@@ -18,7 +18,7 @@ list( APPEND utest-proto-heat-parallel_files
   utest-proto-heat-parallel.cpp )
 list( APPEND utest-proto-heat-parallel_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
 set( utest-proto-heat-parallel_mpi_test TRUE )
-set( utest-proto-heat-parallel_mpi_nprocs 1 )
+set( utest-proto-heat-parallel_mpi_nprocs 4 )
 set( utest-proto-heat-parallel_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-heat-parallel )
 

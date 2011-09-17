@@ -128,6 +128,17 @@ void LinearSolver::mesh_loaded(CMesh& mesh)
   // Create fields using the known tags
   field_manager().create_field(Tags::solution(), mesh.geometry());
   field_manager().create_field(Tags::source_terms(), mesh.geometry());
+  
+  if(Common::PE::Comm::instance().is_active())
+  {
+    Field::Ptr solution = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::solution());
+    if(is_not_null(solution))
+      solution->parallelize_with(mesh.geometry().comm_pattern());
+    
+    Field::Ptr source_terms = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::source_terms());
+    if(is_not_null(source_terms))
+      source_terms->parallelize_with(mesh.geometry().comm_pattern());
+  }
 
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
