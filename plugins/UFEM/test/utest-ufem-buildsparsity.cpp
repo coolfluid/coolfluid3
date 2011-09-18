@@ -84,28 +84,14 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
-  
-
 
   // Check result
   BOOST_CHECK_EQUAL(starting_indices[0], 0u);
   for(Uint i = 2; i != nb_nodes; ++i)
     BOOST_CHECK_EQUAL(starting_indices[i] - starting_indices[i-1], 3);
 
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
   // Create the LSS
-  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -136,20 +122,8 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
   // Create the LSS
-  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -180,20 +154,8 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
   // Create the LSS
-  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -250,20 +212,8 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
   // Create the LSS
-  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -298,20 +248,8 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
-  // Comm pattern
-  std::vector<Uint> gids(nb_nodes);
-  std::vector<Uint> ranks(nb_nodes);
-  for(Uint i = 0; i != nb_nodes; ++i)
-  {
-    ranks[i] = 0;
-    gids[i] = i;
-  }
-  Common::PE::CommPattern& comm_pattern = mesh.create_component<Common::PE::CommPattern>("comm_pattern_node_based");
-  comm_pattern.insert("gid",gids,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
   // Create the LSS
-  lss.create(comm_pattern, 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_3DHexaChannel.plt");
