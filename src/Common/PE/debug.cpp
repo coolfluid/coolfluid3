@@ -24,10 +24,11 @@ void wait_for_debugger(const int rank)
   const Uint irank = Comm::instance().rank();
   if(rank >= 0 && rank != irank)
     return;
-    
+
   int stopped = 1;
+  int i = 0;
   std::cout << "Rank " << irank << " with PID " << getpid() << " is waiting for debugger attach" << std::endl;
-  while (0 != stopped)
+  while (0 != stopped && i++ < 80)
     boost::this_thread::sleep(boost::posix_time::milliseconds(250));
 }
 
