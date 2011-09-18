@@ -4,45 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
 #include "RiemannSolvers/Roe.hpp"
-#include "Solver/State.hpp"
-#include "Common/OptionT.hpp"
+#include "Common/OptionComponent.hpp"
 
 namespace CF {
 namespace RiemannSolvers {
 
 using namespace Common;
-using namespace Solver;
 
 Common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Roe::Roe ( const std::string& name  )
-: RiemannSolver(name)
+Roe::Roe ( const std::string& name ) : RiemannSolver(name)
 {
-  properties()["brief"] = std::string("Approximate Riemann solver Roe");
-  properties()["description"] = std::string("Solves the Riemann problem using the Roe scheme");
+  options().add_option( OptionComponent<Physics::Variables>::create("roe_vars",&m_roe_vars) )
+      ->description("The component describing the Roe variables")
+      ->pretty_name("Roe Variables");
 
-  option("solution_state").attach_trigger( boost::bind(&Roe::setup, this) );
-
-  m_options.add_option(OptionT<std::string>::create("roe_state","Roe State","Component describing the Roe state",std::string("")))
-      ->mark_basic()
-      ->attach_trigger( boost::bind(&Roe::build_roe_state, this) )
-      ->add_tag("roe_state");
+  option("phys_model").attach_trigger( boost::bind( &Roe::trigger_phys_model, this) );
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-void Roe::build_roe_state()
-{
-  if (is_not_null(m_roe_state))
-    remove_component(*m_roe_state);
-  m_roe_state = create_component( "roe_state" , option("roe_state").value_str() ).as_ptr<State>();
-  m_roe_avg_vars = m_roe_state->create_physics();
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,61 +35,62 @@ Roe::~Roe()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Roe::setup()
+void Roe::trigger_phys_model()
 {
-  State& sol_state = *m_sol_state.lock();
+  coord.resize(model().ndim());
+  grads.resize(model().neqs(),model().ndim());
+  p_left  = model().create_properties();
+  p_right = model().create_properties();
+  p_avg   = model().create_properties();
 
-  Uint size = sol_state.size();
+  roe_left.resize(model().neqs());
+  roe_right.resize(model().neqs());
+  roe_avg.resize(model().neqs());
 
-  right_eigenvectors.resize(size,size);
-  left_eigenvectors.resize(size,size);
-  eigenvalues.resize(size);
-  abs_jacobian.resize(size,size);
-  F_L.resize(size);
-  F_R.resize(size);
+  f_left.resize(model().neqs(),model().ndim());
+  f_right.resize(model().neqs(),model().ndim());
 
-
-  m_phys_vars.resize(2);
-  m_phys_vars[LEFT]  = sol_state.create_physics();
-  m_phys_vars[RIGHT] = sol_state.create_physics();
+  eigenvalues.resize(model().neqs());
+  right_eigenvectors.resize(model().neqs(),model().neqs());
+  left_eigenvectors.resize(model().neqs(),model().neqs());
+  abs_jacobian.resize(model().neqs(),model().neqs());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Roe::solve(const RealVector& left, const RealVector& right, const RealVector& normal ,
-                RealVector& interface_flux, Real& left_wave_speed, Real& right_wave_speed)
+void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                 RealVector& flux)
 {
-  // convert left, right state to linear physical data
-  // For scal advection this is equal
+  // Compute left and right properties
+  solution_vars().compute_properties(coord,left,grads,*p_left);
+  solution_vars().compute_properties(coord,right,grads,*p_right);
 
-  State& sol_state = *m_sol_state.lock();
-  State& roe_state = *m_roe_state;
-  Solver::Physics& roe_avg_vars = *m_roe_avg_vars;
+  // Compute the Roe averaged properties
+  // Roe-average = standard average of the Roe-parameter vectors
+  roe_vars().compute_variables(*p_left,  roe_left );
+  roe_vars().compute_variables(*p_right, roe_right);
+  roe_avg = 0.5*(roe_left+roe_right);                // Roe-average is result
+  roe_vars().compute_properties(coord, roe_avg, grads, *p_avg);
 
-  // assumes left and right are in roe states
-  sol_state.set_state(left,  *m_phys_vars[LEFT]);
-  sol_state.set_state(right, *m_phys_vars[RIGHT]);
-  roe_state.linearize(m_phys_vars, roe_avg_vars);
-
-  // right eigenvectors
-  sol_state.compute_fluxjacobian_right_eigenvectors(roe_avg_vars,normal,right_eigenvectors);
-
-  // left eigenvectors = inverse (right_eigenvectors)
-  sol_state.compute_fluxjacobian_left_eigenvectors(roe_avg_vars,normal,left_eigenvectors);
-
-  // eigenvalues
-  sol_state.compute_fluxjacobian_eigenvalues(roe_avg_vars,normal,eigenvalues);
-
-  // calculate absolute jacobian
+  // Compute absolute jacobian using Roe averaged properties
+  solution_vars().flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
   abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
 
-  // flux = central part + upwind part
-  sol_state.compute_flux(*m_phys_vars[LEFT] ,normal,F_L);
-  sol_state.compute_flux(*m_phys_vars[RIGHT],normal,F_R);
+  // Compute left and right fluxes
+  solution_vars().flux(*p_left , f_left);
+  solution_vars().flux(*p_right, f_right);
 
-  interface_flux = 0.5*(F_L + F_R) - 0.5*abs_jacobian*(right-left);
-  left_wave_speed  = sol_state.max_abs_eigen_value( roe_avg_vars, normal );
-  right_wave_speed = sol_state.max_abs_eigen_value( roe_avg_vars, -normal );
+  // Compute flux at interface composed of central part and upwind part
+  flux = 0.5*(f_left*normal+f_right*normal) - 0.5 * abs_jacobian*(right-left);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void Roe::compute_interface_flux_and_wavespeeds(const RealVector& left, const RealVector& right, const RealVector& normal,
+                                                RealVector& flux, RealVector& wave_speeds)
+{
+  compute_interface_flux(left,right,normal,flux);
+  wave_speeds = eigenvalues;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

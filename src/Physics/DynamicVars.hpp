@@ -51,6 +51,13 @@ public: // functions
     /// @todo to be implemented in the .cpp
   }
 
+  /// compute variables from properties
+  virtual void compute_variables (const Physics::Properties& physp,
+                                  RealVector& vars)
+  {
+    /// @todo to be implemented in the .cpp
+  }
+
   /// compute the physical flux
   virtual void flux (const Physics::Properties& p,
                      RealMatrix& flux)

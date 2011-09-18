@@ -82,6 +82,15 @@ public: // functions
     p.v = p.rho0v / p.rho0;                   // velocity along YY, rho0.v / rho0
   }
 
+  template < typename VectorT >
+  static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
+  {
+    vars[Rho]   = p.rho;
+    vars[RhoU0] = p.rho0u;
+    vars[RhoV0] = p.rho0v;
+    vars[P]     = p.p;
+  }
+
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,

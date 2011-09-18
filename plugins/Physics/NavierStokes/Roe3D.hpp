@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_NavierStokes_Roe2D_hpp
-#define CF_Physics_NavierStokes_Roe2D_hpp
+#ifndef CF_Physics_NavierStokes_Roe3D_hpp
+#define CF_Physics_NavierStokes_Roe3D_hpp
 
 #include <iostream>
 
@@ -14,7 +14,7 @@
 
 #include "Physics/Variables.hpp"
 
-#include "NavierStokes2D.hpp"
+#include "NavierStokes3D.hpp"
 
 namespace CF {
 namespace Physics {
@@ -22,28 +22,28 @@ namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class NavierStokes_API Roe2D : public VariablesT<Roe2D> {
+class NavierStokes_API Roe3D : public VariablesT<Roe3D> {
 
 public: //typedefs
 
-  typedef NavierStokes2D     MODEL;
+  typedef NavierStokes3D     MODEL;
 
-  enum { Z0 = 0, Z1 = 1, Z2 = 2, Z3 = 3 };
+  enum { Z0 = 0, Z1 = 1, Z2 = 2, Z3 = 3 , Z4 = 4 };
 
-  typedef boost::shared_ptr<Roe2D> Ptr;
-  typedef boost::shared_ptr<Roe2D const> ConstPtr;
+  typedef boost::shared_ptr<Roe3D> Ptr;
+  typedef boost::shared_ptr<Roe3D const> ConstPtr;
 
 public: // functions
 
   /// constructor
   /// @param name of the component
-  Roe2D ( const std::string& name );
+  Roe3D ( const std::string& name );
 
   /// virtual destructor
-  virtual ~Roe2D();
+  virtual ~Roe3D();
 
   /// Get the class name
-  static std::string type_name () { return "Roe2D"; }
+  static std::string type_name () { return "Roe3D"; }
 
   /// compute physical properties
   template < typename CV, typename SV, typename GM >
@@ -63,13 +63,15 @@ public: // functions
     p.rho = sol[Z0]*sol[Z0];
     p.u   = sol[Z1]/sol[Z0];
     p.v   = sol[Z2]/sol[Z0];
-    p.H   = sol[Z3]/sol[Z0];
+    p.w   = sol[Z3]/sol[Z0];
+    p.H   = sol[Z4]/sol[Z0];
 
-    p.uuvv = p.u*p.u + p.v*p.v;
-    p.P = p.gamma_minus_1/p.gamma * p.rho*(p.H - 0.5*p.uuvv);
+    p.uuvvww = p.u*p.u + p.v*p.v + p.w*p.w;
+    p.P = p.gamma_minus_1/p.gamma * p.rho*(p.H - 0.5*p.uuvvww);
 
     p.rhou = p.rho * p.u;
     p.rhov = p.rho * p.v;
+    p.rhow = p.rho * p.w;
     p.rhoE = p.rho * p.E;
 
 
@@ -77,19 +79,21 @@ public: // functions
 
     if( p.P <= 0. )
     {
-          std::cout << "rho   : " << p.rho  << std::endl;
-          std::cout << "rhou  : " << p.rhou << std::endl;
-          std::cout << "rhov  : " << p.rhov << std::endl;
-          std::cout << "rhoE  : " << p.rhoE << std::endl;
-          std::cout << "P     : " << p.P    << std::endl;
-          std::cout << "u     : " << p.u    << std::endl;
-          std::cout << "v     : " << p.v    << std::endl;
-          std::cout << "uuvv  : " << p.uuvv << std::endl;
+          std::cout << "rho    : " << p.rho  << std::endl;
+          std::cout << "rhou   : " << p.rhou << std::endl;
+          std::cout << "rhov   : " << p.rhov << std::endl;
+          std::cout << "rhoE   : " << p.rhoE << std::endl;
+          std::cout << "P      : " << p.P    << std::endl;
+          std::cout << "u      : " << p.u    << std::endl;
+          std::cout << "v      : " << p.v    << std::endl;
+          std::cout << "w      : " << p.w    << std::endl;
+          std::cout << "uuvvww : " << p.uuvvww << std::endl;
 
 
       throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
                                    + Common::to_str(coord[XX]) + ","
-                                   + Common::to_str(coord[YY])
+                                   + Common::to_str(coord[YY]) + ","
+                                   + Common::to_str(coord[ZZ])
                                    + "]");
     }
 
@@ -100,11 +104,11 @@ public: // functions
     p.a2 = p.gamma * RT;
     p.a = sqrt( p.a2 );
 
-    p.Ma = sqrt( p.uuvv / p.a2 );
+    p.Ma = sqrt( p.uuvvww / p.a2 );
 
     p.T = RT / p.R;
 
-    p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvv;
+    p.half_gm1_v2 = 0.5 * p.gamma_minus_1 * p.uuvvww;
   }
 
   template < typename VectorT >
@@ -113,16 +117,16 @@ public: // functions
     vars[Z0] = sqrt(p.rho);
     vars[Z1] = vars[Z0]*(p.u);
     vars[Z2] = vars[Z0]*(p.v);
-    vars[Z3] = vars[Z0]*(p.H);
+    vars[Z3] = vars[Z0]*(p.w);
+    vars[Z4] = vars[Z0]*(p.H);
   }
-
 
   /// compute the physical flux
   template < typename FM >
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-    throw Common::NotImplemented(FromHere(), "flux not implemented for Roe2D");
+    throw Common::NotImplemented(FromHere(), "flux not implemented for Roe3D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -131,7 +135,7 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe2D");
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe3D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -142,7 +146,7 @@ public: // functions
                                          OP& op )
 
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe2D");
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe3D");
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -153,7 +157,7 @@ public: // functions
                                             EM& Lv,
                                             EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe2D");
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe3D");
   }
 
   /// compute the PDE residual
@@ -162,10 +166,10 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe2D");
+    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe3D");
   }
 
-}; // Roe2D
+}; // Roe3D
 
 ////////////////////////////////////////////////////////////////////////////////////
 
@@ -173,4 +177,4 @@ public: // functions
 } // Physics
 } // CF
 
-#endif // CF_Physics_NavierStokes_Roe2D_hpp
+#endif // CF_Physics_NavierStokes_Roe3D_hpp
