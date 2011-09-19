@@ -50,9 +50,10 @@ struct TimedActionImpl
 {
   TimedActionImpl(CAction& action);
   
-  void execute();
+  void start_timing();
+  void stop_timing();
   
-  CAction& m_action;
+  CAction& m_timed_component;
 };
 
 /// Alternative wrapper that adds timing functionality around the execute() function for CAction
@@ -74,7 +75,9 @@ public:
   
   inline void execute()
   {
-    m_impl.execute();
+    m_impl.start_timing();
+    ComponentT::execute();
+    m_impl.stop_timing();
   }
   
   TimedActionImpl m_impl;

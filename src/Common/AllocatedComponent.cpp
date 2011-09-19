@@ -14,16 +14,19 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-TimedActionImpl::TimedActionImpl(CAction& action) : m_action(action)
+TimedActionImpl::TimedActionImpl(CAction& action) : m_timed_component(action)
 {
 }
 
-void TimedActionImpl::execute()
+void TimedActionImpl::start_timing()
 {
-  std::cout << "Running timed action " << m_action.uri().string() << std::endl;
-  m_action.execute();
+  std::cout << "Starting timer on " << m_timed_component.uri().string() << std::endl;
 }
 
+void TimedActionImpl::stop_timing()
+{
+  std::cout << "Stopping timer on " << m_timed_component.uri().string() << std::endl;
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
