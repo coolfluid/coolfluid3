@@ -5,16 +5,24 @@ list( APPEND coolfluid_sfdm_files
   #ComputeRhsInCell.cpp
   #ComputeUpdateCoefficient.hpp
   #ComputeUpdateCoefficient.cpp
-  #CreateSFDFields.hpp
-  #CreateSFDFields.cpp
+  CreateSFDFields.hpp
+  CreateSFDFields.cpp
   #CreateSpace.hpp
   #CreateSpace.cpp
-  CellTerm.cpp  CellTerm.hpp
+  CellTerm.cpp
+  CellTerm.hpp
   DomainDiscretization.cpp
   DomainDiscretization.hpp
-  IterativeSolver.cpp  IterativeSolver.hpp
+  Init.cpp
+  Init.hpp
+  InitialConditions.cpp
+  InitialConditions.hpp
+  IterativeSolver.cpp
+  IterativeSolver.hpp
   LibSFDM.hpp
   LibSFDM.cpp
+  PrepareMesh.cpp
+  PrepareMesh.hpp
   #OutputIterationInfo.hpp
   #OutputIterationInfo.cpp
   #Reconstruct.hpp
@@ -23,14 +31,15 @@ list( APPEND coolfluid_sfdm_files
   #ShapeFunction.cpp
   SFDSolver.hpp
   SFDSolver.cpp
-  TimeStepping.cpp  TimeStepping.hpp
+  TimeStepping.cpp
+  TimeStepping.hpp
   #SFDWizard.hpp
   #SFDWizard.cpp
   #UpdateSolution.hpp
   #UpdateSolution.cpp
 )
 
-list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh coolfluid_solver coolfluid_solver_actions coolfluid_physics)
+list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_physics)
 
 coolfluid_add_library( coolfluid_sfdm )
 
@@ -41,8 +50,6 @@ coolfluid_mark_not_orphan(
   ComputeRhsInCell.cpp
   ComputeUpdateCoefficient.hpp
   ComputeUpdateCoefficient.cpp
-  CreateSFDFields.hpp
-  CreateSFDFields.cpp
   CreateSpace.hpp
   CreateSpace.cpp
   OutputIterationInfo.hpp

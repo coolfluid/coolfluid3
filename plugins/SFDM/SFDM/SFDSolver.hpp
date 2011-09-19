@@ -14,8 +14,10 @@
 #include "Solver/Tags.hpp"
 
 #include "SFDM/LibSFDM.hpp"
+#include "SFDM/PrepareMesh.hpp"
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/IterativeSolver.hpp"
+#include "SFDM/InitialConditions.hpp"
 #include "SFDM/DomainDiscretization.hpp"
 
 namespace CF {
@@ -26,6 +28,7 @@ namespace Solver    { namespace Actions { class CSynchronizeFields; } }
 namespace SFDM {
 
 // Forward declarations
+class PrepareMesh;
 class BoundaryConditions;
 class InitialConditions;
 class DomainDiscretization;
@@ -35,14 +38,20 @@ class TimeStepping;
 ////////////////////////////////////////////////////////////////////////////////
 
 
-struct Tags
+struct Tags : public Solver::Tags
 {
-  static std::string fields()         { return "fields"; }
-  static std::string actions()        { return "actions"; }
-  static std::string solution_vars()  { return "solution_vars"; }
-  static std::string solution()       { return "solution"; }
-  static std::string wave_speed()     { return "wave_speed"; }
-  static std::string residual()       { return "residual"; }
+  static const char * fields()         { return "fields"; }
+  static const char * actions()        { return "actions"; }
+  static const char * solution_vars()  { return "solution_vars"; }
+  static const char * input_vars()     { return "input_vars"; }
+  static const char * solution_order() { return "solution_order"; }
+
+  static const char * solution()       { return "solution"; }
+  static const char * wave_speed()     { return "wave_speed"; }
+  static const char * update_coeff()   { return "update_coefficient"; }
+  static const char * residual()       { return "residual"; }
+  static const char * jacob_det()      { return "jacobian_determinant"; }
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,12 +87,12 @@ public: // functions
   virtual void execute();
 
 #if 0
-  /// @return subcomponent for initial conditions
-  InitialConditions&    initial_conditions();
   /// @return subcomponent for boundary conditions
   BoundaryConditions&   boundary_conditions();
 #endif
 
+  /// @return subcomponent for initial conditions
+  InitialConditions&    initial_conditions()     { return *m_initial_conditions; }
   /// @return subcomponent for domain terms
   DomainDiscretization& domain_discretization()  { return *m_domain_discretization; }
   /// @return subcomponent for time stepping
@@ -91,12 +100,13 @@ public: // functions
   /// @return subcomponent for non linear iterative steps
   IterativeSolver&      iterative_solver()       { return *m_iterative_solver; }
   /// @return subcomponent to prepare mesh for solving
-  CActionDirector&      prepare_mesh()           { return *m_prepare_mesh; }
+  PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
   Common::CGroup&       actions()                { return *m_actions; }
   /// @returns the group of shared fields
   Common::CGroup&       fields()                 { return *m_fields; }
 
+  Mesh::CMesh& mesh() { return *m_mesh.lock(); }
 
 private: // functions
 
@@ -111,16 +121,19 @@ private: // functions
 
 private: // data
 
+  bool m_mesh_configured;
+
   boost::shared_ptr<Common::CGroup>          m_actions;               ///< the group of shared actions
   boost::shared_ptr<Common::CGroup>          m_fields;                ///< the group of fields
-  boost::shared_ptr<Common::CActionDirector> m_prepare_mesh;          ///< subcomponent that setups the fields
+
   boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
   boost::weak_ptr<Mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates
 
+  boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
   boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
   boost::shared_ptr<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
   boost::shared_ptr<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
-//  boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
+  boost::shared_ptr<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
 //  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
 
 };

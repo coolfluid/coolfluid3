@@ -13,13 +13,19 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/OSystemLayer.hpp"
+
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Solver/CModel.hpp"
 #include "Solver/Tags.hpp"
 
 #include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
 
 #include "Mesh/CDomain.hpp"
+#include "Mesh/Field.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
@@ -42,6 +48,7 @@
 //#include "SFDM/CreateSpace.hpp"
 
 using namespace CF;
+using namespace CF::Math;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Physics;
@@ -54,7 +61,7 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver )
+BOOST_AUTO_TEST_CASE( Solver_test )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
@@ -70,26 +77,52 @@ BOOST_AUTO_TEST_CASE( Solver )
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 
-  /// Create a 2D rectangular mesh
+  // Create a 2D rectangular mesh
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_rectangle(mesh, 10., 10., 4, 4);
+  CSimpleMeshGenerator::create_rectangle(mesh, 10., 10., 10, 10);
+  solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
-  // configure solver
+  // Prepare the mesh
 
-  solver.configure_option(::CF::Solver::Tags::mesh(),mesh.uri());
   solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons2D"));
-  solver.time_stepping().time().configure_option("time_step",0.1);
-  solver.time_stepping().time().configure_option("end_time" ,0.5);
+  solver.prepare_mesh().execute();
 
-  /// @todo I don't like this part at all, necessary before adding terms
-  solver.configure_option_recursively( ::CF::Solver::Tags::domain(),         domain.uri() );
-  solver.configure_option_recursively( ::CF::Solver::Tags::physical_model(), physics.uri() );
-  solver.configure_option_recursively( ::CF::Solver::Tags::solver(),         solver.uri() );
+  //////////////////////////////////////////////////////////////////////////////
+  // Configure simulation
 
+  // Initial condition
+  Solver::Action& init_condition = solver.initial_conditions().create_initial_condition("shocktube");
+  init_condition.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
+  std::vector<std::string> functions;
+  functions.push_back("if( x<=5 , 4.696  , 1.408  )"); // rho
+  functions.push_back("if( x<=5 , 0      , 0      )"); // u
+  functions.push_back("if( x<=5 , 0      , 0      )"); // v
+  functions.push_back("if( x<=5 , 404400 , 101100 )"); // p
+  init_condition.configure_option("functions",functions);
+  solver.initial_conditions().execute();
+
+  // Discretization
   solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_1",std::vector<URI>(1,mesh.topology().uri()));
   solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
   solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
+
+  // Time stepping
+  solver.time_stepping().time().configure_option("time_step",0.1);
+  solver.time_stepping().time().configure_option("end_time" ,0.1);
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Run simulation
+
+  CFinfo << model.tree() << CFendl;
+
+  model.simulate();
+
+  CFinfo << "memory: " << OSystem::instance().layer()->memory_usage_str() << CFendl;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Output
+  domain.write_mesh("sfdm_output.msh");
 
 
 //  solver.configure_option_recursively("time",model.time().uri());
@@ -132,9 +165,6 @@ BOOST_AUTO_TEST_CASE( Solver )
 
 //  /// write gmsh file. note that gmsh gets really confused because of the multistate view
 ////  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
-  CFinfo << model.tree() << CFendl;
-
-  model.simulate();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

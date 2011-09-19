@@ -39,7 +39,9 @@ Common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
+SFDSolver::SFDSolver ( const std::string& name  ) :
+  CSolver ( name ),
+  m_mesh_configured(false)
 {
   // properties
 
@@ -48,19 +50,21 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
 
   // options
   options().add_option< OptionT<std::string> >( SFDM::Tags::solution_vars(), "")
-      ->attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
+      ->attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) )
+      ->mark_basic();
 
-  options().add_option( OptionT<Uint>::create("solution_order",2u) )
+  options().add_option( OptionT<Uint>::create(SFDM::Tags::solution_order(),2u) )
       ->pretty_name("Solution Order")
       ->description("Setting this will create the appropriate spaces in the mesh")
-      ->attach_trigger( boost::bind( &SFDSolver::config_mesh , this ) );
+      ->mark_basic();
 
-  options().add_option(OptionComponent<CMesh>::create( Solver::Tags::mesh(), &m_mesh))
+  options().add_option(OptionComponent<CMesh>::create( SFDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
-      ->attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) );
+      ->attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) )
+      ->mark_basic();
 
-  option(Solver::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
+  option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
   // for storing links to fields
   m_fields  = create_static_component_ptr< CGroup >( SFDM::Tags::fields()  );
@@ -75,7 +79,8 @@ SFDSolver::SFDSolver ( const std::string& name  ) : CSolver ( name )
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &SFDSolver::on_mesh_changed_event);
 
   // for setting up the mesh
-  m_prepare_mesh  = create_static_component_ptr< CActionDirector >( "SetupMesh" );
+  m_prepare_mesh  = create_static_component_ptr< PrepareMesh >( PrepareMesh::type_name() );
+  m_initial_conditions  = create_static_component_ptr< InitialConditions >( InitialConditions::type_name() );
 
   m_time_stepping    = create_static_component_ptr< TimeStepping >( TimeStepping::type_name() );
 
@@ -136,7 +141,10 @@ void SFDSolver::config_physics()
     }
 
     boost_foreach( Component& child, children() )
-      child.configure_option_recursively( Solver::Tags::physical_model(), pm.uri() );
+    {
+      child.configure_option_recursively( SFDM::Tags::physical_model(), pm.uri() );
+      child.configure_option_recursively( SFDM::Tags::solver(), this->uri() );
+    }
   }
   catch(SetupError&)
   {
@@ -150,24 +158,16 @@ void SFDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
-  CMesh& mesh = *(m_mesh.lock());
-
   Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  Mesh::CMesh& mesh = *m_mesh.lock();
 
-  if( pm.ndim() != mesh.dimension() )
+  if( physics().ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );
-
-  // setup the fields
-
-  prepare_mesh().configure_option_recursively( Solver::Tags::mesh(), mesh.uri() ); // trigger config_mesh()
-
-  prepare_mesh().execute();
-
-  // configure all other subcomponents with the mesh
 
   boost_foreach( Component& child, children() )
   {
-    child.configure_option_recursively( Solver::Tags::mesh(), mesh.uri() );
+    child.configure_option_recursively( SFDM::Tags::mesh(), mesh.uri() );
+    child.configure_option_recursively( SFDM::Tags::solver(), this->uri() );
   }
 }
 
@@ -179,7 +179,10 @@ void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 
   URI mesh_uri = options.value<URI>("mesh_uri");
 
-  configure_option( Solver::Tags::mesh(), mesh_uri ); // trigger config_mesh()
+  // Carefully see what needs to be changed!!!
+  throw NotSupported(FromHere(),"Mesh may not be changed once configured!!! (yet)");
+
+  //  configure_option( SFDM::Tags::mesh(), mesh_uri ); // trigger config_mesh()
 }
 
 ////////////////////////////////////////////////////////////////////////////////

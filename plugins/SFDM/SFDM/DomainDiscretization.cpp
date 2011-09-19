@@ -94,9 +94,9 @@ CellTerm& DomainDiscretization::create_cell_term( const std::string& type,
   else
     term->configure_option("regions", regions);
 
-  term->configure_option( Solver::Tags::mesh(),           mesh().uri());
-  term->configure_option( Solver::Tags::solver(),         solver().uri());
-  term->configure_option( Solver::Tags::physical_model(), physical_model().uri());
+  term->configure_option( SFDM::Tags::mesh(),           mesh().uri());
+  term->configure_option( SFDM::Tags::solver(),         solver().uri());
+  term->configure_option( SFDM::Tags::physical_model(), physical_model().uri());
 
   return *term;
 }
@@ -113,9 +113,9 @@ CAction& DomainDiscretization::create_face_term( const std::string& type,
 
   term->configure_option("regions" , regions);
 
-  term->configure_option( Solver::Tags::mesh(),           mesh().uri());
-  term->configure_option( Solver::Tags::solver(),         solver().uri());
-  term->configure_option( Solver::Tags::physical_model(), physical_model().uri());
+  term->configure_option( SFDM::Tags::mesh(),           mesh().uri());
+  term->configure_option( SFDM::Tags::solver(),         solver().uri());
+  term->configure_option( SFDM::Tags::physical_model(), physical_model().uri());
 
   return *term;
 }
