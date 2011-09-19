@@ -40,7 +40,7 @@ Common::ComponentBuilder < CommPattern, Component, LibCommon > CommPattern_Provi
 // Constructor & destructor
 ////////////////////////////////////////////////////////////////////////////////
 
-CommPattern::CommPattern(const std::string& name): Component(name), m_gid(new CommWrapperPtr<int>("dummy")),
+CommPattern::CommPattern(const std::string& name): Component(name), m_gid(allocate_component< CommWrapperPtr<int> >("dummy")),
   m_isUpdatable(0),
   m_add_buffer(0),
   m_mov_buffer(0),

@@ -49,8 +49,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
 
 const CF::Mesh::ElementType& Hexa3D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<LagrangeP1::Quad3D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

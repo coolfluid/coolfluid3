@@ -46,8 +46,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Tetra3D::faces()
 
 const CF::Mesh::ElementType& Tetra3D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<LagrangeP1::Triag3D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP1::Triag3D> >(LagrangeP1::Triag3D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -41,8 +41,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 
 const CF::Mesh::ElementType& Line2D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<Line2D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_common_files
+    AllocatedComponent.hpp
+    AllocatedComponent.cpp
     Assertions.cpp
     Assertions.hpp
     BasicExceptions.cpp
