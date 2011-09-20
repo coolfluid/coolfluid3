@@ -13,6 +13,20 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
+namespace CF {
+namespace Common {
+
+class Component;
+
+/// Store accumulated timings in properties for readout
+void store_timings(Component& root);
+
+/// Print timing tree based on the existing properties
+void print_timing_tree(Component& root, const bool print_untimed = false, const std::string& prefix="");
+
+}
+}
+
 #ifdef CF_OS_LINUX
 
 namespace CF {
@@ -63,3 +77,5 @@ typedef boost::timer Timer;
 /////////////////////////////////////////////////////////////////////////////////////
 
 #endif // CF_Common_Timer_hpp
+
+class C;

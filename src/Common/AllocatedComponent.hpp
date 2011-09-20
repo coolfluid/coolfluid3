@@ -13,6 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/scoped_ptr.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -44,28 +45,48 @@ public:
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////
+// Timing stuff is below here
+////////////////////////////////////////////////////////////////////////////////////////////
 
+/// Pure virtual interface for components that store timings
+class TimedComponent
+{
+public:
+  virtual ~TimedComponent() {}
+  
+  /// Copy the stored timings from internal storage to visible properties.
+  /// This avoids having expensive property updates on each timing
+  virtual void store_timings() = 0;
+};
+
+/// Forward declaration for compile-time checking of base class
 class CAction;
+
+/// For internal use, allows non-template parts of TimedAction to be in the .cpp
 struct TimedActionImpl
 {
   TimedActionImpl(CAction& action);
+  ~TimedActionImpl();
   
   void start_timing();
   void stop_timing();
+  void store_timings();
   
   CAction& m_timed_component;
+  
+  // Avoid dragging in the timer-related headers
+  class Implementation;
+  boost::scoped_ptr<Implementation> m_implementation;
 };
 
 /// Alternative wrapper that adds timing functionality around the execute() function for CAction
 template<typename ComponentT>
-class TimedAction : public ComponentT
+class TimedAction : public ComponentT, public TimedComponent
 {
 public:
   TimedAction(const std::string& name) : ComponentT(name), m_impl(*this)
   {
   }
-
-  static const bool is_action = boost::is_base_of<CAction, ComponentT>::value;
 
   /// Component::derived_type_name implementation
   std::string derived_type_name() const
@@ -78,6 +99,11 @@ public:
     m_impl.start_timing();
     ComponentT::execute();
     m_impl.stop_timing();
+  }
+  
+  inline void store_timings()
+  {
+    m_impl.store_timings();
   }
   
   TimedActionImpl m_impl;

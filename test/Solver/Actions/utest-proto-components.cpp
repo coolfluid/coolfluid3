@@ -16,6 +16,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
+#include "Common/Timer.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -284,6 +285,9 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 
   // Run the actions
   model.simulate();
+  
+  store_timings(model);
+  print_timing_tree(model);
 
   // Check
   BOOST_CHECK_EQUAL(solver.temp_sum / static_cast<Real>(1+nb_segments), 288.);

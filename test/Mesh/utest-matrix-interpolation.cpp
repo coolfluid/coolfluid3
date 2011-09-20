@@ -40,15 +40,15 @@ struct MatrixInterpolationFixture
   /// common setup for each test case
     MatrixInterpolationFixture()
     {
-    CTable<Real>::Ptr      V (new CTable<Real>("V"));
+        CTable<Real>::Ptr      V (Common::allocate_component< CTable<Real> >("V"));
         V->set_row_size(NDOF);
         V->resize(nbQdPts);
 
-    CTable<Real>::Ptr  dVdxi (new CTable<Real>("dVdxi"));
+        CTable<Real>::Ptr  dVdxi (Common::allocate_component< CTable<Real> >("dVdxi"));
         dVdxi->set_row_size(NDOF);
         dVdxi->resize(nbQdPts);
 
-    CTable<Real>::Ptr dVdeta (new CTable<Real>("dVdeta"));
+        CTable<Real>::Ptr dVdeta (Common::allocate_component< CTable<Real> >("dVdeta"));
         dVdeta->set_row_size(NDOF);
         dVdeta->resize(nbQdPts);
 

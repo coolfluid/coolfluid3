@@ -239,7 +239,7 @@ struct VolumeSFFixture
     {
       FunctorT functor;
       cf_assert(ETYPE::dimension == ETYPE::dimensionality);
-      CFinfo << "---------------------- Start " << ElementTypeT<ETYPE>().derived_type_name() << " test ----------------------" << CFendl;
+      CFinfo << "---------------------- Start " << allocate_component< ElementTypeT<ETYPE> >("lala")->derived_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
       try
       {
