@@ -117,6 +117,8 @@ list( APPEND coolfluid_common_files
     TaggedObject.cpp
     Tags.hpp
     Tags.cpp
+    TimedComponent.hpp
+    TimedComponent.cpp
     Timer.cpp
     Timer.hpp
     TypeInfo.cpp

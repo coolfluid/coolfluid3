@@ -20,6 +20,8 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+#ifdef CF_ENABLE_COMPONENT_TIMING
+
 struct TimedActionImpl::Implementation
 {
   Timer m_timer;
@@ -73,6 +75,7 @@ void TimedActionImpl::store_timings()
   m_timed_component.properties().configure_property("timer_variance", boost::accumulators::lazy_variance(m_implementation->m_timing_stats));
 }
 
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

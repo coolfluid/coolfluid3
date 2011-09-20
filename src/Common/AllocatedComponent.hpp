@@ -4,9 +4,8 @@
 // GNU Lesser General Public License version 3.
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-/// @file Component.hpp
-/// @brief Holds the Component class, as well as the ComponentIterator class
-///        plus some functions related to component creation
+/// @file AllocatedComponent.hpp
+/// @brief Wrapper around component, ensuring proper allocation and type identification, as well as optional function wrapping
 
 #ifndef CF_Common_AllocatedComponent_hpp
 #define CF_Common_AllocatedComponent_hpp
@@ -44,20 +43,18 @@ public:
   }
 };
 
-////////////////////////////////////////////////////////////////////////////////////////////
-// Timing stuff is below here
-////////////////////////////////////////////////////////////////////////////////////////////
+#ifdef CF_ENABLE_COMPONENT_TIMING
+}
+}
 
-/// Pure virtual interface for components that store timings
-class TimedComponent
-{
-public:
-  virtual ~TimedComponent() {}
-  
-  /// Copy the stored timings from internal storage to visible properties.
-  /// This avoids having expensive property updates on each timing
-  virtual void store_timings() = 0;
-};
+#include "Common/TimedComponent.hpp"
+
+namespace CF {
+namespace Common {
+
+////////////////////////////////////////////////////////////////////////////////////////////
+// CAction timing
+////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Forward declaration for compile-time checking of base class
 class CAction;
@@ -120,6 +117,18 @@ struct SelectComponentWrapper
     AllocatedComponent<ComponentT>
   >::type type;
 };
+
+#else
+
+/// Helper struct to select the correct wrapper for a component
+template<typename ComponentT>
+struct SelectComponentWrapper
+{
+  typedef AllocatedComponent<ComponentT> type;
+};
+
+#endif
+
 
 } // Common
 } // CF

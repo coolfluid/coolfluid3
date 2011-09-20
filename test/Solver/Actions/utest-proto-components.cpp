@@ -16,7 +16,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
-#include "Common/Timer.hpp"
+#include "Common/TimedComponent.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
