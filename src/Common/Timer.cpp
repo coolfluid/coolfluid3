@@ -4,7 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include "Common/BasicExceptions.hpp"
+#include "Common/Component.hpp"
+#include "Common/FindComponents.hpp"
+#include "Common/Foreach.hpp"
 #include "Common/Timer.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////

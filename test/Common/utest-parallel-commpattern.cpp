@@ -418,7 +418,8 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  CommPattern pecp("CommPattern");
+  CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
+  CommPattern& pecp = *pecp_ptr;
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
   boost::shared_ptr< std::vector<double> > d1( new std::vector<double>(32) );
@@ -429,8 +430,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
   // these are just dummies to see the selective iteration
-  Component::Ptr dir1  ( new CGroup ( "dir1" ) );
-  Component::Ptr dir2  ( new CGroup ( "dir2" ) );
+  Component::Ptr dir1  ( allocate_component<CGroup> ( "dir1" ) );
+  Component::Ptr dir2  ( allocate_component<CGroup> ( "dir2" ) );
   pecp.add_component( dir1 );
   pecp.add_component( dir2 );
 
@@ -475,7 +476,8 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   const int irank=PE::Comm::instance().rank();
 
   // commpattern
-  CommPattern pecp("CommPattern");
+  CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
+  CommPattern& pecp = *pecp_ptr;
 
   // setup gid & rank
   std::vector<Uint> gid;

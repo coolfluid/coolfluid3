@@ -37,7 +37,8 @@ using namespace CF::Common;
 struct MeshComponent_Fixture
 {
   /// common setup for each test case
-  MeshComponent_Fixture()
+  MeshComponent_Fixture() :
+    root(Core::instance().root())
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -58,7 +59,7 @@ struct MeshComponent_Fixture
     return coordVec;
   }
   /// common values accessed by all tests goes here
-
+  CRoot& root;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,7 +114,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
+  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
+  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -303,7 +304,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
 BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 {
   // Create a CElements component
-  CTable<Real>::Ptr coordinates (new CTable<Real>("coords")) ;
+  CTable<Real>::Ptr coordinates (allocate_component< CTable<Real> >("coords")) ;
 
   // initialize the array
   Uint dim = 2;
@@ -327,7 +328,7 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 
 BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 {
-  CTable<Real> vectorArray("vector");
+  CTable<Real>& vectorArray = root.create_component< CTable<Real> >("vector");
   vectorArray.set_row_size(3);
   //CFinfo << "numdim = " << CTable<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
 
@@ -365,19 +366,19 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 
 BOOST_AUTO_TEST_CASE( CList_tests )
 {
-	CList<bool> bool_list ("bool_list");
+  CList<bool>& bool_list = root.create_component< CList<bool> >("bool_list");
 	BOOST_CHECK_EQUAL(bool_list.type_name(),"CList<bool>");
 
-	CList<int>::Ptr integer_list (new CList<int>("integer_list"));
+	CList<int>::Ptr integer_list (allocate_component< CList<int> >("integer_list"));
 	BOOST_CHECK_EQUAL(integer_list->type_name(),"CList<integer>");
 
-	CList<Uint>::Ptr unsigned_list (new CList<Uint>("unsigned_list"));
+	CList<Uint>::Ptr unsigned_list (allocate_component< CList<Uint> >("unsigned_list"));
 	BOOST_CHECK_EQUAL(unsigned_list->type_name(),"CList<unsigned>");
 
-	CList<Real>::Ptr real_list (new CList<Real>("real_list"));
+	CList<Real>::Ptr real_list (allocate_component< CList<Real> >("real_list"));
 	BOOST_CHECK_EQUAL(real_list->type_name(),"CList<real>");
 
-	CList<std::string>::Ptr string_list (new CList<std::string>("string_list"));
+	CList<std::string>::Ptr string_list (allocate_component< CList<std::string> >("string_list"));
 	BOOST_CHECK_EQUAL(string_list->type_name(),"CList<string>");
 
 	bool_list.resize(10);
@@ -420,7 +421,7 @@ BOOST_AUTO_TEST_CASE( CList_tests )
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 {
   // create table
-  CTable<Uint>::Ptr table (new CTable<Uint>("table"));
+  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -476,7 +477,7 @@ BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 BOOST_AUTO_TEST_CASE( ListFlushTest )
 {
   // create table
-  CList<Uint>list ("list");
+  CList<Uint>& list = root.create_component< CList<Uint> >("list");
   // create a buffer to interact with the list with buffersize 3 (if no argument, use default buffersize)
   CList<Uint>::Buffer buffer = list.create_buffer(3);
 
@@ -539,7 +540,7 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
 
 BOOST_AUTO_TEST_CASE ( CDynTable_test )
 {
-  CDynTable<Uint> table ("table");
+  CDynTable<Uint>& table = root.create_component< CDynTable<Uint> >("table");
   CDynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;
@@ -642,7 +643,7 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 //  6:  ~
 //  7:  4294967295
 //  8:  ~
-  CDynTable<Uint> table ("table");
+  CDynTable<Uint>& table = root.create_component< CDynTable<Uint> >("table");
   CDynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;

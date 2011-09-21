@@ -103,8 +103,8 @@ namespace Common {
   private: // helper functions
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
-
-    /// Private constructor forces creation via the create() funtion
+  protected:
+    /// Protected constructor forces creation via the create() funtion while still allowing wrapping by AllocatedComponent
     /// @param name of the component
     CRoot ( const std::string& name );
 

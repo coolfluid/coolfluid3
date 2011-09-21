@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( add_options_to )
 
 //  CFinfo << "starting [" << today << "] [" << now << "]\n" << CFendl;
 
-  boost::shared_ptr<MyC> pm ( new MyC("LOLO") );
+  boost::shared_ptr<MyC> pm ( allocate_component<MyC>("LOLO") );
 
 //  CFinfo << "ending\n" << CFendl;
 }
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE( configure )
     CFinfo << "starting [" << today << "] [" << now << "]" << CFendl;
 
 
-  boost::shared_ptr<MyC> pm ( new MyC("LOLO") );
+  boost::shared_ptr<MyC> pm ( allocate_component<MyC>("LOLO") );
 
   std::string text = (
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"

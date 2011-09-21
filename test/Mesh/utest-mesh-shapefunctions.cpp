@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( sf_dynamic_version )
 {
   RealVector mapped_coord = (RealVector(2) << 0, 0).finished();
 
-  std::auto_ptr<ShapeFunction> sf (new ShapeFunctionT<LagrangeP0::Triag>);
+  ShapeFunction::Ptr sf = allocate_component< ShapeFunctionT<LagrangeP0::Triag> >("sf");
 
   RealRowVector     values(1);//       = sf->value(mapped_coord);
   const RealMatrix& local_coords = sf->local_coordinates();
