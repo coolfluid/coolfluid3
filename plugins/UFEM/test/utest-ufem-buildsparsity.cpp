@@ -181,7 +181,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  BlockMesh::BlockData blocks;
+  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.scaling_factor = 1.;
   blocks.dimension = 3;
   blocks.points += list_of(0.    )(0.    )(0.    )
@@ -238,7 +238,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  BlockMesh::BlockData blocks;
+  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
   BlockMesh::build_mesh(blocks, mesh);
 

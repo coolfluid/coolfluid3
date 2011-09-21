@@ -12,6 +12,8 @@
 
 #include <Eigen/Dense>
 
+#include "Common/CRoot.hpp"
+
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CElements.hpp"
 #include "Mesh/CRegion.hpp"
@@ -127,9 +129,10 @@ BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
   grid_2d = allocate_component<CMesh>("grid_2d");
   Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
   channel_3d = allocate_component<CMesh>("channel_3d");
-  BlockData::Ptr block_data = allocate_component<BlockData>("block_data");
-  Tools::MeshGeneration::create_channel_3d(*block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
-  build_mesh(*block_data, *channel_3d);
+  CRoot::Ptr root = CRoot::create("root");
+  BlockData& block_data = root->create_component<BlockData>("block_data");
+  Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
+  build_mesh(block_data, *channel_3d);
 }
 
 BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
