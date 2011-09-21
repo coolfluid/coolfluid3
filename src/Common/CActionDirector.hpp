@@ -19,7 +19,7 @@ namespace Common {
 /////////////////////////////////////////////////////////////////////////////////////
 
 /// Executes a series of actions, configured through a list of names for the actions to execute
-/// Actions are passed through the "ActionOrder" option and will be executed in the order they are listed
+/// Actions are passed through the "action_order" option and will be executed in the order they are listed
 class Common_API CActionDirector : public CAction {
 
 public: // typedefs
