@@ -92,9 +92,9 @@ struct ProtoBenchmarkFixture :
 
     const Real ratio = 0.1;
 
-    BlockMesh::BlockData blocks;
-    Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
-    BlockMesh::build_mesh(blocks, mesh);
+    BlockMesh::BlockData::Ptr blocks = allocate_component<BlockMesh::BlockData>("blocks");
+    Tools::MeshGeneration::create_channel_3d(*blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
+    BlockMesh::build_mesh(*blocks, mesh);
 
     // Set up variables
     phys_model.variable_manager().create_descriptor("volume", "CellVolume");
