@@ -42,8 +42,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Line1D::faces()
 
 const CF::Mesh::ElementType& Line1D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<LagrangeP0::Point1D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP0::Point1D> >(LagrangeP0::Point1D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

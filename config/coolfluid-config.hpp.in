@@ -77,6 +77,7 @@
 
 // User options
 #cmakedefine CF_ENABLE_STDASSERT
+#cmakedefine CF_ENABLE_COMPONENT_TIMING
 
 #cmakedefine CF_REAL_IS_FLOAT       // CF::Real is float
 #cmakedefine CF_REAL_IS_DOUBLE      // CF::Real is double

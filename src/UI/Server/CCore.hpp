@@ -70,6 +70,12 @@ namespace Server {
     /// Free all allocated memory.
      ~CCore();
 
+     /// Component::derived_type_name implementation
+      std::string derived_type_name() const
+      {
+        return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+      }
+     
      /// @param hostame Host name
      /// @param portNumber Port number
      /// @throw NetworkException

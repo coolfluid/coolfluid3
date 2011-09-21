@@ -248,10 +248,29 @@ make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predic
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
 struct ComponentIteratorRangeSelector {
-  typedef typename ComponentIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+  
+  template<typename IsAbstractT, int dummy = 0>
+  struct impl;
+  
+  template<int dummy>
+  struct impl<boost::true_type, dummy>
+  {
+    typedef typename ComponentIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+                                                                     ComponentT const, // use a const component iterator
+                                                                     ComponentT >::type, // or the mutable one otherwise
+                                           IsComponentTrue>::type type;
+  };
+  
+  template<int dummy>
+  struct impl<boost::false_type, dummy>
+  {
+    typedef typename ComponentIteratorRange<typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
                                                                      ComponentT const, // use a const component iterator
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            Predicate>::type type;
+  };
+  
+  typedef typename impl< typename boost::is_abstract<Predicate>::type >::type type;
 };
 
 /// Reference to ComponentT, constness determined by the constness of ParentT

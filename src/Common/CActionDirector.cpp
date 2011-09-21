@@ -25,14 +25,14 @@ ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder
 
 CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
-  m_options.add_option< OptionArrayT<std::string> >("ActionOrder", std::vector<std::string>())
+  m_options.add_option< OptionArrayT<std::string> >("action_order", std::vector<std::string>())
       ->description("Names of the actions to execute in sequence");
 }
 
 
 void CActionDirector::execute()
 {
-  Option& actions_prop = option("ActionOrder");
+  Option& actions_prop = option("action_order");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   BOOST_FOREACH(const std::string& action_name, actions)
@@ -90,7 +90,7 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
       throw ValueExists(FromHere(), "An action named " + action->name() + " already exists in " + uri().string() + ", but it is different from the appended action");
   }
 
-  Option& actions_prop = option("ActionOrder");
+  Option& actions_prop = option("action_order");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   actions.push_back(action->name());

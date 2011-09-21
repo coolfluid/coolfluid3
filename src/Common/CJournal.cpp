@@ -86,7 +86,7 @@ CJournal::~CJournal()
 CJournal::Ptr CJournal::create_from_file ( const std::string & name,
                                            const boost::filesystem::path & file_path )
 {
-  CJournal::Ptr journal( new CJournal(name) );
+  CJournal::Ptr journal( allocate_component<CJournal>(name) );
 
   journal->load_journal_file(file_path);
 

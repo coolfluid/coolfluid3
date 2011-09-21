@@ -69,7 +69,7 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
 
   // create and add the component
   Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
-  CPlotXY::Ptr plot(new CPlotXY(name));
+  CPlotXY::Ptr plot(Common::allocate_component<CPlotXY>(name));
   parent_comp->add_component( plot );
   plot->mark_basic();
   plot->set_data(m_data);
