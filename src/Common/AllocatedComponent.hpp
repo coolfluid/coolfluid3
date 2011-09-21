@@ -13,6 +13,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/mpl/and.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
@@ -106,13 +107,19 @@ public:
   TimedActionImpl m_impl;
 };
 
+template<typename T>
+struct is_timeable : boost::true_type
+{
+  typedef boost::true_type type;
+};
+
 /// Helper struct to select the correct wrapper for a component
 template<typename ComponentT>
 struct SelectComponentWrapper
 {
   typedef typename boost::mpl::if_
   <
-    boost::is_base_of<CAction, ComponentT>,
+    boost::mpl::and_< boost::is_base_of<CAction, ComponentT>, is_timeable<ComponentT> >,
     TimedAction<ComponentT>,
     AllocatedComponent<ComponentT>
   >::type type;
