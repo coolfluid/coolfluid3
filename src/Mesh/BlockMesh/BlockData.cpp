@@ -791,7 +791,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   }
 }
 
-void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
+void build_mesh_3d(BlockData& block_data, CMesh& mesh)
 {
   Common::Timer timer;
   const Uint nb_procs = PE::Comm::instance().size();
@@ -801,7 +801,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = mesh.create_component<CMesh>("block_mesh");
+  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
@@ -1060,7 +1060,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   }
 }
 
-void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
+void build_mesh_2d(BlockData& block_data, CMesh& mesh)
 {
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
@@ -1069,7 +1069,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = mesh.create_component<CMesh>("block_mesh");
+  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
@@ -1283,7 +1283,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
 
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh, const Uint overlap)
+void build_mesh(BlockData& block_data, CMesh& mesh, const Uint overlap)
 {
   if(block_data.dimension == 3)
     detail::build_mesh_3d(block_data, mesh);
@@ -1658,7 +1658,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
       }
     }
   }
-  
+
   cf_assert(blocks_out.dimension == 3);
 }
 
@@ -1958,7 +1958,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
 void partition_blocks(const CF::Mesh::BlockMesh::BlockData& blocks_in, const CF::Uint nb_partitions, const CF::CoordXYZ direction, CF::Mesh::BlockMesh::BlockData& blocks_out)
 {
   CMesh& block_mesh = blocks_out.create_component<CMesh>("serial_block_mesh");
-  
+
   if(blocks_in.dimension == 3)
   {
     partition_blocks_3d(blocks_in, block_mesh, nb_partitions, direction, blocks_out);

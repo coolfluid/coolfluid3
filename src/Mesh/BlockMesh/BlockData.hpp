@@ -28,11 +28,11 @@ struct BlockMesh_API BlockData : Common::Component
 {
   typedef boost::shared_ptr<BlockData> Ptr;
   typedef boost::shared_ptr<BlockData const> ConstPtr;
-  
+
   BlockData(const std::string& name);
-  
+
   static std::string type_name () { return "BlockData"; }
-  
+
   /// Type to store indices into another vector
   typedef std::vector<Uint> IndicesT;
   /// Data type for counts of data, i.e. number of points
@@ -69,16 +69,16 @@ struct BlockMesh_API BlockData : Common::Component
 
   /// Checks for equality
   bool operator== (const BlockData& other) const;
-  
+
   /// Copy data to another BlockData component
   void copy_to(BlockData& other) const;
 };
 
 /// Using the given block data, construct the mesh. Global node indices are generated as well, so there is no need for a separate global ID generation
-/// @param block_data Description of the structured blocks that make up the grid
+/// @param block_data Description of the structured blocks that make up the grid. A mesh containing only the blocks will be created here.
 /// @param mesh Stores the generated mesh
 /// @param overlap Amount of cell overlap to generate
-void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh, const Uint overlap = 0);
+void BlockMesh_API build_mesh(CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh, const Uint overlap = 0);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks
