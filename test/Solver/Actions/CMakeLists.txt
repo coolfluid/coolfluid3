@@ -28,7 +28,7 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
-  list( APPEND utest-proto-benchmark_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-benchmark_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-benchmark_files  utest-proto-benchmark.cpp )
   if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
     list( APPEND utest-proto-benchmark_args 160 160 120 )
@@ -51,13 +51,13 @@ if(CF_ENABLE_PROTO)
 
   ################################################################################
 
-  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_solver )
+  list( APPEND utest-proto-elements_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh coolfluid_solver )
   list( APPEND utest-proto-elements_files utest-proto-elements.cpp )
   coolfluid_add_unit_test( utest-proto-elements )
 
   ################################################################################
 
-  list( APPEND utest-proto-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_block coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
+  list( APPEND utest-proto-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_blockmesh coolfluid_testing coolfluid_mesh_generation coolfluid_solver )
   list( APPEND utest-proto-parallel_files  utest-proto-parallel.cpp )
   if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
     list( APPEND utest-proto-parallel_args 160 160 120 )

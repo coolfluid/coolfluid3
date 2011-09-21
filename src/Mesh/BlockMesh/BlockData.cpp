@@ -1658,6 +1658,8 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
       }
     }
   }
+  
+  cf_assert(blocks_out.dimension == 3);
 }
 
 void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
