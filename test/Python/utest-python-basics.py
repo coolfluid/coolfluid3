@@ -1,8 +1,6 @@
 import coolfluid as cf
 import sys
 
-cf.Core.initiate(sys.argv)
-
 root = cf.Core.root()
 env = cf.Core.environment()
 
