@@ -19,7 +19,7 @@ call Wizard/create_model  model_name:string=Model \
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=square300x300-qd-10201.msh
+call Model/Domain/load_mesh file:uri=circle150r-tg-p1-3471.msh
 #circle1d-tg-p1-1451.msh
 #circle150r-tg-p1-3471.msh
 #circle150r-tg-p1-9599.msh
