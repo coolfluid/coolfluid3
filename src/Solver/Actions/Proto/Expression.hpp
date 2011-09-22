@@ -212,7 +212,7 @@ public:
       (NodeGrammar));
 
     boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
-    
+
     // Synchronize fields if needed
     if(Common::PE::Comm::instance().is_active())
       boost::mpl::for_each< boost::mpl::range_c<Uint, 0, BaseT::NbVarsT::value> >(SynchronizeFields(BaseT::m_variables, region));
@@ -226,20 +226,20 @@ private:
       m_region(region)
     {
     }
-    
+
     template<typename VarIdxT>
     void operator()(const VarIdxT& i)
     {
       typedef typename boost::result_of<IsModified<VarIdxT::value>(ExprT)>::type IsModifiedT;
       apply(IsModifiedT(), i);
     }
-    
+
     /// Do nothing if the variable is not modified
     template<typename VarIdxT>
     void apply(boost::mpl::false_, const VarIdxT&)
     {
     }
-    
+
     /// Synchronize if modified
     template<typename VarIdxT>
     void apply(boost::mpl::true_, const VarIdxT&)
@@ -249,14 +249,14 @@ private:
       Mesh::Field& field = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
       field.synchronize();
     }
-    
+
     const typename BaseT::VariablesT& m_variables;
     Mesh::CRegion& m_region;
   };
 };
 
 /// Default element types supported by elements expressions
-typedef boost::mpl::vector4<Mesh::LagrangeP1::Line1D, Mesh::LagrangeP1::Triag2D, Mesh::LagrangeP1::Quad2D, Mesh::LagrangeP1::Hexa3D> DefaultElementTypes;
+typedef boost::mpl::vector5<Mesh::LagrangeP1::Line1D, Mesh::LagrangeP1::Triag2D, Mesh::LagrangeP1::Quad2D, Mesh::LagrangeP1::Hexa3D, Mesh::LagrangeP1::Tetra3D> DefaultElementTypes;
 
 /// Convenience method to construct an Expression to loop over elements
 /// @returns a shared pointer to the constructed expression
