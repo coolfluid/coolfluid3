@@ -6,7 +6,6 @@
 
 #include <boost/python.hpp>
 
-
 #include "Python/Component.hpp"
 #include "Python/Core.hpp"
 #include "Python/PythonModule.hpp"

@@ -10,7 +10,7 @@ env.configure_option('assertion_throws', False)
 env.configure_option('assertion_backtrace', False)
 env.configure_option('exception_backtrace', False)
 env.configure_option('regist_signal_handlers', False)
-env.configure_option('log_level', 4)
+env.configure_option('log_level', 1)
 
 # setup a model
 model = root.create_component('HotModel', 'CF.Solver.CModel')
@@ -37,6 +37,9 @@ bc.get_child('BCouterTemperature').configure_option('value', 35)
 # run the simulation
 model.simulate()
 
+# print timings
+model.print_timing_tree()
+
 # Write result
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
+domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter')
 domain.write_mesh(cf.URI('atest-ufem-heat3d-sphere_output.pvtu'))

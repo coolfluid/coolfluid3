@@ -15,6 +15,7 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
+#include "Common/TimedComponent.hpp"
 #include "Common/TypeInfo.hpp"
 #include "Common/Signal.hpp"
 
@@ -213,6 +214,11 @@ public:
     }
   }
 
+  void print_timing_tree()
+  {
+    CF::Common::print_timing_tree(component());
+  }
+
 private:
   // checked access
   Common::Component& component()
@@ -244,6 +250,7 @@ void def_component()
     .def("get_child", &ComponentWrapper::get_child)
     .def("configure_option", &ComponentWrapper::configure_option)
     .def("option_value_str", &ComponentWrapper::option_value_str)
+    .def("print_timing_tree", &ComponentWrapper::print_timing_tree)
     .def("uri", &ComponentWrapper::uri);
 }
 

@@ -41,6 +41,9 @@ bc.get_child('BCrightTemperature').configure_option('value', 35)
 # run the simulation
 model.simulate()
 
+# print timings
+model.print_timing_tree()
+
 # Write result
 domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
 domain.write_mesh(cf.URI('atest-ufem-heat3d-channel_output.pvtu'))
