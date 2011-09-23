@@ -55,22 +55,45 @@ class Common_API CommWrapper : public Component {
     CommWrapper( const std::string& name ) : Component(name) {};
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
-    /// @param map vector of map
-    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) const = 0;
+    /// @param reference to byte-sized vector of the buffer to pack to, which is of size size_of()*stride()*map.size()
+    /// @param reference to vector of map
+    virtual void pack(std::vector<unsigned char>& buf, std::vector<int>& map) const = 0;
+
+    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// @param reference to vector of map
+    /// @return newly created byte-sized vector, which is of size size_of()*stride()*map.size()
+    std::vector<unsigned char> pack(std::vector<int>& map) const
+    {
+      std::vector<unsigned char> buf;
+      pack(buf,map);
+      return buf;
+    }
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
-    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack() const = 0;
+    /// @param reference to the newly allocated byte-sized vector, which is of size size_of()*stride()*size()
+    virtual void pack(std::vector<unsigned char>& buf) const = 0;
+
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @return the newly allocated byte-sized vector, which is of size size_of()*stride()*size()
+    std::vector<unsigned char> pack() const
+    {
+      std::vector<unsigned char> buf;
+      pack(buf);
+      return buf;
+    }
+
+    /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// @param reference to the newly allocated vector, which is of size size_of()*stride()*size()
+    virtual void pack(std::vector<unsigned char>& buf) const = 0;
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf,std::vector<int>& map) const = 0;
+    virtual void unpack(const std::vector<unsigned char>& buf,std::vector<int>& map) const = 0;
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf) const = 0;
+    virtual void unpack(const std::vector<unsigned char>& buf) const = 0;
 
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
@@ -164,14 +187,14 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) const
+    virtual void pack(std::vector<unsigned char>& buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[map.size()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      buf.resize(map.size()*m_stride);
       T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
-      for (T* itbuf=tbuf; imap!=map.end(); imap++)
+      T* itbuf=(T*)&buf[0];
+      for (; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           *itbuf++=data[*imap*m_stride + i];
       return (void*)tbuf;
@@ -179,13 +202,12 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack() const
+    virtual void pack(std::vector<unsigned char>& buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[m_size*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      buf.resize(map.size()*m_stride);
       T* data=&(*m_data)[0];
-      T* itbuf=tbuf;
+      T* itbuf=(T*)&buf[0];
       for (int i=0; i<(m_size*m_stride); i++)
         *itbuf++=*data++;
       return (void*)tbuf;
