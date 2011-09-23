@@ -152,6 +152,18 @@ public:
     ow->setup(data,stride,needs_update);
   }
 
+  /// register data coming from multiarrays by reference
+  /// @param name the component will appear under this name
+  /// @param data Multiarray holding the data (not copied)
+  /// @param stride number of array element grouping
+  template<typename ValueT, std::size_t NDims>
+  void insert(const std::string& name, boost::multi_array<ValueT, NDims>& data, const bool needs_update=true)
+  {
+    typedef CommWrapperMArray<ValueT, NDims> CommWrapperT;
+    CommWrapperT& ow = create_component<CommWrapperT>(name);
+    ow.setup(data,needs_update);
+  }
+
   /// register data coming from pointer to std::vector
   /// @param name the component will appear under this name
   /// @param pointer to std::vector of data
@@ -171,27 +183,6 @@ public:
     typename CommWrapperVectorWeakPtr<T>::Ptr ow = create_component_ptr< CommWrapperVectorWeakPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
-
-  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
-  /// @param name the component will appear under this name
-  /// @param std::vector of data
-  /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, boost::multi_array<T,2>& data, const bool needs_update=true)
-  {
-    CommWrapperMArray<T,2>& ow = create_component< CommWrapperMArray<T,2> >(name);
-    ow.setup(data,needs_update);
-  }
-
-  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
-  /// @param name the component will appear under this name
-  /// @param std::vector of data
-  /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, boost::multi_array<T,1>& data, const bool needs_update=true)
-  {
-    CommWrapperMArray<T,1>& ow = create_component< CommWrapperMArray<T,1> >(name);
-    ow.setup(data,needs_update);
-  }
-
 
   /// removes data by name
   void clear( const std::string& name)

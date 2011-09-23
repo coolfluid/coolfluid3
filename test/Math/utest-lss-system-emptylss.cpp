@@ -45,7 +45,7 @@ struct LSSSystem_EmptyLSSFixture
   /// create a dummy commpattern
   void build_input_data()
   {
-    cp = (Common::PE::CommPattern::Ptr) new Common::PE::CommPattern("commpattern");
+    cp = Common::allocate_component<Common::PE::CommPattern>("commpattern");
     gid += 0,1,2,3,4,5,6,7,8,9;
     rnk += 0,0,0,0,0,0,0,0,0,0;
     conn += 0,2,1,2,2,7,3,8,4,5,5,2,6,0,7,1,8,7,9,8;
@@ -62,7 +62,7 @@ struct LSSSystem_EmptyLSSFixture
   /// build a system
   void build_system()
   {
-    sys=(LSS::System::Ptr) new LSS::System("system");
+    sys=(LSS::System::Ptr) Common::allocate_component<LSS::System>("system");
     std::string solvertype("EmptyLSS");
     sys->options().option("solver").change_value(solvertype);
     BOOST_CHECK_EQUAL(sys->is_created(),false);
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
   build_input_data();
   build_system();
 
-  LSS::System::Ptr sys2=(LSS::System::Ptr) new LSS::System("system2");
+  LSS::System::Ptr sys2 = Common::allocate_component<LSS::System>("system2");
   std::string solvertype("EmptyLSS");
   sys2->options().option("solver").change_value(solvertype);
   sys2->create(*cp,4u,conn,startidx);

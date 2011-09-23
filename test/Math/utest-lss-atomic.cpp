@@ -136,9 +136,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 {
 
   // build a commpattern and a matrix
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Matrix::Ptr mat=sys->matrix();
@@ -456,9 +457,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 BOOST_AUTO_TEST_CASE( test_vector_only )
 {
   // build a commpattern and the two vectors
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Vector::Ptr sol=sys->solution();
@@ -582,9 +584,10 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
 BOOST_AUTO_TEST_CASE( test_complete_system )
 {
   // build a commpattern and the system
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   BOOST_CHECK_EQUAL(sys->is_created(),true);
@@ -815,7 +818,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   }
 
   // test swapping rhs and sol
-  LSS::System::Ptr sys2(new LSS::System("sys2"));
+  LSS::System::Ptr sys2(Common::allocate_component<LSS::System>("sys2"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys2,cp);
   BOOST_CHECK_EQUAL(sys2->is_created(),true);
@@ -878,7 +881,8 @@ WHICH RESULTS IN GID ORDER:
     gid += 3,4,5,6,7,8,9;
     rank_updatable += 0,1,1,1,1,1,1;
   }
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",gid,1,false);
   cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
 
@@ -891,7 +895,7 @@ WHICH RESULTS IN GID ORDER:
     node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
     starting_indices +=  0,2,5,8,11,14,17,19;
   }
-  System::Ptr sys(new System("sys"));
+  System::Ptr sys(Common::allocate_component<System>("sys"));
   sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
   sys->create(cp,2,node_connectivity,starting_indices);
 

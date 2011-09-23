@@ -117,7 +117,7 @@ public:
   /// builds the component cast to the correct base
   typename BASE::Ptr create_component_typed ( const std::string& name ) const
   {
-    return typename BASE::Ptr ( new CONCRETE(name), Deleter<BASE>() );
+    return typename BASE::Ptr ( allocate_component<CONCRETE>(name) );
   }
 
   /// Returns the name of the type of what abstract type it builds.

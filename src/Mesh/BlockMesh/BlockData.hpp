@@ -19,7 +19,7 @@ class CMesh;
 
 namespace BlockMesh {
 
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Storage for the information about blocks for structured grid generation
@@ -58,7 +58,7 @@ struct BlockMesh_API BlockData
   std::vector<std::string> patch_names;
   /// Point indices for each patch (grouped per 4)
   std::vector<IndicesT> patch_points;
-  
+
   /// Checks for equality
   bool operator== (const BlockData& other) const;
 };
@@ -66,7 +66,8 @@ struct BlockMesh_API BlockData
 /// Using the given block data, construct the mesh. Global node indices are generated as well, so there is no need for a separate global ID generation
 /// @param block_data Description of the structured blocks that make up the grid
 /// @param mesh Stores the generated mesh
-void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh);
+/// @param overlap Amount of cell overlap to generate
+void BlockMesh_API build_mesh(const CF::Mesh::BlockMesh::BlockData& block_data, CF::Mesh::CMesh& mesh, const Uint overlap = 0);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks

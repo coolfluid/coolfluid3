@@ -70,8 +70,8 @@ public: // functions
   /// @return the shape function defining this geometric element
   virtual const ShapeFunction& shape_function() const
   {
-    const static ShapeFunctionT<typename ETYPE::SF> sf;
-    return sf;
+    const static ShapeFunction::Ptr sf(Common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name()));
+    return *sf;
   }
 
   virtual const FaceConnectivity& faces() const

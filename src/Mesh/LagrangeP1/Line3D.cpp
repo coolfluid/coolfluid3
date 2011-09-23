@@ -37,8 +37,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Line3D::faces()
 
 const CF::Mesh::ElementType& Line3D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<Line3D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Line3D> >(Line3D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

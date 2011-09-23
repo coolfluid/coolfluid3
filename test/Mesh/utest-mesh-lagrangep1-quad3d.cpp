@@ -360,31 +360,31 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  CTable<Real> coordinates(Mesh::Tags::coordinates());
-  CTable<Uint> connectivity("connectivity");
-  create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
+  CTable<Real>::Ptr coordinates(Common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Uint>::Ptr connectivity(Common::allocate_component< CTable<Uint> >("connectivity"));
+  create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Check the area
   Real area = 0.;
-  integrate_region(area, NormalVectorNorm(), coordinates, connectivity);
+  integrate_region(area, NormalVectorNorm(), *coordinates, *connectivity);
   BOOST_CHECK_CLOSE(area, 2.*Consts::pi()*radius*height, 0.1);
 
   // Flux from a constant vector field through a closed surface should be 0
   Real zero_flux = 0.;
   const ETYPE::CoordsT field_vector(0.35, 1.25, 0.);
-  integrate_region(zero_flux, ConstVectorField(field_vector), coordinates, connectivity);
+  integrate_region(zero_flux, ConstVectorField(field_vector), *coordinates, *connectivity);
   BOOST_CHECK_SMALL(zero_flux, 1e-14);
 }
 
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  CTable<Real> arc_coordinates(Mesh::Tags::coordinates());
-  CTable<Uint> arc_connectivity("connectivity");
-  create_cylinder(arc_coordinates, arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
+  CTable<Real>::Ptr arc_coordinates(Common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Uint>::Ptr arc_connectivity(Common::allocate_component< CTable<Uint> >("connectivity"));
+  create_cylinder(*arc_coordinates, *arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
   Real arc_flux = 0.;
   const ETYPE::CoordsT y_vector(0., 1., 0.);
-  integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
+  integrate_region(arc_flux, ConstVectorField(y_vector), *arc_coordinates, *arc_connectivity);
   BOOST_CHECK_CLOSE(arc_flux, 6., 0.01);
 }
 
@@ -398,16 +398,16 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  CTable<Real> coordinates(Mesh::Tags::coordinates());
-  CTable<Uint> connectivity("connectivity");
-  create_cylinder(coordinates, connectivity, radius, u_segments, v_segments, height);
+  CTable<Real>::Ptr coordinates(Common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Uint>::Ptr connectivity(Common::allocate_component< CTable<Uint> >("connectivity"));
+  create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Rotating cylinder in uniform flow
   const Real u = 300.;
   const Real circulation = 975.;
   ETYPE::CoordsT force;
   force.setZero();
-  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), coordinates, connectivity);
+  integrate_region(force, RotatingCylinderPressure(radius, circulation, u), *coordinates, *connectivity);
   BOOST_CHECK_CLOSE(force[YY], height * 1.225*u*circulation, 0.001); // lift according to theory
   BOOST_CHECK_SMALL(force[XX], 1e-8); // Drag should be zero
   BOOST_CHECK_SMALL(force[ZZ], 1e-8);

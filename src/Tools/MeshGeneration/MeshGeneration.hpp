@@ -61,7 +61,7 @@ struct MeshSourceGlobalFixture {
   {
     static Mesh::CMesh::Ptr grid2D;
     if(!grid2D) {
-      grid2D.reset(new Mesh::CMesh("grid2D"));
+      grid2D = Common::allocate_component<Mesh::CMesh>("grid2D");
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);
     }
     return *grid2D;

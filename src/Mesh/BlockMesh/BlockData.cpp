@@ -6,11 +6,15 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "Common/Core.hpp"
 #include "Common/Exception.hpp"
+#include "Common/EventHandler.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 #include "Common/Timer.hpp"
 
-#include "Common/PE/CommPattern.hpp"
 #include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
@@ -21,6 +25,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CRegion.hpp"
@@ -1005,28 +1010,17 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
-
-    std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
 
     // Ghosts
     for(detail::NodeIndices3D::IndexMapT::const_iterator ghost_it = nodes.global_to_local.begin(); ghost_it != nodes.global_to_local.end(); ++ghost_it)
@@ -1035,24 +1029,10 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids,1,false);
-    timer.restart();
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
-
-    timer.restart();
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }
 
@@ -1251,22 +1231,16 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
 
     // Ghosts
@@ -1276,23 +1250,16 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids,1,false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
   }
 }
 
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh)
+void build_mesh(const BlockData& block_data, CMesh& mesh, const Uint overlap)
 {
   if(block_data.dimension == 3)
     detail::build_mesh_3d(block_data, mesh);
@@ -1340,6 +1307,27 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     }
   }
   mesh.elements().update();
+
+  mesh.update_statistics();
+
+  if(overlap != 0 && PE::Comm::instance().size() > 1)
+  {
+    CMeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+    global_conn.transform(mesh);
+
+    CMeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+    for(Uint i = 0; i != overlap; ++i)
+      grow_overlap.transform(mesh);
+
+    mesh.geometry().remove_component("CommPattern");
+  }
+
+  // Raise an event to indicate that a mesh was loaded happened
+  XML::SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+
+  XML::SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
 }
 
 

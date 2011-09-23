@@ -21,6 +21,7 @@ Common::ComponentBuilder < Scalar::RotationAdv2D,
 
 RotationAdv2D::RotationAdv2D(const std::string& name) : VariablesT<RotationAdv2D>(name)
 {
+  description().set_variables("U",MODEL::_ndim);
 }
 
 RotationAdv2D::~RotationAdv2D() {}

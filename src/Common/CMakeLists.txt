@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_common_files
+    AllocatedComponent.hpp
+    AllocatedComponent.cpp
     Assertions.cpp
     Assertions.hpp
     BasicExceptions.cpp
@@ -115,6 +117,8 @@ list( APPEND coolfluid_common_files
     TaggedObject.cpp
     Tags.hpp
     Tags.cpp
+    TimedComponent.hpp
+    TimedComponent.cpp
     Timer.cpp
     Timer.hpp
     TypeInfo.cpp

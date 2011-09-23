@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
-  
+
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
   // Set boundary conditions

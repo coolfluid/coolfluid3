@@ -190,7 +190,6 @@ CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
-  cf_assert_desc("Only point-based fields supported now", m_basis == FieldGroup::Basis::POINT_BASED);
   m_comm_pattern = comm_pattern.as_ptr<CommPattern>();
   comm_pattern.insert(name(), array(), true);
   return comm_pattern;
@@ -199,6 +198,7 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 
 CommPattern& Field::parallelize()
 {
+  /*
   if ( !m_comm_pattern.expired() ) // return if already parallel
     return *m_comm_pattern.lock();
 
@@ -223,6 +223,13 @@ CommPattern& Field::parallelize()
 
   comm_pattern.insert("gid",gid,1,false);
   comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
+  */
+
+  CommPattern& comm_pattern = field_group().comm_pattern();
+
+  // Do nothing if parallel already
+  if(is_not_null(comm_pattern.get_child_ptr(name())))
+    return comm_pattern;
 
   return parallelize_with( comm_pattern );
 }

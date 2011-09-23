@@ -35,8 +35,7 @@ public:
 
     cf_assert( !m_builders.contains(componentType) );
 
-    m_builders[componentType] = typename Common::CBuilderT<CNode, TYPE>::Ptr(
-          new typename Common::CBuilderT<CNode, TYPE>(componentType.toStdString()) );
+    m_builders[componentType] = Common::allocate_component< typename Common::CBuilderT<CNode, TYPE> >( componentType.toStdString() );
   }
 
   bool hasBuilder(const QString & componentType) const;

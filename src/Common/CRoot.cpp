@@ -22,8 +22,8 @@ namespace Common {
 
   CRoot::Ptr CRoot::create ( const std::string& name )
   {
-    CRoot* raw_root = new CRoot(name);
-    boost::shared_ptr<CRoot> root ( raw_root );
+    boost::shared_ptr<CRoot> root(new AllocatedComponent<CRoot>(name), Deleter< AllocatedComponent<CRoot> >());
+    CRoot* raw_root = root.get();
 
     // point root's parent and root to himself
     root->m_root = root;
