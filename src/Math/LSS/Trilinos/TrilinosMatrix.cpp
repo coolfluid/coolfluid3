@@ -737,7 +737,7 @@ void TrilinosMatrix::print(const std::string& filename, std::ios_base::openmode 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
+void TrilinosMatrix::debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values)
 {
   cf_assert(m_is_created);
   row_indices.clear();

@@ -159,7 +159,7 @@ public:
 
   /// exports the matrix into big linear arrays
   /// @attention only for debug and utest purposes
-  void data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
+  void debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values);
 
   //@} END TEST ONLY
 

@@ -123,6 +123,12 @@ public:
   /// Reset Vector
   void reset(Real reset_to=0.);
 
+  /// Copies the contents out of the LSS::Vector to table.
+  void get( boost::multi_array<Real, 2>& data);
+
+  /// Copies the contents of the table into the LSS::Vector.
+  void set( boost::multi_array<Real, 2>& data);
+
   //@} END EFFICCIENT ACCESS
 
   /// @name MISCELLANEOUS
@@ -157,7 +163,7 @@ public:
 
   /// exports the vector into big linear array
   /// @attention only for debug and utest purposes
-  void data(std::vector<Real>& values);
+  void debug_data(std::vector<Real>& values);
 
   //@} END TEST ONLY
 

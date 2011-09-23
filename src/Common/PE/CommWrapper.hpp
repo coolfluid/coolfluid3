@@ -82,10 +82,6 @@ class Common_API CommWrapper : public Component {
       return buf;
     }
 
-    /// extraction of data from the wrapped object, returned memory is a copy, not a view
-    /// @param reference to the newly allocated vector, which is of size size_of()*stride()*size()
-    virtual void pack(std::vector<unsigned char>& buf) const = 0;
-
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
@@ -190,14 +186,13 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     virtual void pack(std::vector<unsigned char>& buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      buf.resize(map.size()*m_stride);
+      buf.resize(map.size()*m_stride*size_of());
       T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
       T* itbuf=(T*)&buf[0];
       for (; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           *itbuf++=data[*imap*m_stride + i];
-      return (void*)tbuf;
     }
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
@@ -205,34 +200,33 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     virtual void pack(std::vector<unsigned char>& buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      buf.resize(map.size()*m_stride);
+      buf.resize(size()*m_stride*size_of());
       T* data=&(*m_data)[0];
       T* itbuf=(T*)&buf[0];
       for (int i=0; i<(m_size*m_stride); i++)
         *itbuf++=*data++;
-      return (void*)tbuf;
     }
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf, std::vector<int>& map) const
+    virtual void unpack(const std::vector<unsigned char>& buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       T* data=&(*m_data)[0];
-      for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
+      for (T* itbuf=(T*)&buf[0]; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           data[*imap*m_stride + i]=*itbuf++;
     }
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf) const
+    virtual void unpack(const std::vector<unsigned char>& buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
-      T* itbuf=(T*)buf;
+      T* itbuf=(T*)&buf[0];
       for (int i=0; i<(m_size*m_stride); i++)
         *data++=*itbuf++;
     }
@@ -315,16 +309,14 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) const
+    virtual void pack(std::vector<unsigned char>& buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[map.size()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      buf.resize(map.size()*m_stride*size_of());
       std::vector<int>::iterator imap=map.begin();
-      for (T* itbuf=tbuf; imap!=map.end(); imap++)
+      for (T* itbuf=(T*)&buf[0]; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           *itbuf++=(*m_data)[*imap*m_stride + i];
-      return (void*)tbuf;
     }
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
@@ -332,7 +324,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     virtual const void* pack() const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[m_data->size()+1];
+      buf.resize(size()*m_stride*size_of());
       if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       T* itbuf=tbuf;
@@ -348,7 +340,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
-      for (T* itbuf=(T*)buf; imap!=map.end(); imap++)
+      for (T* itbuf=(T*)&buf[0]; imap!=map.end(); imap++)
         for (int i=0; i<(int)m_stride; i++)
           (*m_data)[*imap*m_stride + i]=*itbuf++;
     }
