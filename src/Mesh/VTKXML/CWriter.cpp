@@ -129,7 +129,7 @@ namespace detail
     void push_back(const ValueT& value)
     {
       // Block is full, write it to the compressed stream
-      if(m_current_block.tellp() == m_header.blocksize)
+      if(m_current_block.tellp() == static_cast<std::streampos>(m_header.blocksize))
         compress_block();
 
       m_current_block.write(reinterpret_cast<const char*>(&value), m_wordsize);
