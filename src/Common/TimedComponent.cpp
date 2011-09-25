@@ -79,9 +79,9 @@ void print_timing_tree(CF::Common::Component& root, const bool print_untimed, co
       {
         if(prefix.empty()) std::cout << "Timings in seconds, with [min, mean, max] over CPUs\n";
         std::cout << prefix << root.name()
-          << ": mean: [" << mean_min << ", " << mean_mean << ", " << mean_max << "]"
-          << ", min: [" << min_min << ", " << min_mean << ", " << min_max << "]"
-          << ", max: [" << max_min << ", " << max_mean << ", " << max_max << "]\n";
+          << ": mean: "  << mean_mean
+          << ", min: " << min_min
+          << ", max: " << max_max << "\n";
       }
     }
     else

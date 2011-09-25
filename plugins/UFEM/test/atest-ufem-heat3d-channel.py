@@ -10,7 +10,7 @@ env.configure_option('assertion_throws', False)
 env.configure_option('assertion_backtrace', False)
 env.configure_option('exception_backtrace', False)
 env.configure_option('regist_signal_handlers', False)
-env.configure_option('log_level', 4)
+env.configure_option('log_level', 1)
 
 # setup a model
 model = root.create_component('HotModel', 'CF.Solver.CModel')
