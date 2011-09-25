@@ -63,6 +63,7 @@ list( APPEND coolfluid_common_files
     Exception.cpp
     Exception.hpp
     Foreach.hpp
+    IAction.hpp
     LibCommon.cpp
     LibCommon.hpp
     LibLoader.cpp
