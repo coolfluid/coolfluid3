@@ -124,10 +124,10 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().configure_option("time_step",x_length/1250);
-  solver.time_stepping().time().configure_option("end_time" ,x_length/1250);
+  solver.time_stepping().time().configure_option("time_step",x_length/1250/10);
+  solver.time_stepping().time().configure_option("end_time" ,x_length/1250/10);
   solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.01);
+  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.0005);
 
 
   //////////////////////////////////////////////////////////////////////////////
