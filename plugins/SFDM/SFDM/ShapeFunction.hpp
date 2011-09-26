@@ -30,15 +30,6 @@ public:
   typedef boost::shared_ptr<ShapeFunction>       Ptr;
   typedef boost::shared_ptr<ShapeFunction const> ConstPtr;
 
-  /// 3 dimensional array of Uint (orientation,line,points)
-  typedef const boost::multi_array<Uint,3>& Points;
-
-  /// 2 dimensional array of Uint (line,points). view of Points
-  typedef const boost::const_subarray_gen< boost::multi_array<Uint,3> ,2>::type Lines;
-
-  /// 1 dimensional array of Uint (points). view of Lines
-  typedef const boost::const_subarray_gen< boost::multi_array<Uint,3> ,1>::type LinePoints;
-
   /// Constructor
   ShapeFunction(const std::string& name = type_name());
 
@@ -55,7 +46,7 @@ public:
   ///
   /// Lines      points()[orientation]           for a view of the orientation
   /// LinePoints points()[orientation][line_idx] for a view of one line
-  const Points& points() const { return m_points; }
+  const boost::multi_array<Uint,3>& points() const { return m_points; }
 
   enum FaceInfo{ ORIENTATION=0 , SIDE=1 };
   enum Side {NEG=0, POS=1};
