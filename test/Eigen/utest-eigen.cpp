@@ -11,7 +11,6 @@
 
 #include <iostream>
 
-#include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 using namespace std;
