@@ -11,11 +11,13 @@
 #ifndef CF_Common_EigenAssertions_hpp
 #define CF_Common_EigenAssertions_hpp
 
+#include "Common/Assertions.hpp"
+
 #ifdef NDEBUG
 
   // disable Eigen assertions if compiled with -DNDEBUG
   #define cf_eigen_assertion_failed(x)
-  
+
 #else
 
   /// @macro Translate eigen assertion into coolfluid assertion
@@ -25,7 +27,7 @@
       if(!Eigen::internal::copy_bool(x)) \
         CF::Common::AssertionManager::do_assert(false, EIGEN_MAKESTRING(x), __FILE__, __LINE__, __PRETTY_FUNCTION__); \
     } while(false)
-    
+
 #endif
 
 // eigen_assert can be overridden
