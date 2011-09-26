@@ -25,7 +25,7 @@ namespace boost {
 void assertion_failed( char const * expr,
                        char const * function,
                        char const * file,
-											 long line);
+                       long line);
 } // namespace boost
 
 ////////////////////////////////////////////////////////////////////////////////

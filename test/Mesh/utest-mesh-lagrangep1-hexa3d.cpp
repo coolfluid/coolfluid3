@@ -10,6 +10,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/StdVector>
 
 #include "Common/Log.hpp"

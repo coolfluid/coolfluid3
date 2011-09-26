@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/EigenAssertions.hpp"
+
 #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
 #include <Eigen/Sparse>
 
@@ -43,51 +45,51 @@ public: // functions
   CEigenLSS ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "CEigenLSS"; }    
-  
+  static std::string type_name () { return "CEigenLSS"; }
+
   void set_config_file(const Common::URI& path);
-  
+
   /// Set the number of equations
   void resize ( Uint nb_dofs );
-  
+
   /// Number of equations
   Uint size() const;
-  
+
   /// Access to the elements
   Real& at(const Uint row, const Uint col);
-  
+
   /// Zero the system (RHS and system matrix)
   void set_zero();
-  
+
   /// Set a dirichlet BC value, zeroing the corresponding row and column and adjusting the RHS
   void set_dirichlet_bc(const Uint row, const Real value, const Real coeff = 1.);
-  
+
   /// Reference to the RHS vector
   RealVector& rhs();
-  
+
   /// Const access to the solution
   const RealVector& solution();
-  
+
   /// Solve the system and store the result in the solution vector
   void solve();
-  
+
   void print_matrix();
-  
+
   /// Timings
   Real time_matrix_construction;
   Real time_matrix_fill;
   Real time_solver_setup;
   Real time_solve;
   Real time_residual;
-  
+
 private:
   /// System matrix
   typedef Eigen::DynamicSparseMatrix<Real, Eigen::RowMajor> MatrixT;
   MatrixT m_system_matrix;
-  
+
   /// Right hand side
   RealVector m_rhs;
-  
+
   /// Solution
   RealVector m_solution;
 };
