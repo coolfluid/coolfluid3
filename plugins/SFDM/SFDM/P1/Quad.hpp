@@ -18,6 +18,9 @@ namespace P1 {
 class SFDM_API Quad  : public ShapeFunction {
 public:
 
+  typedef boost::shared_ptr<Quad>       Ptr;
+  typedef boost::shared_ptr<Quad const> ConstPtr;
+
   static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::QUAD;
   static const Uint                 nb_nodes       = 4;
   static const Uint                 dimensionality = 2;

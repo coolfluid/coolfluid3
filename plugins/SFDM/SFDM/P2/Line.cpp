@@ -38,19 +38,20 @@ Line::Line(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ShapeFunction& Line::line() const
+
+const SFDM::ShapeFunction& Line::line() const
 {
-  static const Line line_sf;
-  return line_sf;
+  const static SFDM::ShapeFunction::Ptr line_sf(Common::allocate_component< P2::Line >(P2::Line::type_name()));
+  return *line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ShapeFunction& Line::flux_line() const
+const SFDM::ShapeFunction& Line::flux_line() const
 {
   throw Common::NotImplemented(FromHere(),"SFDM::P3::Line not implemented");
-  static const Line flux_line_sf;
-  return flux_line_sf;
+  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< Line >(Line::type_name()));
+  return *flux_line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

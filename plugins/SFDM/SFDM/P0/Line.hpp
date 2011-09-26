@@ -16,6 +16,9 @@ namespace P0 {
 class SFDM_API Line : public ShapeFunction {
 public:
 
+  typedef boost::shared_ptr<Line>       Ptr;
+  typedef boost::shared_ptr<Line const> ConstPtr;
+
   static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::LINE;
   static const Uint                 nb_nodes       = 1;
   static const Uint                 dimensionality = 1;
@@ -31,8 +34,8 @@ public:
   /// Type name
   static std::string type_name() { return "Line"; }
 
-  virtual const ShapeFunction& line() const;
-  virtual const ShapeFunction& flux_line() const;
+  virtual const SFDM::ShapeFunction& line() const;
+  virtual const SFDM::ShapeFunction& flux_line() const;
 
   virtual const RealMatrix& local_coordinates() const;
 

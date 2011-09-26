@@ -47,18 +47,18 @@ Line::Line(const std::string& name) : ShapeFunction(name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ShapeFunction& Line::line() const
+const SFDM::ShapeFunction& Line::line() const
 {
-  static const Line line_sf;
-  return line_sf;
+  const static SFDM::ShapeFunction::Ptr line_sf(Common::allocate_component< P0::Line >(P0::Line::type_name()));
+  return *line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const ShapeFunction& Line::flux_line() const
+const SFDM::ShapeFunction& Line::flux_line() const
 {
-  static const P1::Line flux_line_sf;
-  return flux_line_sf;
+  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< P1::Line >(P1::Line::type_name()));
+  return *flux_line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

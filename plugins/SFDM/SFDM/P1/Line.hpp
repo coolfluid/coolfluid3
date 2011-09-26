@@ -16,6 +16,10 @@ namespace P1 {
 class SFDM_API Line : public ShapeFunction {
 public:
 
+  typedef boost::shared_ptr<Line>       Ptr;
+  typedef boost::shared_ptr<Line const> ConstPtr;
+
+
   static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::LINE;
   static const Uint                 nb_nodes       = 2;
   static const Uint                 dimensionality = 1;

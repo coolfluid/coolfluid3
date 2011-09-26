@@ -27,6 +27,9 @@ namespace SFDM {
 class SFDM_API ShapeFunction  : public Mesh::ShapeFunction {
 public:
 
+  typedef boost::shared_ptr<ShapeFunction>       Ptr;
+  typedef boost::shared_ptr<ShapeFunction const> ConstPtr;
+
   /// 3 dimensional array of Uint (orientation,line,points)
   typedef const boost::multi_array<Uint,3>& Points;
 
@@ -65,9 +68,9 @@ public:
 
   const boost::multi_array<Uint,2>& face_nb() const { return m_face_number; }
 
-  virtual const ShapeFunction& line() const = 0;
+  virtual const SFDM::ShapeFunction& line() const = 0;
 
-  virtual const ShapeFunction& flux_line() const = 0;
+  virtual const SFDM::ShapeFunction& flux_line() const = 0;
 
   virtual const RealMatrix& local_coordinates() const
   {

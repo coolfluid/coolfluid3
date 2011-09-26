@@ -57,16 +57,16 @@ Quad::Quad(const std::string& name) : ShapeFunction(name)
 
 const ShapeFunction& Quad::line() const
 {
-  static const Line line_sf;
-  return line_sf;
+  const static ShapeFunction::ConstPtr line_sf(Common::allocate_component< P1::Line >(P1::Line::type_name()));
+  return *line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 const ShapeFunction& Quad::flux_line() const
 {
-  static const P2::Line flux_line_sf;
-  return flux_line_sf;
+  const static ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< P2::Line >(P2::Line::type_name()));
+  return *flux_line_sf;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
