@@ -4,7 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Log.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/FindComponents.hpp"
 #include "RiemannSolvers/Roe.hpp"
 #include "Common/OptionComponent.hpp"
 
@@ -12,6 +14,7 @@ namespace CF {
 namespace RiemannSolvers {
 
 using namespace Common;
+using namespace Physics;
 
 Common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
@@ -23,9 +26,8 @@ Roe::Roe ( const std::string& name ) : RiemannSolver(name)
       ->description("The component describing the Roe variables")
       ->pretty_name("Roe Variables");
 
-  option("phys_model").attach_trigger( boost::bind( &Roe::trigger_phys_model, this) );
+  option("physical_model").attach_trigger( boost::bind( &Roe::trigger_physical_model, this) );
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,25 +37,52 @@ Roe::~Roe()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Roe::trigger_phys_model()
+void Roe::trigger_physical_model()
 {
-  coord.resize(model().ndim());
-  grads.resize(model().neqs(),model().ndim());
-  p_left  = model().create_properties();
-  p_right = model().create_properties();
-  p_avg   = model().create_properties();
+  coord.resize(physical_model().ndim());
+  grads.resize(physical_model().neqs(),physical_model().ndim());
+  p_left  = physical_model().create_properties();
+  p_right = physical_model().create_properties();
+  p_avg   = physical_model().create_properties();
 
-  roe_left.resize(model().neqs());
-  roe_right.resize(model().neqs());
-  roe_avg.resize(model().neqs());
+  roe_left.resize(physical_model().neqs());
+  roe_right.resize(physical_model().neqs());
+  roe_avg.resize(physical_model().neqs());
 
-  f_left.resize(model().neqs(),model().ndim());
-  f_right.resize(model().neqs(),model().ndim());
+  f_left.resize(physical_model().neqs(),physical_model().ndim());
+  f_right.resize(physical_model().neqs(),physical_model().ndim());
 
-  eigenvalues.resize(model().neqs());
-  right_eigenvectors.resize(model().neqs(),model().neqs());
-  left_eigenvectors.resize(model().neqs(),model().neqs());
-  abs_jacobian.resize(model().neqs(),model().neqs());
+  eigenvalues.resize(physical_model().neqs());
+  right_eigenvectors.resize(physical_model().neqs(),physical_model().neqs());
+  left_eigenvectors.resize(physical_model().neqs(),physical_model().neqs());
+  abs_jacobian.resize(physical_model().neqs(),physical_model().neqs());
+
+
+  // Try to configure solution_vars automatically
+  if (m_solution_vars.expired())
+  {
+    if (Component::Ptr found_solution_vars = find_component_ptr_recursively_with_name(physical_model(),"solution_vars"))
+    {
+      configure_option("solution_vars",found_solution_vars->uri());
+    }
+    else
+    {
+      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"solution_vars\".\nConfigure manually\n    ( Reason: component with name \"solution_vars\" not found in ["<<physical_model().uri().string() << "] )" << CFendl;
+    }
+  }
+
+  // Try to configure roe_vars automatically
+  if (m_roe_vars.expired())
+  {
+    if (Component::Ptr found_roe_vars = find_component_ptr_recursively_with_name(physical_model(),"roe_vars"))
+    {
+      configure_option("roe_vars",found_roe_vars->uri());
+    }
+    else
+    {
+      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"roe_vars\".\nConfigure manually\n    ( Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "] )" << CFendl;
+    }
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

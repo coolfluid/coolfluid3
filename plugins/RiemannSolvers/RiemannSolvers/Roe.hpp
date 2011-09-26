@@ -47,7 +47,7 @@ public:
 
 private:
 
-  void trigger_phys_model();
+  void trigger_physical_model();
   Physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
 
 private:

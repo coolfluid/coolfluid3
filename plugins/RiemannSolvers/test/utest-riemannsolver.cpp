@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
-  riemann.configure_option("phys_model",physics.uri());
+  riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
 
@@ -90,6 +90,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   BOOST_CHECK_CLOSE(wave_speeds[2], -336.8571471643333 , tol);
 }
 
+
 BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
 {
   Component& model =  Core::instance().root().create_component<Component>("model2D");
@@ -101,7 +102,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
-  riemann.configure_option("phys_model",physics.uri());
+  riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
 
@@ -127,6 +128,8 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   right << r_R, r_R*u_R, r_R*v_R, p_R/(g-1.) + 0.5*r_R*(u_R*u_R+v_R*v_R);
 
   riemann.compute_interface_flux_and_wavespeeds(left,right, normal, flux, wave_speeds);
+  std::cout << "compute_riemann_problem( " << left.transpose() << "   ,   " << right.transpose() << "    ,    " << normal.transpose() << "  ) " << std::endl;
+  std::cout << "  =   " << flux << std::endl;
 
   const Real tol (0.000001);
   BOOST_CHECK_CLOSE(flux[0] , 450.190834 , tol);
@@ -193,7 +196,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
   // Creation + configuration of riemann solver
   RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
-  riemann.configure_option("phys_model",physics.uri());
+  riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
 

@@ -11,7 +11,7 @@
 
 
 #include "Math/MatrixTypes.hpp"
-#include "RiemannSolvers/LibRiemannSolvers.hpp"
+#include "RiemannSolvers/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace CF {
 namespace Physics { class Variables; class PhysModel;}
@@ -50,10 +50,9 @@ public: // functions
 protected:
 
   Physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
-  Physics::PhysModel& model() const { return *m_model.lock(); }
+  Physics::PhysModel& physical_model() const { return *m_physical_model.lock(); }
 
-private:
-  boost::weak_ptr<Physics::PhysModel> m_model;
+  boost::weak_ptr<Physics::PhysModel> m_physical_model;
   boost::weak_ptr<Physics::Variables> m_solution_vars;
 };
 
