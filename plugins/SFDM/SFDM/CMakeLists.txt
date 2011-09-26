@@ -74,5 +74,3 @@ coolfluid_mark_not_orphan(
   SFDWizard.hpp
   SFDWizard.cpp
 )
-
-add_subdirectory( SF )       # coolfluid_sfdm_sf library
