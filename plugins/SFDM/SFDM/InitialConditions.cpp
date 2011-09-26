@@ -17,7 +17,9 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "SFDM/SFDSolver.hpp"
+#include "Solver/CSolver.hpp"
+
+#include "SFDM/Tags.hpp"
 #include "SFDM/Init.hpp"
 
 #include "InitialConditions.hpp"

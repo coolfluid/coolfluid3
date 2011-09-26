@@ -11,14 +11,16 @@
 
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldGroup.hpp"
+#include "Mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
+#include "Solver/CSolver.hpp"
 #include "Solver/Actions/CLoop.hpp"
 
-#include "SFDM/SFDSolver.hpp"
-#include "SFDM/CellTerm.hpp"
+#include "SFDM/Tags.hpp"
+#include "SFDM/Term.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -30,7 +32,7 @@ namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CellTerm::CellTerm ( const std::string& name ) :
+Term::Term ( const std::string& name ) :
   CF::Solver::Action(name)
 {
   mark_basic();
@@ -43,41 +45,53 @@ CellTerm::CellTerm ( const std::string& name ) :
 
   m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::residual(), &m_residual))
       ->pretty_name("Residual Field");
+
+  m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::jacob_det(), &m_jacob_det))
+      ->pretty_name("Jacobian Determinant Field");
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CellTerm::~CellTerm() {}
+Term::~Term() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void CellTerm::link_fields()
+void Term::link_fields()
 {
   if( is_null( m_solution.lock() ) )
   {
-    m_solution = solver().as_type<SFDM::SFDSolver>().fields()
+    m_solution = solver().field_manager()
                          .get_child( SFDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( SFDM::Tags::solution(), m_solution.lock()->uri() );
   }
 
   if( is_null( m_residual.lock() ) )
   {
-    m_residual = solver().as_type<SFDM::SFDSolver>().fields()
+    m_residual = solver().field_manager()
                          .get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( SFDM::Tags::residual(), m_residual.lock()->uri() );
   }
 
   if( is_null( m_wave_speed.lock() ) )
   {
-    m_wave_speed = solver().as_type<SFDM::SFDSolver>().fields()
-                         .get_child( SFDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
+    m_wave_speed = solver().field_manager()
+                           .get_child( SFDM::Tags::wave_speed() ).follow()->as_ptr_checked<Field>();
     configure_option_recursively( SFDM::Tags::wave_speed(), m_wave_speed.lock()->uri() );
+  }
+
+  if( is_null( m_jacob_det.lock() ) )
+  {
+    m_jacob_det = solver().field_manager()
+                          .get_child( SFDM::Tags::jacob_det() ).follow()->as_ptr_checked<Field>();
+    configure_option_recursively( SFDM::Tags::jacob_det(), m_jacob_det.lock()->uri() );
   }
 
   if( is_null( m_field_group.lock() ) )
   {
     m_field_group = solution().field_group().as_ptr<FieldGroup>();
   }
+
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/FieldGroup.hpp"
 
-#include "DummyCellTerm.hpp"
+#include "DummyTerm.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -20,22 +20,22 @@ using namespace CF::Mesh;
 namespace CF {
 namespace SFDM {
 
-ComponentBuilder<DummyCellTerm,CellTerm,LibSFDM> DummyCellTerm_builder;
+ComponentBuilder<DummyTerm,Term,LibSFDM> DummyTerm_builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DummyCellTerm::DummyCellTerm ( const std::string& name ) :
-  CellTerm(name)
+DummyTerm::DummyTerm ( const std::string& name ) :
+  Term(name)
 {
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-DummyCellTerm::~DummyCellTerm() {}
+DummyTerm::~DummyTerm() {}
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-void DummyCellTerm::execute()
+void DummyTerm::execute()
 {
   boost_foreach(CRegion::Ptr region, m_loop_regions)
   {

@@ -20,8 +20,10 @@
 #include "Mesh/CList.hpp"
 #include "Mesh/CSpace.hpp"
 
+#include "Solver/CSolver.hpp"
+
 #include "SFDM/Init.hpp"
-#include "SFDM/SFDSolver.hpp"
+#include "SFDM/Tags.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -72,8 +74,7 @@ void Init::config_function()
 void Init::execute()
 {
   if( is_null( m_field.lock() ) )
-    m_field = solver().as_type<SFDM::SFDSolver>().fields()
-        .get_child( SFDM::Tags::solution() ).as_ptr_checked<Field>();
+    throw SetupError(FromHere(),"Solution field not set.");
 
   Field& solution = *m_field.lock();
 

@@ -7,18 +7,18 @@
 #ifndef CF_SFDM_ComputeUpdateCoefficient_hpp
 #define CF_SFDM_ComputeUpdateCoefficient_hpp
 
-#include "Common/CAction.hpp"
+#include "Solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
+namespace Mesh   { class Field; }
 namespace Solver { class CTime;   }
 namespace SFDM {
 
 
-class SFDM_API ComputeUpdateCoefficient : public Common::CAction
+class SFDM_API ComputeUpdateCoefficient : public Solver::Action
 {
 public: // typedefs
 
@@ -42,21 +42,13 @@ public: // functions
 
 private: // helper functions
 
-  void config_update_coeff();
-  void config_wave_speed();
-  void config_volume();
-  void config_time();
   Real limit_end_time(const Real& time, const Real& end_time);
-
+  void link_fields();
 private: // data
 
-  boost::weak_ptr<Mesh::CField> m_update_coeff;
-  boost::weak_ptr<Mesh::CField> m_wave_speed;
-  boost::weak_ptr<Mesh::CField> m_volume;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<Mesh::Field> m_wave_speed;
   boost::weak_ptr<Solver::CTime> m_time;
-
-  bool m_time_accurate;
-  Real m_CFL;
 
   bool m_freeze;
 

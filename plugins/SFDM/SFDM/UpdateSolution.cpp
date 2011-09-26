@@ -7,9 +7,14 @@
 #include "Common/Foreach.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
-#include "Mesh/CField.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/CMesh.hpp"
+
+#include "Solver/CSolver.hpp"
+
 #include "SFDM/UpdateSolution.hpp"
+#include "SFDM/Tags.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,69 +31,71 @@ Common::ComponentBuilder < UpdateSolution, CAction, LibSFDM > UpdateSolution_Bui
 ///////////////////////////////////////////////////////////////////////////////////////
 
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  CAction(name)
+  Solver::Action(name)
 {
   mark_basic();
 
   // options
 
-  m_options.add_option(OptionComponent<CField>::create("solution",,, &m_solution))
+  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
      ->description("Solution to update")
      ->pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<CField>::create("update_coeff", &m_update_coeff))
+  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
      ->description("Update coefficient")
      ->pretty_name("Update Coefficient");
 
-  m_options.add_option(OptionComponent<CField>::create("residual", &m_residual))
+  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
      ->description("Residual")
      ->pretty_name("Residual");
-
-  m_solution_view = create_static_component_ptr<CMultiStateFieldView>("solution_view");
-  m_residual_view = create_static_component_ptr<CMultiStateFieldView>("residual_view");
-  m_update_coeff_view = create_static_component_ptr<CScalarFieldView>("update_coeff_view");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void UpdateSolution::execute()
 {
-  if (m_solution.expired())     throw SetupError(FromHere(), "Solution field was not set");
-  if (m_residual.expired())     throw SetupError(FromHere(), "Residual field was not set");
-  if (m_update_coeff.expired()) throw SetupError(FromHere(), "UpdateCoeff Field was not set");
+  link_fields();
 
-  CScalarFieldView& update_coeff_view = *m_update_coeff_view;
-  CMultiStateFieldView& residual_view = *m_residual_view;
-  CMultiStateFieldView& solution_view = *m_solution_view;
+  Field& solution     = *m_solution.lock();
+  Field& residual     = *m_residual.lock();
+  Field& update_coeff = *m_update_coeff.lock();
 
-  /// @todo put this in attached triggers of the field configuration
-  residual_view.set_field(m_residual.lock());
-  solution_view.set_field(m_solution.lock());
-  update_coeff_view.set_field(m_update_coeff.lock());
-
-  boost_foreach(const CEntities& elements, m_solution.lock()->field_elements())
+  for (Uint i=0; i<solution.size(); ++i)
   {
-    residual_view.set_elements(elements);
-    solution_view.set_elements(elements);
-    update_coeff_view.set_elements(elements);
-
-    for (Uint e=0; e<elements.size(); ++e)
+    for (Uint j=0; j<solution.row_size(); ++j)
     {
-      CMultiStateFieldView::View solution = solution_view[e];
-      CMultiStateFieldView::View residual = residual_view[e];
-      Real update_coeff = update_coeff_view[e];
-      for (Uint i=0; i<solution.shape()[0]; ++i)
-      {
-        for (Uint j=0; j<solution.shape()[1]; ++j)
-        {
-          solution[i][j] += update_coeff * residual[i][j];
-        }
-      }
+      solution[i][j] += update_coeff[i][0] * residual[i][j];
     }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void UpdateSolution::link_fields()
+{
+  if( is_null( m_solution.lock() ) )
+  {
+    m_solution = solver().field_manager()
+        .get_child( SFDM::Tags::solution() ).follow()->as_ptr_checked<Field>();
+    configure_option( SFDM::Tags::solution(), m_solution.lock()->uri() );
+  }
+
+  if( is_null( m_update_coeff.lock() ) )
+  {
+    m_update_coeff = solver().field_manager()
+        .get_child( SFDM::Tags::update_coeff() ).follow()->as_ptr_checked<Field>();
+    configure_option( SFDM::Tags::update_coeff(), m_update_coeff.lock()->uri() );
+  }
+
+  if( is_null( m_residual.lock() ) )
+  {
+    m_residual = solver().field_manager()
+        .get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
+    configure_option( SFDM::Tags::residual(), m_residual.lock()->uri() );
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
 } // CF

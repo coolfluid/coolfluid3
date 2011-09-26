@@ -88,11 +88,11 @@ void IterativeSolver::execute()
 
   while( ! stop_condition() ) // non-linear loop
   {
-    CFinfo << "pre-update" << CFendl;
+//    CFinfo << "pre-update" << CFendl;
     pre_update().execute();
-    CFinfo << "update" << CFendl;
+//    CFinfo << "update" << CFendl;
     update().execute();
-    CFinfo << "post-update" << CFendl;
+//    CFinfo << "post-update" << CFendl;
     post_update().execute();
 
     // raise signal that iteration is done

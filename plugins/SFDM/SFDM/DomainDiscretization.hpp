@@ -14,7 +14,7 @@
 namespace CF {
 namespace SFDM {
 
-class CellTerm;
+class Term;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -39,35 +39,23 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  CellTerm& create_cell_term( const std::string& type,
-                              const std::string& name,
-                              const std::vector<Common::URI>& regions = std::vector<Common::URI>() );
-
-  Common::CAction& create_face_term( const std::string& type,
-                                     const std::string& name,
-                                     const std::vector<Common::URI>& regions = std::vector<Common::URI>());
-
+  Term& create_term( const std::string& type,
+                     const std::string& name,
+                     const std::vector<Common::URI>& regions = std::vector<Common::URI>() );
 
   /// @name SIGNALS
   //@{
 
-  /// creates a cell term
-  void signal_create_cell_term( Common::SignalArgs& args );
-  /// signature for @see signal_create_cell_term
-  void signature_signal_create_cell_term( Common::SignalArgs& args );
-
-  /// creates a face term
-  void signal_create_face_term( Common::SignalArgs& args );
-  /// signature for @see signal_create_face_term
-  void signature_signal_create_face_term( Common::SignalArgs& args );
+  /// creates a term
+  void signal_create_term( Common::SignalArgs& args );
+  /// signature for @see signal_create_term
+  void signature_signal_create_term( Common::SignalArgs& args );
 
   //@} END SIGNALS
 
 private:
 
-  Common::CActionDirector::Ptr m_face_terms;   ///< set of face terms
-
-  Common::CActionDirector::Ptr m_cell_terms;   ///< set of cell terms
+  Common::CActionDirector::Ptr m_terms;   ///< set of terms
 
 };
 

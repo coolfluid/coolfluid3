@@ -7,18 +7,16 @@
 #ifndef CF_SFDM_UpdateSolution_hpp
 #define CF_SFDM_UpdateSolution_hpp
 
-#include "Common/CAction.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "Solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace CF {
-namespace Mesh   { class CField; }
-namespace Solver { class CTime;   }
+namespace Mesh   { class Field; }
 namespace SFDM {
 
-class SFDM_API UpdateSolution : public Common::CAction
+class SFDM_API UpdateSolution : public Solver::Action
 {
 public: // typedefs
 
@@ -40,15 +38,15 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
+private: // functions
+
+  void link_fields();
+
 private: // data
 
-  Mesh::CScalarFieldView::Ptr m_update_coeff_view;
-  Mesh::CMultiStateFieldView::Ptr m_residual_view;
-  Mesh::CMultiStateFieldView::Ptr m_solution_view;
-
-  boost::weak_ptr<Mesh::CField> m_solution;
-  boost::weak_ptr<Mesh::CField> m_residual;
-  boost::weak_ptr<Mesh::CField> m_update_coeff;
+  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<Mesh::Field> m_residual;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

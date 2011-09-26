@@ -20,14 +20,13 @@
 #include "Solver/CSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/CreateSFDFields.hpp"
-#include "SFDM/SFDSolver.hpp"
+#include "SFDM/Tags.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
 using namespace CF::Solver;
-using namespace CF::Solver::Actions;
 
 namespace CF {
 namespace SFDM {
@@ -44,7 +43,10 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
 {
   mark_basic();
 
-  append( allocate_component<CBuildFaces    >("build_inner_faces") );
+  CBuildFaces::Ptr build_faces ( allocate_component<CBuildFaces>("build_inner_faces") );
+  build_faces->configure_option("store_cell2face",true);
+
+  append( build_faces );
   append( allocate_component<CreateSFDFields>("create_sfd_fields") );
 }
 

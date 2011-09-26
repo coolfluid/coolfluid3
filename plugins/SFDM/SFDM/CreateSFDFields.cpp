@@ -14,6 +14,7 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
+#include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllCells.hpp"
 
 #include "Mesh/Field.hpp"
@@ -24,12 +25,13 @@
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"
+#include "Mesh/FieldManager.hpp"
 
 #include "Physics/Variables.hpp"
 #include "Physics/PhysModel.hpp"
 
 #include "SFDM/CreateSFDFields.hpp"
-#include "SFDM/SFDSolver.hpp"
+#include "SFDM/Tags.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +63,7 @@ void CreateSFDFields::execute()
 {
   const Uint solution_order = solver().option(SFDM::Tags::solution_order()).value<Uint>();
 
-  std::string sfdm_fields_space = "sfdm_fields_P"+to_str(solution_order);
+  std::string sfdm_fields_space = "sfdm_fields_P"+to_str(solution_order-1);
 
   if ( is_not_null (find_component_ptr_recursively_with_tag<FieldGroup>(mesh(),sfdm_fields_space)))
   {
@@ -69,20 +71,25 @@ void CreateSFDFields::execute()
   }
   else
   {
-    FieldGroup& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP1");
+    FieldGroup& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,FieldGroup::Basis::CELL_BASED,"CF.SFDM.P"+to_str(solution_order-1));
     sfdm_fields.add_tag(sfdm_fields_space);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
     Field& solution   = sfdm_fields.create_field(SFDM::Tags::solution(), solution_vars.as_type<Variables>().description().description() );
+    solver().field_manager().create_component<CLink>(SFDM::Tags::solution()).link_to(solution);
 
     Field& residual   = sfdm_fields.create_field(SFDM::Tags::residual(), solution.descriptor().description());
     residual.descriptor().prefix_variable_names("rhs_");
+    solver().field_manager().create_component<CLink>(SFDM::Tags::residual()).link_to(residual);
 
     Field& wave_speed = sfdm_fields.create_field(SFDM::Tags::wave_speed(), "ws[1]");
+    solver().field_manager().create_component<CLink>(SFDM::Tags::wave_speed()).link_to(wave_speed);
 
     Field& update_coeff = sfdm_fields.create_field(SFDM::Tags::update_coeff(), "uc[1]");
+    solver().field_manager().create_component<CLink>(SFDM::Tags::update_coeff()).link_to(update_coeff);
 
     Field& jacob_det = sfdm_fields.create_field(SFDM::Tags::jacob_det(), "jacob_det[1]");
+    solver().field_manager().create_component<CLink>(SFDM::Tags::jacob_det()).link_to(jacob_det);
 
     boost_foreach(CCells& elements, find_components_recursively<CCells>(sfdm_fields.topology()))
     {
@@ -107,57 +114,6 @@ void CreateSFDFields::execute()
       }
     }
   }
-
-//  if ( is_null(mesh.get_child_ptr(FlowSolver::Tags::solution())) )
-//  {
-//    const Solver::State& solution_state = physical_model().solution_state();
-//    std::vector<std::string> types(solution_state.var_names().size(),"scalar");
-
-//    CFinfo <<  "  Creating field \"solution\", cellbased, with vars ";
-//    boost_foreach(const std::string& var , solution_state.var_names())
-//      CFinfo << var << "["<<1<<"]  ";
-//    CFinfo << CFendl;
-
-//    CField& field = mesh.create_component<CField>(FlowSolver::Tags::solution());
-//    field.set_topology(mesh.topology());
-//    field.configure_option("Space",solution_space);
-//    field.configure_option("VarNames",solution_state.var_names());
-//    field.configure_option("VarTypes",types);
-//    field.configure_option("FieldType",CField::Basis::Convert::instance().to_str(CField::Basis::CELL_BASED));
-//    field.create_data_storage();
-//  }
-//  CField& solution = mesh.get_child(FlowSolver::Tags::solution()).as_type<CField>();
-
-//  if ( is_null(mesh.get_child_ptr(FlowSolver::Tags::residual())) )
-//  {
-//    CFinfo << "  Creating field \"residual\", cellbased" << CFendl;
-//    mesh.create_field(FlowSolver::Tags::residual(),solution);
-//  }
-
-//  if ( is_null(mesh.get_child_ptr(FlowSolver::Tags::wave_speed())) )
-//  {
-//    CFinfo << "  Creating field \"wave_speed\", cellbased" << CFendl;
-//    mesh.create_field(FlowSolver::Tags::wave_speed(),CField::Basis::CELL_BASED,"P0","wave_speed[1]");
-//  }
-
-//  if ( is_null(mesh.get_child_ptr(FlowSolver::Tags::update_coeff())) )
-//  {
-//    CFinfo << "  Creating field \"update_coeff\", cellbased" << CFendl;
-//    mesh.create_field(FlowSolver::Tags::update_coeff(),CField::Basis::CELL_BASED,"P0","update_coeff[1]");
-//  }
-
-//  if ( is_null(mesh.get_child_ptr("jacobian_determinant")) )
-//  {
-//    CFinfo << "  Creating field \"jacobian_determinant\", cell_based" << CFendl;
-//    CField& jacobian_determinant = mesh.create_scalar_field("jacobian_determinant",solution);
-
-//    CLoop& compute_jacobian_determinant = create_component< CForAllCells >("compute_jacobian_determinant");
-//    compute_jacobian_determinant.configure_option("regions", std::vector<URI>(1,mesh.topology().uri()));
-//    compute_jacobian_determinant.create_loop_operation("CF.SFDM.ComputeJacobianDeterminant")
-//                                                .configure_option("jacobian_determinant",jacobian_determinant.uri());
-//    compute_jacobian_determinant.execute();
-//    remove_component(compute_jacobian_determinant.name());
-//  }
 }
 
 //////////////////////////////////////////////////////////////////////////////

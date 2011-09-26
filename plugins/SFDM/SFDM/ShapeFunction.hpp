@@ -9,7 +9,8 @@
 
 #include "Common/BoostArray.hpp"
 
-#include "Mesh/ShapeFunction.hpp"
+#include "Mesh/ShapeFunctionT.hpp"
+#include "Mesh/ShapeFunctionBase.hpp"
 #include "Math/Defs.hpp"
 
 #include "SFDM/LibSFDM.hpp"
@@ -51,47 +52,73 @@ public:
   ///
   /// Lines      points()[orientation]           for a view of the orientation
   /// LinePoints points()[orientation][line_idx] for a view of one line
-  Points points() const { return m_points; }
+  const Points& points() const { return m_points; }
 
-  /// @brief Table to get face point indexes given an orientation, a line, a side
-  ///
-  /// Get the index corresponding to an orientation, a line, and a index on that line
-  /// points()[orientation][line_idx][side]
-  /// - orientation  orientation of the line (KSI / ETA / ZTA)
-  /// - line_idx     index of the line following the given orientation
-  /// - side         left or right side of the line (LEFT / RIGHT)
-  ///
-  /// Lines      face_points()[orientation]           for a view of the orientation
-  /// LinePoints face_points()[orientation][line_idx] for a view of one line
-  Points face_points() const { return m_face_points; }
+  enum FaceInfo{ ORIENTATION=0 , SIDE=1 };
+  enum Side {NEG=0, POS=1};
 
-  const boost::multi_array<Uint,2>& face_number() const { return m_face_number; }
+  const Uint& face_orientation(const Uint face) const { return m_face_info[face][ORIENTATION]; }
 
-  /// Number of lines per orientation
-  /// @returns number of lines per orientation
-  Uint nb_lines_per_orientation() const { return m_nb_lines_per_orientation; }
+  const Uint& face_side(const Uint face) const { return m_face_info[face][SIDE]; }
 
-  /// Number of nodes per line
-  /// @returns number of nodes per line
-  Uint nb_nodes_per_line() const { return order()+1; }
+  const boost::multi_array<Uint,2>& face_points() const { return m_face_points; }
 
-  virtual const ShapeFunction& line() const;
+  const boost::multi_array<Uint,2>& face_nb() const { return m_face_number; }
+
+  virtual const ShapeFunction& line() const = 0;
+
+  virtual const ShapeFunction& flux_line() const = 0;
+
+  virtual const RealMatrix& local_coordinates() const
+  {
+    throw Common::NotImplemented(FromHere(),"");
+    static const RealMatrix obj(1,1);
+    return obj;
+  }
+
+  virtual RealRowVector value(const RealVector& local_coordinate) const
+  {
+    RealRowVector values(nb_nodes());
+    compute_value(local_coordinate,values);
+    return values;
+  }
+  virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const
+  {
+    throw Common::NotImplemented(FromHere(),"");
+  }
+  virtual RealMatrix gradient(const RealVector& local_coordinate) const
+  {
+    RealMatrix grad(dimensionality(),nb_nodes());
+    compute_gradient(local_coordinate,grad);
+    return grad;
+  }
+  virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const
+  {
+    throw Common::NotImplemented(FromHere(),"");
+  }
+
+
+
 
 protected:
 
   /// lookup table for the points
   boost::multi_array<Uint,3> m_points;
 
-  /// lookup table for the face_points
-  boost::multi_array<Uint,3> m_face_points;
+  boost::multi_array<Uint,2> m_face_info;
 
-  /// lookup table for the face_number
+  boost::multi_array<Uint,2> m_face_points;
+
   boost::multi_array<Uint,2> m_face_number;
 
   /// storage for number of lines per orientation
   Uint m_nb_lines_per_orientation;
 
+
+
 };
+
+////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
 } // CF

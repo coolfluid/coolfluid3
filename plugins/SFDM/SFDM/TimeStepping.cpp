@@ -80,6 +80,10 @@ bool TimeStepping::stop_condition()
     CFwarn << "No stop criteria available in [" << uri().string() << "]... exiting loop" << CFendl;
     return true; // stop
   }
+
+//  if (properties().value<Uint>("iteration")>1)
+//    return true; // stop
+
   return finish;
 }
 

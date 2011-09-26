@@ -10,10 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/CSolver.hpp"
-#include "Solver/Action.hpp"
-#include "Solver/Tags.hpp"
 
-#include "SFDM/LibSFDM.hpp"
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/IterativeSolver.hpp"
@@ -34,25 +31,6 @@ class InitialConditions;
 class DomainDiscretization;
 class IterativeSolver;
 class TimeStepping;
-
-////////////////////////////////////////////////////////////////////////////////
-
-
-struct Tags : public Solver::Tags
-{
-  static const char * fields()         { return "fields"; }
-  static const char * actions()        { return "actions"; }
-  static const char * solution_vars()  { return "solution_vars"; }
-  static const char * input_vars()     { return "input_vars"; }
-  static const char * solution_order() { return "solution_order"; }
-
-  static const char * solution()       { return "solution"; }
-  static const char * wave_speed()     { return "wave_speed"; }
-  static const char * update_coeff()   { return "update_coefficient"; }
-  static const char * residual()       { return "residual"; }
-  static const char * jacob_det()      { return "jacobian_determinant"; }
-
-};
 
 ////////////////////////////////////////////////////////////////////////////////
 

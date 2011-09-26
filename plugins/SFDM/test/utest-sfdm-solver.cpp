@@ -27,8 +27,11 @@
 #include "Mesh/CDomain.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 
 #include "SFDM/SFDSolver.hpp"
+#include "SFDM/Term.hpp"
+#include "SFDM/Tags.hpp"
 
 #include "Mesh/CRegion.hpp"
 //#include "Mesh/CMesh.hpp"
@@ -67,9 +70,10 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure SFD - NavierStokes 2D model
+  Uint dim=2;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("CF.SFDM.SFDSolver","CF.Physics.NavierStokes.NavierStokes2D");
+  model.setup("CF.SFDM.SFDSolver","CF.Physics.NavierStokes.NavierStokes"+to_str(dim)+"D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   CDomain&   domain  = model.domain();
@@ -79,42 +83,57 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
   // Create a 2D rectangular mesh
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_rectangle(mesh, 10., 10., 10, 10);
+  Real x_length=10.;
+  Real y_length=x_length;
+  Uint x_nb_cells=40;
+  Uint y_nb_cells=x_nb_cells*2;
+  if (dim == 1)
+    CSimpleMeshGenerator::create_line(mesh, x_length, x_nb_cells);
+  else if (dim == 2)
+    CSimpleMeshGenerator::create_rectangle(mesh, x_length, y_length, x_nb_cells, y_nb_cells);
+  else
+    throw NotImplemented(FromHere(),"");
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons2D"));
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons"+to_str(dim)+"D"));
+  solver.configure_option(SFDM::Tags::solution_order(),1u);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
   // Configure simulation
 
   // Initial condition
-  Solver::Action& init_condition = solver.initial_conditions().create_initial_condition("shocktube");
-  init_condition.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
+  Solver::Action& shocktube = solver.initial_conditions().create_initial_condition("shocktube");
+  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim"+to_str(dim)+"D",SFDM::Tags::input_vars())->uri() );
   std::vector<std::string> functions;
-  functions.push_back("if( x<=5 , 4.696  , 1.408  )"); // rho
-  functions.push_back("if( x<=5 , 0      , 0      )"); // u
-  functions.push_back("if( x<=5 , 0      , 0      )"); // v
-  functions.push_back("if( x<=5 , 404400 , 101100 )"); // p
-  init_condition.configure_option("functions",functions);
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
+  if (dim>1)
+    functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ V   ]
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 404400 , 101100 )"); // Prim2D[ P   ]
+  shocktube.configure_option("functions",functions);
   solver.initial_conditions().execute();
 
   // Discretization
-  solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_1",std::vector<URI>(1,mesh.topology().uri()));
-  solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
-  solver.domain_discretization().create_cell_term("CF.SFDM.DummyCellTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
+  physics.create_variables("CF.Physics.NavierStokes.Roe"+to_str(dim)+"D","roe_vars");
+  solver.domain_discretization().create_term("CF.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+//  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
+//  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().configure_option("time_step",0.1);
-  solver.time_stepping().time().configure_option("end_time" ,0.1);
+  solver.time_stepping().time().configure_option("time_step",x_length/1250);
+  solver.time_stepping().time().configure_option("end_time" ,x_length/1250);
+  solver.time_stepping().configure_option_recursively("cfl" , 1.);
+  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.01);
+
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
 
-  CFinfo << model.tree() << CFendl;
+  //CFinfo << model.tree() << CFendl;
 
   model.simulate();
 
@@ -123,6 +142,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   //////////////////////////////////////////////////////////////////////////////
   // Output
   domain.write_mesh("sfdm_output.msh");
+  domain.write_mesh("sfdm_output.plt");
 
 
 //  solver.configure_option_recursively("time",model.time().uri());

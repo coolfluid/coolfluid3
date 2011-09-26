@@ -4,35 +4,35 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_DummyCellTerm_hpp
-#define CF_SFDM_DummyCellTerm_hpp
+#ifndef CF_SFDM_DummyTerm_hpp
+#define CF_SFDM_DummyTerm_hpp
 
-#include "SFDM/CellTerm.hpp"
+#include "SFDM/Term.hpp"
 
 namespace CF {
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API DummyCellTerm : public CellTerm {
+class SFDM_API DummyTerm : public Term {
 
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< DummyCellTerm > Ptr;
-  typedef boost::shared_ptr< DummyCellTerm const > ConstPtr;
+  typedef boost::shared_ptr< DummyTerm > Ptr;
+  typedef boost::shared_ptr< DummyTerm const > ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  DummyCellTerm ( const std::string& name );
+  DummyTerm ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~DummyCellTerm();
+  virtual ~DummyTerm();
 
   /// Get the class name
-  static std::string type_name () { return "DummyCellTerm"; }
+  static std::string type_name () { return "DummyTerm"; }
 
   virtual void execute();
 
@@ -43,4 +43,4 @@ public: // functions
 } // SFDM
 } // CF
 
-#endif // CF_SFDM_DummyCellTerm_hpp
+#endif // CF_SFDM_DummyTerm_hpp

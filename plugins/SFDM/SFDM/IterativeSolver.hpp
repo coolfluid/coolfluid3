@@ -59,11 +59,11 @@ private: // functions
 private: // data
 
   /// set of actions called every iteration before non-linear solve
-  Common::CActionDirector::Ptr m_pre_update;
+  boost::shared_ptr<Common::CActionDirector> m_pre_update;
   /// set of actions called every iteration to update the solution
-  Common::CActionDirector::Ptr m_update;
+  boost::shared_ptr<Common::CActionDirector> m_update;
   /// set of actions called every iteration after non-linear solve
-  Common::CActionDirector::Ptr m_post_update;
+  boost::shared_ptr<Common::CActionDirector> m_post_update;
 
 };
 

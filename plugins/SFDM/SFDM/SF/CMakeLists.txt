@@ -1,13 +1,15 @@
-# TQ: NOTE
-#     I leave the sources here but deactivate this code because
-#     it follows the old Physics API.
-#     The owner of this module should upgrade it to the new API or remove it.
-
-list( APPEND coolfluid_sfdm_sf_condition FALSE )
-
 list( APPEND coolfluid_sfdm_sf_files
   LibSF.hpp
   LibSF.cpp
+  QuadP1.hpp
+  QuadP1.cpp
+  QuadSolutionP1.hpp
+  QuadSolutionP1.cpp
+)
+
+list( APPEND coolfluid_sfdm_sf_cflibs coolfluid_sfdm coolfluid_mesh )
+
+coolfluid_mark_not_orphan(
   LineFluxP1.hpp
   LineFluxP1.cpp
   LineFluxP2.hpp
@@ -22,19 +24,13 @@ list( APPEND coolfluid_sfdm_sf_files
   LineSolutionP2.cpp
   QuadFluxP1.hpp
   QuadFluxP1.cpp
-  QuadFluxP2.hpp
-  QuadFluxP2.cpp
   QuadFluxP3.hpp
   QuadFluxP3.cpp
   QuadSolutionP0.hpp
   QuadSolutionP0.cpp
-  QuadSolutionP1.hpp
-  QuadSolutionP1.cpp
   QuadSolutionP2.hpp
   QuadSolutionP2.cpp
 )
-
-list( APPEND coolfluid_sfdm_sf_cflibs coolfluid_sfdm coolfluid_mesh coolfluid_mesh_sf )
 
 coolfluid_add_library( coolfluid_sfdm_sf )
 
