@@ -74,6 +74,41 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
 {
   int i;
+  Uint *d1=new Uint[16];
+  double *d2=new double[24];
+  std::vector<int> map(4);
+
+  for(i=0; i<16; i++) d1[i]=16.+(double)i;
+  for(i=0; i<24; i++) d2[i]=64.+(double)i;
+  for(i=0; i<4; i+=2) map[i]=2+i;
+
+  CommWrapperPtr<double>::Ptr w1=allocate_component< CommWrapperPtr<double> >("Ptr1");
+  CommWrapperPtr<double>::Ptr w2=allocate_component< CommWrapperPtr<double> >("Ptr2");
+
+  w1->setup(d1,16,1,true);
+  w2->setup(d2,24,3,false);
+
+  BOOST_CHECK_EQUAL( w1->needs_update() , true );
+  BOOST_CHECK_EQUAL( w2->needs_update() , false );
+
+  BOOST_CHECK_EQUAL( w1->is_data_type_Uint() , true );
+  BOOST_CHECK_EQUAL( w2->is_data_type_Uint() , false );
+
+  BOOST_CHECK_EQUAL( w1->size() , 16 );
+  BOOST_CHECK_EQUAL( w2->size() , 8 );
+
+  BOOST_CHECK_EQUAL( w1->stride() , 2 );
+  BOOST_CHECK_EQUAL( w2->stride() , 3 );
+
+  BOOST_CHECK_EQUAL( w1->size_of() , (int)sizeof(double) );
+  BOOST_CHECK_EQUAL( w2->size_of() , (int)sizeof(double) );
+
+  double *dtest1=(double*)w1->pack(map);
+  double *dtest2=(double*)w2->pack(map);
+
+
+/*
+  int i;
   double *d1=new double[32];
   double *d2=new double[24];
   std::vector<int> map(4);
@@ -143,6 +178,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   delete[] dtesttesttesttest2;
   delete[] d1;
   delete[] d2;
+*/
 }
 
 ////////////////////////////////////////////////////////////////////////////////
