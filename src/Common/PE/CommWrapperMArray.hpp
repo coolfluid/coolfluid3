@@ -151,6 +151,21 @@ class CommWrapperMArray<T,1>: public CommWrapper{
 
   private:
 
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view()
+    {
+      return (void*)&(*m_data)[0];
+    }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
+
+  private:
+
     /// pointer to std::vector
     boost::multi_array<T,1>* m_data;
 };
@@ -267,6 +282,21 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view()
+    {
+      return (void*)&(*m_data)[0][0];
+    }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 

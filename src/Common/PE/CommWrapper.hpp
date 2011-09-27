@@ -48,6 +48,9 @@ class Common_API CommWrapper : public Component {
     /// const pointer to this type
     typedef boost::shared_ptr<CommWrapper const> ConstPtr;
 
+    /// making CommWrapperView as friend in order to access create_view and destroy_view
+    template <typename T> friend class CommWrapperView;
+
   public:
 
     /// constructor
@@ -144,6 +147,18 @@ class Common_API CommWrapper : public Component {
     /// Get the class name
     static std::string type_name () { return "CommWrapper"; }
 
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view();
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data);
+
   protected:
 
     /// number of elements to be groupped together and treat as once in communication pattern
@@ -152,6 +167,59 @@ class Common_API CommWrapper : public Component {
     /// bool holding the info if data to be synchronized & kept up-to-date with commpattern or only keep up-to-date
     bool m_needs_update;
 
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// fancy little class which asks for a view from a commwrapper specified as constructor's argument and frees the data upon destruction
+/// @warning Very important: the data is copied back upon calling destructor. This means you end up in trouble if you modify the comwrapper behind.
+template <typename T> class Common_API CommWrapperView : public boost::noncopyable
+{
+  public:
+
+    /// Constructor.
+    /// View is only supported if sizeof(T)==cw.size_of() and sizeof(T)==1, otherwisw error is thrown.
+    /// @param cw reference to the comwrapper class
+    CommWrapperView(CommWrapper& cw)
+    {
+      if (sizeof(T)==cw.size_of()) { m_size=cw.size(); }
+      else if (sizeof(T)==1)    { m_size=cw.size()*cw.size_of(); }
+      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      m_cw=&cw;
+      m_data=(T*)m_cw->start_view();
+    }
+
+    /// Destructor.
+    ~CommWrapperView()
+    {
+      // afterall can call ~CommWrapperView anyway in the code
+      m_cw->end_view((void*)m_data);
+      m_cw=nullptr;
+      m_data=nullptr;
+      m_size=0;
+    }
+
+    /// accessor to the naked pointer via accessor function
+    /// @warning Very important: the data is copied back upon calling destructor. This means you end up in trouble if you modify the comwrapper behind.
+    T* get_ptr() { return m_data; }
+
+    /// accessor to the naked pointer via () operator
+    /// @warning Very important: the data is copied back upon calling destructor. This means you end up in trouble if you modify the comwrapper behind.
+    T* operator() () { return m_data; }
+
+    /// accessor to the length of the array, measured in items of sizeof(T)
+    int size() { return m_size; }
+
+ private:
+
+    /// raw pointer to data
+    T* m_data;
+
+    /// size of the array measured based on sizeof(T)
+    int m_size;
+
+    /// pointer to commwrapper
+    CommWrapper *m_cw;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,7 +278,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
+    const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
@@ -226,7 +294,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack(void* buf=nullptr) const
+    const void* pack(void* buf=nullptr) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_size*m_stride+1];
@@ -241,7 +309,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf, std::vector<int>& map) const
+    void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
@@ -253,7 +321,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf) const
+    void unpack(void* buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
@@ -277,6 +345,18 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view() { return (void*)(*m_data); }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 
@@ -340,7 +420,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
+    const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
@@ -355,7 +435,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack(void* buf=nullptr) const
+    const void* pack(void* buf=nullptr) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_data->size()+1];
@@ -370,7 +450,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf, std::vector<int>& map) const
+    void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
@@ -381,7 +461,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf) const
+    void unpack(void* buf) const
     {
       if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
@@ -409,6 +489,18 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view() { return (void*)&(*m_data)[0]; }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 
@@ -458,7 +550,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
+    const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
@@ -474,7 +566,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
     /// if nullptr is passed (also default parameter), memory is allocated.
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack(void* buf=nullptr) const
+    const void* pack(void* buf=nullptr) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
@@ -490,7 +582,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// returning back values into the data wrapped by objectwrapper
     /// @param map vector of map
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf, std::vector<int>& map) const
+    void unpack(void* buf, std::vector<int>& map) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
@@ -502,7 +594,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
 
     /// returning back values into the data wrapped by objectwrapper
     /// @param pointer to the data to be committed back
-    virtual void unpack(void* buf) const
+    void unpack(void* buf) const
     {
       if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
@@ -532,6 +624,22 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view()
+    {
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      return (void*)&(*sp)[0];
+    }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 
