@@ -152,12 +152,12 @@ class Common_API CommWrapper : public Component {
     /// Create an access to the raw data inside the wrapped class.
     /// @warning if underlying raw data is not linear, a copy is being made.
     /// @return pointer to data
-    void* start_view();
+    virtual void* start_view() = 0;
 
     /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
     /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
     /// @param data pointer to the data
-    void end_view(void* data);
+    virtual void end_view(void* data) = 0;
 
   protected:
 
@@ -180,12 +180,12 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     /// Constructor.
     /// View is only supported if sizeof(T)==cw.size_of() and sizeof(T)==1, otherwisw error is thrown.
     /// @param cw reference to the comwrapper class
-    CommWrapperView(CommWrapper& cw)
+    CommWrapperView(CommWrapper::Ptr& cw)
     {
-      if (sizeof(T)==cw.size_of()) { m_size=cw.size(); }
-      else if (sizeof(T)==1)    { m_size=cw.size()*cw.size_of(); }
+      if (sizeof(T)==cw->size_of()) { m_size=cw->size()*cw->stride(); }
+      else if (sizeof(T)==1)    { m_size=cw->size()*cw->stride()*cw->size_of(); }
       else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
-      m_cw=&cw;
+      m_cw=cw;
       m_data=(T*)m_cw->start_view();
     }
 
@@ -194,7 +194,7 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     {
       // afterall can call ~CommWrapperView anyway in the code
       m_cw->end_view((void*)m_data);
-      m_cw=nullptr;
+      m_cw.reset();
       m_data=nullptr;
       m_size=0;
     }
@@ -219,7 +219,7 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     int m_size;
 
     /// pointer to commwrapper
-    CommWrapper *m_cw;
+    CommWrapper::Ptr m_cw;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
