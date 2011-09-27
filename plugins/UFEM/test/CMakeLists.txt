@@ -81,3 +81,8 @@ coolfluid_add_python_test(ATEST NAME atest-ufem-heat3d-sphere
                                 SCRIPT atest-ufem-heat3d-sphere.py
                                 ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring3d-tetras.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
                                 MPI NBPROCS 4)
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-navier-stokes-cylinder2d
+                                SCRIPT atest-ufem-navier-stokes-cylinder2d.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                                MPI NBPROCS 4)

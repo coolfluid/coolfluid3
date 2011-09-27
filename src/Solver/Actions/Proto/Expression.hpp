@@ -256,8 +256,7 @@ private:
 };
 
 /// Default element types supported by elements expressions
-//typedef boost::mpl::vector5<Mesh::LagrangeP1::Line1D, Mesh::LagrangeP1::Triag2D, Mesh::LagrangeP1::Quad2D, Mesh::LagrangeP1::Hexa3D, Mesh::LagrangeP1::Tetra3D> DefaultElementTypes;
-typedef boost::mpl::vector1<Mesh::LagrangeP1::Line1D> DefaultElementTypes;
+typedef Mesh::LagrangeP1::CellTypes DefaultElementTypes;
 
 /// Convenience method to construct an Expression to loop over elements
 /// @returns a shared pointer to the constructed expression

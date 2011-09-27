@@ -439,7 +439,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
 
   RealVector1 center;
   center.setZero();
-  
+
   RealVector2 result1d;
   result1d.setZero();
 
@@ -453,7 +453,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
       result1d += nabla(u, center)[_i]
     )
   );
-  
+
   BOOST_CHECK_CLOSE(result1d[0], -1., 1e-6);
   BOOST_CHECK_CLOSE(result1d[1], 1., 1e-6);
 }
