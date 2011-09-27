@@ -31,16 +31,16 @@ struct ConfigurableConstant
 {
   /// This is needed in case ValueT is a fixed-size Eigen matrix
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-  
+
   typedef ValueT value_type;
-  
-  ConfigurableConstant(const std::string& p_name, const std::string& p_description = std::string(), const ValueT p_default = 0.) :
+
+  ConfigurableConstant(const std::string& p_name, const std::string& p_description = std::string(), const ValueT p_default = ValueT()) :
     name(p_name),
     description(p_description),
     default_value(p_default)
   {
   }
-  
+
   std::string name;
   std::string description;
   value_type default_value;
@@ -59,17 +59,17 @@ struct ConstantStorage
   typedef std::map<std::string, std::string> DescriptionsT;
   typedef ConstantStorageType<Real>::type ScalarsT;
   typedef ConstantStorageType<RealVector>::type VectorsT;
-  
+
   ScalarsT& values(const Real&)
   {
     return m_scalars;
   }
-  
+
   VectorsT& values(const RealVector&)
   {
     return m_vectors;
   }
-  
+
   DescriptionsT descriptions;
   ScalarsT m_scalars;
   VectorsT m_vectors;
@@ -82,17 +82,17 @@ struct ReplaceConfigurableConstant :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    
+
     typedef typename boost::remove_reference<typename boost::proto::result_of::value<ExprT>::type>::type::value_type ValueT;
-    
+
     typedef typename boost::proto::result_of::make_expr
     <
       boost::proto::tag::terminal,
       ValueT&
     >::type result_type;
-    
+
     typedef typename ConstantStorageType<ValueT>::type ValuesT;
-    
+
     result_type operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param values // state parameter
@@ -102,13 +102,13 @@ struct ReplaceConfigurableConstant :
       const ConfigurableConstant<ValueT>& constant = boost::proto::value(expr);
       values.descriptions[constant.name] = constant.description;
       std::pair<typename ValuesT::iterator, bool> insert_result = values.values(constant.default_value).insert(std::make_pair(constant.name, constant.default_value));
-      
+
       return boost::proto::make_expr<boost::proto::tag::terminal>(boost::ref(insert_result.first->second));
     }
   };
 };
 
-/// Grammar replacing ConfigurableConstants in an expression. 
+/// Grammar replacing ConfigurableConstants in an expression.
 struct ReplaceConfigurableConstants :
   boost::proto::or_
   <
@@ -122,7 +122,7 @@ struct ReplaceConfigurableConstants :
   >
 {
 };
-  
+
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver

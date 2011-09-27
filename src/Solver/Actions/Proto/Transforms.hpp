@@ -37,7 +37,7 @@ struct VarDataType
 {
   typedef typename boost::remove_reference<DataT>::type::template DataType<typename boost::remove_reference<VarT>::type>::type type;
 };
-  
+
 template<typename T>
 struct VarArity
 {
@@ -96,7 +96,7 @@ struct ExpressionProperties
 {
   /// Number of variables in the expression (boost mpl integral constant)
   typedef typename boost::result_of<ExprVarArity(ExprT)>::type NbVarsT;
-  
+
   /// Types of the used variables
   typedef typename boost::fusion::result_of::as_vector
   <
@@ -114,7 +114,7 @@ struct CopyNumberedVars
   : boost::proto::callable_context< CopyNumberedVars<VarsT>, boost::proto::null_context >
 {
   typedef void result_type;
-  
+
   CopyNumberedVars(VarsT& vars) : m_vars(vars) {}
 
   template<typename I, typename T>
@@ -122,9 +122,9 @@ struct CopyNumberedVars
   {
     boost::fusion::at<I>(m_vars) = val.variable_value;
   }
-  
+
 private:
-  VarsT& m_vars;  
+  VarsT& m_vars;
 };
 
 /// Returns the data value of a numbered variable
@@ -133,10 +133,10 @@ struct VarValue :
 {
   template<typename VarT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<VarT, StateT, DataT>
-  { 
-    
+  {
+
     typedef typename VarDataType<VarT, DataT>::type::ValueResultT result_type;
-  
+
     result_type operator ()(
                 typename impl::expr_param var
               , typename impl::state_param state
@@ -237,7 +237,7 @@ template<typename GrammarT>
 struct MathOpDefaultCases
 {
   template<typename Tag, int Dummy = 0> struct case_ : boost::proto::not_<boost::proto::_> {};
-  
+
   template<int Dummy> struct case_<boost::proto::tag::unary_plus, Dummy> : boost::proto::unary_plus<GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::negate, Dummy> : boost::proto::negate<GrammarT> {};
   template<int Dummy> struct case_<boost::proto::tag::pre_inc, Dummy> : boost::proto::pre_inc<GrammarT> {};
