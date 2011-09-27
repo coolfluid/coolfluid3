@@ -19,7 +19,8 @@
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CPeriodicWriteMesh.hpp"
 
-#include "TimeStepping.hpp"
+#include "SFDM/TimeStepping.hpp"
+#include "SFDM/Tags.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -92,7 +93,7 @@ void TimeStepping::execute()
   /// @todo these configurations sould be in constructor but does not work there
   ///       becasue uri() is undefined on the constructor ( component is still free )
 
-  configure_option_recursively( "ctime",    m_time->uri() );
+  configure_option_recursively( SFDM::Tags::time(),    m_time->uri() );
   configure_option_recursively( "iterator", this->uri() );
 
   // start loop - iterations start from 1 ( max iter zero will do nothing )

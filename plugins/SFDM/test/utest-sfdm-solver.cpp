@@ -100,6 +100,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
   solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons"+to_str(dim)+"D"));
   solver.configure_option(SFDM::Tags::solution_order(),1u);
+  solver.iterative_solver().configure_option("rk_order",2u);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////

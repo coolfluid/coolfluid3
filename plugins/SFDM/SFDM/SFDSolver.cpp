@@ -24,7 +24,6 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
-#include "SFDM/UpdateSolution.hpp"
 
 using namespace CF::Common;
 using namespace CF::Mesh;
@@ -87,14 +86,15 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
 
   m_time_stepping    = create_static_component_ptr< TimeStepping >( TimeStepping::type_name() );
 
-  m_iterative_solver = create_static_component_ptr< IterativeSolver >( IterativeSolver::type_name() );
+  m_iterative_solver = allocate_component< IterativeSolver >( IterativeSolver::type_name() );
   m_time_stepping->append(m_iterative_solver);
-  m_time_stepping->append(allocate_component<ComputeUpdateCoefficient>("compute_time_step"));
-  m_time_stepping->append(allocate_component<UpdateSolution>("update_solution"));
+
 
   m_domain_discretization= create_static_component_ptr< DomainDiscretization > ( DomainDiscretization::type_name() );
   m_iterative_solver->pre_update().append(m_domain_discretization);
-//  m_iterative_solver->pre_update().append(m_boundary_conditions);
+  m_iterative_solver->pre_update().append(allocate_component<ComputeUpdateCoefficient>("compute_time_step"));
+
+  //  m_iterative_solver->pre_update().append(m_boundary_conditions);
   m_iterative_solver->post_update().append(synchronize);
 }
 
