@@ -48,12 +48,22 @@ public: // functions
 
   /// Overload taking a shared pointer
   CActionDirector& append(const CAction::Ptr& action);
+  
+  /// Disable the action with the given name
+  void disable_action(const std::string& name);
+  
+  /// Signal for disabling an action
+  void signal_disable_action(Common::SignalArgs& node);
 
 protected:
   /// Called when an action is added. The default implementation does nothing,
   /// derived classes may override this to complete the configuration of added actions
   /// Only invoked when the action was not already a child of this director.
   virtual void on_action_added(CAction& action);
+  
+private:
+  /// Signature for the disable_action signal
+  void signature_disable_action(Common::SignalArgs& node);
 };
 
 /// Allow growing of the list of actions using the shift left operator:

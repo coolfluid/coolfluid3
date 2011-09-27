@@ -75,7 +75,7 @@ public: // functions
 
   /// Simulates this model
   virtual void simulate();
-  
+
   /// Short setup
   /// @param solver_builder_name Name of the builder for the solver
   /// @param physics_builder_name Name of the builder for the physics
@@ -103,7 +103,7 @@ public: // functions
   void signature_setup(Common::SignalArgs& node);
   /// Signal to set up the model, i.e. create the domain, solver and physical model
   void signal_setup(Common::SignalArgs& node);
-  
+
   /// Signal to start simulating
   void signal_simulate ( Common::SignalArgs& node );
 
@@ -113,11 +113,12 @@ public: // functions
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
-  
+
   /// This function is hooked to the mesh_loaded event.
   /// It checks if the mesh that raised the event is in the domain, and if so
   /// calls the mesh_loaded function of the solvers
   void on_mesh_loaded_event(Common::SignalArgs& args);
+  void on_mesh_changed_event(Common::SignalArgs& args);
 
 };
 

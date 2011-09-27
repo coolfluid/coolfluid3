@@ -245,6 +245,9 @@ public:
   /// Number of variales that we have stored
   typedef typename boost::fusion::result_of::size<VariablesT>::type NbVarsT;
 
+  /// The dimension of the problem
+  static const Uint dimension = NbDims::value;
+  
   /// Type of the per-variable data
   typedef typename boost::mpl::transform< VariablesT, AddNodeData<NbDims::value> >::type VariablesDataT;
 

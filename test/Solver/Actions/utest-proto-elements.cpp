@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   const Uint x_segs = 10;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData blocks;
+  BlockMesh::BlockData& blocks = dom.create_component<BlockMesh::BlockData>("blocks");
 
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;

@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
   const Real width = 6.;
   const Real ratio = 0.1;
 
-  BlockMesh::BlockData serial_blocks;
+  BlockMesh::BlockData& serial_blocks = domain().create_component<BlockMesh::BlockData>("serial_blocks");
 
   // Create blocks for a 3D channel
   Tools::MeshGeneration::create_channel_3d(serial_blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
@@ -182,10 +182,11 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 
   if(nb_z_partitions != 0)
   {
-    BlockMesh::BlockData parallel_blocks_x, parallel_blocks_z;
+    BlockMesh::BlockData& parallel_blocks_x = domain().create_component<BlockMesh::BlockData>("parallel_blocks_x");
+    BlockMesh::BlockData& parallel_blocks_z = domain().create_component<BlockMesh::BlockData>("parallel_blocks_z");
 
-    BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_x_partitions, XX, parallel_blocks_x);
-    BlockMesh::partition_blocks(parallel_blocks_x, domain().create_component<CMesh>("block_mesh_z"), nb_z_partitions, ZZ, parallel_blocks_z);
+    BlockMesh::partition_blocks(serial_blocks, nb_x_partitions, XX, parallel_blocks_x);
+    BlockMesh::partition_blocks(parallel_blocks_x, nb_z_partitions, ZZ, parallel_blocks_z);
 
     BOOST_CHECK_EQUAL(parallel_blocks_z.block_points.size(), nb_procs);
     parallel_blocks_z.block_distribution.resize(nb_procs+1);
@@ -198,9 +199,9 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
   }
   else
   {
-    BlockMesh::BlockData parallel_blocks;
+    BlockMesh::BlockData& parallel_blocks = domain().create_component<BlockMesh::BlockData>("parallel_blocks");
     // partition blocks
-    BlockMesh::partition_blocks(serial_blocks, block_mesh(), nb_procs, XX, parallel_blocks);
+    BlockMesh::partition_blocks(serial_blocks, nb_procs, XX, parallel_blocks);
 
     // Generate the actual mesh
     BlockMesh::build_mesh(parallel_blocks, mesh());
