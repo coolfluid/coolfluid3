@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_P1_Line_hpp
-#define CF_SFDM_P1_Line_hpp
+#ifndef CF_SFDM_P3_Line_hpp
+#define CF_SFDM_P3_Line_hpp
 
 #include "SFDM/ShapeFunction.hpp"
 
 namespace CF {
 namespace SFDM {
-namespace P1 {
+namespace P3 {
 
 class SFDM_API Line : public ShapeFunction {
 public:
@@ -19,11 +19,10 @@ public:
   typedef boost::shared_ptr<Line>       Ptr;
   typedef boost::shared_ptr<Line const> ConstPtr;
 
-
   static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::LINE;
-  static const Uint                 nb_nodes       = 2;
+  static const Uint                 nb_nodes       = 4;
   static const Uint                 dimensionality = 1;
-  static const Uint                 order          = 1;
+  static const Uint                 order          = 3;
 
   enum FaceNumbering { KSI_NEG = 0, KSI_POS = 1 };
 
@@ -45,8 +44,8 @@ public:
 
 };
 
-} // P1
+} // P3
 } // SFDM
 } // CF
 
-#endif // CF_SFDM_P1_Line_hpp
+#endif // CF_SFDM_P3_Line_hpp

@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 
 #include "SFDM/P2/Line.hpp"
+#include "SFDM/P3/Line.hpp"
 
 namespace CF {
 namespace SFDM {
@@ -34,6 +35,16 @@ Line::Line(const std::string& name) : ShapeFunction(name)
   m_points[KSI][0][0] = 0;
   m_points[KSI][0][1] = 1;
   m_points[KSI][0][2] = 2;
+
+  m_face_info.resize(boost::extents[2][2]);
+  m_face_info[KSI_NEG][ORIENTATION] = KSI;
+  m_face_info[KSI_NEG][SIDE] = NEG;
+  m_face_info[KSI_POS][ORIENTATION] = KSI;
+  m_face_info[KSI_POS][SIDE] = POS;
+
+  m_face_number.resize(boost::extents[dimensionality][2]);
+  m_face_number[KSI][LEFT ]=0;
+  m_face_number[KSI][RIGHT]=1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,8 +60,7 @@ const SFDM::ShapeFunction& Line::line() const
 
 const SFDM::ShapeFunction& Line::flux_line() const
 {
-  throw Common::NotImplemented(FromHere(),"SFDM::P3::Line not implemented");
-  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< Line >(Line::type_name()));
+  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< P3::Line >(P3::Line::type_name()));
   return *flux_line_sf;
 }
 
