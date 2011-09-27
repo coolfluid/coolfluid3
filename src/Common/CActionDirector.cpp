@@ -12,13 +12,17 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/OptionComponent.hpp"
+#include "Common/Signal.hpp"
+
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "CActionDirector.hpp"
 
 
 namespace CF {
 namespace Common {
-
+  
 ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +31,13 @@ CActionDirector::CActionDirector(const std::string& name): CAction(name)
 {
   m_options.add_option< OptionArrayT<std::string> >("action_order", std::vector<std::string>())
       ->description("Names of the actions to execute in sequence");
+      
+  // signals
+  regist_signal( "disable_action" )
+    ->connect( boost::bind( &CActionDirector::signal_disable_action, this, _1 ) )
+    ->description("Disable the action with the given name")
+    ->pretty_name("Disable Action")
+    ->signature( boost::bind ( &CActionDirector::signature_disable_action, this, _1) );
 }
 
 
@@ -99,7 +110,39 @@ CActionDirector& CActionDirector::append(const CAction::Ptr& action)
   return *this;
 }
 
+void CActionDirector::disable_action(const std::string& name)
+{
+  Option& actions_prop = option("action_order");
+  std::vector<std::string> actions; actions_prop.put_value(actions);
+  
+  const Uint nb_actions = actions.size();
+  
+  std::vector<std::string> new_actions;
+  new_actions.reserve(nb_actions);
+  
+  for(Uint i = 0; i != nb_actions; ++i)
+    if(actions[i] != name)
+      new_actions.push_back(actions[i]);
+    
+  actions_prop.change_value(new_actions);
+}
 
+void CActionDirector::signal_disable_action(SignalArgs& node)
+{
+  XML::SignalOptions options( node );
+  const std::string action = options.value<std::string>( "action_name" );
+  disable_action(action);
+}
+
+void CActionDirector::signature_disable_action(SignalArgs& node)
+{
+  XML::SignalOptions options( node );
+  
+  // Name of the action to disable
+  options.add_option< OptionT<std::string> >( "action_name", std::string() )
+      ->description("Action to disable")
+      ->pretty_name("Action Name");
+}
 
 CActionDirector& operator<<(CActionDirector& action_director, CAction& action)
 {
