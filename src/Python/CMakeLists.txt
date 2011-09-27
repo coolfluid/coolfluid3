@@ -7,6 +7,8 @@ list( APPEND coolfluid_python_files
   Core.cpp
   LibPython.hpp
   LibPython.cpp
+  MatrixTypes.hpp
+  MatrixTypes.cpp
   PythonModule.hpp
   PythonModule.cpp
   URI.hpp

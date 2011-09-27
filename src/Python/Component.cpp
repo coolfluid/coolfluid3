@@ -74,7 +74,7 @@ boost::any python_to_any(const object& val, const std::string& target_type)
   boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, target_type, found));
 
   if(!found)
-    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any");
+    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
 
   return result;
 }
