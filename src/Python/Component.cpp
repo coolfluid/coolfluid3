@@ -49,8 +49,6 @@ struct PythonToAny
     if(m_found)
       return;
 
-    CFdebug << "got type " << Common::class_name_from_typeinfo(typeid(T)) << ", wanted " << m_target_type << CFendl;
-
     if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
 
@@ -120,7 +118,6 @@ struct SignalWrapper
 
     std::string node_contents;
     Common::XML::to_string(node.node, node_contents);
-    CFdebug << "Calling signal using arguments\n:" << node_contents << CFendl;
 
     (*m_signal->signal())(node);
 
