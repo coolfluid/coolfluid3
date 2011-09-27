@@ -92,7 +92,7 @@ struct ProtoBenchmarkFixture :
 
     const Real ratio = 0.1;
 
-    BlockMesh::BlockData blocks;
+    BlockMesh::BlockData& blocks = dom.create_component<BlockMesh::BlockData>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     BlockMesh::build_mesh(blocks, mesh);
 

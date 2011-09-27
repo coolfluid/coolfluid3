@@ -381,7 +381,7 @@ struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
 
   static CoordsT coords()
   {
-    static const double mu = 0.3333333333333333333333333;
+    static const double mu = 0.25;
 
     CoordsT result;
     result << mu, mu, mu;
@@ -391,7 +391,43 @@ struct GaussMappedCoordsImpl<1, GeoShape::TETRA>
   static WeightsT weights()
   {
     WeightsT result;
-    result << 0.25;
+    result << 0.1666666666666666666666667;
+    return result;
+  }
+};
+
+template<>
+struct GaussMappedCoordsImpl<2, GeoShape::TETRA>
+{
+  static const Uint nb_points = 4;
+
+  typedef Eigen::Matrix<Real, 3, nb_points> CoordsT;
+  typedef Eigen::Matrix<Real, 1, nb_points> WeightsT;
+
+  static CoordsT coords()
+  {
+    static const double mu = 0.13819660112501051517954131656;
+
+    CoordsT result;
+    result(KSI, 0) = mu;
+    result(ETA, 0) = mu;
+    result(ZTA, 0) = mu;
+    result(KSI, 1) = 1.-3.*mu;
+    result(ETA, 1) = mu;
+    result(ZTA, 1) = mu;
+    result(KSI, 2) = mu;
+    result(ETA, 2) = 1.-3.*mu;
+    result(ZTA, 2) = mu;
+    result(KSI, 3) = mu;
+    result(ETA, 3) = mu;
+    result(ZTA, 3) = 1.-3.*mu;
+    return result;
+  }
+
+  static WeightsT weights()
+  {
+    WeightsT result;
+    result.setConstant(0.04166666666666666666666666666666666667);
     return result;
   }
 };

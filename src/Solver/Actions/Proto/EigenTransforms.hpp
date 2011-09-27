@@ -7,9 +7,12 @@
 #ifndef CF_Solver_Actions_Proto_EigenTransforms_hpp
 #define CF_Solver_Actions_Proto_EigenTransforms_hpp
 
+#include <boost/mpl/equal_to.hpp>
 #include <boost/proto/core.hpp>
 
+#include "IndexLooping.hpp"
 #include "Terminals.hpp"
+#include "Transforms.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -73,6 +76,13 @@ struct ValueType< Eigen::CwiseUnaryOp<Eigen::internal::scalar_multiple_op<Real>,
 /// Specialise for reals
 template<>
 struct ValueType<Real>
+{
+  typedef Real type;
+};
+
+/// Specialise for transpose of reals
+template<>
+struct ValueType< Eigen::Transpose<const Real> >
 {
   typedef Real type;
 };
@@ -194,11 +204,24 @@ struct TransposeTransform :
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef Eigen::Transpose<typename boost::remove_reference<typename impl::state_param>::type> result_type;
+    typedef typename boost::remove_reference<typename impl::state_param>::type RealStateT;
+
+    typedef typename boost::mpl::if_< boost::is_same<Real, typename boost::remove_const<RealStateT>::type>, Real, Eigen::Transpose<RealStateT> >::type result_type;
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      return state.transpose();
+      return apply(state);
+    }
+
+    template<typename T>
+    result_type apply(T& mat) const
+    {
+      return mat.transpose();
+    }
+
+    Real apply(const Real val) const
+    {
+      return val;
     }
   };
 };
@@ -225,32 +248,59 @@ struct MatrixElementAccess :
 };
 
 /// Primitive transform to access matrix elements using operator[]
+template<typename GrammarT, typename IntegersT>
 struct MatrixSubscript :
-  boost::proto::transform< MatrixSubscript >
+  boost::proto::transform< MatrixSubscript<GrammarT, IntegersT> >
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
   {
-    typedef typename boost::remove_const<typename boost::remove_reference<ExprT>::type>::type ExprValT;
+    typedef typename boost::proto::result_of::left<ExprT>::type LeftExprT;
+    typedef typename boost::remove_const<typename boost::remove_reference<typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type>::type>::type LeftT;
+    typedef typename boost::proto::result_of::right<ExprT>::type IdxExprT;
+    
+    // True if the passed expression for the index is a looping index
+    typedef boost::proto::matches< IdxExprT, boost::proto::terminal< IndexTag<boost::proto::_> > > IsLoopingIdxT;
 
-    static const bool is_vector = ExprValT::ColsAtCompileTime == 1 || ExprValT::RowsAtCompileTime == 1;
-    typedef typename boost::mpl::if_c<is_vector, Real, typename ExprValT::ConstRowXpr>::type result_type;
+    static const bool is_vector = LeftT::ColsAtCompileTime == 1 || LeftT::RowsAtCompileTime == 1;
+    typedef typename boost::mpl::if_c<is_vector, Real, typename LeftT::ConstRowXpr>::type subscript_result_type;
+    typedef typename boost::mpl::and_<IsLoopingIdxT, boost::mpl::bool_<boost::remove_reference<DataT>::type::dimension == 1> >::type IgnoreLoopingT;
+    typedef typename boost::mpl::if_
+    <
+      IgnoreLoopingT,
+      typename boost::result_of<GrammarT(LeftExprT, StateT, DataT)>::type,
+      subscript_result_type
+    >::type result_type;
 
     /// Static dispatch through 2 versions of do_eval, in order to avoid compile errors
-    inline Real do_eval(boost::mpl::true_, ExprT expr, StateT state) const // used for vectors
+    template<typename MatrixT, typename IndexT>
+    inline Real do_eval(boost::mpl::true_, MatrixT& matrix, const IndexT idx) const // used for vectors
     {
-      return expr[state];
+      return matrix[idx];
     }
 
-    inline typename ExprValT::ConstRowXpr do_eval(boost::mpl::false_, ExprT expr, StateT state) const // used for matrices
+    template<typename MatrixT, typename IndexT>
+    inline typename LeftT::ConstRowXpr do_eval(boost::mpl::false_, MatrixT& matrix, const IndexT idx) const // used for matrices
     {
-      return expr.row(state);
+      return matrix.row(idx);
+    }
+    
+    template<typename MatrixT, typename IndexT>
+    inline result_type apply(boost::mpl::false_, MatrixT& matrix, const IndexT idx) const
+    {
+      return do_eval(boost::mpl::bool_<is_vector>(), matrix, idx);
+    }
+    
+    template<typename MatrixT, typename IndexT>
+    inline result_type apply(boost::mpl::true_, MatrixT& matrix, const IndexT idx) const
+    {
+      return matrix;
     }
 
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
       // go through overloaded do_eval to get the correct expression, depending on if we are subscripting a vector or a matrix
-      return do_eval(boost::mpl::bool_<is_vector>(), expr, state);
+      return apply(IgnoreLoopingT(), GrammarT()(boost::proto::left(expr), state, data), IntegersT()(boost::proto::right(expr), state, data));
     }
   };
 };
@@ -352,8 +402,18 @@ struct EigenIndexing :
     boost::proto::when
     <
       boost::proto::subscript< GrammarT, IntegersT >,
-      MatrixSubscript( GrammarT(boost::proto::_left), IntegersT(boost::proto::_right) )
+      MatrixSubscript<GrammarT, IntegersT>
     >
+  >
+{
+};
+
+template<typename GrammarT>
+struct TransposeGrammar :
+  boost::proto::when
+  <
+    boost::proto::function< boost::proto::terminal<TransposeFunction>, GrammarT >,
+    TransposeTransform(boost::proto::_expr, GrammarT(boost::proto::_child1), boost::proto::_data)
   >
 {
 };
@@ -363,15 +423,11 @@ template<typename GrammarT, typename IntegersT>
 struct EigenMath :
   boost::proto::or_
   <
-    EigenMultiplication<GrammarT>,
+    EigenMultiplication< boost::proto::or_<TransposeGrammar<GrammarT>, GrammarT> >,
     // Indexing
     EigenIndexing<GrammarT, IntegersT>,
     // Transpose
-    boost::proto::when
-    <
-      boost::proto::function< boost::proto::terminal<TransposeFunction>, GrammarT >,
-      TransposeTransform(boost::proto::_expr, GrammarT(boost::proto::_child1), boost::proto::_data)
-    >,
+    TransposeGrammar<GrammarT>,
     // Setting to zero
     boost::proto::when
     <

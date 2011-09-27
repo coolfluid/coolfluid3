@@ -24,6 +24,15 @@ namespace Common {
 
 struct TimedActionImpl::Implementation
 {
+  Implementation(CAction& timed_action) : m_timed_component(timed_action)
+  {
+    m_timed_component.properties().add_property("timer_count", Uint(0));
+    m_timed_component.properties().add_property("timer_minimum", Real(0.));
+    m_timed_component.properties().add_property("timer_mean", Real(0.));
+    m_timed_component.properties().add_property("timer_maximum", Real(0.));
+    m_timed_component.properties().add_property("timer_variance", Real(0.));
+  }
+  
   Timer m_timer;
   
   boost::accumulators::accumulator_set
@@ -38,17 +47,14 @@ struct TimedActionImpl::Implementation
       boost::accumulators::tag::lazy_variance
     >
   > m_timing_stats;
+  
+  CAction& m_timed_component;
 };
   
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-TimedActionImpl::TimedActionImpl(CAction& action) : m_timed_component(action), m_implementation(new Implementation())
+TimedActionImpl::TimedActionImpl(IAction& action) : m_implementation(new Implementation(dynamic_cast<CAction&>(action)))
 {
-  m_timed_component.properties().add_property("timer_count", Uint(0));
-  m_timed_component.properties().add_property("timer_minimum", Real(0.));
-  m_timed_component.properties().add_property("timer_mean", Real(0.));
-  m_timed_component.properties().add_property("timer_maximum", Real(0.));
-  m_timed_component.properties().add_property("timer_variance", Real(0.));
 }
 
 TimedActionImpl::~TimedActionImpl()
@@ -68,11 +74,11 @@ void TimedActionImpl::stop_timing()
 
 void TimedActionImpl::store_timings()
 {
-  m_timed_component.properties().configure_property("timer_count", boost::accumulators::count(m_implementation->m_timing_stats));
-  m_timed_component.properties().configure_property("timer_minimum", boost::accumulators::min(m_implementation->m_timing_stats));
-  m_timed_component.properties().configure_property("timer_mean", boost::accumulators::mean(m_implementation->m_timing_stats));
-  m_timed_component.properties().configure_property("timer_maximum", boost::accumulators::max(m_implementation->m_timing_stats));
-  m_timed_component.properties().configure_property("timer_variance", boost::accumulators::lazy_variance(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().configure_property("timer_count", boost::accumulators::count(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().configure_property("timer_minimum", boost::accumulators::min(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().configure_property("timer_mean", boost::accumulators::mean(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().configure_property("timer_maximum", boost::accumulators::max(m_implementation->m_timing_stats));
+  m_implementation->m_timed_component.properties().configure_property("timer_variance", boost::accumulators::lazy_variance(m_implementation->m_timing_stats));
 }
 
 #endif

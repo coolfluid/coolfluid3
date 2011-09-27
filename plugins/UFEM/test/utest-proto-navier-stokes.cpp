@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
 
   SUPGCoeffs coefs;
   coefs.u_ref = c;
-  coefs.nu = mu / rho;
+  coefs.mu = mu;
   coefs.rho = rho;
 
   // List of (Navier-)Stokes creation functions, with their names

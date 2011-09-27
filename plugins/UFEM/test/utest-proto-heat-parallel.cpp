@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Setup mesh
   CMesh& mesh = domain.create_component<CMesh>("Mesh");
-  BlockMesh::BlockData blocks;
+  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
   blocks.points += list_of(0.)(0.), list_of(length)(0.), list_of(length)(length), list_of(0.)(length);
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   blocks.patch_points += list_of(0)(1), list_of(1)(2), list_of(2)(3), list_of(3)(0);
   blocks.block_distribution += 0, 1;
 
-  BlockMesh::BlockData parallel_blocks;
+  BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   CMesh& serial_block_mesh = model.create_component<CMesh>("serial_block_mesh");
-  BlockMesh::partition_blocks(blocks, serial_block_mesh, PE::Comm::instance().size(), XX, parallel_blocks);
+  BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
   BlockMesh::build_mesh(parallel_blocks, mesh, 1);
 
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <iostream>
+#include <set>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assign/list_of.hpp>
@@ -128,7 +129,7 @@ namespace detail
     void push_back(const ValueT& value)
     {
       // Block is full, write it to the compressed stream
-      if(m_current_block.tellp() == m_header.blocksize)
+      if(m_current_block.tellp() == static_cast<std::streampos>(m_header.blocksize))
         compress_block();
 
       m_current_block.write(reinterpret_cast<const char*>(&value), m_wordsize);
@@ -358,12 +359,13 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
-
-
-
+  std::set<std::string> added_fields;
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
     const Field& field = *field_ptr.lock();
+
+    if(!added_fields.insert(field.uri().string()).second)
+      continue;
 
     // point-based field
     if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == CF::Mesh::FieldGroup::Basis::ELEMENT_BASED))
