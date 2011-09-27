@@ -12,9 +12,9 @@ if( CF_PLUGIN_SFDM )
 
   coolfluid_find_orphan_files()
 
-  include_directories( ${CMAKE_CURRENT_SOURCE_DIR}/src )
+  include_directories( ${CMAKE_CURRENT_SOURCE_DIR} )
 
-  add_subdirectory( src )  # library sources
+  add_subdirectory( SFDM )  # library sources
 
   add_subdirectory( test ) # testing tree
 

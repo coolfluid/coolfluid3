@@ -9,7 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include<Eigen/StdVector>
+#include "Common/EigenAssertions.hpp"
+#include <Eigen/StdVector>
 
 #include "Math/MatrixTypes.hpp"
 
@@ -20,7 +21,7 @@
 
 namespace CF {
 namespace Mesh {
-  
+
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Fill STL-vector like per-node data storage
@@ -74,22 +75,22 @@ void fill(RealMatrix& to_fill, const CTable<Real>& data_array, const RowT& eleme
 //   static const Uint nb_rows   = NbRows;
 //   static const Uint nb_cols   = NbCols;
 //   static const Uint node_size = NbRows*NbCols;
-//   
+//
 //   /// Type of value at each node
 //   typedef Eigen::Matrix<Real, NbRows, NbCols> ValueT;
-//   
+//
 //   Uint size() const
 //   {
 //     return nb_nodes;
 //   }
-//   
+//
 //   ElementNodeValues() :m_data(NbNodes) {}
-//   
+//
 //   const ValueT& operator[](const Uint i) const
 //   {
 //     return m_data[i];
 //   }
-//   
+//
 //   template<typename RowT>
 //   void fill(const CTable<Real>& data_array, const RowT& element_row, const Uint start=0)
 //   {
@@ -108,7 +109,7 @@ void fill(RealMatrix& to_fill, const CTable<Real>& data_array, const RowT& eleme
 //       }
 //     }
 //   }
-// 
+//
 // private:
 //   std::vector<ValueT,Eigen::aligned_allocator<ValueT> > m_data;
 // };
@@ -128,22 +129,22 @@ struct ElementNodeView<NbNodes, 1, 1>
   static const Uint nb_rows = 1;
   static const Uint nb_cols = 1;
   static const Uint node_size = 1;
-  
+
   Uint size() const
   {
     return nb_nodes;
   }
-  
+
   const Real& operator[](const Uint i) const
   {
     return *m_data[i];
   }
-  
+
   Real& operator[](const Uint i)
   {
     return *m_data[i];
   }
-  
+
   template<typename RowT>
   void fill(CTable<Real>& data_array, const RowT& element_row, const Uint start=0)
   {

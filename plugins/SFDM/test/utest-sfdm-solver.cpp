@@ -8,38 +8,54 @@
 #define BOOST_TEST_MODULE "Test module for CF::SFDM"
 
 #include <boost/test/unit_test.hpp>
-#include <boost/regex.hpp>
-#include <boost/algorithm/string.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/CEnv.hpp"
-#include "Common/FindComponents.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "Common/OSystem.hpp"
+#include "Common/OSystemLayer.hpp"
+
+#include "Math/VariablesDescriptor.hpp"
+
+#include "Solver/CModel.hpp"
+#include "Solver/Tags.hpp"
+
+#include "Physics/PhysModel.hpp"
+#include "Physics/Variables.hpp"
+
 #include "Mesh/CDomain.hpp"
-#include "Mesh/Actions/CInitFieldFunction.hpp"
-#include "Mesh/Actions/CreateSpaceP0.hpp"
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CSolver.hpp"
-#include "Solver/CPhysicalModel.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/Actions/CreateSpaceP0.hpp"
-#include "SFDM/CreateSpace.hpp"
+#include "Mesh/Field.hpp"
+#include "Mesh/CSimpleMeshGenerator.hpp"
+#include "Mesh/CMeshTransformer.hpp"
+
+#include "SFDM/SFDSolver.hpp"
+#include "SFDM/Term.hpp"
+#include "SFDM/Tags.hpp"
+
+#include "Mesh/CRegion.hpp"
+//#include "Mesh/CMesh.hpp"
+//#include "Mesh/CField.hpp"
+//#include "Mesh/CEntities.hpp"
+//#include "Mesh/ElementType.hpp"
+//#include "Mesh/CMeshWriter.hpp"
+//#include "Mesh/CDomain.hpp"
+//#include "Mesh/Actions/CInitFieldFunction.hpp"
+//#include "Mesh/Actions/CreateSpaceP0.hpp"
+//#include "Solver/CModelUnsteady.hpp"
+//#include "Solver/CSolver.hpp"
+//#include "Solver/CPhysicalModel.hpp"
+//#include "Mesh/Actions/CBuildFaces.hpp"
+//#include "Mesh/Actions/CBuildVolume.hpp"
+//#include "Mesh/Actions/CreateSpaceP0.hpp"
+//#include "SFDM/CreateSpace.hpp"
 
 using namespace CF;
+using namespace CF::Math;
 using namespace CF::Common;
 using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
+using namespace CF::Physics;
 using namespace CF::Solver;
-//using namespace CF::Solver::Actions;
 using namespace CF::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,92 +64,127 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver )
+BOOST_AUTO_TEST_CASE( Solver_test )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
-  CModelUnsteady& model   = Core::instance().root().create_component<CModelUnsteady>("model");
-  CPhysicalModel& physics = model.create_physics("Physics");
-  CDomain&        domain  = model.create_domain("Domain");
-  CSolver&        solver  = model.create_solver("CF.SFDM.SFDSolver");
-
   //////////////////////////////////////////////////////////////////////////////
-  // configure physics
+  // create and configure SFD - NavierStokes 2D model
+  Uint dim=2;
 
-  physics.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
-
+  CModel& model   = Core::instance().root().create_component<CModel>("model");
+  model.setup("CF.SFDM.SFDSolver","CF.Physics.NavierStokes.NavierStokes"+to_str(dim)+"D");
+  PhysModel& physics = model.physics();
+  SFDSolver& solver  = model.solver().as_type<SFDSolver>();
+  CDomain&   domain  = model.domain();
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 
-  /// Create a mesh consisting of a line with length 1. and 20 divisions
+  // Create a 2D rectangular mesh
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  const Uint divisions=100;
-  const Real length=10.;
-  CSimpleMeshGenerator::create_line(mesh, length, divisions);
-
-
-  CGroup& tools = model.create_component<CGroup>("tools");
-  tools.mark_basic();
-  CMeshTransformer& spectral_difference_transformer = tools.create_component<CMeshTransformer>("SpectralFiniteDifferenceTransformer").mark_basic().as_type<CMeshTransformer>();
-  spectral_difference_transformer.create_component<CBuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
-  spectral_difference_transformer.create_component<CreateSpaceP0>     ("2_create_space_P0").mark_basic();
-  spectral_difference_transformer.create_component<SFDM::CreateSpace> ("3_create_sfd_spaces").mark_basic().configure_option("P",0u);
-  spectral_difference_transformer.create_component<CBuildVolume>      ("4_build_volume_field").mark_basic();
-
-  spectral_difference_transformer.transform(mesh);
+  Real x_length=10.;
+  Real y_length=x_length;
+  Uint x_nb_cells=40;
+  Uint y_nb_cells=x_nb_cells*2;
+  if (dim == 1)
+    CSimpleMeshGenerator::create_line(mesh, x_length, x_nb_cells);
+  else if (dim == 2)
+    CSimpleMeshGenerator::create_rectangle(mesh, x_length, y_length, x_nb_cells, y_nb_cells);
+  else
+    throw NotImplemented(FromHere(),"");
+  solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
-  // configure solver
+  // Prepare the mesh
 
-  solver.configure_option("physical_model",physics.uri());
-  solver.configure_option("domain",domain.uri());
-  solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
-  solver.configure_option_recursively("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
-  solver.configure_option_recursively("solution_state",physics.solution_state().uri());
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons"+to_str(dim)+"D"));
+  solver.configure_option(SFDM::Tags::solution_order(),1u);
+  solver.prepare_mesh().execute();
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Configure simulation
+
+  // Initial condition
+  Solver::Action& shocktube = solver.initial_conditions().create_initial_condition("shocktube");
+  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim"+to_str(dim)+"D",SFDM::Tags::input_vars())->uri() );
+  std::vector<std::string> functions;
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
+  if (dim>1)
+    functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ V   ]
+  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 404400 , 101100 )"); // Prim2D[ P   ]
+  shocktube.configure_option("functions",functions);
+  solver.initial_conditions().execute();
+
+  // Discretization
+  physics.create_variables("CF.Physics.NavierStokes.Roe"+to_str(dim)+"D","roe_vars");
+  solver.domain_discretization().create_term("CF.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+//  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
+//  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
+
+  // Time stepping
+  solver.time_stepping().time().configure_option("time_step",x_length/1250/10);
+  solver.time_stepping().time().configure_option("end_time" ,x_length/1250/10);
+  solver.time_stepping().configure_option_recursively("cfl" , 1.);
+  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.0005);
 
 
-  solver.configure_option_recursively("time",model.time().uri());
-  solver.configure_option_recursively("time_accurate",true);
-  solver.configure_option_recursively("cfl",1.);
+  //////////////////////////////////////////////////////////////////////////////
+  // Run simulation
 
-  model.time().configure_option("end_time",2.5);
-  model.time().configure_option("time_step",5.);
+  //CFinfo << model.tree() << CFendl;
 
-  /// Initialize solution field with the function sin(2*pi*x)
-  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
-  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
+  model.simulate();
 
-  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
-  init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
-  init_field->configure_option("field",find_component_with_tag<CField>(mesh,"solution").uri());
-  init_field->transform(mesh);
+  CFinfo << "memory: " << OSystem::instance().layer()->memory_usage_str() << CFendl;
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Output
+  domain.write_mesh("sfdm_output.msh");
+  domain.write_mesh("sfdm_output.plt");
 
 
-  std::vector<CField::Ptr> fields;
-  fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"jacobian_determinant").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
-  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
+//  solver.configure_option_recursively("time",model.time().uri());
+//  solver.configure_option_recursively("time_accurate",true);
+//  solver.configure_option_recursively("cfl",1.);
 
-  CMeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
-  gmsh_writer.configure_option("mesh",mesh.uri());
-  gmsh_writer.configure_option("file",URI("line_${iter}.msh"));
-  gmsh_writer.set_fields(fields);
+//  model.time().configure_option("end_time",2.5);
+//  model.time().configure_option("time_step",5.);
 
-  gmsh_writer.execute();
+//  /// Initialize solution field with the function sin(2*pi*x)
+//  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+//  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
-  CFinfo << model.tree() << CFendl;
+//  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";
+//  init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
+//  init_field->configure_option("field",find_component_with_tag<CField>(mesh,"solution").uri());
+//  init_field->transform(mesh);
 
-  //solver.get_child("iterate").configure_option("MaxIterations",1u);
-  solver.solve();
 
-  gmsh_writer.configure_option("file",URI("final.msh"));
-  gmsh_writer.execute();
+//  std::vector<CField::Ptr> fields;
+//  fields.push_back(find_component_with_tag<CField>(mesh,"solution").as_ptr<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"jacobian_determinant").as_ptr<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
+//  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
-  /// write gmsh file. note that gmsh gets really confused because of the multistate view
-//  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
+//  CMeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+//  gmsh_writer.configure_option("mesh",mesh.uri());
+//  gmsh_writer.configure_option("file",URI("line_${iter}.msh"));
+//  gmsh_writer.set_fields(fields);
 
+//  gmsh_writer.execute();
+
+//  CFinfo << model.tree() << CFendl;
+
+//  //solver.get_child("iterate").configure_option("MaxIterations",1u);
+//  solver.solve();
+
+//  gmsh_writer.configure_option("file",URI("final.msh"));
+//  gmsh_writer.execute();
+
+//  /// write gmsh file. note that gmsh gets really confused because of the multistate view
+////  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

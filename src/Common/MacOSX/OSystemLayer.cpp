@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
 #include <cstdio>        // for printf()
 #include <cstdlib>       // for free() and abort()
 #include <csignal>       // POSIX signal(), SIGFPE and SIGSEGV
@@ -16,6 +17,9 @@
 #include <mach/mach_types.h>
 #include <mach/mach_init.h>
 #include <mach/task.h>
+#include <mach/mach_host.h>
+#include <mach/vm_map.h>
+#include <mach/shared_memory_server.h>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CommonAPI.hpp"
@@ -132,19 +136,67 @@ Uint OSystemLayer::process_id() const
 double OSystemLayer::memory_usage() const
 {
 
-  struct task_basic_info t_info;
+  // Copyright (c) 2002 Aram Greenman. All rights reserved.
+  //
+  // Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  //
+  // 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  // 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+  // 3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.
+  //
+  // THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  // http://alt.textdrive.com/svn/altdev/ZOE/Applications/ZOEMenu/AGProcess.m
+
+  struct task_basic_info         t_info;
+  struct host_basic_info         h_info;
+  struct vm_region_basic_info_64 vm_info;
+
+
   mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
+  mach_msg_type_number_t h_info_count = HOST_BASIC_INFO_COUNT;
+  mach_msg_type_number_t vm_info_count = VM_REGION_BASIC_INFO_COUNT_64;
+
+
+  vm_address_t address = GLOBAL_SHARED_TEXT_SEGMENT;
+
+  vm_size_t size;
+  mach_port_t object_name;
+
 
   if (KERN_SUCCESS != task_info(mach_task_self(),
                                 TASK_BASIC_INFO, (task_info_t)&t_info,
                                 &t_info_count))
   {
-      return -1;
+    return -1;
   }
-  // resident size is in t_info.resident_size;
-  // virtual size is in t_info.virtual_size;
 
+  if (KERN_SUCCESS != host_info(mach_host_self(),
+                                HOST_BASIC_INFO, (host_info_t)&h_info,
+                                &h_info_count))
+  {
+    return -1;
+  }
+
+  if (KERN_SUCCESS != vm_region_64(mach_task_self(), &address, &size,
+                                   VM_REGION_BASIC_INFO, (vm_region_info_t)&vm_info,
+                                   &vm_info_count, &object_name))
+  {
+    return -1;
+  }
+
+  if (vm_info.reserved && size == SHARED_TEXT_REGION_SIZE && t_info.virtual_size > (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE))
+    t_info.virtual_size -= (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE);
+
+
+
+  // virtual size
+  // return static_cast<double>(t_info.virtual_size);
+
+  // resident size
   return static_cast<double>(t_info.resident_size);
+
+  // percent
+  // return static_cast<double>(t_info.resident_size) / h_info.memory_size;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

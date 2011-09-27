@@ -9,6 +9,8 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
+
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/SVD>
 
 #include "Common/Log.hpp"

@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 6);
 
   descriptor->push_back("s", CF::Math::VariablesDescriptor::Dimensionalities::SCALAR);
-  BOOST_CHECK_EQUAL(descriptor->description(), "v1[3],v2[3],t1[9],s[1]");
+  BOOST_CHECK_EQUAL(descriptor->description(), "v1[vector],v2[vector],t1[tensor],s[scalar]");
 }
 
 // Test parsing of string to batch-add variables
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( ParseString )
   descriptor->set_variables("a, b[v], c[t]");
 
   BOOST_CHECK_EQUAL(descriptor->size(), 7);
-  BOOST_CHECK_EQUAL(descriptor->description(), "a[1],b[2],c[4]");
+  BOOST_CHECK_EQUAL(descriptor->description(), "a[scalar],b[vector],c[tensor]");
 
   BOOST_CHECK_EQUAL(descriptor->dimensionality("a"), VariablesDescriptor::Dimensionalities::SCALAR);
   BOOST_CHECK_EQUAL(descriptor->dimensionality("b"), VariablesDescriptor::Dimensionalities::VECTOR);
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( ParseStringArray )
   descriptor->set_variables("a[5]");
 
   BOOST_CHECK_EQUAL(descriptor->size(), 5);
-  BOOST_CHECK_EQUAL(descriptor->description(), "a1[1],a2[1],a3[1],a4[1],a5[1]");
+  BOOST_CHECK_EQUAL(descriptor->description(), "a1[scalar],a2[scalar],a3[scalar],a4[scalar],a5[scalar]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

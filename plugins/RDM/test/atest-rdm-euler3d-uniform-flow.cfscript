@@ -23,7 +23,7 @@ call Model/Domain/load_mesh file:uri=box-tet-p1-3112.msh
 
 configure Model/RDSolver                                update_vars:string=Cons3D
 
-configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=300
+configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=10
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions

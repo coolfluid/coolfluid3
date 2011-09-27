@@ -11,6 +11,7 @@
 
 #include <boost/assign.hpp>
 
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 #include "Common/Core.hpp"
