@@ -401,6 +401,7 @@ void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigne
   {
 //      PEProcessSortedExecute(-1,std::cout << PERank << "   sync -> " <<  pobj.name() << "\n" << std::flush; );
     pobj.pack(sndbuf,m_sendMap);
+    rcvbuf.resize(m_recvMap.size()*pobj.size_of()*pobj.stride());
     PE::Comm::instance().all_to_all(sndbuf,m_sendCount,rcvbuf,m_recvCount,pobj.size_of()*pobj.stride());
     pobj.unpack(rcvbuf,m_recvMap);
 
