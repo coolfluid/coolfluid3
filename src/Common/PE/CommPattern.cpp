@@ -88,12 +88,10 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
     for(int i=0; i<(const int)map.size(); i++) map[i]=i;
-    //Uint *igid=(Uint*)gid->pack(map);
     PE::CommWrapperView<Uint> cwv_gid(m_gid);
     std::vector<Uint>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add(*iigid,*irank);
-    //delete[] igid;
     /*
      PECheckPoint(100,"-- Setup comission: --");
      PEProcessSortedExecute(-1,
