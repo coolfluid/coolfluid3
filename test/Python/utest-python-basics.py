@@ -18,3 +18,8 @@ group = root.create_component("group", "CF.Common.CGroup")
 print "Before move",journal.uri()
 journal.move_component(group.uri())
 print "After move",journal.uri()
+
+a = cf.RealVector(2)
+a[0] = 1.
+a[1] = 2.
+print len(a), a[0], a[1]

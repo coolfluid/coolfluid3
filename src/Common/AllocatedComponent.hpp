@@ -48,36 +48,32 @@ public:
 }
 }
 
+#include "Common/IAction.hpp"
 #include "Common/TimedComponent.hpp"
 
 namespace CF {
 namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-// CAction timing
+// IAction timing
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-/// Forward declaration for compile-time checking of base class
-class CAction;
 
 /// For internal use, allows non-template parts of TimedAction to be in the .cpp
 struct TimedActionImpl
 {
-  TimedActionImpl(CAction& action);
+  TimedActionImpl(IAction& action);
   ~TimedActionImpl();
   
   void start_timing();
   void stop_timing();
   void store_timings();
   
-  CAction& m_timed_component;
-  
   // Avoid dragging in the timer-related headers
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
 };
 
-/// Alternative wrapper that adds timing functionality around the execute() function for CAction
+/// Alternative wrapper that adds timing functionality around the execute() function for IAction
 template<typename ComponentT>
 class TimedAction : public ComponentT, public TimedComponent
 {
@@ -119,7 +115,7 @@ struct SelectComponentWrapper
 {
   typedef typename boost::mpl::if_
   <
-    boost::mpl::and_< boost::is_base_of<CAction, ComponentT>, is_timeable<ComponentT> >,
+    boost::mpl::and_< boost::is_base_of<IAction, ComponentT>, is_timeable<ComponentT> >,
     TimedAction<ComponentT>,
     AllocatedComponent<ComponentT>
   >::type type;

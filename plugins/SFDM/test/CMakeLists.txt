@@ -4,7 +4,6 @@
 #     The owner of this module should upgrade it to the new API or remove it.
 
 list( APPEND utest-sfdm-aspects_condition FALSE )
-list( APPEND utest-sfdm-solver_condition FALSE )
 list( APPEND utest-sfdm-wizard_condition FALSE )
 
 
@@ -13,13 +12,17 @@ list( APPEND utest-sfdm-aspects_files  utest-sfdm-aspects.cpp )
 
 coolfluid_add_unit_test( utest-sfdm-aspects )
 
-list( APPEND utest-sfdm-solver_cflibs coolfluid_sfdm coolfluid_sfdm_sf coolfluid_mesh_actions coolfluid_mesh_gmsh coolfluid_advectiondiffusion)
-list( APPEND utest-sfdm-solver_files  utest-sfdm-solver.cpp )
+list( APPEND utest-sfdm-solver_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_navierstokes)
+list( APPEND utest-sfdm-solver_files
+    utest-sfdm-solver.cpp
+    DummyTerm.hpp
+    DummyTerm.cpp
+    )
 
 coolfluid_add_unit_test( utest-sfdm-solver )
 
 
-list( APPEND utest-sfdm-wizard_cflibs coolfluid_sfdm coolfluid_sfdm_sf coolfluid_mesh_actions coolfluid_mesh_gmsh coolfluid_advectiondiffusion)
+list( APPEND utest-sfdm-wizard_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_navierstokes)
 list( APPEND utest-sfdm-wizard_files  utest-sfdm-wizard.cpp )
 
 coolfluid_add_unit_test( utest-sfdm-wizard )

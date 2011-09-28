@@ -255,7 +255,7 @@ coolfluid_add_unit_test( utest-volume-sf )
 
 ################################################################################
 
-list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_mesh_block )
+list( APPEND utest-vector-benchmark_cflibs coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_mesh_blockmesh )
 list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 
 set( utest-vector-benchmark_profile ON )
@@ -298,7 +298,7 @@ coolfluid_add_unit_test( utest-zoltan )
 
 ################################################################################
 
-# list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_block coolfluid_mesh_generation coolfluid_mesh_lagrangep1 )
+# list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_blockmesh coolfluid_mesh_generation coolfluid_mesh_lagrangep1 )
 # list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
 #
 # set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )

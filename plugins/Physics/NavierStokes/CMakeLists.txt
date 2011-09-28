@@ -13,6 +13,12 @@ list( APPEND coolfluid_physics_navierstokes_files
   Cons2D.cpp
   Cons3D.hpp
   Cons3D.cpp
+  Prim1D.hpp
+  Prim1D.cpp
+  Prim2D.cpp
+  Prim2D.hpp
+  Prim3D.hpp
+  Prim3D.cpp
   Roe1D.hpp
   Roe1D.cpp
   Roe2D.hpp

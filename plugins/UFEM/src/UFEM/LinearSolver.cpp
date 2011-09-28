@@ -94,6 +94,8 @@ struct LinearSolver::Implementation
   SolutionVector solution;
 
   boost::weak_ptr<LSS::System> m_lss;
+  boost::weak_ptr<Field> m_solution;
+  boost::weak_ptr<Field> m_source_terms;
 
   bool m_updating;
 };
@@ -124,20 +126,36 @@ void LinearSolver::execute()
 void LinearSolver::mesh_loaded(CMesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
+  mesh_changed(mesh);
+}
 
+void LinearSolver::mesh_changed(CMesh& mesh)
+{
+  CFdebug << "UFEM::LinearSolver: Reacting to mesh_changed signal" << CFendl;
   // Create fields using the known tags
+  if(!m_implementation->m_solution.expired())
+    m_implementation->m_solution.lock()->parent().remove_component(m_implementation->m_solution.lock()->name());
+  if(!m_implementation->m_source_terms.expired())
+    m_implementation->m_source_terms.lock()->parent().remove_component(m_implementation->m_source_terms.lock()->name());
+  
+  if(is_not_null(mesh.geometry().get_child_ptr("CommPattern")))
+  {
+    mesh.geometry().remove_component("CommPattern");
+  }
+
   field_manager().create_field(Tags::solution(), mesh.geometry());
   field_manager().create_field(Tags::source_terms(), mesh.geometry());
-  
+
+  m_implementation->m_solution = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::solution());
+  m_implementation->m_source_terms = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::source_terms());
+
   if(Common::PE::Comm::instance().is_active())
   {
-    Field::Ptr solution = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::solution());
-    if(is_not_null(solution))
-      solution->parallelize_with(mesh.geometry().comm_pattern());
-    
-    Field::Ptr source_terms = find_component_ptr_with_tag<Field>(mesh.geometry(), Tags::source_terms());
-    if(is_not_null(source_terms))
-      source_terms->parallelize_with(mesh.geometry().comm_pattern());
+    if(!m_implementation->m_solution.expired())
+      m_implementation->m_solution.lock()->parallelize_with(mesh.geometry().comm_pattern());
+
+    if(!m_implementation->m_source_terms.expired())
+      m_implementation->m_source_terms.lock()->parallelize_with(mesh.geometry().comm_pattern());
   }
 
   // Set the region of all children to the root region of the mesh
@@ -147,6 +165,7 @@ void LinearSolver::mesh_loaded(CMesh& mesh)
 
   trigger_lss();
 }
+
 
 CAction& LinearSolver::zero_action()
 {

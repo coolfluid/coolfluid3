@@ -15,10 +15,13 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
+#include "Common/TimedComponent.hpp"
 #include "Common/TypeInfo.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/FileOperations.hpp"
+
+#include "Math/MatrixTypes.hpp"
 
 #include "Python/Component.hpp"
 
@@ -28,7 +31,7 @@ namespace Python {
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector6<std::string, Real, Uint, int, bool, Common::URI> AnyTypes;
+typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, Common::URI, RealVector> AnyTypes;
 
 struct PythonToAny
 {
@@ -45,8 +48,6 @@ struct PythonToAny
   {
     if(m_found)
       return;
-
-    CFdebug << "got type " << Common::class_name_from_typeinfo(typeid(T)) << ", wanted " << m_target_type << CFendl;
 
     if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
@@ -73,7 +74,7 @@ boost::any python_to_any(const object& val, const std::string& target_type)
   boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, target_type, found));
 
   if(!found)
-    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any");
+    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
 
   return result;
 }
@@ -117,7 +118,6 @@ struct SignalWrapper
 
     std::string node_contents;
     Common::XML::to_string(node.node, node_contents);
-    CFdebug << "Calling signal using arguments\n:" << node_contents << CFendl;
 
     (*m_signal->signal())(node);
 
@@ -213,6 +213,11 @@ public:
     }
   }
 
+  void print_timing_tree()
+  {
+    CF::Common::print_timing_tree(component());
+  }
+
 private:
   // checked access
   Common::Component& component()
@@ -244,6 +249,7 @@ void def_component()
     .def("get_child", &ComponentWrapper::get_child)
     .def("configure_option", &ComponentWrapper::configure_option)
     .def("option_value_str", &ComponentWrapper::option_value_str)
+    .def("print_timing_tree", &ComponentWrapper::print_timing_tree)
     .def("uri", &ComponentWrapper::uri);
 }
 

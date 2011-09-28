@@ -55,6 +55,7 @@ list( APPEND coolfluid_common_files
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp
+    EigenAssertions.hpp
     EnumT.hpp
     EventHandler.hpp
     EventHandler.cpp
@@ -63,6 +64,7 @@ list( APPEND coolfluid_common_files
     Exception.cpp
     Exception.hpp
     Foreach.hpp
+    IAction.hpp
     LibCommon.cpp
     LibCommon.hpp
     LibLoader.cpp

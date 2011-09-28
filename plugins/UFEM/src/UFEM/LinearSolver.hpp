@@ -36,37 +36,38 @@ public: // typedefs
   typedef boost::shared_ptr<LinearSolver const> ConstPtr;
 
 public: // functions
-  
+
   /// Contructor
   /// @param name of the component
   LinearSolver ( const std::string& name );
-  
+
   virtual ~LinearSolver();
 
   /// Get the class name
   static std::string type_name () { return "LinearSolver"; }
-  
+
   virtual void execute();
-  
+
   virtual void mesh_loaded(Mesh::CMesh& mesh);
-  
+  virtual void mesh_changed(Mesh::CMesh& mesh);
+
   /// Return an action that resets the LSS to zero
   Common::CAction& zero_action();
-  
+
   /// Return the action used for solving the system
   Common::CAction& solve_action();
-  
+
   /// Get the component that manages boundary conditions
   BoundaryConditions& boundary_conditions();
-  
-  
+
+
 private:
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
-  
+
   /// Trigerred when the LSS is set
   void trigger_lss();
-  
+
 public:
   /// Proto placeholder for the system matrix
   const Solver::Actions::Proto::SystemMatrix& system_matrix;

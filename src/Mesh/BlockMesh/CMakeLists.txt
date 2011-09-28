@@ -1,14 +1,16 @@
-list( APPEND coolfluid_mesh_block_files
+list( APPEND coolfluid_mesh_blockmesh_files
   BlockData.cpp
   BlockData.hpp
+  ChannelGenerator.hpp
+  ChannelGenerator.cpp
   LibBlockMesh.cpp
   LibBlockMesh.hpp
   WriteDict.cpp
   WriteDict.hpp
 )
 
-list( APPEND coolfluid_mesh_block_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )
+list( APPEND coolfluid_mesh_blockmesh_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 )
 
-set( coolfluid_mesh_block_kernellib TRUE )
+set( coolfluid_mesh_blockmesh_kernellib TRUE )
 
-coolfluid_add_library( coolfluid_mesh_block )
+coolfluid_add_library( coolfluid_mesh_blockmesh )

@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE( CreateVariableDescriptor )
 
   BOOST_CHECK(descriptor.has_tag("solution"));
   BOOST_CHECK_EQUAL(descriptor.size(), 7);
-  BOOST_CHECK_EQUAL(descriptor.description(), "a[1],b[2],c[4]");
+  BOOST_CHECK_EQUAL(descriptor.description(), "a[scalar],b[vector],c[tensor]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

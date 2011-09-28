@@ -43,6 +43,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CModelUnsteady"; }
 
+  /// Expand short setup with time creation
+  virtual void setup(const std::string& solver_builder_name, const std::string& physics_builder_name);
+
   /// Simulates this model
   virtual void simulate();
   

@@ -19,7 +19,7 @@ using namespace Common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
-ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady;
+ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
 
 HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolver(name)
 {

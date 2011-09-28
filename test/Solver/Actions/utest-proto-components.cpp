@@ -285,8 +285,6 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 
   // Run the actions
   model.simulate();
-  
-  store_timings(model);
   print_timing_tree(model);
 
   // Check
@@ -339,13 +337,13 @@ struct SomeTag {};
 BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 {
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
-  
+
   ComponentWrapper<Physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(Solver::Tags::physical_model()));
 
   BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
-  
+
   ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }
 

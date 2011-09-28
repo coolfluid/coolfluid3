@@ -37,8 +37,8 @@ Expression::Ptr stokes_artifdiss(LinearSolverUnsteady& solver, SUPGCoeffs& coefs
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
-  const Real epsilon = 1. / coefs.nu;
-  const Real mu = coefs.nu * coefs.rho;
+  const Real epsilon = coefs.rho / coefs.mu;
+  const Real mu = coefs.mu;
 
   return elements_expression
   (
@@ -66,8 +66,8 @@ Expression::Ptr stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coefs)
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
-  const Real epsilon = 1. / coefs.nu;
-  const Real mu = coefs.nu * coefs.rho;
+  const Real epsilon = coefs.rho / coefs.mu;
+  const Real mu = coefs.mu;
 
   return elements_expression
   (
@@ -97,8 +97,8 @@ Expression::Ptr navier_stokes_pspg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
-  const Real epsilon = 1. / coefs.nu;
-  const Real mu = coefs.nu * coefs.rho;
+  const Real epsilon = coefs.rho / coefs.mu;
+  const Real mu = coefs.mu;
 
   return elements_expression
   (
@@ -128,8 +128,8 @@ Expression::Ptr navier_stokes_supg(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
-  const Real epsilon = 1. / coefs.nu;
-  const Real mu = coefs.nu * coefs.rho;
+  const Real epsilon = coefs.rho / coefs.mu;
+  const Real mu = coefs.mu;
 
   return elements_expression
   (
@@ -159,8 +159,8 @@ Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady& solver, SUPGCoeffs& coe
   MeshTerm<0, VectorField> u("Velocity", UFEM::Tags::solution());
   MeshTerm<1, ScalarField> p("Pressure", UFEM::Tags::solution());
 
-  const Real epsilon = 1. / coefs.nu;
-  const Real mu = coefs.nu * coefs.rho;
+  const Real epsilon = coefs.rho / coefs.mu;
+  const Real mu = coefs.mu;
 
   return elements_expression
   (
