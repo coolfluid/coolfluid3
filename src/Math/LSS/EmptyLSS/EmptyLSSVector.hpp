@@ -134,7 +134,9 @@ public:
     cf_assert(m_is_created);
     cf_assert(data.shape()[0]==m_blockrow_size);
     cf_assert(data.shape()[1]==m_neq);
-    data=0.;
+    for (boost::multi_array_types::index i = 0; i < data.shape()[0]; ++i)
+      for (boost::multi_array_types::index j = 0; j < data.shape()[1]; ++j)
+        data[i][j]=0.;
   }
 
   /// Copies the contents of the table into the LSS::Vector.
