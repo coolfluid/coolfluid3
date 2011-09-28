@@ -223,7 +223,19 @@ set( utest-parallel-collective-example_mpi_nprocs 4)
 coolfluid_add_unit_test( utest-parallel-collective-example )
 
 ################################################################################
-# Test PE - commpattern and objectwrapper
+# Test PE - commwrapper and commwrapperview
+
+list( APPEND utest-parallel-commwrapper_cflibs coolfluid_common )
+list( APPEND utest-parallel-commwrapper_files
+  utest-parallel-commwrapper.cpp
+)
+
+set(utest-parallel-commwrapper_mpi_test TRUE)
+set(utest-parallel-commwrapper_mpi_nprocs 1)
+coolfluid_add_unit_test( utest-parallel-commwrapper )
+
+################################################################################
+# Test PE - commpattern
 
 list( APPEND utest-parallel-commpattern_cflibs coolfluid_common )
 list( APPEND utest-parallel-commpattern_files
