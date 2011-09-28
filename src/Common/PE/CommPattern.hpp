@@ -224,6 +224,10 @@ public:
   /// @param name the name of the parallel object
   void synchronize( const std::string& name );
 
+  /// synchronize the parallel object designated by its commwrapper reference
+  /// @param name the name of the parallel object
+  void synchronize( const CommWrapper& pobj );
+
   /// add element to the commpattern
   /// when all changes done, all needs to be committed by calling setup
   /// if global id is not on current rank, then a ghost is automatically created on current rank
@@ -274,8 +278,11 @@ public:
 protected: // helper function
 
   /// function to synchronize this object
-  /// usefull for reusing in the different synchronize functions
-  void synchronize_this ( const CommWrapper& pobj );
+  /// useful for reusing in the different synchronize functions
+  /// @param pobj reference to commwrapper object to synchronize to
+  /// @param sndbuf vector for intermediate buffer for send
+  /// @param rcvbuf vector for intermediate buffer for recieve
+  void synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf );
 
 private:
 
