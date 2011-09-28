@@ -140,7 +140,7 @@ PEProcessSortedExecute(-1,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
+//*
 void CommPattern::setup()
 {
   // exit on obvious
@@ -393,38 +393,14 @@ void CommPattern::synchronize( const CommWrapper& pobj )
 
 void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf )
 {
-
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
 //  std::cout << PERank << pobj.needs_update() << "\n" << std::flush;
-
   if ( pobj.needs_update() )
   {
-//      PEProcessSortedExecute(-1,std::cout << PERank << "   sync -> " <<  pobj.name() << "\n" << std::flush; );
     pobj.pack(sndbuf,m_sendMap);
     rcvbuf.resize(m_recvMap.size()*pobj.size_of()*pobj.stride());
     PE::Comm::instance().all_to_all(sndbuf,m_sendCount,rcvbuf,m_recvCount,pobj.size_of()*pobj.stride());
     pobj.unpack(rcvbuf,m_recvMap);
-
-
-
-//      char* snd_data = (char*)pobj.pack(m_sendMap);
-
-//      char* rcv_data = PE::Comm::instance().all_to_all(snd_data,
-//                                                      &m_sendCount[0],
-//                                                      (char*)0,
-//                                                      &m_recvCount[0],
-//                                                      pobj.size_of()*pobj.stride());
-
-//      pobj.unpack(rcv_data,m_recvMap);
-
-//      /// @todo avoid this allocation and deallocation of buffers
-//      ///       remember that in explicit synchronize is called frequently
-//      /// for who added this todo: necessary because you compress the
-//      /// data involved in communication to a linear memory, moreover
-//      /// the synchronize should be changed to collect everything and perform
-//      /// one single all-to-all (Th)
-//      delete[] snd_data;
-//      delete[] rcv_data;
   }
 }
 
