@@ -24,8 +24,14 @@ namespace PE  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+  @file CommWrapperMArray.hpp CommWrapper implementations for accepting boost::multi_array<T,1> and boost::multi_array<T,2>.
+  @author Willem Deconinck
+**/
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Wrapper class for CTable components
-/// @author Willem Deconinck
 template <typename T, std::size_t NumDims>
 class CommWrapperMArray: public CommWrapper
 {
@@ -74,34 +80,32 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     ~CommWrapperMArray() {  }
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// if nullptr is passed (also default parameter), memory is allocated.
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) const
+    virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[map.size()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* itbuf=tbuf;
-
+      if (buf==nullptr) buf=new T[map.size()*m_stride+1];
+      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
-      {
-        *itbuf++ = (*m_data)[local_idx];
-      }
-      return (void*)tbuf;
+        *ibuf++ = (*m_data)[local_idx];
+      return buf;
     }
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// if nullptr is passed (also default parameter), memory is allocated.
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack() const
+    virtual const void* pack(void* buf=nullptr) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[m_data->num_elements()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* itbuf=tbuf;
-      const int data_size = m_data->num_elements()*m_stride;
-      for (int i=0; i<data_size; i++)
-        *itbuf++=(*m_data)[i];
-      return (void*)tbuf;
+      if (buf==nullptr) buf=new T[m_data->num_elements()*m_stride+1];
+      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* ibuf=(T*)buf;
+      for (int i=0; i<(const int)(m_data->num_elements()*m_stride); i++)
+        *ibuf++=(*m_data)[i];
+      return buf;
     }
 
     /// returning back values into the data wrapped by objectwrapper
@@ -110,11 +114,9 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* itbuf=(T*)buf;
+      T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
-      {
-        (*m_data)[local_idx] = *itbuf++;
-      }
+        (*m_data)[local_idx] = *ibuf++;
     }
 
     /// returning back values into the data wrapped by objectwrapper
@@ -122,10 +124,9 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     virtual void unpack(void* buf) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* itbuf=(T*)buf;
-      const int data_size = m_data->num_elements()*m_stride;
-      for (int i=0; i<data_size; i++)
-        (*m_data)[i]=*itbuf++;
+      T* ibuf=(T*)buf;
+      for (int i=0; i<(const int)(m_data->num_elements()*m_stride); i++)
+        (*m_data)[i]=*ibuf++;
     }
 
     /// acts like a sizeof() operator
@@ -147,6 +148,21 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view()
+    {
+      return (void*)&(*m_data)[0];
+    }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 
@@ -190,35 +206,37 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     ~CommWrapperMArray() {  }
 
     /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
+    /// if nullptr is passed (also default parameter), memory is allocated.
     /// @param map vector of map
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    virtual const void* pack(std::vector<int>& map) const
+    virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[map.size()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* itbuf=tbuf;
+      if (buf==nullptr) buf=new T[map.size()*m_stride+1];
+      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
       {
         cf_assert(local_idx<m_data->size());
         boost_foreach( const T& val, (*m_data)[local_idx])
-          *itbuf++ = val;
+          *ibuf++ = val;
       }
-      return (void*)tbuf;
+      return buf;
     }
 
     /// extraction of data from the wrapped object, returned memory is a copy, not a view
+    /// if nullptr is passed (also default parameter), memory is allocated.
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    virtual const void* pack() const
+    virtual const void* pack(void* buf=nullptr) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* tbuf=new T[m_data->num_elements()*m_stride+1];
-      if ( tbuf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* itbuf=tbuf;
-      for (int i=0; i<m_data->size(); i++)
-        for (int j=0; j<m_stride; j++)
-          *itbuf++=(*m_data)[i][j];
-      return (void*)tbuf;
+      if (buf==nullptr) buf=new T[m_data->num_elements()*m_stride+1];
+      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      T* ibuf=(T*)buf;
+      for (int i=0; i<(const int)m_data->size(); i++)
+        for (int j=0; j<(const int)m_stride; j++)
+          *ibuf++=(*m_data)[i][j];
+      return buf;
     }
 
     /// returning back values into the data wrapped by objectwrapper
@@ -227,11 +245,11 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     virtual void unpack(void* buf, std::vector<int>& map) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* itbuf=(T*)buf;
+      T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
       {
-        for (int i=0; i<m_stride; ++i)
-          (*m_data)[local_idx][i] = *itbuf++;
+        for (int i=0; i<(const int)m_stride; ++i)
+          (*m_data)[local_idx][i] = *ibuf++;
       }
     }
 
@@ -240,10 +258,10 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     virtual void unpack(void* buf) const
     {
       if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      T* itbuf=(T*)buf;
-      for (int i=0; i<m_data->size(); i++)
-        for (int j=0; j<m_stride; j++)
-          (*m_data)[i][j]=*itbuf++;
+      T* ibuf=(T*)buf;
+      for (int i=0; i<(const int)m_data->size(); i++)
+        for (int j=0; j<(const int)m_stride; j++)
+          (*m_data)[i][j]=*ibuf++;
     }
 
     /// acts like a sizeof() operator
@@ -264,6 +282,21 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// Check for Uint, necessary for cheking type of gid in commpattern
     /// @return true or false depending if registered data's type was Uint or not
     bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
+
+  private:
+
+    /// Create an access to the raw data inside the wrapped class.
+    /// @warning if underlying raw data is not linear, a copy is being made.
+    /// @return pointer to data
+    void* start_view()
+    {
+      return (void*)&(*m_data)[0][0];
+    }
+
+    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
+    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
+    /// @param data pointer to the data
+    void end_view(void* data) { return; }
 
   private:
 

@@ -5,8 +5,8 @@
 function( coolfluid_add_python_test  )
 
   if( CF_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
-    set( options ATEST UTEST ) # valid test type
-    set( single_value_args NAME SCRIPT )
+    set( options ATEST UTEST MPI ) # valid test type
+    set( single_value_args NAME SCRIPT NBPROCS )
     set( multi_value_args ARGUMENTS) # arguments to the python script itself
 
     cmake_parse_arguments(_PAR "${options}" "${single_value_args}" "${multi_value_args}"  ${_FIRST_ARG} ${ARGN})
@@ -24,8 +24,16 @@ function( coolfluid_add_python_test  )
     if(NOT _PAR_SCRIPT)
       message(FATAL_ERROR "The call to coolfluid_add_python_test() doesn't set the required SCRIPT argument.")
     endif()
+    if(_PAR_MPI AND NOT _PAR_NBPROCS)
+      message(FATAL_ERROR "The call to coolfluid_add_python_test() sets the MPI keyword without specifying NBPROCS")
+    endif()
 
     # add the test
+
+    set(SCRIPT_COMMAND ${PYTHON_EXECUTABLE})
+    if(_PAR_MPI AND CF_HAVE_MPI)
+      set(SCRIPT_COMMAND ${CF_MPIRUN_PROGRAM} -np ${_PAR_NBPROCS} ${SCRIPT_COMMAND})
+    endif()
 
     if( (_PAR_ATEST AND CF_ENABLE_ACCEPTANCE_TESTS) OR (_PAR_UTEST AND CF_ENABLE_UNIT_TESTS) )
 
@@ -34,7 +42,7 @@ function( coolfluid_add_python_test  )
       set( TESTDIR ${CMAKE_CURRENT_BINARY_DIR} )
 
       add_test(NAME ${_PAR_NAME}
-               COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${_PAR_SCRIPT} ${_PAR_ARGUMENTS})
+               COMMAND ${SCRIPT_COMMAND} ${CMAKE_CURRENT_SOURCE_DIR}/${_PAR_SCRIPT} ${_PAR_ARGUMENTS})
       set_tests_properties(${_PAR_NAME} PROPERTIES ENVIRONMENT "PYTHONPATH=${coolfluid_BINARY_DIR}/dso")
 
     else()

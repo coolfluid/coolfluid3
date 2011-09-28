@@ -430,6 +430,32 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   BOOST_CHECK_EQUAL(result_i, 3);
   BOOST_CHECK_EQUAL(result_j, 3);
   BOOST_CHECK_EQUAL(result_ij, 12);
+
+  CMesh& line = Core::instance().root().create_component<CMesh>("Line");
+  Tools::MeshGeneration::create_line(line, 1., 1);
+
+  MeshTerm<0, VectorField> u("Velocity", "solution");
+  line.geometry().create_field( "solution", "Velocity[v]" ).add_tag("solution");
+
+  RealVector1 center;
+  center.setZero();
+
+  RealVector2 result1d;
+  result1d.setZero();
+
+
+  for_each_element< boost::mpl::vector1<LagrangeP1::Line1D> >
+  (
+    line.topology(),
+    group <<
+    (
+      _cout << "i: " << _i << ", j: " << _j << "\n",
+      result1d += nabla(u, center)[_i]
+    )
+  );
+
+  BOOST_CHECK_CLOSE(result1d[0], -1., 1e-6);
+  BOOST_CHECK_CLOSE(result1d[1], 1., 1e-6);
 }
 
 BOOST_AUTO_TEST_CASE( VectorMultiplication )

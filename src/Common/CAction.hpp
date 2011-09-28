@@ -8,6 +8,7 @@
 #define CF_Common_CAction_hpp
 
 #include "Common/Component.hpp"
+#include "Common/IAction.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +17,8 @@ namespace Common {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Common_API CAction : public Component {
+/// Component that executes an action. Implementation of the IAction interface as a component, exposing the execute function as a signal.
+class Common_API CAction : public IAction, public Component {
 
 public: // typedefs
 

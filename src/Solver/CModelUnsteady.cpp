@@ -67,6 +67,12 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
 
 CModelUnsteady::~CModelUnsteady() {}
 
+void CModelUnsteady::setup(const std::string& solver_builder_name, const std::string& physics_builder_name)
+{
+  CF::Solver::CModel::setup(solver_builder_name, physics_builder_name);
+  create_time("Time");
+}
+
 
 void CModelUnsteady::simulate ()
 {

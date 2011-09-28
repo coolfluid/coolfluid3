@@ -288,6 +288,30 @@ void TrilinosVector::reset(Real reset_to)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void TrilinosVector::get( boost::multi_array<Real, 2>& data)
+{
+  cf_assert(m_is_created);
+  cf_assert(data.shape()[0]==m_blockrow_size);
+  cf_assert(data.shape()[1]==m_neq);
+  for (int i=0; i<(const int)m_blockrow_size; i++)
+    for (int j=0; j<(const int)m_neq; j++)
+      data[i][j]=(*m_vec)[m_p2m[i]*m_neq+j];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void TrilinosVector::set( boost::multi_array<Real, 2>& data)
+{
+  cf_assert(m_is_created);
+  cf_assert(data.shape()[0]==m_blockrow_size);
+  cf_assert(data.shape()[1]==m_neq);
+  for (int i=0; i<(const int)m_blockrow_size; i++)
+    for (int j=0; j<(const int)m_neq; j++)
+      (*m_vec)[m_p2m[i]*m_neq+j]=data[i][j];
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void TrilinosVector::print(Common::LogStream& stream)
 {
   if (m_is_created)
@@ -339,7 +363,7 @@ void TrilinosVector::print(const std::string& filename, std::ios_base::openmode 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::data(std::vector<Real>& values)
+void TrilinosVector::debug_data(std::vector<Real>& values)
 {
   cf_assert(m_is_created);
   values.clear();

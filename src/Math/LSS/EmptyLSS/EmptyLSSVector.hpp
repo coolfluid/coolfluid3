@@ -128,6 +128,25 @@ public:
   /// Reset Vector
   void reset(Real reset_to=0.) { cf_assert(m_is_created); }
 
+  /// Copies the contents out of the LSS::Vector to table.
+  void get( boost::multi_array<Real, 2>& data)
+  {
+    cf_assert(m_is_created);
+    cf_assert(data.shape()[0]==m_blockrow_size);
+    cf_assert(data.shape()[1]==m_neq);
+    for (boost::multi_array_types::index i = 0; i < data.shape()[0]; ++i)
+      for (boost::multi_array_types::index j = 0; j < data.shape()[1]; ++j)
+        data[i][j]=0.;
+  }
+
+  /// Copies the contents of the table into the LSS::Vector.
+  void set( boost::multi_array<Real, 2>& data)
+  {
+    cf_assert(m_is_created);
+    cf_assert(data.shape()[0]==m_blockrow_size);
+    cf_assert(data.shape()[1]==m_neq);
+  }
+
   //@} END EFFICCIENT ACCESS
 
   /// @name MISCELLANEOUS
@@ -158,7 +177,7 @@ public:
 
   /// exports the vector into big linear array
   /// @attention only for debug and utest purposes
-  virtual void data(std::vector<Real>& values) { cf_assert(m_is_created); }
+  virtual void debug_data(std::vector<Real>& values) { cf_assert(m_is_created); }
 
   //@} END TEST ONLY
 

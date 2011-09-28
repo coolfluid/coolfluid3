@@ -13,7 +13,7 @@ set( utest-proto-heat_mpi_nprocs 1 )
 set( utest-proto-heat_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-heat )
 
-list( APPEND utest-proto-heat-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_block)
+list( APPEND utest-proto-heat-parallel_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh)
 list( APPEND utest-proto-heat-parallel_files
   utest-proto-heat-parallel.cpp )
 list( APPEND utest-proto-heat-parallel_args ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml )
@@ -51,7 +51,7 @@ set( utest-proto-navier-stokes_mpi_nprocs 1 )
 set( utest-proto-navier-stokes_condition ${coolfluid_ufem_builds} )
 coolfluid_add_unit_test( utest-proto-navier-stokes )
 
-list( APPEND utest-ufem-buildsparsity_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_block)
+list( APPEND utest-ufem-buildsparsity_cflibs coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_ufem coolfluid_mesh_blockmesh)
 list( APPEND utest-ufem-buildsparsity_files
   utest-ufem-buildsparsity.cpp )
 set( utest-ufem-buildsparsity_mpi_test TRUE )
@@ -71,3 +71,18 @@ coolfluid_add_acceptance_test( NAME    atest-ufem-heat-steady
 coolfluid_add_python_test(ATEST NAME atest-ufem-python
                                 SCRIPT atest-ufem-python.py
                                 ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring2d-quads.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml)
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-heat3d-channel
+                                SCRIPT atest-ufem-heat3d-channel.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                                MPI NBPROCS 4)
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-heat3d-sphere
+                                SCRIPT atest-ufem-heat3d-sphere.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/ring3d-tetras.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                                MPI NBPROCS 4)
+
+coolfluid_add_python_test(ATEST NAME atest-ufem-navier-stokes-cylinder2d
+                                SCRIPT atest-ufem-navier-stokes-cylinder2d.py
+                                ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/meshes/kvs15.neu ${CMAKE_CURRENT_SOURCE_DIR}/solver.xml
+                                MPI NBPROCS 4)

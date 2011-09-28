@@ -120,6 +120,7 @@ CModel::CModel( const std::string& name  ) :
 
   // Listen to mesh_updated events, emitted by the domain
   Core::instance().event_handler().connect_to_event("mesh_loaded", this, &CModel::on_mesh_loaded_event);
+  Core::instance().event_handler().connect_to_event("mesh_changed", this, &CModel::on_mesh_changed_event);
 }
 
 CModel::~CModel() {}
@@ -348,6 +349,29 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
     {
       solver.mesh_loaded(mesh);
+    }
+  }
+}
+
+void CModel::on_mesh_changed_event(SignalArgs& args)
+{
+  // If we have no domain, the event can't be for us
+  if(m_implementation->m_domain.expired())
+    return;
+
+  SignalOptions options(args);
+
+  URI mesh_uri = options.value<URI>("mesh_uri");
+
+  if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
+  {
+    // Get a reference to the mesh that changed
+    CMesh& mesh = access_component(mesh_uri).as_type<CMesh>();
+
+    // Inform the solvers of the change
+    boost_foreach(CSolver& solver, find_components<CSolver>(*this))
+    {
+      solver.mesh_changed(mesh);
     }
   }
 }

@@ -581,6 +581,9 @@ public:
 
   /// Shape function for the support
   typedef SupportEtypeT SupportShapeFunction;
+  
+  /// The dimension of the problem
+  static const Uint dimension = SupportShapeFunction::dimension;
 
   /// Element matrix size per var
   typedef typename MatrixSizePerVar<VariablesT, VariablesEtypeTT>::type MatrixSizesT;
