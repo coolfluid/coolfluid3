@@ -15,6 +15,7 @@
 #include "Common/CRoot.hpp"
 #include "Common/FindComponents.hpp"
 
+#include "Math/VariablesDescriptor.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -122,17 +123,16 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  Geometry::Ptr nodes = allocate_component<Geometry>("nodes");
-  BOOST_CHECK( is_not_null(nodes) );
+  Geometry::Ptr geometry = allocate_component<Geometry>("geometry");
+  BOOST_CHECK( is_not_null(geometry) );
 
-  nodes->resize(10);
-  BOOST_CHECK_EQUAL(nodes->coordinates().size() , 10u);
-  BOOST_CHECK_EQUAL(nodes->rank().size() , 10u);
-  BOOST_CHECK_EQUAL(nodes->glb_idx().size() , 10u);
-  BOOST_CHECK_EQUAL(nodes->glb_elem_connectivity().size() , 0u);
-
-
-
+  geometry->coordinates().descriptor().configure_option(Common::Tags::dimension(),2u);
+  geometry->resize(10);
+  BOOST_CHECK_EQUAL(geometry->coordinates().size() , 10u);
+  BOOST_CHECK_EQUAL(geometry->coordinates().row_size() , 2u);
+  BOOST_CHECK_EQUAL(geometry->rank().size() , 10u);
+  BOOST_CHECK_EQUAL(geometry->glb_idx().size() , 10u);
+  BOOST_CHECK_EQUAL(geometry->glb_elem_connectivity().size() , 0u);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
