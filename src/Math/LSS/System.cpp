@@ -9,11 +9,17 @@
 #include <boost/utility.hpp>
 
 #include "Math/LSS/LibLSS.hpp"
+
 #include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/Component.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/PE/CommPattern.hpp"
+#include "Common/Signal.hpp"
+
+#include "Common/XML/Protocol.hpp"
+#include "Common/XML/SignalOptions.hpp"
+
 #include "Math/LSS/System.hpp"
 #include "Math/LSS/Matrix.hpp"
 #include "Math/LSS/Vector.hpp"
@@ -51,6 +57,13 @@ LSS::System::System(const std::string& name) :
   Component(name)
 {
   options().add_option< CF::Common::OptionT<std::string> >( "solver" , "Trilinos" );
+
+  regist_signal("print_system")
+    ->connect(boost::bind( &System::signal_print, this, _1 ))
+    ->description("Write the system to disk as a tecplot file, for debugging purposes.")
+    ->pretty_name("Print System")
+    ->signature(boost::bind( &System::signature_print, this, _1 ));
+
   m_mat.reset();
   m_sol.reset();
   m_rhs.reset();
@@ -286,4 +299,22 @@ const bool LSS::System::is_created()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void LSS::System::signal_print(Common::SignalArgs& args)
+{
+  Common::XML::SignalOptions options( args );
+  std::string filename = options.value<std::string>( "file_name" );
+  print(filename);
+}
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void LSS::System::signature_print(Common::SignalArgs& args)
+{
+  Common::XML::SignalOptions options( args );
+
+  options.add_option< Common::OptionT<std::string> >("file_name")
+    ->pretty_name("File name")
+    ->description("Tecplot file to print the matrix to");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
