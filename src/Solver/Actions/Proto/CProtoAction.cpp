@@ -64,6 +64,8 @@ void CProtoAction::execute()
 {
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
+  
+  CFdebug << "Looping over " << m_loop_regions.size() << " regions with action " << uri().string() << CFendl;
 
   boost_foreach(const CRegion::Ptr& region, m_loop_regions)
   {

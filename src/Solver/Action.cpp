@@ -100,6 +100,8 @@ ComponentIteratorRange<CRegion> Action::regions()
 void Action::config_regions()
 {
   std::vector<URI> vec; option(Tags::regions()).put_value(vec);
+  
+  m_loop_regions.clear();
 
   boost_foreach(const URI region_path, vec)
   {
