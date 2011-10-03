@@ -143,11 +143,15 @@ PEProcessSortedExecute(-1,
 //*
 void CommPattern::setup()
 {
+#define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
+#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+
   // exit on obvious
   int changes[3]={0,0,0}; // order: add,mov,rem
   changes[0]=m_add_buffer.size();
   changes[1]=m_mov_buffer.size();
   changes[2]=m_rem_buffer.size();
+
   PE::Comm::instance().all_reduce(PE::plus(),changes,3,changes);
   if (changes[0]+changes[1]+changes[2]==0) return;
 //  if (changes[1]+changes[2]==0) GOTO OPTIMIZED ADD-ONLY FUNCTION FOR PERFORMANCE
@@ -158,10 +162,13 @@ void CommPattern::setup()
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
-  Uint* gid=(Uint*)m_gid->pack();
+
+  PE::CommWrapperView<Uint> cwv_gid(m_gid);
+  Uint* gid=cwv_gid();
+
   unsigned long long nupdatable=0;
   std::vector<int> nupdatables(nproc,0);
-  BOOST_FOREACH(bool i, m_isUpdatable) if (i) nupdatable++;
+  BOOST_FOREACH(bool i, m_isUpdatable) if (i) nupdatables[irank]++;
   PE::Comm::instance().all_reduce(PE::max(),nupdatables,nupdatables);
   nupdatable=0;
   BOOST_FOREACH(int i, nupdatables) nupdatable+=(unsigned long long)i;
@@ -169,14 +176,38 @@ void CommPattern::setup()
   // prepare a global array for info, local and global-style ordering
   // first filling l with rank, gid and lid info, and then it is inverted by gid, resulting an over processes spanned data
   // for performance, maybe worth to create an option to keep g (could skip this one)
-  std::vector<dist_struct> l(0);
+  std::vector<dist_struct> l(nupdatables[irank]);
   std::vector<dist_struct> g(0);
+  std::vector<int> rank_sndnum(nproc,0);
+  std::vector<int> rank_starts(nproc,0);
+
+  for(int i=0; i<(const int)m_gid->size(); i++)
+    if (m_isUpdatable[i])
+      rank_sndnum[(int)COMPUTE_IRANK(gid[i],nproc,nupdatable)]++;
+  for(int i=1; i<(const int)nproc; i++)
+      rank_starts[i]=rank_starts[i-1]+rank_sndnum[i-1];
   for(int i=0; i<(const int)m_gid->size(); i++)
     if (m_isUpdatable[i])
     {
-      l.push_back(dist_struct(gid[i],(int)(((unsigned long long)gid[i]*(unsigned long long)nproc)/nupdatable),i));
+      int sendrank=(int)(int)COMPUTE_IRANK(gid[i],nproc,nupdatable);
+      l[rank_starts[sendrank]].gid=gid[i];
+      l[rank_starts[sendrank]].lid=i;
+      l[rank_starts[sendrank]].rank=irank;
+      rank_starts[sendrank]++;
     }
-  std::sort(l.begin(),l.end());
+  std::vector<int> rank_rcvnum(nproc,-1);
+  PE::Comm::instance().all_to_all(l, rank_sndnum, l, rank_rcvnum);
+
+  int numgid_thisrank=0;
+  BOOST_FOREACH(int i, rank_rcvnum) numgid_thisrank+=i;
+  g.resize(numgid_thisrank);
+
+  int thisrank_offset=COMPUTE_INODE(irank,nproc,nupdatable);
+  for (int i=0; i<(const int)g.size(); i++)
+  {
+    g[l[i].gid-thisrank_offset]=l[i];
+  }
+
 
 
 
@@ -186,6 +217,10 @@ void CommPattern::setup()
 //void CommPattern::add(Uint gid, Uint rank)
 //void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
 //void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+
+#undef COMPUTE_IRANK
+#undef COMPUTE_INODE
+
 }
 
 
@@ -391,6 +426,7 @@ void CommPattern::synchronize( const CommWrapper& pobj )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// having the vectors for the intermediate buf coming from outside allows keeping them and reuse for all synchronize
 void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf )
 {
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
