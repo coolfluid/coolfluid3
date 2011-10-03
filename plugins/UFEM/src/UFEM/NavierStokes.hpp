@@ -43,6 +43,9 @@ private:
   
   /// Initial condition for v
   RealVector m_u0;
+  
+  /// Trigger for rho
+  void trigger_rho();
 };
 
 } // UFEM

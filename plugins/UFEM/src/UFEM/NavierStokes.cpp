@@ -43,7 +43,8 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
   options().add_option< OptionT<Real> >("density", 1.2)
     ->description("Mass density (kg / m^3)")
     ->pretty_name("Density")
-    ->link_to(&m_coeffs.rho);
+    ->link_to(&m_coeffs.rho)
+    ->attach_trigger(boost::bind(&NavierStokes::trigger_rho, this));
 
   options().add_option< OptionT<Real> >("dynamic_viscosity", 1.7894e-5)
     ->description("Dynamic Viscosity (kg / m s)")
@@ -75,7 +76,7 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
               _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
               _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
               _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
-              _A(u[_i], p)     += 1./m_coeffs.rho * transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
+              _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
               _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
               _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
               _T(u[_i], u[_i]) += transpose(N(u) + m_coeffs.tau_su*u*nabla(u))         * N(u)          // Time, standard
@@ -91,6 +92,12 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
       << create_proto_action("IncrementP", nodes_expression(p += solution(p)))
     );
 }
+
+void NavierStokes::trigger_rho()
+{
+  m_coeffs.one_over_rho = 1. / option("density").value<Real>();
+}
+
 
 
 
