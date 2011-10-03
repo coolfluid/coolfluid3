@@ -74,8 +74,8 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
             element_quadrature <<
             (
               _A(p    , u[_i]) +=          transpose(N(p))       * nabla(u)[_i] + m_coeffs.tau_ps * transpose(nabla(p)[_i]) * u*nabla(u), // Standard continuity + PSPG for advection
-              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p),     // Continuity, PSPG
-              _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u)     + transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
+              _A(p    , p)     += m_coeffs.tau_ps * transpose(nabla(p))     * nabla(p) * m_coeffs.one_over_rho,     // Continuity, PSPG
+              _A(u[_i], u[_i]) += m_coeffs.mu     * transpose(nabla(u))     * nabla(u) * m_coeffs.one_over_rho     + transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * u*nabla(u),     // Diffusion + advection
               _A(u[_i], p)     += m_coeffs.one_over_rho * transpose(N(u) + m_coeffs.tau_su*u*nabla(u)) * nabla(p)[_i], // Pressure gradient (standard and SUPG)
               _A(u[_i], u[_j]) += m_coeffs.tau_bulk * transpose(nabla(u)[_i]) * nabla(u)[_j], // Bulk viscosity
               _T(p    , u[_i]) += m_coeffs.tau_ps * transpose(nabla(p)[_i]) * N(u),         // Time, PSPG
