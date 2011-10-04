@@ -182,7 +182,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
 
   // check results
   std::vector<Real> v;
-  sys.solution()->data(v);
+  sys.solution()->debug_data(v);
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     if (cp.isUpdatable()[i])
       for (int j=0; j<(const int)m.nbeqs; j++)
@@ -194,7 +194,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
   std::ofstream fres(std::string("coords_with_sol_" + boost::lexical_cast<std::string>(m.irank) + ".plt").c_str());
   fres << "VARIABLES=\"X\",\"Y\",\"V0\",\"V1\",\"V2\"\nZONE T=\"Solve results of utest-lss-distributed-matrix.\"" << std::flush;
   fres.precision(15);
-  sys.solution()->data(v);
+  sys.solution()->debug_data(v);
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     if (cp.isUpdatable()[i])
       fres << m.nodal_coordinates[2*i+0] << " " << m.nodal_coordinates[2*i+1] << " " << v[m.nbeqs*i+0] << " " << v[m.nbeqs*i+1] << " " << v[m.nbeqs*i+2] << "\n" << std::flush;

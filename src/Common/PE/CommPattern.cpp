@@ -87,12 +87,11 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
   {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
-    for(int i=0; i<(int)map.size(); i++) map[i]=i;
-    Uint *igid=(Uint*)gid->pack(map);
+    for(int i=0; i<(const int)map.size(); i++) map[i]=i;
+    PE::CommWrapperView<Uint> cwv_gid(m_gid);
     std::vector<Uint>::iterator irank=rank.begin();
-    for (Uint* iigid=igid;irank!=rank.end();irank++,iigid++)
+    for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add(*iigid,*irank);
-    delete[] igid;
     /*
      PECheckPoint(100,"-- Setup comission: --");
      PEProcessSortedExecute(-1,
@@ -125,11 +124,10 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
     for(int i=0; i<(int)map.size(); i++) map[i]=i;
-    Uint *igid=(Uint*)gid->pack(map);
+    PE::CommWrapperView<Uint> cwv_gid(m_gid);
     boost::multi_array<Uint,1>::iterator irank=rank.begin();
-    for (Uint* iigid=igid;irank!=rank.end();irank++,iigid++)
+    for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add(*iigid,*irank);
-    delete[] igid;
 /*
 PECheckPoint(100,"-- Setup comission: --");
 PEProcessSortedExecute(-1,
@@ -142,11 +140,56 @@ PEProcessSortedExecute(-1,
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+/*
+void CommPattern::setup()
+{
+  // exit on obvious
+  int changes[3]={0,0,0}; // order: add,mov,rem
+  changes[0]=m_add_buffer.size();
+  changes[1]=m_mov_buffer.size();
+  changes[2]=m_rem_buffer.size();
+  PE::Comm::instance().all_reduce(PE::plus(),changes,3,changes);
+  if (changes[0]+changes[1]+changes[2]==0) return;
+//  if (changes[1]+changes[2]==0) GOTO OPTIMIZED ADD-ONLY FUNCTION FOR PERFORMANCE
 
-// OK: how this works:
-// 0.: ??? lock and pre-flush data ???
-// 1.:
+  // get stuff
+  const CPint irank=(CPint)PE::Comm::instance().rank();
+  const CPint nproc=(CPint)PE::Comm::instance().size();
+  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+  Uint* gid=(Uint*)m_gid->pack();
+  unsigned long long nupdatable=0;
+  std::vector<int> nupdatables(nproc,0);
+  BOOST_FOREACH(bool i, m_isUpdatable) if (i) nupdatable++;
+  PE::Comm::instance().all_reduce(PE::max(),nupdatables,nupdatables);
+  nupdatable=0;
+  BOOST_FOREACH(int i, nupdatables) nupdatable+=(unsigned long long)i;
 
+  // prepare a global array for info, local and global-style ordering
+  // first filling l with rank, gid and lid info, and then it is inverted by gid, resulting an over processes spanned data
+  // for performance, maybe worth to create an option to keep g (could skip this one)
+  std::vector<dist_struct> l(0);
+  std::vector<dist_struct> g(0);
+  for(int i=0; i<(const int)m_gid->size(); i++)
+    if (m_isUpdatable[i])
+    {
+      l.push_back(dist_struct(gid[i],(int)(((unsigned long long)gid[i]*(unsigned long long)nproc)/nupdatable),i));
+    }
+  std::sort(l.begin(),l.end());
+
+
+
+
+
+
+//void CommPattern::add(Uint gid, Uint rank)
+//void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
+//void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+}
+
+
+/*/
 void CommPattern::setup()
 {
 
@@ -304,27 +347,26 @@ void CommPattern::setup()
 
 PEProcessSortedExecute(-1, BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush;);
 
-/*
-  std::vector<int> dist_nsend(nproc,0);
-  delete[] gid;
+//  std::vector<int> dist_nsend(nproc,0);
+//  delete[] gid;
 
-PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
+//PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
 
-*/
-/*
-PECheckPoint(100,"XXXXX Distributed data, step 1:");
-PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));
-PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.size()));
-*/
+//PECheckPoint(100,"XXXXX Distributed data, step 1:");
+//PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));
+//PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.size()));
 }
+/**/
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CommPattern::synchronize_all()
 {
+  std::vector<unsigned char> sndbuf(0);
+  std::vector<unsigned char> rcvbuf(0);
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
   {
-    synchronize_this(pobj);
+    synchronize_this(pobj,sndbuf,rcvbuf);
   }
 }
 
@@ -332,13 +374,24 @@ void CommPattern::synchronize_all()
 
 void CommPattern::synchronize( const std::string& name )
 {
+  std::vector<unsigned char> sndbuf(0);
+  std::vector<unsigned char> rcvbuf(0);
   CommWrapper& pobj = get_child(name).as_type<CommWrapper>();
-  synchronize_this(pobj);
+  synchronize_this(pobj,sndbuf,rcvbuf);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::synchronize_this( const CommWrapper& pobj )
+void CommPattern::synchronize( const CommWrapper& pobj )
+{
+  std::vector<unsigned char> sndbuf(0);
+  std::vector<unsigned char> rcvbuf(0);
+  synchronize_this(pobj,sndbuf,rcvbuf);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf )
 {
 
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
@@ -347,21 +400,31 @@ void CommPattern::synchronize_this( const CommWrapper& pobj )
   if ( pobj.needs_update() )
   {
 //      PEProcessSortedExecute(-1,std::cout << PERank << "   sync -> " <<  pobj.name() << "\n" << std::flush; );
+    pobj.pack(sndbuf,m_sendMap);
+    rcvbuf.resize(m_recvMap.size()*pobj.size_of()*pobj.stride());
+    PE::Comm::instance().all_to_all(sndbuf,m_sendCount,rcvbuf,m_recvCount,pobj.size_of()*pobj.stride());
+    pobj.unpack(rcvbuf,m_recvMap);
 
-      char* snd_data = (char*)pobj.pack(m_sendMap);
 
-      char* rcv_data = PE::Comm::instance().all_to_all(snd_data,
-                                                      &m_sendCount[0],
-                                                      (char*)0,
-                                                      &m_recvCount[0],
-                                                      pobj.size_of()*pobj.stride());
 
-      pobj.unpack(rcv_data,m_recvMap);
+//      char* snd_data = (char*)pobj.pack(m_sendMap);
 
-      /// @todo avoid this allocation and deallocation of buffers
-      ///       remember that in explicit synchronize is called frequently
-      delete[] snd_data;
-      delete[] rcv_data;
+//      char* rcv_data = PE::Comm::instance().all_to_all(snd_data,
+//                                                      &m_sendCount[0],
+//                                                      (char*)0,
+//                                                      &m_recvCount[0],
+//                                                      pobj.size_of()*pobj.stride());
+
+//      pobj.unpack(rcv_data,m_recvMap);
+
+//      /// @todo avoid this allocation and deallocation of buffers
+//      ///       remember that in explicit synchronize is called frequently
+//      /// for who added this todo: necessary because you compress the
+//      /// data involved in communication to a linear memory, moreover
+//      /// the synchronize should be changed to collect everything and perform
+//      /// one single all-to-all (Th)
+//      delete[] snd_data;
+//      delete[] rcv_data;
   }
 }
 

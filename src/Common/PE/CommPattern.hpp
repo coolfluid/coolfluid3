@@ -74,11 +74,27 @@ public:
   /// typedef for the temporary buffer array
   typedef std::vector<temp_buffer_item> temp_buffer_array;
   /// helper struct for setup function
-  struct dist_struct {
-    Uint  gid;    // global id of the item
-    CPint rank;   // rank where the item is
-    CPint lid;    // local id on that rank
-    void *data;   // packed data if it needs to be moved along procs, otherwise nullptr
+  class dist_struct {
+    public:
+      dist_struct()
+      {
+        gid=0;
+        rank=-1;
+        lid=-1;
+        data=0;
+      }
+      dist_struct(Uint _gid, CPint _rank, CPint _lid )
+      {
+        gid=_gid;
+        rank=_rank;
+        lid=_lid;
+        data=0;
+      }
+      inline bool operator < ( const dist_struct& val ) const { return gid < val.gid;  } // operator std::sort
+      Uint  gid;    // global id of the item
+      CPint rank;   // rank where the item is
+      CPint lid;    // local id on that rank
+      void *data;   // packed data if it needs to be moved along procs, otherwise nullptr
   };
 
 
@@ -208,6 +224,10 @@ public:
   /// @param name the name of the parallel object
   void synchronize( const std::string& name );
 
+  /// synchronize the parallel object designated by its commwrapper reference
+  /// @param name the name of the parallel object
+  void synchronize( const CommWrapper& pobj );
+
   /// add element to the commpattern
   /// when all changes done, all needs to be committed by calling setup
   /// if global id is not on current rank, then a ghost is automatically created on current rank
@@ -258,8 +278,11 @@ public:
 protected: // helper function
 
   /// function to synchronize this object
-  /// usefull for reusing in the different synchronize functions
-  void synchronize_this ( const CommWrapper& pobj );
+  /// useful for reusing in the different synchronize functions
+  /// @param pobj reference to commwrapper object to synchronize to
+  /// @param sndbuf vector for intermediate buffer for send
+  /// @param rcvbuf vector for intermediate buffer for recieve
+  void synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf );
 
 private:
 
