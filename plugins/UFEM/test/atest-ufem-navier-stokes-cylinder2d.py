@@ -73,6 +73,9 @@ while current_end_time < final_end_time:
   if iteration == 1:
     solver.disable_action('InitializePressure')
     solver.disable_action('InitializeVelocity')
+    solver.disable_action('InitializeU1')
+    solver.disable_action('InitializeU2')
+    solver.disable_action('InitializeU3')
 
 # print timings
 model.print_timing_tree()
