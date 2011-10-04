@@ -46,7 +46,7 @@ struct CProtoAction::Implementation
 
   Expression::Ptr m_expression;
   Component& m_component;
-  
+
   const boost::weak_ptr<PhysModel>& m_physical_model;
 };
 
@@ -64,7 +64,7 @@ void CProtoAction::execute()
 {
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
-  
+
   CFdebug << "Looping over " << m_loop_regions.size() << " regions with action " << uri().string() << CFendl;
 
   boost_foreach(const CRegion::Ptr& region, m_loop_regions)
@@ -81,11 +81,17 @@ void CProtoAction::set_expression(const boost::shared_ptr< Expression >& express
   m_implementation->trigger_physical_model();
 }
 
+void CProtoAction::insert_tags(std::set< std::string >& tags) const
+{
+  m_implementation->m_expression->insert_tags(tags);
+}
+
+
 CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression)
 {
   CProtoAction::Ptr action = allocate_component<CProtoAction>(name);
   action->set_expression(expression);
-  
+
   return action;
 }
 
