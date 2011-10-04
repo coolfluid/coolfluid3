@@ -45,6 +45,7 @@ CommPattern::CommPattern(const std::string& name): Component(name), m_gid(alloca
   m_add_buffer(0),
   m_mov_buffer(0),
   m_rem_buffer(0),
+  m_free_lids(1,0),
   m_sendCount(PE::Comm::instance().size(),0),
   m_sendMap(0),
   m_recvCount(PE::Comm::instance().size(),0),
@@ -82,7 +83,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
-  // if performance issues, replace for(...) add(...) with direct push_back
+  // if performance issues, replace for(...) add_global(...) with direct push_back
   if (gid->size()!=0)
   {
     m_isUpToDate=false;
@@ -91,7 +92,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
     PE::CommWrapperView<Uint> cwv_gid(m_gid);
     std::vector<Uint>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
-      add(*iigid,*irank);
+      add_global(*iigid,*irank);
     /*
      PECheckPoint(100,"-- Setup comission: --");
      PEProcessSortedExecute(-1,
@@ -99,9 +100,16 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
      std::cout << "\n" << std::flush;
       )
     */
+    gid->resize(0);
+    m_isUpdatable.resize(0);
+    m_free_lids.resize(1);
     setup();
+    m_free_lids[0]=m_isUpdatable.size();
+    m_isUpToDate=true;
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
@@ -119,7 +127,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
-  // if performance issues, replace for(...) add(...) with direct push_back
+  // if performance issues, replace for(...) add_global(...) with direct push_back
   if (gid->size()!=0) {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
@@ -127,7 +135,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
     PE::CommWrapperView<Uint> cwv_gid(m_gid);
     boost::multi_array<Uint,1>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
-      add(*iigid,*irank);
+      add_global(*iigid,*irank);
 /*
 PECheckPoint(100,"-- Setup comission: --");
 PEProcessSortedExecute(-1,
@@ -135,7 +143,12 @@ PEProcessSortedExecute(-1,
   std::cout << "\n" << std::flush;
 )
 */
+    gid->resize(0);
+    m_isUpdatable.resize(0);
+    m_free_lids.resize(1);
     setup();
+    m_free_lids[0]=m_isUpdatable.size();
+    m_isUpToDate=true;
   }
 }
 
@@ -143,8 +156,13 @@ PEProcessSortedExecute(-1,
 //*
 void CommPattern::setup()
 {
+/*
 #define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
 #define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+
+  if (m_gid==nullptr) throw Common::BadValue(FromHere(),name() + ": There is no gid associated to this CommPattern.");
+
+PECheckPoint(100,"001");
 
   // exit on obvious
   int changes[3]={0,0,0}; // order: add,mov,rem
@@ -152,9 +170,13 @@ void CommPattern::setup()
   changes[1]=m_mov_buffer.size();
   changes[2]=m_rem_buffer.size();
 
+PECheckPoint(1000,"002");
+
   PE::Comm::instance().all_reduce(PE::plus(),changes,3,changes);
   if (changes[0]+changes[1]+changes[2]==0) return;
 //  if (changes[1]+changes[2]==0) GOTO OPTIMIZED ADD-ONLY FUNCTION FOR PERFORMANCE
+
+PECheckPoint(1000,"003");
 
   // get stuff
   const CPint irank=(CPint)PE::Comm::instance().rank();
@@ -163,8 +185,53 @@ void CommPattern::setup()
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
 
-  PE::CommWrapperView<Uint> cwv_gid(m_gid);
-  Uint* gid=cwv_gid();
+PECheckPoint(1000,"004");
+
+  // filling buffer to bel inverted into a global, over-all-ranks array
+  { // brackets necessary for gid view to live short
+    PE::CommWrapperView<Uint> cwv_gid(m_gid);
+    Uint* gid=cwv_gid();
+
+    // filling a local vector with the existing nodes
+    std::vector<dist_struct> l(0);
+      for(int i=0; i<(const int)m_gid->size(); i++)
+      {
+        if (m_isUpdatable[i]) l.push_back(dist_struct(gid[i],irank,i,NOFLAGS));
+        else l.push_back(dist_struct(gid[i],irank,i,GHOST));
+      }
+    }
+
+    // extending the local vector with add/mov/rem info
+    BOOST_FOREACH(temp_buffer_item i, m_rem_buffer)
+    {
+      if (i.option) l.push_back(dist_struct(i.id,i.rank,-1,ALLDELETE|DELETED));
+      else l.push_back(dist_struct(i.gid,i.rank,-1,DELETED));
+    }
+    BOOST_FOREACH(temp_buffer_item i, m_mov_buffer)
+    {
+      l.push_back(dist_struct(i.gid,i.rank,-1,NOFLAGS));
+      if (!i.option) l.push_back(dist_struct(i.gid,i.rank,-1,DELETED));
+    }
+//  for(int i=0; i<(const int)m_rem_buffer->size(); i++)
+//  {
+//    l.push_back(dist_struct(gid[i],irank,i,NOFLAGS));
+//  }
+  } // end the scope of gid view
+
+  void add_global(Uint gid, Uint rank);
+  Uint add_global(bool_as_ghost);
+  void move(Uint lid, Uint rank, bool keep_as_ghost=true);
+  void remove(Uint lid, bool on_all_ranks=false);
+
+*/
+
+
+
+
+
+
+/*
+PECheckPoint(1000,"005");
 
   unsigned long long nupdatable=0;
   std::vector<int> nupdatables(nproc,0);
@@ -173,6 +240,8 @@ void CommPattern::setup()
   nupdatable=0;
   BOOST_FOREACH(int i, nupdatables) nupdatable+=(unsigned long long)i;
 
+PECheckPoint(1000,"006");
+
   // prepare a global array for info, local and global-style ordering
   // first filling l with rank, gid and lid info, and then it is inverted by gid, resulting an over processes spanned data
   // for performance, maybe worth to create an option to keep g (could skip this one)
@@ -180,6 +249,8 @@ void CommPattern::setup()
   std::vector<dist_struct> g(0);
   std::vector<int> rank_sndnum(nproc,0);
   std::vector<int> rank_starts(nproc,0);
+
+PECheckPoint(1000,"007");
 
   for(int i=0; i<(const int)m_gid->size(); i++)
     if (m_isUpdatable[i])
@@ -196,7 +267,12 @@ void CommPattern::setup()
       rank_starts[sendrank]++;
     }
   std::vector<int> rank_rcvnum(nproc,-1);
+
+PECheckPoint(1000,"008");
+
   PE::Comm::instance().all_to_all(l, rank_sndnum, l, rank_rcvnum);
+
+PECheckPoint(1000,"009");
 
   int numgid_thisrank=0;
   BOOST_FOREACH(int i, rank_rcvnum) numgid_thisrank+=i;
@@ -208,16 +284,22 @@ void CommPattern::setup()
     g[l[i].gid-thisrank_offset]=l[i];
   }
 
+PECheckPoint(1000,"010");
+
+
+PEProcessSortedExecute(-1,
+BOOST_FOREACH(dist_struct& i, g)
+  std::cout << i.gid << " " << i.lid << " " << i.rank << "\n" << std::flush;
+);
 
 
 
 
 
-
-//void CommPattern::add(Uint gid, Uint rank)
+//void CommPattern::add_global(Uint gid, Uint rank)
 //void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
 //void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
-
+*/
 #undef COMPUTE_IRANK
 #undef COMPUTE_INODE
 
@@ -442,28 +524,49 @@ void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigne
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::add(Uint gid, Uint rank)
+void CommPattern::add_global(Uint gid, Uint rank)
 {
+  // later a mechanism could be implemented when commpattern can give gids by calling a "reserve(int num)" beforehand, to optimize performance
+  // submits NEGATIVE lid's to distuingish add_global and add_local
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
-  m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
+  int next_lid=m_free_lids.back();
+  if (m_free_lids.size()>1) m_free_lids.pop_back();
+  else m_free_lids.push_back(next_lid+1);
+  m_add_buffer.push_back(temp_buffer_item(-next_lid,gid,rank,(rank==PE::Comm::instance().rank())));
   m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
+Uint CommPattern::add_local(bool as_ghost)
+{
+  // local pushes with false!!!
+  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
+  int next_lid=m_free_lids.back();
+  if (m_free_lids.size()>1) m_free_lids.pop_back();
+  else m_free_lids.push_back(next_lid+1);
+  m_add_buffer.push_back(temp_buffer_item(next_lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),as_ghost));
+  m_isUpToDate=false;
+  return next_lid;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CommPattern::move_local(Uint lid, Uint rank, bool keep_as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
-  m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
+  m_mov_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),rank,keep_as_ghost));
+  if (!keep_as_ghost) m_free_lids.push_back(lid);
   m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+void CommPattern::remove_local(Uint lid, bool on_all_ranks)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
-  m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
+  m_rem_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),on_all_ranks));
+  m_free_lids.push_back(lid);
   m_isUpToDate=false;
 }
 

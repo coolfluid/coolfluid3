@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( init )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+/*
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
   CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
@@ -144,18 +144,76 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-BOOST_AUTO_TEST_CASE( commpattern_cast )
-{
-  CommPattern pecp("CommPattern");
-  std::vector<Uint> gid(10);
-  pecp.insert("gid",gid);
-  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
-}
-*/
+
+/// @todo see why doesnt work
+//BOOST_AUTO_TEST_CASE( commpattern_cast )
+//{
+//  CommPattern pecp("CommPattern");
+//  std::vector<Uint> gid(10);
+//  pecp.insert("gid",gid);
+//  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
+//}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( commpattern_mainstream )
+{
+  // general constants in this routine
+  const int nproc=PE::Comm::instance().size();
+  const int irank=PE::Comm::instance().rank();
+
+  // commpattern
+  CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
+  CommPattern& pecp = *pecp_ptr;
+
+  // setup gid & rank
+  std::vector<Uint> gid;
+  std::vector<Uint> rank;
+  setupGidAndRank(gid,rank);
+  const int stride=1;
+  const bool to_synchronize=false;
+  pecp.insert("gid",gid,stride,to_synchronize);
+
+  // additional arrays for testing
+  std::vector<int> v1;
+  for(int i=0;i<6*nproc;i++) v1.push_back(-((irank+1)*1000+i+1));
+  pecp.insert("v1",v1,1,true);
+  std::vector<double> v2;
+  for(int i=0;i<12*nproc;i++) v2.push_back((double)((irank+1)*1000+i+1));
+  pecp.insert("v2",v2,2,true);
+
+  // initial setup
+  pecp.setup(pecp.get_child_ptr("gid")->as_ptr<CommWrapper>(),rank);
+
+  PECheckPoint(100,"Before");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
+  // synchronize data
+  pecp.synchronize_all();
+
+  PECheckPoint(100,"After");
+  PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v1,v1.size()));
+  PEProcessSortedExecute(-1,PEDebugVector(v2,v2.size()));
+
+  // check results
+  Uint idx=0;
+  Uint i;
+  for (i=0; i<  nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-0*nproc)/1)+1)*1000+idx+1)) );
+  for (   ; i<3*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-1*nproc)/2)+1)*1000+idx+1)) );
+  for (   ; i<6*nproc; i++, idx++ ) BOOST_CHECK_EQUAL( v1[i], (int)(-((((i-3*nproc)/3)+1)*1000+idx+1)) );
+  idx=0;
+  for (i=0; i< 2*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-0*nproc)/2)+1)*1000+idx+1) );
+  for (   ; i< 6*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-2*nproc)/4)+1)*1000+idx+1) );
+  for (   ; i<12*nproc; i++, idx++) BOOST_CHECK_EQUAL( v2[i], (double)((((i-6*nproc)/6)+1)*1000+idx+1) );
+}
+*/
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( commpattern_dynamic_usage )
 {
   // general constants in this routine
   const int nproc=PE::Comm::instance().size();

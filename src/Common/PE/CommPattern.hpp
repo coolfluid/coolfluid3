@@ -55,24 +55,37 @@ public:
   /// typedef for the temporary buffer
   class temp_buffer_item{
     public:
-      temp_buffer_item(Uint _gid, Uint _rank, bool _option)
+      temp_buffer_item(int _lid, Uint _gid, Uint _rank, bool _option)
       {
+        lid=_lid;
         gid=_gid;
         rank=(CPint)_rank;
         option=_option;
       }
       temp_buffer_item()
       {
-        gid= std::numeric_limits<Uint>::max();
+        lid=std::numeric_limits<int>::max();
+        gid=std::numeric_limits<Uint>::max();
         rank=std::numeric_limits<CPint>::max();
         option=false;
       }
+      int lid;
       Uint gid;
       CPint rank;
       bool option;
   };
   /// typedef for the temporary buffer array
   typedef std::vector<temp_buffer_item> temp_buffer_array;
+  /// enum for flags in dist_struct
+  enum dist_struct_flags
+  {
+    NOFLAGS=0x0,
+    GHOST=0x1,
+    MULTIRANKUPDATABLE=0x2,
+    UNUSED=0x4,
+    DELETED=0x8,
+    ALLDELETE=0x16
+  };
   /// helper struct for setup function
   class dist_struct {
     public:
@@ -82,19 +95,22 @@ public:
         rank=-1;
         lid=-1;
         data=0;
+        flags=UNUSED;
       }
-      dist_struct(Uint _gid, CPint _rank, CPint _lid )
+      dist_struct(Uint _gid, CPint _rank, CPint _lid, dist_struct_flags _flags )
       {
         gid=_gid;
         rank=_rank;
         lid=_lid;
         data=0;
+        flags=_flags;
       }
       inline bool operator < ( const dist_struct& val ) const { return gid < val.gid;  } // operator std::sort
-      Uint  gid;    // global id of the item
-      CPint rank;   // rank where the item is
-      CPint lid;    // local id on that rank
-      void *data;   // packed data if it needs to be moved along procs, otherwise nullptr
+      Uint  gid;               // global id of the item
+      CPint rank;              // rank where the item is updatable
+      CPint lid;               // local id on that rank
+      void *data;              // packed data if it needs to be moved along procs, otherwise nullptr
+      dist_struct_flags flags; // bookkeping flags
   };
 
 
@@ -231,26 +247,33 @@ public:
   /// add element to the commpattern
   /// when all changes done, all needs to be committed by calling setup
   /// if global id is not on current rank, then a ghost is automatically created on current rank
+  /// if there is no updatable node on rank, an error is thrown
   /// @param gid global id
   /// @param rank rank where given global node is to be updatable
   /// @see setup for committing changes
-  void add(Uint gid, Uint rank);
+  void add_global(Uint gid, Uint rank);
+
+  /// add element to the commpattern
+  /// when all changes done, all needs to be committed by calling setup
+  /// @param as_ghost decision if node to be kept on from_rank as ghost
+  /// @return the local id assigned to the new node. After calling setup, the global id can be looked-up.
+  /// @see setup for committing changes
+  Uint add_local(bool as_ghost=false);
 
   /// move element along partitions
   /// when all changes done, all needs to be committed by calling setup
-  /// @param gid global id
+  /// @param lid local id
   /// @param rank rank where the node is expected to be updatable
   /// @param keep_as_ghost decision if node to be kept on from_rank as ghost
   /// @see setup for committing changes
-  void move(Uint gid, Uint rank, bool keep_as_ghost=true);
+  void move_local(Uint lid, Uint rank, bool keep_as_ghost=true);
 
   /// delete element from the commpattern
   /// when all changes done, all needs to be committed by calling setup
-  /// @param gid global id of the guy to be excluded from commpattern
-  /// @param rank if on_all_ranks is true, its a complete removal. If its false then depends if node is ghost or updatable on rank and deletes only on this rank or all ranks respectively
-  /// @param on_all_ranks force delete on all processes if true
+  /// @param lid local id
+  /// @param on_all_ranks force delete on all processes if true. If its false then depends if node is ghost or updatable on rank and deletes only on this rank or all ranks respectively.
   /// @see setup for committing changes
-  void remove(Uint gid, Uint rank, bool on_all_ranks=false);
+  void remove_local(Uint lid, bool on_all_ranks=false);
 
   //@} END COMMPATTERN HANDLING
 
@@ -301,13 +324,19 @@ private:
   //@{
 
   /// temporary buffer of add
+  /// id is global id
   temp_buffer_array m_add_buffer;
 
   /// temporary buffer of move
+  /// id is local id
   temp_buffer_array m_mov_buffer;
 
   /// temporary buffer of remove
+  /// id is local id
   temp_buffer_array m_rem_buffer;
+
+  /// temporary buffer storing the available local ids, which are scattered inside the already existing data
+  std::vector<Uint> m_free_lids;
 
   //@} END BUFFERS HOLDING TEMPORARY DATA
 

@@ -129,6 +129,14 @@ class CommWrapperMArray<T,1>: public CommWrapper{
         (*m_data)[i]=*ibuf++;
     }
 
+    /// resizes the underlying wrapped object
+    /// @param size new dimension size
+    void resize(const int size)
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      m_data->resize(boost::extents[size]);
+    }
+
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
     int size_of() const { return sizeof(T); }
@@ -262,6 +270,14 @@ class CommWrapperMArray<T,2>: public CommWrapper{
       for (int i=0; i<(const int)m_data->size(); i++)
         for (int j=0; j<(const int)m_stride; j++)
           (*m_data)[i][j]=*ibuf++;
+    }
+
+    /// resizes the underlying wrapped object
+    /// @param size new dimension size
+    void resize(const int size)
+    {
+      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      m_data->resize(boost::extents[size][m_stride]);
     }
 
     /// acts like a sizeof() operator
