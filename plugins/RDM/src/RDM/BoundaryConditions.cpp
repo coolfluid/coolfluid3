@@ -102,10 +102,10 @@ void BoundaryConditions::signal_create_boundary_condition ( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
+  std::string name = options.value<std::string>("name");
+  std::string type = options.value<std::string>("type");
 
-  std::vector<URI> regions = options.array<URI>("Regions");
+  std::vector<URI> regions = options.array<URI>("regions");
 
   create_boundary_condition( type, name, regions );
 }
@@ -117,7 +117,7 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
   // name
 
-  options.add_option< OptionT<std::string> >("Name", std::string() )
+  options.add_option< OptionT<std::string> >("name", std::string() )
       ->description("Name for created boundary term" );
 
   /// @todo should loop on availabe BCs in factory of BCs
@@ -126,7 +126,7 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 
   std::vector< boost::any > restricted;
 //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.BcDirichlet") )
+  options.add_option< OptionT<std::string> >("type", std::string("CF.RDM.BcDirichlet") )
       ->description("Type for created boundary")
       ->restricted_list() = restricted;
 

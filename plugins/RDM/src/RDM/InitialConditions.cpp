@@ -81,7 +81,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  std::string name = options.value<std::string>("Name");
+  std::string name = options.value<std::string>("name");
 
   CAction::Ptr ic = allocate_component< RDM::Init >(name);
   append( ic );
@@ -92,9 +92,9 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
   ic->configure_option( "field", solution_uri );
 
   std::vector<URI> regions;
-  if( options.check("Regions") )
+  if( options.check("regions") )
   {
-    regions = options.array<URI>("Regions");
+    regions = options.array<URI>("regions");
   }
   else // if user did not specify, then use the whole topology (all regions)
   {
@@ -114,7 +114,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   // name
 
-  options.add_option< OptionT<std::string> >("Name", std::string() )
+  options.add_option< OptionT<std::string> >("name", std::string() )
       ->description("Name for created initial condition" );
 
   // regions
@@ -123,7 +123,7 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
   /// @todo create here the list of restricted regions, both volume and surface
 
-  options.add_option< OptionArrayT<URI> >("Regions", dummy )
+  options.add_option< OptionArrayT<URI> >("regions", dummy )
       ->description("Regions where to apply the initial condition [optional]");
 }
 
