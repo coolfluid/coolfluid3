@@ -153,8 +153,15 @@ XmlNode Map::set_array ( const std::string& value_key,
   // build the value string
   typename std::vector<TYPE>::const_iterator it = value.begin();
 
+  Uint result_size = value.size();
+
   for( ; it != value.end() ; ++it )
   {
+    if(to_str(*it).empty())
+    {
+      --result_size;
+      continue;
+    }
     // if it is not the first item, we add the delimiter
     if( !value_str.empty() )
       value_str += delimiter;
@@ -196,7 +203,7 @@ XmlNode Map::set_array ( const std::string& value_key,
   // (which is defined by Microsoft) instead of unsigned int. Since
   // to_str<unsigned __int64>() is not defined, it may cause a
   // lining error on Windows.
-  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( (CF::Uint) value.size() ));
+  array_node.set_attribute( Protocol::Tags::attr_array_size(), to_str( result_size ));
 
   array_node.set_attribute( Protocol::Tags::attr_array_delimiter(), delimiter );
 
