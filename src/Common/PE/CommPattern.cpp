@@ -6,6 +6,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "boost/lexical_cast.hpp"
+
 #include "Common/BoostAssertions.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/FindComponents.hpp"
@@ -104,8 +106,6 @@ PEProcessSortedExecute(-1,
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
     setup();
-    m_free_lids[0]=m_isUpdatable.size();
-    m_isUpToDate=true;
   }
 }
 
@@ -147,8 +147,6 @@ PEProcessSortedExecute(-1,
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
     setup();
-    m_free_lids[0]=m_isUpdatable.size();
-    m_isUpToDate=true;
   }
 }
 
@@ -256,49 +254,192 @@ void CommPattern::setup()
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
 
-  // reset
-  m_sendCount.clear();
-  m_sendMap.clear();
-  m_recvCount.clear();
-  m_recvMap.clear();
-
   // look around for max gid for the global array's size
-  int nglobalarray=-1;
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) nglobalarray=i.gid>nglobalarray?i.gid:nglobalarray;
-
-PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
-
+  Uint nglobalarray=0;
+  BOOST_FOREACH(temp_buffer_item i, m_add_buffer) nglobalarray=((i.gid)>(nglobalarray))?(i.gid):(nglobalarray);
   PE::Comm::instance().all_reduce(PE::max(),&nglobalarray,1,&nglobalarray);
   nglobalarray++; // zero based indexing!
 
-PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
-PEProcessSortedExecute(-1,
-BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
-  std::cout <<  i.lid << "(" << i.gid << ") " << std::flush;
-std::cout << "\n" << std::flush;
-);
+//PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
+//PEProcessSortedExecute(-1,
+//BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+//  std::cout <<  i.lid << "(" << i.gid << ") " << std::flush;
+//std::cout << "\n" << std::flush;
+//);
 
   // fill local and its mpi communication accessories
-  std::vector<dist_struct> local(0);
+  std::vector<dist_struct> local(m_add_buffer.size());
   std::vector<int> sendcnt(nproc,0);
-  std::vector<int> sendmap(m_add_buffer.size());
   BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
     sendcnt[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
   std::vector<int> sendstarts(nproc,0);
+  std::vector<int> recvstarts(nproc,0);
   for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+sendcnt[i-1];
-
   BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
   {
-    if (i.rank==irank) local.push_back(dist_struct(i.gid,irank,-i.lid,UPDATABLE));
-    else local.push_back(dist_struct(i.gid,irank,-i.lid,GHOST));
-    sendmap[sendcnt[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++]=i.lid;
+    if (i.rank==irank) local[sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]]=dist_struct(i.gid,irank,-i.lid,UPDATABLE);
+    else local[sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]]=dist_struct(i.gid,irank,-i.lid,GHOST);
+    sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
   }
 
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+//PEProcessSortedExecute(-1, PEDebugVector(sendcnt,sendcnt.size()) );
+//PECheckPoint(100,"alltoall separator");
 
+  // do the all_to_all communication
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE DISTRIBUTED ONE
+  std::vector<int> recvcnt(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt);
+
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+//PEProcessSortedExecute(-1, PEDebugVector(recvcnt,recvcnt.size()) );
+
+  // build up global array, first count number of elements, then allocate an old fashion dynamic 2d array (stays constant during lifetime) and fill
+  // also clear local when done
+  std::vector<int> global_nelems(COMPUTE_INODE(irank+1,nproc,nglobalarray)-COMPUTE_INODE(irank,nproc,nglobalarray),0);
+  BOOST_FOREACH(dist_struct i, local) global_nelems[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)]++;
+  std::vector<dist_struct*> global(global_nelems.size(),nullptr);
+  for (int i=0; i<(const int)global_nelems.size(); i++)
+    if (global_nelems[i]!=0)
+      global[i]=new dist_struct[global_nelems[i]];
+  std::vector<int> entryctr(global_nelems.size(),0);
+  BOOST_FOREACH(dist_struct i, local) global[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)][entryctr[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)]++]=i;
+  local.clear();
+  local.reserve(0);
+
+//PEProcessSortedExecute(-1, PEDebugVector(global_nelems,global_nelems.size()) );
+//PEProcessSortedExecute(-1,
+//std::cout << "global on rank " << irank << ":\n" << std::flush;
+//for (int i=0; i<(const int)global.size(); i++) {
+//  std::cout << global_nelems[i] << ": " << std::flush;
+//  for (int j=0; j<(const int)global_nelems[i]; j++)
+//    std::cout << "(" << global[i][j].gid << "," << global[i][j].lid << ","<< global[i][j].rank << "," << global[i][j].flags << ") " << std::flush;
+//  std::cout << "\n" << std::flush;
+//}
+//);
+
+  // do checks : holes in the gid and more then once updatable gids
+  // once there, reorder that first entry is the updatable
+  for (int i=0; i<(const int)global.size(); i++)
+  {
+    int nupdatable=0;
+    for (int j=0; j<(const int)global_nelems[i]; j++)
+    {
+      if (global[i][j].flags & UPDATABLE)
+      {
+        nupdatable++;
+        dist_struct tmp=global[i][j];
+        global[i][j]=global[i][0];
+        global[i][0]=tmp;
+      }
+    }
+    if (nupdatable==0) throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
+    if (nupdatable>1)  throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
+  }
+
+  // lookup information for m_recvCount, m_recvMap
+  // this are really the ghost infos
+  // local is pair of dist_structs storing send and receive side infos: local : { send_ghost0,recv_ghost0, send_ghost1,recv_ghost1, ...  }
+  sendcnt.assign(nproc,0);
+  Uint nsendback=0;
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      sendcnt[global[i][j].rank]++;
+      nsendback++;
+    }
+  sendstarts.assign(nproc,0);
+  local.resize(2*nsendback);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+2*sendcnt[i-1];
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      local[sendstarts[global[i][j].rank]++]=global[i][0];
+      local[sendstarts[global[i][j].rank]++]=global[i][j];
+    }
+
+  // send back ghosts
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE BACK-DISTRIBUTED GHOSTS
+  recvcnt.assign(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt,2);
+
+  // set up ghost communication info for all_to_all, and updatables info
+  m_recvCount.assign(nproc,0);
+  for(int i=0; i<(const int)local.size(); i+=2) m_recvCount[local[i].rank]++;
+  recvstarts.assign(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) recvstarts[i]=recvstarts[i-1]+m_recvCount[i-1];
+  m_recvMap.assign(m_recvCount[nproc-1]+recvstarts[nproc-1],-1);
+  m_isUpdatable.assign(m_add_buffer.size(),true);
+  for(int i=0; i<(const int)local.size(); i+=2){
+    m_recvMap[recvstarts[local[i].rank]++]=local[i+1].lid;
+    m_isUpdatable[local[i+1].lid]=false;
+  }
+
+//PEProcessSortedExecute(-1, PEDebugVector(m_recvCount,m_recvCount.size()); );
+//PEProcessSortedExecute(-1, PEDebugVector(m_recvMap,m_recvMap.size()); );
+//PEProcessSortedExecute(-1, PEDebugVector(m_isUpdatable,m_isUpdatable.size()); );
+
+  // lookup information for m_senCount, m_sendMap
+  // this are really the ghost infos
+  // local is pair of dist_structs storing send and receive side infos: local : { send_ghost0,recv_ghost0, send_ghost1,recv_ghost1, ...  }
+  sendcnt.assign(nproc,0);
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+      sendcnt[global[i][0].rank]++;
+  sendstarts.assign(nproc,0);
+  local.resize(2*nsendback);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+2*sendcnt[i-1];
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      local[sendstarts[global[i][0].rank]++]=global[i][0];
+      local[sendstarts[global[i][0].rank]++]=global[i][j];
+    }
+
+  // send back ghosts
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE BACK-DISTRIBUTED GHOSTS
+  recvcnt.assign(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt,2);
+
+  // set up ghost communication info for all_to_all, and updatables info
+  m_sendCount.assign(nproc,0);
+  for(int i=0; i<(const int)local.size(); i+=2) m_sendCount[local[i+1].rank]++;
+  sendstarts.assign(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+m_sendCount[i-1];
+  m_sendMap.assign(m_sendCount[nproc-1]+sendstarts[nproc-1],-1);
+  for(int i=0; i<(const int)local.size(); i+=2){
+    m_sendMap[sendstarts[local[i+1].rank]++]=local[i].lid;
+  }
+
+//PEProcessSortedExecute(-1, PEDebugVector(m_sendCount,m_sendCount.size()); );
+//PECheckPoint(100,"");
+//PEProcessSortedExecute(-1, PEDebugVector(m_sendMap,m_sendMap.size()); );
+//PECheckPoint(100,"");
+
+  // set gids
+  m_gid->resize(m_add_buffer.size());
+  CommWrapperView<Uint> cwv_gid(m_gid);
+  Uint *gid=cwv_gid();
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) *gid++=i.gid;
+
+  // clear stuff and reset other things
+  m_isUpToDate=true;
+  m_add_buffer.clear();
+  m_rem_buffer.clear();
+  m_mov_buffer.clear();
+  m_free_lids.assign(1,m_isUpdatable.size());
+  for(int i=0; i<(const int)global.size(); i++)
+    if (global_nelems[i]!=0)
+      delete[] global[i];
 
 #undef COMPUTE_IRANK
 #undef COMPUTE_INODE
-
 }
 
 
