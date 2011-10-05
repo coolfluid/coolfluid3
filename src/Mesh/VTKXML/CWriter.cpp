@@ -384,18 +384,32 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
         : cell_data.add_node("DataArray");
 
       data_array.set_attribute("type", sizeof(Real) == 4 ? "Float32" : "Float64");
-      data_array.set_attribute("NumberOfComponents", to_str(var_size));
+      data_array.set_attribute("NumberOfComponents", to_str(var_size == 2 && dim == 2 ? 3 : var_size));
       data_array.set_attribute("Name", var_name);
       data_array.set_attribute("format", "appended");
       data_array.set_attribute("offset", to_str(appended_data.offset()));
 
-      appended_data.start_array(field_size*var_size, sizeof(Real));
+      appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
       if(field.basis() == CF::Mesh::FieldGroup::Basis::POINT_BASED)
       {
-        for(Uint i = 0; i != field_size; ++i)
-          for(Uint j = var_begin; j != var_end; ++j)
-            appended_data.push_back(field[i][j]);
+        if(dim == 2 && var_size == 2)
+        {
+          for(Uint i = 0; i != field_size; ++i)
+          {
+            for(Uint j = var_begin; j != var_end; ++j)
+            {
+              appended_data.push_back(field[i][j]);
+            }
+            appended_data.push_back(0.);
+          }
+        }
+        else
+        {
+          for(Uint i = 0; i != field_size; ++i)
+            for(Uint j = var_begin; j != var_end; ++j)
+              appended_data.push_back(field[i][j]);
+        }
       }
       else
       {
@@ -406,10 +420,24 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
           {
             const Uint n_elems = elements.size();
             const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
-            for(Uint i = 0; i != n_elems; ++i)
+            if(dim == 2 && var_size == 2)
             {
-              for(Uint j = var_begin; j != var_end; ++j)
-                appended_data.push_back(field[i+elements_begin][j]);
+              for(Uint i = 0; i != n_elems; ++i)
+              {
+                for(Uint j = var_begin; j != var_end; ++j)
+                {
+                  appended_data.push_back(field[i+elements_begin][j]);
+                }
+                appended_data.push_back(0.);
+              }
+            }
+            else
+            {
+              for(Uint i = 0; i != n_elems; ++i)
+              {
+                for(Uint j = var_begin; j != var_end; ++j)
+                  appended_data.push_back(field[i+elements_begin][j]);
+              }
             }
           }
         }

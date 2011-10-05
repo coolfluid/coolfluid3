@@ -8,6 +8,7 @@
 #define CF_Solver_Actions_Proto_Expression_hpp
 
 #include <map>
+#include <set>
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
@@ -57,6 +58,9 @@ public:
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(Physics::PhysModel& physical_model) = 0;
 
+  /// Append the field tags to the given vector
+  virtual void insert_tags(std::set<std::string>& tags) const = 0;
+
   virtual ~Expression() {}
 };
 
@@ -99,6 +103,11 @@ public:
   void register_variables(Physics::PhysModel& physical_model)
   {
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
+  }
+
+  void insert_tags(std::set< std::string >& tags) const
+  {
+    boost::fusion::for_each(m_variables, AppendTags(tags));
   }
 
 private:
@@ -169,6 +178,28 @@ private:
     }
 
     Physics::PhysModel& m_physical_model;
+  };
+
+  /// Functor to store the tags used by a field
+  struct AppendTags
+  {
+    AppendTags(std::set<std::string>& tags) :
+      m_tags(tags)
+    {
+    }
+
+    /// Register a scalar
+    void operator()(const FieldBase& field) const
+    {
+      m_tags.insert(field.field_tag());
+    }
+
+    /// Skip unused variables
+    void operator()(const boost::mpl::void_&) const
+    {
+    }
+
+    std::set<std::string>& m_tags;
   };
 };
 

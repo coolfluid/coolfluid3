@@ -25,7 +25,7 @@ const Uint Shared::m_gmsh_elem_dim[nb_gmsh_types] = { DIM_0D, DIM_1D, DIM_2D, DI
                                                       DIM_3D, DIM_3D, DIM_3D, DIM_3D, DIM_2D, DIM_3D, DIM_2D };
 
 const Uint Shared::m_gmsh_elem_order[nb_gmsh_types] = {  0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2,
-                                                            2, 2, 2, 2, 1, 2, 2, 2, 2, 3,
+                                                            2, 2, 2, 2, 0, 2, 2, 2, 2, 3,
                                                             3, 4, 4, 5, 5, 3, 4, 5, 3, 4,
                                                             5, 4, 5, 0, 0, 3 };
 
