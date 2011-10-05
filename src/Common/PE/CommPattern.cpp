@@ -71,6 +71,16 @@ CommPattern::~CommPattern()
 
 void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 {
+//PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) --");
+//PEProcessSortedExecute(-1,
+//  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
+//  Uint* testgid=(Uint*)gid->pack();
+//  for (int i=0; i<(const int)rank.size(); i++)
+//    std::cout << "(" << testgid[i] << "|" << rank[i] << ")" << std::flush;
+//  std::cout << "\n" << std::flush;
+//  delete[] testgid;
+//);
+
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
@@ -95,13 +105,13 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
     std::vector<Uint>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add_global(*iigid,*irank);
-/*
-PECheckPoint(100,"-- Setup comission: --");
-PEProcessSortedExecute(-1,
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
-  std::cout << "\n" << std::flush;
-  )
-*/
+
+//PECheckPoint(100,"-- Setup comission: (gid|rank|lid|option)--");
+//PEProcessSortedExecute(-1,
+//  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.lid << "|" << i.option << ")";
+//  std::cout << "\n" << std::flush;
+//)
+
     gid->resize(0);
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
@@ -113,6 +123,16 @@ PEProcessSortedExecute(-1,
 
 void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
+//PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) --");
+//PEProcessSortedExecute(-1,
+//  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
+//  Uint* testgid=(Uint*)gid->pack();
+//  for (int i=0; i<(const int)rank.size(); i++)
+//    std::cout << "(" << testgid[i] << "|" << rank[i] << ")" << std::flush;
+//  std::cout << "\n" << std::flush;
+//  delete[] testgid;
+//);
+
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
   if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
@@ -136,13 +156,13 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
     boost::multi_array<Uint,1>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add_global(*iigid,*irank);
-/*
-PECheckPoint(100,"-- Setup comission: --");
-PEProcessSortedExecute(-1,
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
-  std::cout << "\n" << std::flush;
-)
-*/
+
+//PECheckPoint(100,"-- Setup comission: (gid|rank|lid|option)--");
+//PEProcessSortedExecute(-1,
+//  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.lid << "|" << i.option << ")";
+//  std::cout << "\n" << std::flush;
+//)
+
     gid->resize(0);
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
@@ -245,7 +265,7 @@ PECheckPoint(1000,"004");
 void CommPattern::setup()
 {
 #define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
-#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc))?((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul):((unsigned long long)(irank)))
 
   // get stuff
   const CPint irank=(CPint)PE::Comm::instance().rank();
@@ -323,6 +343,8 @@ void CommPattern::setup()
 //  std::cout << "\n" << std::flush;
 //}
 //);
+//PECheckPoint(100,"after globalisation");
+
 
   // do checks : holes in the gid and more then once updatable gids
   // once there, reorder that first entry is the updatable
