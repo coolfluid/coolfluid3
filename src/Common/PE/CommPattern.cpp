@@ -282,23 +282,23 @@ void CommPattern::setup()
     sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
   }
 
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
-//PEProcessSortedExecute(-1, PEDebugVector(sendcnt,sendcnt.size()) );
-//PECheckPoint(100,"alltoall separator");
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+PEProcessSortedExecute(-1, PEDebugVector(sendcnt,sendcnt.size()) );
+PECheckPoint(100,"alltoall separator");
 
   // do the all_to_all communication
   // NOTE THAT AFTER ALLTOALL, LOCAL IS THE DISTRIBUTED ONE
   std::vector<int> recvcnt(nproc,-1);
   PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt);
 
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
-//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
-//PEProcessSortedExecute(-1, PEDebugVector(recvcnt,recvcnt.size()) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+PEProcessSortedExecute(-1, PEDebugVector(recvcnt,recvcnt.size()) );
 
   // build up global array, first count number of elements, then allocate an old fashion dynamic 2d array (stays constant during lifetime) and fill
   // also clear local when done
@@ -313,16 +313,18 @@ void CommPattern::setup()
   local.clear();
   local.reserve(0);
 
-//PEProcessSortedExecute(-1, PEDebugVector(global_nelems,global_nelems.size()) );
-//PEProcessSortedExecute(-1,
-//std::cout << "global on rank " << irank << ":\n" << std::flush;
-//for (int i=0; i<(const int)global.size(); i++) {
-//  std::cout << global_nelems[i] << ": " << std::flush;
-//  for (int j=0; j<(const int)global_nelems[i]; j++)
-//    std::cout << "(" << global[i][j].gid << "," << global[i][j].lid << ","<< global[i][j].rank << "," << global[i][j].flags << ") " << std::flush;
-//  std::cout << "\n" << std::flush;
-//}
-//);
+PEProcessSortedExecute(-1, PEDebugVector(global_nelems,global_nelems.size()) );
+PEProcessSortedExecute(-1,
+std::cout << "global on rank " << irank << ":\n" << std::flush;
+for (int i=0; i<(const int)global.size(); i++) {
+  std::cout << global_nelems[i] << ": " << std::flush;
+  for (int j=0; j<(const int)global_nelems[i]; j++)
+    std::cout << "(" << global[i][j].gid << "," << global[i][j].lid << ","<< global[i][j].rank << "," << global[i][j].flags << ") " << std::flush;
+  std::cout << "\n" << std::flush;
+}
+);
+PECheckPoint(100,"after globalisation");
+
 
   // do checks : holes in the gid and more then once updatable gids
   // once there, reorder that first entry is the updatable
