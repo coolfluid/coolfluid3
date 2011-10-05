@@ -367,9 +367,9 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
     if(!added_fields.insert(field.uri().string()).second)
       continue;
 
-    // point-based field
-    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == CF::Mesh::FieldGroup::Basis::ELEMENT_BASED))
-      continue;
+//    // point-based field
+//    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == CF::Mesh::FieldGroup::Basis::ELEMENT_BASED))
+//      continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
@@ -399,8 +399,14 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       }
       else
       {
-        boost_foreach(const CElements& elements, find_components_recursively<CElements>(mesh.topology()) )
+        boost_foreach(const CEntities& elements, field.field_group().entities_range())
         {
+          CSpace& field_space = field.space(elements);
+          RealMatrix field_data (field_space.nb_states(),var_size);
+
+          ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+
+
           const Uint elements_begin = field.field_group().space(elements).elements_begin();
           if(elements.element_type().dimensionality() == dim && elements.element_type().order() == 1 && etype_map.count(elements.element_type().shape()))
           {
@@ -408,12 +414,56 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
             const boost::uint8_t vtk_e_type = etype_map[elements.element_type().shape()];
             for(Uint i = 0; i != n_elems; ++i)
             {
-              for(Uint j = var_begin; j != var_end; ++j)
-                appended_data.push_back(field[i+elements_begin][j]);
+              CConnectivity::ConstRow field_index = field_space.indexes_for_element(i);
+
+              Uint pt=0;
+              for(Uint pt=0; pt<field_space.nb_states(); ++pt)
+              {
+                Uint c=0;
+                for(Uint j = var_begin; j != var_end; ++j)
+                  field_data(pt,c++) = field[ field_index[pt] ][j];
+              }
+
+              /// get cell-centred local coordinates
+              RealVector local_coords = P0_cell_centred->local_coordinates().row(0);
+
+              /// evaluate field shape function in P0 space
+              RealVector cell_centred_data = field_space.shape_function().value(local_coords)*field_data;
+
+              Uint c=0;
+              for(Uint j=var_begin; j!=var_end; ++j)
+                appended_data.push_back(cell_centred_data[c++]);
             }
           }
         }
       }
+
+      /*
+              CSpace& field_space = field.space(elements);
+              RealVector field_data (field_space.nb_states());
+
+              ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+
+              for (Uint e=0; e<elements.size(); ++e)
+              {
+                CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                /// set field data
+                for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                {
+                  field_data[iState] = field[field_index[iState]][var_idx];
+                }
+
+                /// get cell-centred local coordinates
+                RealVector local_coords = P0_cell_centred->local_coordinates().row(0);
+
+                /// evaluate field shape function in P0 space
+                Real cell_centred_data = field_space.shape_function().value(local_coords)*field_data;
+
+                /// Write cell centred value
+                file << cell_centred_data << " ";
+                CF_BREAK_LINE(file,e);
+              }
+*/
 
       appended_data.finish_array();
     }
