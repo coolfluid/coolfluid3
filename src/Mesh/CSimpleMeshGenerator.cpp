@@ -200,7 +200,6 @@ void CSimpleMeshGenerator::create_line()
       xpos_rank[0] = part;
     }
   }
-  Core::instance().root().remove_component(hash);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
