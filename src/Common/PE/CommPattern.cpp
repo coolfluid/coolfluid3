@@ -6,6 +6,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "boost/lexical_cast.hpp"
+
 #include "Common/BoostAssertions.hpp"
 #include "Common/LibCommon.hpp"
 #include "Common/FindComponents.hpp"
@@ -45,6 +47,7 @@ CommPattern::CommPattern(const std::string& name): Component(name), m_gid(alloca
   m_add_buffer(0),
   m_mov_buffer(0),
   m_rem_buffer(0),
+  m_free_lids(1,0),
   m_sendCount(PE::Comm::instance().size(),0),
   m_sendMap(0),
   m_recvCount(PE::Comm::instance().size(),0),
@@ -82,7 +85,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
-  // if performance issues, replace for(...) add(...) with direct push_back
+  // if performance issues, replace for(...) add_global(...) with direct push_back
   if (gid->size()!=0)
   {
     m_isUpToDate=false;
@@ -91,17 +94,22 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
     PE::CommWrapperView<Uint> cwv_gid(m_gid);
     std::vector<Uint>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
-      add(*iigid,*irank);
-    /*
-     PECheckPoint(100,"-- Setup comission: --");
-     PEProcessSortedExecute(-1,
-     BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
-     std::cout << "\n" << std::flush;
-      )
-    */
+      add_global(*iigid,*irank);
+/*
+PECheckPoint(100,"-- Setup comission: --");
+PEProcessSortedExecute(-1,
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
+  std::cout << "\n" << std::flush;
+  )
+*/
+    gid->resize(0);
+    m_isUpdatable.resize(0);
+    m_free_lids.resize(1);
     setup();
   }
 }
+
+////////////////////////////////////////////////////////////////////////////////
 
 void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
@@ -119,7 +127,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
       throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
-  // if performance issues, replace for(...) add(...) with direct push_back
+  // if performance issues, replace for(...) add_global(...) with direct push_back
   if (gid->size()!=0) {
     m_isUpToDate=false;
     std::vector<int> map(gid->size());
@@ -127,7 +135,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
     PE::CommWrapperView<Uint> cwv_gid(m_gid);
     boost::multi_array<Uint,1>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
-      add(*iigid,*irank);
+      add_global(*iigid,*irank);
 /*
 PECheckPoint(100,"-- Setup comission: --");
 PEProcessSortedExecute(-1,
@@ -135,6 +143,9 @@ PEProcessSortedExecute(-1,
   std::cout << "\n" << std::flush;
 )
 */
+    gid->resize(0);
+    m_isUpdatable.resize(0);
+    m_free_lids.resize(1);
     setup();
   }
 }
@@ -143,14 +154,27 @@ PEProcessSortedExecute(-1,
 /*
 void CommPattern::setup()
 {
+
+#define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
+#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+
+  if (m_gid==nullptr) throw Common::BadValue(FromHere(),name() + ": There is no gid associated to this CommPattern.");
+
+PECheckPoint(100,"001");
+
   // exit on obvious
   int changes[3]={0,0,0}; // order: add,mov,rem
   changes[0]=m_add_buffer.size();
   changes[1]=m_mov_buffer.size();
   changes[2]=m_rem_buffer.size();
+
+PECheckPoint(1000,"002");
+
   PE::Comm::instance().all_reduce(PE::plus(),changes,3,changes);
   if (changes[0]+changes[1]+changes[2]==0) return;
 //  if (changes[1]+changes[2]==0) GOTO OPTIMIZED ADD-ONLY FUNCTION FOR PERFORMANCE
+
+PECheckPoint(1000,"003");
 
   // get stuff
   const CPint irank=(CPint)PE::Comm::instance().rank();
@@ -158,42 +182,274 @@ void CommPattern::setup()
   if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
   if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
   if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
-  Uint* gid=(Uint*)m_gid->pack();
-  unsigned long long nupdatable=0;
-  std::vector<int> nupdatables(nproc,0);
-  BOOST_FOREACH(bool i, m_isUpdatable) if (i) nupdatable++;
-  PE::Comm::instance().all_reduce(PE::max(),nupdatables,nupdatables);
-  nupdatable=0;
-  BOOST_FOREACH(int i, nupdatables) nupdatable+=(unsigned long long)i;
 
-  // prepare a global array for info, local and global-style ordering
-  // first filling l with rank, gid and lid info, and then it is inverted by gid, resulting an over processes spanned data
-  // for performance, maybe worth to create an option to keep g (could skip this one)
-  std::vector<dist_struct> l(0);
-  std::vector<dist_struct> g(0);
-  for(int i=0; i<(const int)m_gid->size(); i++)
-    if (m_isUpdatable[i])
-    {
-      l.push_back(dist_struct(gid[i],(int)(((unsigned long long)gid[i]*(unsigned long long)nproc)/nupdatable),i));
+PECheckPoint(1000,"004");
+
+  // filling buffer to be inverted into a global, over-all-ranks array
+  { // brackets necessary for gid view to live short
+    PE::CommWrapperView<Uint> cwv_gid(m_gid);
+    Uint* gid=cwv_gid();
+
+    // filling a local vector with the existing nodes
+    std::vector<dist_struct> l(0);
+      for(int i=0; i<(const int)m_gid->size(); i++)
+      {
+        if (m_isUpdatable[i]) l.push_back(dist_struct(gid[i],irank,i,NOFLAGS));
+        else l.push_back(dist_struct(gid[i],irank,i,GHOST));
+      }
     }
-  std::sort(l.begin(),l.end());
 
+    // extending the local vector with remove info
+    BOOST_FOREACH(temp_buffer_item i, m_rem_buffer)
+    {
+      if (i.option) l.push_back(dist_struct(gid[i.lid],i.rank,i.lid,ALLDELETE|DELETED));
+      else l.push_back(dist_struct(gid[i.lid],i.rank,i.lid,DELETED));
+    }
 
+    // extending the local vector with inter-process move info
+    BOOST_FOREACH(temp_buffer_item i, m_mov_buffer)
+    {
+      l.push_back(dist_struct(gid[i.lid],i.rank,i.lid,NOFLAGS));
+      if (!i.option) l.push_back(dist_struct(gid[i.lid],i.rank,i.lid,DELETED));
+    }
 
+    // extending the local vector with add info
+    // 1. count the local add-s to compute needed gid counts
+    // 2. organize locally distributed gids not to hook-up with global adds, its probalby a linearized loop over processes
+    // 3. push to array
+  } // end the scope of gid view
 
+// OK, when the list is made:
+// 1. make the global inversion,  into a receive buffer
+// 2. probably here communicate the data registered to this commwrapper
+// 3. the global array should be 3 arrays:
+//    - counter of dist_struct items associated to that gid
+//    - pointer to hold the arrays
+//    - pointer to hold the data
+// 4. collect everything under the backbone structure designed at 3.
+// 5. do the comparisons/steps...etc associated with the flags
+// 6. distribute back the results
+// 7. delete interprocess leaks, add moves (will need another extra gid distribution)
 
+// remark 1.: make sure that the holes in the lids (can happen due to global adds and interpocess deletes) are set to ghosts and and kept in m_free_lids
+// remark 2.: need a faster version when no ghost present -> just needs to move data but no interprocess communication
+// remark 3.: COMPUTE_IRANK (which rank a gid is in a global array) and COMPUTE_INODE (which are the starting indices on each processors) is useful for a unique, closely equally distributed elements accross all processors in a global array
 
-//void CommPattern::add(Uint gid, Uint rank)
-//void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
-//void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+#undef COMPUTE_IRANK
+#undef COMPUTE_INODE
+
+}
+
+/*/
+
+void CommPattern::setup()
+{
+#define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
+#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+
+  // get stuff
+  const CPint irank=(CPint)PE::Comm::instance().rank();
+  const CPint nproc=(CPint)PE::Comm::instance().size();
+  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+
+  // look around for max gid for the global array's size
+  Uint nglobalarray=0;
+  BOOST_FOREACH(temp_buffer_item i, m_add_buffer) nglobalarray=((i.gid)>(nglobalarray))?(i.gid):(nglobalarray);
+  PE::Comm::instance().all_reduce(PE::max(),&nglobalarray,1,&nglobalarray);
+  nglobalarray++; // zero based indexing!
+
+//PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
+//PEProcessSortedExecute(-1,
+//BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+//  std::cout <<  i.lid << "(" << i.gid << ") " << std::flush;
+//std::cout << "\n" << std::flush;
+//);
+
+  // fill local and its mpi communication accessories
+  std::vector<dist_struct> local(m_add_buffer.size());
+  std::vector<int> sendcnt(nproc,0);
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+    sendcnt[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
+  std::vector<int> sendstarts(nproc,0);
+  std::vector<int> recvstarts(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+sendcnt[i-1];
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  {
+    if (i.rank==irank) local[sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]]=dist_struct(i.gid,irank,-i.lid,UPDATABLE);
+    else local[sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]]=dist_struct(i.gid,irank,-i.lid,GHOST);
+    sendstarts[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
+  }
+
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+//PEProcessSortedExecute(-1, PEDebugVector(sendcnt,sendcnt.size()) );
+//PECheckPoint(100,"alltoall separator");
+
+  // do the all_to_all communication
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE DISTRIBUTED ONE
+  std::vector<int> recvcnt(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt);
+
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.rank) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.gid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.lid) );
+//PEProcessSortedExecute(-1, PEDebugVectorMember(local,local.size(),.flags) );
+//PEProcessSortedExecute(-1, PEDebugVector(recvcnt,recvcnt.size()) );
+
+  // build up global array, first count number of elements, then allocate an old fashion dynamic 2d array (stays constant during lifetime) and fill
+  // also clear local when done
+  std::vector<int> global_nelems(COMPUTE_INODE(irank+1,nproc,nglobalarray)-COMPUTE_INODE(irank,nproc,nglobalarray),0);
+  BOOST_FOREACH(dist_struct i, local) global_nelems[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)]++;
+  std::vector<dist_struct*> global(global_nelems.size(),nullptr);
+  for (int i=0; i<(const int)global_nelems.size(); i++)
+    if (global_nelems[i]!=0)
+      global[i]=new dist_struct[global_nelems[i]];
+  std::vector<int> entryctr(global_nelems.size(),0);
+  BOOST_FOREACH(dist_struct i, local) global[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)][entryctr[i.gid-COMPUTE_INODE(irank,nproc,nglobalarray)]++]=i;
+  local.clear();
+  local.reserve(0);
+
+//PEProcessSortedExecute(-1, PEDebugVector(global_nelems,global_nelems.size()) );
+//PEProcessSortedExecute(-1,
+//std::cout << "global on rank " << irank << ":\n" << std::flush;
+//for (int i=0; i<(const int)global.size(); i++) {
+//  std::cout << global_nelems[i] << ": " << std::flush;
+//  for (int j=0; j<(const int)global_nelems[i]; j++)
+//    std::cout << "(" << global[i][j].gid << "," << global[i][j].lid << ","<< global[i][j].rank << "," << global[i][j].flags << ") " << std::flush;
+//  std::cout << "\n" << std::flush;
+//}
+//);
+
+  // do checks : holes in the gid and more then once updatable gids
+  // once there, reorder that first entry is the updatable
+  for (int i=0; i<(const int)global.size(); i++)
+  {
+    int nupdatable=0;
+    for (int j=0; j<(const int)global_nelems[i]; j++)
+    {
+      if (global[i][j].flags & UPDATABLE)
+      {
+        nupdatable++;
+        dist_struct tmp=global[i][j];
+        global[i][j]=global[i][0];
+        global[i][0]=tmp;
+      }
+    }
+    if (nupdatable==0) throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
+    if (nupdatable>1)  throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
+  }
+
+  // lookup information for m_recvCount, m_recvMap
+  // this are really the ghost infos
+  // local is pair of dist_structs storing send and receive side infos: local : { send_ghost0,recv_ghost0, send_ghost1,recv_ghost1, ...  }
+  sendcnt.assign(nproc,0);
+  Uint nsendback=0;
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      sendcnt[global[i][j].rank]++;
+      nsendback++;
+    }
+  sendstarts.assign(nproc,0);
+  local.resize(2*nsendback);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+2*sendcnt[i-1];
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      local[sendstarts[global[i][j].rank]++]=global[i][0];
+      local[sendstarts[global[i][j].rank]++]=global[i][j];
+    }
+
+  // send back ghosts
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE BACK-DISTRIBUTED GHOSTS
+  recvcnt.assign(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt,2);
+
+  // set up ghost communication info for all_to_all, and updatables info
+  m_recvCount.assign(nproc,0);
+  for(int i=0; i<(const int)local.size(); i+=2) m_recvCount[local[i].rank]++;
+  recvstarts.assign(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) recvstarts[i]=recvstarts[i-1]+m_recvCount[i-1];
+  m_recvMap.assign(m_recvCount[nproc-1]+recvstarts[nproc-1],-1);
+  m_isUpdatable.assign(m_add_buffer.size(),true);
+  for(int i=0; i<(const int)local.size(); i+=2){
+    m_recvMap[recvstarts[local[i].rank]++]=local[i+1].lid;
+    m_isUpdatable[local[i+1].lid]=false;
+  }
+
+//PEProcessSortedExecute(-1, PEDebugVector(m_recvCount,m_recvCount.size()); );
+//PEProcessSortedExecute(-1, PEDebugVector(m_recvMap,m_recvMap.size()); );
+//PEProcessSortedExecute(-1, PEDebugVector(m_isUpdatable,m_isUpdatable.size()); );
+
+  // lookup information for m_senCount, m_sendMap
+  // this are really the ghost infos
+  // local is pair of dist_structs storing send and receive side infos: local : { send_ghost0,recv_ghost0, send_ghost1,recv_ghost1, ...  }
+  sendcnt.assign(nproc,0);
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+      sendcnt[global[i][0].rank]++;
+  sendstarts.assign(nproc,0);
+  local.resize(2*nsendback);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+2*sendcnt[i-1];
+  for (int i=0; i<(const int)global.size(); i++)
+    for (int j=1; j<(const int)global_nelems[i]; j++)
+    {
+      local[sendstarts[global[i][0].rank]++]=global[i][0];
+      local[sendstarts[global[i][0].rank]++]=global[i][j];
+    }
+
+  // send back ghosts
+  // NOTE THAT AFTER ALLTOALL, LOCAL IS THE BACK-DISTRIBUTED GHOSTS
+  recvcnt.assign(nproc,-1);
+  PE::Comm::instance().all_to_all(local,sendcnt,local,recvcnt,2);
+
+  // set up ghost communication info for all_to_all, and updatables info
+  m_sendCount.assign(nproc,0);
+  for(int i=0; i<(const int)local.size(); i+=2) m_sendCount[local[i+1].rank]++;
+  sendstarts.assign(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+m_sendCount[i-1];
+  m_sendMap.assign(m_sendCount[nproc-1]+sendstarts[nproc-1],-1);
+  for(int i=0; i<(const int)local.size(); i+=2){
+    m_sendMap[sendstarts[local[i+1].rank]++]=local[i].lid;
+  }
+
+//PEProcessSortedExecute(-1, PEDebugVector(m_sendCount,m_sendCount.size()); );
+//PECheckPoint(100,"");
+//PEProcessSortedExecute(-1, PEDebugVector(m_sendMap,m_sendMap.size()); );
+//PECheckPoint(100,"");
+
+  // set gids
+  m_gid->resize(m_add_buffer.size());
+  CommWrapperView<Uint> cwv_gid(m_gid);
+  Uint *gid=cwv_gid();
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) *gid++=i.gid;
+
+  // clear stuff and reset other things
+  m_isUpToDate=true;
+  m_add_buffer.clear();
+  m_rem_buffer.clear();
+  m_mov_buffer.clear();
+  m_free_lids.assign(1,m_isUpdatable.size());
+  for(int i=0; i<(const int)global.size(); i++)
+    if (global_nelems[i]!=0)
+      delete[] global[i];
+
+#undef COMPUTE_IRANK
+#undef COMPUTE_INODE
 }
 
 
-/*/
+
+/**/
+
+/*
 void CommPattern::setup()
 {
 
-  {  // begin fast
   // get stuff
   const CPint irank=(CPint)PE::Comm::instance().rank();
   const CPint nproc=(CPint)PE::Comm::instance().size();
@@ -266,95 +522,6 @@ void CommPattern::setup()
 //PECheckPoint(100,"-- step 4 --:");
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
-  return;
-  } // end fast
-
-  ///////////////////////////////////////////////////////////////////////
-  // experimental version, supports one single setup call and only add //
-  ///////////////////////////////////////////////////////////////////////
-
-  // -- 1 -- data definition
-
-//PECheckPoint(100,"-- step 1 --:");
-
-  // -- 2 -- get environment data and gid
-  // get stuff from environment
-  const CPint irank=(CPint)PE::Comm::instance().rank();
-  const CPint nproc=(CPint)PE::Comm::instance().size();
-  // get gid and some tests
-  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
-  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
-  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
-  Uint* gid=(Uint*)m_gid->pack();
-
-//PECheckPoint(100,"-- step 2 --:");
-
-  // -- 3 -- build receive info
-  // build receive count and receive map, note that filtering out data from laying on current process
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) m_recvCount[i.rank]++;
-  m_recvCount[irank]=0;
-  int recvSum=0;
-  BOOST_FOREACH(CPint& i, m_recvCount) recvSum+=i;
-  m_recvMap.reserve(recvSum);
-  m_recvMap.assign(recvSum,std::numeric_limits<CPint>::max());
-  std::vector<CPint> recvcounter(nproc,0);
-  for (int i=1; i<nproc; i++) recvcounter[i]=m_recvCount[i-1]+recvcounter[i-1];
-  CPint recvidx=0;
-  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
-  {
-    if (i.rank!=irank)
-      m_recvMap[recvcounter[i.rank]++]=recvidx;
-    recvidx++;
-  }
-  BOOST_FOREACH(CPint& i, m_recvMap)
-    BOOST_ASSERT(i!=std::numeric_limits<CPint>::max());
-
-//PECheckPoint(100,"-- step 3 --:");
-//PEProcessSortedExecute(-1,PEDebugVector(m_recvMap,m_recvMap.size()));
-//PEProcessSortedExecute(-1,PEDebugVector(m_recvCount,m_recvCount.size()));
-
-  // -- 4 -- building a distributed info for looking up communication
-  // setting up m_isUpdatable and its counts (distributed over processes)
-  // also computing displacements of counts
-  m_isUpdatable.resize(m_add_buffer.size(),false);
-  m_isUpdatable.reserve(m_add_buffer.size());
-  std::vector<int> dist_nupdatable(nproc,0);
-  for (int i=0; i<m_add_buffer.size(); i++)
-    if (irank==m_add_buffer[i].rank)
-    {
-      dist_nupdatable[irank]++;
-      m_isUpdatable[i]=true;
-    }
-  std::vector<int> dist_nupdatables(nproc);
-  PE::Comm::instance().all_reduce(PE::plus(),dist_nupdatable,dist_nupdatable);
-  std::vector<int> dist_nupdatabledisp(nproc,0);
-  for (int i=1; i<nproc; i++) dist_nupdatabledisp[i]=dist_nupdatable[i-1]+dist_nupdatabledisp[i-1];
-
-//PECheckPoint(100,"-- step 4 --:");
-//PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatable,dist_nupdatable.size()));
-//PEProcessSortedExecute(-1,PEDebugVector(dist_nupdatabledisp,dist_nupdatabledisp.size()));
-
-  // building info and communicating dist
-  std::vector<dist_struct> dist(dist_nupdatable[irank]);
-  CPint ilid=0;
-  BOOST_FOREACH(dist_struct& i, dist)
-  {
-    i.gid=gid[ilid];
-    i.rank=irank;
-    i.lid=ilid++;
-    i.data=nullptr;
-  }
-
-PEProcessSortedExecute(-1, BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush;);
-
-//  std::vector<int> dist_nsend(nproc,0);
-//  delete[] gid;
-
-//PEProcessSortedExecute(-1,BOOST_FOREACH(dist_struct& i, dist) std::cout << i.lid << " " << i.gid << " " << i.rank << " " << i.data << "\n" << std::flush; );
-
-//PECheckPoint(100,"XXXXX Distributed data, step 1:");
-//PEProcessSortedExecute(-1,PEDebugVector(dist_lidupdatable,dist_lidupdatable.size()));
-//PEProcessSortedExecute(-1,PEDebugVector(dist_rankupdatable,dist_rankupdatable.size()));
 }
 /**/
 
@@ -391,67 +558,64 @@ void CommPattern::synchronize( const CommWrapper& pobj )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+// having the vectors for the intermediate buf coming from outside allows keeping them and reuse for all synchronize
 void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf )
 {
-
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
 //  std::cout << PERank << pobj.needs_update() << "\n" << std::flush;
-
   if ( pobj.needs_update() )
   {
-//      PEProcessSortedExecute(-1,std::cout << PERank << "   sync -> " <<  pobj.name() << "\n" << std::flush; );
     pobj.pack(sndbuf,m_sendMap);
     rcvbuf.resize(m_recvMap.size()*pobj.size_of()*pobj.stride());
     PE::Comm::instance().all_to_all(sndbuf,m_sendCount,rcvbuf,m_recvCount,pobj.size_of()*pobj.stride());
     pobj.unpack(rcvbuf,m_recvMap);
-
-
-
-//      char* snd_data = (char*)pobj.pack(m_sendMap);
-
-//      char* rcv_data = PE::Comm::instance().all_to_all(snd_data,
-//                                                      &m_sendCount[0],
-//                                                      (char*)0,
-//                                                      &m_recvCount[0],
-//                                                      pobj.size_of()*pobj.stride());
-
-//      pobj.unpack(rcv_data,m_recvMap);
-
-//      /// @todo avoid this allocation and deallocation of buffers
-//      ///       remember that in explicit synchronize is called frequently
-//      /// for who added this todo: necessary because you compress the
-//      /// data involved in communication to a linear memory, moreover
-//      /// the synchronize should be changed to collect everything and perform
-//      /// one single all-to-all (Th)
-//      delete[] snd_data;
-//      delete[] rcv_data;
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::add(Uint gid, Uint rank)
+void CommPattern::add_global(Uint gid, Uint rank)
+{
+  // later a mechanism could be implemented when commpattern can give gids by calling a "reserve(int num)" beforehand, to optimize performance
+  // submits NEGATIVE lid's to distuingish add_global and add_local
+  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
+  int next_lid=m_free_lids.back();
+  if (m_free_lids.size()>1) m_free_lids.pop_back();
+  else m_free_lids[0]=next_lid+1;
+  m_add_buffer.push_back(temp_buffer_item(-next_lid,gid,rank,(rank==PE::Comm::instance().rank())));
+  m_isUpToDate=false;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Uint CommPattern::add_local(bool as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
-  m_add_buffer.push_back(temp_buffer_item(gid,rank,false));
+  int next_lid=m_free_lids.back();
+  if (m_free_lids.size()>1) m_free_lids.pop_back();
+  else m_free_lids[0]=next_lid+1;
+  m_add_buffer.push_back(temp_buffer_item(next_lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),as_ghost));
   m_isUpToDate=false;
+  return next_lid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::move(Uint gid, Uint rank, bool keep_as_ghost)
+void CommPattern::move_local(Uint lid, Uint rank, bool keep_as_ghost)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
-  m_mov_buffer.push_back(temp_buffer_item(gid,rank,keep_as_ghost));
+  m_mov_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),rank,keep_as_ghost));
+  if (!keep_as_ghost) m_free_lids.push_back(lid);
   m_isUpToDate=false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommPattern::remove(Uint gid, Uint rank, bool on_all_ranks)
+void CommPattern::remove_local(Uint lid, bool on_all_ranks)
 {
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
-  m_rem_buffer.push_back(temp_buffer_item(gid,rank,on_all_ranks));
+  m_rem_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),on_all_ranks));
+  m_free_lids.push_back(lid);
   m_isUpToDate=false;
 }
 
