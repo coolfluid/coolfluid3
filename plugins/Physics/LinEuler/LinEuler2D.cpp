@@ -20,6 +20,17 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+typedef LinEuler2D::Properties Props; // shortcut
+const Real Props::gamma = 1.4;
+const Real Props::rho0 = 1.;
+const LinEuler2D::GeoV Props::u0 = (LinEuler2D::GeoV() << 0. , 0.).finished();
+const Real Props::P0 = 1.;
+const Real Props::inv_rho0 = 1./Props::rho0;
+const Real Props::c = sqrt(Props::gamma * Props::P0 / Props::rho0);
+const Real Props::inv_c = 1./Props::c;
+
+////////////////////////////////////////////////////////////////////////////////
+
 Common::ComponentBuilder < LinEuler::LinEuler2D,
                            Physics::PhysModel,
                            LibLinEuler >
