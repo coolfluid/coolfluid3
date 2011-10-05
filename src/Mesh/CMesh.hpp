@@ -92,6 +92,8 @@ public: // functions
   /// @return metadata component
   const MeshMetadata& metadata() const { return *m_metadata; }
 
+  void write_mesh( const Common::URI& file, const std::vector<Common::URI> fields = std::vector<Common::URI>());
+
   void signal_write_mesh ( Common::SignalArgs& node );
 
   void signature_write_mesh ( Common::SignalArgs& node);
