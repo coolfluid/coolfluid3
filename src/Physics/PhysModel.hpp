@@ -16,7 +16,7 @@ namespace Math { class VariableManager; }
 namespace Physics {
 
   class Variables; // forward declaration
-  
+
   /// base type for the physical properties
   /// @note class is non copyable becase it might contain Eigen matrices
   /// @note this class and its derived classes should not ave any virtual functions
@@ -46,6 +46,10 @@ public: // functions
 
   /// Get the class name
   static std::string type_name () { return "PhysModel"; }
+
+
+  void signal_create_variables( Common::SignalArgs& args );
+  void signature_create_variables( Common::SignalArgs& args );
 
   /// @name INTERFACE
   //@{
