@@ -228,8 +228,8 @@ struct CommWrapperFixture
     BOOST_CHECK_EQUAL(iwv1.size(),16);
     BOOST_CHECK_EQUAL(dwv2.size(),24);
 
-    Uint* ip=(Uint*)iwv1.get_ptr(); // here get_ptr function is used
-    double* dp=(double*)dwv2.get_ptr();
+    Uint* ip=iwv1.get_ptr(); // here get_ptr function is used
+    double* dp=dwv2.get_ptr();
 
     for(i=0; i<16; i++) BOOST_CHECK_EQUAL(ip[i],16+i);
     for(i=0; i<24; i++) BOOST_CHECK_EQUAL(dp[i],24.+(double)i);
@@ -245,6 +245,39 @@ struct CommWrapperFixture
 
     for(i=0; i<16; i++) BOOST_CHECK_EQUAL(ia[i],16+i);
     for(i=0; i<24; i++) BOOST_CHECK_EQUAL(da[i],24.+(double)i);
+  }
+
+  /// helper function for testing resize
+  void test_resize(CommWrapper::Ptr& w1,CommWrapper::Ptr& w2)
+  {
+    int i;
+
+    w1->resize(w1->size()+10);
+    w2->resize(w2->size()+10);
+
+    BOOST_CHECK_EQUAL( w1->size() , 26 );
+    BOOST_CHECK_EQUAL( w2->size() , 18 );
+    BOOST_CHECK_EQUAL( w1->stride() , 1 );
+    BOOST_CHECK_EQUAL( w2->stride() , 3 );
+
+    w1->resize(w1->size()-15);
+    w2->resize(w2->size()-15);
+
+    BOOST_CHECK_EQUAL( w1->size() , 11 );
+    BOOST_CHECK_EQUAL( w2->size() , 3 );
+    BOOST_CHECK_EQUAL( w1->stride() , 1 );
+    BOOST_CHECK_EQUAL( w2->stride() , 3 );
+
+    CommWrapperView<Uint> iwv1(w1);
+    CommWrapperView<double> dwv2(w2);
+
+    BOOST_CHECK_EQUAL(iwv1.size(),11);
+    BOOST_CHECK_EQUAL(dwv2.size(),9);
+
+    Uint* ia;
+    double*da;
+    for (ia=iwv1(), i=0; i<(const int)iwv1.size(); i++) BOOST_CHECK_EQUAL(ia[i],16+i);
+    for (da=dwv2(), i=0; i<(const int)dwv2.size(); i++) BOOST_CHECK_EQUAL(da[i],24.+(double)i);
   }
 
   /// common params
@@ -291,6 +324,26 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperPtr )
   test_pack_unpack(w1,w2);
   test_mapped_pack_unpack(w1,w2,map);
   test_view(w1,w2);
+  try
+  {
+    w1->resize(5);
+  }
+  catch (...)
+  {
+    BOOST_CHECK_EQUAL(w1->size(),5);
+  }
+  try
+  {
+    w1->resize(6);
+  }
+  catch (...)
+  {
+    BOOST_CHECK_EQUAL(w1->size(),6);
+  }
+
+  delete[] i1;
+  delete[] d2;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -318,6 +371,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVector )
   test_pack_unpack(w1,w2);
   test_mapped_pack_unpack(w1,w2,map);
   test_view(w1,w2);
+  test_resize(w1,w2);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -349,6 +403,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperMultiArray )
   test_pack_unpack(w1,w2);
   test_mapped_pack_unpack(w1,w2,map);
   test_view(w1,w2);
+  test_resize(w1,w2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -376,6 +431,7 @@ BOOST_AUTO_TEST_CASE( ObjectWrapperVectorWeakPtr )
   test_pack_unpack(w1,w2);
   test_mapped_pack_unpack(w1,w2,map);
   test_view(w1,w2);
+  test_resize(w1,w2);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
