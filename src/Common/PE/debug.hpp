@@ -112,6 +112,18 @@ boost::this_thread::sleep(boost::posix_time::milliseconds(msec));               
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/**
+ Macro for printing a member of a struct/class inside a vector.
+ You have to put . or -> for the member, or can even call a function like ->size().
+**/
+#define PEDebugVectorMember(v,length,member) { \
+  std::cout << ::CF::Common::PE::Comm::instance().rank() << "/" << ::CF::Common::PE::Comm::instance().size() << ": " << #v#member << " " << length << " ( " << std::flush; \
+  for(int _tmp_i_=0; _tmp_i_<length; _tmp_i_++)  std::cout << v[_tmp_i_]member << " "; \
+  std::cout << " )\n" << std::flush; \
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 /// Called to wait for a debugger. You need to use the debugger interface to set the variable
 /// stopped to 0
 /// @param rank Rank that has to wait, or if -1 all processes will wait

@@ -144,15 +144,16 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-/*
-BOOST_AUTO_TEST_CASE( commpattern_cast )
-{
-  CommPattern pecp("CommPattern");
-  std::vector<Uint> gid(10);
-  pecp.insert("gid",gid);
-  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
-}
-*/
+
+/// @todo see why doesnt work
+//BOOST_AUTO_TEST_CASE( commpattern_cast )
+//{
+//  CommPattern pecp("CommPattern");
+//  std::vector<Uint> gid(10);
+//  pecp.insert("gid",gid);
+//  CommWrapper globid=pecp.get_child("gid").as_type<CommPattern>();
+//}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( commpattern_mainstream )

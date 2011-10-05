@@ -123,6 +123,10 @@ class Common_API CommWrapper : public Component {
       unpack(&buf[0]);
     }
 
+    /// resizes the underlying wrapped object
+    /// @param size new dimension size
+    virtual void resize(const int size) = 0;
+
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
     virtual int size_of() const = 0;
@@ -330,6 +334,19 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
         *data++=*ibuf++;
     }
 
+    /// resizes the underlying wrapped object
+    /// NOT SUPPORTED, because it would require messing with the pointers internally.
+    /// If you are forced to use plain dynamic arrays (interface to an old code),
+    /// Not even considering that CommWrapperPtr cannot know if new, new[] or malloc, calloc, realloc was used to allocate it.
+    /// you need to take care of your own data in order not to loose the pointers outside CommWrapperPtr.
+    /// However, if you catch the throw, the integer storing the size gets set to the new value before throw.
+    /// @param size new dimension size
+    void resize(const int size)
+    {
+      m_size=size;
+      throw Common::NotSupported(FromHere(), name() + " (CommWrapperPtr): Resizing a plain dynamic array is forbidden through CommWrapperPtr.");
+    }
+
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
     int size_of() const { return sizeof(T); }
@@ -470,6 +487,15 @@ template<typename T> class CommWrapperVector: public CommWrapper{
         *data++=*ibuf++;
     }
 
+    /// resizes the underlying wrapped object
+    /// @param size new dimension size
+    void resize(const int size)
+    {
+      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      m_data->resize(size*m_stride);
+    }
+
     /// acts like a sizeof() operator
     /// @return size of the data members in bytes
     int size_of() const { return sizeof(T); }
@@ -602,6 +628,16 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)sp->size(); i++)
         *data++=*ibuf++;
+    }
+
+    /// resizes the underlying wrapped object
+    /// @param size new dimension size
+    void resize(const int size)
+    {
+      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
+      if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      sp->resize(size*m_stride);
     }
 
     /// acts like a sizeof() operator
