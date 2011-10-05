@@ -281,7 +281,7 @@ void IterativeSolver::execute()
     }
     time.current_time() = T0;
     // raise signal that iteration is done
-    raise_iteration_done();
+    //raise_iteration_done();
   }
 }
 

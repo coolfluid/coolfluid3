@@ -14,6 +14,9 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
+#include "Mesh/CMesh.hpp"
+#include "Mesh/MeshMetadata.hpp"
+
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
@@ -116,20 +119,22 @@ void TimeStepping::execute()
 
     CActionDirector::execute();
 
-    // (3) the post actions - compute norm, post-process something, etc
-
-    m_post_actions->execute();
-
-    // raise event of time_step done
-
-    raise_timestep_done();
-
     // advance time & iteration
 
     m_time->current_time() += m_time->dt();
 
     property("iteration") = ++k; // update the iteration number
 
+    mesh().metadata()["iter"] = property("iteration");
+    mesh().metadata()["time"] = m_time->current_time();
+
+    // (3) the post actions - compute norm, post-process something, etc
+
+    m_post_actions->execute();
+
+    // raise event of time_step done
+
+    //raise_timestep_done();
   }
 }
 

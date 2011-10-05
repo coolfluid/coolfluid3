@@ -13,11 +13,12 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "SFDM/SFDSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/CreateSFDFields.hpp"
 #include "SFDM/Tags.hpp"
@@ -63,6 +64,11 @@ void PrepareMesh::execute()
 
   // execution of prepare mesh
   ActionDirector::execute();
+
+  std::vector<URI> fields;
+  fields.push_back(solver().field_manager().get_child(SFDM::Tags::solution()).follow()->uri());
+  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("fields",fields);
+  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

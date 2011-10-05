@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Test module for CF::SFDM"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/assign/list_of.hpp>
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -25,9 +25,13 @@
 #include "Physics/Variables.hpp"
 
 #include "Mesh/CDomain.hpp"
+#include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 #include "Mesh/CMeshTransformer.hpp"
+
+#include "Mesh/CLinearInterpolator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
@@ -50,6 +54,7 @@
 //#include "Mesh/Actions/CreateSpaceP0.hpp"
 //#include "SFDM/CreateSpace.hpp"
 
+using namespace boost::assign;
 using namespace CF;
 using namespace CF::Math;
 using namespace CF::Common;
@@ -69,11 +74,11 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
   //////////////////////////////////////////////////////////////////////////////
-  // create and configure SFD - NavierStokes 2D model
+  // create and configure SFD - LinEuler 2D model
   Uint dim=2;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("CF.SFDM.SFDSolver","CF.Physics.NavierStokes.NavierStokes"+to_str(dim)+"D");
+  model.setup("CF.SFDM.SFDSolver","CF.Physics.LinEuler.LinEuler2D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   CDomain&   domain  = model.domain();
@@ -83,58 +88,92 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
   // Create a 2D rectangular mesh
   CMesh& mesh = domain.create_component<CMesh>("mesh");
-  Real x_length=10.;
-  Real y_length=x_length;
-  Uint x_nb_cells=40;
-  Uint y_nb_cells=x_nb_cells*2;
-  if (dim == 1)
-    CSimpleMeshGenerator::create_line(mesh, x_length, x_nb_cells);
-  else if (dim == 2)
-    CSimpleMeshGenerator::create_rectangle(mesh, x_length, y_length, x_nb_cells, y_nb_cells);
-  else
-    throw NotImplemented(FromHere(),"");
+
+  Uint res = 20;
+  Uint order = 3;
+  std::vector<Uint> nb_cells = list_of( res  )( res );
+  std::vector<Real> lengths  = list_of(  1.  )(  1. );
+  std::vector<Real> offsets  = list_of( -0.5 )( -0.5 );
+
+  CSimpleMeshGenerator& generate_mesh = domain.create_component<CSimpleMeshGenerator>("generate_mesh");
+  generate_mesh.configure_option("mesh",mesh.uri());
+  generate_mesh.configure_option("nb_cells",nb_cells);
+  generate_mesh.configure_option("lengths",lengths);
+  generate_mesh.configure_option("offsets",offsets);
+  generate_mesh.execute();
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.NavierStokes.Cons"+to_str(dim)+"D"));
-  solver.configure_option(SFDM::Tags::solution_order(),1u);
-  solver.iterative_solver().configure_option("rk_order",2u);
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.LinEuler.Cons2D"));
+  solver.configure_option(SFDM::Tags::solution_order(),order);
+  solver.iterative_solver().configure_option("rk_order",3u);
   solver.prepare_mesh().execute();
 
   //////////////////////////////////////////////////////////////////////////////
   // Configure simulation
 
   // Initial condition
-  Solver::Action& shocktube = solver.initial_conditions().create_initial_condition("shocktube");
-  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim"+to_str(dim)+"D",SFDM::Tags::input_vars())->uri() );
+  Solver::Action& shocktube = solver.initial_conditions().create_initial_condition("accoustics");
   std::vector<std::string> functions;
-  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
-  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
-  if (dim>1)
-    functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 0      , 0      )"); // Prim2D[ V   ]
-  functions.push_back("if( x<="+to_str(x_length/2.)+"& y<="+to_str(y_length/2.)+" , 404400 , 101100 )"); // Prim2D[ P   ]
+
+  // Accoustic pulse LinEuler
+  std::string rho = "0.001*exp( -( (x-0.0)^2 + (y-0.0)^2 )/(0.05)^2 )";
+  std::string c2 = "1.4*1/1";  // c = sqrt(gamma*P0/rho0)
+  functions.push_back(rho);
+  functions.push_back("0.");
+  functions.push_back("0.");
+  functions.push_back(c2 + "*" + rho);
+
+  // Accoustic pulse Euler
+//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.LinEuler.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  std::string rho_ac = "0.001*exp( -( (x-0.5)^2 + (y-0.5)^2 )/(0.05)^2 )";
+//  std::string c2 = "1.4*1/1";  // c = sqrt(gamma*P0*rho0)
+//  functions.push_back("1*(1+"+rho_ac+")");
+//  functions.push_back("0.");
+//  functions.push_back("0.");
+//  functions.push_back("1 + "+c2 + "*" + rho_ac);
+
+
+// Tiago's case
+//  functions.push_back( "exp((-0.301)/25.*(x*x+y*y))+0.1*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))" );
+//  functions.push_back( "0.04*(y)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))" );
+//  functions.push_back( "-0.04*(x-67.)*exp((-0.301)/25.*((x-67.)*(x-67.)+y*y))" );
+//  functions.push_back( "exp((-0.301)/25.*(x*x+y*y))" );
+
+
+// Shocktube
+//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("CF.Physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
+//  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
+//  if (dim>1)
+//    functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 0      , 0      )"); // Prim2D[ V   ]
+//  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 404400 , 101100 )"); // Prim2D[ P   ]
+
+
   shocktube.configure_option("functions",functions);
   solver.initial_conditions().execute();
+  domain.write_mesh("sfdm_initial.msh");
+
 
   // Discretization
-  physics.create_variables("CF.Physics.NavierStokes.Roe"+to_str(dim)+"D","roe_vars");
+//  physics.create_variables("CF.Physics.LinEuler.Roe2D","roe_vars");
   solver.domain_discretization().create_term("CF.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 //  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
 //  solver.domain_discretization().create_term("CF.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
-  solver.time_stepping().time().configure_option("time_step",x_length/1250/10);
-  solver.time_stepping().time().configure_option("end_time" ,x_length/1250/10);
-  solver.time_stepping().configure_option_recursively("cfl" , 1.);
-  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.0005);
+  solver.time_stepping().time().configure_option("time_step",100.);
+  solver.time_stepping().time().configure_option("end_time" ,0.01); // instead of 0.3
+  solver.time_stepping().configure_option_recursively("cfl" , 0.3);
+  solver.time_stepping().configure_option_recursively("milestone_dt" , 0.3);
 
 
   //////////////////////////////////////////////////////////////////////////////
   // Run simulation
 
-  //CFinfo << model.tree() << CFendl;
+  CFinfo << model.tree() << CFendl;
 
   model.simulate();
 
@@ -142,8 +181,82 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
   //////////////////////////////////////////////////////////////////////////////
   // Output
-  domain.write_mesh("sfdm_output.msh");
-  domain.write_mesh("sfdm_output.plt");
+
+
+  std::vector<URI> fields;
+  Field& solution_field = solver.field_manager().get_child(SFDM::Tags::solution()).follow()->as_type<Field>();
+  Field& solution_geom = mesh.geometry().create_field("solution_geom",solution_field.descriptor());
+
+  CAction& interpolate = mesh.create_component("interpolate","CF.Mesh.Actions.InterpolateFields").as_type<CAction>();
+  interpolate.configure_option("source",solution_field.uri());
+  interpolate.configure_option("target",solution_geom.uri());
+  interpolate.execute();
+
+  fields.push_back(solution_field.uri());
+  fields.push_back(solution_geom.uri());
+  mesh.write_mesh("sfdm_output.msh",fields);
+  mesh.write_mesh("sfdm_output.vtu",fields);
+  mesh.write_mesh("sfdm_output.plt",fields);
+
+  RealVector max( solution_field.row_size() ); max.setZero();
+  RealVector min( solution_field.row_size() ); min.setZero();
+  for (Uint i=0; i<solution_field.size(); ++i)
+  {
+    for (Uint j=0; j<solution_field.row_size(); ++j)
+    {
+      max[j] = std::max(max[j],solution_field[i][j]);
+      min[j] = std::min(min[j],solution_field[i][j]);
+    }
+  }
+
+  std::cout << "solution_field.max = " << max.transpose() << std::endl;
+  std::cout << "solution_field.min = " << min.transpose() << std::endl;
+
+
+//  // Create a 1D line mesh
+//  CMesh& probe = domain.create_component<CMesh>("probe");
+
+//  std::vector<Uint> nb_cells_probe = list_of( res*order*2 );
+//  std::vector<Real> lengths_probe  = list_of( 0.5 );
+//  std::vector<Real> offsets_probe  = list_of( 0. );
+
+//  CSimpleMeshGenerator& generate_probe = domain.create_component<CSimpleMeshGenerator>("generate_probe");
+//  generate_probe.configure_option("mesh",probe.uri());
+//  generate_probe.configure_option("nb_cells",nb_cells_probe);
+//  generate_probe.configure_option("lengths",lengths_probe);
+//  generate_probe.configure_option("offsets",offsets_probe);
+//  generate_probe.execute();
+
+//  Field& solution_probe = probe.geometry().create_field("solution",solution_field.descriptor());
+
+//  std::cout << "solution_field.row_size() = " << solution_field.row_size() << std::endl;
+//  std::cout << "solution_probe.row_size() = " << solution_probe.row_size() << std::endl;
+//  std::cout << "solution_probe.descriptor.size() = " << solution_probe.descriptor().size() << std::endl;
+//  std::cout << "solution_field.descriptor.size() = " << solution_field.descriptor().size() << std::endl;
+
+
+
+
+//  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+////  interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
+////  // Following configuration option has priority over the the previous one.
+////  std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
+////  //interpolator->configure_option("Divisions", divisions );
+
+//  // Create the honeycomb
+//  interpolator->construct_internal_storage(mesh);
+
+//  // Interpolate the source field data to the target field. Note it can be in same or different meshes
+//  interpolator->interpolate_field_from_to(solution_field,solution_probe);
+
+
+
+
+
+
+
+//  std::vector<URI> probe_fields (1,solution_probe.uri());
+//  probe.write_mesh("probe.plt",probe_fields);
 
 
 //  solver.configure_option_recursively("time",model.time().uri());
