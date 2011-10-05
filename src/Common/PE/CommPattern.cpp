@@ -93,13 +93,13 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
     std::vector<Uint>::iterator irank=rank.begin();
     for (Uint* iigid=cwv_gid();irank!=rank.end();irank++,iigid++)
       add_global(*iigid,*irank);
-    /*
-     PECheckPoint(100,"-- Setup comission: --");
-     PEProcessSortedExecute(-1,
-     BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
-     std::cout << "\n" << std::flush;
-      )
-    */
+/*
+PECheckPoint(100,"-- Setup comission: --");
+PEProcessSortedExecute(-1,
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) std::cout << "("<< i.gid << "|" << i.rank << "|" << i.option << ")";
+  std::cout << "\n" << std::flush;
+  )
+*/
     gid->resize(0);
     m_isUpdatable.resize(0);
     m_free_lids.resize(1);
@@ -242,8 +242,70 @@ PECheckPoint(1000,"004");
 
 }
 
-
 /*/
+
+void CommPattern::setup()
+{
+#define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
+#define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc)) ? ((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul) : ((unsigned long long)(irank)))
+
+  // get stuff
+  const CPint irank=(CPint)PE::Comm::instance().rank();
+  const CPint nproc=(CPint)PE::Comm::instance().size();
+  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+
+  // reset
+  m_sendCount.clear();
+  m_sendMap.clear();
+  m_recvCount.clear();
+  m_recvMap.clear();
+
+  // look around for max gid for the global array's size
+  int nglobalarray=-1;
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer) nglobalarray=i.gid>nglobalarray?i.gid:nglobalarray;
+
+PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
+
+  PE::Comm::instance().all_reduce(PE::max(),&nglobalarray,1,&nglobalarray);
+  nglobalarray++; // zero based indexing!
+
+PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
+PEProcessSortedExecute(-1,
+BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  std::cout <<  i.lid << "(" << i.gid << ") " << std::flush;
+std::cout << "\n" << std::flush;
+);
+
+  // fill local and its mpi communication accessories
+  std::vector<dist_struct> local(0);
+  std::vector<int> sendcnt(nproc,0);
+  std::vector<int> sendmap(m_add_buffer.size());
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+    sendcnt[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++;
+  std::vector<int> sendstarts(nproc,0);
+  for (int i=1; i<(const int)nproc; i++) sendstarts[i]=sendstarts[i-1]+sendcnt[i-1];
+
+  BOOST_FOREACH(temp_buffer_item& i, m_add_buffer)
+  {
+    if (i.rank==irank) local.push_back(dist_struct(i.gid,irank,-i.lid,UPDATABLE));
+    else local.push_back(dist_struct(i.gid,irank,-i.lid,GHOST));
+    sendmap[sendcnt[COMPUTE_IRANK(i.gid,nproc,nglobalarray)]++]=i.lid;
+  }
+
+
+
+#undef COMPUTE_IRANK
+#undef COMPUTE_INODE
+
+}
+
+
+
+/**/
+
+/*
 void CommPattern::setup()
 {
 
@@ -378,7 +440,7 @@ void CommPattern::add_global(Uint gid, Uint rank)
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   int next_lid=m_free_lids.back();
   if (m_free_lids.size()>1) m_free_lids.pop_back();
-  else m_free_lids.push_back(next_lid+1);
+  else m_free_lids[0]=next_lid+1;
   m_add_buffer.push_back(temp_buffer_item(-next_lid,gid,rank,(rank==PE::Comm::instance().rank())));
   m_isUpToDate=false;
 }
@@ -390,7 +452,7 @@ Uint CommPattern::add_local(bool as_ghost)
   if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   int next_lid=m_free_lids.back();
   if (m_free_lids.size()>1) m_free_lids.pop_back();
-  else m_free_lids.push_back(next_lid+1);
+  else m_free_lids[0]=next_lid+1;
   m_add_buffer.push_back(temp_buffer_item(next_lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),as_ghost));
   m_isUpToDate=false;
   return next_lid;

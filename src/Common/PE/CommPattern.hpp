@@ -81,7 +81,7 @@ public:
   {
     NOFLAGS=0x0,
     GHOST=0x1,
-    MULTIRANKUPDATABLE=0x2,
+    UPDATABLE=0x2,
     UNUSED=0x4,
     DELETED=0x8,
     ALLDELETE=0x16
