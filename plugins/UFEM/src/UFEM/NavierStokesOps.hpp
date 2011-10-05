@@ -26,6 +26,9 @@ struct SUPGCoeffs
 
   /// Density
   Real rho;
+  
+  /// Inverse density
+  Real one_over_rho;
 
   /// Model coefficients
   Real tau_ps, tau_su, tau_bulk;

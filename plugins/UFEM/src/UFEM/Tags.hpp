@@ -25,6 +25,9 @@ public:
   /// Tag used for the source terms
   static const char * source_terms();
 
+  /// Tag used for coefficient fields
+  static const char * coefficients();
+
 }; // Tags
 
 ////////////////////////////////////////////////////////////////////////////////////////////

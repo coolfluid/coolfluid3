@@ -156,7 +156,17 @@ public:
 
   //@} END MISCELLANEOUS
 
+  /// @name SIGNALS
+  //@{
+
+  /// Signal to write the system to disk as a tecplot file, for debugging purposes.
+  void signal_print(Common::SignalArgs& args);
+
+  //@}
+
 private:
+
+  void signature_print(Common::SignalArgs& args);
 
   /// shared_ptr to system matrix
   LSS::Matrix::Ptr m_mat;
