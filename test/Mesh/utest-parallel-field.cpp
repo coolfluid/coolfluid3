@@ -90,8 +90,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("parent",URI("//Root"));
-  meshgenerator->configure_option("name",std::string("rect"));
+  meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 10;
@@ -101,8 +100,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_option("nb_cells",nb_cells);
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",false);
-  meshgenerator->execute();
-  CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
+  CMesh& mesh = meshgenerator->generate();
 #endif
 
 #ifdef NEU

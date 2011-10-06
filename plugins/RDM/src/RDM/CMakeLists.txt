@@ -61,6 +61,9 @@ list( APPEND coolfluid_rdm_files
 
 list( APPEND coolfluid_rdm_cflibs coolfluid_physics coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_lagrangep2b coolfluid_mesh_actions coolfluid_solver_actions coolfluid_solver )
 
+# Remove the following if "to be removed" lines in among others WeakDirichlet.cpp are removed
+list( APPEND coolfluid_rdm_cflibs coolfluid_physics_navierstokes coolfluid_physics_scalar)
+
 coolfluid_add_library( coolfluid_rdm )
 
 add_subdirectory( Schemes )       # coolfluid_rdm_schemes library

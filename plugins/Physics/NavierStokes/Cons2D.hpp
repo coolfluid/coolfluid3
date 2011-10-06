@@ -56,10 +56,6 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.R = 287.058;                 // air
-    p.gamma = 1.4;                 // diatomic ideal gas
-    p.gamma_minus_1 = p.gamma - 1.;
-
     p.rho   = sol[Rho ];
     p.rhou  = sol[RhoU];
     p.rhov  = sol[RhoV];

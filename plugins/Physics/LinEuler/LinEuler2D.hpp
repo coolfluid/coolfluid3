@@ -51,24 +51,22 @@ public: // functions
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    GeoV u0;                  ///< background velocity
-
-    Real rho0;                ///< reference density
-    Real P0;                  ///< reference pressure
-    Real c;                   ///< speed of sound
-    Real inv_c;               ///< inverse of the speed of sound, very commonly used
-
-    Real gamma;               ///< specific heat ratio
+    // HARD CODED FOR NOW, in .cpp file
+    static const Real gamma;               ///< specific heat ratio
+    static const GeoV u0;                  ///< background (mean) velocity
+    static const Real rho0;                ///< background (mean) density
+    static const Real P0;                  ///< background (mean) pressure
+    static const Real c;                   ///< speed of sound based on mean quantities
+    static const Real inv_c;               ///< inverse of the speed of sound, very commonly used
+    static const Real inv_rho0;            ///< inverse of referenceC density, very commonly used
 
     Real rho;                 ///< density
     Real rho0u;               ///< rho0.u
     Real rho0v;               ///< rho0.v
     Real p;                   ///< acoustic pressure
-
-    Real inv_rho0;             ///< inverse of referenceC density, very commonly used
-
     Real u;                   ///< velocity along XX, rho0.u / rho0
     Real v;                   ///< velocity along YY, rho0.v / rho0
+    Real H;                   ///< acoustic enthalpy
   };
 
   /// @name INTERFACE
