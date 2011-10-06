@@ -18,8 +18,6 @@
 #include <mach/mach_init.h>
 #include <mach/task.h>
 #include <mach/mach_host.h>
-#include <mach/vm_map.h>
-#include <mach/shared_memory_server.h>
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CommonAPI.hpp"
@@ -149,19 +147,10 @@ double OSystemLayer::memory_usage() const
 
   struct task_basic_info         t_info;
   struct host_basic_info         h_info;
-  struct vm_region_basic_info_64 vm_info;
 
 
   mach_msg_type_number_t t_info_count = TASK_BASIC_INFO_COUNT;
   mach_msg_type_number_t h_info_count = HOST_BASIC_INFO_COUNT;
-  mach_msg_type_number_t vm_info_count = VM_REGION_BASIC_INFO_COUNT_64;
-
-
-  vm_address_t address = GLOBAL_SHARED_TEXT_SEGMENT;
-
-  vm_size_t size;
-  mach_port_t object_name;
-
 
   if (KERN_SUCCESS != task_info(mach_task_self(),
                                 TASK_BASIC_INFO, (task_info_t)&t_info,
@@ -176,18 +165,6 @@ double OSystemLayer::memory_usage() const
   {
     return -1;
   }
-
-  if (KERN_SUCCESS != vm_region_64(mach_task_self(), &address, &size,
-                                   VM_REGION_BASIC_INFO, (vm_region_info_t)&vm_info,
-                                   &vm_info_count, &object_name))
-  {
-    return -1;
-  }
-
-  if (vm_info.reserved && size == SHARED_TEXT_REGION_SIZE && t_info.virtual_size > (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE))
-    t_info.virtual_size -= (SHARED_TEXT_REGION_SIZE + SHARED_DATA_REGION_SIZE);
-
-
 
   // virtual size
   // return static_cast<double>(t_info.virtual_size);

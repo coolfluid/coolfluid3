@@ -14,12 +14,16 @@
 
 #include "Common/XML/SignalOptions.hpp"
 
+#include "Mesh/CMesh.hpp"
+#include "Mesh/MeshMetadata.hpp"
+
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 #include "Solver/Actions/CPeriodicWriteMesh.hpp"
 
-#include "TimeStepping.hpp"
+#include "SFDM/TimeStepping.hpp"
+#include "SFDM/Tags.hpp"
 
 using namespace CF::Common;
 using namespace CF::Common::XML;
@@ -92,7 +96,7 @@ void TimeStepping::execute()
   /// @todo these configurations sould be in constructor but does not work there
   ///       becasue uri() is undefined on the constructor ( component is still free )
 
-  configure_option_recursively( "ctime",    m_time->uri() );
+  configure_option_recursively( SFDM::Tags::time(),    m_time->uri() );
   configure_option_recursively( "iterator", this->uri() );
 
   // start loop - iterations start from 1 ( max iter zero will do nothing )
@@ -115,20 +119,22 @@ void TimeStepping::execute()
 
     CActionDirector::execute();
 
-    // (3) the post actions - compute norm, post-process something, etc
-
-    m_post_actions->execute();
-
-    // raise event of time_step done
-
-    raise_timestep_done();
-
     // advance time & iteration
 
     m_time->current_time() += m_time->dt();
 
     property("iteration") = ++k; // update the iteration number
 
+    mesh().metadata()["iter"] = property("iteration");
+    mesh().metadata()["time"] = m_time->current_time();
+
+    // (3) the post actions - compute norm, post-process something, etc
+
+    m_post_actions->execute();
+
+    // raise event of time_step done
+
+    //raise_timestep_done();
   }
 }
 

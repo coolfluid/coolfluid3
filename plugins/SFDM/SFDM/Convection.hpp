@@ -44,8 +44,9 @@ public: // functions
 
 private:
 
-  void compute_inner_flux_points_contribution();
-  void compute_face_flux_points_contribution();
+  void compute_one_cell_at_a_time();
+  void compute_cell_interior_flux_points_contribution();
+  void compute_inner_face_flux_points_contribution();
 
 
   void trigger_physical_model();

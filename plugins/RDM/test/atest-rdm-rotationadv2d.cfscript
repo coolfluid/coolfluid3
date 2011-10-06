@@ -36,7 +36,7 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 ### initial conditions
 
-call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+call Model/RDSolver/InitialConditions/create_initial_condition name:string=INIT
 
 configure Model/RDSolver/InitialConditions/INIT functions:array[string]=x*x+y*y
 
@@ -46,24 +46,24 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=x*x+y*y
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=INLET \
-     Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
+     name:string=INLET \
+     type:string=CF.RDM.BcDirichlet \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
 
 configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=FARFIELD \
-     Type:string=CF.RDM.BcDirichlet \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/farfield
+     name:string=FARFIELD \
+     type:string=CF.RDM.BcDirichlet \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/farfield
 
 configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.
 
 ### domain discretization
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
-     Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.LDA
+     name:string=INTERNAL \
+     type:string=CF.RDM.Schemes.LDA
 
 ### simulate and write the result
 

@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE "Tests Mesh::Actions::CBuildFaces"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
@@ -31,6 +32,7 @@
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
 using namespace CF;
+using namespace boost::assign;
 using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::Actions;
@@ -151,9 +153,13 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 {
   BOOST_CHECK(true);
 
-  CMesh::Ptr rmesh = Core::instance().root().create_component_ptr<CMesh>("rectangle_mesh");
-  CSimpleMeshGenerator::create_rectangle(*rmesh, 10. , 10., 5 , 5 );
-
+  CSimpleMeshGenerator::Ptr mesh_gen = allocate_component<CSimpleMeshGenerator>("mesh_gen");
+  std::vector<Real> lengths  = list_of(10.)(10.);
+  std::vector<Uint> nb_cells = list_of(5u)(5u);
+  mesh_gen->configure_option("mesh",URI("//Root/rectangle_mesh"))
+      .configure_option("lengths",lengths)
+      .configure_option("nb_cells",nb_cells);
+  CMesh& rmesh = mesh_gen->generate();
   BOOST_CHECK(true);
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   BOOST_CHECK(true);
@@ -164,7 +170,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   facebuilder->execute();
 
   BOOST_CHECK(true);
-  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh->topology(),Mesh::Tags::inner_faces());
+  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh.topology(),Mesh::Tags::inner_faces());
   CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
   CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
   Component::Ptr cells;

@@ -65,8 +65,11 @@ BOOST_FIXTURE_TEST_SUITE( FieldGroupTests_TestSuite, FieldGroupTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
-  CSimpleMeshGenerator::create_rectangle(*m_mesh,5.,5.,5u,5u);
-//  Core::instance().root().add_component(m_mesh);
+  CSimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<CSimpleMeshGenerator>("mesh_gen");
+  mesh_gen.configure_option("mesh",m_mesh->uri());
+  mesh_gen.configure_option("lengths",std::vector<Real>(2,5.));
+  mesh_gen.configure_option("nb_cells",std::vector<Uint>(2,5u));
+  mesh_gen.execute();
 }
 ////////////////////////////////////////////////////////////////////////////////
 

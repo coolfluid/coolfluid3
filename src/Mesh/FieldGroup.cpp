@@ -270,7 +270,8 @@ Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescript
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
-  field.descriptor().configure_option(Common::Tags::dimension(),parent().as_type<CMesh>().dimension());
+  if (variables_descriptor.option(Common::Tags::dimension()).value<Uint>() == 0)
+    field.descriptor().configure_option(Common::Tags::dimension(),parent().as_type<CMesh>().dimension());
   field.resize(m_size);
   return field;
 }
@@ -565,6 +566,51 @@ Field& FieldGroup::coordinates() const
     throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
 
   return *m_coordinates;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+Field& FieldGroup::create_coordinates()
+{
+  if (has_coordinates())
+    throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
+
+  Field& coordinates = create_field("coordinates","coords[vector]");
+  boost_foreach(CEntities& entities, entities_range())
+  {
+    CSpace& geometry_space = entities.geometry_space();
+    const ShapeFunction& geom_sf = geometry_space.shape_function();
+    RealMatrix geom_nodes;
+    entities.allocate_coordinates(geom_nodes);
+
+    CSpace& space = entities.space(m_space);
+    const ShapeFunction& sf = space.shape_function();
+    const RealMatrix& local_coords = sf.local_coordinates();
+
+    RealMatrix interpolation(sf.nb_nodes(),geom_sf.nb_nodes());
+    for (Uint i=0; i<sf.nb_nodes(); ++i)
+      interpolation.row(i) = geom_sf.value(local_coords.row(i));
+
+    RealMatrix coords(sf.nb_nodes(),geom_nodes.cols());
+
+    for (Uint e=0; e<entities.size(); ++e)
+    {
+      CConnectivity::ConstRow field_index = space.indexes_for_element(e);
+
+      entities.put_coordinates(geom_nodes,e);
+      coords = interpolation*geom_nodes;
+
+      for (Uint i=0; i<sf.nb_nodes(); ++i)
+      {
+        const Uint pt = field_index[i];
+        for(Uint d=0; d<coords.cols(); ++d)
+          coordinates[pt][d] = coords(i,d);
+      }
+    }
+  }
+
+  m_coordinates = coordinates.as_ptr<Field>();
+  return coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

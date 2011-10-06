@@ -242,6 +242,11 @@ public:
     return wrap_component(component().get_child(name));
   }
 
+  object access_component(const std::string& uri)
+  {
+    return wrap_component(component().access_component(uri));
+  }
+
   void configure_option(const std::string& optname, const object& val)
   {
     Common::Option& option = component().option(optname);
@@ -305,6 +310,7 @@ void def_component()
     .def("name", &ComponentWrapper::name, "The name of this component")
     .def("create_component", &ComponentWrapper::create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", &ComponentWrapper::get_child)
+    .def("access_component", &ComponentWrapper::access_component)
     .def("configure_option", &ComponentWrapper::configure_option)
     .def("option_value_str", &ComponentWrapper::option_value_str)
     .def("print_timing_tree", &ComponentWrapper::print_timing_tree)

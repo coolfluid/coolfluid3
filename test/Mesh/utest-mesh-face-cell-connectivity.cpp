@@ -8,6 +8,7 @@
 #define BOOST_TEST_MODULE "Tests CF::Mesh::CFaceCellConnectivity"
 
 #include <boost/test/unit_test.hpp>
+#include <boost/assign/list_of.hpp>
 
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
@@ -26,6 +27,7 @@
 #include "Mesh/ConnectivityData.hpp"
 
 using namespace boost;
+using namespace boost::assign;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
@@ -82,7 +84,13 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 
   m_mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
   Uint scale = 2;
-  CSimpleMeshGenerator::create_rectangle(*m_mesh, 4., 2., scale*2u, scale*2u);
+  std::vector<Real> lengths  = list_of(4.)(2.);
+  std::vector<Uint> nb_cells = list_of(scale*2u)(scale*2u);
+  CSimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<CSimpleMeshGenerator>("mesh_gen");
+  mesh_gen.configure_option("mesh",m_mesh->uri());
+  mesh_gen.configure_option("lengths",lengths);
+  mesh_gen.configure_option("nb_cells",nb_cells);
+  mesh_gen.execute();
   BOOST_CHECK(true);
 }
 ////////////////////////////////////////////////////////////////////////////////

@@ -57,6 +57,8 @@ void Roe::trigger_physical_model()
   left_eigenvectors.resize(physical_model().neqs(),physical_model().neqs());
   abs_jacobian.resize(physical_model().neqs(),physical_model().neqs());
 
+  central_flux.resize(physical_model().neqs());
+  upwind_flux.resize(physical_model().neqs());
 
   // Try to configure solution_vars automatically
   if (m_solution_vars.expired())
@@ -67,7 +69,9 @@ void Roe::trigger_physical_model()
     }
     else
     {
-      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"solution_vars\".\nConfigure manually\n    ( Reason: component with name \"solution_vars\" not found in ["<<physical_model().uri().string() << "] )" << CFendl;
+      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"solution_vars\".\n"
+             << "Reason: component with name \"solution_vars\" not found in ["<<physical_model().uri().string() << "]\n"
+             << "Configure manually" << CFendl;
     }
   }
 
@@ -78,9 +82,18 @@ void Roe::trigger_physical_model()
     {
       configure_option("roe_vars",found_roe_vars->uri());
     }
+    else if (m_solution_vars.expired() == false)
+    {
+      configure_option("roe_vars",solution_vars().uri());
+      CFwarn << "Roe RiemannSolver " << uri().string() << " auto-configured \"roe_vars\" to \"solution_vars\".\n"
+             << "Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "].\n"
+             << "Configure manually for different \"roe_vars\"" << CFendl;
+    }
     else
     {
-      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"roe_vars\".\nConfigure manually\n    ( Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "] )" << CFendl;
+      CFwarn << "Roe RiemannSolver " << uri().string() << " could not auto-config \"roe_vars\".\n"
+             << "Reason: component with name \"roe_vars\" not found in ["<<physical_model().uri().string() << "]\n"
+             << "Configure manually" << CFendl;
     }
   }
 }
@@ -90,27 +103,38 @@ void Roe::trigger_physical_model()
 void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
                                  RealVector& flux)
 {
+  Physics::Variables& sol_vars = *m_solution_vars.lock();
+  Physics::Variables& roe_vars = *m_roe_vars.lock();
   // Compute left and right properties
-  solution_vars().compute_properties(coord,left,grads,*p_left);
-  solution_vars().compute_properties(coord,right,grads,*p_right);
+  sol_vars.compute_properties(coord,left,grads,*p_left);
+  sol_vars.compute_properties(coord,right,grads,*p_right);
 
   // Compute the Roe averaged properties
   // Roe-average = standard average of the Roe-parameter vectors
-  roe_vars().compute_variables(*p_left,  roe_left );
-  roe_vars().compute_variables(*p_right, roe_right);
+  roe_vars.compute_variables(*p_left,  roe_left );
+  roe_vars.compute_variables(*p_right, roe_right);
   roe_avg = 0.5*(roe_left+roe_right);                // Roe-average is result
-  roe_vars().compute_properties(coord, roe_avg, grads, *p_avg);
+  roe_vars.compute_properties(coord, roe_avg, grads, *p_avg);
 
   // Compute absolute jacobian using Roe averaged properties
-  solution_vars().flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
-  abs_jacobian = right_eigenvectors * eigenvalues.cwiseAbs().asDiagonal() * left_eigenvectors;
+  sol_vars.flux_jacobian_eigen_structure(*p_avg,normal,right_eigenvectors,left_eigenvectors,eigenvalues);
+  RealMatrix& abs_jacobian = right_eigenvectors;
+  abs_jacobian *= eigenvalues.cwiseAbs().asDiagonal();
+  abs_jacobian *= left_eigenvectors;
 
   // Compute left and right fluxes
-  solution_vars().flux(*p_left , f_left);
-  solution_vars().flux(*p_right, f_right);
+  sol_vars.flux(*p_left , f_left);
+  sol_vars.flux(*p_right, f_right);
 
   // Compute flux at interface composed of central part and upwind part
-  flux = 0.5*(f_left*normal+f_right*normal) - 0.5 * abs_jacobian*(right-left);
+  central_flux  = f_left*normal;
+  central_flux += f_right*normal;
+  central_flux *= 0.5;
+
+  upwind_flux  = abs_jacobian*(right-left);
+  upwind_flux *= 0.5;
+  flux  = central_flux;
+  flux -= upwind_flux;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
