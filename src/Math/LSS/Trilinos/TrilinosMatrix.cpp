@@ -280,7 +280,7 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 
   // solve the matrix
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A);
-  Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
+  lows->solve(Thyra::NOTRANS,*b,x.ptr());
 
   // r = b - A*x, final L2 norm
   double norm2_out=0.;
