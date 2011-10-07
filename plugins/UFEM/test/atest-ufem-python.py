@@ -12,9 +12,6 @@ env.configure_option('exception_backtrace', False)
 env.configure_option('regist_signal_handlers', False)
 env.configure_option('log_level', 4)
 
-#initiate the CF3 environment
-cf.Core.initiate(sys.argv)
-
 # setup a model
 model = root.create_component('HotModel', 'CF.Solver.CModel')
 model.setup(solver_builder = 'CF.UFEM.HeatConductionSteady', physics_builder = 'CF.Physics.DynamicModel')

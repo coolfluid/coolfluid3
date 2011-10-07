@@ -18,7 +18,10 @@
 #include "Mesh/CEntities.hpp"
 
 namespace CF {
-namespace Common { class CLink; }
+namespace Common {
+  class CLink;
+  namespace PE { class CommPattern; }
+}
 namespace Math { class VariablesDescriptor; }
 namespace Mesh {
 
@@ -108,6 +111,9 @@ public: // functions
   /// Return the rank of every field row
   CList<Uint>& rank() const { return *m_rank; }
 
+  /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
+  Common::PE::CommPattern& comm_pattern();
+
   /// Check if a field row is owned by this rank
   bool is_ghost(const Uint idx) const;
 
@@ -130,6 +136,8 @@ public: // functions
   CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
 
   CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+
+  Field& create_coordinates();
 
   Field& coordinates() const;
 
@@ -163,7 +171,7 @@ protected:
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;
   boost::shared_ptr<Field> m_coordinates;
-
+  boost::weak_ptr<Common::PE::CommPattern> m_comm_pattern;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

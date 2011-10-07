@@ -52,9 +52,12 @@ public: // functions
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    Real gamma;               ///< specific heat ratio
-    Real gamma_minus_1;       ///< specific heat ratio minus one, very commonly used
-    Real R;                   ///< gas constant
+    /// @name Gas constants, for now hardcoded in .cpp file
+    //@{
+    static const Real gamma;            ///< specific heat ratio
+    static const Real R;                ///< gas constant
+    static const Real gamma_minus_1;    ///< specific heat ratio minus one, very commonly used
+    //@}
 
     Real rho;                 ///< density
     Real rhou;                ///< rho.u
@@ -76,6 +79,7 @@ public: // functions
     Real half_gm1_v2;         ///< 1/2.(g-1).(u^2+v^2), very commonly used
     Real Ma;                  ///< mach number
   };
+
 
   /// @name INTERFACE
   //@{
@@ -99,7 +103,6 @@ public: // functions
   /// @post the component will be a sub-component of this model but maybe be moved away
   /// @throws ValueNotFound if the type does not match a variable type this model supports
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
-
   //@} END INTERFACE
 
 }; // NavierStokes2D

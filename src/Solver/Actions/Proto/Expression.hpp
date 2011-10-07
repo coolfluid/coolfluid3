@@ -8,6 +8,7 @@
 #define CF_Solver_Actions_Proto_Expression_hpp
 
 #include <map>
+#include <set>
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
@@ -30,6 +31,7 @@
 #include "ElementLooper.hpp"
 #include "ElementMatrix.hpp"
 #include "NodeLooper.hpp"
+#include "NodeGrammar.hpp"
 #include "Transforms.hpp"
 
 namespace CF {
@@ -55,6 +57,9 @@ public:
 
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(Physics::PhysModel& physical_model) = 0;
+
+  /// Append the field tags to the given vector
+  virtual void insert_tags(std::set<std::string>& tags) const = 0;
 
   virtual ~Expression() {}
 };
@@ -98,6 +103,11 @@ public:
   void register_variables(Physics::PhysModel& physical_model)
   {
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
+  }
+
+  void insert_tags(std::set< std::string >& tags) const
+  {
+    boost::fusion::for_each(m_variables, AppendTags(tags));
   }
 
 private:
@@ -169,6 +179,28 @@ private:
 
     Physics::PhysModel& m_physical_model;
   };
+
+  /// Functor to store the tags used by a field
+  struct AppendTags
+  {
+    AppendTags(std::set<std::string>& tags) :
+      m_tags(tags)
+    {
+    }
+
+    /// Register a scalar
+    void operator()(const FieldBase& field) const
+    {
+      m_tags.insert(field.field_tag());
+    }
+
+    /// Skip unused variables
+    void operator()(const boost::mpl::void_&) const
+    {
+    }
+
+    std::set<std::string>& m_tags;
+  };
 };
 
 template< typename ExprT, typename ElementTypes >
@@ -211,11 +243,51 @@ public:
       (NodeGrammar));
 
     boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
+
+    // Synchronize fields if needed
+    if(Common::PE::Comm::instance().is_active())
+      boost::mpl::for_each< boost::mpl::range_c<Uint, 0, BaseT::NbVarsT::value> >(SynchronizeFields(BaseT::m_variables, region));
   }
+private:
+  /// Fusion functor to synchronize fields if needed
+  struct SynchronizeFields
+  {
+    SynchronizeFields(const typename BaseT::VariablesT& vars, Mesh::CRegion& region) :
+      m_variables(vars),
+      m_region(region)
+    {
+    }
+
+    template<typename VarIdxT>
+    void operator()(const VarIdxT& i)
+    {
+      typedef typename boost::result_of<IsModified<VarIdxT::value>(ExprT)>::type IsModifiedT;
+      apply(IsModifiedT(), i);
+    }
+
+    /// Do nothing if the variable is not modified
+    template<typename VarIdxT>
+    void apply(boost::mpl::false_, const VarIdxT&)
+    {
+    }
+
+    /// Synchronize if modified
+    template<typename VarIdxT>
+    void apply(boost::mpl::true_, const VarIdxT&)
+    {
+      const std::string& tag = boost::fusion::at<VarIdxT>(m_variables).field_tag();
+      Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(m_region);
+      Mesh::Field& field = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
+      field.synchronize();
+    }
+
+    const typename BaseT::VariablesT& m_variables;
+    Mesh::CRegion& m_region;
+  };
 };
 
 /// Default element types supported by elements expressions
-typedef boost::mpl::vector4<Mesh::LagrangeP1::Line1D, Mesh::LagrangeP1::Triag2D, Mesh::LagrangeP1::Quad2D, Mesh::LagrangeP1::Hexa3D> DefaultElementTypes;
+typedef Mesh::LagrangeP1::CellTypes DefaultElementTypes;
 
 /// Convenience method to construct an Expression to loop over elements
 /// @returns a shared pointer to the constructed expression

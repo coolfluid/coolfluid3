@@ -19,7 +19,7 @@ using namespace Common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
-ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady;
+ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
 
 HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolver(name)
 {
@@ -45,7 +45,7 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
     ))
     << boundary_conditions()                                                                        // boundary conditions
     << solve_action()                                                                               // Solve the LSS
-    << create_proto_action("Increment", nodes_expression(temperature = solution(temperature)));     // Set the solution
+    << create_proto_action("SetSolution", nodes_expression(temperature = solution(temperature)));     // Set the solution
 }
 
 

@@ -102,10 +102,10 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
-    
+
     // verify inheritance
     BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
-    
+
   }
 
   /// @brief Virtual destructor.
@@ -117,7 +117,7 @@ public:
   /// builds the component cast to the correct base
   typename BASE::Ptr create_component_typed ( const std::string& name ) const
   {
-    return typename BASE::Ptr ( new CONCRETE(name), Deleter<BASE>() );
+    return typename BASE::Ptr ( allocate_component<CONCRETE>(name) );
   }
 
   /// Returns the name of the type of what abstract type it builds.
@@ -159,7 +159,7 @@ struct ComponentBuilder
     //CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
 
     // regist the concrete type in TypeInfo
-    RegistTypeInfo<CONCRETE,LIB>();
+    RegistTypeInfo<CONCRETE,LIB> regist(name);
     CF::Common::TypeInfo::instance().
         regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
@@ -171,7 +171,7 @@ struct ComponentBuilder
 
     boost::shared_ptr< Common::CBuilderT<BASE,CONCRETE> > builder =
         factory->create_component_ptr< CBuilderT<BASE,CONCRETE> >( name );
-    
+
     // check that CBuilderT can cast to CBuilder
     /// @note sanity check after weird bug on MacOSX
     ///       when including CBuilder.cpp instead of CBuilder.hpp
@@ -183,7 +183,7 @@ struct ComponentBuilder
 
     CLink::Ptr builder_link = lib->create_component_ptr<CLink>( name );
     cf_assert ( is_not_null(builder_link) );
-    
+
     builder_link->link_to(builder);
 
     cf_assert ( is_not_null(builder_link->follow()) );

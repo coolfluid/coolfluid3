@@ -177,7 +177,7 @@ public:
 
   /// exports the matrix into big linear arrays
   /// @attention only for debug and utest purposes
-  virtual void data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values) { cf_assert(m_is_created); }
+  virtual void debug_data(std::vector<Uint>& row_indices, std::vector<Uint>& col_indices, std::vector<Real>& values) { cf_assert(m_is_created); }
 
   //@} END TEST ONLY
 

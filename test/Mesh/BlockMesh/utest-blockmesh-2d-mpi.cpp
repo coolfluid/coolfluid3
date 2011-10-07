@@ -45,6 +45,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint rank = PE::Comm::instance().rank();
 
   CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
+  
+  CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
+  domain.add_component(writer);
 
   const Real length = 1.;
   const Real half_height = 1.;
@@ -52,7 +55,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint x_segs = 12;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData blocks;
+  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
 
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
@@ -80,13 +83,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   blocks.block_distribution += 0, 2;
 
-  CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
-  domain.add_component(writer);
-
   // Test block partitioning
-  CMesh& serial_blocks = domain.create_component<CMesh>("serial_blocks");
-  BlockMesh::BlockData parallel_blocks;
-  BlockMesh::partition_blocks(blocks, serial_blocks, nb_procs, XX, parallel_blocks);
+  BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
+  BlockMesh::partition_blocks(blocks, nb_procs, XX, parallel_blocks);
 
   // Build the mesh
   CMesh& mesh = domain.create_component<CMesh>("mesh");

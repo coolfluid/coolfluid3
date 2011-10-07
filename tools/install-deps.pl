@@ -1184,7 +1184,7 @@ using mpi : $opt_mpi_dir/bin/mpicxx ;
 ZZZ
       close (USERCONFIGJAM); 
     }
-    run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
+    run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options --with-python $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
   }
 }
 

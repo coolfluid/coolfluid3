@@ -136,6 +136,16 @@ macro( coolfluid_add_library LIBNAME )
           COMMAND ${CMAKE_COMMAND} -E remove ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
           COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIB_LOCNAME} ${coolfluid_DSO_DIR}/${DSO_LIB_NAME}
         )
+        if( DEFINED ${LIBNAME}_PYTHON_MODULE)
+          if( APPLE )
+            set(PYTHON_MODULE_NAME "${CMAKE_SHARED_LIBRARY_PREFIX}${LIBNAME}.so")
+            ADD_CUSTOM_COMMAND(
+              TARGET ${LIBNAME}
+              POST_BUILD
+              COMMAND ${CMAKE_COMMAND} -E create_symlink ${coolfluid_DSO_DIR}/${DSO_LIB_NAME} ${coolfluid_DSO_DIR}/${PYTHON_MODULE_NAME}
+            )
+          endif()
+        endif()
       else()
         ADD_CUSTOM_COMMAND(
           TARGET ${LIBNAME}

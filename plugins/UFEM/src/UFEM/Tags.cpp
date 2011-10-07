@@ -13,6 +13,7 @@ namespace UFEM {
 
 const char * Tags::solution() { return "solution"; }
 const char * Tags::source_terms() { return "source_terms"; }
+const char * Tags::coefficients() { return "coefficients"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 

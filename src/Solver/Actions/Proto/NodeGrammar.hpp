@@ -104,6 +104,38 @@ struct NodeAssignGrammar :
 {
 };
 
+/// Transform to indicate if variable I is assigned to
+template<int I>
+struct IsModified :
+  boost::proto::or_
+  <
+    boost::proto::when // scalar field used as equation in an element matrix
+    <
+      boost::proto::or_
+      <
+        boost::proto::assign<boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::plus_assign<boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >,
+        boost::proto::minus_assign<boost::proto::terminal< Var<boost::mpl::int_<I>, boost::proto::_> >, boost::proto::_ >
+      >,
+      boost::mpl::true_()
+    >,
+    boost::proto::when
+    <
+      boost::proto::terminal<boost::proto::_>,
+      boost::mpl::false_()
+    >,
+    boost::proto::when
+    <
+      boost::proto::nary_expr<boost::proto::_, boost::proto::vararg<boost::proto::_> >
+    , boost::proto::fold
+      <
+        boost::proto::_, boost::mpl::false_(), boost::mpl::max< boost::proto::_state, boost::proto::call< IsModified<I> > >()
+      >
+    >
+  >
+{
+};
+
 /// Forward declaration
 struct NodeMath;
 

@@ -6,11 +6,16 @@
 
 #include <boost/assign/list_of.hpp>
 
+#include "Common/CBuilder.hpp"
+#include "Common/Core.hpp"
 #include "Common/Exception.hpp"
+#include "Common/EventHandler.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionURI.hpp"
+#include "Common/XML/SignalFrame.hpp"
+#include "Common/XML/SignalOptions.hpp"
 #include "Common/Timer.hpp"
 
-#include "Common/PE/CommPattern.hpp"
 #include "Common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
@@ -21,6 +26,7 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
+#include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ConnectivityData.hpp"
 #include "Mesh/CRegion.hpp"
@@ -38,9 +44,17 @@ using namespace CF::Common;
 using namespace CF::Mesh;
 using namespace CF::Mesh::LagrangeP1;
 
+ComponentBuilder < BlockData, Component, LibBlockMesh > BlockData_Builder;
+
+BlockData::BlockData(const std::string& name): Component(name)
+{
+}
+
+
 bool BlockData::operator==(const BlockData& other) const
 {
-  return block_distribution == other.block_distribution &&
+  return dimension == other.dimension &&
+         block_distribution == other.block_distribution &&
          block_gradings == other.block_gradings &&
          block_points == other.block_points &&
          block_subdivisions == other.block_subdivisions &&
@@ -50,6 +64,21 @@ bool BlockData::operator==(const BlockData& other) const
          points == other.points &&
          scaling_factor == other.scaling_factor;
 }
+
+void BlockData::copy_to(BlockData& other) const
+{
+  other.scaling_factor = scaling_factor;
+  other.dimension = dimension;
+  other.block_distribution = block_distribution;
+  other.block_gradings = block_gradings;
+  other.block_points = block_points;
+  other.block_subdivisions = block_subdivisions;
+  other.patch_names = patch_names;
+  other.patch_points = patch_points;
+  other.patch_types = patch_types;
+  other.points = points;
+}
+
 
 
 /// Some helper functions for mesh building
@@ -762,7 +791,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   }
 }
 
-void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
+void build_mesh_3d(BlockData& block_data, CMesh& mesh)
 {
   Common::Timer timer;
   const Uint nb_procs = PE::Comm::instance().size();
@@ -772,7 +801,7 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = mesh.create_component<CMesh>("block_mesh");
+  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
@@ -1005,28 +1034,17 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Meshing took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
-
-    std::cout << "Rank " << rank << ": local nodes: " << nb_nodes_local << ", ghost nodes: " << nb_nodes - nb_nodes_local << std::endl;
 
     // Ghosts
     for(detail::NodeIndices3D::IndexMapT::const_iterator ghost_it = nodes.global_to_local.begin(); ghost_it != nodes.global_to_local.end(); ++ghost_it)
@@ -1035,28 +1053,14 @@ void build_mesh_3d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids,1,false);
-    timer.restart();
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern setup took " << timer.elapsed() << "s" << std::endl;
-
-    timer.restart();
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern array insert took " << timer.elapsed() << "s" << std::endl;
-    timer.restart();
-
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
-    std::cout << "Rank " << PE::Comm::instance().rank() <<  ": Commpattern synchronization took " << timer.elapsed() << "s" << std::endl;
   }
 }
 
-void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
+void build_mesh_2d(BlockData& block_data, CMesh& mesh)
 {
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
@@ -1065,7 +1069,7 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
   // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = mesh.create_component<CMesh>("block_mesh");
+  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
@@ -1251,22 +1255,16 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
     }
   }
 
-  if(nb_procs > 1)
+  if(PE::Comm::instance().is_active())
   {
-    // Commpattern arrays
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-
-    CList<Uint>& gids_list = mesh_geo_comp.glb_idx(); gids.resize(nb_nodes);
-    CList<Uint>& ranks_list = mesh_geo_comp.rank(); ranks.resize(nb_nodes);
+    CList<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    CList<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
     {
       gids[i] = i + nodes_begin;
-      gids_list[i] = gids[i];
       ranks[i] = rank;
-      ranks_list[i] = rank;
     }
 
     // Ghosts
@@ -1276,23 +1274,16 @@ void build_mesh_2d(const BlockData& block_data, CMesh& mesh)
       const Uint local_id = ghost_it->second;
       gids[local_id] = global_id;
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
-      gids_list[local_id] = global_id;
-      ranks_list[local_id] = ranks[local_id];
     }
 
-    PE::CommPattern& comm_pattern = mesh.create_component<PE::CommPattern>("comm_pattern_node_based");
-
-    comm_pattern.insert("gid",gids,1,false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-
-    mesh.geometry().coordinates().parallelize_with(comm_pattern);
+    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
     mesh.geometry().coordinates().synchronize();
   }
 }
 
 } // detail
 
-void build_mesh(const BlockData& block_data, CMesh& mesh)
+void build_mesh(BlockData& block_data, CMesh& mesh, const Uint overlap)
 {
   if(block_data.dimension == 3)
     detail::build_mesh_3d(block_data, mesh);
@@ -1340,6 +1331,27 @@ void build_mesh(const BlockData& block_data, CMesh& mesh)
     }
   }
   mesh.elements().update();
+
+  mesh.update_statistics();
+
+  if(overlap != 0 && PE::Comm::instance().size() > 1)
+  {
+    CMeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+    global_conn.transform(mesh);
+
+    CMeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+    for(Uint i = 0; i != overlap; ++i)
+      grow_overlap.transform(mesh);
+
+    mesh.geometry().remove_component("CommPattern");
+  }
+
+  // Raise an event to indicate that a mesh was loaded happened
+  XML::SignalOptions options;
+  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+
+  XML::SignalFrame f= options.create_frame();
+  Core::instance().event_handler().raise_event( "mesh_loaded", f );
 }
 
 
@@ -1422,10 +1434,11 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY] * blocks_in.block_subdivisions[block][ZZ];
 
-  BlockData blocks_to_partition = blocks_in; //copy, so we can shrink partially-partitioned blocks
+  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data
-  blocks_out = blocks_in;
+  blocks_in.copy_to(blocks_out);
   blocks_out.block_gradings.clear();
   blocks_out.block_points.clear();
   blocks_out.block_subdivisions.clear();
@@ -1458,7 +1471,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
     Uint slice_size = 0;
     BOOST_FOREACH(const Uint block_idx, current_block_layer)
     {
-      const BlockData::CountsT segments = blocks_to_partition.block_subdivisions[block_idx];
+      const BlockData::CountsT segments = blocks_to_partition->block_subdivisions[block_idx];
       slice_size += segments[transverse_axes[0]] * segments[transverse_axes[1]];
     }
     cf_assert(slice_size);
@@ -1474,7 +1487,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
     nb_partitioned += partition_nb_slices * slice_size;
     while(partition_nb_slices)
     {
-      const Uint block_nb_slices = blocks_to_partition.block_subdivisions[current_block_layer.front()][direction];
+      const Uint block_nb_slices = blocks_to_partition->block_subdivisions[current_block_layer.front()][direction];
       BlockData::BooleansT node_is_mapped(nb_nodes, false);
 
       // Create new blocks with the correct start node indices
@@ -1493,7 +1506,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
           CTable<Real>::ArrayT mapped_coords;
-          detail::create_mapped_coords(block_nb_slices, blocks_to_partition.block_gradings[block_idx].begin() + 4*direction, mapped_coords, 4);
+          detail::create_mapped_coords(block_nb_slices, blocks_to_partition->block_gradings[block_idx].begin() + 4*direction, mapped_coords, 4);
 
           //Adjust gradings and nodes
           BlockData::GradingT new_gradings = blocks_in.block_gradings[block_idx];
@@ -1536,14 +1549,14 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
             // Adjust the gradings
             new_gradings[4*direction + i] =   (mapped_coords[partition_nb_slices][grading_idx] - mapped_coords[partition_nb_slices - 1][grading_idx])
                                             / (mapped_coords[1][grading_idx] - mapped_coords[0][grading_idx]);
-            blocks_to_partition.block_gradings[block_idx][4*direction + i] = (mapped_coords[block_nb_slices][grading_idx] - mapped_coords[block_nb_slices - 1][grading_idx])
+            blocks_to_partition->block_gradings[block_idx][4*direction + i] = (mapped_coords[block_nb_slices][grading_idx] - mapped_coords[block_nb_slices - 1][grading_idx])
                                                                            / (mapped_coords[partition_nb_slices + 1][grading_idx] - mapped_coords[partition_nb_slices][grading_idx]);
           }
 
           // Adjust number of segments
-          BlockData::CountsT new_block_subdivisions = blocks_to_partition.block_subdivisions[block_idx];
+          BlockData::CountsT new_block_subdivisions = blocks_to_partition->block_subdivisions[block_idx];
           new_block_subdivisions[direction] = partition_nb_slices;
-          blocks_to_partition.block_subdivisions[block_idx][direction] -= partition_nb_slices;
+          blocks_to_partition->block_subdivisions[block_idx][direction] -= partition_nb_slices;
 
           // append data to the output
           blocks_out.block_gradings.push_back(new_gradings);
@@ -1567,8 +1580,8 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
         next_block_layer.clear();
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
-          blocks_out.block_gradings.push_back(blocks_to_partition.block_gradings[block_idx]);
-          blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
+          blocks_out.block_gradings.push_back(blocks_to_partition->block_gradings[block_idx]);
+          blocks_out.block_subdivisions.push_back(blocks_to_partition->block_subdivisions[block_idx]);
 
           for(Uint i = 0; i != 4; ++i)
           {
@@ -1645,6 +1658,8 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
       }
     }
   }
+
+  cf_assert(blocks_out.dimension == 3);
 }
 
 void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
@@ -1717,10 +1732,11 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY];
 
-  BlockData blocks_to_partition = blocks_in; //copy, so we can shrink partially-partitioned blocks
+  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data
-  blocks_out = blocks_in;
+  blocks_in.copy_to(blocks_out);
   blocks_out.block_gradings.clear();
   blocks_out.block_points.clear();
   blocks_out.block_subdivisions.clear();
@@ -1753,7 +1769,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
     Uint slice_size = 0;
     BOOST_FOREACH(const Uint block_idx, current_block_layer)
     {
-      const BlockData::CountsT segments = blocks_to_partition.block_subdivisions[block_idx];
+      const BlockData::CountsT segments = blocks_to_partition->block_subdivisions[block_idx];
       slice_size += segments[transverse_axe];
     }
     cf_assert(slice_size);
@@ -1769,7 +1785,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
     nb_partitioned += partition_nb_slices * slice_size;
     while(partition_nb_slices)
     {
-      const Uint block_nb_slices = blocks_to_partition.block_subdivisions[current_block_layer.front()][direction];
+      const Uint block_nb_slices = blocks_to_partition->block_subdivisions[current_block_layer.front()][direction];
       BlockData::BooleansT node_is_mapped(nb_nodes, false);
 
       // Create new blocks with the correct start node indices
@@ -1788,7 +1804,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
           CTable<Real>::ArrayT mapped_coords;
-          detail::create_mapped_coords(block_nb_slices, blocks_to_partition.block_gradings[block_idx].begin() + 2*direction, mapped_coords, 2);
+          detail::create_mapped_coords(block_nb_slices, blocks_to_partition->block_gradings[block_idx].begin() + 2*direction, mapped_coords, 2);
 
           //Adjust gradings and nodes
           BlockData::GradingT new_gradings = blocks_in.block_gradings[block_idx];
@@ -1829,14 +1845,14 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
             // Adjust the gradings
             new_gradings[2*direction + i] =   (mapped_coords[partition_nb_slices][grading_idx] - mapped_coords[partition_nb_slices - 1][grading_idx])
                                             / (mapped_coords[1][grading_idx] - mapped_coords[0][grading_idx]);
-            blocks_to_partition.block_gradings[block_idx][2*direction + i] = (mapped_coords[block_nb_slices][grading_idx] - mapped_coords[block_nb_slices - 1][grading_idx])
+            blocks_to_partition->block_gradings[block_idx][2*direction + i] = (mapped_coords[block_nb_slices][grading_idx] - mapped_coords[block_nb_slices - 1][grading_idx])
                                                                            / (mapped_coords[partition_nb_slices + 1][grading_idx] - mapped_coords[partition_nb_slices][grading_idx]);
           }
 
           // Adjust number of segments
-          BlockData::CountsT new_block_subdivisions = blocks_to_partition.block_subdivisions[block_idx];
+          BlockData::CountsT new_block_subdivisions = blocks_to_partition->block_subdivisions[block_idx];
           new_block_subdivisions[direction] = partition_nb_slices;
-          blocks_to_partition.block_subdivisions[block_idx][direction] -= partition_nb_slices;
+          blocks_to_partition->block_subdivisions[block_idx][direction] -= partition_nb_slices;
 
           // append data to the output
           blocks_out.block_gradings.push_back(new_gradings);
@@ -1859,8 +1875,8 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
         next_block_layer.clear();
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
-          blocks_out.block_gradings.push_back(blocks_to_partition.block_gradings[block_idx]);
-          blocks_out.block_subdivisions.push_back(blocks_to_partition.block_subdivisions[block_idx]);
+          blocks_out.block_gradings.push_back(blocks_to_partition->block_gradings[block_idx]);
+          blocks_out.block_subdivisions.push_back(blocks_to_partition->block_subdivisions[block_idx]);
 
           for(Uint i = 0; i != 2; ++i)
           {
@@ -1939,8 +1955,10 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   }
 }
 
-void partition_blocks(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
+void partition_blocks(const CF::Mesh::BlockMesh::BlockData& blocks_in, const CF::Uint nb_partitions, const CF::CoordXYZ direction, CF::Mesh::BlockMesh::BlockData& blocks_out)
 {
+  CMesh& block_mesh = blocks_out.create_component<CMesh>("serial_block_mesh");
+
   if(blocks_in.dimension == 3)
   {
     partition_blocks_3d(blocks_in, block_mesh, nb_partitions, direction, blocks_out);

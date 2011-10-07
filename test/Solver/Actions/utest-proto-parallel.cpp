@@ -97,11 +97,11 @@ struct ProtoParallelFixture :
 
     const Real ratio = 0.1;
 
-    BlockMesh::BlockData blocks;
+    BlockMesh::BlockData& blocks = dom.create_component<BlockMesh::BlockData>("blocks");
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
 
-    BlockMesh::BlockData parallel_blocks;
-    BlockMesh::partition_blocks(blocks, serial_block_mesh, PE::Comm::instance().size(), XX, parallel_blocks);
+    BlockMesh::BlockData& parallel_blocks = dom.create_component<BlockMesh::BlockData>("parallel_blocks");
+    BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
 
     BlockMesh::build_mesh(parallel_blocks, mesh);
 

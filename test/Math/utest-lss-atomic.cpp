@@ -136,9 +136,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 {
 
   // build a commpattern and a matrix
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Matrix::Ptr mat=sys->matrix();
@@ -160,13 +161,13 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
   // check reset
   mat->reset(1.);
-  mat->data(rows,cols,vals);
+  mat->debug_data(rows,cols,vals);
   BOOST_CHECK_EQUAL(cols.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,1.);
   mat->reset();
-  mat->data(rows,cols,vals);
+  mat->debug_data(rows,cols,vals);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,0.);
 
   // diagonal access check
@@ -178,7 +179,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   diag.clear();
   mat->get_diagonal(diag);
   BOOST_CHECK_EQUAL(diag.size(),blockcol_size*neq);
-  mat->data(rows,cols,vals);
+  mat->debug_data(rows,cols,vals);
   for (int i=0; i<(const int)vals.size(); i++)
   {
     if (cp.isUpdatable()[rows[i]/neq]) { BOOST_CHECK_EQUAL(diag[rows[i]],2.*rows[i]); }
@@ -205,7 +206,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     BOOST_CHECK_EQUAL(v,3.);
     mat->get_value(7,7,v);
     BOOST_CHECK_EQUAL(v,4.);
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]<6)||(rows[i]>7))
         BOOST_CHECK_EQUAL(vals[i],0.);
@@ -245,7 +246,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(3,i-1),(double)((ba.indices[1]*10+i+6)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i+0)*2));
     for (int i=1; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i+6)*2));
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     Real ctr=1.;
     for (int i=0; i<(const int)vals.size(); i++)
       if (((rows[i]/neq==ba.indices[0])||(rows[i]/neq==ba.indices[1])||(rows[i]/neq==ba.indices[2]))&&
@@ -293,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     for (int i=3; i<5; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i+0+6)*2));
     for (int i=5; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(4,i-1),(double)((ba.indices[2]*10+i-4+0)*2));
     for (int i=5; i<7; i++) BOOST_CHECK_EQUAL(ba.mat(5,i-1),(double)((ba.indices[2]*10+i-4+6)*2));
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     Real ctr=1.;
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]/neq==ba.indices[2])&&
@@ -312,7 +313,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   if (irank==0)
   {
     mat->set_row(3,1,1.,0.);
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
     {
       if (rows[i]==7)
@@ -330,7 +331,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   if (irank==0)
   {
     mat->set_row(1,1,1.,0.);
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-1.);
   }
 
@@ -356,7 +357,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
     vals[14]+=15.;
     vals[15]+=16.;
     for(int i=0; i<vals.size(); i++) BOOST_CHECK_EQUAL(vals[i],(double)(i+1));
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
     {
       if (cols[i]==11)
@@ -408,7 +409,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 
     mat->tie_blockrow_pairs(2,5);
 
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]==4)||(rows[i]==5))
       {
@@ -442,7 +443,7 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
   if (irank==0)
   {
     mat->tie_blockrow_pairs(1,4);
-    mat->data(rows,cols,vals);
+    mat->debug_data(rows,cols,vals);
     BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-2.);
   }
 
@@ -456,9 +457,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 BOOST_AUTO_TEST_CASE( test_vector_only )
 {
   // build a commpattern and the two vectors
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Vector::Ptr sol=sys->solution();
@@ -483,11 +485,11 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
 
   // check reset
   sol->reset(1.);
-  sol->data(vals);
+  sol->debug_data(vals);
   BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,1.);
   sol->reset();
-  sol->data(vals);
+  sol->debug_data(vals);
   BOOST_FOREACH(double v, vals) BOOST_CHECK_EQUAL(v,0.);
 
   // set by row-wise index
@@ -497,7 +499,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   val=0.;
   sol->get_value(5,val);
   BOOST_CHECK_EQUAL(val,2.);
-  sol->data(vals);
+  sol->debug_data(vals);
   for (int i=0; i<vals.size(); i++)
   {
     if (i==5) { BOOST_CHECK_EQUAL(vals[i],2.); }
@@ -511,7 +513,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   val=0.;
   sol->get_value(2,1,val);
   BOOST_CHECK_EQUAL(val,2.);
-  sol->data(vals);
+  sol->debug_data(vals);
   for (int i=0; i<vals.size(); i++)
   {
     if (i==5) { BOOST_CHECK_EQUAL(vals[i],2.); }
@@ -530,7 +532,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   sol->add_rhs_values(ba);
   ba.reset();
   sol->get_rhs_values(ba);
-  sol->data(vals);
+  sol->debug_data(vals);
   for (int i=0; i<vals.size(); i++)
   {
     if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2]))
@@ -554,7 +556,7 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
   sol->add_sol_values(ba);
   ba.reset();
   sol->get_sol_values(ba);
-  sol->data(vals);
+  sol->debug_data(vals);
   for (int i=0; i<vals.size(); i++)
   {
     if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2]))
@@ -582,9 +584,10 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
 BOOST_AUTO_TEST_CASE( test_complete_system )
 {
   // build a commpattern and the system
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(new LSS::System("sys"));
+  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   BOOST_CHECK_EQUAL(sys->is_created(),true);
@@ -602,27 +605,27 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
   // reset
   sys->reset(1.);
-  sys->matrix()->data(rows,cols,vals);
+  sys->matrix()->debug_data(rows,cols,vals);
   BOOST_CHECK_EQUAL(cols.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
-  sys->solution()->data(vals);
+  sys->solution()->debug_data(vals);
   BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
-  sys->rhs()->data(vals);
+  sys->rhs()->debug_data(vals);
   BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,1.);
   sys->reset();
-  sys->matrix()->data(rows,cols,vals);
+  sys->matrix()->debug_data(rows,cols,vals);
   BOOST_CHECK_EQUAL(cols.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(rows.size(),node_connectivity.size()*neq*neq);
   BOOST_CHECK_EQUAL(vals.size(),node_connectivity.size()*neq*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
-  sys->solution()->data(vals);
+  sys->solution()->debug_data(vals);
   BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
-  sys->rhs()->data(vals);
+  sys->rhs()->debug_data(vals);
   BOOST_CHECK_EQUAL(vals.size(),gid.size()*neq);
   BOOST_FOREACH(Real i,vals) BOOST_CHECK_EQUAL(i,0.);
 
@@ -633,7 +636,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   if (irank==0)
   {
     sys->dirichlet(3,1,5.,true);
-    sys->matrix()->data(rows,cols,vals);
+    sys->matrix()->debug_data(rows,cols,vals);
     for (int i=0; i<vals.size(); i++)
     {
       if (rows[i]==7)
@@ -645,13 +648,13 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
         else { BOOST_CHECK_EQUAL(vals[i],2.); }
       }
     }
-    sys->solution()->data(vals);
+    sys->solution()->debug_data(vals);
     for (int i=0; i<vals.size(); i++)
     {
       if (i==7) { BOOST_CHECK_EQUAL(vals[i],5.); }
       else { BOOST_CHECK_EQUAL(vals[i],3.); }
     }
-    sys->rhs()->data(vals);
+    sys->rhs()->debug_data(vals);
     for (int i=0; i<4; i++) BOOST_CHECK_EQUAL(vals[i],4.);
     for (int i=4; i<7; i++) BOOST_CHECK_EQUAL(vals[i],-6.);
     for (int i=7; i<8; i++) BOOST_CHECK_EQUAL(vals[i],5.);
@@ -684,20 +687,20 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
     ba.indices[1]=3;
     ba.indices[2]=2;
     sys->get_values(ba);
-    sys->matrix()->data(rows,cols,vals);
+    sys->matrix()->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
     {
       if ((rows[i]/neq==ba.indices[2])&&
           ((cols[i]/neq==ba.indices[0])||(cols[i]/neq==ba.indices[1])||(cols[i]/neq==ba.indices[2]))) { BOOST_CHECK_EQUAL(vals[i],2.); }
       else { BOOST_CHECK_EQUAL(vals[i],0.); }
     }
-    sys->rhs()->data(vals);
+    sys->rhs()->debug_data(vals);
     for (int i=0; i<(const int)vals.size(); i++)
     {
       if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2])) { BOOST_CHECK_EQUAL(vals[i],4.); }
       else { BOOST_CHECK_EQUAL(vals[i],0.); }
     }
-    sys->solution()->data(vals);
+    sys->solution()->debug_data(vals);
     for (int i=0; i<(const int)vals.size(); i++)
     {
       if ((i/neq==ba.indices[0])||(i/neq==ba.indices[1])||(i/neq==ba.indices[2])) { BOOST_CHECK_EQUAL(vals[i],6.); }
@@ -757,7 +760,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
 
     sys->periodicity(2,5);
 
-    sys->matrix()->data(rows,cols,vals);
+    sys->matrix()->debug_data(rows,cols,vals);
     for (int i=0; i<(const int)vals.size(); i++)
       if ((rows[i]==4)||(rows[i]==5))
       {
@@ -785,10 +788,10 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
       if ((rows[i]!=4)&&(rows[i]!=5)&&(rows[i]!=10)&&(rows[i]!=11))
         BOOST_CHECK_EQUAL(vals[i],-2.);
 
-    sys->solution()->data(vals);
+    sys->solution()->debug_data(vals);
     BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,-3.);
 
-    sys->rhs()->data(vals);
+    sys->rhs()->debug_data(vals);
     for (int i=0; i<vals.size(); i++)
     {
       if ((i==10)||(i==11)) { BOOST_CHECK_EQUAL(vals[i],0.); }
@@ -805,7 +808,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   diag.clear();
   sys->get_diagonal(diag);
   BOOST_CHECK_EQUAL(diag.size(),blockcol_size*neq);
-  sys->matrix()->data(rows,cols,vals);
+  sys->matrix()->debug_data(rows,cols,vals);
   for (int i=0; i<(const int)vals.size(); i++)
   {
     if (cp.isUpdatable()[rows[i]/neq]) { BOOST_CHECK_EQUAL(diag[rows[i]],2.*rows[i]); }
@@ -815,7 +818,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   }
 
   // test swapping rhs and sol
-  LSS::System::Ptr sys2(new LSS::System("sys2"));
+  LSS::System::Ptr sys2(Common::allocate_component<LSS::System>("sys2"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys2,cp);
   BOOST_CHECK_EQUAL(sys2->is_created(),true);
@@ -823,11 +826,11 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   sys->reset(1.);
   sys2->reset(2.);
   sys->swap(sys->matrix(),sys2->solution(),sys2->rhs());
-  sys->matrix()->data(rows,cols,vals);
+  sys->matrix()->debug_data(rows,cols,vals);
   BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,1.);
-  sys->solution()->data(vals);
+  sys->solution()->debug_data(vals);
   BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,2.);
-  sys->rhs()->data(vals);
+  sys->rhs()->debug_data(vals);
   BOOST_FOREACH(Real i, vals) BOOST_CHECK_EQUAL(i,2.);
 
   // check destroy
@@ -878,7 +881,8 @@ WHICH RESULTS IN GID ORDER:
     gid += 3,4,5,6,7,8,9;
     rank_updatable += 0,1,1,1,1,1,1;
   }
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",gid,1,false);
   cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
 
@@ -891,7 +895,7 @@ WHICH RESULTS IN GID ORDER:
     node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
     starting_indices +=  0,2,5,8,11,14,17,19;
   }
-  System::Ptr sys(new System("sys"));
+  System::Ptr sys(Common::allocate_component<System>("sys"));
   sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
   sys->create(cp,2,node_connectivity,starting_indices);
 
@@ -938,7 +942,7 @@ WHICH RESULTS IN GID ORDER:
   // solve and check
   sys->solve();
   std::vector<Real> vals;
-  sys->solution()->data(vals);
+  sys->solution()->debug_data(vals);
   for (int i=0; i<vals.size(); i++)
     if (cp.isUpdatable()[i/neq])
       BOOST_CHECK_CLOSE( vals[i], refvals[gid[i/neq]*neq], 1e-8);

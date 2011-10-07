@@ -43,6 +43,7 @@ option( CF_ENABLE_CODECOVERAGE       "Enable code coverage"           OFF ) # no
 option( CF_ENABLE_PROFILING          "Enable code profiling"          OFF )
 
 option( CF_CHECK_ORPHAN_FILES        "Check for files in the source tree that are not used" ON )
+option( CF_ENABLE_COMPONENT_TIMING   "Enables global timing of action execution. Should be turned off for final production builds" OFF )
 
 # testing options
 

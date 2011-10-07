@@ -44,7 +44,7 @@ BOOST_FIXTURE_TEST_SUITE( CMapTests, CMapFixture )
 BOOST_AUTO_TEST_CASE ( test_CMap )
 {
 
-  CMap<std::string,Uint>::Ptr map_ptr ( new CMap<std::string,Uint> ("map"));
+  CMap<std::string,Uint>::Ptr map_ptr ( allocate_component< CMap<std::string,Uint> > ("map"));
   CMap<std::string,Uint>& map = *map_ptr;
 	
 	
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap )
 BOOST_AUTO_TEST_CASE ( test_CMap_looping )
 {
 
-  CMap<std::string,Uint>::Ptr map_ptr ( new CMap<std::string,Uint> ("map"));
+  CMap<std::string,Uint>::Ptr map_ptr ( allocate_component< CMap<std::string,Uint> > ("map"));
   CMap<std::string,Uint>& map = *map_ptr;
   
   
@@ -113,7 +113,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap_looping )
 BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
 {
 
-  CMap<int,int>::Ptr map_ptr ( new CMap<int,int> ("map"));
+  CMap<int,int>::Ptr map_ptr ( allocate_component< CMap<int,int> > ("map"));
   CMap<int,int>& map = *map_ptr;
 	
 	BOOST_CHECK_EQUAL(map.type_name() , "CMap<integer,integer>");
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
 BOOST_AUTO_TEST_CASE ( test_CMap_copy_std_map )
 {
 
-  CMap<std::string,int>::Ptr map_ptr ( new CMap<std::string,int> ("map"));
+  CMap<std::string,int>::Ptr map_ptr ( allocate_component< CMap<std::string,int> > ("map"));
   CMap<std::string,int>& map = *map_ptr;
 	
 	BOOST_CHECK_EQUAL(map.type_name() , "CMap<string,integer>");

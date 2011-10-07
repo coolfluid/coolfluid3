@@ -16,6 +16,7 @@
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Log.hpp"
+#include "Common/TimedComponent.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -284,6 +285,7 @@ BOOST_AUTO_TEST_CASE( ProtoCustomSolver )
 
   // Run the actions
   model.simulate();
+  print_timing_tree(model);
 
   // Check
   BOOST_CHECK_EQUAL(solver.temp_sum / static_cast<Real>(1+nb_segments), 288.);
@@ -335,13 +337,13 @@ struct SomeTag {};
 BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 {
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
-  
+
   BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
-  
+
   ComponentWrapper<Physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(Solver::Tags::physical_model()));
 
   BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
-  
+
   ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }
 

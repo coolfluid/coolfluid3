@@ -17,142 +17,143 @@
 
 int growl_tcp_parse_hostname( const char *const server , int default_port , struct sockaddr_in *const sockaddr  );
 
-void growl_tcp_write( int sock , const char *const format , ... ) 
+void growl_tcp_write( int sock , const char *const format , ... )
 {
-	int length;
-	char *output;
-	char *stop;
+  int length;
+  char *output;
+  char *stop;
 
-	va_list ap;
+  va_list ap;
 
-	va_start( ap , format );
-	length = vsnprintf( NULL , 0 , format , ap );
-	va_end(ap);
+  va_start( ap , format );
+  length = vsnprintf( NULL , 0 , format , ap );
+  va_end(ap);
 
-	va_start(ap,format);
-	output = (char*)malloc(length+1);
-	vsnprintf( output , length+1 , format , ap );
-	va_end(ap);
+  va_start(ap,format);
+  output = (char*)malloc(length+1);
+  vsnprintf( output , length+1 , format , ap );
+  va_end(ap);
 
-	while ((stop = strstr(output, "\r\n"))) strcpy(stop, stop + 1);
+  while ((stop = strstr(output, "\r\n"))) strcpy(stop, stop + 1);
 
-	send( sock , output , length , 0 );
-	send( sock , "\r\n" , 2 , 0 );
+  send( sock , output , length , 0 );
+  send( sock , "\r\n" , 2 , 0 );
 
-	free(output);
+  free(output);
 }
 
 char *growl_tcp_read(int sock) {
-	const int growsize = 80;
-	char c = 0;
-	char* line = (char*) malloc(growsize);
-	int len = growsize, pos = 0;
-	while (line) {
-		if (recv(sock, &c, 1, 0) <= 0) break;
-		if (c == '\r') continue;
-		if (c == '\n') break;
-		line[pos++] = c;
-		if (pos >= len) {
-			len += growsize;
-			line = (char*) realloc(line, len);
-		}
-	}
-	line[pos] = 0;
-	return line;
+  const int growsize = 80;
+  char c = 0;
+  char* line = (char*) malloc(growsize);
+  int len = growsize, pos = 0;
+  while (line) {
+    if (recv(sock, &c, 1, 0) <= 0) break;
+    if (c == '\r') continue;
+    if (c == '\n') break;
+    line[pos++] = c;
+    if (pos >= len) {
+      len += growsize;
+      line = (char*) realloc(line, len);
+    }
+  }
+  line[pos] = 0;
+  return line;
 }
 
 int growl_tcp_open(const char* server) {
-	int sock = -1;
+  int sock = -1;
 #ifdef _WIN32
-	char on;
+  char on;
 #else
-	int on;
+  int on;
 #endif
-	struct sockaddr_in serv_addr;
+  struct sockaddr_in serv_addr;
 
-	if( growl_tcp_parse_hostname( (const char *const) server , 23053 , &serv_addr ) == -1 )
-	{
-		return -1;
-	}
+  if( growl_tcp_parse_hostname( (const char *const) server , 23053 , &serv_addr ) == -1 )
+  {
+    return -1;
+  }
 
-	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-		perror("create socket");
-		return -1;
-	}
+  if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    perror("create socket");
+    return -1;
+  }
 
-	if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-		perror("connect");
-		return -1;
-	}
+  if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
+    perror("connect");
+    return -1;
+  }
 
-	on = 1;
-	if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) == -1) {
-		perror("setsockopt");
-		return -1;
-	}
+  on = 1;
+  if (setsockopt(sock, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) == -1) {
+    perror("setsockopt");
+    return -1;
+  }
 
-	return sock;
+  return sock;
 }
 
 void growl_tcp_close(int sock) {
 #ifdef _WIN32
-	if (sock > 0) closesocket(sock);
+  if (sock > 0) closesocket(sock);
 #else
-	if (sock > 0) close(sock);
+  if (sock > 0) close(sock);
 #endif
 }
 
 int growl_tcp_parse_hostname( const char *const server , int default_port , struct sockaddr_in *const sockaddr )
 {
-	char *hostname = strdup((const char*)server);
-	char *port = strchr( hostname, ':' );
-	struct hostent* host_ent;
-	if( port != NULL )
-	{
-		*port = '\0';
-		port++;
-		default_port = atoi(port);
-	}
-	
-	host_ent = gethostbyname(hostname);
-	if( host_ent == NULL )
-	{
-		perror("gethostbyname");
-		free(hostname);
-		return -1;
-	}
-	
-	memset( sockaddr , 0 , sizeof(sockaddr) );
-	sockaddr->sin_family = AF_INET;
-	memcpy( &sockaddr->sin_addr , host_ent->h_addr_list[0] , host_ent->h_length );
-	sockaddr->sin_port = htons(default_port);
-	 
-	free(hostname);
-	return 0;
+  char *hostname = malloc (strlen (server) + 1);
+  if(hostname !=NULL) strcpy(hostname,server);
+  char *port = strchr( hostname, ':' );
+  struct hostent* host_ent;
+  if( port != NULL )
+  {
+    *port = '\0';
+    port++;
+    default_port = atoi(port);
+  }
+
+  host_ent = gethostbyname(hostname);
+  if( host_ent == NULL )
+  {
+    perror("gethostbyname");
+    free(hostname);
+    return -1;
+  }
+
+  memset( sockaddr , 0 , sizeof(sockaddr) );
+  sockaddr->sin_family = AF_INET;
+  memcpy( &sockaddr->sin_addr , host_ent->h_addr_list[0] , host_ent->h_length );
+  sockaddr->sin_port = htons(default_port);
+
+  free(hostname);
+  return 0;
 }
 
 int growl_tcp_datagram( const char *server , const unsigned char *data , const int data_length )
 {
-	struct sockaddr_in serv_addr;
-	int sock = 0;
+  struct sockaddr_in serv_addr;
+  int sock = 0;
 
-	if( growl_tcp_parse_hostname( server , 9887 , &serv_addr ) == -1 )
-	{
-		return -1;
-	}
-	
-	sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if( sock < 0 )
-	{
-		return -1;
-	}
-	
-	if( sendto(sock, (char*)data , data_length , 0 , (struct sockaddr*)&serv_addr , sizeof(serv_addr) ) > 0 )
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
+  if( growl_tcp_parse_hostname( server , 9887 , &serv_addr ) == -1 )
+  {
+    return -1;
+  }
+
+  sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+  if( sock < 0 )
+  {
+    return -1;
+  }
+
+  if( sendto(sock, (char*)data , data_length , 0 , (struct sockaddr*)&serv_addr , sizeof(serv_addr) ) > 0 )
+  {
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
 }

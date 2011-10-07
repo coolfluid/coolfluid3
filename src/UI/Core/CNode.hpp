@@ -149,6 +149,12 @@ namespace Core {
     /// @param type Node type.
     CNode(const std::string & name, const QString & componentType, Type type);
 
+    /// Component::derived_type_name implementation
+    std::string derived_type_name() const
+    {
+      return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+    }
+
     /// Gives the corresponding component type name
     /// @return Returns the corresponding component type name
     QString componentType() const;

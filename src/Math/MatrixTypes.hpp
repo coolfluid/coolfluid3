@@ -4,9 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "Common/Assertions.hpp"
+
 #ifndef CF_Math_MatrixTypes_hpp
 #define CF_Math_MatrixTypes_hpp
 
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 #include "Common/CF.hpp"

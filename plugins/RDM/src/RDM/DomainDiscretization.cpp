@@ -116,15 +116,15 @@ void DomainDiscretization::signal_create_cell_term( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
+  std::string name = options.value<std::string>("name");
+  std::string type = options.value<std::string>("type");
 
   // configure the regions
   // if user did not specify, then use the whole topology (all regions)
 
   std::vector<URI> regions;
-  if( options.check("Regions") )
-    regions = options.array<URI>("Regions");
+  if( options.check("regions") )
+    regions = options.array<URI>("regions");
   else
     regions.push_back(mesh().topology().uri());
 
@@ -136,8 +136,8 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
+  std::string name = options.value<std::string>("name");
+  std::string type = options.value<std::string>("type");
 
   RDM::FaceTerm::Ptr term = build_component_abstract_type<RDM::FaceTerm>(type,name);
 
@@ -147,8 +147,8 @@ void DomainDiscretization::signal_create_face_term( SignalArgs& args )
   // if user did not specify, then use the whole topology (all regions)
 
   std::vector<URI> regions;
-  if( options.check("Regions") )
-    regions = options.array<URI>("Regions");
+  if( options.check("regions") )
+    regions = options.array<URI>("regions");
   else
     regions.push_back(mesh().topology().uri());
 
@@ -162,7 +162,7 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("Name", std::string() )
+  options.add_option< OptionT<std::string> >("name", std::string() )
       ->description("Name for created volume term");
 
   // type
@@ -191,7 +191,7 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("Name", std::string() )
+  options.add_option< OptionT<std::string> >("name", std::string() )
       ->description("Name for created volume term");
 
   // type

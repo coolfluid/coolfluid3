@@ -1,6 +1,8 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_common_files
+    AllocatedComponent.hpp
+    AllocatedComponent.cpp
     Assertions.cpp
     Assertions.hpp
     BasicExceptions.cpp
@@ -53,6 +55,7 @@ list( APPEND coolfluid_common_files
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp
+    EigenAssertions.hpp
     EnumT.hpp
     EventHandler.hpp
     EventHandler.cpp
@@ -61,6 +64,7 @@ list( APPEND coolfluid_common_files
     Exception.cpp
     Exception.hpp
     Foreach.hpp
+    IAction.hpp
     LibCommon.cpp
     LibCommon.hpp
     LibLoader.cpp
@@ -115,6 +119,8 @@ list( APPEND coolfluid_common_files
     TaggedObject.cpp
     Tags.hpp
     Tags.cpp
+    TimedComponent.hpp
+    TimedComponent.cpp
     Timer.cpp
     Timer.hpp
     TypeInfo.cpp

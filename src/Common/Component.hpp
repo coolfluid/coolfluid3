@@ -17,8 +17,8 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/range.hpp>
 
+#include "Common/AllocatedComponent.hpp"
 #include "Common/Assertions.hpp"
-
 #include "Common/PropertyList.hpp"
 #include "Common/OptionList.hpp"
 #include "Common/SignalHandler.hpp"
@@ -38,12 +38,14 @@ namespace Common {
   ///
   /// A shared pointer must be returned, as this creates the very first
   /// instance of the shared_pointer.
+  /// This is the most low-level component creation function
   /// @param [in] name The name to give to the component to allocate
   /// @return The component as a boost::shared_ptr
   template < typename T >
   boost::shared_ptr<T> allocate_component ( const std::string& name )
   {
-    typename boost::shared_ptr<T> comp ( new T(name), Deleter<T>() );
+    typedef typename SelectComponentWrapper<T>::type AllocatedComponentT;
+    typename boost::shared_ptr<T> comp ( new AllocatedComponentT(name), Deleter<AllocatedComponentT>() );
     return comp ;
   }
 
@@ -336,7 +338,7 @@ public: // functions
 
   /// @return Returns the type name of the subclass, according to
   /// @c CF::Common::TypeInfo
-  virtual std::string derived_type_name() const;
+  virtual std::string derived_type_name() const = 0;
 
   /// @return Returns a reference to the property list
   PropertyList& properties() { return m_properties; }

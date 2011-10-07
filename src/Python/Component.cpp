@@ -7,6 +7,8 @@
 #include <boost/python.hpp>
 #include <boost/python/raw_function.hpp>
 
+#include <boost/algorithm/string.hpp>
+
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/vector.hpp>
 
@@ -15,10 +17,13 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
+#include "Common/TimedComponent.hpp"
 #include "Common/TypeInfo.hpp"
 #include "Common/Signal.hpp"
 
 #include "Common/XML/FileOperations.hpp"
+
+#include "Math/MatrixTypes.hpp"
 
 #include "Python/Component.hpp"
 
@@ -28,8 +33,9 @@ namespace Python {
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector6<std::string, Real, Uint, int, bool, Common::URI> AnyTypes;
+typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, Common::URI, RealVector> AnyTypes;
 
+/// Conversion for basic types
 struct PythonToAny
 {
   PythonToAny(const object& value, boost::any& result, const std::string& target_type, bool& found) :
@@ -45,8 +51,6 @@ struct PythonToAny
   {
     if(m_found)
       return;
-
-    CFdebug << "got type " << Common::class_name_from_typeinfo(typeid(T)) << ", wanted " << m_target_type << CFendl;
 
     if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
@@ -65,15 +69,70 @@ struct PythonToAny
   bool& m_found;
 };
 
+/// Conversion for lists
+struct PythonListToAny
+{
+  PythonListToAny(const list& a_list, boost::any& result, const std::string& target_type, bool& found) :
+    m_list(a_list),
+    m_result(result),
+    m_target_type(target_type),
+    m_found(found)
+  {
+  }
+
+  template<typename T>
+  void operator()(T) const
+  {
+    if(m_found)
+      return;
+
+    if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
+      return;
+    
+    std::vector<T> vec;
+    
+    const Uint nb_items = len(m_list);
+    vec.reserve(nb_items);
+    for(Uint i = 0; i != nb_items; ++i)
+    {
+      extract<T> extracted_value(m_list[i]);
+      if(!extracted_value.check())
+        throw Common::BadValue(FromHere(), "Incorrect python extracted value for list item");
+      
+      vec.push_back(extracted_value());
+    }
+    
+    m_found = true;
+    
+    m_result = vec;
+  }
+
+  const list& m_list;
+  boost::any& m_result;
+  const std::string& m_target_type;
+  bool& m_found;
+};
+
 // Helper functions to convert to any
 boost::any python_to_any(const object& val, const std::string& target_type)
 {
   boost::any result;
   bool found = false;
-  boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, target_type, found));
+  
+  const bool is_list = boost::starts_with(target_type, "array[");
+  
+  if(is_list)
+  {
+    const std::string single_value_type(target_type.begin()+6, target_type.end()-1);
+    boost::mpl::for_each<AnyTypes>(PythonListToAny(static_cast<const list&>(val), result, single_value_type, found));
+  }
+  else
+  {
+    boost::mpl::for_each<AnyTypes>(PythonToAny(val, result, target_type, found));
+  }
 
   if(!found)
-    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any");
+    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
 
   return result;
 }
@@ -117,7 +176,6 @@ struct SignalWrapper
 
     std::string node_contents;
     Common::XML::to_string(node.node, node_contents);
-    CFdebug << "Calling signal using arguments\n:" << node_contents << CFendl;
 
     (*m_signal->signal())(node);
 
@@ -184,6 +242,11 @@ public:
     return wrap_component(component().get_child(name));
   }
 
+  object access_component(const std::string& uri)
+  {
+    return wrap_component(component().access_component(uri));
+  }
+
   void configure_option(const std::string& optname, const object& val)
   {
     Common::Option& option = component().option(optname);
@@ -211,6 +274,11 @@ public:
     {
       signal.bind_function(python_object);
     }
+  }
+
+  void print_timing_tree()
+  {
+    CF::Common::print_timing_tree(component());
   }
 
 private:
@@ -242,8 +310,10 @@ void def_component()
     .def("name", &ComponentWrapper::name, "The name of this component")
     .def("create_component", &ComponentWrapper::create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", &ComponentWrapper::get_child)
+    .def("access_component", &ComponentWrapper::access_component)
     .def("configure_option", &ComponentWrapper::configure_option)
     .def("option_value_str", &ComponentWrapper::option_value_str)
+    .def("print_timing_tree", &ComponentWrapper::print_timing_tree)
     .def("uri", &ComponentWrapper::uri);
 }
 

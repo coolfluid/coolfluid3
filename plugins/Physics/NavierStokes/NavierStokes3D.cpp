@@ -27,6 +27,12 @@ Common::ComponentBuilder < NavierStokes::NavierStokes3D,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+const Real NavierStokes3D::Properties::gamma = 1.4;
+const Real NavierStokes3D::Properties::R = 287.05;
+const Real NavierStokes3D::Properties::gamma_minus_1 = NavierStokes3D::Properties::gamma-1.;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 NavierStokes3D::NavierStokes3D( const std::string& name ) : Physics::PhysModel(name)
 {
 }

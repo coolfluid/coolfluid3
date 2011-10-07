@@ -158,11 +158,6 @@ Component::ConstPtr Component::follow() const
   return shared_from_this();
 }
 
-std::string Component::derived_type_name() const
-{
-  return CF::Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::rename ( const std::string& name )
@@ -740,6 +735,10 @@ void Component::signal_print_info ( SignalArgs& args  )
 
     CFinfo << c.second->name() << " / " << c.second->derived_type_name() << CFendl;
   }
+
+  CFinfo << "  options:" << CFendl;
+  CFinfo << options().list_options() << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

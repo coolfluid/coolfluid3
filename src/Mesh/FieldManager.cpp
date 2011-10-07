@@ -96,12 +96,12 @@ void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
     const Field::ConstPtr existing_field = find_component_ptr_with_tag<Field>(field_group, tag);
     if(is_not_null(existing_field))
     {
-      if(descriptor.description() != existing_field->descriptor().description())
+      if(descriptor.description() != existing_field->descriptor().description() || descriptor.option(Common::Tags::dimension()).value<Uint>() != existing_field->descriptor().option(Common::Tags::dimension()).value<Uint>())
       {
         throw SetupError(FromHere(), "Existing field with tag " + tag + " at " + existing_field->uri().string() + " is incompatible with descriptor " + descriptor.uri().string()
               + ": existing " + existing_field->descriptor().description() + " != required " + descriptor.description());
       }
-      
+
       CFdebug << "Skipping second field creation for tag " << tag << " in fieldgroup " << field_group.uri().string() << CFendl;
       continue;
     }

@@ -275,7 +275,7 @@ gather(const Communicator& comm, const std::vector<T>& in_values, const int in_n
 
 /**
   Interface to the constant size Gather communication with specialization to std::vector.
-  If out_values's size is zero then its resized.
+  If out_values's size is zero or in_values==out_values then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
   @param comm Comm::Communicator
@@ -292,7 +292,21 @@ gather(const Communicator& comm, const std::vector<T>& in_values, const int in_n
   // call mapped variable gather
   std::vector<int> in_map(0);
   std::vector<int> out_map(0);
-  gather(comm,in_values,in_n,in_map,out_values,out_n,out_map,root,stride);
+
+  int irank;
+  MPI_CHECK_RESULT(MPI_Comm_rank,(comm,&irank));
+
+  if ((irank==root)&&(&in_values[0]==&out_values[0]))
+  {
+    std::vector<T> out_tmp(0);
+    gather(comm,in_values,in_n,in_map,out_tmp,out_n,out_map,root,stride);
+    out_values.assign(out_tmp.begin(),out_tmp.end());
+  }
+  else
+  {
+    gather(comm,in_values,in_n,in_map,out_values,out_n,out_map,root,stride);
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

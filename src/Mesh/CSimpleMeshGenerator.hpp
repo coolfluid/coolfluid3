@@ -43,15 +43,19 @@ public: // functions
 
   virtual void execute();
 
-  static void create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts = Common::PE::Comm::instance().size(), const bool bdry = true);
-  static void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts = Common::PE::Comm::instance().size(), const bool bdry = true);
+private:
+
+  /// Create a line
+  void create_line();
+
+  /// Create a rectangle
+  void create_rectangle();
 
 protected: // data
 
   std::vector<Uint> m_nb_cells;
   std::vector<Real> m_lengths;
-
-  boost::weak_ptr<CMesh> m_mesh;
+  std::vector<Real> m_offsets;
 
 };
 

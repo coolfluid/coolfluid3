@@ -37,6 +37,7 @@
 #include <boost/math/tools/test.hpp>
 #include <boost/static_assert.hpp>
 
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 #include "Common/CF.hpp"

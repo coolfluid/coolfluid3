@@ -231,13 +231,13 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   const Uint segments = 10000;
 
   // complete circle
-  CTable<Real> coordinates(Mesh::Tags::coordinates());
-  CTable<Uint> connectivity("connectivity");
-  create_helix(coordinates, connectivity, radius, height, tours, segments);
+  CTable<Real>::Ptr coordinates(Common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Uint>::Ptr connectivity(Common::allocate_component< CTable<Uint> >("connectivity"));
+  create_helix(*coordinates, *connectivity, radius, height, tours, segments);
 
   // Check the length, using the line integral of one times the norm of the tangent vector
   Real length = 0.;
-  integrate_region(length, TangentVectorNorm(), coordinates, connectivity);
+  integrate_region(length, TangentVectorNorm(), *coordinates, *connectivity);
   BOOST_CHECK_CLOSE(length, tours*sqrt((square(2.*Consts::pi()*radius)+square(height/tours))), 0.01);
 }
 

@@ -210,7 +210,7 @@ struct VariablesDescriptor::Implementation
     std::stringstream result_str;
     for(Uint i = 0; i != nb_vars; ++i)
     {
-      result_str << (i == 0 ? "" : ",") << m_user_names[i] << "[" << to_size(m_types[i]) << "]";
+      result_str << (i == 0 ? "" : ",") << m_user_names[i] << "[" << m_types[i] << "]";
     }
 
     return result_str.str();
@@ -310,6 +310,20 @@ VariablesDescriptor::Dimensionalities::Convert::Convert()
       ("scalar", VariablesDescriptor::Dimensionalities::SCALAR)
       ("vector", VariablesDescriptor::Dimensionalities::VECTOR)
       ("tensor", VariablesDescriptor::Dimensionalities::TENSOR);
+}
+
+std::ostream& operator<< ( std::ostream& os, const VariablesDescriptor::Dimensionalities::Type& in )
+{
+  os << VariablesDescriptor::Dimensionalities::Convert::instance().to_str(in);
+  return os;
+}
+
+std::istream& operator>> (std::istream& is, VariablesDescriptor::Dimensionalities::Type& in )
+{
+  std::string tmp;
+  is >> tmp;
+  in = VariablesDescriptor::Dimensionalities::Convert::instance().to_enum(tmp);
+  return is;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

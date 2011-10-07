@@ -49,6 +49,12 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
       ->link_to(&m_nb_cells)
       ->mark_basic();
 
+  m_options.add_option<OptionArrayT<Real> >("offsets", m_offsets)
+      ->description("Vector of offsets in direction")
+      ->pretty_name("Offsets")
+      ->link_to(&m_offsets)
+      ->mark_basic();
+
   m_options.add_option<OptionArrayT<Real> >("lengths", m_lengths)
       ->description("Vector of lengths each direction")
       ->pretty_name("Lengths")
@@ -74,34 +80,42 @@ CSimpleMeshGenerator::~CSimpleMeshGenerator()
 
 void CSimpleMeshGenerator::execute()
 {
-  if ( m_parent.expired() )
-    throw SetupError(FromHere(), "Parent component not set");
-
-  m_mesh = m_parent.lock()->create_component_ptr<CMesh>(m_name);
+  if ( m_mesh.expired() )
+    throw SetupError(FromHere(), "Mesh URI not set");
 
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
   {
-    create_line(*m_mesh.lock(), m_lengths[0],m_nb_cells[0],option("nb_parts").value<Uint>(), option("bdry").value<bool>());
+    create_line();
   }
   else if (m_nb_cells.size() == 2  && m_lengths.size() == 2)
   {
-    create_rectangle(*m_mesh.lock(), m_lengths[0],m_lengths[1],m_nb_cells[0],m_nb_cells[1],option("nb_parts").value<Uint>(),option("bdry").value<bool>());
+    create_rectangle();
   }
   else
   {
     throw SetupError(FromHere(), "Invalid size of the vector number of cells. Only 1D and 2D supported now.");
   }
 
+  raise_mesh_loaded();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint x_segments, const Uint nb_parts, const bool bdry)
+void CSimpleMeshGenerator::create_line()
 {
+  CMesh& mesh = *m_mesh.lock();
+  const Uint x_segments = m_nb_cells[XX];
+  const Real x_len = m_lengths[XX];
+  const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
+  const Uint nb_parts = option("nb_parts").value<Uint>();
+  const bool bdry = option("bdry").value<bool>();
+
   Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
-  CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
+  CMixedHash::Ptr tmp_hash = allocate_component<CMixedHash>("tmp_hash");
+  CMixedHash& hash = *tmp_hash;
+
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
@@ -122,7 +136,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   Uint elem_idx(0);
   for(Uint i = hash.subhash(NODES).start_idx_in_part(part); i < hash.subhash(NODES).end_idx_in_part(part); ++i)
   {
-    nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
+    nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step + x_offset;
     nodes.rank()[node_idx] = part;
     ++node_idx;
   }
@@ -130,7 +144,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
   {
     if (hash.subhash(NODES).owns(i) == false)
     {
-      nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step;
+      nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i);
       connectivity[elem_idx][0]=node_idx;
       elem_rank[elem_idx] = part;
@@ -144,7 +158,7 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
 
     if (hash.subhash(NODES).owns(i+1) == false)
     {
-      nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step;
+      nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i+1);
       connectivity[elem_idx][1]=node_idx;
       elem_rank[elem_idx] = part;
@@ -186,15 +200,23 @@ void CSimpleMeshGenerator::create_line(CMesh& mesh, const Real x_len, const Uint
       xpos_rank[0] = part;
     }
   }
-  mesh_loaded(mesh);
-
-  Core::instance().root().remove_component(hash);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments , const Uint nb_parts , const bool bdry)
+void CSimpleMeshGenerator::create_rectangle()
 {
+  CMesh& mesh = *m_mesh.lock();
+  const Uint x_segments = m_nb_cells[XX];
+  const Uint y_segments = m_nb_cells[YY];
+  const Real x_len = m_lengths[XX];
+  const Real y_len = m_lengths[YY];
+  const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
+  const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
+  const Uint nb_parts = option("nb_parts").value<Uint>();
+  const bool bdry = option("bdry").value<bool>();
+
+
   Uint part = PE::Comm::instance().rank();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
@@ -261,8 +283,8 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       {
         cf_assert(glb_node_idx-glb_node_start_idx < nodes.size());
         CTable<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
-        row[XX] = static_cast<Real>(i) * x_step;
-        row[YY] = y;
+        row[XX] = static_cast<Real>(i) * x_step + x_offset;
+        row[YY] = y + y_offset;
         nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
       }
     }
@@ -278,8 +300,8 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
     loc_ghost_node_idx = loc_node_idx++;
     cf_assert(loc_ghost_node_idx < nodes.size());
     CTable<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
-    row[XX] = static_cast<Real>(i) * x_step;
-    row[YY] = static_cast<Real>(j) * y_step;
+    row[XX] = static_cast<Real>(i) * x_step + x_offset;
+    row[YY] = static_cast<Real>(j) * y_step + y_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
   CCells::Ptr cells = region.create_component_ptr<CCells>("Quad");
@@ -438,8 +460,6 @@ void CSimpleMeshGenerator::create_rectangle(CMesh& mesh, const Real x_len, const
       }
     }
   }
-  mesh_loaded(mesh);
-
 
   // sanity checks
 

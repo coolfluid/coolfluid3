@@ -93,7 +93,8 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry().coordinates().set_field_group(geometry());
   geometry().coordinates().set_topology(geometry().topology());
   geometry().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
-  geometry().coordinates().descriptor().configure_option(Common::Tags::dimension(),dimension);  geometry().resize(nb_nodes);
+  geometry().coordinates().descriptor().configure_option(Common::Tags::dimension(),dimension);
+  geometry().resize(nb_nodes);
 
   cf_assert(geometry().size() == nb_nodes);
   cf_assert(geometry().coordinates().row_size() == dimension);
@@ -231,7 +232,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
   options.add_option< OptionT<std::string> >("file" , name() + ".msh" )
       ->description("File to write" );
 
-  boost_foreach (Field& field, find_components<Field>(*this))
+  boost_foreach (Field& field, find_components_recursively<Field>(*this))
   {
     options.add_option< OptionT<bool> >(field.name(), false )
         ->description("Mark if field gets to be written");
@@ -242,8 +243,6 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
 
 void CMesh::signal_write_mesh ( SignalArgs& node )
 {
-  WriteMesh::Ptr mesh_writer = create_component_ptr<WriteMesh>("writer");
-
   SignalOptions options( node );
 
   std::string file = name()+".msh";
@@ -261,7 +260,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
 
   std::vector<URI> fields;
 
-  boost_foreach( Field& field, find_components<Field>(*this))
+  boost_foreach( Field& field, find_components_recursively<Field>(*this))
   {
     if (options.check(field.name()))
     {
@@ -270,8 +269,15 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
         fields.push_back(field.uri());
     }
   }
-  mesh_writer->write_mesh(*this,fpath,fields);
-  remove_component(mesh_writer->name());
+
+  write_mesh(fpath,fields);
+}
+
+void CMesh::write_mesh( const URI& file, const std::vector<URI> fields)
+{
+  WriteMesh& mesh_writer = create_component<WriteMesh>("writer");
+  mesh_writer.write_mesh(*this,file,fields);
+  remove_component(mesh_writer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

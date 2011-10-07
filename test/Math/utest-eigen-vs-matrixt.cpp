@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 #include "Common/CF.hpp"
@@ -98,7 +99,7 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
 //     ma[i].resize( LSIZE, LSIZE );
 //     ma[i] = 2.0;
 //   }
-// 
+//
 //   std::vector< RealVector > vb;
 //   vb.resize( MSIZE );
 //   for ( int i = 0; i < MSIZE; ++i )
@@ -106,7 +107,7 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
 //     vb[i].resize( LSIZE );
 //     vb[i] = 5.0;
 //   }
-// 
+//
 //   std::vector< RealVector > vc;
 //   vc.resize( MSIZE );
 //   for ( int i = 0; i < MSIZE; ++i )
@@ -114,9 +115,9 @@ BOOST_AUTO_TEST_CASE( dgemv_eigen_fixed )
 //     vc[i].resize( LSIZE );
 //     vc[i] = 0.0;
 //   }
-// 
+//
 //   restart_timer();
-// 
+//
 //   for ( int i = 0; i < MSIZE; ++i )
 //     vc[i] = ma[i] * vb[i];
 // }
@@ -223,7 +224,7 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
 //     ma[i].resize( LSIZE, LSIZE );
 //     ma[i] = 2.0;
 //   }
-// 
+//
 //   std::vector< RealMatrix > mb;
 //   mb.resize( MSIZE );
 //   for ( int i = 0; i < MSIZE; ++i )
@@ -231,7 +232,7 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
 //     mb[i].resize( LSIZE, LSIZE );
 //     mb[i] = 7.0;
 //   }
-// 
+//
 //   std::vector< RealMatrix > mc;
 //   mc.resize( MSIZE );
 //   for ( int i = 0; i < MSIZE; ++i )
@@ -239,9 +240,9 @@ BOOST_AUTO_TEST_CASE( dgemm_eigen_fixed )
 //     mc[i].resize( LSIZE, LSIZE );
 //     mc[i] = 0.0;
 //   }
-// 
+//
 //   restart_timer();
-// 
+//
 //   for ( int i = 0; i < MSIZE; ++i )
 //     mc[i] = ma[i] * mb[i];
 // }

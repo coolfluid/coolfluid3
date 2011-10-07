@@ -49,9 +49,6 @@ CEntities::CEntities ( const std::string& name ) :
   m_spaces_group = create_static_component_ptr<CGroup>("spaces");
   m_spaces_group->mark_basic();
 
-  m_nodes = create_static_component_ptr<CLink>(Mesh::Tags::nodes());
-  m_nodes->add_tag(Mesh::Tags::nodes());
-
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
   m_rank->add_tag("rank");
 
@@ -77,15 +74,15 @@ void CEntities::initialize(const std::string& element_type_name)
   cf_assert(is_not_null(m_element_type));
 }
 
-void CEntities::initialize(const std::string& element_type_name, Geometry& nodes)
+void CEntities::initialize(const std::string& element_type_name, Geometry& geometry)
 {
-  assign_geometry(nodes);
+  assign_geometry(geometry);
   initialize(element_type_name);
 }
 
-void CEntities::assign_geometry(Geometry& nodes)
+void CEntities::assign_geometry(Geometry& geometry)
 {
-  m_nodes->link_to(nodes.follow());
+  m_geometry = geometry.as_ptr<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,8 +104,9 @@ void CEntities::configure_element_type()
   }
   else
   {
-    CSpace& geometry = create_space(Mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
-    geometry.add_tag(Mesh::Tags::geometry());
+    CSpace& geometry_space = create_space(Mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
+    geometry_space.add_tag(Mesh::Tags::geometry());
+    m_geometry_space = geometry_space.as_ptr<CSpace>();
   }
 }
 
@@ -118,13 +116,6 @@ ElementType& CEntities::element_type() const
 {
   cf_assert_desc("element_type not initialized", is_not_null(m_element_type));
   return *m_element_type;
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
-Geometry& CEntities::geometry() const
-{
-  return m_nodes->follow()->as_type<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

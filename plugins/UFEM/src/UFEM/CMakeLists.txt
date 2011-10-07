@@ -9,6 +9,8 @@ list( APPEND coolfluid_ufem_files
   LinearSolver.cpp
   LinearSolverUnsteady.hpp
   LinearSolverUnsteady.cpp
+  NavierStokes.hpp
+  NavierStokes.cpp
   NavierStokesOps.hpp
   SparsityBuilder.hpp
   SparsityBuilder.cpp
@@ -23,3 +25,4 @@ list( APPEND coolfluid_ufem_cflibs coolfluid_mesh_lagrangep1 coolfluid_solver_ac
 set( coolfluid_ufem_condition ${CF_ENABLE_PROTO} )
 
 coolfluid_add_library( coolfluid_ufem )
+set_source_files_properties(HeatConductionSteady.cpp NavierStokes.cpp PROPERTIES COMPILE_FLAGS "-g0 --param ggc-min-expand=20 --param ggc-min-heapsize=16384")

@@ -516,8 +516,10 @@ void CReader::read_connectivity()
        CEntities::Ptr elements;
        if (allocated_type->dimensionality() == allocated_type->dimension()-1)
          elements = build_component_abstract_type<CEntities>("CF.Mesh.CFaces",allocated_type->shape_name());
-       else
+       else if(allocated_type->dimensionality() == allocated_type->dimension())
          elements = build_component_abstract_type<CEntities>("CF.Mesh.CCells",allocated_type->shape_name());
+       else
+         elements = build_component_abstract_type<CEntities>("CF.Mesh.CElements",allocated_type->shape_name());
       region->add_component(elements);
       elements->initialize(cf_elem_name,nodes);
 

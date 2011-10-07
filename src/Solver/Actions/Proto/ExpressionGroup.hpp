@@ -28,10 +28,10 @@ struct ExpressionGroup :
 {
   template<typename ExprT, typename StateT, typename DataT>
   struct impl : boost::proto::transform_impl<ExprT, StateT, DataT>
-  { 
-    
+  {
+
     typedef void result_type;
-  
+
     /// Fusion functor to evaluate each child expression using the GrammarT supplied in the template argument
     struct evaluate_expr
     {
@@ -40,7 +40,7 @@ struct ExpressionGroup :
         m_data(data)
       {
       }
-      
+
       template<typename ChildExprT>
       void operator()(ChildExprT& expr) const
       {
@@ -51,7 +51,7 @@ struct ExpressionGroup :
       typename impl::state_param  m_state;
       typename impl::data_param m_data;
     };
-    
+
     void operator ()(
                 typename impl::expr_param expr
               , typename impl::state_param state
@@ -88,8 +88,8 @@ struct GroupGrammar :
   >
 {
 };
-  
-  
+
+
 } // Proto
 } // Actions
 } // Solver

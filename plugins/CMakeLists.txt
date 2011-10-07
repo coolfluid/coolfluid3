@@ -9,9 +9,6 @@ add_subdirectory( CGAL )
 # Riemann Solvers
 add_subdirectory( RiemannSolvers )
 
-# Runge-Kutta
-add_subdirectory( RungeKutta )
-
 # UFEM Finite Element solver
 add_subdirectory( UFEM )
 

@@ -153,6 +153,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Math_API std::ostream& operator<< ( std::ostream& os, const VariablesDescriptor::Dimensionalities::Type& in );
+Math_API std::istream& operator>> ( std::istream& is, VariablesDescriptor::Dimensionalities::Type& in );
+
 } // Math
 } // CF
 

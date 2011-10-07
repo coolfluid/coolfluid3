@@ -268,7 +268,7 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
 
 /**
   Interface to the constant size all to all communication with specialization to std::vector.
-  If out_values's size is zero then its resized.
+  If out_values's size is zero or in_values==out_values then its resized.
   If out_n (receive counts) is not of size of #processes, then error occurs.
   If out_n (receive counts) is filled with -1s, then a pre communication occurs to fill out_n.
   @param comm Comm::Communicator
@@ -285,7 +285,16 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
   // call mapped variable all_to_all
   std::vector<int> in_map(0);
   std::vector<int> out_map(0);
-  all_to_all(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
+  if (&in_values[0]==&out_values[0])
+  {
+    std::vector<T> out_tmp(0);
+    all_to_all(comm,in_values,in_n,in_map,out_tmp,out_n,out_map,stride);
+    out_values.assign(out_tmp.begin(),out_tmp.end());
+  }
+  else
+  {
+    all_to_all(comm,in_values,in_n,in_map,out_values,out_n,out_map,stride);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////

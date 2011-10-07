@@ -69,12 +69,14 @@ BOOST_AUTO_TEST_CASE( system_solve )
   test_matrix m;
 
   // commpattern
-  Common::PE::CommPattern cp("commpattern");
+  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+  Common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",m.global_numbering,1,false);
   cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),m.irank_updatable);
 
   // system
-  LSS::System sys("system");
+  LSS::System::Ptr sys_ptr = Common::allocate_component<LSS::System>("system");
+  LSS::System& sys = *sys_ptr;
   sys.options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
   sys.create(cp,m.nbeqs,m.column_indices,m.rowstart_positions);
   sys.reset();
@@ -180,7 +182,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
 
   // check results
   std::vector<Real> v;
-  sys.solution()->data(v);
+  sys.solution()->debug_data(v);
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     if (cp.isUpdatable()[i])
       for (int j=0; j<(const int)m.nbeqs; j++)
@@ -192,7 +194,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
   std::ofstream fres(std::string("coords_with_sol_" + boost::lexical_cast<std::string>(m.irank) + ".plt").c_str());
   fres << "VARIABLES=\"X\",\"Y\",\"V0\",\"V1\",\"V2\"\nZONE T=\"Solve results of utest-lss-distributed-matrix.\"" << std::flush;
   fres.precision(15);
-  sys.solution()->data(v);
+  sys.solution()->debug_data(v);
   for (int i=0; i<(const int)m.global_numbering.size(); i++)
     if (cp.isUpdatable()[i])
       fres << m.nodal_coordinates[2*i+0] << " " << m.nodal_coordinates[2*i+1] << " " << v[m.nbeqs*i+0] << " " << v[m.nbeqs*i+1] << " " << v[m.nbeqs*i+2] << "\n" << std::flush;

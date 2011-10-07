@@ -21,6 +21,7 @@
 
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
+#include "Solver/Actions/Proto/CProtoAction.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -124,10 +125,52 @@ void LinearSolver::execute()
 void LinearSolver::mesh_loaded(CMesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
+  mesh_changed(mesh);
+}
 
-  // Create fields using the known tags
-  field_manager().create_field(Tags::solution(), mesh.geometry());
-  field_manager().create_field(Tags::source_terms(), mesh.geometry());
+void LinearSolver::mesh_changed(CMesh& mesh)
+{
+  CFdebug << "UFEM::LinearSolver: Reacting to mesh_changed signal" << CFendl;
+
+  // Ensure the comm pattern will be updated
+  if(is_not_null(mesh.geometry().get_child_ptr("CommPattern")))
+  {
+    mesh.geometry().remove_component("CommPattern");
+  }
+
+  // Find out what tags are used
+  std::set<std::string> tags;
+  BOOST_FOREACH(const CProtoAction& action, find_components_recursively<CProtoAction>(*this))
+  {
+    action.insert_tags(tags);
+  }
+
+  // Create fields as needed
+  BOOST_FOREACH(const std::string& tag, tags)
+  {
+    Field::Ptr field = find_component_ptr_with_tag<Field>(mesh.geometry(), tag);
+
+    // If the field was created before, destroy it
+    if(is_not_null(field))
+    {
+      CFdebug << "Removing existing field " << field->uri().string() << CFendl;
+      field->parent().remove_component(field->name());
+      field.reset();
+    }
+
+    CFdebug << "Creating field with tag " << tag << CFendl;
+
+    // Create the field
+    field_manager().create_field(tag, mesh.geometry());
+    field = find_component_ptr_with_tag<Field>(mesh.geometry(), tag);
+    cf_assert(is_not_null(field));
+
+    // Parallelize
+    if(Common::PE::Comm::instance().is_active())
+    {
+      field->parallelize_with(mesh.geometry().comm_pattern());
+    }
+  }
 
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
@@ -136,6 +179,7 @@ void LinearSolver::mesh_loaded(CMesh& mesh)
 
   trigger_lss();
 }
+
 
 CAction& LinearSolver::zero_action()
 {
@@ -173,26 +217,7 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
-    PE::CommPattern::Ptr comm_pattern = boost::dynamic_pointer_cast<PE::CommPattern>(mesh().get_child_ptr("comm_pattern_node_based"));
-    // In a serial case, create a default comm pattern if it doesn't exist already
-    const Uint nb_nodes = mesh().geometry().coordinates().size();
-    std::vector<Uint> gids(nb_nodes);
-    std::vector<Uint> ranks(nb_nodes);
-    if(PE::Comm::instance().size() == 1 && is_null(comm_pattern))
-    {
-      for(Uint i = 0; i != nb_nodes; ++i)
-      {
-        ranks[i] = 0;
-        gids[i] = i;
-      }
-      comm_pattern = mesh().create_component_ptr<Common::PE::CommPattern>("comm_pattern_node_based");
-      comm_pattern->insert("gid",gids,1,false);
-      comm_pattern->setup(comm_pattern->get_child("gid").as_ptr<PE::CommWrapper>(),ranks);
-    }
-    if(is_null(comm_pattern))
-      throw SetupError(FromHere(), "There is no comm_pattern_node_based in " + uri().string());
-    
-    m_implementation->m_lss.lock()->create(*comm_pattern, descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss.lock()->create(mesh().geometry().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
   }
 
   configure_option_recursively("lss", option("lss").value<URI>());

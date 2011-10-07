@@ -119,8 +119,9 @@ CConnectivity::ConstRow CSpace::indexes_for_element(const Uint elem_idx) const
 {
   if (m_is_proxy)
   {
+    const Uint start_idx = m_elem_start_idx+elem_idx*m_connectivity_proxy.shape()[1];
     for (Uint i=0; i<m_connectivity_proxy.shape()[1]; ++i)
-      m_connectivity_proxy[0][i] = m_elem_start_idx+i + elem_idx*m_connectivity_proxy.shape()[1];
+      m_connectivity_proxy[0][i] = start_idx+i;
     return m_connectivity_proxy[0];
   }
   else

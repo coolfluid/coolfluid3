@@ -56,8 +56,8 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag3D::faces()
 
 const CF::Mesh::ElementType& Triag3D::face_type(const CF::Uint face)
 {
-  static const ElementTypeT<Triag3D> facetype;
-  return facetype;
+  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Triag3D> >(Triag3D::type_name()) );
+  return *facetype;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

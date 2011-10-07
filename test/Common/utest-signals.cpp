@@ -115,8 +115,8 @@ BOOST_AUTO_TEST_CASE( simple_signal )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  CSmall::Ptr small_1  ( new CSmall ( "small-1" ) );
-  CSmall::Ptr small_2  ( new CSmall ( "small-2" ) );
+  CSmall::Ptr small_1  ( allocate_component<CSmall> ( "small-1" ) );
+  CSmall::Ptr small_2  ( allocate_component<CSmall> ( "small-2" ) );
 
   root->add_component(small_1);
   small_1->add_component(small_2);
