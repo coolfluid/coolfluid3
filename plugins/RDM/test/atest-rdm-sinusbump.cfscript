@@ -29,7 +29,7 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.01
 
 ### initial conditions
 
-call Model/RDSolver/InitialConditions/create_initial_condition Name:string=INIT
+call Model/RDSolver/InitialConditions/create_initial_condition name:string=INIT
 
 configure Model/RDSolver/InitialConditions/INIT functions:array[string]=1.204751547,206.7002847,0.0,271044.375
 # corresponding pressure 101325.0
@@ -37,26 +37,26 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=1.204751
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=INLET  Type:string=CF.RDM.SubsonicInFlowWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubInlet
+     name:string=INLET  type:string=CF.RDM.SubsonicInFlowWeakBc \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/SubInlet
 
 configure Model/RDSolver/BoundaryConditions/INLET rho_in:string=1.204751547 vel_in:array[string]=171.570881,0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=OUTLET  Type:string=CF.RDM.SubsonicOutFlowWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/SubOutlet
+     name:string=OUTLET  type:string=CF.RDM.SubsonicOutFlowWeakBc \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/SubOutlet
 
 configure Model/RDSolver/BoundaryConditions/OUTLET p_out:string=101325.0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     Name:string=WALLS  Type:string=CF.RDM.WallWeakBc \
-     Regions:array[uri]=//Root/Model/Domain/mesh/topology/LowerWall,//Root/Model/Domain/mesh/topology/UpperWall
+     name:string=WALLS  type:string=CF.RDM.WallWeakBc \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/LowerWall,//Root/Model/Domain/mesh/topology/UpperWall
 
 ### domain discretization
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
-     Name:string=INTERNAL \
-     Type:string=CF.RDM.Schemes.LDA
+     name:string=INTERNAL \
+     type:string=CF.RDM.Schemes.LDA
 
 ### simulate and write the result
 

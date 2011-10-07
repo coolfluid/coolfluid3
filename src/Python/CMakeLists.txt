@@ -16,7 +16,7 @@ list( APPEND coolfluid_python_files
 )
 
 set( coolfluid_python_kernellib TRUE )
-
+set( coolfluid_python_PYTHON_MODULE TRUE )
 list(APPEND coolfluid_python_includedirs ${PYTHON_INCLUDE_DIRS})
 list(APPEND coolfluid_python_libs ${Boost_PYTHON_LIBRARY} ${PYTHON_LIBRARIES})
 list(APPEND coolfluid_python_cflibs coolfluid_common )

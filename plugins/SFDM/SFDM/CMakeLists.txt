@@ -54,6 +54,11 @@ list( APPEND coolfluid_sfdm_files
 
   P2/Line.hpp
   P2/Line.cpp
+  P2/Quad.hpp
+  P2/Quad.cpp
+
+  P3/Line.hpp
+  P3/Line.cpp
 )
 
 list( APPEND coolfluid_sfdm_cflibs coolfluid_mesh_actions coolfluid_solver coolfluid_solver_actions coolfluid_physics coolfluid_riemannsolvers)

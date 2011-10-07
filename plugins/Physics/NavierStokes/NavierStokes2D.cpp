@@ -27,13 +27,23 @@ Common::ComponentBuilder < NavierStokes::NavierStokes2D,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+const Real NavierStokes2D::Properties::gamma = 1.4;
+const Real NavierStokes2D::Properties::R = 287.05;
+const Real NavierStokes2D::Properties::gamma_minus_1 = NavierStokes2D::Properties::gamma-1.;
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 NavierStokes2D::NavierStokes2D( const std::string& name ) : Physics::PhysModel(name)
 {
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
+
 NavierStokes2D::~NavierStokes2D()
 {
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
 
 boost::shared_ptr< Physics::Variables > NavierStokes2D::create_variables( const std::string type, const std::string name )
 {

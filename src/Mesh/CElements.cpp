@@ -70,8 +70,7 @@ void CElements::assign_geometry(Geometry& geo)
 
 CConnectivity& CElements::node_connectivity() const
 {
-  /// @todo make the line space(Tags::geometry()).connectivity() less computational
-  return space(Tags::geometry()).connectivity();
+  return geometry_space().connectivity();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

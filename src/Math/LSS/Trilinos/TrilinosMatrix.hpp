@@ -54,7 +54,7 @@ public:
   const std::string solvertype() { return "Trilinos"; }
 
   /// Accessor to the flag if matrix, solution and rhs are tied together or not
-  const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; };
+  const bool is_swappable(const LSS::Vector::Ptr solution, const LSS::Vector::Ptr rhs) { return true; }
 
   /// Default constructor
   TrilinosMatrix(const std::string& name);

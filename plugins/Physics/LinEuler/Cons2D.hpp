@@ -32,7 +32,7 @@ public: //typedefs
 
   typedef LinEuler2D     MODEL;
 
-  enum { Rho = 0, RhoU0 = 1, RhoV0 = 2, P = 3 };
+  enum { Rho = 0, Rho0U = 1, Rho0V = 2, P = 3 };
 
   typedef boost::shared_ptr<Cons2D> Ptr;
   typedef boost::shared_ptr<Cons2D const> ConstPtr;
@@ -60,34 +60,40 @@ public: // functions
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
 
-    p.gamma = 1.0;
-
-    p.rho0   = 1.0;                      // reference density
-    p.u0[XX] = 0.5;                     // reference velocity
-    p.u0[YY] = 0.0;
-    p.P0     = 1.0;                      // reference pressure
-
-    p.inv_rho0 = 1. / p.rho0;             // inverse of reference density, very commonly used
-
-    p.c     = std::sqrt( p.gamma * p.P0 * p.inv_rho0 );
-
-    p.inv_c = 1. / p.c;                 // inverse of the speed of sound, very commonly used
-
     p.rho   = sol[Rho];                 // acoustic density
-    p.rho0u = sol[RhoU0];               // rho0.u
-    p.rho0v = sol[RhoV0];               // rho0.v
+    p.rho0u = sol[Rho0U];               // rho0.u
+    p.rho0v = sol[Rho0V];               // rho0.v
     p.p     = sol[P];                   // acoustic pressure
 
     p.u = p.rho0u / p.rho0;                   // velocity along XX, rho0.u / rho0
     p.v = p.rho0v / p.rho0;                   // velocity along YY, rho0.v / rho0
+
+    p.H = p.p/(p.rho+p.rho0) + 0.5*(p.u*p.u + p.v*p.v);
+
+    if (p.P0 + p.p <= 0)
+    {
+      std::cout << "rho   : " << p.rho  << std::endl;
+      std::cout << "rho0u : " << p.rho0u << std::endl;
+      std::cout << "rho0v : " << p.rho0v << std::endl;
+      std::cout << "P     : " << p.p    << std::endl;
+      std::cout << "u     : " << p.u    << std::endl;
+      std::cout << "v     : " << p.v    << std::endl;
+      std::cout << "H     : " << p.H << std::endl;
+
+      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                               + Common::to_str(coord[XX]) + ","
+                               + Common::to_str(coord[YY])
+                               + "]");
+    }
+
   }
 
   template < typename VectorT >
   static void compute_variables ( const MODEL::Properties& p, VectorT& vars )
   {
     vars[Rho]   = p.rho;
-    vars[RhoU0] = p.rho0u;
-    vars[RhoV0] = p.rho0v;
+    vars[Rho0U] = p.rho0u;
+    vars[Rho0V] = p.rho0v;
     vars[P]     = p.p;
   }
 
@@ -96,16 +102,21 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-//    flux(0,XX) = p.rhou;              // rho.u
-//    flux(1,XX) = p.rhou * p.u + p.P;  // rho.u^2 + P
-//    flux(2,XX) = p.rhou * p.v;        // rho.u.v
-//    flux(3,XX) = p.rhou * p.H;        // rho.u.H
+//  From coolfluid 2
+//    _fluxArray[varIDs[0]] = V0n*rho+un*rho0;
+//    _fluxArray[varIDs[1]] = rho0*V0n*u+p*nx;
+//    _fluxArray[varIDs[2]] = rho0*V0n*v+p*ny;
+//    _fluxArray[varIDs[3]] = V0n*p+un*gamma*P0;
 
-//    flux(0,YY) = p.rhov;              // rho.v
-//    flux(1,YY) = p.rhov * p.u;        // rho.v.u
-//    flux(2,YY) = p.rhov * p.v + p.P;  // rho.v^2 + P
-//    flux(3,YY) = p.rhov * p.H;        // rho.v.H
-    throw Common::NotImplemented(FromHere(), "Cons2D::flux()");
+    flux(0,XX) = p.u0[XX]*p.rho+p.rho0u;
+    flux(1,XX) = p.rho0*p.u0[XX]*p.u+p.p;
+    flux(2,XX) = p.rho0*p.u0[XX]*p.v;
+    flux(3,XX) = p.u0[XX]*p.p + p.u*p.gamma*p.P0;
+
+    flux(0,YY) = p.u0[YY]*p.rho+p.rho0v;
+    flux(1,YY) = p.rho0*p.u0[YY]*p.u;
+    flux(2,YY) = p.rho0*p.u0[YY]*p.v+p.p;
+    flux(3,YY) = p.u0[YY]*p.p + p.v*p.gamma*p.P0;
   }
 
   /// compute the eigen values of the flux jacobians

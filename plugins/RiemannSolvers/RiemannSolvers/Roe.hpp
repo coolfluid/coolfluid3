@@ -68,6 +68,9 @@ private:
   RealMatrix right_eigenvectors;
   RealMatrix abs_jacobian;
 
+  RealVector central_flux;
+  RealVector upwind_flux;
+
   // Operator to calculate the absolute value
   struct Abs : public Physics::UnaryRealOp
   {

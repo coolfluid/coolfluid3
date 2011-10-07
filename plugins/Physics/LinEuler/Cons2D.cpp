@@ -21,7 +21,7 @@ Common::ComponentBuilder < LinEuler::Cons2D,
 
 Cons2D::Cons2D(const std::string& name) : VariablesT<Cons2D>(name)
 {
-  description().set_variables("Rho,RhoU0[v],P",MODEL::_ndim);
+  description().set_variables("Rho,Rho0U[v],P",MODEL::_ndim);
 }
 
 Cons2D::~Cons2D() {}

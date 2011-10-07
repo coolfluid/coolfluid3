@@ -52,9 +52,12 @@ public: // functions
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    Real gamma;               ///< specific heat ratio
-    Real gamma_minus_1;       ///< specific heat ratio minus one, very commonly used
-    Real R;                   ///< gas constant
+    /// @name Gas constants, for now hardcoded in .cpp file
+    //@{
+    static const Real gamma;            ///< specific heat ratio
+    static const Real R;                ///< gas constant
+    static const Real gamma_minus_1;    ///< specific heat ratio minus one, very commonly used
+    //@}
 
     Real rho;                 ///< density
     Real rhou;                ///< rho.u

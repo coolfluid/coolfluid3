@@ -13,18 +13,23 @@ configure //Root/Environment assertion_throws:bool=false   \
 create Wizard CF.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.Scalar.ScalarSys2D
+                          physical_model:string=CF.Physics.Scalar.Scalar2D
 
 ### read mesh
 
-call Model/Domain/load_mesh file:uri=file:rectangle2x1-tg-p1-953.msh
-# "file:rectangle2x1-tg-p2-3689.msh"
-# "file:rectangle2x1-qd-p1-861.msh"
-# "file:rectangle2x1-qd-p2-3321.msh"
+call Model/Domain/load_mesh file:uri=file:rotation-tg-p1.neu
+# file:rotation-tg-p1.msh
+# file:rotation-tg-p2.msh
+# file:rotation-tg-p4.msh
+# file:rotation-qd-p1.msh
+# file:rotation-qd-p2.msh
+# file:rotation-qd-p3.msh
+# file:rotation-qd-p4.msh
+
 
 ### solver
 
-configure Model/RDSolver                                update_vars:string=LinearAdvSys2D
+configure Model/RDSolver                                update_vars:string=RotationAdv2D
 
 configure Model/RDSolver/IterativeSolver/MaxIterations  maxiter:unsigned=50
 configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
@@ -33,18 +38,26 @@ configure Model/RDSolver/IterativeSolver/Update/Step    cfl:real=0.25
 
 call Model/RDSolver/InitialConditions/create_initial_condition name:string=INIT
 
-configure Model/RDSolver/InitialConditions/INIT functions:array[string]="x*x+y*y,0"
+configure Model/RDSolver/InitialConditions/INIT functions:array[string]=x*x+y*y
+
+# configure Model/RDSolver/InitialConditions use_strong_bcs:bool=true
+
 
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      name:string=INLET \
      type:string=CF.RDM.BcDirichlet \
-     regions:array[uri]=\
-//Root/Model/Domain/mesh/topology/bottom,\
-//Root/Model/Domain/mesh/topology/left
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
 
-configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="2.0*cos(2*3.141592*(x+y)),3.0*cos(2*3.141592*(x+y))"
+configure Model/RDSolver/BoundaryConditions/INLET "functions:array[string]=if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
+
+call Model/RDSolver/BoundaryConditions/create_boundary_condition \
+     name:string=FARFIELD \
+     type:string=CF.RDM.BcDirichlet \
+     regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/farfield
+
+configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.
 
 ### domain discretization
 
