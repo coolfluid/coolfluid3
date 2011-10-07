@@ -71,7 +71,7 @@ CommPattern::~CommPattern()
 
 void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 {
-//PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) --");
+//PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
 //  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
 //  Uint* testgid=(Uint*)gid->pack();
@@ -123,7 +123,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 
 void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
-//PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) --");
+//PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
 //  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
 //  Uint* testgid=(Uint*)gid->pack();
