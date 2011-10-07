@@ -530,7 +530,7 @@ void CommPattern::setup()
   const int gid_count = m_gid->size();
   for(int i=0; i<gid_count; i++)
     gid_reverse[gid[i]] = i;
-  
+
   BOOST_FOREACH(int& si, m_sendMap)
   {
     bool found = false;
@@ -545,7 +545,7 @@ void CommPattern::setup()
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
 }
-/**/
+/*/
 
 ////////////////////////////////////////////////////////////////////////////////
 
