@@ -227,13 +227,13 @@ void GraphicalArrayTest::test_signalEmmitting()
 
 void GraphicalArrayTest::test_valueString()
 {
-  GraphicalArray * value = new GraphicalArray();
+  GraphicalArray * value = new GraphicalArray(nullptr, ";");
 
   value->setValue( QString("Hello") );
   QCOMPARE( value->valueString(), QString("Hello") );
 
   value->setValue( QStringList() << "Hello" << "World");
-  QCOMPARE( value->valueString(), QString("Hello@@World") );
+  QCOMPARE( value->valueString(), QString("Hello;World") );
 
   delete value;
 }
