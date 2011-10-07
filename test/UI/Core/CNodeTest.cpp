@@ -182,10 +182,10 @@ void CNodeTest::test_setProperties()
       " </map>"
       "</node>");
 
-  SignalArgs args_wrong(XmlNode(wrongOpt->content->first_node()));
+  SignalArgs args_wrong(XmlNode(wrongOpt->content->first_node("node")));
   GUI_CHECK_THROW(MyNode("Node").setProperties(args_wrong), ShouldNotBeHere);
 
-  SignalArgs args_correct(XmlNode(correctOpt->content->first_node()));
+  SignalArgs args_correct(XmlNode(correctOpt->content->first_node("node")));
   GUI_CHECK_NO_THROW(node.setProperties(args_correct));
 
   boost::any prop;
@@ -248,7 +248,7 @@ void CNodeTest::test_setSignals()
   node.listSignals(list);
   int sigCount = list.size();
 
-  SignalFrame frame(sigs->content->first_node());
+  SignalFrame frame(sigs->content->first_node("node"));
   GUI_CHECK_NO_THROW( node.setSignals(frame) );
 
   // 4 signals should have been added (my_signal1 is hidden and should have been ignored)
@@ -265,7 +265,7 @@ void CNodeTest::test_setSignals()
       " </map>"
       "</node>");
 
-  SignalFrame frame2(sigs->content->first_node());
+  SignalFrame frame2(sigs->content->first_node("node"));
   GUI_CHECK_THROW( node.setSignals(frame2), FailedAssertion );
 
   // remote signals list should have been cleared as well
@@ -283,7 +283,7 @@ void CNodeTest::test_setSignals()
       " </map>"
       "</node>");
 
-  SignalFrame frame3(sigs->content->first_node());
+  SignalFrame frame3(sigs->content->first_node("node"));
   GUI_CHECK_THROW( node.setSignals(frame3), FailedAssertion );
 }
 
