@@ -521,7 +521,6 @@ void FieldGroup::create_connectivity_in_space()
         }
       }
     }
-
     Field& coordinates = create_field("coordinates","coords[vector]");
 
     // step 3: resize
@@ -733,7 +732,6 @@ void FieldGroup::create_connectivity_in_space()
   }
   else // If Element-based
   {
-
     // Check if this space is not already bound to another field_group
     boost_foreach(CEntities& entities, entities_range())
     {
@@ -751,9 +749,12 @@ void FieldGroup::create_connectivity_in_space()
       space.make_proxy(field_idx);
       field_idx += entities.size()*space.nb_states();
     }
+
     resize(field_idx);
+
     boost_foreach(CEntities& entities, entities_range())
     {
+      cf_assert_desc("mesh not properly constructed",entities.rank().size() == entities.size());
       entities.space(m_space).connectivity().create_lookup().add(*this);
       CSpace& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
