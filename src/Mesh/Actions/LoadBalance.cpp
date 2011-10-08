@@ -14,7 +14,6 @@
 #include "Mesh/Actions/LoadBalance.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
-#include "Mesh/CMeshPartitioner.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,9 +41,9 @@ LoadBalance::LoadBalance( const std::string& name )
   properties()["description"] = desc;
 
 #if defined (CF_HAVE_PTSCOTCH)
-  m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+  m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner");
 #elif defined (CF_HAVE_ZOLTAN)
-  m_partitioner = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner");
   m_partitioner->configure_option("graph_package", std::string("PHG"));
 #endif
   add_static_component(*m_partitioner);

@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   URI fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(*mesh_ptr,fp_out_1);
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   meshwriter->write_from_to(mesh,"rect.msh");
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
