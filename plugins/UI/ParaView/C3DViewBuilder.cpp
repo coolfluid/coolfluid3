@@ -70,10 +70,8 @@ void C3DViewBuilder::signal_create_3dview(SignalArgs &args)
 
   // create and add the component
   Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
-  C3DView::Ptr view(new C3DView(name));
-
-  parent_comp->add_component( view );
-  view->mark_basic();
+  C3DView& view = parent_comp->create_component<C3DView>( name );
+  view.mark_basic();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
