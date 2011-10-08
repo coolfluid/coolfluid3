@@ -148,30 +148,47 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
   Field& elem_rank     = elems_P0.create_field("elem_rank");
 
+
+  FieldGroup& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",FieldGroup::Basis::POINT_BASED,"CF.Mesh.LagrangeP2");
+  Field& nodes_P1_node_rank = nodes_P1.create_field("node_rank");
+  for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
+    nodes_P1_node_rank[n][0] = nodes_P1.rank()[n];
+
   boost_foreach(CElements& elements , elems_P0.elements_range())
   {
     CSpace& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
       Uint field_idx = space.indexes_for_element(elem)[0];
-      glb_elem_idx[field_idx][0] = 1.;
-      elem_rank[field_idx][0] = elements.rank()[elem];
+      glb_elem_idx[field_idx][0] = elems_P0.glb_idx()[field_idx];
+      elem_rank[field_idx][0] = elems_P0.rank()[field_idx];
     }
   }
 
   // Create a field with glb node numbers
   Field& glb_node_idx = mesh.geometry().create_field("glb_node_idx");
+
   CList<Uint>& glb_idx = mesh.geometry().glb_idx();
   {
     for (Uint n=0; n<glb_node_idx.size(); ++n)
       glb_node_idx[n][0] = glb_idx[n];
   }
 
+  // Create a field with glb node numbers
+  Field& P1_node_rank = mesh.geometry().create_field("P1_node_rank");
+
+  CAction& interpolator = mesh.create_component("interpolator","CF.Mesh.Actions.InterpolateFields").as_type<CAction>();
+  interpolator.configure_option("source",nodes_P1_node_rank.uri());
+  interpolator.configure_option("target",P1_node_rank.uri());
+  interpolator.execute();
+
   // Write the mesh with the fields
 
   std::vector<Field::Ptr> fields;
   fields.push_back(field.as_ptr<Field>());
+  fields.push_back(P1_node_rank.as_ptr<Field>());
   fields.push_back(glb_elem_idx.as_ptr<Field>());
+  fields.push_back(elem_rank.as_ptr<Field>());
   fields.push_back(glb_node_idx.as_ptr<Field>());
 
   CMeshWriter::Ptr tec_writer =
@@ -189,6 +206,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   msh_writer->write_from_to(mesh,"parallel_fields.msh");
 
   CFinfo << "parallel_fields_P*.msh written" << CFendl;
+
 
 }
 
