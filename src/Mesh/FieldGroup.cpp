@@ -604,8 +604,11 @@ void FieldGroup::create_connectivity_in_space()
     }
 
     // - Communicate unknown ranks to all processes
-    std::vector< std::vector<size_t> > recv_hash;
-    hash_all_gather(coord_hash_with_unknown_rank,recv_hash);
+    std::vector< std::vector<size_t> > recv_hash(Comm::instance().size());
+    if (Comm::instance().is_active())
+      hash_all_gather(coord_hash_with_unknown_rank,recv_hash);
+    else
+      recv_hash[0] = coord_hash_with_unknown_rank;
 
     // - Search this process contains the missing ranks of other processes
     std::vector< std::vector<Uint> > send_found_on_rank(Comm::instance().size());
@@ -627,7 +630,11 @@ void FieldGroup::create_connectivity_in_space()
 
     // - Communicate which processes found the missing ranks
     std::vector< std::vector<Uint> > recv_found_on_rank(Comm::instance().size());
-    hash_all_to_all(send_found_on_rank,recv_found_on_rank);
+    if (Comm::instance().is_active())
+      hash_all_to_all(send_found_on_rank,recv_found_on_rank);
+    else
+      recv_found_on_rank[0] = send_found_on_rank[0];
+
 
     // - Set the missing rank to the lowest process number that found it
     for (Uint h=0; h<coord_hash_with_unknown_rank.size(); ++h)
@@ -686,8 +693,11 @@ void FieldGroup::create_connectivity_in_space()
         glb_idx()[i] = UNKNOWN;
     }
 
-    std::vector< std::vector<size_t> > recv_ghosts_hashed;
-    hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+    std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
+    if (Comm::instance().is_active())
+      hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+    else
+      recv_ghosts_hashed[0] = ghosts_hashed;
 
     // - Search this process contains the missing ranks of other processes
     std::vector< std::vector<Uint> > send_glb_idx_on_rank(Comm::instance().size());
@@ -709,7 +719,10 @@ void FieldGroup::create_connectivity_in_space()
 
     // - Communicate which processes found the missing ghosts
     std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
-    hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+    if (Comm::instance().is_active())
+      hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+    else
+      recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
 
     // - Set the missing rank to the lowest process number that found it
     for (Uint g=0; g<ghosts.size(); ++g)
