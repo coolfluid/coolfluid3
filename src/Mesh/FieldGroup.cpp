@@ -578,6 +578,18 @@ void FieldGroup::create_connectivity_in_space()
     cf_assert(size() == m_glb_idx->size());
     cf_assert(size() == m_coordinates->size());
 
+    std::vector< Uint > lowest_rank(size(),UNKNOWN);
+    boost_foreach(CEntities& entities, entities_range())
+    {
+      CSpace& space = entities.space(m_space);
+      for (Uint e=0; e<entities.size(); ++e)
+      {
+        CConnectivity::ConstRow nodes = space.indexes_for_element(e);
+        boost_foreach(const Uint node, nodes)
+          lowest_rank[node] = std::min(lowest_rank[node] , entities.rank()[e] );
+      }
+    }
+
     std::deque<Uint> unknown_ranks;
     std::map<size_t,Uint> hash_to_idx;
     std::map<size_t,Uint>::iterator hash_to_idx_iter;
@@ -613,14 +625,14 @@ void FieldGroup::create_connectivity_in_space()
     std::vector< std::vector<Uint> > send_found_on_rank(Comm::instance().size());
     for (Uint p=0; p<Comm::instance().size(); ++p)
     {
-      send_found_on_rank[p].resize(recv_hash[p].size(),false);
+      send_found_on_rank[p].resize(recv_hash[p].size(),UNKNOWN);
       {
         for (Uint h=0; h<recv_hash[p].size(); ++h)
         {
           hash_to_idx_iter = hash_to_idx.find(recv_hash[p][h]);
           if ( hash_to_idx_iter != hash_not_found )
           {
-            send_found_on_rank[p][h] = true;
+            send_found_on_rank[p][h] = lowest_rank[ hash_to_idx_iter->second ];
           }
         }
       }
@@ -642,8 +654,7 @@ void FieldGroup::create_connectivity_in_space()
 
       for (Uint p=0; p<Comm::instance().size(); ++p)
       {
-        if (recv_found_on_rank[p][h])
-          rank_that_owns = std::min( rank_that_owns, p);
+        rank_that_owns = std::min(recv_found_on_rank[p][h], rank_that_owns);
       }
       rank()[unknown_ranks[h]] = rank_that_owns;
       if (rank_that_owns != Comm::instance().rank())
@@ -764,6 +775,99 @@ void FieldGroup::create_connectivity_in_space()
           rank()[idx] = entities.rank()[e];
       }
     }
+
+    // step 5: fix unknown glb_idx
+    // ---------------------------
+    Field& coordinates = create_coordinates();
+    RealVector dummy(coordinates.row_size());
+
+    std::map<size_t,Uint> hash_to_idx;
+    std::map<size_t,Uint>::iterator hash_to_idx_iter;
+    std::map<size_t,Uint>::iterator hash_not_found = hash_to_idx.end();
+
+    for (Uint i=0; i<size(); ++i)
+    {
+      for (Uint d=0; d<coordinates.row_size(); ++d)
+        dummy[d] = coordinates[i][d];
+      size_t hash = hash_value(dummy);
+      hash_to_idx[hash] = i;
+    }
+
+    Uint nb_owned = 0;
+    std::deque<Uint> ghosts;
+    for (Uint i=0; i<size(); ++i)
+    {
+      if (is_ghost(i))
+        ghosts.push_back(i);
+      else
+        ++nb_owned;
+    }
+    std::vector<size_t> ghosts_hashed(ghosts.size());
+    for (Uint g=0; g<ghosts.size(); ++g)
+    {
+      for (Uint d=0; d<coordinates.row_size(); ++d)
+        dummy[d] = coordinates[ghosts[g]][d];
+      ghosts_hashed[g] = hash_value(dummy);
+    }
+    std::vector<Uint> nb_owned_per_proc(Comm::instance().size(),nb_owned);
+    if( Comm::instance().is_active() )
+      Comm::instance().all_gather(nb_owned, nb_owned_per_proc);
+
+    std::vector<Uint> start_id_per_proc(Comm::instance().size());
+
+    Uint start_id=0;
+    for (Uint p=0; p<Comm::instance().size(); ++p)
+    {
+      start_id_per_proc[p] = start_id;
+      start_id += nb_owned_per_proc[p];
+    }
+    start_id = start_id_per_proc[Comm::instance().rank()];
+    for (Uint i=0; i<size(); ++i)
+    {
+      if (! is_ghost(i))
+        glb_idx()[i] = start_id++;
+      else
+        glb_idx()[i] = UNKNOWN;
+    }
+
+    std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
+    if (Comm::instance().is_active())
+      hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+    else
+      recv_ghosts_hashed[0] = ghosts_hashed;
+
+    // - Search this process contains the missing ranks of other processes
+    std::vector< std::vector<Uint> > send_glb_idx_on_rank(Comm::instance().size());
+    for (Uint p=0; p<Comm::instance().size(); ++p)
+    {
+      send_glb_idx_on_rank[p].resize(recv_ghosts_hashed[p].size(),UNKNOWN);
+      if (p!=Comm::instance().rank())
+      {
+        for (Uint h=0; h<recv_ghosts_hashed[p].size(); ++h)
+        {
+          hash_to_idx_iter = hash_to_idx.find(recv_ghosts_hashed[p][h]);
+          if ( hash_to_idx_iter != hash_not_found )
+          {
+            send_glb_idx_on_rank[p][h] = glb_idx()[hash_to_idx_iter->second];
+          }
+        }
+      }
+    }
+
+    // - Communicate which processes found the missing ghosts
+    std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
+    if (Comm::instance().is_active())
+      hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+    else
+      recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
+
+    // - Set the missing rank to the lowest process number that found it
+    for (Uint g=0; g<ghosts.size(); ++g)
+    {
+      cf_assert(rank()[ghosts[g]] < Comm::instance().size());
+      glb_idx()[ghosts[g]] = recv_glb_idx_on_rank[rank()[ghosts[g]]][g];
+    }
+
   }
 }
 
