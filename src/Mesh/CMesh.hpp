@@ -105,6 +105,8 @@ public: // functions
   /// will among others set the coordinate dimension for the nodes
   void initialize_nodes(const Uint nb_nodes, const Uint dimension);
 
+  void check_sanity() const;
+
 private: // data
 
   Uint m_dimension;
