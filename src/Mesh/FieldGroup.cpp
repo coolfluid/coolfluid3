@@ -867,7 +867,8 @@ void FieldGroup::create_connectivity_in_space()
       cf_assert(rank()[ghosts[g]] < Comm::instance().size());
       glb_idx()[ghosts[g]] = recv_glb_idx_on_rank[rank()[ghosts[g]]][g];
     }
-
+    remove_component(coordinates);
+    m_coordinates.reset();
   }
 }
 
