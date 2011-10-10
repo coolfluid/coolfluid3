@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
@@ -120,6 +121,8 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   CMesh::Ptr mesh = create_component_ptr<CMesh>(name);
 
   mesh_loader.load_mesh_into(file, *mesh);
+  
+  CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
 
   // rebalance the mesh if necessary and create global idx and ranks
 
