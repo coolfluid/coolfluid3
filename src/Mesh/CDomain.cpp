@@ -100,7 +100,7 @@ CDomain::CDomain( const std::string& name  ) :
   regist_signal( "write_mesh" )
       ->connect( boost::bind( &CDomain::signal_write_mesh, this, _1 ) )
       ->description("Load a new mesh")
-      ->pretty_name("Load Mesh")
+      ->pretty_name("Write Mesh")
       ->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
