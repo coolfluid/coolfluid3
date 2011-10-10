@@ -20,7 +20,7 @@ namespace PTScotch {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CPartitioner, CMeshPartitioner, LibPTScotch > ptscotch_partitioner_builder;
+CF::Common::ComponentBuilder < CPartitioner, CMeshTransformer, LibPTScotch > ptscotch_partitioner_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -7,6 +7,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "Common/CBuilder.hpp"
+#include "Common/OptionT.hpp"
 
 #include "Physics/Variables.hpp"
 
@@ -27,14 +28,18 @@ Common::ComponentBuilder < NavierStokes::NavierStokes1D,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-const Real NavierStokes1D::Properties::gamma = 1.4;
-const Real NavierStokes1D::Properties::R = 287.05;
-const Real NavierStokes1D::Properties::gamma_minus_1 = NavierStokes1D::Properties::gamma-1.;
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-NavierStokes1D::NavierStokes1D( const std::string& name ) : Physics::PhysModel(name)
+NavierStokes1D::NavierStokes1D( const std::string& name ) :
+  Physics::PhysModel(name),
+  m_gamma(1.4),
+  m_R(287.05)
 {
+  options().add_option< OptionT<Real> >("gamma",m_gamma)
+      ->description("Specific heat reatio")
+      ->link_to(&m_gamma);
+
+  options().add_option< OptionT<Real> >("R",m_R)
+      ->description("Gas constant")
+      ->link_to(&m_R);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
