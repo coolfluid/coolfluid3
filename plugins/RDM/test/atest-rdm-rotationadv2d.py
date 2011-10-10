@@ -27,6 +27,8 @@ model = root.get_child('Model')
 domain = model.get_child('Domain')
 domain.load_mesh(file=cf.URI('rotation-tg-p1.neu', cf.URI.Scheme.file), name='mesh')
 
+internal_regions = [cf.URI('//Root/Model/Domain/mesh/topology/default_id1084')]
+
 # file:rotation-tg-p1.msh
 # file:rotation-tg-p2.msh
 # file:rotation-tg-p4.msh
@@ -41,12 +43,13 @@ solver.configure_option('update_vars', 'RotationAdv2D')
 
 solver.get_child('IterativeSolver').get_child('MaxIterations').configure_option('maxiter', 50)
 solver.get_child('IterativeSolver').get_child('Update').get_child('Step').configure_option('cfl', 0.25)
+solver.get_child('IterativeSolver').get_child('Update').get_child('Step').configure_option('regions', internal_regions)
 
 ### initial conditions
 iconds = solver.get_child('InitialConditions')
-iconds.create_initial_condition(Name='INIT')
+iconds.create_initial_condition(name='INIT')
 iconds.get_child('INIT').configure_option('functions', ['x*x+y*y'])
-iconds.get_child('INIT').configure_option('regions', [cf.URI('//Root/Model/Domain/mesh/topology/default_id1084')])
+iconds.get_child('INIT').configure_option('regions', internal_regions)
 
 ## configure Model/RDSolver/InitialConditions use_strong_bcs:bool=true
 
@@ -55,14 +58,15 @@ iconds.get_child('INIT').configure_option('regions', [cf.URI('//Root/Model/Domai
 
 bcs = solver.get_child('BoundaryConditions')
 
-bcs.create_boundary_condition(Name='INLET', Type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/inlet')])
+bcs.create_boundary_condition(name='INLET', type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/inlet')])
 bcs.get_child('INLET').configure_option('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 
-bcs.create_boundary_condition(Name='FARFIELD', Type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/farfield')])
+bcs.create_boundary_condition(name='FARFIELD', type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/farfield')])
 bcs.get_child('FARFIELD').configure_option('functions', ['0'])
 
 ### domain discretization
-solver.get_child('DomainDiscretization').create_cell_term(Name='INTERNAL', Type='CF.RDM.Schemes.LDA')
+solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='CF.RDM.Schemes.LDA')
+solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').configure_option('regions', internal_regions)
 
 ### simulate and write the result
 

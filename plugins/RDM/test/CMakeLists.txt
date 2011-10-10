@@ -17,7 +17,7 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d-uniform
                                SCRIPT  atest-rdm-linearadv2d-uniform.cfscript )
 
-coolfluid_add_python_test(ATEST NAME atest-rdm-rotationadv2d-python
+coolfluid_add_python_test(ATEST NAME atest-rdm-rotationadv2d
                                 SCRIPT atest-rdm-rotationadv2d.py)
 
 coolfluid_add_acceptance_test( NAME    atest-rdm-burgers2d
