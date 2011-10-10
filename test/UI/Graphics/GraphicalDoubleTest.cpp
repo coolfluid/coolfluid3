@@ -151,11 +151,11 @@ void GraphicalDoubleTest::test_signalEmmitting()
   //
   lineEdit->clear();
   value->show(); // make the value visible (it ignores keyboard events if not)
-  QTest::keyClicks(lineEdit, "-3.141-51a6e45.12r4+5w6" );
+  QTest::keyClicks(lineEdit, "-3.141-51a6e4512r4+5w6" );
 
-  // 19 signals should have been emitted
-  // (24 chars where entered, but only "-3.141516e45.12456" were accepted)
-  QCOMPARE( spy.count(), 19 );
+  // 18 signals should have been emitted
+  // (24 chars where entered, but only "-3.141516e4512456" were accepted)
+  QCOMPARE( spy.count(), 18 );
 
   spy.clear();
   //
