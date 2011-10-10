@@ -6,6 +6,7 @@
 
 #include "Common/CBuilder.hpp"
 #include "Common/CGroup.hpp"
+#include "Common/Log.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
@@ -100,7 +101,7 @@ CDomain::CDomain( const std::string& name  ) :
   regist_signal( "write_mesh" )
       ->connect( boost::bind( &CDomain::signal_write_mesh, this, _1 ) )
       ->description("Load a new mesh")
-      ->pretty_name("Load Mesh")
+      ->pretty_name("Write Mesh")
       ->signature( boost::bind( &Implementation::signature_write_mesh, m_implementation.get(), _1));
 }
 
@@ -120,6 +121,8 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   CMesh::Ptr mesh = create_component_ptr<CMesh>(name);
 
   mesh_loader.load_mesh_into(file, *mesh);
+  
+  CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
 
   // rebalance the mesh if necessary and create global idx and ranks
 
