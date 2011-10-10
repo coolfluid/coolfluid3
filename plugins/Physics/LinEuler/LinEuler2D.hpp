@@ -45,20 +45,24 @@ public: // functions
   /// physical properties
   struct Properties : public Physics::Properties
   {
+    Properties();
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
     GeoV coords;       ///< position in domain
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    // HARD CODED FOR NOW, in .cpp file
-    static const Real gamma;               ///< specific heat ratio
-    static const GeoV u0;                  ///< background (mean) velocity
-    static const Real rho0;                ///< background (mean) density
-    static const Real P0;                  ///< background (mean) pressure
-    static const Real c;                   ///< speed of sound based on mean quantities
-    static const Real inv_c;               ///< inverse of the speed of sound, very commonly used
-    static const Real inv_rho0;            ///< inverse of referenceC density, very commonly used
+    /// @name Configurable constants
+    //@{
+    Real gamma;               ///< specific heat ratio
+    GeoV u0;                  ///< background (mean) velocity
+    Real rho0;                ///< background (mean) density
+    Real P0;                  ///< background (mean) pressure
+    Real c;                   ///< speed of sound based on mean quantities
+    Real inv_c;               ///< inverse of the speed of sound, very commonly used
+    Real inv_rho0;            ///< inverse of referenceC density, very commonly used
+    //@}
 
     Real rho;                 ///< density
     Real rho0u;               ///< rho0.u
@@ -83,7 +87,9 @@ public: // functions
   /// create a physical properties
   virtual std::auto_ptr<Physics::Properties> create_properties()
   {
-    return std::auto_ptr<Physics::Properties>( new LinEuler2D::Properties() );
+    std::auto_ptr<Physics::Properties> props( new LinEuler2D::Properties() );
+    set_constants( static_cast<LinEuler2D::Properties&>( *props ) );
+    return props;
   }
 
   /// Create a Variables component
@@ -93,6 +99,17 @@ public: // functions
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
 
   //@} END INTERFACE
+
+private :
+
+  void set_constants(LinEuler2D::Properties& props);
+
+  void config_mean_velocity();
+
+  Real m_gamma;
+  Real m_rho0;
+  GeoV m_u0;
+  Real m_P0;
 
 }; // LinEuler2D
 

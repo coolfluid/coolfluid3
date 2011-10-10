@@ -29,7 +29,6 @@ namespace Zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CPartitioner, CMeshPartitioner, LibZoltan > zoltan_partitioner_builder;
 CF::Common::ComponentBuilder < CPartitioner, CMeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
 
 //////////////////////////////////////////////////////////////////////////////

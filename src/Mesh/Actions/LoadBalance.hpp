@@ -17,9 +17,6 @@
 
 namespace CF {
 namespace Mesh {
-
-  class CMeshPartitioner;
-
 namespace Actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -47,7 +44,7 @@ public: // functions
 
 private:
 
-  boost::shared_ptr<CMeshPartitioner> m_partitioner;
+  boost::shared_ptr<CMeshTransformer> m_partitioner;
 
 }; // end LoadBalance
 

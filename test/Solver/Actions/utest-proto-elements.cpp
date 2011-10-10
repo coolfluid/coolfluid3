@@ -98,6 +98,8 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
 
   BlockMesh::build_mesh(blocks, mesh);
 
+  mesh.check_sanity();
+
   // Declare a mesh variable
   MeshTerm<0, ScalarField> V("CellVolume", "volumes");
 
