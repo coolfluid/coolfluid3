@@ -361,8 +361,8 @@ void CommPattern::setup()
         global[i][0]=tmp;
       }
     }
-    if (nupdatable==0) throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
-    if (nupdatable>1)  throw Common::BadValue(FromHere(), name() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
+    if ((nupdatable==0)&&(global_nelems[i]!=0)) throw Common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
+    if (nupdatable>1)  throw Common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
   }
 
   // lookup information for m_recvCount, m_recvMap
@@ -530,7 +530,7 @@ void CommPattern::setup()
   const int gid_count = m_gid->size();
   for(int i=0; i<gid_count; i++)
     gid_reverse[gid[i]] = i;
-  
+
   BOOST_FOREACH(int& si, m_sendMap)
   {
     bool found = false;
@@ -545,7 +545,7 @@ void CommPattern::setup()
 //PEProcessSortedExecute(-1,PEDebugVector(m_sendMap,m_sendMap.size()));
 
 }
-/**/
+/*/
 
 ////////////////////////////////////////////////////////////////////////////////
 

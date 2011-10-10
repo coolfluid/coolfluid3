@@ -46,17 +46,24 @@ public: // functions
   struct Properties : public Physics::Properties
   {
 
+    Properties()
+    {
+      gamma = 1.4;
+      R = 287.05;
+      gamma_minus_1 = gamma - 1.;
+    }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
     GeoV coords;       ///< position in domain
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    /// @name Gas constants, for now hardcoded in .cpp file
+    /// @name Gas constants, configurable
     //@{
-    static const Real gamma;            ///< specific heat ratio
-    static const Real R;                ///< gas constant
-    static const Real gamma_minus_1;    ///< specific heat ratio minus one, very commonly used
+    Real gamma;            ///< specific heat ratio
+    Real R;                ///< gas constant
+    Real gamma_minus_1;    ///< specific heat ratio minus one, very commonly used
     //@}
 
     Real rho;                 ///< density
@@ -92,7 +99,9 @@ public: // functions
   /// create a physical properties
   virtual std::auto_ptr<Physics::Properties> create_properties()
   {
-    return std::auto_ptr<Physics::Properties>( new NavierStokes1D::Properties() );
+    std::auto_ptr<Physics::Properties> props( new NavierStokes1D::Properties() );
+    set_constants( static_cast<NavierStokes1D::Properties&>( *props ) );
+    return props;
   }
 
   /// Create a Variables component
@@ -102,6 +111,18 @@ public: // functions
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
 
   //@} END INTERFACE
+
+private:
+
+  void set_constants(NavierStokes1D::Properties& props)
+  {
+    props.gamma = m_gamma;
+    props.gamma_minus_1 = m_gamma - 1.;
+    props.R = m_R;
+  }
+
+  Real m_gamma;
+  Real m_R;
 
 }; // NavierStokes1D
 

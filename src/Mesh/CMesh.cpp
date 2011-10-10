@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <set>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/regex.hpp>
 #include <boost/tokenizer.hpp>
@@ -17,9 +19,11 @@
 #include "Common/OptionT.hpp"
 #include "Common/StringConversion.hpp"
 #include "Common/Signal.hpp"
+#include "Common/Tags.hpp"
+
+#include "Common/PE/Comm.hpp"
 
 #include "Common/XML/SignalOptions.hpp"
-#include "Common/Tags.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -41,6 +45,7 @@ namespace Mesh {
 
 using namespace Common;
 using namespace Common::XML;
+using namespace Common::PE;
 
 Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 
@@ -278,6 +283,81 @@ void CMesh::write_mesh( const URI& file, const std::vector<URI> fields)
   WriteMesh& mesh_writer = create_component<WriteMesh>("writer");
   mesh_writer.write_mesh(*this,file,fields);
   remove_component(mesh_writer);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void CMesh::check_sanity() const
+{
+  std::stringstream message;
+
+  if (dimension() == 0)
+    message << "- mesh.dimension not configured" << std::endl;
+
+  if (dimensionality() == 0)
+    message << "- mesh.dimensionality not configured" << std::endl;
+
+  if (dimensionality() > dimension())
+    message << "- dimensionality ["<< dimensionality()<<"]  >  dimension ["<<dimension()<<"]" << std::endl;
+
+  if(geometry().coordinates().row_size() != dimension())
+    message << "- coordinates dimension does not match mesh.dimension" << std::endl;
+
+  boost_foreach(const FieldGroup& field_group, find_components_recursively<FieldGroup>(*this))
+  {
+    if (field_group.rank().size() != field_group.size())
+      message << "- " << field_group.uri().string() << ": size() ["<<field_group.size()<<"] != rank().size() ["<<field_group.rank().size()<<"]"<<std::endl;
+
+    if (field_group.glb_idx().size() != field_group.size())
+      message << "- " << field_group.uri().string() << ": size() ["<<field_group.size()<<"] != glb_idx().size() ["<<field_group.glb_idx().size()<<"]"<<std::endl;
+
+    boost_foreach(const Field& field, find_components_recursively<Field>(field_group))
+    {
+      if (field.size() != field_group.size())
+        message << "- " << field.uri().string() << ": size() ["<<field.size()<<"] != field_group.size() ["<<field_group.size()<<"]"<<std::endl;
+    }
+  }
+
+  if (Comm::instance().is_active())
+  {
+    std::set<Uint> unique_node_gids;
+    boost_foreach(const Uint gid, geometry().glb_idx().array())
+    {
+      std::pair<std::set<Uint>::iterator, bool > inserted = unique_node_gids.insert(gid);
+      if (inserted.second == false)
+      {
+        message << "- " << geometry().glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
+        break;
+      }
+    }
+  }
+
+  std::set<Uint> unique_elem_gids;
+  boost_foreach(const CEntities& entities, find_components_recursively<CEntities>(*this))
+  {
+    if (entities.rank().size() != entities.size())
+      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != rank().size() ["<<entities.rank().size()<<"]"<<std::endl;
+    if (entities.glb_idx().size() != entities.size())
+      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != glb_idx().size() ["<<entities.rank().size()<<"]"<<std::endl;
+
+    if (Comm::instance().is_active())
+    {
+      boost_foreach(const Uint gid, entities.glb_idx().array())
+      {
+        std::pair<std::set<Uint>::iterator, bool > inserted = unique_elem_gids.insert(gid);
+        if (inserted.second == false)
+        {
+          message << "- " << entities.glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
+          break;
+        }
+      }
+    }
+
+  }
+
+  std::string message_str = message.str();
+  if (!message_str.empty())
+    throw InvalidStructure(FromHere(), "Mesh "+uri().string()+" is not sane:\n"+message_str);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -83,6 +83,11 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   CDomain&   domain  = model.domain();
 
+  physics.configure_option("gamma",1.4);
+  physics.configure_option("rho0",1.);
+  physics.configure_option("U0",std::vector<Real>(2,0.));
+  physics.configure_option("P0",1.);
+
   //////////////////////////////////////////////////////////////////////////////
   // create and configure mesh
 

@@ -136,6 +136,8 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
   SignalArgs args = options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_changed", args);
 
+  mesh->check_sanity();
+
   return *mesh;
 }
 
