@@ -9,6 +9,7 @@
 #include "Common/BoostFilesystem.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
+#include "Common/OptionT.hpp"
 #include "Common/PE/Comm.hpp"
 #include "Common/CBuilder.hpp"
 #include "Common/FindComponents.hpp"
@@ -43,6 +44,8 @@ CWriter::CWriter( const std::string& name )
 : CMeshWriter(name)
 {
 
+  options().add_option<OptionT<bool> >("cell_centred",false)
+    ->description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -162,7 +165,7 @@ void CWriter::write_file(std::fstream& file)
          << ", E=" << elements.size()
          << ", DATAPACKING=BLOCK"
          << ", ZONETYPE=" << zone_type(etype);
-    if (cell_centered_var_ids.size())
+    if (cell_centered_var_ids.size() && option("cell_centred").value<bool>())
     {
       file << ",VARLOCATION=(["<<cell_centered_var_ids[0];
       for (Uint i=1; i<cell_centered_var_ids.size(); ++i)
@@ -225,28 +228,82 @@ void CWriter::write_file(std::fstream& file)
               CSpace& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());
 
-              ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
-
-              for (Uint e=0; e<elements.size(); ++e)
+              if (option("cell_centred").value<bool>())
               {
-                CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
-                /// set field data
-                for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+
+                for (Uint e=0; e<elements.size(); ++e)
                 {
-                  field_data[iState] = field[field_index[iState]][var_idx];
+                  CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
+                  /// set field data
+                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  {
+                    field_data[iState] = field[field_index[iState]][var_idx];
+                  }
+
+                  /// get cell-centred local coordinates
+                  RealVector local_coords = P0_cell_centred->local_coordinates().row(0);
+
+                  /// evaluate field shape function in P0 space
+                  Real cell_centred_data = field_space.shape_function().value(local_coords)*field_data;
+
+                  /// Write cell centred value
+                  file << cell_centred_data << " ";
+                  CF_BREAK_LINE(file,e);
+                }
+                file << "\n";
+              }
+              else
+              {
+                std::vector<Real> nodal_data(used_nodes.size(),0.);
+                std::vector<Uint> nodal_data_count(used_nodes.size(),0u);
+
+//                const CFreal avgStepsCounterReal = static_cast<CFreal>(m_avgStepsCounter);
+//                const CFreal oldAvgSolWght = avgStepsCounterReal/(avgStepsCounterReal+1.0);
+//                const CFreal curInsSolWght = 1.0/(avgStepsCounterReal+1.0);
+//                avgSol(iCell,iEq,nbEqs) = avgSol(iCell,iEq,nbEqs)*oldAvgSolWght + m_primState[iEq]*curInsSolWght;
+
+                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
+                const ShapeFunction& sf = field_space.shape_function();
+                for (Uint g=0; g<interpolation.rows(); ++g)
+                {
+                  interpolation.row(g) = sf.value(geometry_local_coords.row(g));
                 }
 
-                /// get cell-centred local coordinates
-                RealVector local_coords = P0_cell_centred->local_coordinates().row(0);
+                for (Uint e=0; e<elements.size(); ++e)
+                {
+                  CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
 
-                /// evaluate field shape function in P0 space
-                Real cell_centred_data = field_space.shape_function().value(local_coords)*field_data;
+                  /// set field data
+                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  {
+                    field_data[iState] = field[field_index[iState]][var_idx];
+                  }
 
-                /// Write cell centred value
-                file << cell_centred_data << " ";
-                CF_BREAK_LINE(file,e);
+                  /// evaluate field shape function in P0 space
+                  RealVector geometry_field_data = interpolation*field_data;
+
+                  /// Average nodal values
+                  for (Uint g=0; g<geometry_field_data.size(); ++g)
+                  {
+                    const Uint geom_node = elements.node_connectivity()[e][g];
+                    const Uint zone_idx = zone_node_idx[geom_node];
+                    const Real accumulated_weight = nodal_data_count[zone_idx]/(nodal_data_count[zone_idx]+1.0);
+                    const Real add_weight = 1.0/(nodal_data_count[zone_idx]+1.0);
+                    nodal_data[zone_idx] = accumulated_weight*nodal_data[zone_idx] + add_weight*geometry_field_data[g];
+                    ++nodal_data_count[zone_idx];
+                  }
+                }
+
+                for (Uint n=0; n<nodal_data.size(); ++n)
+                {
+                  file << nodal_data[n] << " ";
+                    CF_BREAK_LINE(file,n)
+                }
+                file << "\n";
+
               }
-              file << "\n";
             }
             else
             {
