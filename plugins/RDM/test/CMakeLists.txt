@@ -17,8 +17,8 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d
 coolfluid_add_acceptance_test( NAME    atest-rdm-linearadv2d-uniform
                                SCRIPT  atest-rdm-linearadv2d-uniform.cfscript )
 
-coolfluid_add_acceptance_test( NAME    atest-rdm-rotationadv2d
-                               SCRIPT  atest-rdm-rotationadv2d.cfscript )
+coolfluid_add_python_test(ATEST NAME atest-rdm-rotationadv2d
+                                SCRIPT atest-rdm-rotationadv2d.py)
 
 coolfluid_add_acceptance_test( NAME    atest-rdm-burgers2d
                                SCRIPT  atest-rdm-burgers2d.cfscript )
@@ -69,5 +69,3 @@ coolfluid_add_acceptance_test( NAME    atest-rdm-euler2d-gpu
 coolfluid_add_acceptance_test( NAME    atest-rdm-rotationadv2d-gpu
                                SCRIPT  atest-rdm-rotationadv2d-gpu.cfscript
                                CONDITIONS RDM_GPU )
-
-

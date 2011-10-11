@@ -17,6 +17,8 @@
 #include "Common/Log.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Option.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionURI.hpp"
 #include "Common/TimedComponent.hpp"
 #include "Common/TypeInfo.hpp"
 #include "Common/Signal.hpp"
@@ -88,9 +90,9 @@ struct PythonListToAny
 
     if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
-    
+
     std::vector<T> vec;
-    
+
     const Uint nb_items = len(m_list);
     vec.reserve(nb_items);
     for(Uint i = 0; i != nb_items; ++i)
@@ -98,12 +100,12 @@ struct PythonListToAny
       extract<T> extracted_value(m_list[i]);
       if(!extracted_value.check())
         throw Common::BadValue(FromHere(), "Incorrect python extracted value for list item");
-      
+
       vec.push_back(extracted_value());
     }
-    
+
     m_found = true;
-    
+
     m_result = vec;
   }
 
@@ -113,14 +115,57 @@ struct PythonListToAny
   bool& m_found;
 };
 
+struct OptionCreator
+{
+  OptionCreator(Common::OptionList& options, const object& value, const std::string& name, bool& found) :
+    m_options(options),
+    m_value(value),
+    m_name(name),
+    m_found(found)
+  {
+  }
+
+  template<typename T>
+  void operator()(T) const
+  {
+    if(m_found)
+      return;
+
+    extract<T> extracted_value(m_value);
+    if(extracted_value.check())
+    {
+      m_found = true;
+      m_options.add_option< Common::OptionT<T> >(m_name, extracted_value());
+    }
+  }
+
+  void operator()(const Common::URI) const
+  {
+    if(m_found)
+      return;
+
+    extract<Common::URI> extracted_value(m_value);
+    if(extracted_value.check())
+    {
+      m_found = true;
+      m_options.add_option< Common::OptionURI >(m_name, extracted_value());
+    }
+  }
+
+  Common::OptionList& m_options;
+  const object& m_value;
+  const std::string& m_name;
+  bool& m_found;
+};
+
 // Helper functions to convert to any
 boost::any python_to_any(const object& val, const std::string& target_type)
 {
   boost::any result;
   bool found = false;
-  
+
   const bool is_list = boost::starts_with(target_type, "array[");
-  
+
   if(is_list)
   {
     const std::string single_value_type(target_type.begin()+6, target_type.end()-1);
@@ -164,18 +209,41 @@ struct SignalWrapper
       if(len(args) != 1)
         throw Common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments");
 
-      for(Common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
+//       for(Common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
+//       {
+//         Common::Option& option = *option_it->second;
+//         if(kwargs.has_key(option.name()))
+//           option.change_value(python_to_any(kwargs[option.name()], option.type()));
+//       }
+
+      const list keys = kwargs.keys();
+      const Uint nb_kwargs = len(keys);
+      for(Uint i = 0; i != nb_kwargs; ++i)
       {
-        Common::Option& option = *option_it->second;
-        if(kwargs.has_key(option.name()))
-          option.change_value(python_to_any(kwargs[option.name()], option.type()));
+        extract<std::string> extracted_key(keys[i]);
+        const std::string key = extracted_key();
+        if(options.check(key))
+        {
+          Common::Option& option = options[key];
+          option.change_value(python_to_any(kwargs[key], option.type()));
+        }
+        else
+        {
+          bool found = false;
+          boost::mpl::for_each<AnyTypes>(OptionCreator(options, kwargs[key], key, found));
+          if(!found)
+            throw Common::BadValue(FromHere(), "No conversion found for keyword argument " + key);
+        }
       }
+
     }
 
     options.flush();
 
     std::string node_contents;
     Common::XML::to_string(node.node, node_contents);
+
+    CFdebug << "Calling signal " << m_signal->name() << " with arguments:\n" << node_contents << CFendl;
 
     (*m_signal->signal())(node);
 
