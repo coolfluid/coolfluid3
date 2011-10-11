@@ -5,6 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <cstdlib>  // provides system call
+#include <stdlib.h>
 
 #include "Common/Assertions.hpp"
 #include "Common/OSystemLayer.hpp"
@@ -25,6 +26,8 @@
 #ifdef CF_OS_WINDOWS
   #include "Common/Win32/OSystemLayer.hpp"
   #include "Common/Win32/LibLoader.hpp"
+#else
+  
 #endif
 
 #include "Common/OSystem.hpp"
@@ -95,6 +98,17 @@ boost::shared_ptr<OSystemLayer> OSystem::layer()
 boost::shared_ptr<LibLoader> OSystem::lib_loader()
 {
   return m_lib_loader;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void OSystem::setenv(const string& name, const string& value)
+{
+#ifdef CF_OS_WINDOWS
+  ::putenv_s(name.c_str(), value.c_str());
+#else
+  ::setenv(name.c_str(), value.c_str(), true);
+#endif
 }
 
 ////////////////////////////////////////////////////////////////////////////////
