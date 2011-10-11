@@ -106,11 +106,6 @@ void TimeStepping::execute()
 
   while( ! stop_condition() ) // time loop
   {
-
-    // print iteration
-
-    CFinfo << "time step [" << k << "] time [" << m_time->current_time() << "]" << CFendl;
-
     // (1) the pre actions - pre-process, user defined actions, etc
 
     m_pre_actions->execute();
@@ -135,6 +130,9 @@ void TimeStepping::execute()
     // raise event of time_step done
 
     //raise_timestep_done();
+
+    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]" << CFendl;
+
   }
 }
 

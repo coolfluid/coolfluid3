@@ -15,6 +15,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/FieldManager.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Mesh/Actions/CGlobalNumbering.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -48,6 +49,10 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
   build_faces->configure_option("store_cell2face",true);
 
   append( build_faces );
+
+  // renumber elements because of the faces (not strictly necessary)
+  // append( allocate_component<CGlobalNumbering>("glb_numbering") );
+
   append( allocate_component<CreateSFDFields>("create_sfd_fields") );
 }
 

@@ -22,6 +22,12 @@ list( APPEND utest-sfdm-solver_files
 coolfluid_add_unit_test( utest-sfdm-solver )
 
 
+list( APPEND utest-sfdm-linearadv1d_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar)
+list( APPEND utest-sfdm-linearadv1d_files  utest-sfdm-linearadv1d.cpp  )
+set( utest-sfdm-linearadv1d_mpi_test TRUE )
+coolfluid_add_unit_test( utest-sfdm-linearadv1d )
+
+
 list( APPEND utest-sfdm-wizard_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_navierstokes)
 list( APPEND utest-sfdm-wizard_files  utest-sfdm-wizard.cpp )
 
