@@ -3,6 +3,11 @@
 list( APPEND coolfluid_physics_scalar_files
   LibScalar.hpp
   LibScalar.cpp
+# scalar 1D
+  Scalar1D.hpp
+  Scalar1D.cpp
+  LinearAdv1D.hpp
+  LinearAdv1D.cpp
 # scalar 2D
   Scalar2D.hpp
   Scalar2D.cpp
