@@ -12,6 +12,7 @@
 #include <boost/tokenizer.hpp>
 #include <boost/functional/hash.hpp>
 
+#include "Common/Log.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
 #include "Common/CBuilder.hpp"
@@ -193,10 +194,8 @@ CommPattern& FieldGroup::comm_pattern()
   if(m_comm_pattern.expired())
   {
     PE::CommPattern& comm_pattern = create_component<PE::CommPattern>("CommPattern");
-
     comm_pattern.insert("gid",glb_idx().array(),false);
     comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),rank().array());
-
     m_comm_pattern = comm_pattern.as_ptr<Common::PE::CommPattern>();
   }
 
@@ -410,7 +409,7 @@ std::size_t hash_value(const RealMatrix& coords)
   for (Uint j=0; j<coords.cols(); ++j)
   {
     // multiply with 1e-5 (arbitrary) to avoid hash collisions
-    boost::hash_combine(seed,1e-3*coords(i,j));
+    boost::hash_combine(seed,1e-6*coords(i,j));
   }
   return seed;
 }
@@ -544,14 +543,6 @@ void FieldGroup::create_connectivity_in_space()
       connectivity.resize(entities.size());
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
-        Uint nodes_rank = UNKNOWN;
-        std::set<Uint> possible_ranks;
-        boost_foreach(const Uint geometry_node, geometry_node_connectivity[elem])
-          possible_ranks.insert(geometry_rank[geometry_node]);
-
-        if (possible_ranks.size() == 1)
-          nodes_rank = *possible_ranks.begin();
-
         elem_coordinates = entities.get_coordinates(elem);
         for (Uint node=0; node<shape_function.nb_nodes(); ++node)
         {
@@ -560,9 +551,8 @@ void FieldGroup::create_connectivity_in_space()
           Uint idx = std::distance(points.begin(), points.find(hash));
           connectivity[elem][node] = idx;
           coordinates.set_row(idx, space_coordinates);
-
-          /// @todo find way to set ranks of nodes of cells where everything is owned
-          // rank()[idx] = std::min(rank()[idx],nodes_rank);
+          rank()[idx] = UNKNOWN;
+          glb_idx()[idx] = UNKNOWN;
         }
       }
     }
@@ -578,7 +568,6 @@ void FieldGroup::create_connectivity_in_space()
     cf_assert(size() == m_glb_idx->size());
     cf_assert(size() == m_coordinates->size());
 
-    std::vector< Uint > lowest_rank(size(),UNKNOWN);
     boost_foreach(CEntities& entities, entities_range())
     {
       CSpace& space = entities.space(m_space);
@@ -586,22 +575,15 @@ void FieldGroup::create_connectivity_in_space()
       {
         CConnectivity::ConstRow nodes = space.indexes_for_element(e);
         boost_foreach(const Uint node, nodes)
-          lowest_rank[node] = std::min(lowest_rank[node] , entities.rank()[e] );
+          rank()[node] = std::min(rank()[node] , entities.rank()[e] );
       }
     }
 
-    std::deque<Uint> unknown_ranks;
     std::map<size_t,Uint> hash_to_idx;
     std::map<size_t,Uint>::iterator hash_to_idx_iter;
     std::map<size_t,Uint>::iterator hash_not_found = hash_to_idx.end();
 
-    // - Identify unknown ranks, give glb_idx to unknown ranks
-    for (Uint i=0; i<size(); ++i)
-    {
-      if ( rank()[i] == UNKNOWN)
-        unknown_ranks.push_back(i);
-    }
-    std::vector<size_t> coord_hash_with_unknown_rank(unknown_ranks.size());
+    std::vector<size_t> coord_hash(size());
     RealVector dummy(coordinates.row_size());
     Uint c(0);
     for (Uint i=0; i<size(); ++i)
@@ -610,16 +592,15 @@ void FieldGroup::create_connectivity_in_space()
         dummy[d] = coordinates[i][d];
       size_t hash = hash_value(dummy);
       hash_to_idx[hash] = i;
-      if ( rank()[i] == UNKNOWN)
-        coord_hash_with_unknown_rank[c++]=hash;
+      coord_hash[c++]=hash;
     }
 
     // - Communicate unknown ranks to all processes
     std::vector< std::vector<size_t> > recv_hash(Comm::instance().size());
     if (Comm::instance().is_active())
-      hash_all_gather(coord_hash_with_unknown_rank,recv_hash);
+      hash_all_gather(coord_hash,recv_hash);
     else
-      recv_hash[0] = coord_hash_with_unknown_rank;
+      recv_hash[0] = coord_hash;
 
     // - Search this process contains the missing ranks of other processes
     std::vector< std::vector<Uint> > send_found_on_rank(Comm::instance().size());
@@ -632,7 +613,7 @@ void FieldGroup::create_connectivity_in_space()
           hash_to_idx_iter = hash_to_idx.find(recv_hash[p][h]);
           if ( hash_to_idx_iter != hash_not_found )
           {
-            send_found_on_rank[p][h] = lowest_rank[ hash_to_idx_iter->second ];
+            send_found_on_rank[p][h] = rank()[ hash_to_idx_iter->second ];
           }
         }
       }
@@ -648,20 +629,17 @@ void FieldGroup::create_connectivity_in_space()
 
 
     // - Set the missing rank to the lowest process number that found it
-    for (Uint h=0; h<coord_hash_with_unknown_rank.size(); ++h)
+    for (Uint n=0; n<size(); ++n)
     {
       Uint rank_that_owns = UNKNOWN;
 
       for (Uint p=0; p<Comm::instance().size(); ++p)
       {
-        rank_that_owns = std::min(recv_found_on_rank[p][h], rank_that_owns);
+        rank_that_owns = std::min(recv_found_on_rank[p][n], rank_that_owns);
       }
-      rank()[unknown_ranks[h]] = rank_that_owns;
-      if (rank_that_owns != Comm::instance().rank())
-      {
-        if (is_ghost(unknown_ranks[h]) == false)
-          throw BadValue(FromHere(),"");
-      }
+      rank()[n] = rank_that_owns;
+
+      cf_assert(rank()[n] != UNKNOWN);
     }
 
     // step 5: fix unknown glb_idx
@@ -766,8 +744,8 @@ void FieldGroup::create_connectivity_in_space()
     boost_foreach(CEntities& entities, entities_range())
     {
       cf_assert_desc("mesh not properly constructed",entities.rank().size() == entities.size());
-      entities.space(m_space).connectivity().create_lookup().add(*this);
       CSpace& space = entities.space(m_space);
+      space.connectivity().create_lookup().add(*this);
       for (Uint e=0; e<entities.size(); ++e)
       {
         CConnectivity::ConstRow field_indexes = space.indexes_for_element(e);
@@ -778,97 +756,129 @@ void FieldGroup::create_connectivity_in_space()
 
     // step 5: fix unknown glb_idx
     // ---------------------------
-    Field& coordinates = create_coordinates();
-    RealVector dummy(coordinates.row_size());
 
-    std::map<size_t,Uint> hash_to_idx;
-    std::map<size_t,Uint>::iterator hash_to_idx_iter;
-    std::map<size_t,Uint>::iterator hash_not_found = hash_to_idx.end();
+    std::map<size_t,Uint> hash_to_elem_idx;
+    std::map<size_t,Uint>::iterator hash_to_elem_idx_iter;
+    std::map<size_t,Uint>::iterator hash_not_found = hash_to_elem_idx.end();
 
-    for (Uint i=0; i<size(); ++i)
+    Uint nb_owned(0);
+    boost_foreach(const CEntities& entities, entities_range())
     {
-      for (Uint d=0; d<coordinates.row_size(); ++d)
-        dummy[d] = coordinates[i][d];
-      size_t hash = hash_value(dummy);
-      hash_to_idx[hash] = i;
+      Uint nb_states_per_cell = entities.space(m_space).nb_states();
+      for (Uint e=0; e<entities.size(); ++e)
+      {
+        if (entities.is_ghost(e) == false)
+          nb_owned+=nb_states_per_cell;
+      }
     }
 
-    Uint nb_owned = 0;
-    std::deque<Uint> ghosts;
-    for (Uint i=0; i<size(); ++i)
-    {
-      if (is_ghost(i))
-        ghosts.push_back(i);
-      else
-        ++nb_owned;
-    }
-    std::vector<size_t> ghosts_hashed(ghosts.size());
-    for (Uint g=0; g<ghosts.size(); ++g)
-    {
-      for (Uint d=0; d<coordinates.row_size(); ++d)
-        dummy[d] = coordinates[ghosts[g]][d];
-      ghosts_hashed[g] = hash_value(dummy);
-    }
     std::vector<Uint> nb_owned_per_proc(Comm::instance().size(),nb_owned);
-    if( Comm::instance().is_active() )
+    if (Comm::instance().is_active())
       Comm::instance().all_gather(nb_owned, nb_owned_per_proc);
 
-    std::vector<Uint> start_id_per_proc(Comm::instance().size());
-
-    Uint start_id=0;
-    for (Uint p=0; p<Comm::instance().size(); ++p)
+    std::vector<Uint> start_id_per_proc(Comm::instance().size(),0);
+    for (Uint i=0; i<Comm::instance().size(); ++i)
     {
-      start_id_per_proc[p] = start_id;
-      start_id += nb_owned_per_proc[p];
-    }
-    start_id = start_id_per_proc[Comm::instance().rank()];
-    for (Uint i=0; i<size(); ++i)
-    {
-      if (! is_ghost(i))
-        glb_idx()[i] = start_id++;
-      else
-        glb_idx()[i] = UNKNOWN;
+      start_id_per_proc[i] = (i==0? 0 : start_id_per_proc[i-1]+nb_owned_per_proc[i-1]);
     }
 
-    std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
-    if (Comm::instance().is_active())
-      hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
-    else
-      recv_ghosts_hashed[0] = ghosts_hashed;
-
-    // - Search this process contains the missing ranks of other processes
-    std::vector< std::vector<Uint> > send_glb_idx_on_rank(Comm::instance().size());
-    for (Uint p=0; p<Comm::instance().size(); ++p)
+    Uint id = start_id_per_proc[Comm::instance().rank()];
+    boost_foreach(const CEntities& entities, entities_range())
     {
-      send_glb_idx_on_rank[p].resize(recv_ghosts_hashed[p].size(),UNKNOWN);
-      if (p!=Comm::instance().rank())
+      CSpace& space = entities.space(m_space);
+      for (Uint e=0; e<entities.size(); ++e)
       {
-        for (Uint h=0; h<recv_ghosts_hashed[p].size(); ++h)
+        if (entities.is_ghost(e) == false)
         {
-          hash_to_idx_iter = hash_to_idx.find(recv_ghosts_hashed[p][h]);
-          if ( hash_to_idx_iter != hash_not_found )
-          {
-            send_glb_idx_on_rank[p][h] = glb_idx()[hash_to_idx_iter->second];
-          }
+          boost_foreach(const Uint idx, space.indexes_for_element(e))
+            glb_idx()[idx] = id++;
+        }
+        else
+        {
+          boost_foreach(const Uint idx, space.indexes_for_element(e))
+            glb_idx()[idx] = UNKNOWN;
         }
       }
     }
 
-    // - Communicate which processes found the missing ghosts
-    std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
-    if (Comm::instance().is_active())
-      hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
-    else
-      recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
-
-    // - Set the missing rank to the lowest process number that found it
-    for (Uint g=0; g<ghosts.size(); ++g)
+    boost_foreach(const CEntities& entities, entities_range())
     {
-      cf_assert(rank()[ghosts[g]] < Comm::instance().size());
-      glb_idx()[ghosts[g]] = recv_glb_idx_on_rank[rank()[ghosts[g]]][g];
+      const CSpace& space = entities.space(m_space);
+      Uint nb_states_per_elem = space.nb_states();
+      std::deque<Uint> ghosts;
+      std::deque<size_t> ghosts_hashed_deque;
+      RealMatrix dummy(entities.geometry_space().nb_states(),entities.element_type().dimension());
+      for (Uint e=0; e<entities.size(); ++e)
+      {
+        entities.put_coordinates(dummy,e);
+        /// @bug entities.geometry_space().put_coordinates(dummy,e)  does not give same result as previous line
+        size_t hash = hash_value(dummy);
+        bool inserted = hash_to_elem_idx.insert( std::make_pair(hash, e) ).second;
+        if (! inserted)
+        {
+          std::stringstream msg;
+          msg <<"Duplicate hash " << hash << " detected for coords \n" << dummy;
+          throw ValueExists(FromHere(), msg.str());
+        }
+        if (entities.is_ghost(e))
+        {
+          ghosts.push_back(e);
+          ghosts_hashed_deque.push_back(hash);
+        }
+      }
+
+      // copy deque in vector, delete deque
+      std::vector<size_t> ghosts_hashed(ghosts.size());
+      for (Uint g=0; g<ghosts.size(); ++g)
+      {
+        ghosts_hashed[g] = ghosts_hashed_deque[g];
+      }
+      ghosts_hashed_deque.clear();
+
+      std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
+      if (Comm::instance().is_active())
+        hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+      else
+        recv_ghosts_hashed[0] = ghosts_hashed;
+
+      // - Search this process contains the unknown ghosts of other processes
+      std::vector< std::vector<Uint> > send_glb_idx_on_rank(Comm::instance().size());
+      for (Uint p=0; p<Comm::instance().size(); ++p)
+      {
+        send_glb_idx_on_rank[p].resize(recv_ghosts_hashed[p].size(),UNKNOWN);
+        if (p!=Comm::instance().rank())
+        {
+          for (Uint h=0; h<recv_ghosts_hashed[p].size(); ++h)
+          {
+            hash_to_elem_idx_iter = hash_to_elem_idx.find(recv_ghosts_hashed[p][h]);
+            if ( hash_to_elem_idx_iter != hash_not_found )
+            {
+              Uint first_glb_idx = glb_idx()[ space.indexes_for_element( hash_to_elem_idx_iter->second )[0] ];
+              send_glb_idx_on_rank[p][h] = first_glb_idx;
+            }
+          }
+        }
+      }
+
+
+      // - Communicate which processes found the missing ghosts
+      std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
+      if (Comm::instance().is_active())
+        hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+      else
+        recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
+
+
+      // - Set the missing rank to the lowest process number that found it
+      for (Uint g=0; g<ghosts.size(); ++g)
+      {
+        cf_assert(entities.rank()[ghosts[g]] < Comm::instance().size());
+        const Uint first_loc_idx = space.indexes_for_element(ghosts[g])[0];
+        const Uint first_glb_idx = recv_glb_idx_on_rank[ entities.rank()[ghosts[g]] ][g];
+        for (Uint s=0; s<nb_states_per_elem; ++s)
+          glb_idx()[first_loc_idx+s] = first_glb_idx+s;
+      }
     }
-    remove_component(coordinates);
-    m_coordinates.reset();
   }
 }
 
