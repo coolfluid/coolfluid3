@@ -308,7 +308,10 @@ void CWriter::write_file(std::fstream& file)
             else
             {
               // field not defined for this zone, so write zeros
-              file << elements.size() << "*" << 0.;
+              if (option("cell_centred").value<bool>())
+                file << elements.size() << "*" << 0.;
+              else
+                file << used_nodes.size() << "*" << 0.;
               file << "\n";
             }
           }
