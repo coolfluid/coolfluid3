@@ -239,7 +239,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
   std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > fnb_buffer_map;
   std::map<std::string,CList<bool>::Buffer::Ptr  > bdry_buffer_map;
-  std::map<std::string,CList<Uint>::Buffer::Ptr  > rank_buffer_map;
 
   Component::Ptr elem_comp;
   Uint elem_idx;
@@ -272,7 +271,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     f2c_buffer_map[face_type] = raw_table.create_buffer_ptr();
     fnb_buffer_map[face_type] = f2c.get_child_ptr("face_number")->as_ptr< CTable<Uint> >()->create_buffer_ptr();
     bdry_buffer_map[face_type] = f2c.get_child_ptr("is_bdry_face")->as_ptr< CList<bool> >()->create_buffer_ptr();
-    rank_buffer_map[face_type] = faces.rank().create_buffer_ptr();
   }
 
   for (Uint f=0; f<face_to_cell.size(); ++f)
@@ -289,7 +287,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(face_to_cell.connectivity()[f]);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
-        rank_buffer_map[face_type]->add_row(PE::Comm::instance().rank());
       }
     }
     else
@@ -300,7 +297,6 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
         f2c_buffer_map[face_type]->add_row(dummy);
         fnb_buffer_map[face_type]->add_row(face_number[f]);
         bdry_buffer_map[face_type]->add_row(face_to_cell.is_bdry_face()[f]);
-        rank_buffer_map[face_type]->add_row(PE::Comm::instance().rank());
       }
     }
   }
@@ -316,6 +312,8 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
     const std::string shape_name = build_component_abstract_type<ElementType>(face_type,"tmp")->shape_name();
     CCellFaces& faces = *region.get_child_ptr(shape_name)->as_ptr<CCellFaces>();
 
+    faces.rank().resize(faces.size());
+    faces.glb_idx().resize(faces.size());
     CFaceCellConnectivity&  f2c  = faces.cell_connectivity();
     CTable<Uint>&           fnb  = f2c.get_child("face_number" ).as_type< CTable<Uint> >();
     CList<bool>&            bdry = f2c.get_child("is_bdry_face").as_type< CList<bool> >();
