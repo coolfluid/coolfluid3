@@ -12,6 +12,7 @@
 
 #include <boost/program_options.hpp>
 
+#include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -242,7 +243,13 @@ void NetworkQueue::signal_ack ( Common::SignalArgs & args )
           send_next_command();
       }
     }
+    else
+      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
+                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
   }
+  else
+    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -287,7 +294,20 @@ void NetworkQueue::execute_script ( const QString & filename )
   {
     NLog::globalLog()->addMessage("Running script: " + filename);
     m_scriptStream->setDevice( m_scriptFile );
-    send_next_command();
+    if(!filename.endsWith(".py")) // non-python, assume CFscript
+    {
+      send_next_command();
+    }
+    else // python
+    {
+      const URI script_engine_path("//Root/Tools/Python/ScriptEngine", Common::URI::Scheme::CPATH);
+      
+      SignalOptions options;
+      options.add_option< OptionT<std::string> >("script", m_scriptStream->readAll().toStdString());
+      SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
+      
+      dispatch_signal("execute_script", script_engine_path, frame);
+    }
   }
 }
 

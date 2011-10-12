@@ -11,6 +11,8 @@ list( APPEND coolfluid_python_files
   MatrixTypes.cpp
   PythonModule.hpp
   PythonModule.cpp
+  ScriptEngine.hpp
+  ScriptEngine.cpp
   URI.hpp
   URI.cpp
 )

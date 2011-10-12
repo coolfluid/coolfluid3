@@ -35,6 +35,9 @@ public: // methods
 
   /// @return the single object that represents the operating system
   static OSystem& instance();
+  
+  /// Set an environment variable
+  static void setenv(const std::string& name, const std::string& value);
 
 private: // functions
 
