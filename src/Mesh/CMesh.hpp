@@ -92,6 +92,8 @@ public: // functions
   /// @return metadata component
   const MeshMetadata& metadata() const { return *m_metadata; }
 
+  void write_mesh( const Common::URI& file, const std::vector<Common::URI> fields = std::vector<Common::URI>());
+
   void signal_write_mesh ( Common::SignalArgs& node );
 
   void signature_write_mesh ( Common::SignalArgs& node);
@@ -102,6 +104,8 @@ public: // functions
 
   /// will among others set the coordinate dimension for the nodes
   void initialize_nodes(const Uint nb_nodes, const Uint dimension);
+
+  void check_sanity() const;
 
 private: // data
 

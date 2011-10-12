@@ -7,6 +7,8 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "Common/CBuilder.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/OptionArray.hpp"
 
 #include "Physics/Variables.hpp"
 
@@ -20,14 +22,72 @@ using namespace Common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+LinEuler2D::Properties::Properties()
+{
+  gamma = 1.0; /// @todo this value is set for atest-rdm-rklineuler
+
+  rho0 = 1.;
+  u0 = (LinEuler2D::GeoV() << 0.5 , 0.).finished(); /// @todo this value is set for atest-rdm-rklineuler
+  P0 = 1.;
+
+  inv_rho0 = 1./rho0;
+  c=sqrt(gamma*P0*inv_rho0);
+  inv_c = 1./c;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Common::ComponentBuilder < LinEuler::LinEuler2D,
                            Physics::PhysModel,
                            LibLinEuler >
                            Builder_LinEuler2D;
 
-LinEuler2D::LinEuler2D( const std::string& name ) : Physics::PhysModel(name)
+LinEuler2D::LinEuler2D( const std::string& name ) :
+  Physics::PhysModel(name),
+  m_gamma(1.), /// @todo this value is set for atest-rdm-rklineuler
+  m_rho0(1.),
+  m_u0( (LinEuler2D::GeoV() << 0.5 , 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
+  m_P0(1.)
 {
+  options().add_option< OptionT<Real> >("gamma",m_gamma)
+      ->description("Specific heat reatio")
+      ->link_to(&m_gamma);
+
+  options().add_option< OptionT<Real> >("rho0",m_rho0)
+      ->description("Uniform mean density")
+      ->link_to(&m_rho0);
+
+  std::vector<Real> U0(m_u0.size());
+  U0[XX] = m_u0[XX];
+  U0[YY] = m_u0[YY];
+  options().add_option< OptionArrayT<Real> >("U0",U0)
+      ->description("Uniform mean velocity")
+      ->attach_trigger( boost::bind( &LinEuler2D::config_mean_velocity, this) );
+
+  options().add_option< OptionT<Real> >("P0",m_P0)
+      ->description("Uniform mean pressure")
+      ->link_to(&m_P0);
 }
+
+void LinEuler2D::config_mean_velocity()
+{
+  std::vector<Real> U0 = option("U0").value< std::vector<Real> >();
+  m_u0[XX] = U0[XX];
+  m_u0[YY] = U0[YY];
+}
+
+void LinEuler2D::set_constants(LinEuler2D::Properties& props)
+{
+  props.gamma = m_gamma;
+  props.rho0 = m_rho0;
+  props.u0 = m_u0;
+  props.P0 = m_P0;
+
+  props.inv_rho0 = 1./props.rho0;
+  props.c=sqrt(props.gamma*props.P0*props.inv_rho0);
+  props.inv_c = 1./props.c;
+}
+
 
 LinEuler2D::~LinEuler2D()
 {

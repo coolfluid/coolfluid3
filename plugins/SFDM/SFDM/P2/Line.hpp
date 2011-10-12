@@ -24,6 +24,8 @@ public:
   static const Uint                 dimensionality = 1;
   static const Uint                 order          = 2;
 
+  enum FaceNumbering { KSI_NEG = 0, KSI_POS = 1 };
+
 public:
 
   /// Constructor

@@ -7,18 +7,20 @@
 #ifndef CF_SFDM_IterativeSolver_hpp
 #define CF_SFDM_IterativeSolver_hpp
 
-#include "Common/CAction.hpp"
+#include "Solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
 namespace CF {
 namespace Common { class CActionDirector; }
+namespace Solver { class CTime; }
+namespace Mesh   { class Field; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API IterativeSolver : public Common::CAction {
+class SFDM_API IterativeSolver : public Solver::Action {
 
 public: // typedefs
 
@@ -41,7 +43,6 @@ public: // functions
   virtual void execute ();
 
   Common::CActionDirector& pre_update()    { return *m_pre_update; }
-  Common::CActionDirector& update()        { return *m_update; }
   Common::CActionDirector& post_update()   { return *m_post_update; }
 
   /// @name SIGNALS
@@ -51,17 +52,28 @@ public: // functions
 
 private: // functions
 
-  /// @returns true if any of the stop criteria is achieved
-  virtual bool stop_condition();
   /// raises the event when iteration done
   void raise_iteration_done();
 
+  void config_rk_order();
+
+  void link_fields();
+
 private: // data
+
+  std::vector<Real> m_alpha;
+  std::vector<Real> m_beta;
+  std::vector<Real> m_gamma;
+
+  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<Mesh::Field> m_solution_backup;
+  boost::weak_ptr<Mesh::Field> m_residual;
+  boost::weak_ptr<Mesh::Field> m_update_coeff;
+
+  boost::weak_ptr<Solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
   boost::shared_ptr<Common::CActionDirector> m_pre_update;
-  /// set of actions called every iteration to update the solution
-  boost::shared_ptr<Common::CActionDirector> m_update;
   /// set of actions called every iteration after non-linear solve
   boost::shared_ptr<Common::CActionDirector> m_post_update;
 

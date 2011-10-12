@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   URI fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(*mesh_ptr,fp_out_1);
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
@@ -183,15 +183,13 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("parent",URI("//Root"));
-  meshgenerator->configure_option("name",std::string("rect"));
+  meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
   std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
   meshgenerator->configure_option("nb_cells",nb_cells);
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",false);
-  meshgenerator->execute();
-  CMesh& mesh = Core::instance().root().get_child("rect").as_type<CMesh>();
+  CMesh& mesh = meshgenerator->generate();
 
 
   CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
@@ -202,7 +200,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   meshwriter->write_from_to(mesh,"rect.msh");
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

@@ -735,6 +735,10 @@ void Component::signal_print_info ( SignalArgs& args  )
 
     CFinfo << c.second->name() << " / " << c.second->derived_type_name() << CFendl;
   }
+
+  CFinfo << "  options:" << CFendl;
+  CFinfo << options().list_options() << CFendl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

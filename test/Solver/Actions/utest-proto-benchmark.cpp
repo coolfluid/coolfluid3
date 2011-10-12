@@ -96,6 +96,8 @@ struct ProtoBenchmarkFixture :
     Tools::MeshGeneration::create_channel_3d(blocks, length, half_height, width, x_segs, y_segs/2, z_segs, ratio);
     BlockMesh::build_mesh(blocks, mesh);
 
+    mesh.check_sanity();
+
     // Set up variables
     phys_model.variable_manager().create_descriptor("volume", "CellVolume");
 

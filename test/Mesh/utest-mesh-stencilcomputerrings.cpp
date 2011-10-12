@@ -14,7 +14,7 @@
 #include "Common/Core.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CRoot.hpp"
@@ -69,11 +69,10 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_option("parent",Core::instance().root().uri());
+  mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->execute();
-  CMesh& mesh = find_component<CMesh>(Core::instance().root()).as_type<CMesh>();
+  CMesh& mesh = mesh_generator->generate();
 
   CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerRings>("stencilcomputer");
   stencil_computer->configure_option("mesh", mesh.uri() );
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   stencil_computer->configure_option("nb_rings", 3u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u);
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

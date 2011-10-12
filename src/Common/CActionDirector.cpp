@@ -8,6 +8,7 @@
 
 #include "Common/BasicExceptions.hpp"
 #include "Common/CBuilder.hpp"
+#include "Common/Log.hpp"
 #include "Common/OptionArray.hpp"
 #include "Common/OptionT.hpp"
 #include "Common/OptionURI.hpp"
@@ -61,6 +62,9 @@ void CActionDirector::execute()
     CAction::Ptr action = boost::dynamic_pointer_cast<CAction>(linked_child);
     if(is_null(action))
       throw SetupError(FromHere(), "Component with name " + action_name + " is not an action in " + uri().string());
+    
+    CFdebug << "Executing action " << action->uri().string()
+      << (action->options().check("regions") ? (" over regions " + action->option("regions").value_str()) : "") << CFendl;
 
     action->execute();
   }

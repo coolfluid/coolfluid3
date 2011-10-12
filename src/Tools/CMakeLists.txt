@@ -1,5 +1,8 @@
 coolfluid_find_orphan_files()
 
+# a library providing an interface to plot x-y plots with gnuplot
+add_subdirectory( Gnuplot )
+
 # a library providing an interface to profiling with google perftools
 add_subdirectory( GooglePerfTools )
 

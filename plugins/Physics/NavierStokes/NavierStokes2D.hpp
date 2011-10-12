@@ -46,15 +46,25 @@ public: // functions
   struct Properties : public Physics::Properties
   {
 
+    Properties()
+    {
+      gamma = 1.4;
+      R = 287.05;
+      gamma_minus_1 = gamma - 1.;
+    }
+
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
     GeoV coords;       ///< position in domain
     SolV vars;         ///< independent variables with positions described in Variables
     SolM grad_vars;    ///< gradient of independent variables
 
-    Real gamma;               ///< specific heat ratio
-    Real gamma_minus_1;       ///< specific heat ratio minus one, very commonly used
-    Real R;                   ///< gas constant
+    /// @name Gas constants, configurable
+    //@{
+    Real gamma;            ///< specific heat ratio
+    Real R;                ///< gas constant
+    Real gamma_minus_1;    ///< specific heat ratio minus one, very commonly used
+    //@}
 
     Real rho;                 ///< density
     Real rhou;                ///< rho.u
@@ -77,6 +87,7 @@ public: // functions
     Real Ma;                  ///< mach number
   };
 
+
   /// @name INTERFACE
   //@{
 
@@ -91,7 +102,9 @@ public: // functions
   /// create a physical properties
   virtual std::auto_ptr<Physics::Properties> create_properties()
   {
-    return std::auto_ptr<Physics::Properties>( new NavierStokes2D::Properties() );
+    std::auto_ptr<Physics::Properties> props( new NavierStokes2D::Properties() );
+    set_constants( static_cast<NavierStokes2D::Properties&>( *props ) );
+    return props;
   }
 
   /// Create a Variables component
@@ -99,8 +112,19 @@ public: // functions
   /// @post the component will be a sub-component of this model but maybe be moved away
   /// @throws ValueNotFound if the type does not match a variable type this model supports
   virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
-
   //@} END INTERFACE
+
+private:
+
+  void set_constants(NavierStokes2D::Properties& props)
+  {
+    props.gamma = m_gamma;
+    props.gamma_minus_1 = m_gamma - 1.;
+    props.R = m_R;
+  }
+
+  Real m_gamma;
+  Real m_R;
 
 }; // NavierStokes2D
 

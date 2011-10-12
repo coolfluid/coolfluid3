@@ -51,6 +51,12 @@ Quad::Quad(const std::string& name) : ShapeFunction(name)
   m_face_info[ETA_NEG][SIDE] = NEG;
   m_face_info[ETA_POS][ORIENTATION] = ETA;
   m_face_info[ETA_POS][SIDE] = POS;
+
+  m_face_number.resize(boost::extents[dimensionality][2]);
+  m_face_number[KSI][LEFT]=KSI_NEG;
+  m_face_number[KSI][RIGHT]=KSI_POS;
+  m_face_number[ETA][LEFT]=ETA_NEG;
+  m_face_number[ETA][RIGHT]=ETA_POS;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

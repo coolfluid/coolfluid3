@@ -34,6 +34,16 @@ Line::Line(const std::string& name) : ShapeFunction(name)
   m_points.resize(boost::extents[dimensionality][nb_lines][nb_sol_pts_per_line]);
   m_points[KSI][0][0] = 0;
   m_points[KSI][0][1] = 1;
+
+  m_face_info.resize(boost::extents[2][2]);
+  m_face_info[KSI_NEG][ORIENTATION] = KSI;
+  m_face_info[KSI_NEG][SIDE] = NEG;
+  m_face_info[KSI_POS][ORIENTATION] = KSI;
+  m_face_info[KSI_POS][SIDE] = POS;
+
+  m_face_number.resize(boost::extents[dimensionality][2]);
+  m_face_number[KSI][LEFT]=0;
+  m_face_number[KSI][RIGHT]=1;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

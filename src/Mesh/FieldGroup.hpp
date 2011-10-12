@@ -137,6 +137,8 @@ public: // functions
 
   CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
+  Field& create_coordinates();
+
   Field& coordinates() const;
 
   bool has_coordinates() const;

@@ -13,11 +13,13 @@
 #include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
+#include "Mesh/FieldManager.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"
+#include "Mesh/Actions/CGlobalNumbering.hpp"
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "SFDM/SFDSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/CreateSFDFields.hpp"
 #include "SFDM/Tags.hpp"
@@ -47,6 +49,10 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
   build_faces->configure_option("store_cell2face",true);
 
   append( build_faces );
+
+  // renumber elements because of the faces (not strictly necessary)
+  // append( allocate_component<CGlobalNumbering>("glb_numbering") );
+
   append( allocate_component<CreateSFDFields>("create_sfd_fields") );
 }
 
@@ -63,6 +69,11 @@ void PrepareMesh::execute()
 
   // execution of prepare mesh
   ActionDirector::execute();
+
+  std::vector<URI> fields;
+  fields.push_back(solver().field_manager().get_child(SFDM::Tags::solution()).follow()->uri());
+  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("fields",fields);
+  solver().as_type<SFDSolver>().time_stepping().post_actions().get_child("Periodic").configure_option_recursively("file",URI("sfdm_output_${time}.msh"));
 }
 
 /////////////////////////////////////////////////////////////////////////////////////

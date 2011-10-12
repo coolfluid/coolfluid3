@@ -14,7 +14,7 @@
 #include "Common/Core.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/Log.hpp"
- 
+
 #include "Common/FindComponents.hpp"
 #include "Common/CLink.hpp"
 #include "Common/CRoot.hpp"
@@ -68,32 +68,32 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
   COcttree::Ptr octtree = allocate_component<COcttree>("octtree");
   BOOST_CHECK_EQUAL(octtree->name(),"octtree");
-  
+
   BOOST_CHECK( true );
 
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_option("parent",Core::instance().root().uri());
+  mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->execute();
+  CMesh& mesh = mesh_generator->generate();
 
   // Create and configure interpolator.
   octtree->configure_option("nb_elems_per_cell", (Uint) 1 );
-  octtree->configure_option("mesh", find_component<CMesh>(Core::instance().root()).uri() );
+  octtree->configure_option("mesh", mesh.uri() );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
   octtree->configure_option("nb_cells", nb_cells );
-  
-	BOOST_CHECK(true);
+
+  BOOST_CHECK(true);
 
   octtree->create_octtree();
 
   CElements::ConstPtr elements;
   Uint idx(0);
-  RealVector2 coord; 
-  
+  RealVector2 coord;
+
   coord << 1. , 1. ;
   boost::tie(elements,idx) = octtree->find_element(coord);
   BOOST_CHECK_EQUAL(idx,0u);
@@ -123,11 +123,11 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   stencil_computer->configure_option("stencil_size", 10u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
-  
+
   stencil_computer->configure_option("stencil_size", 21u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
-  
+
   CFinfo << stencil_computer->tree() << CFendl;
 }
 

@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   meshwriter->write_from_to(mesh,fp_out_1);
   CF_DEBUG_POINT;
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshPartitioner>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

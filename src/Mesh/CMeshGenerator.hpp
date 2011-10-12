@@ -50,15 +50,22 @@ public: // functions
   static std::string type_name () { return "CMeshGenerator"; }
 
   /// execute
-  virtual void execute() =0;
+  virtual void execute() = 0;
 
-  static void mesh_loaded(CMesh& mesh);
+  /// generate, wraps execute() and returns the mesh reference
+  CMesh& generate();
+
+private: // functions
+
+  void config_mesh();
+
+protected: // functions
+
+  void raise_mesh_loaded();
 
 protected: // data
 
-  boost::weak_ptr<Component> m_parent;
-  std::string m_name;
-
+  boost::weak_ptr<CMesh> m_mesh;
 
 };
 

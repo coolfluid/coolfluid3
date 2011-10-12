@@ -64,7 +64,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  Geometry& geometry() const;
+  Geometry& geometry() const { cf_assert(!m_geometry.expired()); return *m_geometry.lock(); }
 
   /// Mutable access to the list of nodes
   CList<Uint>& glb_idx() { return *m_global_numbering; }
@@ -88,6 +88,8 @@ public: // functions
 
   CSpace& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
 
+  CSpace& geometry_space() const { cf_assert(!m_geometry_space.expired()); return *m_geometry_space.lock(); }
+
   bool exists_space(const Uint space_idx) const;
 
   bool exists_space(const std::string& space_name) const;
@@ -108,7 +110,9 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::shared_ptr<Common::CLink> m_nodes;
+  boost::weak_ptr<Geometry> m_geometry;
+
+  boost::weak_ptr<CSpace> m_geometry_space;
 
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 

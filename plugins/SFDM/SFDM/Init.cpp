@@ -8,6 +8,7 @@
 #include "Common/OptionArray.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/FindComponents.hpp"
+#include "Common/Log.hpp"
 
 #include "Physics/Variables.hpp"
 
@@ -143,6 +144,7 @@ void Init::execute()
 
     }
   }
+  solution.synchronize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

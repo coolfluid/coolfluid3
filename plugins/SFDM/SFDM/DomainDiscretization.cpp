@@ -92,15 +92,15 @@ void DomainDiscretization::signal_create_term( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  std::string name = options.value<std::string>("Name");
-  std::string type = options.value<std::string>("Type");
+  std::string name = options.value<std::string>("name");
+  std::string type = options.value<std::string>("type");
 
   // configure the regions
   // if user did not specify, then use the whole topology (all regions)
 
   std::vector<URI> regions;
-  if( options.check("Regions") )
-    regions = options.array<URI>("Regions");
+  if( options.check("regions") )
+    regions = options.array<URI>("regions");
   else
     regions.push_back(mesh().topology().uri());
 
@@ -114,17 +114,15 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   // name
 
-  options.add_option< OptionT<std::string> >("Name", std::string() )
+  options.add_option< OptionT<std::string> >("name", std::string() )
       ->description("Name for created term");
 
   // type
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  //  std::vector< std::string > restricted;
-  //  restricted.push_back( std::string("CF.SFDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("CF.SFDM.BcDirichlet"), "Type for created boundary");
-  //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
+  options.add_option< OptionT<std::string> >("type", std::string("CF.SFDM.Convection"))
+      ->description("Type for created term");
 
   // regions
 
@@ -133,7 +131,7 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
   /// @todo create here the list of restricted volume regions
 
   options.add_option< OptionArrayT<URI> >("regions", dummy )
-      ->description("Regions where to apply the domain term");
+      ->description("Regions where to apply the term");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////
