@@ -284,15 +284,20 @@ void CWriter::write_file(std::fstream& file)
                   /// evaluate field shape function in P0 space
                   RealVector geometry_field_data = interpolation*field_data;
 
+                  CConnectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  cf_assert(geometry_field_data.size()==geom_nodes.size());
                   /// Average nodal values
-                  for (Uint g=0; g<geometry_field_data.size(); ++g)
+                  for (Uint g=0; g<geom_nodes.size(); ++g)
                   {
-                    const Uint geom_node = elements.node_connectivity()[e][g];
-                    const Uint zone_idx = zone_node_idx[geom_node];
-                    const Real accumulated_weight = nodal_data_count[zone_idx]/(nodal_data_count[zone_idx]+1.0);
-                    const Real add_weight = 1.0/(nodal_data_count[zone_idx]+1.0);
-                    nodal_data[zone_idx] = accumulated_weight*nodal_data[zone_idx] + add_weight*geometry_field_data[g];
-                    ++nodal_data_count[zone_idx];
+                    const Uint geom_node = geom_nodes[g];
+                    CFLogVar(geom_node);
+                    const Uint node_idx = zone_node_idx[geom_node]-1;
+                    CFLogVar(node_idx);
+                    cf_assert(node_idx < nodal_data.size());
+                    const Real accumulated_weight = nodal_data_count[node_idx]/(nodal_data_count[node_idx]+1.0);
+                    const Real add_weight = 1.0/(nodal_data_count[node_idx]+1.0);
+                    nodal_data[node_idx] = accumulated_weight*nodal_data[node_idx] + add_weight*geometry_field_data[g];
+                    ++nodal_data_count[node_idx];
                   }
                 }
 
