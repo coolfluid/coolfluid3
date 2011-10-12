@@ -85,7 +85,7 @@ find_package(Curl)            # curl downloads files on the fly
 find_package(CGNS)            # CGNS library
 find_package(SuperLU)         # SuperLU sparse sirect solver
 find_package(Trilinos)        # Trilinos sparse matrix library
-find_package(Gnuplot)         # Find gnuplot executable
+find_package(Gnuplot QUIET)   # Find gnuplot executable
 
 # opencl support
 if( CF_ENABLE_OPENCL AND CF_ENABLE_GPU )
