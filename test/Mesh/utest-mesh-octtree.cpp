@@ -66,11 +66,6 @@ BOOST_FIXTURE_TEST_SUITE( Octtree_TestSuite, Octtree_Fixture )
 
 BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
-  COcttree::Ptr octtree = allocate_component<COcttree>("octtree");
-  BOOST_CHECK_EQUAL(octtree->name(),"octtree");
-
-  BOOST_CHECK( true );
-
   // create meshreader
   CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
@@ -79,33 +74,33 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
   CMesh& mesh = mesh_generator->generate();
 
+  COcttree& octtree = mesh.create_component<COcttree>("octtree");
+
   // Create and configure interpolator.
-  octtree->configure_option("nb_elems_per_cell", (Uint) 1 );
-  octtree->configure_option("mesh", mesh.uri() );
+  octtree.configure_option("nb_elems_per_cell", 1u );
+  octtree.configure_option("mesh", mesh.uri() );
+
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree->configure_option("nb_cells", nb_cells );
+  octtree.configure_option("nb_cells", nb_cells );
 
   BOOST_CHECK(true);
-
-  octtree->create_octtree();
 
   CElements::ConstPtr elements;
   Uint idx(0);
   RealVector2 coord;
 
   coord << 1. , 1. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,0u);
 
   coord << 3. , 1. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,1u);
 
   coord << 1 , 3. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,5u);
-
 
 
   CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerOcttree>("stencilcomputer");

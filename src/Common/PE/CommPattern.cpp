@@ -264,8 +264,6 @@ PECheckPoint(1000,"004");
 
 void CommPattern::setup()
 {
-  if (Comm::instance().is_active() == false)
-    return;
 #define COMPUTE_IRANK(inode,nproc,nnode) ((((unsigned long long)(inode))*((unsigned long long)(nproc)))/((unsigned long long)(nnode)))
 #define COMPUTE_INODE(irank,nproc,nnode) (((unsigned long long)(nnode))>((unsigned long long)(nproc))?((((unsigned long long)(irank))*((unsigned long long)(nnode)))%((unsigned long long)(nproc))==0?(((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)):((((unsigned long long)(irank))*((unsigned long long)(nnode)))/((unsigned long long)(nproc)))+1ul):((unsigned long long)(irank)))
 
@@ -587,8 +585,6 @@ void CommPattern::synchronize( const CommWrapper& pobj )
 // having the vectors for the intermediate buf coming from outside allows keeping them and reuse for all synchronize
 void CommPattern::synchronize_this( const CommWrapper& pobj, std::vector<unsigned char>& sndbuf, std::vector<unsigned char>& rcvbuf )
 {
-  if (Comm::instance().is_active() == false)
-    return;
 //  std::cout << PERank << pobj.name() << "\n" << std::flush;
 //  std::cout << PERank << pobj.needs_update() << "\n" << std::flush;
   if ( pobj.needs_update() )

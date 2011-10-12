@@ -212,14 +212,65 @@ void CWriter::write_file(std::fstream& file)
         {
           if (field.basis() == FieldGroup::Basis::POINT_BASED)
           {
-            if ( &field.field_group() != &m_mesh->geometry() )
-              throw NotImplemented(FromHere(),"Tecplot writing of point-based fields only works when its fieldgroup is mesh.geometry()");
-            boost_foreach(Uint n, used_nodes.array())
+            if ( &field.field_group() == &m_mesh->geometry() )
             {
-              file << field[n][var_idx] << " ";
-              CF_BREAK_LINE(file,n);
+              boost_foreach(Uint n, used_nodes.array())
+              {
+                file << field[n][var_idx] << " ";
+                CF_BREAK_LINE(file,n);
+              }
+              file << "\n";
             }
-            file << "\n";
+            else
+            {
+              if (field.elements_lookup().contains(elements))
+              {
+                CSpace& field_space = field.space(elements);
+                RealVector field_data (field_space.nb_states());
+
+                std::vector<Real> nodal_data(used_nodes.size(),0.);
+
+                RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
+                const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
+                const ShapeFunction& sf = field_space.shape_function();
+                for (Uint g=0; g<interpolation.rows(); ++g)
+                {
+                  interpolation.row(g) = sf.value(geometry_local_coords.row(g));
+                }
+
+                for (Uint e=0; e<elements.size(); ++e)
+                {
+                  CConnectivity::ConstRow field_index = field_space.indexes_for_element(e);
+
+                  /// set field data
+                  for (Uint iState=0; iState<field_space.nb_states(); ++iState)
+                  {
+                    field_data[iState] = field[field_index[iState]][var_idx];
+                  }
+
+                  /// evaluate field shape function in P0 space
+                  RealVector geometry_field_data = interpolation*field_data;
+
+                  CConnectivity::ConstRow geom_nodes = elements.get_nodes(e);
+                  cf_assert(geometry_field_data.size()==geom_nodes.size());
+                  /// Average nodal values
+                  for (Uint g=0; g<geom_nodes.size(); ++g)
+                  {
+                    const Uint geom_node = geom_nodes[g];
+                    const Uint node_idx = zone_node_idx[geom_node]-1;
+                    cf_assert(node_idx < nodal_data.size());
+                    nodal_data[node_idx] = geometry_field_data[g];
+                  }
+                }
+
+                for (Uint n=0; n<nodal_data.size(); ++n)
+                {
+                  file << nodal_data[n] << " ";
+                  CF_BREAK_LINE(file,n)
+                }
+                file << "\n";
+              }
+            }
           }
           else // element based
           {
@@ -258,11 +309,6 @@ void CWriter::write_file(std::fstream& file)
                 std::vector<Real> nodal_data(used_nodes.size(),0.);
                 std::vector<Uint> nodal_data_count(used_nodes.size(),0u);
 
-//                const CFreal avgStepsCounterReal = static_cast<CFreal>(m_avgStepsCounter);
-//                const CFreal oldAvgSolWght = avgStepsCounterReal/(avgStepsCounterReal+1.0);
-//                const CFreal curInsSolWght = 1.0/(avgStepsCounterReal+1.0);
-//                avgSol(iCell,iEq,nbEqs) = avgSol(iCell,iEq,nbEqs)*oldAvgSolWght + m_primState[iEq]*curInsSolWght;
-
                 RealMatrix interpolation(elements.geometry_space().nb_states(),field_space.nb_states());
                 const RealMatrix& geometry_local_coords = elements.geometry_space().shape_function().local_coordinates();
                 const ShapeFunction& sf = field_space.shape_function();
@@ -290,9 +336,7 @@ void CWriter::write_file(std::fstream& file)
                   for (Uint g=0; g<geom_nodes.size(); ++g)
                   {
                     const Uint geom_node = geom_nodes[g];
-                    CFLogVar(geom_node);
                     const Uint node_idx = zone_node_idx[geom_node]-1;
-                    CFLogVar(node_idx);
                     cf_assert(node_idx < nodal_data.size());
                     const Real accumulated_weight = nodal_data_count[node_idx]/(nodal_data_count[node_idx]+1.0);
                     const Real add_weight = 1.0/(nodal_data_count[node_idx]+1.0);

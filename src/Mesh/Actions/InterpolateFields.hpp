@@ -18,6 +18,7 @@
 namespace CF {
 namespace Mesh {
 
+  class COcttree;
   class Field;
 
 namespace Actions {
@@ -52,6 +53,9 @@ private:
 
   /// target field
   boost::weak_ptr<Field> m_target;
+
+  /// source octtree
+  boost::shared_ptr<COcttree> m_octtree;
 
 }; // end InterpolateFields
 
