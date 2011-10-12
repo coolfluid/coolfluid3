@@ -6,6 +6,8 @@
 
 #include <boost/assign/std/vector.hpp> // for 'operator+=()'
 
+#include <coolfluid-paths.hpp>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/BasicExceptions.hpp"
@@ -351,7 +353,7 @@ boost::thread & CPEManager::listening_thread ()
 void CPEManager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const char * cmd = "../Tools/Solver/coolfluid-solver";
+  const std::string cmd = std::string(CF_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
 
   Uint nb_workers = options.value<Uint>("count");
   std::string name = options.value<std::string>("name");
@@ -366,7 +368,7 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
   else
     throw ValueNotFound(FromHere(), "Unknown forward type [" + forward + "]");
 
-  spawn_group(name, nb_workers, cmd, forward);
+  spawn_group(name, nb_workers, cmd.c_str(), forward);
 }
 
 ////////////////////////////////////////////////////////////////////////////
