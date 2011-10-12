@@ -10,6 +10,8 @@
 #include <iomanip>
 #include <boost/test/unit_test.hpp>
 
+#include "coolfluid-packages.hpp"
+
 #include "Common/Log.hpp"
 #include "Common/Core.hpp"
 #include "Common/CRoot.hpp"
@@ -34,10 +36,13 @@
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CSpace.hpp"
 
+#include "Tools/Gnuplot/Gnuplot.hpp"
+
 using namespace boost;
 using namespace CF;
 using namespace CF::Mesh;
 using namespace CF::Common;
+using namespace CF::Common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -151,6 +156,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   FieldGroup& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",FieldGroup::Basis::POINT_BASED,"CF.Mesh.LagrangeP2");
   Field& nodes_P1_node_rank = nodes_P1.create_field("node_rank");
+  nodes_P1_node_rank.parallelize();
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
     nodes_P1_node_rank[n][0] = nodes_P1.rank()[n];
 
@@ -195,6 +201,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
 
   tec_writer->set_fields(fields);
+  tec_writer->configure_option("cell_centred",true);
   tec_writer->write_from_to(mesh,"parallel_fields.plt");
 
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
@@ -209,6 +216,152 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( minitest )
+{
+ CFinfo << "ParallelFields_test" << CFendl;
+ Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
+
+ CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+ meshgenerator->configure_option("mesh",URI("//Root/line"));
+ meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
+ meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
+ meshgenerator->configure_option("bdry",false);
+ CMesh& mesh = meshgenerator->generate();
+
+ build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+
+ // create a field and assign it to the comm pattern
+
+ Field& node_rank = mesh.geometry().create_field("node_rank");
+ node_rank.parallelize();
+
+ {
+   CFinfo << "Node test" << CFendl;
+   for (Uint n=0; n<node_rank.size(); ++n)
+     for (Uint j=0; j<node_rank.row_size(); ++j)
+       node_rank[n][j] = PE::Comm::instance().rank();
+   node_rank.synchronize();
+
+   if (Comm::instance().size() == 2)
+   {
+     if (Comm::instance().rank() == 0)
+     {
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[0][XX] , 0.);
+       BOOST_CHECK_EQUAL( node_rank[0][0] , 0. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[1][XX] , 1.);
+       BOOST_CHECK_EQUAL( node_rank[1][0] , 0. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[2][XX] , 2.);
+       BOOST_CHECK_EQUAL( node_rank[2][0] , 0. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[3][XX] , 3.);
+       BOOST_CHECK_EQUAL( node_rank[3][0] , 0. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[4][XX] , 4.);
+       BOOST_CHECK_EQUAL( node_rank[4][0] , 0. );
+
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[5][XX] , 5.);
+       BOOST_CHECK_EQUAL( node_rank[5][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[6][XX] , 6.);
+       BOOST_CHECK_EQUAL( node_rank[6][0] , 1. );
+     }
+     else if (Comm::instance().rank() == 1)
+     {
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[0][XX] , 5.);
+       BOOST_CHECK_EQUAL( node_rank[0][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[1][XX] , 6.);
+       BOOST_CHECK_EQUAL( node_rank[1][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[2][XX] , 7.);
+       BOOST_CHECK_EQUAL( node_rank[2][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[3][XX] , 8.);
+       BOOST_CHECK_EQUAL( node_rank[3][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[4][XX] , 9.);
+       BOOST_CHECK_EQUAL( node_rank[4][0] , 1. );
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[5][XX] , 10.);
+       BOOST_CHECK_EQUAL( node_rank[5][0] , 1. );
+
+       BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[6][XX] , 4.);
+       BOOST_CHECK_EQUAL( node_rank[6][0] , 0. );
+     }
+   }
+   else
+     CFwarn << "Checks only performed when run with 2 procs" << CFendl;
+  }
+  FieldGroup& elems = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  elems.create_coordinates();
+  Field& elem_rank     = elems.create_field("elem_rank");
+  elem_rank.parallelize();
+
+  {
+   CFinfo << "Elem test" << CFendl;
+    for (Uint n=0; n<elem_rank.size(); ++n)
+      for (Uint j=0; j<elem_rank.row_size(); ++j)
+        elem_rank[n][j] = PE::Comm::instance().rank();
+    elem_rank.synchronize();
+
+    if (Comm::instance().size() == 2)
+    {
+      if (Comm::instance().rank() == 0)
+      {
+        BOOST_CHECK_EQUAL( elems.coordinates()[0][XX] , 0.5 );
+        BOOST_CHECK_EQUAL( elem_rank[0][0] , 0 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[1][XX] , 1.5 );
+        BOOST_CHECK_EQUAL( elem_rank[1][0] , 0 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[2][XX] , 2.5 );
+        BOOST_CHECK_EQUAL( elem_rank[2][0] , 0 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[3][XX] , 3.5 );
+        BOOST_CHECK_EQUAL( elem_rank[3][0] , 0 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[4][XX] , 4.5 );
+        BOOST_CHECK_EQUAL( elem_rank[4][0] , 0 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[5][XX] , 5.5 );
+        BOOST_CHECK_EQUAL( elem_rank[5][0] , 1 );
+      }
+      else if (Comm::instance().rank() == 1)
+      {
+        BOOST_CHECK_EQUAL( elems.coordinates()[0][XX] , 5.5 );
+        BOOST_CHECK_EQUAL( elem_rank[0][0] , 1 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[1][XX] , 6.5 );
+        BOOST_CHECK_EQUAL( elem_rank[1][0] , 1 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[2][XX] , 7.5 );
+        BOOST_CHECK_EQUAL( elem_rank[2][0] , 1 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[3][XX] , 8.5 );
+        BOOST_CHECK_EQUAL( elem_rank[3][0] , 1 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[4][XX] , 9.5 );
+        BOOST_CHECK_EQUAL( elem_rank[4][0] , 1 );
+        BOOST_CHECK_EQUAL( elems.coordinates()[5][XX] , 4.5 );
+        BOOST_CHECK_EQUAL( elem_rank[5][0] , 0 );
+      }
+    }
+  }
+
+#ifdef GNUPLOT_FOUND
+//  Gnuplot gp(std::string(GNUPLOT_COMMAND)+std::string(" -persist"));
+  Gnuplot gp(std::string(GNUPLOT_COMMAND));
+  gp << "set terminal png\n";
+  gp << "set output 'ranks_P"<<Comm::instance().rank()<<".png'\n";
+  gp << "set yrange [-0.5:1.5]\n";
+  gp << "set title 'Rank "<<Comm::instance().rank()<<"'\n";
+  gp << "plot ";
+  gp << "'-' with points title 'node-rank'"  << ", ";
+  gp << "'-' with points title 'elem-rank'"  << "\n";
+  gp.send(mesh.geometry().coordinates().array(),node_rank.array());
+  gp.send(elems.coordinates().array(),elem_rank.array());
+
+  // Following works too, if coordinates need to be in sequence
+  //  std::map<Real,Real> nodes_xy;
+  //  for (Uint i=0; i<node_rank.size(); ++i)
+  //    nodes_xy[mesh.geometry().coordinates()[i][XX]] = node_rank[i][0];
+
+  //  std::map<Real,Real> elems_xy;
+  //  for (Uint i=0; i<elem_rank.size(); ++i)
+  //    elems_xy[elems.coordinates()[i][XX]] = elem_rank[i][0];
+
+  //  gp.send(nodes_xy);
+  //  gp.send(elems_xy);
+#endif
+}
+
+////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {

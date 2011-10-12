@@ -38,7 +38,6 @@ using namespace CF::Mesh;
 namespace CF {
 namespace SFDM {
 
-
 ///////////////////////////////////////////////////////////////////////////////////////
 
 Common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
@@ -246,7 +245,6 @@ void IterativeSolver::execute()
     // - R
     // - H
     // - time.dt()
-
     // Runge-Kutta UPDATE
     const Real one_minus_alpha = 1. - alpha[stage];
     boost_foreach(const CEntities& elements, U.entities_range())
@@ -268,6 +266,7 @@ void IterativeSolver::execute()
 
     // Do post-processing per stage after update
     post_update().execute();
+    U.synchronize();
 
     // Prepare for next stage
     if (stage == 0)
