@@ -338,7 +338,7 @@ void CMesh::check_sanity() const
     if (entities.rank().size() != entities.size())
       message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != rank().size() ["<<entities.rank().size()<<"]"<<std::endl;
     if (entities.glb_idx().size() != entities.size())
-      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != glb_idx().size() ["<<entities.rank().size()<<"]"<<std::endl;
+      message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != glb_idx().size() ["<<entities.glb_idx().size()<<"]"<<std::endl;
 
     if (Comm::instance().is_active())
     {

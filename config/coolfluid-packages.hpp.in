@@ -9,4 +9,7 @@
 #cmakedefine CF_HAVE_VALGRIND       // valgrind memory check
 #cmakedefine CF_HAVE_CGNS           // CGNS Mesh format
 
+#cmakedefine GNUPLOT_FOUND
+#define GNUPLOT_COMMAND "${GNUPLOT_EXECUTABLE}"
+
 #endif // !coolfluid_packages_hpp
