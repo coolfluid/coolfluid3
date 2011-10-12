@@ -336,9 +336,7 @@ void CWriter::write_file(std::fstream& file)
                   for (Uint g=0; g<geom_nodes.size(); ++g)
                   {
                     const Uint geom_node = geom_nodes[g];
-                    CFLogVar(geom_node);
                     const Uint node_idx = zone_node_idx[geom_node]-1;
-                    CFLogVar(node_idx);
                     cf_assert(node_idx < nodal_data.size());
                     const Real accumulated_weight = nodal_data_count[node_idx]/(nodal_data_count[node_idx]+1.0);
                     const Real add_weight = 1.0/(nodal_data_count[node_idx]+1.0);

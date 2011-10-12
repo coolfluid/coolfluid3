@@ -18,7 +18,7 @@ list( APPEND utest-sfdm-solver_files
     DummyTerm.hpp
     DummyTerm.cpp
     )
-
+set( utest-sfdm-solver_mpi_test TRUE )
 coolfluid_add_unit_test( utest-sfdm-solver )
 
 
