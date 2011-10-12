@@ -32,6 +32,8 @@ list( APPEND coolfluid_ui_server_files
 
 list( APPEND coolfluid_ui_server_cflibs ${CF_KERNEL_LIBS} )
 
+list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
+
 coolfluid_add_library(coolfluid_ui_server)
 
 configure_file( machine.txt   ${CMAKE_CURRENT_BINARY_DIR}/machine.txt    @ONLY)

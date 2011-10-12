@@ -145,8 +145,8 @@ MainWindow::MainWindow()
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer()),
-          this, SLOT(disconnectedFromServer()));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer(bool)),
+          this, SLOT(disconnectedFromServer(bool)));
 
   connect(NTree::globalTree().get(),
           SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
@@ -491,7 +491,7 @@ void MainWindow::connectedToServer()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnectedFromServer()
+void MainWindow::disconnectedFromServer(bool requested)
 {
   this->setConnectedState(false);
   NTree::globalTree()->clearTree();
@@ -557,8 +557,12 @@ void MainWindow::runScript()
 {
   QFileDialog dlg;
 
+#ifndef Q_WS_MAC
+  dlg.setOption(QFileDialog::DontUseNativeDialog);
+#endif
+
   dlg.setAcceptMode(QFileDialog::AcceptOpen);
-  dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript)" << "All files (*.*)" );
+  dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript *.py)" << "All files (*.*)" );
   dlg.setDirectory( QDir::home() );
 
   try

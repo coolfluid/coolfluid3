@@ -122,7 +122,7 @@ public:
   void insert( std::vector<std::string>& input );
 
   /// Converts this signal to a string in the CF script format
-  std::string to_script() const;
+  std::string to_script( int indentation = 0 ) const;
 
 public: // data
 

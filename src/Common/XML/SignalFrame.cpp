@@ -431,7 +431,7 @@ const SignalOptions & SignalFrame::options( const std::string & name ) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-std::string SignalFrame::to_script() const
+std::string SignalFrame::to_script( int indentation ) const
 {
   std::string str;
   std::string target = node.attribute_value("target");
@@ -441,16 +441,11 @@ std::string SignalFrame::to_script() const
   else
     str = "call " + node.attribute_value("receiver") + "/" + target;
 
-  std::string indent( str.length(), ' ');
+  std::string indent( indentation + str.length() + 1, ' ');
   SignalFrame frame( *this );
   SignalOptions opts( frame );
 
   OptionList::OptionStorage_t::const_iterator it = opts.store.begin();
-
-  std::string s;
-  to_string(node, s);
-
-  CFinfo << s << CFendl;
 
   for (; it != opts.store.end() ; it++ )
   {
@@ -464,7 +459,10 @@ std::string SignalFrame::to_script() const
 
     tag += '=' + option->value_str();
 
-    str += " \\\n" + indent + opt + tag;
+    if( it == opts.begin() )
+      str += " " + opt + tag;
+    else
+      str += " \\\n" + indent + opt + tag;
   }
 
 
