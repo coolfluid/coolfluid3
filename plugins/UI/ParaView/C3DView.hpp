@@ -44,6 +44,12 @@ public:
 
   /// Destructor
   virtual ~C3DView();
+  
+  /// Component::derived_type_name implementation
+  std::string derived_type_name() const
+  {
+    return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+  }
 
   /// Get the class name
   static std::string type_name () { return "C3DView"; }

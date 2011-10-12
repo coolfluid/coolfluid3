@@ -191,7 +191,6 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 
     // synchronize with other buddies
     Comm::instance().barrier();
-
   }
 
 }

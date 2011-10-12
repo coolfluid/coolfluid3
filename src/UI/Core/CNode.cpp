@@ -23,6 +23,7 @@
 #include "Common/StringConversion.hpp"
 
 #include "Common/XML/CastingFunctions.hpp"
+#include "Common/XML/FileOperations.hpp"
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
@@ -614,6 +615,13 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   rapidxml::xml_attribute<>* typeAttr = node.content->first_attribute("atype");
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
   rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute("mode");
+
+//  if( is_null(typeAttr) )
+//  {
+//    std::string str;
+//    to_string(node, str);
+//    qDebug() << "type attribute is null" << str.c_str();
+//  }
 
   cf_assert(typeAttr != nullptr);
   cf_assert(nameAttr != nullptr);

@@ -89,7 +89,7 @@ namespace Core {
 
   private slots:
 
-    void disconnected();
+    void disconnected(bool requested);
 
   protected:
 
