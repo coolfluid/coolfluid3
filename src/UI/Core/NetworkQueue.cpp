@@ -12,6 +12,7 @@
 
 #include <boost/program_options.hpp>
 
+#include "Common/OptionT.hpp"
 #include "Common/Signal.hpp"
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/SignalOptions.hpp"
@@ -293,7 +294,20 @@ void NetworkQueue::execute_script ( const QString & filename )
   {
     NLog::globalLog()->addMessage("Running script: " + filename);
     m_scriptStream->setDevice( m_scriptFile );
-    send_next_command();
+    if(!filename.endsWith(".py")) // non-python, assume CFscript
+    {
+      send_next_command();
+    }
+    else // python
+    {
+      const URI script_engine_path("//Root/Tools/Python/ScriptEngine", Common::URI::Scheme::CPATH);
+      
+      SignalOptions options;
+      options.add_option< OptionT<std::string> >("script", m_scriptStream->readAll().toStdString());
+      SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
+      
+      dispatch_signal("execute_script", script_engine_path, frame);
+    }
   }
 }
 
