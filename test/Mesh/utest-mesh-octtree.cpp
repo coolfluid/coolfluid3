@@ -86,22 +86,20 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
   BOOST_CHECK(true);
 
-  octtree->create_octtree();
-
   CElements::ConstPtr elements;
   Uint idx(0);
   RealVector2 coord;
 
   coord << 1. , 1. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,0u);
 
   coord << 3. , 1. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,1u);
 
   coord << 1 , 3. ;
-  boost::tie(elements,idx) = octtree->find_element(coord);
+  boost::tie(elements,idx) = octtree.find_element(coord);
   BOOST_CHECK_EQUAL(idx,5u);
 
 

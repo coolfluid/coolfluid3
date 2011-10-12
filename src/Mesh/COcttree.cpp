@@ -320,6 +320,8 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
 
 boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& target_coord)
 {
+  if (m_octtree.num_elements() == 0)
+    create_octtree();
   if (find_octtree_cell(target_coord,m_octtree_idx))
   {
     std::vector<Uint> unified_elements(0); unified_elements.reserve(16);
