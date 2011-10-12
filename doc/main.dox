@@ -10,6 +10,7 @@ namespace CF {
  - \subpage introducing_components
  - \subpage using_components
  - \subpage coding_components
+ - \subpage understanding_options
  
  @section _stand-alone_executables Stand-alone executables
  COOLFluiD contains multiple stand-alone executables:
@@ -301,4 +302,54 @@ Noteworthy here is:
    This macro is usually defined in the library of this namespace. (LibNamespace.hpp)
 
 */
+
+
+//-------------------------------------------------------------
+
+/*! \page understanding_options Understanding options
+
+Options offer a convinient way to manipulate data no matter its type is. Internally, the value is stored as a 
+<a href="http://www.boost.org/doc/libs/release/doc/html/any.html">boost::any</a> object that theorically supports 
+any type of value. In practice, template functions are defined in CPP files by using the explicit template 
+declaration concept in order to optimize the compilation process. That is, only six types are supported by 
+COOLFluiD options : @c bool, @c int, @c CF::Uint, @c CF::Real, @c std::string and @c Common::URI. 
+Trying to instanciate an option with another type will lead to a linking error (undefined reference).<br>
+
+Options are defined by the class @c Common::Option, which is an abstract class. A list of options can be 
+easily managed by using the class @c Common::OptionList. The Common library provides some classes for different 
+purposes of use :
+
+<ul>
+ <li> @c Common::OptionT : single value options. Cannot be used with URI.
+ <li> @c Common::OptionURI : options with type @c Common::URI. These class can be seen as an implementation of 
+@c OptionT<URI>. It allows to manage a list of supported protocols (see further for more information)
+ <li> @c Common::OptionComponent : options which point to components. The value type is @c Common::URI (the CPATH 
+to the component) and the object holds a <a href="http://www.boost.org/doc/libs/release/libs/smart_ptr/weak_ptr.htm">boost::weak_ptr</a> 
+to the component.
+ <li> @c Common::OptionArrayT : arrays of values. 
+ <li> @c Common::OptionEnum : acts as an @c OptionT<std::string> of which data is an enumeration. This class is not implemented yet.
+</ul>
+
+@section using_options Using options
+
+Options provide the following information:
+
+<ul>
+ <li> a default value
+ <li> a current value
+ <li> a type as string
+ <li> a restricted list of values
+</ul>
+
+When you build an option, default and current values are the same. The type is 
+
+@section single_options Single value options
+
+@section array_options Array options
+
+@section options_and_components Options and components
+
+@section options_triggers Triggers
+*/
+
 }

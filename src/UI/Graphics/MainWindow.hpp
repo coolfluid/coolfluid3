@@ -142,7 +142,7 @@ namespace Graphics {
 
     void connectedToServer();
 
-    void disconnectedFromServer();
+    void disconnectedFromServer(bool requested);
 
     void saveFileLocally();
 

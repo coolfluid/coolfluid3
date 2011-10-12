@@ -24,7 +24,7 @@ NRoot::Ptr CF::UI::CoreTest::makeTreeFromFile()
 {
   static XmlDoc::Ptr doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
 
-  static NRoot::Ptr root = CNode::createFromXml(doc->content->first_node())->castTo<NRoot>();
+  static NRoot::Ptr root = CNode::createFromXml(doc->content->first_node("node"))->castTo<NRoot>();
   return root;
 }
 

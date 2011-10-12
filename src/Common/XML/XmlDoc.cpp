@@ -51,10 +51,10 @@ XmlDoc::XmlDoc(rapidxml::xml_document<>* doc) :
   XmlNode decl_node(content->first_node());
 
   // if declaration node does not exist, we add it
-  if( decl_node.is_valid() || decl_node.content->type() != rapidxml::node_declaration)
+  if( !decl_node.is_valid() || decl_node.content->type() != rapidxml::node_declaration)
   {
     decl_node.content = doc->allocate_node(rapidxml::node_declaration);
-    content->append_node(decl_node.content);
+    content->prepend_node(decl_node.content);
   }
 
   // add information attributes if they do not exist

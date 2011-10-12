@@ -148,7 +148,7 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
       if(realRoot->uri().path() == URI(receiver).path())
         root()->call_signal(type, frame);
       else
-        realRoot->retrieve_component(receiver)->call_signal(type, frame);
+        realRoot->retrieve_component_checked(receiver)->call_signal(type, frame);
     }
     catch(CF::Common::Exception & cfe)
     {
