@@ -7,6 +7,7 @@
 # - CPP/PYTHON/CFSCRIPT
 #      choose according to the test type: c++ code, python script, cfscript
 #      give as value the list of source files or script
+#
 # Optional keywords:
 # - ARGUMENTS
 #      a list of arguments to pass to the the test execution (default empty)
@@ -19,6 +20,8 @@
 #      default: mpirun is not called, unless CF_ALL_UTESTS_PARALLEL is ON, then default=1
 # - CONDITION
 #      boolean expression to add extra condition if the test should build (default: true)
+# - SCALING
+#      option to indicate mpi-scaling is used (advanced, should not be used much)
 #
 # After calling this function, the test is added to one of the following lists:
 #   - CF_ENABLED_UTESTS
@@ -29,8 +32,8 @@
 #   - CF_DISABLED_PTESTS
 # The following variables will be set:
 #   - ${TEST_NAME}_builds
-#   - ${_TEST_NAME}_dir
-#   - ${_TEST_NAME}_libs
+#   - ${TEST_NAME}_dir
+#   - ${TEST_NAME}_libs
 
 function( coolfluid_add_test )
 
