@@ -1,38 +1,33 @@
-# TQ: NOTE
-#     I leave the sources here but deactivate this code because
-#     it follows the old Physics API.
-#     The owner of this module should upgrade it to the new API or remove it.
+# SFDM tests
 
-list( APPEND utest-sfdm-aspects_condition FALSE )
-list( APPEND utest-sfdm-wizard_condition FALSE )
+#########################################################################
 
+coolfluid_add_test( UTEST      utest-sfdm-solver
+                    CPP        utest-sfdm-solver.cpp
+                               DummyTerm.hpp DummyTerm.cpp
+                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_mesh_vtkxml coolfluid_physics_navierstokes coolfluid_physics_lineuler
+                    MPI        1 )
 
-list( APPEND utest-sfdm-aspects_cflibs coolfluid_sfdm coolfluid_sfdm_sf coolfluid_mesh coolfluid_mesh_actions coolfluid_mesh_gmsh coolfluid_advectiondiffusion coolfluid_euler)
-list( APPEND utest-sfdm-aspects_files  utest-sfdm-aspects.cpp )
+#########################################################################
 
-coolfluid_add_unit_test( utest-sfdm-aspects )
+coolfluid_add_test( UTEST      utest-sfdm-linearadv1d
+                    CPP        utest-sfdm-linearadv1d.cpp
+                    LIBS       coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar
+                    MPI        2 )
 
-list( APPEND utest-sfdm-solver_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_mesh_vtkxml coolfluid_physics_navierstokes coolfluid_physics_lineuler)
-list( APPEND utest-sfdm-solver_files
-    utest-sfdm-solver.cpp
-    DummyTerm.hpp
-    DummyTerm.cpp
-    )
-set( utest-sfdm-solver_mpi_test TRUE )
-coolfluid_add_unit_test( utest-sfdm-solver )
+#########################################################################
 
+coolfluid_add_test( UTEST      utest-sfdm-wizard
+                    CPP        utest-sfdm-wizard.cpp
+                    CONDITION  OFF )
 
-list( APPEND utest-sfdm-linearadv1d_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_scalar)
-list( APPEND utest-sfdm-linearadv1d_files  utest-sfdm-linearadv1d.cpp  )
-set( utest-sfdm-linearadv1d_mpi_test TRUE )
-coolfluid_add_unit_test( utest-sfdm-linearadv1d )
+#########################################################################
 
+coolfluid_add_test( UTEST      utest-sfdm-aspects
+                    CPP        utest-sfdm-aspects.cpp
+                    CONDITION  OFF )
 
-list( APPEND utest-sfdm-wizard_cflibs coolfluid_sfdm coolfluid_mesh_gmsh coolfluid_mesh_tecplot coolfluid_physics_navierstokes)
-list( APPEND utest-sfdm-wizard_files  utest-sfdm-wizard.cpp )
-
-coolfluid_add_unit_test( utest-sfdm-wizard )
-
+#########################################################################
 
 # coolfluid_add_acceptance_test( NAME atest-sfdm-linear-advection
 #                                SCRIPT  atest-sfdm-linear_advection.cfscript )
