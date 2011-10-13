@@ -103,8 +103,7 @@ function( coolfluid_add_test )
     FILE( APPEND ${_CONDITION_FILE} "))\n")
     FILE( APPEND ${_CONDITION_FILE} "  set(_CONDITION FALSE)\n")
     FILE( APPEND ${_CONDITION_FILE} "endif()")
-    INCLUDE( ${_CONDITION_FILE} ) # unsafe temporary file... remove
-    FILE( REMOVE ${_CONDITION_FILE} )
+    INCLUDE( ${_CONDITION_FILE} )
   endif()
 
   # check if mpirun needs to be called
@@ -188,11 +187,11 @@ function( coolfluid_add_test )
       # add boost unit test lib
       target_link_libraries( ${_TEST_NAME} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY} )
 
-      set(CPP_COMMAND ${_TEST_NAME})
+      set(_TEST_COMMAND ${_TEST_NAME})
       if(_RUN_MPI)
-        set(CPP_COMMAND ${CF_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} ${CPP_COMMAND})
+        set(_TEST_COMMAND ${CF_MPIRUN_PROGRAM} -np ${_MPI_NB_PROCS} ${_TEST_COMMAND})
       endif()
-      add_test( ${_TEST_NAME} ${CPP_COMMAND} ${_PAR_ARGUMENTS} )
+      add_test( ${_TEST_NAME} ${_TEST_COMMAND} ${_PAR_ARGUMENTS} )
 
       if(_TEST_SCALING)
         add_test("${_TEST_NAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${_TEST_NAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${_PAR_ARGUMENTS})

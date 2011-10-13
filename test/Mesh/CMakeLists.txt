@@ -316,7 +316,6 @@ coolfluid_add_unit_test( utest-zoltan )
 coolfluid_add_test( UTEST utest-parallel-field
                     CPP utest-parallel-field.cpp
                     LIBS coolfluid_mesh_gmsh
-                         coolfluid_mesh_ptscotch
                          coolfluid_mesh_actions
                          coolfluid_mesh_tecplot
                          coolfluid_mesh_lagrangep1
