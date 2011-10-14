@@ -1,15 +1,11 @@
-#########################################################################
-# test physics
 
-list( APPEND utest-solver-physics-static_cflibs coolfluid_solver )
-list( APPEND utest-solver-physics-static_files  utest-solver-physics-static.cpp )
+coolfluid_add_test( UTEST utest-solver-physics-static
+                    CPP   utest-solver-physics-static.cpp
+                    LIBS  coolfluid_solver )
 
-coolfluid_add_unit_test( utest-solver-physics-static )
-
-list( APPEND utest-solver-physics-static2dynamic_cflibs coolfluid_solver )
-list( APPEND utest-solver-physics-static2dynamic_files  utest-solver-physics-static2dynamic.cpp )
-
-coolfluid_add_unit_test( utest-solver-physics-static2dynamic )
+coolfluid_add_test( UTEST utest-solver-physics-static2dynamic
+                    CPP   utest-solver-physics-static2dynamic.cpp
+                    LIBS  coolfluid_solver )
 
 ########################################################################
 # action tests
