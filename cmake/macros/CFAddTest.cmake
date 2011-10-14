@@ -22,6 +22,8 @@
 #      boolean expression to add extra condition if the test should build (default: true)
 # - SCALING
 #      option to indicate mpi-scaling is used (advanced, should not be used much)
+# - MOC
+#      list of QT moc files to be included
 #
 # After calling this function, the test is added to one of the following lists:
 #   - CF_ENABLED_UTESTS
@@ -39,7 +41,7 @@ function( coolfluid_add_test )
 
   set( options SCALING)
   set( single_value_args UTEST ATEST PTEST)
-  set( multi_value_args  CPP PYTHON CFSCRIPT ARGUMENTS CONDITION MPI LIBS PLUGINS)
+  set( multi_value_args  CPP PYTHON CFSCRIPT ARGUMENTS CONDITION MPI LIBS PLUGINS MOC)
 
   cmake_parse_arguments(_PAR "${options}" "${single_value_args}" "${multi_value_args}"  ${_FIRST_ARG} ${ARGN})
 
@@ -129,6 +131,16 @@ function( coolfluid_add_test )
     set( _PLUGINS_AVAILABLE FALSE )
   endif()
 
+  # check if QT is required/available
+  set(_TEST_NEEDS_QT_BUT_UNAVAILABLE FALSE)
+  if( DEFINED _PAR_MOC )
+    if( QT4_FOUND )
+      QT4_WRAP_CPP(_MOC ${_PAR_MOC})
+    else()
+      set(_TEST_NEEDS_QT_BUT_UNAVAILABLE TRUE)
+    endif()
+  endif()
+
   # check if scaling test will be created
 
   set( _TEST_SCALING OFF)
@@ -155,6 +167,9 @@ function( coolfluid_add_test )
   if( NOT _CONDITION )
     set(_TEST_BUILDS FALSE)
   endif()
+  if( _TEST_NEEDS_QT_BUT_UNAVAILABLE )
+    set(_TEST_BUILDS FALSE)
+  endif()
 
 
   if( _TEST_BUILDS )
@@ -165,8 +180,8 @@ function( coolfluid_add_test )
         include_directories(${${_TEST_NAME}_includedirs})
       endif()
 
-      if( DEFINED ${UTESTNAME}_moc_files )
-        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers}  ${${_TEST_NAME}_moc_files})
+      if( DEFINED _MOC)
+        add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers}  ${_MOC})
       else()
         add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers})
       endif()

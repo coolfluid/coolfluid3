@@ -1,15 +1,13 @@
 
-coolfluid_add_python_test(NAME utest-python-basics
-                          SCRIPT utest-python-basics.py
-                          UTEST)
+coolfluid_add_test( UTEST  utest-python-basics
+                    PYTHON utest-python-basics.py )
 
-list( APPEND utest-python-scriptengine_cflibs coolfluid_python)
-list( APPEND utest-python-scriptengine_files
-  utest-python-scriptengine.cpp )
-list( APPEND utest-python-scriptengine_args ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py )
-coolfluid_add_unit_test( utest-python-scriptengine )
+coolfluid_add_test( UTEST      utest-python-scriptengine
+                    CPP        utest-python-scriptengine.cpp
+                    ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py
+                    LIBS       coolfluid_python )
 
-coolfluid_add_python_test(NAME utest-python-runscript
-                          SCRIPT utest-python-runscript.py
-                          UTEST
-                          ARGUMENTS ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py)
+coolfluid_add_test( UTEST      utest-python-runscript
+                    PYTHON     utest-python-runscript.py
+                    ARGUMENTS  ${CMAKE_CURRENT_SOURCE_DIR}/utest-python-basics.py)
+

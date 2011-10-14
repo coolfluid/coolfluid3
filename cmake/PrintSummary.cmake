@@ -143,7 +143,7 @@ foreach( utest ${CF_ENABLED_UTESTS} )
 
   # break line if necessary
   math( EXPR print_counter '${print_counter}+1'  )
-  if( print_counter GREATER 5 )
+  if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_enabled_utests "${list_enabled_utests}\n\t\t" )
   endif()
@@ -160,7 +160,7 @@ foreach( utest ${CF_DISABLED_UTESTS} )
 
   # break line if necessary
   math( EXPR print_counter '${print_counter}+1'  )
-  if( print_counter GREATER 5 )
+  if( print_counter GREATER 3 )
     set( print_counter 0 )
     set( list_disabled_utests "${list_disabled_utests}\n\t\t" )
   endif()
