@@ -97,9 +97,21 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
       cell_centred[e][j] = e;
   }
 
+
+  FieldGroup& P2 = mesh.create_space_and_field_group("nodes_P2",FieldGroup::Basis::POINT_BASED,"CF.Mesh.LagrangeP2");
+
+  Field& nodesP2 = P2.create_field("nodesP2","nodesP2[vector]");
+  for (Uint e=0; e<nodesP2.size(); ++e)
+  {
+    for(Uint j=0; j<nodesP2.row_size(); ++j)
+      nodesP2[e][j] = nodesP2.coordinates()[e][j];
+  }
+
+
   std::vector<Field::Ptr> fields;
   fields.push_back(nodal.as_ptr<Field>());
   fields.push_back(cell_centred.as_ptr<Field>());
+  fields.push_back(nodesP2.as_ptr<Field>());
   CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
   tec_writer->configure_option("cell_centred",true);
   tec_writer->set_fields(fields);

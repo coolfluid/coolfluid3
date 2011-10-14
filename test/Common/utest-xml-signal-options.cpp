@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
       "<value key=\"theOption\" is_option=\"true\" descr=\"This is a description\">"
       "  <real>2.71</real>"
       "</value>");
-  node.content = xmldoc->content->first_node();
-  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(node) );
+  node.content = xmldoc->content->first_node("value");
+  BOOST_REQUIRE_NO_THROW( option = SignalOptions::xml_to_option(node) );
   // 1a. check the name
   BOOST_CHECK_EQUAL( option->name(), std::string("theOption"));
   // 1b. check the type
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
       "<value key=\"theAnswer\" is_option=\"true\">"
       "  <integer>42</integer>"
       "</value>");
-  node.content = xmldoc->content->first_node();
-  BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(node) );
+  node.content = xmldoc->content->first_node("value");
+  BOOST_REQUIRE_NO_THROW( option = SignalOptions::xml_to_option(node) );
   // 2a. check the name
   BOOST_CHECK_EQUAL( option->name(), std::string("theAnswer"));
   // 2b. check the type
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
       "<value is_option=\"true\">"
       "  <integer>42</integer>"
       "</value>");
-  node.content = xmldoc->content->first_node();
+  node.content = xmldoc->content->first_node("value");
   BOOST_CHECK_THROW( SignalOptions::xml_to_option(node), ProtocolError );
 
   //

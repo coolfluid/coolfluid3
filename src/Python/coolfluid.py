@@ -14,5 +14,6 @@ from libcoolfluid_python import *
 # restore the dlopen flags to default
 sys.setdlopenflags(flags)
 
-#initiate the CF3 environment
-Core.initiate(sys.argv)
+#initiate the CF3 environment. Note: there is no argv if executed from the ScriptEngine
+if sys.__dict__.has_key('argv'):
+  Core.initiate(sys.argv)

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <sstream>
+
 #include <QMutexLocker>
 #include <QTcpSocket>
 
@@ -150,17 +152,27 @@ void NetworkThread::newData()
   // So, it is useful to explicitly read the socket until the end is reached.
   while(!m_socket->atEnd())
   {
+    //in >> frame;
+    //m_blockSize = strlen(frame);
+
     in.readBytes(frame, m_blockSize);
+    std::stringstream sstr;
+
+    for(Uint i = 0; i != m_blockSize; ++i)
+    {
+      if(frame[i] != '\0')
+        sstr << frame[i];
+    }
 
     if(NTree::globalTree()->isDebugModeEnabled())
-      CFinfo << frame << CFendl;
+      CFinfo << sstr.str() << CFendl;
 
     // parse the frame and call the boost signal
     try
     {
       if( m_blockSize > 0 )
       {
-        XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize - 1);
+        XmlDoc::Ptr doc = XML::parse_string(sstr.str());
         newSignal(doc);
       }
     }
@@ -218,7 +230,7 @@ void NetworkThread::disconnected()
   if(isRunning())
     exit( m_requestDisc ? 0 : 1 );
 
-  emit disconnectedFromServer();
+  emit disconnectedFromServer(m_requestDisc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

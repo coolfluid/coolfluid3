@@ -6,6 +6,8 @@
 
 #include <boost/assign/std/vector.hpp> // for 'operator+=()'
 
+#include <coolfluid-paths.hpp>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/BasicExceptions.hpp"
@@ -122,29 +124,26 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
   else if( !m_root.expired() )
   {
     CRoot::Ptr root = m_root.lock();
-    XmlNode nodedoc = Protocol::goto_doc_node(*sig.get());
     SignalFrame signal_frame( sig );
-    rapidxml::xml_attribute<>* tmpAttr = signal_frame.node.content->first_attribute("target");
     bool success = false;
     std::string message;
+
+    std::string target = signal_frame.node.attribute_value("target");
+    std::string receiver = signal_frame.node.attribute_value("receiver");
 
     try
     {
 
-      if( is_null(tmpAttr) )
-        throw ValueNotFound(FromHere(), "Could not find the target.");
+      if( target.empty() )
+        throw ValueNotFound(FromHere(), "Could not find a valid target.");
 
-      std::string target = tmpAttr->value();
-
-      tmpAttr = signal_frame.node.content->first_attribute("receiver");
-
-      if( is_null(tmpAttr) )
-        throw ValueNotFound(FromHere(), "Could not find the receiver.");
+      if( receiver.empty() )
+        throw ValueNotFound(FromHere(), "Could not find a valid receiver.");
 
       std::string str;
       to_string( signal_frame.node, str);
 
-      Component::Ptr comp = root->retrieve_component_checked( tmpAttr->value() );
+      Component::Ptr comp = root->retrieve_component_checked( receiver );
 
       comp->call_signal(target, signal_frame);
 
@@ -191,7 +190,6 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 
     // synchronize with other buddies
     Comm::instance().barrier();
-
   }
 
 }
@@ -355,7 +353,7 @@ boost::thread & CPEManager::listening_thread ()
 void CPEManager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const char * cmd = "../Tools/Solver/coolfluid-solver";
+  const std::string cmd = std::string(CF_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
 
   Uint nb_workers = options.value<Uint>("count");
   std::string name = options.value<std::string>("name");
@@ -370,7 +368,7 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
   else
     throw ValueNotFound(FromHere(), "Unknown forward type [" + forward + "]");
 
-  spawn_group(name, nb_workers, cmd, forward);
+  spawn_group(name, nb_workers, cmd.c_str(), forward);
 }
 
 ////////////////////////////////////////////////////////////////////////////

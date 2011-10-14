@@ -137,8 +137,116 @@ if( COMMAND feature_summary )
 
 endif()
 
+foreach( utest ${CF_ENABLED_UTESTS} )
+
+  set( list_enabled_utests "${list_enabled_utests} ${utest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_enabled_utests "${list_enabled_utests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Enabled unit tests:\n\t\t${list_enabled_utests}" )
+if( DEFINED list_enabled_utests )
+  coolfluid_log( "" )
+endif()
+foreach( utest ${CF_DISABLED_UTESTS} )
+
+  set( list_disabled_utests "${list_disabled_utests} ${utest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_disabled_utests "${list_disabled_utests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Disabled unit tests:\n\t\t${list_disabled_utests}" )
+if( DEFINED list_disabled_utests )
+  coolfluid_log( "" )
+endif()
+
+
+foreach( atest ${CF_ENABLED_ATESTS} )
+
+  set( list_enabled_atests "${list_enabled_atests} ${atest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_enabled_atests "${list_enabled_atests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Enabled acceptance tests:\n\t\t${list_enabled_atests}" )
+if( DEFINED list_enabled_atests )
+  coolfluid_log( "" )
+endif()
+
+foreach( atest ${CF_DISABLED_ATESTS} )
+
+  set( list_disabled_atests "${list_disabled_atests} ${atest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_disabled_atests "${list_disabled_atests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Disabled acceptance tests:\n\t\t${list_disabled_atests}" )
+if( DEFINED list_disabled_atests )
+  coolfluid_log( "" )
+endif()
+
+foreach( atest ${CF_ENABLED_PTESTS} )
+
+  set( list_enabled_ptests "${list_enabled_ptests} ${ptest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_enabled_ptests "${list_enabled_ptests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Enabled performance tests:\n\t\t${list_enabled_ptests}" )
+if( DEFINED list_enabled_ptests )
+  coolfluid_log( "" )
+endif()
+
+foreach( ptest ${CF_DISABLED_PTESTS} )
+
+  set( list_disabled_ptests "${list_disabled_ptests} ${ptest}" )
+
+  # break line if necessary
+  math( EXPR print_counter '${print_counter}+1'  )
+  if( print_counter GREATER 3 )
+    set( print_counter 0 )
+    set( list_disabled_ptests "${list_disabled_ptests}\n\t\t" )
+  endif()
+
+endforeach()
+
+coolfluid_log( " Disabled performance tests:\n\t\t${list_disabled_ptests}" )
+if( DEFINED list_disabled_ptests )
+  coolfluid_log( "" )
+endif()
+
 # warn if this is a static build
-# TODO: test stati building
+# TODO: test static building
 
 if(CF_ENABLE_STATIC)
   coolfluid_log( ">>>> ------------------------------" )

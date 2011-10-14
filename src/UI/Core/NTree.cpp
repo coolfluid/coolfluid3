@@ -671,7 +671,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
 void NTree::clearTree()
 {
-
+  beginResetModel();
 
   //QMutexLocker locker(m_mutex);
 
@@ -697,6 +697,8 @@ void NTree::clearTree()
     m_rootNode->updateChildList();
     emit endRemoveRows();
   }
+
+  endResetModel();
 }
 
 ////////////////////////////////////////////////////////////////////////////
