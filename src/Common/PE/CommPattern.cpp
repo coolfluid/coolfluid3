@@ -71,7 +71,7 @@ CommPattern::~CommPattern()
 
 void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 {
-//PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) --");
+//PECheckPoint(100,"-- Setup input via std::vector: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
 //  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
 //  Uint* testgid=(Uint*)gid->pack();
@@ -123,7 +123,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 
 void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 {
-//PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) --");
+//PECheckPoint(100,"-- Setup input via multiarray: (gid|rank) -- " + uri().path());
 //PEProcessSortedExecute(-1,
 //  std::cout << "gid size: " << gid->size() << " rank size: " << rank.size() << "\n" << std::flush;
 //  Uint* testgid=(Uint*)gid->pack();
@@ -276,9 +276,16 @@ void CommPattern::setup()
 
   // look around for max gid for the global array's size
   Uint nglobalarray=0;
-  BOOST_FOREACH(temp_buffer_item i, m_add_buffer) nglobalarray=((i.gid)>(nglobalarray))?(i.gid):(nglobalarray);
-  PE::Comm::instance().all_reduce(PE::max(),&nglobalarray,1,&nglobalarray);
-  nglobalarray++; // zero based indexing!
+  Uint maxgid_maxrank[2]={0,0};
+  BOOST_FOREACH(temp_buffer_item i, m_add_buffer)
+  {
+    maxgid_maxrank[0]=((i.gid)>(maxgid_maxrank[0]))?(i.gid):(maxgid_maxrank[0]);
+    maxgid_maxrank[1]=((i.rank)>(maxgid_maxrank[1]))?(i.rank):(maxgid_maxrank[1]);
+  }
+  PE::Comm::instance().all_reduce(PE::max(),maxgid_maxrank,2,maxgid_maxrank);
+  if (maxgid_maxrank[0]==std::numeric_limits<Uint>::max()) throw BadValue(FromHere(), type_name() + " at " + uri().path() + ": invalid gid.");
+  if (maxgid_maxrank[1]==std::numeric_limits<Uint>::max()) throw BadValue(FromHere(), type_name() + " at " + uri().path() + ": invalid rank.");
+  nglobalarray=maxgid_maxrank[0]+1; // zero based indexing!
 
 //PEProcessSortedExecute(-1,std::cout << "nglobalarray= " << nglobalarray << "\n" << std::flush);
 //PEProcessSortedExecute(-1,
