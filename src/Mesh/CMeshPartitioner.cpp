@@ -432,7 +432,10 @@ void CMeshPartitioner::migrate()
     boost_foreach(std::vector<Uint>& export_elems_from_region_to_part, export_elems_from_region)
       nb_changes += export_elems_from_region_to_part.size();
 
-  if (nb_changes == 0)
+  Uint glb_changes;
+  PE::Comm::instance().all_reduce( PE::plus(), &nb_changes,1,&glb_changes);
+
+  if ( glb_changes == 0)
     return;
 
 
