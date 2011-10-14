@@ -1,84 +1,60 @@
-################################################################################
 
-list( APPEND utest-function-parser_cflibs coolfluid_math )
-list( APPEND utest-function-parser_files  utest-function-parser.cpp )
+coolfluid_add_test( UTEST utest-function-parser
+                    CPP   utest-function-parser.cpp
+                    LIBS  coolfluid_math )
 
-coolfluid_add_unit_test( utest-function-parser )
 
-################################################################################
+coolfluid_add_test( UTEST utest-vector-operations
+                    CPP   utest-vector-operations.cpp
+                    LIBS  coolfluid_math )
 
-list( APPEND utest-vector-operations_cflibs coolfluid_math )
-list( APPEND utest-vector-operations_files  utest-vector-operations.cpp )
 
-coolfluid_add_unit_test( utest-vector-operations )
+coolfluid_add_test( UTEST utest-math-checks
+                    CPP   utest-math-checks.cpp
+                    LIBS  coolfluid_math )
 
-################################################################################
 
-list( APPEND utest-math-checks_cflibs coolfluid_math )
-list( APPEND utest-math-checks_files  utest-math-checks.cpp )
+coolfluid_add_test( UTEST utest-matrix-inverter
+                    CPP   utest-matrix-inverter.cpp
+                    LIBS  coolfluid_math )
 
-coolfluid_add_unit_test( utest-math-checks )
-
-################################################################################
-
-list( APPEND utest-matrix-inverter_cflibs coolfluid_math )
-list( APPEND utest-matrix-inverter_files  utest-matrix-inverter.cpp )
-
-coolfluid_add_unit_test( utest-matrix-inverter )
-
-################################################################################
-
-list( APPEND utest-eigen-vs-matrixt_cflibs coolfluid_math )
-list( APPEND utest-eigen-vs-matrixt_files  utest-eigen-vs-matrixt.cpp )
-
-set( utest-eigen-vs-matrixt_performance_test TRUE )
-
+# performance test
 add_definitions( -DNDEBUG -DEIGEN_NO_DEBUG )
-coolfluid_add_unit_test( utest-eigen-vs-matrixt )
+coolfluid_add_test( PTEST utest-eigen-vs-matrixt
+                    CPP   utest-eigen-vs-matrixt.cpp
+                    LIBS  coolfluid_math )
+
+
+coolfluid_add_test( UTEST utest-math-variablesdescriptor
+                    CPP   utest-math-variablesdescriptor.cpp
+                    LIBS  coolfluid_math )
+
+
+coolfluid_add_test( UTEST utest-math-variablemanager
+                    CPP   utest-math-variablemanager.cpp
+                    LIBS  coolfluid_math )
+
 
 ################################################################################
 
-list( APPEND utest-math-variablesdescriptor_cflibs coolfluid_math )
-list( APPEND utest-math-variablesdescriptor_files  utest-math-variablesdescriptor.cpp )
 
-coolfluid_add_unit_test( utest-math-variablesdescriptor )
+coolfluid_add_test( UTEST utest-lss-system-emptylss
+                    CPP   utest-lss-system-emptylss.cpp
+                    LIBS  coolfluid_math_lss
+                    MPI   1 )
 
-################################################################################
 
-list( APPEND utest-math-variablemanager_cflibs coolfluid_math )
-list( APPEND utest-math-variablemanager_files  utest-math-variablemanager.cpp )
+coolfluid_add_test( UTEST utest-lss-atomic
+                    CPP   utest-lss-atomic.cpp
+                    LIBS  coolfluid_math_lss
+                    MPI   2 )
 
-coolfluid_add_unit_test( utest-math-variablemanager )
 
-################################################################################
+coolfluid_add_test( UTEST utest-lss-distributed-matrix
+                    CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
+                    LIBS  coolfluid_math_lss
+                    MPI   4 )
 
-list( APPEND utest-lss-system-emptylss_cflibs coolfluid_math_lss coolfluid_math coolfluid_common)
-list( APPEND utest-lss-system-emptylss_files  utest-lss-system-emptylss.cpp)
-
-set(utest-lss-system-emptylss_mpi_test TRUE)
-set(utest-lss-system-emptylss_mpi_nprocs 1)
-coolfluid_add_unit_test( utest-lss-system-emptylss )
-
-################################################################################
-
-list( APPEND utest-lss-atomic_cflibs coolfluid_math coolfluid_math_lss coolfluid_common)
-list( APPEND utest-lss-atomic_files  utest-lss-atomic.cpp)
-
-set(utest-lss-atomic_mpi_test TRUE)
-set(utest-lss-atomic_mpi_nprocs 2)
-coolfluid_add_unit_test( utest-lss-atomic )
-
-################################################################################
-
-list( APPEND utest-lss-distributed-matrix_cflibs coolfluid_math coolfluid_math_lss )
-list( APPEND utest-lss-distributed-matrix_files
-  utest-lss-distributed-matrix.cpp
-  utest-lss-test-matrix.hpp
-)
-
-set(utest-lss-distributed-matrix_mpi_test TRUE)
-set(utest-lss-distributed-matrix_mpi_nprocs 4)
-coolfluid_add_unit_test( utest-lss-distributed-matrix )
 
 ################################################################################
 

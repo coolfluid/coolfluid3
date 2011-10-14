@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
 #ifdef GNUPLOT_FOUND
   Gnuplot gp(std::string(GNUPLOT_COMMAND));
-  gp << "set terminal pngcairo enhanced font 'Verdana,10'\n";
+  gp << "set terminal png\n";
   gp << "set output 'linearadv1d_P"<<Comm::instance().rank()<<".png'\n";
   gp << "set yrange [-0.2:1.2]\n";
   gp << "set grid\n";

@@ -8,6 +8,15 @@ set( CF_PLUGIN_LIST "" CACHE INTERNAL "" )
 set( CF_PROJECT_FILES "" CACHE INTERNAL "" )
 set( CF_ORPHAN_FILES  "" CACHE INTERNAL "" )
 
+# reset enabled/disabled tests
+
+set( CF_ENABLED_UTESTS  "" CACHE INTERNAL "" )
+set( CF_DISABLED_UTESTS "" CACHE INTERNAL "" )
+set( CF_ENABLED_ATESTS  "" CACHE INTERNAL "" )
+set( CF_DISABLED_ATESTS "" CACHE INTERNAL "" )
+set( CF_ENABLED_PTESTS  "" CACHE INTERNAL "" )
+set( CF_DISABLED_PTESTS "" CACHE INTERNAL "" )
+
 # user define that affects many search paths simultaneously
 
 if( DEFINED DEPS_ROOT )
