@@ -121,9 +121,9 @@ void SignatureDialog::btOkClicked()
     if( Map::is_single_value(optionNode) )
     {
       XmlNode node( optionNode.content->first_node() );
-      const char * value = options[it.key()].toStdString().c_str();
+      const std::string value = options[it.key()].toStdString().c_str();
 
-      node.content->value( node.content->document()->allocate_string(value) );
+      node.content->value( node.content->document()->allocate_string(value.c_str(), value.size()) );
     }
     else
     {
