@@ -47,7 +47,7 @@ coolfluid_add_test( UTEST     utest-proto-components
 
 coolfluid_add_test( UTEST     utest-proto-elements
                     CPP       utest-proto-elements.cpp
-                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver
+                    LIBS      coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_generation coolfluid_solver coolfluid_mesh_blockmesh
                     CONDITION CF_ENABLE_PROTO )
 
 
