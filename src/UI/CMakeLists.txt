@@ -45,11 +45,11 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   # link against Qt libraries and QwtTab plugin
   list( APPEND coolfluid-server_libs ${QT_LIBRARIES} coolfluid_ui_server )
 
-  if( ParaView_FOUND )
-    add_definitions( -DCF_HAVE_PARAVIEW )
-    include_directories( ${PARAVIEW_INCLUDE_DIRS} )
-    list( APPEND coolfluid-server_libs coolfluid_ui_paraview )
-  endif()
+#  if( ParaView_FOUND )
+#    add_definitions( -DCF_HAVE_PARAVIEW )
+#    include_directories( ${PARAVIEW_INCLUDE_DIRS} )
+#    list( APPEND coolfluid-server_libs coolfluid_ui_paraview )
+#  endif()
 
   coolfluid_add_application( coolfluid-server )
 
