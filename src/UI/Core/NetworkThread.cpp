@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <sstream>
-
 #include <QMutexLocker>
 #include <QTcpSocket>
 
@@ -152,27 +150,31 @@ void NetworkThread::newData()
   // So, it is useful to explicitly read the socket until the end is reached.
   while(!m_socket->atEnd())
   {
-    //in >> frame;
-    //m_blockSize = strlen(frame);
-
     in.readBytes(frame, m_blockSize);
-    std::stringstream sstr;
+    
+    std::string frame_str;
+    frame_str.reserve(m_blockSize);
+    
+    char* frame_part = frame;
+    quint32 offset = frame_part - frame;
 
-    for(Uint i = 0; i != m_blockSize; ++i)
+    while(offset < m_blockSize)
     {
-      if(frame[i] != '\0')
-        sstr << frame[i];
+      frame_str += frame_part;
+      frame_part += strlen(frame_part)+1;
+      offset = frame_part - frame;
     }
+    cf_assert(offset == m_blockSize);
 
     if(NTree::globalTree()->isDebugModeEnabled())
-      CFinfo << sstr.str() << CFendl;
+      CFinfo << frame_str << CFendl;
 
     // parse the frame and call the boost signal
     try
     {
       if( m_blockSize > 0 )
       {
-        XmlDoc::Ptr doc = XML::parse_string(sstr.str());
+        XmlDoc::Ptr doc = XML::parse_string(frame_str);
         newSignal(doc);
       }
     }
