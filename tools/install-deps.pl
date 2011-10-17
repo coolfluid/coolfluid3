@@ -1039,7 +1039,7 @@ sub boost_arch()
         # If Snow Leopard
         my $capable64 = run_command("sysctl hw | grep 'hw.cpu64bit_capable: [0-9]'");
         my $OSversion = run_command("sw_vers | grep 'ProductVersion:'");
-        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && $OSversion =~ /10\.6\.*/) 
+        if ($capable64 =~ /hw.cpu64bit_capable:\s1/ && ( $OSversion =~ /10\.6\.*/ || $OSversion =~ /10\.7\.*/ ) ) 
         {
            $boost_arch = "macosxx86_64";    
         }
