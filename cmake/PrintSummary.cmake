@@ -150,9 +150,9 @@ foreach( utest ${CF_ENABLED_UTESTS} )
 
 endforeach()
 
-coolfluid_log( " Enabled unit tests:\n\t\t${list_enabled_utests}" )
+coolfluid_log_file( " Enabled unit tests:\n\t\t${list_enabled_utests}" )
 if( DEFINED list_enabled_utests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 foreach( utest ${CF_DISABLED_UTESTS} )
 
@@ -167,9 +167,9 @@ foreach( utest ${CF_DISABLED_UTESTS} )
 
 endforeach()
 
-coolfluid_log( " Disabled unit tests:\n\t\t${list_disabled_utests}" )
+coolfluid_log_file( " Disabled unit tests:\n\t\t${list_disabled_utests}" )
 if( DEFINED list_disabled_utests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 
 
@@ -186,9 +186,9 @@ foreach( atest ${CF_ENABLED_ATESTS} )
 
 endforeach()
 
-coolfluid_log( " Enabled acceptance tests:\n\t\t${list_enabled_atests}" )
+coolfluid_log_file( " Enabled acceptance tests:\n\t\t${list_enabled_atests}" )
 if( DEFINED list_enabled_atests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 
 foreach( atest ${CF_DISABLED_ATESTS} )
@@ -204,9 +204,9 @@ foreach( atest ${CF_DISABLED_ATESTS} )
 
 endforeach()
 
-coolfluid_log( " Disabled acceptance tests:\n\t\t${list_disabled_atests}" )
+coolfluid_log_file( " Disabled acceptance tests:\n\t\t${list_disabled_atests}" )
 if( DEFINED list_disabled_atests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 
 foreach( atest ${CF_ENABLED_PTESTS} )
@@ -222,9 +222,9 @@ foreach( atest ${CF_ENABLED_PTESTS} )
 
 endforeach()
 
-coolfluid_log( " Enabled performance tests:\n\t\t${list_enabled_ptests}" )
+coolfluid_log_file( " Enabled performance tests:\n\t\t${list_enabled_ptests}" )
 if( DEFINED list_enabled_ptests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 
 foreach( ptest ${CF_DISABLED_PTESTS} )
@@ -240,9 +240,9 @@ foreach( ptest ${CF_DISABLED_PTESTS} )
 
 endforeach()
 
-coolfluid_log( " Disabled performance tests:\n\t\t${list_disabled_ptests}" )
+coolfluid_log_file( " Disabled performance tests:\n\t\t${list_disabled_ptests}" )
 if( DEFINED list_disabled_ptests )
-  coolfluid_log( "" )
+  coolfluid_log_file( "" )
 endif()
 
 # warn if this is a static build
