@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/EigenAssertions.hpp"
-#include <Eigen/StdVector>
 
 #include "Math/MatrixTypes.hpp"
 
