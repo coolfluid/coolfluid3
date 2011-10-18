@@ -53,6 +53,9 @@ public: // functions
   /// @return the elements region, and the local coefficient in this region
   boost::tuple<CElements::ConstPtr,Uint> find_element(const RealVector& target_coord);
 
+
+  bool find_element(const RealVector& target_coord, CElements::ConstPtr& element_component, Uint& element_idx);
+
   /// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate  [in]  The coordinate to look for
   /// @param octtree_idx [out] location of the box (i,j,k) in which the coordinate sits
@@ -66,6 +69,8 @@ public: // functions
   /// @param unified_elems [out] the elements are pushed back in this vector. Nothing gets erased, it only grows.
   /// @note subsequent calls with increasing value for ring starting from 0, will assemble everything within the last passed ring value.
   void gather_elements_around_idx(const std::vector<Uint>& octtree_idx, const Uint ring, std::vector<Uint>& unified_elems);
+
+  void find_cell_ranks( const boost::multi_array<Real,2>& coordinates, std::vector<Uint>& ranks );
 
 private: //functions
 
@@ -81,6 +86,8 @@ private: //functions
     for(Uint i =0; i != row_size; ++i)
       result[i] = row[i];
   }
+
+
 
 private: // data
 

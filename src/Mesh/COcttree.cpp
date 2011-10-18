@@ -18,6 +18,9 @@
 #include "Common/OptionComponent.hpp"
 #include "Common/CLink.hpp"
 
+#include "Common/PE/Comm.hpp"
+#include "Common/PE/debug.hpp"
+
 #include "Math/Consts.hpp"
 #include "Mesh/COcttree.hpp"
 #include "Mesh/CMesh.hpp"
@@ -36,6 +39,7 @@ namespace CF {
 namespace Mesh {
 
   using namespace Common;
+  using namespace Common::PE;
   using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -133,7 +137,7 @@ void COcttree::create_octtree()
   CFinfo << "--------" << CFendl;
   for (Uint d=0; d<m_dim; ++d)
   {
-    CFinfo << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << CFendl;
+    std::cout<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << std::endl;
   }
   CFinfo << "V = " << V << CFendl;
 
@@ -203,6 +207,94 @@ void COcttree::create_octtree()
 
 //////////////////////////////////////////////////////////////////////////////
 
+void COcttree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, std::vector<Uint>& ranks )
+{
+  ranks.resize(coordinates.size());
+
+  CElements::ConstPtr element_component;
+  Uint element_idx;
+  std::deque<Uint> missing_cells;
+
+  RealVector dummy(m_dim);
+
+  for(Uint i=0; i<coordinates.size(); ++i)
+  {
+    for (Uint d=0; d<m_dim; ++d)
+      dummy[d] = coordinates[i][d];
+    if( find_element(dummy,element_component,element_idx) )
+    {
+      ranks[i] = Comm::instance().rank();
+    }
+    else
+    {
+      ranks[i] = Math::Consts::uint_max();
+      missing_cells.push_back(i);
+    }
+  }
+
+  std::vector<Real> send_coords(m_dim*missing_cells.size());
+  std::vector<Real> recv_coords;
+
+  Uint c(0);
+  boost_foreach(const Uint i, missing_cells)
+  {
+    for(Uint d=0; d<m_dim; ++d)
+      send_coords[c++]=coordinates[i][d];
+  }
+
+  for (Uint root=0; root<PE::Comm::instance().size(); ++root)
+  {
+
+    recv_coords.resize(0);
+    PE::Comm::instance().broadcast(send_coords,recv_coords,root,m_dim);
+
+    // size is only because it doesn't get resized for this rank
+    std::vector<Uint> send_found(missing_cells.size(),Math::Consts::uint_max());
+
+    if (root!=Comm::instance().rank())
+    {
+      std::vector<RealVector> recv_coordinates(recv_coords.size()/m_dim) ;
+      boost_foreach(RealVector& realvec, recv_coordinates)
+          realvec.resize(m_dim);
+
+      c=0;
+      for (Uint i=0; i<recv_coordinates.size(); ++i)
+      {
+        for(Uint d=0; d<m_dim; ++d)
+          recv_coordinates[i][d]=recv_coords[c++];
+      }
+
+      send_found.resize(recv_coordinates.size());
+      for (Uint i=0; i<recv_coordinates.size(); ++i)
+      {
+        if( find_element(recv_coordinates[i],element_component,element_idx) )
+        {
+          send_found[i] = Comm::instance().rank();
+        }
+        else
+          send_found[i] = Math::Consts::uint_max();
+      }
+    }
+
+    std::vector<Uint> recv_found(missing_cells.size()*Comm::instance().size());
+    PE::Comm::instance().gather(send_found,recv_found,root);
+
+    if( root==Comm::instance().rank())
+    {
+      const Uint stride = missing_cells.size();
+      for (Uint i=0; i<missing_cells.size(); ++i)
+      {
+        for(Uint p=0; p<Comm::instance().size(); ++p)
+        {
+          ranks[missing_cells[i]] = std::min(recv_found[i+p*stride] , ranks[missing_cells[i]]);
+        }
+      }
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 bool COcttree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>& octtree_idx)
 {
   //CFinfo << "point " << coordinate << CFflush;
@@ -210,10 +302,9 @@ bool COcttree::find_octtree_cell(const RealVector& coordinate, std::vector<Uint>
 
   for (Uint d=0; d<m_dim; ++d)
   {
-    if ( (coordinate[d] - m_bounding[MIN][d])/m_D[d] > m_N[d])
+    if ( (coordinate[d] > m_bounding[MAX][d]) ||
+         (coordinate[d] < m_bounding[MIN][d]) )
     {
-      //CFinfo << "coord["<<d<<"] = " << coordinate[d] <<" is not inside bounding box" << CFendl;
-      //CFinfo << (coordinate[d] - m_ranges[d][0])/m_D[d] << " > " << m_N[d] << CFendl;
       return false; // no index found
     }
     octtree_idx[d] = std::min((Uint) std::floor( (coordinate[d] - m_bounding[MIN][d])/m_D[d]), m_N[d]-1 );
@@ -320,6 +411,17 @@ void COcttree::gather_elements_around_idx(const std::vector<Uint>& octtree_idx, 
 
 boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& target_coord)
 {
+  CElements::ConstPtr element_component;
+  Uint element_idx;
+  find_element(target_coord,element_component,element_idx);
+  return boost::make_tuple(element_component, element_idx);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool COcttree::find_element(const RealVector& target_coord, CElements::ConstPtr& element_component, Uint& element_idx)
+{
   if (m_octtree.num_elements() == 0)
     create_octtree();
   if (find_octtree_cell(target_coord,m_octtree_idx))
@@ -338,7 +440,10 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
+        element_component = elements.as_ptr<CElements>();
+        element_idx = elem_idx;
+        cf_assert(is_not_null(element_component));
+        return true;
       }
     }
 
@@ -353,13 +458,18 @@ boost::tuple<CElements::ConstPtr,Uint> COcttree::find_element(const RealVector& 
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements.as_ptr<CElements>(),elem_idx);
+        element_component = elements.as_ptr<CElements>();
+        element_idx = elem_idx;
+        cf_assert(is_not_null(element_component));
+        return true;
       }
     }
 
   }
   // if arrived here, it means no element has been found. Give up.
-  return boost::make_tuple(CElements::ConstPtr(), 0u);
+  element_component.reset();
+  cf_assert(is_null(element_component));
+  return false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
