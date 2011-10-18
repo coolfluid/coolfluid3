@@ -1250,7 +1250,7 @@ sub install_hdf5() {
 sub install_zoltan()
 {
   my $lib = "trilinos";
-  my $version = $packages{$lib}[$vrs];
+  my $version = "10.6.4";
   print my_colored("Installing Zoltan as part of $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);

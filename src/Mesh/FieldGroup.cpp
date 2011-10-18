@@ -53,6 +53,7 @@ using namespace boost::assign;
 
 using namespace Common;
 using namespace Common::PE;
+using namespace Common::XML;
 
 Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
@@ -128,6 +129,14 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   // Event handlers
   Core::instance().event_handler().connect_to_event("mesh_loaded", this, &FieldGroup::on_mesh_changed_event);
   Core::instance().event_handler().connect_to_event("mesh_changed", this, &FieldGroup::on_mesh_changed_event);
+
+  // Signals
+  regist_signal ( "create_field" )
+      ->description( "Create Field" )
+      ->pretty_name("Create Field" )
+      ->connect   ( boost::bind ( &FieldGroup::signal_create_field,    this, _1 ) )
+      ->signature ( boost::bind ( &FieldGroup::signature_create_field, this, _1 ) );
+
 
 }
 
@@ -961,6 +970,35 @@ Field& FieldGroup::create_coordinates()
 
   m_coordinates = coordinates.as_ptr<Field>();
   return coordinates;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FieldGroup::signature_create_field( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  options.add_option< OptionT<std::string> >("name")
+      ->description("Name of the field" );
+
+  options.add_option< OptionT<std::string> >("variables")
+      ->description("Variables description of the field" );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+void FieldGroup::signal_create_field( SignalArgs& node )
+{
+  SignalOptions options( node );
+
+  std::string name = options.value<std::string>("name");
+  std::string variables = name;
+  if(options.check("variables"))
+  {
+    variables = options.value<std::string>("variables");
+  }
+  create_field(name,variables);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
