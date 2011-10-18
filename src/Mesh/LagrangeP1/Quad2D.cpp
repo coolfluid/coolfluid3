@@ -8,6 +8,8 @@
 
 #include "Common/CBuilder.hpp"
 
+#include "Math/Consts.hpp"
+
 #include "Mesh/ElementTypeT.hpp"
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
@@ -61,10 +63,10 @@ void Quad2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 bool Quad2D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 {
   MappedCoordsT mapped_coord = mapped_coordinate(coord,nodes);
-  if( (mapped_coord[KSI] >= -1.0) &&
-      (mapped_coord[ETA] >= -1.0) &&
-      (mapped_coord[KSI] <=  1.0) &&
-      (mapped_coord[ETA] <=  1.0))
+  if( (mapped_coord[KSI] >= -1.0-Math::Consts::eps()) &&
+      (mapped_coord[ETA] >= -1.0-Math::Consts::eps()) &&
+      (mapped_coord[KSI] <=  1.0+Math::Consts::eps()) &&
+      (mapped_coord[ETA] <=  1.0+Math::Consts::eps()))
   {
     return true;
   }
