@@ -46,12 +46,14 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
   {
     // parser trims and merges whitespaces
     xmldoc->parse< parse_no_data_nodes | parse_trim_whitespace >(ctext);
-
+  }
+  catch(rapidxml::parse_error& e)
+  {
+    throw XmlError(FromHere(), std::string("Parse error: ") + e.what() + std::string(" in ") + e.where<char>());// + "\nfor string [" + str + "]");
   }
   catch(...)
   {
-    throw XmlError(FromHere(), std::string("The string [") + str + "] could "
-                   "not be parsed.");
+    throw XmlError(FromHere(), "Unknown error when parsing XML string");
   }
 
   return XmlDoc::Ptr( new XmlDoc(xmldoc) );
