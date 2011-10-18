@@ -9,7 +9,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include "Common/Log.hpp"
 #include "Common/Component.hpp"
+#include "Common/OptionArray.hpp"
+#include "Common/OptionT.hpp"
+#include "Common/Signal.hpp"
+#include "Common/XML/SignalOptions.hpp"
 
 #include "Mesh/ArrayBufferT.hpp"
 #include "Mesh/LibMesh.hpp"
@@ -70,6 +75,23 @@ public: // functions
   /// @param name of the component
   CTable ( const std::string& name )  : Component ( name )
   {
+    regist_signal ( "resize" )
+        ->description( "Resize the table" )
+        ->pretty_name("Resize" )
+        ->connect   ( boost::bind ( &CTable::signal_resize,    this, _1 ) )
+        ->signature ( boost::bind ( &CTable::signature_resize, this, _1 ) );
+
+    regist_signal ( "set_row" )
+        ->description( "Set Row" )
+        ->pretty_name("Set Row" )
+        ->connect   ( boost::bind ( &CTable::signal_set_row,    this, _1 ) )
+        ->signature ( boost::bind ( &CTable::signature_set_row, this, _1 ) );
+
+    regist_signal ( "print_table" )
+        ->description( "Print the table" )
+        ->pretty_name("Print Table" )
+        ->connect   ( boost::bind ( &CTable::signal_print_table,    this, _1 ) )
+        ->signature ( boost::bind ( &CTable::signature_print_table, this, _1 ) );
 
   }
 
@@ -131,11 +153,11 @@ public: // functions
   /// @return The number of local rows in the array
   Uint size() const { return m_array.size(); }
 
-	/// Number of columns , or number of elements of one table-row
-	/// @return The number of elements in each row, i.e. the number of columns of the array
-	/// @note All row_sizes are the same, so an index is not required, but
-	/// could be passed to be consistent with CDynTable with variable row_sizes
-	Uint row_size(Uint i=0) const { return m_array.shape()[1]; }
+  /// Number of columns , or number of elements of one table-row
+  /// @return The number of elements in each row, i.e. the number of columns of the array
+  /// @note All row_sizes are the same, so an index is not required, but
+  /// could be passed to be consistent with CDynTable with variable row_sizes
+  Uint row_size(Uint i=0) const { return m_array.shape()[1]; }
 
   /// copy a given row into the array, The row type must have the size() function declared
   /// @param[in] array_idx the index of the row that will be set
@@ -149,6 +171,52 @@ public: // functions
 
     for(Uint j=0; j<row.size(); ++j)
       row_to_set[j] = row[j];
+  }
+
+  void signal_resize ( Common::SignalArgs& node )
+  {
+    Common::XML::SignalOptions options( node );
+    std::vector<Uint> size = options.array<Uint>("size");
+    resize(size[0]);
+    set_row_size(size[1]);
+  }
+
+  void signature_resize ( Common::SignalArgs& node)
+  {
+    Common::XML::SignalOptions options( node );
+
+    std::vector<Uint> size;
+
+    options.add_option< Common::OptionArrayT<Uint> >("size", size )
+        ->description("Vector of [nb_rows,nb_cols]");
+  }
+
+  void signal_set_row ( Common::SignalArgs& node )
+  {
+    Common::XML::SignalOptions options(node);
+    Uint index = options.value<Uint>("index");
+    std::vector<value_type> row = options.array<value_type>("row");
+    set_row(index,row);
+  }
+
+  void signature_set_row ( Common::SignalArgs& node)
+  {
+    Common::XML::SignalOptions options(node);
+
+    options.add_option< Common::OptionT<Uint> >("index");
+
+    options.add_option< Common::OptionArrayT<value_type> >("row")
+        ->description("Row");
+  }
+
+  void signal_print_table ( Common::SignalArgs& node )
+  {
+    CFinfo << uri().string() <<" :\n" << *this << CFendl;
+  }
+
+  void signature_print_table ( Common::SignalArgs& node)
+  {
+
   }
 
 ////////////////////////////////////////////////////////////////////////////////
