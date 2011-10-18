@@ -23,3 +23,10 @@ add_custom_command(TARGET utest-mesh-actions-global-connectivity
                  POST_BUILD
                  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
+
+################################################################################
+
+coolfluid_add_test( UTEST utest-mesh-actions-interpolate
+                    CPP   utest-mesh-actions-interpolate.cpp
+                    LIBS  coolfluid_mesh_actions coolfluid_mesh_lagrangep1
+                    MPI   2 )

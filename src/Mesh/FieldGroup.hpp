@@ -145,6 +145,10 @@ public: // functions
 
   Basis::Type basis() const { return m_basis; }
 
+  void signal_create_field ( Common::SignalArgs& node );
+
+  void signature_create_field ( Common::SignalArgs& node);
+
 private: // functions
 
   void update();

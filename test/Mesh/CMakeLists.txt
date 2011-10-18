@@ -7,10 +7,11 @@ coolfluid_add_unit_test( utest-mesh-hash )
 
 ################################################################################
 
-list( APPEND utest-mesh-octtree_cflibs coolfluid_mesh_neu coolfluid_mesh_lagrangep1 )
-list( APPEND utest-mesh-octtree_files  utest-mesh-octtree.cpp )
+coolfluid_add_test( UTEST utest-mesh-octtree
+                    CPP   utest-mesh-octtree.cpp
+                    LIBS  coolfluid_mesh_lagrangep1
+                    MPI   2 )
 
-coolfluid_add_unit_test( utest-mesh-octtree )
 
 ################################################################################
 
