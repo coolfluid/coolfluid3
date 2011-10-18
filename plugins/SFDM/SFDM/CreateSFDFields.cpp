@@ -12,6 +12,8 @@
 #include "Common/OptionT.hpp"
 #include "Common/OptionComponent.hpp"
 
+#include "Common/PE/debug.hpp"
+
 #include "Math/VariablesDescriptor.hpp"
 
 #include "Solver/CSolver.hpp"
@@ -77,6 +79,7 @@ void CreateSFDFields::execute()
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());
     Field& solution   = sfdm_fields.create_field(SFDM::Tags::solution(), solution_vars.as_type<Variables>().description().description() );
     solver().field_manager().create_component<CLink>(SFDM::Tags::solution()).link_to(solution);
+    solution.parallelize();
 
     Field& residual   = sfdm_fields.create_field(SFDM::Tags::residual(), solution.descriptor().description());
     residual.descriptor().prefix_variable_names("rhs_");

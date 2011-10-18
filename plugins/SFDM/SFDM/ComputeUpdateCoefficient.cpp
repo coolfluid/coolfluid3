@@ -7,6 +7,7 @@
 #include "Common/CBuilder.hpp"
 #include "Common/OptionComponent.hpp"
 #include "Common/OptionT.hpp"
+#include "Common/PE/Comm.hpp"
 
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldManager.hpp"
@@ -119,7 +120,10 @@ void ComputeUpdateCoefficient::execute()
           max_dt = std::max(max_dt,dt);
         }
       }
-      dt = min_dt;
+      Real glb_min_dt;
+      PE::Comm::instance().all_reduce(PE::min(), &min_dt, 1, &glb_min_dt);
+      dt = glb_min_dt;
+
       /// - Make sure we reach milestones and final simulation time
       Real tf = limit_end_time(time.current_time(), time.option("end_time").value<Real>());
       if( time.current_time() + dt + m_tolerance > tf )

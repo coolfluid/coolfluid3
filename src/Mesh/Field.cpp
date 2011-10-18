@@ -198,33 +198,6 @@ CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 
 CommPattern& Field::parallelize()
 {
-  /*
-  if ( !m_comm_pattern.expired() ) // return if already parallel
-    return *m_comm_pattern.lock();
-
-  // Extract gid from the nodes.glb_idx()  for only the nodes in the region the fields will use.
-  std::vector<Uint> gid;
-  std::vector<Uint> ranks;
-  gid.reserve( size() );
-  ranks.reserve( size() );
-
-  CMesh& mesh = find_parent_component<CMesh>(*this);
-  cf_assert_desc("["+to_str(glb_idx().size())+"!="+to_str(size())+"]",glb_idx().size() == size());
-  cf_assert_desc("["+to_str(rank().size())+"!="+to_str(size())+"]",rank().size() == size());
-  for (Uint node=0; node<size(); ++node)
-  {
-    gid.push_back( glb_idx()[node] );
-    ranks.push_back( rank()[node] );
-  }
-
-  // create the comm pattern and setup the pattern
-
-  CommPattern& comm_pattern = mesh.create_component<CommPattern>("comm_pattern_node_based");
-
-  comm_pattern.insert("gid",gid,1,false);
-  comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<CommWrapper>(),ranks);
-  */
-
   CommPattern& comm_pattern = field_group().comm_pattern();
 
   // Do nothing if parallel already

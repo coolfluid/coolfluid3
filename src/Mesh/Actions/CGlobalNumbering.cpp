@@ -403,8 +403,6 @@ void CGlobalNumbering::execute()
   {
     elements.remove_component("glb_elem_hash");
   }
-
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

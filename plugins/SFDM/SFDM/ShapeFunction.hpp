@@ -49,7 +49,9 @@ public:
   const boost::multi_array<Uint,3>& points() const { return m_points; }
 
   enum FaceInfo{ ORIENTATION=0 , SIDE=1 };
-  enum Side {NEG=0, POS=1};
+  enum Orientation {NEG=0, POS=1};
+
+  Real face_direction(const Uint face) const { return (face_side(face)==RIGHT ? 1. : -1.); }
 
   const Uint& face_orientation(const Uint face) const { return m_face_info[face][ORIENTATION]; }
 

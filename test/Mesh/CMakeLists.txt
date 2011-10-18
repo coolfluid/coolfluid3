@@ -313,15 +313,15 @@ coolfluid_add_unit_test( utest-zoltan )
 ##########################################################################
 # test parallel field
 
-list( APPEND utest-parallel-field_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_actions coolfluid_mesh_zoltan)
-list( APPEND utest-parallel-field_files  utest-parallel-field.cpp )
-
-set( utest-parallel-field_condition ${coolfluid_mesh_zoltan_builds} )
-set( utest-parallel-field_mpi_test TRUE )
-set( utest-parallel-field_mpi_nprocs 2 )
-
-coolfluid_add_unit_test( utest-parallel-field )
-
+coolfluid_add_test( UTEST utest-parallel-field
+                    CPP utest-parallel-field.cpp
+                    LIBS coolfluid_mesh_gmsh
+                         coolfluid_mesh_actions
+                         coolfluid_mesh_tecplot
+                         coolfluid_mesh_lagrangep1
+                         coolfluid_mesh_lagrangep2
+                    MPI 2
+                    CONDITION coolfluid_mesh_zoltan_builds OR coolfluid_mesh_ptscotch_builds )
 
 ##########################################################################
 # test load mesh wizard

@@ -261,7 +261,7 @@ void CEigenLSS::solve()
 
   // solve the matrix
   Teuchos::RCP<Thyra::LinearOpWithSolveBase<double> > lows = Thyra::linearOpWithSolve(*lowsFactory, A); // create solver
-  Thyra::solve(*lows, Thyra::NOTRANS, *b, &*x); // solve
+  lows->solve(Thyra::NOTRANS, *b, x.ptr()); // solve
 
   time_solve = timer.elapsed(); timer.restart();
 

@@ -65,9 +65,38 @@ using namespace CF::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
+struct SFDM_MPITests_Fixture
+{
+  /// common setup for each test case
+  SFDM_MPITests_Fixture()
+  {
+    m_argc = boost::unit_test::framework::master_test_suite().argc;
+    m_argv = boost::unit_test::framework::master_test_suite().argv;
+  }
+
+  /// common tear-down for each test case
+  ~SFDM_MPITests_Fixture()
+  {
+  }
+  /// possibly common functions used on the tests below
+
+
+  /// common values accessed by all tests goes here
+  int    m_argc;
+  char** m_argv;
+
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_FIXTURE_TEST_SUITE( SFDM_Solver_TestSuite, SFDM_MPITests_Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( init_mpi )
+{
+  PE::Comm::instance().init(m_argc,m_argv);
+}
 
 BOOST_AUTO_TEST_CASE( Solver_test )
 {
@@ -106,6 +135,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   generate_mesh.configure_option("lengths",lengths);
   generate_mesh.configure_option("offsets",offsets);
   generate_mesh.execute();
+  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balance")->transform(mesh);
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
@@ -304,6 +334,13 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
 //  /// write gmsh file. note that gmsh gets really confused because of the multistate view
 ////  gmsh_writer->write_from_to(mesh,"line_"+to_str(model.time().time())+".msh");
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( finalize_mpi )
+{
+  PE::Comm::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -557,8 +557,12 @@ void MainWindow::runScript()
 {
   QFileDialog dlg;
 
+#ifndef Q_WS_MAC
+  dlg.setOption(QFileDialog::DontUseNativeDialog);
+#endif
+
   dlg.setAcceptMode(QFileDialog::AcceptOpen);
-  dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript)" << "All files (*.*)" );
+  dlg.setNameFilters( QStringList() << "COOLFluiD scripts (*.cfscript *.py)" << "All files (*.*)" );
   dlg.setDirectory( QDir::home() );
 
   try
