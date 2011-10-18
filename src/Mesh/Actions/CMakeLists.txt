@@ -31,8 +31,8 @@ list( APPEND coolfluid_mesh_actions_files
   CreateSpaceP0.cpp
   GrowOverlap.hpp
   GrowOverlap.cpp
-  InterpolateFields.hpp
-  InterpolateFields.cpp
+  Interpolate.hpp
+  Interpolate.cpp
   LibActions.hpp
   LibActions.cpp
   LoadBalance.hpp
