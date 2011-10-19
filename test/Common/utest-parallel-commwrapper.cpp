@@ -9,7 +9,7 @@
 // for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Common 's parallel environment - part of testing the commwrapper."
+#define BOOST_TEST_MODULE "Test module for cf3::Common 's parallel environment - part of testing the commwrapper."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,22 +17,22 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Component.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/CommWrapper.hpp"
-#include "Common/PE/CommWrapperMArray.hpp"
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/CGroup.hpp"
+#include "common/Log.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Component.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/CommWrapper.hpp"
+#include "common/PE/CommWrapperMArray.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/debug.hpp"
+#include "common/CGroup.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

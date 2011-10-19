@@ -1,4 +1,4 @@
-set( CF_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Dir for resources" )
+set( CF3_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Dir for resources" )
 
 list( APPEND resources_files
    hextet.neu

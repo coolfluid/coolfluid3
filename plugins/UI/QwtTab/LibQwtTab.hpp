@@ -4,27 +4,27 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_QwtTab_LibQwtTab_hpp
-#define CF_UI_QwtTab_LibQwtTab_hpp
+#ifndef cf3_UI_QwtTab_LibQwtTab_hpp
+#define cf3_UI_QwtTab_LibQwtTab_hpp
 
 //header
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro QwtTab_API
 /// @note build system defines COOLFLUID_UI_QWTTAB_EXPORTS when compiling QwtTabTools files
 #ifdef COOLFLUID_UI_QWTTAB_EXPORTS
-#   define QwtTab_API      CF_EXPORT_API
+#   define QwtTab_API      CF3_EXPORT_API
 #   define QwtTab_TEMPLATE
 #else
-#   define QwtTab_API      CF_IMPORT_API
-#   define QwtTab_TEMPLATE CF_TEMPLATE_EXTERN
+#   define QwtTab_API      CF3_IMPORT_API
+#   define QwtTab_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -33,7 +33,7 @@ namespace QwtTab {
 /// Class defines the initialization and termination of the library QwtTab
 /// @author Tiago Quintino
 class QwtTab_API LibQwtTab :
-        public Common::CLibrary
+        public common::CLibrary
 {
 public:
 
@@ -41,9 +41,9 @@ public:
     typedef boost::shared_ptr<LibQwtTab const> ConstPtr;
 
     /// Constructor
-    LibQwtTab ( const std::string& name) : Common::CLibrary(name) {   }
+    LibQwtTab ( const std::string& name) : common::CLibrary(name) {   }
 
-    void new_plot_signature( Common::SignalArgs & args );
+    void new_plot_signature( common::SignalArgs & args );
 
 public: // functions
 
@@ -87,8 +87,8 @@ private:
 
 } // LibQwtTab
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_QwtTab_LibQwtTab_hpp
+#endif // cf3_UI_QwtTab_LibQwtTab_hpp

@@ -20,7 +20,7 @@ using namespace std;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -260,4 +260,4 @@ void BodePlot::logaritmic_scale_on_graph(bool logaritmic){
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

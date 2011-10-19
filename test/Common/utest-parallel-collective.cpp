@@ -9,7 +9,7 @@
 // for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Common 's parallel environment - part of testing collective communications."
+#define BOOST_TEST_MODULE "Test module for cf3::Common 's parallel environment - part of testing collective communications."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,23 +20,23 @@
 #include <boost/foreach.hpp>
 #include <boost/thread/thread.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/PE/datatype.hpp"
-#include "Common/PE/operations.hpp"
-#include "Common/PE/all_to_all.hpp"
-#include "Common/PE/all_reduce.hpp"
-#include "Common/PE/reduce.hpp"
-#include "Common/PE/scatter.hpp"
-#include "Common/PE/broadcast.hpp"
-#include "Common/PE/gather.hpp"
-#include "Common/PE/all_gather.hpp"
+#include "common/Log.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
+#include "common/PE/datatype.hpp"
+#include "common/PE/operations.hpp"
+#include "common/PE/all_to_all.hpp"
+#include "common/PE/all_reduce.hpp"
+#include "common/PE/reduce.hpp"
+#include "common/PE/scatter.hpp"
+#include "common/PE/broadcast.hpp"
+#include "common/PE/gather.hpp"
+#include "common/PE/all_gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -147,19 +147,19 @@ sub process ($)
       s/CFLog(\s*)\((\s*)DEBUG_MED(\s*)\,/CFLogDebugVerbose \( /g;
       s/CFLog(\s*)\((\s*)DEBUG_MAX(\s*)\,/CFLogDebugVerbose \( /g;
 
-      s/COOLFluiD_Common/CF_Common/;
+      s/COOLFluiD_Common/CF3_Common/;
       
-      s/Config::/Common::/g;
+      s/Config::/common::/g;
       s/Config\//Common\//g;
       s/Config_API/Common_API/g;
-      s/(CF|COOLFluiD)_Config/CF_Common/;
+      s/(CF|COOLFluiD)_Config/CF3_Common/;
       s/namespace(\s+)Config/namespace Common/;
       
-      s/Environment::/Common::/g;
-      s/Environment::/Common::/g;
+      s/Environment::/common::/g;
+      s/Environment::/common::/g;
       s/Environment\//Common\//g;
       s/Environment_API/Common_API/g;
-      s/(CF|COOLFluiD)_Environment/CF_Common/;
+      s/(CF|COOLFluiD)_Environment/CF3_Common/;
       s/namespace(\s+)Environment/namespace Common/;
       
       s/MathTools::/Math::/g;
@@ -167,7 +167,7 @@ sub process ($)
       s/MathTools_API/Math_API/g;
       s/MathTools_TEMPLATE/Math_TEMPLATE/g;
       s/MathTools_EXPORTS/Math_EXPORTS/g;
-      s/(CF|COOLFluiD)_MathTools/CF_Math/i;
+      s/(CF|COOLFluiD)_MathTools/CF3_Math/i;
       s/MathTools.(hpp|hh)/Math.hpp/;
       s/namespace(\s+)MathTools/namespace Math/;
       s/LTGT//g;
@@ -211,7 +211,7 @@ sub process ($)
       # class rename
       s/CFEnvVars/CoreVars/g;
       s/CFEnv/CoreEnv/g;
-      s/Common::SelfRegistPtr/boost::shared_ptr/g;
+      s/common::SelfRegistPtr/boost::shared_ptr/g;
       s/SelfRegistPtr/boost::shared_ptr/g;
       s/CFMatrix/MatrixT/g;
       s/CFVector/VectorT/g;

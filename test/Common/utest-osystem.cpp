@@ -9,12 +9,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
 using namespace std;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 

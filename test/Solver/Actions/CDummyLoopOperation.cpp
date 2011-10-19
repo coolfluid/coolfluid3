@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/RegistLibrary.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Log.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "CDummyLoopOperation.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace TestActions {
 
 /// Class defines the initialization and termination of the library Actions
-class LibTestActions : public Common::CLibrary {
+class LibTestActions : public common::CLibrary {
 
 public:
 
@@ -30,7 +30,7 @@ public:
   typedef boost::shared_ptr<LibTestActions const> ConstPtr;
 
   /// Constructor
-  LibTestActions ( const std::string& name) : Common::CLibrary(name) {   }
+  LibTestActions ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -67,9 +67,9 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::RegistLibrary<LibTestActions> libTestActions;
+common::RegistLibrary<LibTestActions> libTestActions;
 
-Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
+common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ void CDummyLoopOperation::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // TestActions
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

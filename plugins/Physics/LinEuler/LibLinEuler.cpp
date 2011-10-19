@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "LinEuler/LibLinEuler.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace LinEuler {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<LibLinEuler> LibLinEuler;
+cf3::common::RegistLibrary<LibLinEuler> LibLinEuler;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,5 +30,5 @@ void LibLinEuler::terminate_impl()
 
 } // LinEuler
 } // Physics
-} // CF
+} // cf3
 

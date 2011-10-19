@@ -1,9 +1,0 @@
-list( APPEND coolfluid-mesh-transformer_files 
-        coolfluid-mesh-transformer.cpp
-        Transformer.hpp
-        Transformer.cpp 
-    )
-
-list( APPEND coolfluid-mesh-transformer_cflibs ${CF_KERNEL_LIBS} coolfluid_shell)
-
-coolfluid_add_application( coolfluid-mesh-transformer )

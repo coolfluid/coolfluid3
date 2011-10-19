@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Signal.hpp"
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/CActionDirector.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Signal.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/EventHandler.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/CActionDirector.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -29,18 +29,18 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -293,10 +293,10 @@ void IterativeSolver::raise_iteration_done()
   opts.add_option< OptionT<Uint> >( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
-  Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

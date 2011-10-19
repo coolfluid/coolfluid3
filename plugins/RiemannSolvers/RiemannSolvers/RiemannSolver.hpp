@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RiemannSolvers_RiemannSolver_hpp
-#define CF_RiemannSolvers_RiemannSolver_hpp
+#ifndef cf3_RiemannSolvers_RiemannSolver_hpp
+#define cf3_RiemannSolvers_RiemannSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 #include "Math/MatrixTypes.hpp"
 #include "RiemannSolvers/RiemannSolvers/LibRiemannSolvers.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics { class Variables; class PhysModel;}
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Willem Deconinck
-class RiemannSolvers_API RiemannSolver : public Common::Component
+class RiemannSolvers_API RiemannSolver : public common::Component
 {
 public: // typedefs
 
@@ -59,8 +59,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RiemannSolvers_RiemannSolver_hpp
+#endif // cf3_RiemannSolvers_RiemannSolver_hpp

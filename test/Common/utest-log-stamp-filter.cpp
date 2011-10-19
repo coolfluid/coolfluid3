@@ -11,12 +11,12 @@
 
 #include <boost/iostreams/device/back_inserter.hpp>
 
-#include "Common/LogStampFilter.hpp"
+#include "common/LogStampFilter.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

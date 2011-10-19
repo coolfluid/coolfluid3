@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_TimeLoop_hpp
-#define CF_UFEM_TimeLoop_hpp
+#ifndef cf3_UFEM_TimeLoop_hpp
+#define cf3_UFEM_TimeLoop_hpp
 
 #include <boost/scoped_ptr.hpp>
 
-#include "Common/CActionDirector.hpp"
+#include "common/CActionDirector.hpp"
 
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
 /// Executes the added actions in a time loop.
-class UFEM_API TimeLoop : public Common::CActionDirector
+class UFEM_API TimeLoop : public common::CActionDirector
 {
 public: // typedefs
 
@@ -44,7 +44,7 @@ private:
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_TimeLoop_hpp
+#endif // cf3_UFEM_TimeLoop_hpp

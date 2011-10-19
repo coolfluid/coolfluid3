@@ -10,16 +10,16 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Mesh/LagrangeP2B/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::LagrangeP2B;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::LagrangeP2B;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
 
 BOOST_AUTO_TEST_CASE( Gradient )
 {
-//  const CF::RealVector reference_result = list_of(5./18.)(-1./18.)(-1./18.)(2./9.)(-1./9.)(2./9.)(0.5);
+//  const cf3::RealVector reference_result = list_of(5./18.)(-1./18.)(-1./18.)(2./9.)(-1./9.)(2./9.)(0.5);
   ETYPE::SF::GradientT result;
   ETYPE::SF::compute_gradient(mapped_coords, result);
 

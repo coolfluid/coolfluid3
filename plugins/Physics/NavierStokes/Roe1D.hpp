@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_NavierStokes_Roe1D_hpp
-#define CF_Physics_NavierStokes_Roe1D_hpp
+#ifndef cf3_Physics_NavierStokes_Roe1D_hpp
+#define cf3_Physics_NavierStokes_Roe1D_hpp
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 
 #include "NavierStokes1D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
@@ -79,8 +79,8 @@ public: // functions
           std::cout << "uu    : " << p.uu   << std::endl;
 
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                                   + Common::to_str(coord[XX])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + common::to_str(coord[XX])
                                    + "]");
     }
 
@@ -111,7 +111,7 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-    throw Common::NotImplemented(FromHere(), "flux not implemented for Roe1D");
+    throw common::NotImplemented(FromHere(), "flux not implemented for Roe1D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -120,7 +120,7 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe1D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe1D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -131,7 +131,7 @@ public: // functions
                                          OP& op )
 
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe1D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Roe1D");
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -142,7 +142,7 @@ public: // functions
                                             EM& Lv,
                                             EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe1D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe1D");
   }
 
   /// compute the PDE residual
@@ -151,7 +151,7 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe1D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Roe1D");
   }
 
 }; // Roe1D
@@ -160,6 +160,6 @@ public: // functions
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_NavierStokes_Roe1D_hpp
+#endif // cf3_Physics_NavierStokes_Roe1D_hpp

@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::BlockMesh::BlockMeshMPI"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::BlockMesh::BlockMeshMPI"
 
 #include <boost/assign.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Core.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
@@ -25,9 +25,9 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldGroup.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 using namespace boost::assign;
 

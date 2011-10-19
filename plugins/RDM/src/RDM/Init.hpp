@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Init_hpp
-#define CF_RDM_Init_hpp
+#ifndef cf3_RDM_Init_hpp
+#define cf3_RDM_Init_hpp
 
 #include "Math/VectorialFunction.hpp"
 
@@ -13,7 +13,7 @@
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; class Field; }
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Init : public CF::Solver::Action {
+class RDM_API Init : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -58,6 +58,6 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Init_hpp
+#endif // cf3_RDM_Init_hpp

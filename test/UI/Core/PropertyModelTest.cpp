@@ -6,8 +6,8 @@
 
 #include <QtTest>
 
-#include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionT.hpp"
 
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/PropertyModel.hpp"
@@ -17,12 +17,12 @@
 #include "test/UI/Core/MyNode.hpp"
 #include "test/UI/Core/PropertyModelTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ///////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -170,4 +170,4 @@ void PropertyModelTest::cleanupTestCase()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3

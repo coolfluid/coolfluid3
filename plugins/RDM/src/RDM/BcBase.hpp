@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BcBase_hpp
-#define CF_RDM_BcBase_hpp
+#ifndef cf3_RDM_BcBase_hpp
+#define cf3_RDM_BcBase_hpp
 
 #include <functional>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Field.hpp"
@@ -25,7 +25,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -62,8 +62,8 @@ protected: // helper functions
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
     residual   = cresidual.lock();
@@ -130,6 +130,6 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_BcBase_hpp
+#endif // cf3_RDM_BcBase_hpp

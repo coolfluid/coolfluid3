@@ -5,18 +5,18 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::SFDM"
+#define BOOST_TEST_MODULE "Test module for cf3::SFDM"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CEnv.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
-#include "Common/PE/Comm.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -58,14 +58,14 @@
 //#include "SFDM/CreateSpace.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::SFDM;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
+using namespace cf3::SFDM;
 
 std::map<Real,Real> xy(const Field& field)
 {

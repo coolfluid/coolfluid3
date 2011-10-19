@@ -60,8 +60,8 @@ function( coolfluid_set_feature FEATURE_NOCAPS FEAT_ENABLE DESC )
       if( DEFINED ${FEATURE}_FOUND )
         coolfluid_log( "${FEATURE_NOCAPS} [${${FEATURE}_FOUND}]" )
       else()
-        if( DEFINED CF_HAVE_${FEATURE} )
-          coolfluid_log( "${FEATURE_NOCAPS} [${CF_HAVE_${FEATURE}}]" )
+        if( DEFINED CF3_HAVE_${FEATURE} )
+          coolfluid_log( "${FEATURE_NOCAPS} [${CF3_HAVE_${FEATURE}}]" )
         endif()
       endif()
     endif()
@@ -107,8 +107,8 @@ function( coolfluid_set_package )
       if( DEFINED ${PACKAGE}_FOUND )
         coolfluid_log( "${_P_PACKAGE} [${${PACKAGE}_FOUND}]" )
       else()
-        if( DEFINED CF_HAVE_${PACKAGE} )
-          coolfluid_log( "${_P_PACKAGE} [${CF_HAVE_${PACKAGE}}]" )
+        if( DEFINED CF3_HAVE_${PACKAGE} )
+          coolfluid_log( "${_P_PACKAGE} [${CF3_HAVE_${PACKAGE}}]" )
         endif()
       endif()
     endif()
@@ -142,9 +142,9 @@ function( coolfluid_add_package )
 
   mark_as_advanced( ${_PAR_VARS} ) # advanced marking
 
-  if( NOT CF_SKIP_${PACKAGE_CAPS} )
+  if( NOT CF3_SKIP_${PACKAGE_CAPS} )
 
-  set( CF_HAVE_${PACKAGE_CAPS} 1 )
+  set( CF3_HAVE_${PACKAGE_CAPS} 1 )
 
   # all vars must be defined and found
 
@@ -154,7 +154,7 @@ function( coolfluid_add_package )
 
       foreach( VAR ${${LISTVAR}} )
         if( NOT VAR ) # found ?
-          set( CF_HAVE_${PACKAGE_CAPS} 0 )
+          set( CF3_HAVE_${PACKAGE_CAPS} 0 )
         endif()
       endforeach() # var
 
@@ -162,24 +162,24 @@ function( coolfluid_add_package )
 
   endforeach() # listvar
 
-  # set CF_HAVE in cache
+  # set CF3_HAVE in cache
 
-  if(CF_HAVE_${PACKAGE_CAPS})
-    set(CF_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
+  if(CF3_HAVE_${PACKAGE_CAPS})
+    set(CF3_HAVE_${PACKAGE_CAPS} 1 CACHE BOOL "Found dependency ${PACKAGE_CAPS}")
     if(DEFINED ${PACKAGE_CAPS}_LIBRARIES)
-      list( APPEND CF_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
+      list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_LIBRARIES} )
     endif()
     if(DEFINED ${PACKAGE_CAPS}_EXTRA_LIBRARIES)
-      list( APPEND CF_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
+      list( APPEND CF3_DEPS_LIBRARIES ${${PACKAGE_CAPS}_EXTRA_LIBRARIES} )
     endif()
   else()
-    set(CF_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
+    set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Did not find dependency ${PACKAGE_CAPS}")
   endif()
 
   # logging
 
-  coolfluid_log_file( "CF_HAVE_${PACKAGE_CAPS}: [${CF_HAVE_${PACKAGE_CAPS}}]" )
-  if(CF_HAVE_${PACKAGE_CAPS})
+  coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: [${CF3_HAVE_${PACKAGE_CAPS}}]" )
+  if(CF3_HAVE_${PACKAGE_CAPS})
     foreach( LISTVAR ${ARGN} ) # log to file
       coolfluid_log_file( "  ${LISTVAR}:  [${${LISTVAR}}]" )
     endforeach()
@@ -187,12 +187,12 @@ function( coolfluid_add_package )
 
 else()
 
-    coolfluid_log_file( "CF_HAVE_${PACKAGE_CAPS}: - searched skipped" )
-    set(CF_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Skipped dependency ${PACKAGE_CAPS}")
+    coolfluid_log_file( "CF3_HAVE_${PACKAGE_CAPS}: - searched skipped" )
+    set(CF3_HAVE_${PACKAGE_CAPS} 0 CACHE BOOL "Skipped dependency ${PACKAGE_CAPS}")
 
 endif() # skip
 
-set( ${_PAR_PACKAGE}_FOUND ${CF_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
+set( ${_PAR_PACKAGE}_FOUND ${CF3_HAVE_${PACKAGE_CAPS}} CACHE BOOL "${_PAR_PACKAGE} package" )
 coolfluid_set_package( PACKAGE ${_PAR_PACKAGE} DESCRIPTION "${_PAR_DESCRIPTION}" URL "${_PAR_URL}" )
 
 endfunction( coolfluid_add_package )

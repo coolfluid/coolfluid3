@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_CNodeTest_hpp
-#define CF_GUI_Client_uTests_CNodeTest_hpp
+#ifndef cf3_GUI_Client_uTests_CNodeTest_hpp
+#define cf3_GUI_Client_uTests_CNodeTest_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
 #include <QObject>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -59,8 +59,8 @@ private slots:
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_CNodeTest_hpp
+#endif // cf3_GUI_Client_uTests_CNodeTest_hpp
