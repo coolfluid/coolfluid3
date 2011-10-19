@@ -17,6 +17,7 @@
 
 #include "UI/Core/ThreadManager.hpp"
 
+#include "UI/Graphics/Application.hpp"
 #include "UI/Graphics/MainWindow.hpp"
 #include "UI/Graphics/JournalBrowserDialog.hpp"
 
@@ -27,7 +28,7 @@ using namespace CF::UI::Graphics;
 
 int main(int argc, char *argv[])
 {
-  QApplication app(argc, argv);
+  Application app(argc, argv);
   int returnValue;
 
   JournalBrowserBuilder::instance();

@@ -6,6 +6,7 @@
 
 # List of classes to "moc"
 list( APPEND coolfluid_ui_graphics_moc_classes
+  Application.hpp # needs to be added because base class emits signals
   BrowserDialog.hpp
   CentralPanel.hpp
   ModifiedOptionsDialog.hpp
@@ -40,6 +41,8 @@ QT4_WRAP_CPP(coolfluid_ui_graphics_moc_files ${coolfluid_ui_graphics_moc_classes
 
 # Add the project files (including the moc files)
 list( APPEND coolfluid_ui_graphics_files
+  Application.cpp
+  Application.hpp
   AboutCFDialog.cpp
   AboutCFDialog.hpp
   BrowserDialog.cpp

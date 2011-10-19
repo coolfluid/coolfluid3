@@ -7,6 +7,10 @@
 #ifndef CF_hpp
 #define CF_hpp
 
+#include <cstddef> // For ptrdiff_t in GCC 4.6
+// Needs to be before vector in GCC 4.6
+#include <Eigen/StdVector>
+
 #include <string>
 #include <vector>
 #include <map>

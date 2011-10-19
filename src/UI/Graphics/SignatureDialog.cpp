@@ -123,7 +123,7 @@ void SignatureDialog::btOkClicked()
       XmlNode node( optionNode.content->first_node() );
       const std::string value = options[it.key()].toStdString().c_str();
 
-      node.content->value( node.content->document()->allocate_string(value.c_str(), value.size()) );
+      node.content->value( node.content->document()->allocate_string(value.c_str(), value.size()+1), value.size() );
     }
     else
     {
