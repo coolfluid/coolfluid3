@@ -50,7 +50,7 @@ class pqProgressManager;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaViewTab {
 

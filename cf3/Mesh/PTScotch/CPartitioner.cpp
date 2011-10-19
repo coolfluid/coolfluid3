@@ -5,22 +5,22 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // coolfluid
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Log.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/Log.hpp"
+#include "common/PE/Comm.hpp"
 #include "Mesh/PTScotch/CPartitioner.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace PTScotch {
 
-  using namespace Common;
-  using namespace Common::PE;
+  using namespace common;
+  using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CPartitioner, CMeshTransformer, LibPTScotch > ptscotch_partitioner_builder;
+cf3::common::ComponentBuilder < CPartitioner, CMeshTransformer, LibPTScotch > ptscotch_partitioner_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

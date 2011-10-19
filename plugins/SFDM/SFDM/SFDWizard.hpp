@@ -15,8 +15,8 @@
 #include "Math/MathConsts.hpp"
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common { class CLink; }
+namespace cf3 {
+namespace common { class CLink; }
 namespace Solver { class CModelUnsteady; }
 namespace SFDM {
 

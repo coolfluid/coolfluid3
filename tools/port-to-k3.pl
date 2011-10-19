@@ -153,14 +153,14 @@ sub process ($)
       s/Config\//Common\//g;
       s/Config_API/Common_API/g;
       s/(CF|COOLFluiD)_Config/CF3_Common/;
-      s/namespace(\s+)Config/namespace Common/;
+      s/namespace(\s+)Config/namespace common/;
       
       s/Environment::/common::/g;
       s/Environment::/common::/g;
       s/Environment\//Common\//g;
       s/Environment_API/Common_API/g;
       s/(CF|COOLFluiD)_Environment/CF3_Common/;
-      s/namespace(\s+)Environment/namespace Common/;
+      s/namespace(\s+)Environment/namespace common/;
       
       s/MathTools::/Math::/g;
       s/MathTools\//Math\//g;

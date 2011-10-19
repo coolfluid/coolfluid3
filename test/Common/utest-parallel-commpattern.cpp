@@ -9,7 +9,7 @@
 // for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Common 's parallel environment - part of testing the commpattern."
+#define BOOST_TEST_MODULE "Test module for cf3::common 's parallel environment - part of testing the commpattern."
 
 ////////////////////////////////////////////////////////////////////////////////
 

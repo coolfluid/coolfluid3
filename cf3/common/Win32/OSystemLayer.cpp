@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-#include "Common/Win32/OSystemLayer.hpp"
-#include "Common/CommonAPI.hpp"
+#include "common/Win32/OSystemLayer.hpp"
+#include "common/CommonAPI.hpp"
 
 #include <windows.h> // for CaptureStackBacktrace
 #include <dbghelp.h> // for stack trace
@@ -243,8 +243,8 @@ void StackTrace::OutputToStream(std::ostream* os) {
 
 using namespace std;
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
 namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -367,6 +367,6 @@ void OSystemLayer::regist_os_signal_handlers()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Win32
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 

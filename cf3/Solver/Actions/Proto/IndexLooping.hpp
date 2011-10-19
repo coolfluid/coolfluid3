@@ -187,6 +187,6 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_IndexLooping_hpp

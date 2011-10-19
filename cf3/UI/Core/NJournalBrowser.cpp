@@ -267,4 +267,4 @@ QString NJournalBrowser::readAttribute(const SignalArgs &sig, const char *name) 
 
 } // namespace Core
 } // namespace UI
-} // namespace CF
+} // namespace cf3

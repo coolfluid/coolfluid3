@@ -6,18 +6,18 @@
 
 #include <cstdlib>
 
-#include "Common/Log.hpp" // CF_HAVE_WINDOWSH is defined via this header
+#include "common/Log.hpp" // CF_HAVE_WINDOWSH is defined via this header
 
 // windows header ( maybe this define should be in the coolfluid_config.h )
 #define _WIN32_WINNT 0x0502 // minimum requirement is ( "Windows Server 2003 with SP1" ) or ( "Windows XP with SP2" )
 #include <windows.h>
 
-#include "Common/Win32/LibLoader.hpp"
+#include "common/Win32/LibLoader.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
   namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,8 +87,8 @@ void LibLoader::load_library(const std::string& lib)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Win32
-  } // namespace Common
-} // namespace CF
+  } // namespace common
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

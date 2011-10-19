@@ -209,8 +209,8 @@ Communicator Comm::get_parent() const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace PE
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 
 
 

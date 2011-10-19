@@ -8,13 +8,13 @@
 #define CF_UI_ParaView_C3DVIEWBUILDER_HPP
 
 // header
-#include "Common/Component.hpp"
+#include "common/Component.hpp"
 #include "UI/ParaView/C3DView.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 

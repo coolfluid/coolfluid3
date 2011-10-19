@@ -9,12 +9,12 @@
 
 /////////////////////////////////OSystemLayer///////////////////////////////////
 
-#include "Common/OSystemLayer.hpp"
+#include "common/OSystemLayer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   
 /// @brief Specialized classes for interacting with Win32 operating system
 namespace Win32 {
@@ -24,7 +24,7 @@ namespace Win32 {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the Win32 operating system
 /// @author Tiago Quintino
-class Common_API OSystemLayer : public Common::OSystemLayer {
+class Common_API OSystemLayer : public common::OSystemLayer {
 
 public:
 
@@ -57,8 +57,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Win32
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -205,6 +205,6 @@ void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_NodeLooper_hpp

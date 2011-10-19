@@ -71,6 +71,6 @@ struct NeumannBCGrammar :
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_NeumannBC_hpp

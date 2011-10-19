@@ -8,10 +8,10 @@
 #include <boost/timer.hpp>
 
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -26,11 +26,11 @@
 #include "RDM/GPU/LDAGPU.hpp"
 #include "RDM/GPU/SchemeLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////

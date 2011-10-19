@@ -1,4 +1,4 @@
-namespace CF {
+namespace cf3 {
 /**
  @mainpage COOLFluiD Documentation
 
@@ -36,7 +36,7 @@ namespace CF {
  The component object concept is the key of understanding COOLFluiD 3.
  A component is typically organized in a tree-like data structure similar to the file system on your computer.
  A component can contain multiple other components and is uniquely defined by its name and path in the tree.
- This concept is implemented in COOLFluiD 3 as a class Component in the CF::Common namespace.
+ This concept is implemented in COOLFluiD 3 as a class Component in the cf3::common namespace.
  One can derive new component types adding more specific functionality to the Component class.
  A component can simply serve to store data, or group multiple components, or perform actions on other components, or combinations of these.
  
@@ -54,11 +54,11 @@ namespace CF {
  The COOLFluID 3 Kernel is basically a collection of libraries of components that can be created on demand by users or developers, to build a whole data structure or application.
 
  @section _whats_there What's there?
- The CF::Common namespace contains apart from the Component base class, some specialized components:
+ The cf3::common namespace contains apart from the Component base class, some specialized components:
  CRoot: This component is the root of the component tree, similar to the "/" or root directory in a unix type file system. It also holds the CEnv or Environment component for interaction with the Operating System.
  CLink: This component contains a reference to another component in the tree, and accessing it, accesses this reference. It serves as an analogy to the symbolic link on the computer file system.
  CGroup: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
- The CF::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
+ The cf3::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
  
  <hr>
  @li Next: \ref using_components
@@ -87,7 +87,7 @@ namespace CF {
  Mesh::CMeshReader& mesh_reader = 
      myComp->build_component("meshreader","CF.Mesh.Gmsh.CReader").as_type<Mesh::CMeshReader>();
  @endcode
- Here @c "CF.Mesh.Gmsh.CReader" is the name of the concrete class CF::Mesh::Gmsh::CReader
+ Here @c "CF.Mesh.Gmsh.CReader" is the name of the concrete class cf3::Mesh::Gmsh::CReader
  The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
  
  @section _configure How to configure a component
@@ -264,8 +264,8 @@ A new component always has to inherit from a parent class which is also a compon
 A simple example is the class Common::CGroup, which adds actually no extra functionality.
 
 @code
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class Common_API CGroup : public Component 
 {
@@ -289,8 +289,8 @@ public: // functions
   static std::string type_name () { return "CGroup"; }
 };
 
-} //namespace Common
-} //namespace CF
+} //namespace common
+} //namespace cf3
 @endcode
 
 Noteworthy here is:
@@ -312,7 +312,7 @@ Options offer a convinient way to manipulate data no matter its type is. Interna
 <a href="http://www.boost.org/doc/libs/release/doc/html/any.html">boost::any</a> object that theorically supports 
 any type of value. In practice, template functions are defined in CPP files by using the explicit template 
 declaration concept in order to optimize the compilation process. That is, only six types are supported by 
-COOLFluiD options : @c bool, @c int, @c CF::Uint, @c CF::Real, @c std::string and @c Common::URI. 
+COOLFluiD options : @c bool, @c int, @c cf3::Uint, @c cf3::Real, @c std::string and @c Common::URI. 
 Trying to instanciate an option with another type will lead to a linking error (undefined reference).<br>
 
 Options are defined by the class @c Common::Option, which is an abstract class. A list of options can be 

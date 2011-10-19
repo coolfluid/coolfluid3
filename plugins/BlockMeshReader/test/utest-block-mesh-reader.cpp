@@ -10,9 +10,9 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshReader.hpp"
@@ -27,11 +27,11 @@
 #include "BlockMeshReader/BlockMeshReader.hpp"
 #include "BlockMeshReader/Parser.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
-using namespace CF::BlockMeshReader;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::BlockMeshReader;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ struct BlockMeshReaderFixture
     char** argv = boost::unit_test::framework::master_test_suite().argv;
     if(argc < 2)
       throw ValueNotFound(FromHere(), "Path to base directory was not found");
-    base_dir = URI(argv[1], CF::Common::URI::Scheme::FILE);
+    base_dir = URI(argv[1], cf3::common::URI::Scheme::FILE);
   }
   URI base_dir;
   Common::CRoot& root;
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Channel3D )
   writer.write_from_to(dict_mesh, URI("channel3d-output.msh"));
 
   // Check if they are equal
-  //BOOST_CHECK(CF::Tools::MeshDiff::diff(dict_mesh, ref_mesh, 25000));
+  //BOOST_CHECK(cf3::Tools::MeshDiff::diff(dict_mesh, ref_mesh, 25000));
 }
 /*
 BOOST_AUTO_TEST_CASE( Cavity2D )
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
   CFinfo << ref_mesh->tree() << CFendl;
 
   // Check if they are equal
-  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 100));
+  BOOST_CHECK(cf3::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 100));
 }
 
 BOOST_AUTO_TEST_CASE( PitzDaily )
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
   // Check if they are equal
-  BOOST_CHECK(CF::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 50000));
+  BOOST_CHECK(cf3::Tools::MeshDiff::diff(*dict_mesh, *ref_mesh, 50000));
 }
 
 BOOST_AUTO_TEST_CASE( WriteDict )

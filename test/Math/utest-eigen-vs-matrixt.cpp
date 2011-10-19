@@ -9,17 +9,17 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/CF.hpp"
+#include "common/CF.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 using namespace Tools::Testing;
 

@@ -12,10 +12,10 @@
 
 #include <Eigen/Dense>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/CField.hpp"
@@ -30,7 +30,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////

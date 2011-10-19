@@ -12,7 +12,7 @@
 #include "Mesh/CMeshPartitioner.hpp"
 #include "Mesh/PTScotch/LibPTScotch.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace PTScotch {
 

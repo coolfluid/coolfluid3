@@ -316,6 +316,6 @@ boost::shared_ptr< NodesExpression<ExprT> > nodes_expression(const ExprT& expr)
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_Expression_hpp

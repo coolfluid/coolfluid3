@@ -1,4 +1,4 @@
-namespace CF{
+namespace cf3{
 /**
 @page coolfluid-command coolfluid-command
 
@@ -90,4 +90,4 @@ Tools
 [//Root/Tools]
 @endverbatim
 */
-} // namespace CF
+} // namespace cf3

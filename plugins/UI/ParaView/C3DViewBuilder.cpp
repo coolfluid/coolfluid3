@@ -5,22 +5,22 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // header
-#include "Common/CBuilder.hpp"
-#include "Common/Signal.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/SignalOptions.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 #include "UI/ParaView/C3DViewBuilder.hpp"
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 

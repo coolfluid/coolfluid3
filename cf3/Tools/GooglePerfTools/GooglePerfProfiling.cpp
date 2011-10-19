@@ -6,15 +6,15 @@
 
 #include <google/profiler.h>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
 #include "Tools/GooglePerfTools/GooglePerfProfiling.hpp"
 
-using namespace CF::Common;
-using namespace CF::Tools::GooglePerfTools;
+using namespace cf3::common;
+using namespace cf3::Tools::GooglePerfTools;
 
 ///////////////////////////////////////////////////////////////////////////////
 

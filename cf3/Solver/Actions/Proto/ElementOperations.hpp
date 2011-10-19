@@ -522,6 +522,6 @@ boost::proto::terminal< SFOp<ShapeFunctionOp> >::type const N = {};
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_ElementOperations_hpp

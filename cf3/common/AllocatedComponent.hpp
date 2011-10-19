@@ -51,8 +51,8 @@ public:
 #include "common/IAction.hpp"
 #include "common/TimedComponent.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 // IAction timing

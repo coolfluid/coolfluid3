@@ -7,18 +7,18 @@
 #ifndef Win32LibLoader_hpp
 #define Win32LibLoader_hpp
 
-#include "Common/LibLoader.hpp"
+#include "common/LibLoader.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace Win32 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class to load libraries in the Win32 OS
-class  Common_API LibLoader : public Common::LibLoader {
+class  Common_API LibLoader : public common::LibLoader {
 
 public: // functions
 
@@ -46,8 +46,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Win32
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

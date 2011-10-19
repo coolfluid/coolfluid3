@@ -96,6 +96,6 @@ int CWorkerGroup::nbworkers () const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace PE
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 

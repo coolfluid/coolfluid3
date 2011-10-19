@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // header
-#include "Common/Signal.hpp"
-#include "Common/XML/Protocol.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/Protocol.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/Core/TreeThread.hpp"
@@ -16,13 +16,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaViewTab {
 

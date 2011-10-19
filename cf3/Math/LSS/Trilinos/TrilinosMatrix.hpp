@@ -195,6 +195,6 @@ private:
 
 } // namespace LSS
 } // namespace Math
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Math_LSS_TrilinosMatrix_hpp

@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::SFDM"
+#define BOOST_TEST_MODULE "Test module for cf3::SFDM"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
@@ -37,12 +37,12 @@
 #include "Solver/Physics.hpp"
 #include "Physics/src/Euler/Cons1D.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::SF;
-using namespace CF::Common;
-using namespace CF::SFDM;
-using namespace CF::Solver;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::SF;
+using namespace cf3::common;
+using namespace cf3::SFDM;
+using namespace cf3::Solver;
 
 //////////////////////////////////////////////////////////////////////////////
 

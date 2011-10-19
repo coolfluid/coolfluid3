@@ -96,4 +96,4 @@ CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shar
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3

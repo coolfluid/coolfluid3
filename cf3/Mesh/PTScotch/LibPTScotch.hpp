@@ -13,7 +13,7 @@
 #include <mpi.h>
 #include <ptscotch.h>
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for PTScotch mesh partitioning and load balancing

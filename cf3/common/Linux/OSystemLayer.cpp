@@ -13,9 +13,9 @@
 #include <sys/types.h>   // for getting the PID of the process
 #include <malloc.h>      //  for mallinfo
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/Linux/OSystemLayer.hpp"
-#include "Common/Log.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/Linux/OSystemLayer.hpp"
+#include "common/Log.hpp"
 
 #ifdef CF_HAVE_UNISTD_H
   #include <unistd.h>
@@ -25,8 +25,8 @@
 
 using namespace std;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace Linux {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -177,7 +177,7 @@ int OSystemLayer::handleSIGFPE (int signal)
     static std::string dump = Linux::OSystemLayer::dump_back_trace();
     printf( "%s\n", dump.c_str() );
   }
-  throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+  throw common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

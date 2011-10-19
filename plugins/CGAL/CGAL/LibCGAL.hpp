@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Classes for CGAL mesh format operations
@@ -35,7 +35,7 @@ namespace CGAL {
 
 /// Class defines the CGAL mesh format operations
 /// @author Bart Janssens
-class CGAL_API LibCGAL : public CF::Common::CLibrary
+class CGAL_API LibCGAL : public cf3::common::CLibrary
 {
 public:
 
@@ -80,7 +80,7 @@ protected:
 
 } // namespace CGAL
 } // namespace Mesh
-} // namespace CF
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

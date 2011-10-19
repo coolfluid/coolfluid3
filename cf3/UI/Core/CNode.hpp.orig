@@ -11,7 +11,7 @@
 
 #include <QStringList>
 
-#include "Common/Component.hpp"
+#include "common/Component.hpp"
 
 #include "UI/Core/LibCore.hpp"
 
@@ -23,7 +23,7 @@ template<typename T, typename V> class QMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 

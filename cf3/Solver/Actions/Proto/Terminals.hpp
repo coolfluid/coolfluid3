@@ -203,6 +203,6 @@ static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_Terminals_hpp

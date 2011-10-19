@@ -6,14 +6,14 @@
 
 #include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
-#include "Common/Core.hpp"
-#include "Common/RegistLibrary.hpp"
+#include "common/Core.hpp"
+#include "common/RegistLibrary.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace GooglePerfTools {
 
-CF::Common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
+cf3::common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
 
 void LibGooglePerfTools::initiate_impl()
 {

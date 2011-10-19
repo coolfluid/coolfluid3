@@ -1,21 +1,21 @@
 #include <boost/assign/list_of.hpp>
 
-#include "Common/BoostFilesystem.hpp"
+#include "common/BoostFilesystem.hpp"
 
 #include <mpi.h>
 #include <zoltan_cpp.h>
 
-#include "Common/CF.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
-#include "Common/CreateComponent.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/operations.hpp"
+#include "common/CF.hpp"
+#include "common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/CreateComponent.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/operations.hpp"
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 using namespace boost::assign;
-//using namespace CF::Mesh;
+//using namespace cf3::Mesh;
 
 typedef struct 
 {

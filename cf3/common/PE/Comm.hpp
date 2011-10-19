@@ -325,7 +325,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // namespace PE
-} // namespace Common
-} // namespace CF
+} // namespace common
+} // namespace cf3
 
 #endif // cf3_common_PE_PE_hpp

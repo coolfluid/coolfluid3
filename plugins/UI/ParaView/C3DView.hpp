@@ -9,7 +9,7 @@
 
 #include <QObject> // Qt header
 
-#include "Common/Signal.hpp"
+#include "common/Signal.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -17,7 +17,7 @@
 
 class QProcess;
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 

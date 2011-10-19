@@ -5,10 +5,10 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 #include <iomanip>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/Foreach.hpp"
 
 #include "Mesh/CField.hpp"
 #include "Mesh/CTable.hpp"
@@ -21,12 +21,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////

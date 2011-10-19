@@ -5,20 +5,20 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::CField"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
-#include "Common/StreamHelpers.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/StreamHelpers.hpp"
 
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/Foreach.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
+#include "common/Foreach.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -34,9 +34,9 @@
 #include "Mesh/PTScotch/LibPTScotch.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////

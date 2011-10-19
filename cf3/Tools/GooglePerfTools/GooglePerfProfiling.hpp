@@ -10,13 +10,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CodeProfiler.hpp"
+#include "common/CodeProfiler.hpp"
 
 #include "Tools/GooglePerfTools/LibGooglePerfTools.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace GooglePerfTools {
 

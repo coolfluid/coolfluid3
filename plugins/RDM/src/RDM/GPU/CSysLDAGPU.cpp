@@ -6,11 +6,11 @@
 
 #include <iostream>
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
-//#include "Common/CreateComponent.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
+//#include "common/CreateComponent.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -21,11 +21,11 @@
 #include "RDM/GPU/CellLoopGPU.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////

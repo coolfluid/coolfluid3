@@ -1,4 +1,4 @@
-namespace CF {
+namespace cf3 {
 
 /// @brief Helpful non-essential libraries to use with %COOLFluiD
 namespace Tools {

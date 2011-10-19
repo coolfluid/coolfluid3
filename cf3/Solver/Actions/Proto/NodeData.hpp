@@ -459,6 +459,6 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
 } // namespace Proto
 } // namespace Actions
 } // namespace Solver
-} // namespace CF
+} // namespace cf3
 
 #endif // cf3_Solver_Actions_Proto_NodeData_hpp
