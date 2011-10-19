@@ -109,10 +109,10 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-           source.basis() == FieldGroup::Basis::CELL_BASED ||
-           source.basis() == FieldGroup::Basis::FACE_BASED
-           && target.basis() == FieldGroup::Basis::POINT_BASED)
+  else if ( ( source.basis() == FieldGroup::Basis::ELEMENT_BASED ||
+              source.basis() == FieldGroup::Basis::CELL_BASED ||
+              source.basis() == FieldGroup::Basis::FACE_BASED )
+           && ( target.basis() == FieldGroup::Basis::POINT_BASED ) )
   {
     const Field& target_coords = target.coordinates();
     std::vector<Uint> s_field_indexes(0);
@@ -157,10 +157,10 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == FieldGroup::Basis::POINT_BASED &&
-           target.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-           target.basis() == FieldGroup::Basis::CELL_BASED ||
-           target.basis() == FieldGroup::Basis::FACE_BASED)
+  else if ( ( source.basis() == FieldGroup::Basis::POINT_BASED ) &&
+            ( target.basis() == FieldGroup::Basis::ELEMENT_BASED ||
+              target.basis() == FieldGroup::Basis::CELL_BASED    ||
+              target.basis() == FieldGroup::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     RealMatrix elem_coordinates;
@@ -201,12 +201,12 @@ void CLinearInterpolator::interpolate_field_from_to(const Field& source, Field& 
       }
     }
   }
-  else if (source.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-           source.basis() == FieldGroup::Basis::CELL_BASED ||
-           source.basis() == FieldGroup::Basis::FACE_BASED
-           && target.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-           target.basis() == FieldGroup::Basis::CELL_BASED ||
-           target.basis() == FieldGroup::Basis::FACE_BASED)
+  else if ( ( source.basis() == FieldGroup::Basis::ELEMENT_BASED  ||
+              source.basis() == FieldGroup::Basis::CELL_BASED     ||
+              source.basis() == FieldGroup::Basis::FACE_BASED     )
+          && ( target.basis() == FieldGroup::Basis::ELEMENT_BASED ||
+               target.basis() == FieldGroup::Basis::CELL_BASED    ||
+               target.basis() == FieldGroup::Basis::FACE_BASED ) )
   {
     Uint s_elm_idx;
     //Uint t_elm_idx;

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_Utility_hpp
-#define CF_Python_Utility_hpp
+#ifndef CF3_Python_Utility_hpp
+#define CF3_Python_Utility_hpp
 
 #include <boost/python/import.hpp>
 #include <boost/python/make_function.hpp>
@@ -14,7 +14,7 @@
 
 #include <string>
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 /// Add a function dynamically
@@ -31,8 +31,8 @@ void add_function(boost::python::object& object, FunctionT function, const std::
 }
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_Utility_hpp
+#endif // CF3_Python_Utility_hpp

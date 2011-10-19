@@ -275,8 +275,8 @@ struct SignalWrapper
 
 struct ComponentWrapper::Implementation
 {
-  Implementation(Common::Component& component) :
-    m_component(component.as_ptr<Common::Component>()),
+  Implementation(common::Component& component) :
+    m_component(component.as_ptr<common::Component>()),
     m_list_interface(0)
   {
   }
@@ -287,16 +287,16 @@ struct ComponentWrapper::Implementation
       delete m_list_interface;
   }
 
-  boost::weak_ptr<Common::Component> m_component;
+  boost::weak_ptr<common::Component> m_component;
   std::vector<SignalWrapper> m_wrapped_signals;
   PythonListInterface* m_list_interface;
 };
 
-ComponentWrapper::ComponentWrapper(Common::Component& component) :
+ComponentWrapper::ComponentWrapper(common::Component& component) :
   m_implementation(new Implementation(component))
 {
   // Add the signals
-  boost_foreach(Common::SignalPtr signal, component.signal_list())
+  boost_foreach(common::SignalPtr signal, component.signal_list())
   {
     if(signal->name() != "create_component")
       wrap_signal(signal);
@@ -307,10 +307,10 @@ ComponentWrapper::~ComponentWrapper()
 {
 }
 
-Common::Component& ComponentWrapper::component()
+common::Component& ComponentWrapper::component()
 {
   if(m_implementation->m_component.expired())
-    throw Common::BadPointer(FromHere(), "Wrapped object was deleted");
+    throw common::BadPointer(FromHere(), "Wrapped object was deleted");
 
   return *m_implementation->m_component.lock();
 }
@@ -323,7 +323,7 @@ void ComponentWrapper::bind_signals(object& python_object)
   }
 }
 
-void ComponentWrapper::wrap_signal(Common::SignalPtr signal)
+void ComponentWrapper::wrap_signal(common::SignalPtr signal)
 {
   CFdebug << "Wrapping signal " << signal->name() << CFendl;
   m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal));
@@ -363,7 +363,7 @@ std::string name(ComponentWrapper& self)
 
 object create_component(ComponentWrapper& self, const std::string& name, const std::string& builder_name)
 {
-  Common::Component::Ptr built_comp = Common::build_component(builder_name, name);
+  common::Component::Ptr built_comp = common::build_component(builder_name, name);
   self.component().add_component(built_comp);
   return wrap_component(*built_comp);
 }
@@ -380,7 +380,7 @@ object access_component(ComponentWrapper& self, const std::string& uri)
 
 void configure_option(ComponentWrapper& self, const std::string& optname, const object& val)
 {
-  Common::Option& option = self.component().option(optname);
+  common::Option& option = self.component().option(optname);
   option.change_value(python_to_any(val, option.type()));
 }
 
@@ -389,20 +389,20 @@ std::string option_value_str(ComponentWrapper& self, const std::string& optname)
   return self.component().option(optname).value_str();
 }
 
-Common::URI uri(ComponentWrapper& self)
+common::URI uri(ComponentWrapper& self)
 {
   return self.component().uri();
 }
 
 void print_timing_tree(ComponentWrapper& self)
 {
-  CF::Common::print_timing_tree(self.component());
+  cf3::common::print_timing_tree(self.component());
 }
 
 Uint get_len(ComponentWrapper& self)
 {
   if(is_null(self.get_list_interface()))
-    throw Common::NotSupported(FromHere(), "Object does not support len()");
+    throw common::NotSupported(FromHere(), "Object does not support len()");
 
   return self.get_list_interface()->len();
 }
@@ -410,7 +410,7 @@ Uint get_len(ComponentWrapper& self)
 object get_item(ComponentWrapper& self, const Uint i)
 {
   if(is_null(self.get_list_interface()))
-    throw Common::NotSupported(FromHere(), "Object does not support indexing");
+    throw common::NotSupported(FromHere(), "Object does not support indexing");
 
   return self.get_list_interface()->get_item(i);
 }
@@ -418,7 +418,7 @@ object get_item(ComponentWrapper& self, const Uint i)
 void set_item(ComponentWrapper& self, const Uint i, object& value)
 {
   if(is_null(self.get_list_interface()))
-    throw Common::NotSupported(FromHere(), "Object does not support indexing");
+    throw common::NotSupported(FromHere(), "Object does not support indexing");
 
   return self.get_list_interface()->set_item(i, value);
 }

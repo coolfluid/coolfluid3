@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_CTable_hpp
-#define CF_Python_CTable_hpp
+#ifndef CF3_Python_CTable_hpp
+#define CF3_Python_CTable_hpp
 
 #include <boost/python/object_fwd.hpp>
 
-namespace CF {
-  namespace Common { class Component; }
+namespace cf3 {
+namespace common { class Component; }
 namespace Python {
 
 class ComponentWrapper;
@@ -21,8 +21,8 @@ void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& p
 void def_ctable_types();
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_CTable_hpp
+#endif // cf3_Python_CTable_hpp

@@ -10,8 +10,8 @@
 
 #include <boost/weak_ptr.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/StreamHelpers.hpp"
+#include "common/Log.hpp"
+#include "common/StreamHelpers.hpp"
 
 #include "Mesh/CTable.hpp"
 
@@ -19,7 +19,7 @@
 #include "Python/CTable.hpp"
 #include "Python/Utility.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
@@ -34,14 +34,14 @@ struct CTableRowWrapper
   static void set_item(RowT& self, const Uint i, const ValueT value)
   {
     if(i >= self.size())
-      throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable row of size " + boost::lexical_cast<std::string>(self.size()));
+      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable row of size " + boost::lexical_cast<std::string>(self.size()));
     self[i] = value;
   }
 
   static ValueT get_item(RowT& self, const Uint i)
   {
     if(i >= self.size())
-      throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable row of size " + boost::lexical_cast<std::string>(self.size()));
+      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable row of size " + boost::lexical_cast<std::string>(self.size()));
     return self[i];
   }
 
@@ -53,7 +53,7 @@ struct CTableRowWrapper
   static std::string to_str(RowT& self)
   {
     std::stringstream output;
-    Common::print_vector(output, self);
+    common::print_vector(output, self);
     return output.str();
   }
 };
@@ -78,7 +78,7 @@ struct CTableList : PythonListInterface
   virtual object get_item(const Uint i) const
   {
     if(i >= m_table.size())
-      throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable with number of rows: " + boost::lexical_cast<std::string>(m_table.size()));
+      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable with number of rows: " + boost::lexical_cast<std::string>(m_table.size()));
     return object(m_table[i]);
   }
 
@@ -88,9 +88,9 @@ struct CTableList : PythonListInterface
     const Uint nb_values = boost::python::len(values);
 
     if(i >= m_table.size())
-      throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable with number of rows: " + boost::lexical_cast<std::string>(m_table.size()));
+      throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for CTable with number of rows: " + boost::lexical_cast<std::string>(m_table.size()));
     if(nb_values != m_table.row_size())
-      throw Common::BadValue(FromHere(), "Row size " + boost::lexical_cast<std::string>(nb_values) + " does not match row size for CTable: " + boost::lexical_cast<std::string>(m_table.row_size()));
+      throw common::BadValue(FromHere(), "Row size " + boost::lexical_cast<std::string>(nb_values) + " does not match row size for CTable: " + boost::lexical_cast<std::string>(m_table.row_size()));
 
     RowT row = m_table[i];
     for(Uint j = 0; j != nb_values; ++j)
@@ -145,7 +145,7 @@ void def_ctable_types()
 {
   // The CTable row types are statically defined
   typedef CTableRowWrapper<ValueT> WrapperT;
-  scope ctable_row = class_<typename Mesh::CTable<ValueT>::Row>(("CTableRow_"+Common::class_name<ValueT>()).c_str(), "Coolfluid CTable row class wrapper", no_init)
+  scope ctable_row = class_<typename Mesh::CTable<ValueT>::Row>(("CTableRow_"+common::class_name<ValueT>()).c_str(), "Coolfluid CTable row class wrapper", no_init)
     .def("__setitem__", WrapperT::set_item)
     .def("__getitem__", WrapperT::get_item)
     .def("__len__", WrapperT::size)
@@ -159,4 +159,4 @@ void def_ctable_types()
 }
 
 } // Python
-} // CF
+} // cf3

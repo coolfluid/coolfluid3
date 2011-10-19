@@ -9,8 +9,8 @@
 
 #include <boost/python/object.hpp>
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/SignalHandler.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/SignalHandler.hpp"
 
 namespace cf3 {
   namespace common { class Component; }
@@ -42,11 +42,11 @@ struct PythonListInterface
 class ComponentWrapper
 {
 public:
-  ComponentWrapper(Common::Component& component);
+  ComponentWrapper(common::Component& component);
   ~ComponentWrapper();
 
   /// Access to the wrapped component
-  Common::Component& component();
+  common::Component& component();
 
   /// Properly typed access to the wrapped component
   template<typename ComponentT>
@@ -54,13 +54,13 @@ public:
   {
     ComponentT* comp = dynamic_cast<ComponentT*>(&component());
     if(!comp)
-      throw Common::CastingFailed(FromHere(), "Could not cast python wrapped object to type " + ComponentT::type_name());
+      throw common::CastingFailed(FromHere(), "Could not cast python wrapped object to type " + ComponentT::type_name());
 
     return *comp;
   }
 
   /// Add the given signal to the list of wrapped signals
-  void wrap_signal(Common::SignalPtr signal);
+  void wrap_signal(common::SignalPtr signal);
 
   /// Bind the signals as python functions to the supplied object
   void bind_signals(boost::python::object& python_object);
