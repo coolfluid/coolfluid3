@@ -1,5 +1,5 @@
 # common library provides the component environment
-add_subdirectory( Common )
+add_subdirectory( common )
 
 # mesh library provides the mesh database handling
 add_subdirectory( Mesh )
