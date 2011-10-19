@@ -8,6 +8,7 @@
 
 #include "Python/Component.hpp"
 #include "Python/Core.hpp"
+#include "Python/CTable.hpp"
 #include "Python/MatrixTypes.hpp"
 #include "Python/PythonModule.hpp"
 #include "Python/URI.hpp"
@@ -21,6 +22,7 @@ BOOST_PYTHON_MODULE(libcoolfluid_python)
 {
   def_component();
   def_core();
+  def_ctable_types();
   def_matrix_types();
   def_uri();
   scope().attr("__doc__") = "Provides access to the Coolfluid API from python";

@@ -28,6 +28,7 @@
 #include "Math/MatrixTypes.hpp"
 
 #include "Python/Component.hpp"
+#include "Python/CTable.hpp"
 
 namespace CF {
 namespace Python {
@@ -209,13 +210,6 @@ struct SignalWrapper
       if(len(args) != 1)
         throw Common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments");
 
-//       for(Common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
-//       {
-//         Common::Option& option = *option_it->second;
-//         if(kwargs.has_key(option.name()))
-//           option.change_value(python_to_any(kwargs[option.name()], option.type()));
-//       }
-
       const list keys = kwargs.keys();
       const Uint nb_kwargs = len(keys);
       for(Uint i = 0; i != nb_kwargs; ++i)
@@ -279,110 +273,183 @@ struct SignalWrapper
   Common::SignalPtr m_signal;
 };
 
-class ComponentWrapper
+struct ComponentWrapper::Implementation
 {
-public:
-  ComponentWrapper(Common::Component& component) :
-    m_component(component.as_ptr<Common::Component>())
+  Implementation(Common::Component& component) :
+    m_component(component.as_ptr<Common::Component>()),
+    m_list_interface(0)
   {
-    // Add the signals
-    boost_foreach(Common::SignalPtr signal, component.signal_list())
-    {
-      if(signal->name() != "create_component")
-        wrap_signal(signal);
-    }
   }
 
-  std::string name()
+  ~Implementation()
   {
-    return component().name();
+    if(is_not_null(m_list_interface))
+      delete m_list_interface;
   }
 
-  object create_component(const std::string& name, const std::string& builder_name)
-  {
-    Common::Component::Ptr built_comp = Common::build_component(builder_name, name);
-    component().add_component(built_comp);
-    return wrap_component(*built_comp);
-  }
-
-  object get_child(const std::string& name)
-  {
-    return wrap_component(component().get_child(name));
-  }
-
-  object access_component(const std::string& uri)
-  {
-    return wrap_component(component().access_component(uri));
-  }
-
-  void configure_option(const std::string& optname, const object& val)
-  {
-    Common::Option& option = component().option(optname);
-    option.change_value(python_to_any(val, option.type()));
-  }
-
-  std::string option_value_str(const std::string& optname)
-  {
-    return component().option(optname).value_str();
-  }
-
-  Common::URI uri()
-  {
-    return component().uri();
-  }
-
-  void wrap_signal(Common::SignalPtr signal)
-  {
-    m_wrapped_signals.push_back(SignalWrapper(signal));
-  }
-
-  void bind_signals(object& python_object)
-  {
-    boost_foreach(SignalWrapper& signal, m_wrapped_signals)
-    {
-      signal.bind_function(python_object);
-    }
-  }
-
-  void print_timing_tree()
-  {
-    CF::Common::print_timing_tree(component());
-  }
-
-private:
-  // checked access
-  Common::Component& component()
-  {
-    if(m_component.expired())
-      throw Common::BadPointer(FromHere(), "Wrapped object was deleted");
-
-    return *m_component.lock();
-  }
   boost::weak_ptr<Common::Component> m_component;
-
   std::vector<SignalWrapper> m_wrapped_signals;
+  PythonListInterface* m_list_interface;
 };
+
+ComponentWrapper::ComponentWrapper(Common::Component& component) :
+  m_implementation(new Implementation(component))
+{
+  // Add the signals
+  boost_foreach(Common::SignalPtr signal, component.signal_list())
+  {
+    if(signal->name() != "create_component")
+      wrap_signal(signal);
+  }
+}
+
+ComponentWrapper::~ComponentWrapper()
+{
+}
+
+Common::Component& ComponentWrapper::component()
+{
+  if(m_implementation->m_component.expired())
+    throw Common::BadPointer(FromHere(), "Wrapped object was deleted");
+
+  return *m_implementation->m_component.lock();
+}
+
+void ComponentWrapper::bind_signals(object& python_object)
+{
+  boost_foreach(SignalWrapper& signal, m_implementation->m_wrapped_signals)
+  {
+    signal.bind_function(python_object);
+  }
+}
+
+void ComponentWrapper::wrap_signal(Common::SignalPtr signal)
+{
+  CFdebug << "Wrapping signal " << signal->name() << CFendl;
+  m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal));
+}
 
 object wrap_component(Common::Component& component)
 {
   object result = object(ComponentWrapper(component));
   ComponentWrapper& wrapped = extract<ComponentWrapper&>(result);
   wrapped.bind_signals(result);
+
+  // Add extra functionality for derved classes
+  add_ctable_methods(wrapped, result);
+
   return result;
 }
 
+void ComponentWrapper::set_list_interface(PythonListInterface* interface)
+{
+  if(is_not_null(m_implementation->m_list_interface))
+    delete m_implementation->m_list_interface;
+
+  m_implementation->m_list_interface = interface;
+}
+
+
+PythonListInterface* ComponentWrapper::get_list_interface()
+{
+  return m_implementation->m_list_interface;
+}
+
+
+std::string name(ComponentWrapper& self)
+{
+  return self.component().name();
+}
+
+object create_component(ComponentWrapper& self, const std::string& name, const std::string& builder_name)
+{
+  Common::Component::Ptr built_comp = Common::build_component(builder_name, name);
+  self.component().add_component(built_comp);
+  return wrap_component(*built_comp);
+}
+
+object get_child(ComponentWrapper& self, const std::string& name)
+{
+  return wrap_component(self.component().get_child(name));
+}
+
+object access_component(ComponentWrapper& self, const std::string& uri)
+{
+  return wrap_component(self.component().access_component(uri));
+}
+
+void configure_option(ComponentWrapper& self, const std::string& optname, const object& val)
+{
+  Common::Option& option = self.component().option(optname);
+  option.change_value(python_to_any(val, option.type()));
+}
+
+std::string option_value_str(ComponentWrapper& self, const std::string& optname)
+{
+  return self.component().option(optname).value_str();
+}
+
+Common::URI uri(ComponentWrapper& self)
+{
+  return self.component().uri();
+}
+
+void print_timing_tree(ComponentWrapper& self)
+{
+  CF::Common::print_timing_tree(self.component());
+}
+
+Uint get_len(ComponentWrapper& self)
+{
+  if(is_null(self.get_list_interface()))
+    throw Common::NotSupported(FromHere(), "Object does not support len()");
+
+  return self.get_list_interface()->len();
+}
+
+object get_item(ComponentWrapper& self, const Uint i)
+{
+  if(is_null(self.get_list_interface()))
+    throw Common::NotSupported(FromHere(), "Object does not support indexing");
+
+  return self.get_list_interface()->get_item(i);
+}
+
+void set_item(ComponentWrapper& self, const Uint i, object& value)
+{
+  if(is_null(self.get_list_interface()))
+    throw Common::NotSupported(FromHere(), "Object does not support indexing");
+
+  return self.get_list_interface()->set_item(i, value);
+}
+
+std::string to_str(ComponentWrapper& self)
+{
+  if(is_null(self.get_list_interface()))
+  {
+    std::stringstream output_str;
+    output_str << "Component of type " << self.component().derived_type_name() << " at URI " << self.component().uri().path();
+    return output_str.str();
+  }
+
+  return self.get_list_interface()->to_str();
+}
 
 void def_component()
 {
   class_<ComponentWrapper>("Component", no_init)
-    .def("name", &ComponentWrapper::name, "The name of this component")
-    .def("create_component", &ComponentWrapper::create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
-    .def("get_child", &ComponentWrapper::get_child)
-    .def("access_component", &ComponentWrapper::access_component)
-    .def("configure_option", &ComponentWrapper::configure_option)
-    .def("option_value_str", &ComponentWrapper::option_value_str)
-    .def("print_timing_tree", &ComponentWrapper::print_timing_tree)
-    .def("uri", &ComponentWrapper::uri);
+    .def("name", name, "The name of this component")
+    .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
+    .def("get_child", get_child)
+    .def("access_component", access_component)
+    .def("configure_option", configure_option)
+    .def("option_value_str", option_value_str)
+    .def("print_timing_tree", print_timing_tree)
+    .def("uri", uri)
+    .def("__len__", get_len)
+    .def("__getitem__", get_item)
+    .def("__setitem__", set_item)
+    .def("__str__", to_str);
 }
 
 } // Python
