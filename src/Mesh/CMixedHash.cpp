@@ -113,9 +113,19 @@ Uint CMixedHash::proc_of_obj(const Uint obj) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool CMixedHash::owns(const Uint obj) const
+bool CMixedHash::rank_owns(const Uint obj) const
 {
   if (proc_of_obj(obj) == PE::Comm::instance().rank())
+    return true;
+  else
+    return false;
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+bool CMixedHash::part_owns(const Uint part, const Uint obj) const
+{
+  if (part_of_obj(obj) == part)
     return true;
   else
     return false;

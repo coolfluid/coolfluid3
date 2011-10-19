@@ -83,7 +83,7 @@ public: // functions
     for(Uint n = 0; n < SF::nb_nodes; ++n)
       DvPlus[n].setZero();
 
-    m_options["elements"].attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
+    this->option("elements").attach_trigger ( boost::bind ( &RKLDA::Term<SF,QD,PHYS>::config_coeffs, this ) );
 
   }
 

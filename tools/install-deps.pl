@@ -83,7 +83,7 @@ my %packages = (  #  version   default install priority      function
     "parmetis"   => [ "3.2.0",    'off',   'off', $priority++,  \&install_parmetis ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
-    "trilinos"   => [ "10.6.4",   'off',   'off', $priority++,  \&install_trilinos ],
+    "trilinos"   => [ "10.8.2",   'off',   'off', $priority++,  \&install_trilinos ],
     "petsc"      => [ "3.1-p8",   'off',   'off', $priority++,  \&install_petsc3 ],
     "cgns"       => [ "3.1.3-2",  'off',   'off', $priority++,  \&install_cgns ],
     "google-perftools" => [ "1.7",'off',   'off', $priority++,  \&install_google_perftools ],
@@ -991,12 +991,15 @@ sub install_trilinos() {
 -D Didasko_ENABLE_EXAMPLES:BOOL=OFF \\
 -D Trilinos_ENABLE_Epetra:BOOL=ON \\
 -D Trilinos_ENABLE_EpetraExt:BOOL=ON \\
+-D Trilinos_ENABLE_Tpetra:BOOL=ON \\
+-D Trilinos_ENABLE_TpetraExt:BOOL=ON \\
 -D Trilinos_ENABLE_Ifpack:BOOL=ON \\
 -D Trilinos_ENABLE_Meros:BOOL=ON \\
 -D Trilinos_ENABLE_ML:BOOL=ON \\
 -D Trilinos_ENABLE_RTOp:BOOL=ON \\
 -D Trilinos_ENABLE_Teuchos:BOOL=ON \\
 -D Trilinos_ENABLE_Thyra:BOOL=ON \\
+-D Trilinos_ENABLE_ThyraCore:BOOL=ON \\
 -D Trilinos_ENABLE_Triutils:BOOL=ON \\
 -D Trilinos_ENABLE_Stratimikos:BOOL=ON \\
 -D Trilinos_ENABLE_.:BOOL=OFF \\
@@ -1247,7 +1250,7 @@ sub install_hdf5() {
 sub install_zoltan()
 {
   my $lib = "trilinos";
-  my $version = $packages{$lib}[$vrs];
+  my $version = "10.6.4";
   print my_colored("Installing Zoltan as part of $lib-$version\n",$HIGHLIGHTCOLOR);
 
   safe_chdir($opt_tmp_dir);

@@ -50,19 +50,24 @@ public: // functions
 
   Uint proc_of_part(const Uint part) const;
 
-	Uint proc_of_obj(const Uint obj) const;
+  Uint proc_of_obj(const Uint obj) const;
 
-	Uint nb_objects_in_part(const Uint part) const;
+  Uint nb_objects_in_part(const Uint part) const;
 
-	Uint nb_objects_in_proc(const Uint proc) const;
+  Uint nb_objects_in_proc(const Uint proc) const;
 
-	Uint start_idx_in_part(const Uint part) const;
+  Uint start_idx_in_part(const Uint part) const;
 
-	Uint end_idx_in_part(const Uint part) const;
+  Uint end_idx_in_part(const Uint part) const;
 
-	Uint start_idx_in_proc(const Uint proc) const;
+  Uint start_idx_in_proc(const Uint proc) const;
 
-	bool owns(const Uint obj) const;
+  /// @deprecated function, use rank_owns() instead
+  bool owns(const Uint obj) const { return rank_owns(obj); }
+
+  bool rank_owns(const Uint obj) const;
+
+  bool part_owns(const Uint part, const Uint obj) const;
 
   Uint part_size() const;
 

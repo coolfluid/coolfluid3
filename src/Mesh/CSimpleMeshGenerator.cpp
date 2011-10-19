@@ -11,7 +11,6 @@
 #include "Common/FindComponents.hpp"
 #include "Common/Foreach.hpp"
 #include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
 #include "Common/Log.hpp"
 #include "Common/CRoot.hpp"
 #include "Common/Core.hpp"
@@ -60,6 +59,10 @@ CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
       ->pretty_name("Lengths")
       ->link_to(&m_lengths)
       ->mark_basic();
+
+  m_options.add_option(OptionT<Uint>::create("part", PE::Comm::instance().rank()))
+      ->description("Part number (e.g. rank of processors)")
+      ->pretty_name("Part");
 
   m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
       ->description("Total number of partitions (e.g. number of processors)")
@@ -110,7 +113,8 @@ void CSimpleMeshGenerator::create_line()
   const Uint nb_parts = option("nb_parts").value<Uint>();
   const bool bdry = option("bdry").value<bool>();
 
-  Uint part = PE::Comm::instance().rank();
+
+  Uint part = option("part").value<Uint>();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
   CMixedHash::Ptr tmp_hash = allocate_component<CMixedHash>("tmp_hash");
@@ -120,6 +124,7 @@ void CSimpleMeshGenerator::create_line()
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
   hash.configure_option("nb_obj",num_obj);
+  hash.configure_option("nb_parts",nb_parts);
 
   CRegion& region = mesh.topology().create_region("fluid");
   Geometry& nodes = mesh.geometry();
@@ -142,7 +147,7 @@ void CSimpleMeshGenerator::create_line()
   }
   for(Uint i = hash.subhash(ELEMS).start_idx_in_part(part); i < hash.subhash(ELEMS).end_idx_in_part(part); ++i)
   {
-    if (hash.subhash(NODES).owns(i) == false)
+    if (hash.subhash(NODES).part_owns(part,i) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i);
@@ -156,7 +161,7 @@ void CSimpleMeshGenerator::create_line()
       elem_rank[elem_idx] = part;
     }
 
-    if (hash.subhash(NODES).owns(i+1) == false)
+    if (hash.subhash(NODES).part_owns(part,i+1) == false)
     {
       nodes.coordinates()[node_idx][XX] = static_cast<Real>(i+1) * x_step + x_offset;
       nodes.rank()[node_idx] = hash.subhash(NODES).proc_of_obj(i+1);
@@ -217,14 +222,16 @@ void CSimpleMeshGenerator::create_rectangle()
   const bool bdry = option("bdry").value<bool>();
 
 
-  Uint part = PE::Comm::instance().rank();
+  Uint part = option("part").value<Uint>();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
-  CMixedHash& hash = Core::instance().root().create_component<CMixedHash>("tmp_hash");
+  CMixedHash::Ptr tmp_hash = allocate_component<CMixedHash>("tmp_hash");
+  CMixedHash& hash = *tmp_hash;
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1);
   num_obj[ELEMS] = x_segments*y_segments;
   hash.configure_option("nb_obj",num_obj);
+  hash.configure_option("nb_parts",nb_parts);
 
   CRegion& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
@@ -237,28 +244,28 @@ void CSimpleMeshGenerator::create_rectangle()
   {
     for(Uint i = 0; i < x_segments; ++i)
     {
-      if (hash.subhash(ELEMS).owns(i+j*x_segments))
+      if (hash.subhash(ELEMS).part_owns(part,i+j*x_segments))
       {
         glb_node_idx = j * (x_segments+1) + i;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
           ghost_nodes_loc[glb_node_idx]=0;
         }
 
         glb_node_idx = j * (x_segments+1) + (i+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
           ghost_nodes_loc[glb_node_idx]=0;
         }
         glb_node_idx = (j+1) * (x_segments+1) + i;
         \
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
           ghost_nodes_loc[glb_node_idx]=0;
         }
 
         glb_node_idx = (j+1) * (x_segments+1) + (i+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
         {
           ghost_nodes_loc[glb_node_idx]=0;
         }
@@ -279,7 +286,7 @@ void CSimpleMeshGenerator::create_rectangle()
     {
       glb_node_idx = j * (x_segments+1) + i;
 
-      if (hash.subhash(NODES).owns(glb_node_idx))
+      if (hash.subhash(NODES).part_owns(part,glb_node_idx))
       {
         cf_assert(glb_node_idx-glb_node_start_idx < nodes.size());
         CTable<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
@@ -289,6 +296,7 @@ void CSimpleMeshGenerator::create_rectangle()
       }
     }
   }
+
   // add ghost nodes
   Uint glb_ghost_node_start_idx = hash.subhash(NODES).nb_objects_in_part(part);
   Uint loc_node_idx = glb_ghost_node_start_idx;
@@ -321,31 +329,31 @@ void CSimpleMeshGenerator::create_rectangle()
     {
       glb_elem_idx = j * x_segments + i;
 
-      if (hash.subhash(ELEMS).owns(glb_elem_idx))
+      if (hash.subhash(ELEMS).part_owns(part,glb_elem_idx))
       {
         CConnectivity::Row nodes = connectivity[glb_elem_idx-glb_elem_start_idx];
         elem_rank[glb_elem_idx-glb_elem_start_idx] = part;
 
         glb_node_idx = j * (x_segments+1) + i;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           nodes[0] = ghost_nodes_loc[glb_node_idx];
         else
           nodes[0] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = j * (x_segments+1) + (i+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           nodes[1] = ghost_nodes_loc[glb_node_idx];
         else
           nodes[1] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = (j+1) * (x_segments+1) + i;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           nodes[3] = ghost_nodes_loc[glb_node_idx];
         else
           nodes[3] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = (j+1) * (x_segments+1) + (i+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           nodes[2] = ghost_nodes_loc[glb_node_idx];
         else
           nodes[2] = glb_node_idx-glb_node_start_idx;
@@ -353,6 +361,7 @@ void CSimpleMeshGenerator::create_rectangle()
 
     }
   }
+
 
   if (bdry)
   {
@@ -363,16 +372,16 @@ void CSimpleMeshGenerator::create_rectangle()
     CList<Uint>::Buffer left_rank = left->rank().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
     {
-      if (hash.subhash(ELEMS).owns(j*x_segments))
+      if (hash.subhash(ELEMS).part_owns(part,j*x_segments))
       {
         glb_node_idx = j * (x_segments+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[0] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = (j+1) * (x_segments+1);
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[1] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
@@ -389,16 +398,16 @@ void CSimpleMeshGenerator::create_rectangle()
 
     for(Uint j = 0; j < y_segments; ++j)
     {
-      if (hash.subhash(ELEMS).owns(j*x_segments+x_segments-1))
+      if (hash.subhash(ELEMS).part_owns(part,j*x_segments+x_segments-1))
       {
         glb_node_idx = j * (x_segments+1) + x_segments;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[1] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = (j+1) * (x_segments+1) + x_segments;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[0] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
@@ -415,16 +424,16 @@ void CSimpleMeshGenerator::create_rectangle()
 
     for(Uint i = 0; i < x_segments; ++i)
     {
-      if (hash.subhash(ELEMS).owns(i))
+      if (hash.subhash(ELEMS).part_owns(part,i))
       {
         glb_node_idx = i;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[0] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = i+1;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[1] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
@@ -441,16 +450,16 @@ void CSimpleMeshGenerator::create_rectangle()
 
     for(Uint i = 0; i < x_segments; ++i)
     {
-      if (hash.subhash(ELEMS).owns(y_segments*(x_segments)+i))
+      if (hash.subhash(ELEMS).part_owns(part,y_segments*(x_segments)+i))
       {
         glb_node_idx = y_segments * (x_segments+1) + i;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[1] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[1] = glb_node_idx-glb_node_start_idx;
 
         glb_node_idx = y_segments * (x_segments+1) + i+1;
-        if (hash.subhash(NODES).owns(glb_node_idx) == false)
+        if (hash.subhash(NODES).part_owns(part,glb_node_idx) == false)
           line_nodes[0] = ghost_nodes_loc[glb_node_idx];
         else
           line_nodes[0] = glb_node_idx-glb_node_start_idx;
@@ -473,18 +482,6 @@ void CSimpleMeshGenerator::create_rectangle()
   }
 
   cf_assert(nodes.rank().size() == nodes.size());
-  for (Uint n=0; n<nodes.size(); ++n)
-  {
-    if ( nodes.rank()[n] != part )
-    {
-      cf_assert( nodes.is_ghost(n) == true );
-    }
-    else
-    {
-      cf_assert( nodes.is_ghost(n) == false );
-    }
-  }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

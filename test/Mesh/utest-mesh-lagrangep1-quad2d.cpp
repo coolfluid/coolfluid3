@@ -186,6 +186,27 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 600);
   CFinfo << "result[0] = " << result[0] << CFendl;
   CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+
+
+  // Try another element
+  const Real D=200./120.;
+  const Real eps = 0.0000000001;
+  ETYPE::NodesT nodes_3;
+  nodes_3 <<
+    -75. + eps,   0.,
+    -75.0+D, eps,
+    -75.0+D, D,
+    -75.0,   D;
+
+  test_coords << -75. + eps, 0.;
+  CFinfo << "test if " << test_coords.transpose() << " maps to (-1,-1) in element with nodes \n" << nodes_3 << CFendl;
+  ETYPE::compute_mapped_coordinate(test_coords, nodes_3, result);
+  CFinfo << "result[0] = " << result[0] << CFendl;
+  CFinfo << "result[1] = " << result[1] << CFendl << CFendl;
+  vector_test(result,ETYPE::MappedCoordsT(-1.0, -1.0),accumulator);
+  BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 200000);
+
+
 }
 
 BOOST_AUTO_TEST_CASE( computeMappedGradient )

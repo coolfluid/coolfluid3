@@ -151,9 +151,19 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, std::vector
 
   // set out_values's sizes
   int size=out_values.size();
-  if (out_values.size()==0){
+  if (out_values.size()==0)
+  {
     if (irank==root) size=(int)in_values.size();
     detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
+  }
+  else
+  {
+    // In debug modus, assert that the given out_values size matches what it is supposed to receive
+#ifdef NDEBUG
+    if (irank==root) size=(int)in_values.size();
+    detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
+    cf_assert_desc("out_values.size() must be set to zero, or be compatible",size == out_values.size());
+#endif
   }
   cf_assert( in_values.size() % stride == 0 );
   out_values.resize(size);

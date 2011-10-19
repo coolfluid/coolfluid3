@@ -37,6 +37,7 @@ list( APPEND trilinos_req_libs
   ifpack
   thyra
   thyraepetra
+  thyracore
 )
 
 foreach (test_lib ${trilinos_req_libs})
