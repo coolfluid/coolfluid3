@@ -62,7 +62,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
       template < typename SFType >
       void operator() ( SFType& T )
       {
-        boost_foreach(Mesh::CElementcommonments, common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
+        boost_foreach(Mesh::CElements& elements, common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
         {
           op.set_elements(elements);
           if (op.can_start_loop())

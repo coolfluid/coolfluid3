@@ -9,8 +9,8 @@
 #define cf3_Solver_Actions_Proto_ElementMatrix_hpp
 
 // Default maximum number of different element matrices that can appear in an expression
-#ifndef cf3_PROTO_MAX_ELEMENT_MATRICES
-  #define cf3_PROTO_MAX_ELEMENT_MATRICES 5
+#ifndef CF3_PROTO_MAX_ELEMENT_MATRICES
+  #define CF3_PROTO_MAX_ELEMENT_MATRICES 5
 #endif
 
 #include<iostream>
