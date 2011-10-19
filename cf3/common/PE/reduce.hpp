@@ -14,8 +14,8 @@
 #include "common/BasicExceptions.hpp"
 
 #include "common/PE/types.hpp"
-#include <Common/PE/operations.hpp>
-#include <Common/PE/datatype.hpp>
+#include "common/PE/operations.hpp"
+#include "common/PE/datatype.hpp"
 
 // #include "common/PE/debug.hpp" // for debugging mpi
 

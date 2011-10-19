@@ -7,7 +7,7 @@
 #ifndef cf3_common_StreamHelpers_hpp
 #define cf3_common_StreamHelpers_hpp
 
-#include <Common/CF.hpp>
+#include "common/CF.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

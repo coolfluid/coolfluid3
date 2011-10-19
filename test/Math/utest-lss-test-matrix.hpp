@@ -18,10 +18,11 @@
 #include <iostream>
 
 #include <boost/assign/std/vector.hpp>
-#include <Common/CF.hpp>
-#include <Common/PE/Comm.hpp>
-#include <Common/PE/debug.hpp>
-#include <Common/BasicExceptions.hpp>
+
+#include "common/CF.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
+#include "common/BasicExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

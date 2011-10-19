@@ -13,7 +13,7 @@
 
 #include <boost/type_traits/is_pod.hpp>
 
-#include <Common/PE/types.hpp>
+#include "common/PE/types.hpp"
 // #include "common/PE/debug.hpp" // for debugging mpi
 
 ////////////////////////////////////////////////////////////////////////////////
