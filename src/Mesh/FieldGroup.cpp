@@ -323,6 +323,8 @@ Field& FieldGroup::field(const std::string& name) const
 
 void FieldGroup::on_mesh_changed_event( SignalArgs& args )
 {
+  CFdebug << "Triggering on_mesh_changed_event for FieldGroup " << uri().string() << CFendl;
+  
   Common::XML::SignalOptions options( args );
 
   URI mesh_uri = options.value<URI>("mesh_uri");
