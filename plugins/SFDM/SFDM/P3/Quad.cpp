@@ -10,13 +10,13 @@
 #include "SFDM/P3/Line.hpp"
 #include "SFDM/P4/Line.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 namespace P3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
   Quad_Builder(LibSFDM::library_namespace()+".P3."+Quad::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -87,7 +87,7 @@ Quad::Quad(const std::string& name) : ShapeFunction(name)
 
 const ShapeFunction& Quad::line() const
 {
-  const static ShapeFunction::ConstPtr line_sf(Common::allocate_component< P3::Line >(P3::Line::type_name()));
+  const static ShapeFunction::ConstPtr line_sf(common::allocate_component< P3::Line >(P3::Line::type_name()));
   return *line_sf;
 }
 
@@ -95,7 +95,7 @@ const ShapeFunction& Quad::line() const
 
 const ShapeFunction& Quad::flux_line() const
 {
-  const static ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< P4::Line >(P4::Line::type_name()));
+  const static ShapeFunction::ConstPtr flux_line_sf(common::allocate_component< P4::Line >(P4::Line::type_name()));
   return *flux_line_sf;
 }
 
@@ -210,4 +210,4 @@ const Mesh::GeoShape::Type Quad::shape;
 
 } // P3
 } // SFDM
-} // CF
+} // cf3

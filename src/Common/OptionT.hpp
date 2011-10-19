@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OptionT_hpp
-#define CF_Common_OptionT_hpp
+#ifndef cf3_common_OptionT_hpp
+#define cf3_common_OptionT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,8 +15,8 @@
 
 #include "Common/BasicExceptions.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -78,9 +78,9 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OptionT_hpp
+#endif // CF3_common_OptionT_hpp

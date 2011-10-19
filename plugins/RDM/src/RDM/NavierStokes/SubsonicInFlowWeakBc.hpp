@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SubsonicInFlowWeakBc_hpp
-#define CF_RDM_SubsonicInFlowWeakBc_hpp
+#ifndef cf3_RDM_SubsonicInFlowWeakBc_hpp
+#define cf3_RDM_SubsonicInFlowWeakBc_hpp
 
 #include <iostream> // to remove
 
@@ -16,7 +16,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; class Field; }
 
@@ -313,8 +313,8 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_SubsonicInFlowWeakBc_hpp
+#endif // CF3_RDM_SubsonicInFlowWeakBc_hpp

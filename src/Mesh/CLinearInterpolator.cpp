@@ -31,15 +31,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLinearInterpolator_Builder;
+cf3::common::ComponentBuilder < CLinearInterpolator, CInterpolator, LibMesh > CLinearInterpolator_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -628,4 +628,4 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

@@ -13,13 +13,13 @@
 
 using namespace std;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OSystemError::OSystemError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "OSystemError")
+OSystemError::OSystemError ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "OSystemError")
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ void OSystemLayer::execute_command(const std::string& call)
 
 std::string OSystemLayer::memory_usage_str () const
 {
-  const CF::Real bytes = memory_usage();
+  const cf3::Real bytes = memory_usage();
 
   std::ostringstream out;
   if (  bytes/1024 <= 1 ) {
@@ -68,6 +68,6 @@ std::string OSystemLayer::memory_usage_str () const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 

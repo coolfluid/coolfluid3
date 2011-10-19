@@ -80,11 +80,11 @@ list( APPEND coolfluid_solver_actions_proto_files
     Proto/Transforms.hpp
 )
 
-option( CF_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
+option( CF3_ENABLE_PROTO            "Build boost::proto related code for expressions"               ON )
 
-coolfluid_set_feature( Proto CF_ENABLE_PROTO "boost proto expressions" )
+coolfluid_set_feature( Proto CF3_ENABLE_PROTO "boost proto expressions" )
 
-if( CF_ENABLE_PROTO )
+if( CF3_ENABLE_PROTO )
   list( APPEND coolfluid_solver_actions_files ${coolfluid_solver_actions_proto_files} )
 else()
   coolfluid_mark_not_orphan( ${coolfluid_solver_actions_proto_files} )

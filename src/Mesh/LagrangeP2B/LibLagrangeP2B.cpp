@@ -8,11 +8,11 @@
 
 #include "Mesh/LagrangeP2B/LibLagrangeP2B.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP2B {
 
-CF::Common::RegistLibrary<LibLagrangeP2B> LibLagrangeP2B;
+cf3::common::RegistLibrary<LibLagrangeP2B> LibLagrangeP2B;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibLagrangeP2B::terminate_impl()
 
 } // LagrangeP2B
 } // Mesh
-} // CF
+} // cf3

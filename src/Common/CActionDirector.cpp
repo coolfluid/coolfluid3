@@ -21,8 +21,8 @@
 #include "CActionDirector.hpp"
 
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   
 ComponentBuilder < CActionDirector, CAction, LibCommon > CActionDirector_Builder;
 
@@ -167,5 +167,5 @@ void CActionDirector::on_action_added(CAction& action)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

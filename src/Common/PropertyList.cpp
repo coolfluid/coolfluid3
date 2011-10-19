@@ -13,8 +13,8 @@
 #include "Common/TypeInfo.hpp"
 #include "Common/URI.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -218,6 +218,6 @@ Common_TEMPLATE template Real PropertyList::value<Real>(const std::string &) con
 Common_TEMPLATE template std::string PropertyList::value<std::string>(const std::string &) const;
 Common_TEMPLATE template URI PropertyList::value<URI>(const std::string &) const;
 
-} // Common
-} // CF
+} // common
+} // cf3
 

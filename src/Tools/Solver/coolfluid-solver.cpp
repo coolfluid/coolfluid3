@@ -22,10 +22,10 @@
 #include "Tools/Solver/Notifier.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Tools::Solver;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Tools::Solver;
 
 int main(int argc, char ** argv)
 {

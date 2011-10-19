@@ -12,42 +12,42 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::build_type () const
 {
-  return CF_BUILD_TYPE;
+  return CF3_BUILD_TYPE;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::svn_version () const
 {
-  return CF_SVNVERSION;
+  return CF3_SVNVERSION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::release_version () const
 {
-  return CF_VERSION_STR;
+  return CF3_VERSION_STR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::kernel_version () const
 {
-  return CF_KERNEL_VERSION_STR;
+  return CF3_KERNEL_VERSION_STR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::build_processor () const
 {
-  return CF_BUILD_PROCESSOR;
+  return CF3_BUILD_PROCESSOR;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,9 +55,9 @@ std::string BuildInfo::build_processor () const
 std::string BuildInfo::build_tool () const
 {
   std::string ret;
-#ifdef CF_CMAKE_VERSION
+#ifdef CF3_CMAKE_VERSION
   ret += "CMake ";
-  ret += CF_CMAKE_VERSION;
+  ret += CF3_CMAKE_VERSION;
 #else
   ret += "UNKNOWN";
 #endif
@@ -68,28 +68,28 @@ std::string BuildInfo::build_tool () const
 
 std::string BuildInfo::os_name() const
 {
-  return CF_OS_NAME;
+  return CF3_OS_NAME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::os_long_name() const
 {
-  return CF_OS_LONGNAME;
+  return CF3_OS_LONGNAME;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::os_version() const
 {
-  return CF_OS_VERSION;
+  return CF3_OS_VERSION;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 std::string BuildInfo::os_bits() const
 {
-  return CF_OS_BITS;
+  return CF3_OS_BITS;
 }
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +109,7 @@ std::string BuildInfo::version_header() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 

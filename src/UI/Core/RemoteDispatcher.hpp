@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Core_RemoteDispatcher_hpp
-#define CF_UI_Core_RemoteDispatcher_hpp
+#ifndef cf3_UI_Core_RemoteDispatcher_hpp
+#define cf3_UI_Core_RemoteDispatcher_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -19,9 +19,9 @@ template<typename T> class QList;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { class ConnectionManager; }
+namespace common { class ConnectionManager; }
 
 namespace UI {
 namespace Core {
@@ -32,7 +32,7 @@ class NRoot;
 
 class RemoteDispatcher :
     public QObject,
-    public Common::SignalDispatcher
+    public common::SignalDispatcher
 {
   Q_OBJECT
 
@@ -43,13 +43,13 @@ public:
   void run ();
 
   virtual void dispatch_signal ( const std::string &target,
-                                 const Common::URI &receiver,
-                                 Common::SignalArgs &args );
+                                 const common::URI &receiver,
+                                 common::SignalArgs &args );
 
   /// @name SIGNALS
   // @{
 
-  void send_next_signal( Common::SignalArgs & args );
+  void send_next_signal( common::SignalArgs & args );
 
   // @}
 
@@ -59,7 +59,7 @@ signals:
 
 private:
 
-  QList< Common::SignalArgs > m_pendingSignals;
+  QList< common::SignalArgs > m_pendingSignals;
 
   std::string m_currentFrameId;
 
@@ -67,7 +67,7 @@ private:
 
   bool m_running;
 
-  Common::ConnectionManager * m_connectionManager;
+  common::ConnectionManager * m_connectionManager;
 
   void send_signal( Uint index );
 
@@ -77,8 +77,8 @@ private:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_RemoteDispatcher_hpp
+#endif // CF3_UI_Core_RemoteDispatcher_hpp

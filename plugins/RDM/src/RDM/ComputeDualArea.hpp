@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_ComputeDualArea_hpp
-#define CF_RDM_ComputeDualArea_hpp
+#ifndef cf3_RDM_ComputeDualArea_hpp
+#define cf3_RDM_ComputeDualArea_hpp
 
 #include "Common/OptionComponent.hpp"
 
@@ -22,7 +22,7 @@
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -170,7 +170,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
   m_options["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
@@ -208,7 +208,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 template<typename SF,typename QD >
 void ComputeDualArea::Term<SF,QD>::execute()
 {
-  using namespace CF::Math;
+  using namespace cf3::Math;
 
 //  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
 
@@ -264,6 +264,6 @@ void ComputeDualArea::Term<SF,QD>::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_ComputeDualArea_hpp
+#endif // CF3_RDM_ComputeDualArea_hpp

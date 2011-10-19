@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_PEOBJECTWRAPPER_HPP
-#define CF_Common_MPI_PEOBJECTWRAPPER_HPP
+#ifndef cf3_common_MPI_PEOBJECTWRAPPER_HPP
+#define cf3_common_MPI_PEOBJECTWRAPPER_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,8 +19,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common  {
+namespace cf3 {
+namespace common  {
 namespace PE  {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +76,7 @@ class Common_API CommWrapper : public Component {
     {
       if (sizeof(T)==size_of()) { buf.resize(map.size()*stride()); }
       else if (sizeof(T)==1)    { buf.resize(map.size()*stride()*size_of()); }
-      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      else throw common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
       pack(map,&buf[0]);
     }
 
@@ -87,7 +87,7 @@ class Common_API CommWrapper : public Component {
     {
       if (sizeof(T)==size_of()) { buf.resize(size()*stride()); }
       else if (sizeof(T)==1)    { buf.resize(size()*stride()*size_of()); }
-      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      else throw common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
       pack(&buf[0]);
     }
 
@@ -108,7 +108,7 @@ class Common_API CommWrapper : public Component {
     {
       if (sizeof(T)==size_of()) { }
       else if (sizeof(T)==1)    { }
-      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      else throw common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
       unpack(&buf[0],map);
     }
 
@@ -119,7 +119,7 @@ class Common_API CommWrapper : public Component {
     {
       if (sizeof(T)==size_of()) { }
       else if (sizeof(T)==1)    { }
-      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      else throw common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
       unpack(&buf[0]);
     }
 
@@ -188,7 +188,7 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     {
       if (sizeof(T)==cw->size_of()) { m_size=cw->size()*cw->stride(); }
       else if (sizeof(T)==1)    { m_size=cw->size()*cw->stride()*cw->size_of(); }
-      else throw Common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
+      else throw common::BadValue(FromHere(),"Sizeof T is neither size_of() nor one.");
       m_cw=cw;
       m_data=(T*)m_cw->start_view();
     }
@@ -248,7 +248,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     CommWrapperPtr(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "CommWrapperPtr<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperPtr<"+common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param data pointer to data
@@ -256,10 +256,10 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @param stride number of array element grouping
     void setup(T*& data, const int size, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride=(int)stride;
-      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (size%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
       m_needs_update=needs_update;
     }
@@ -270,10 +270,10 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @param stride number of array element grouping
     void setup(T** data, const int size, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=data;
       m_stride=(int)stride;
-      if (size%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (size%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_size=size/m_stride;
       m_needs_update=needs_update;
     }
@@ -284,9 +284,9 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       std::vector<int>::iterator imap=map.begin();
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
@@ -300,9 +300,9 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
     const void* pack(void* buf=nullptr) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_size*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)(m_size*m_stride); i++)
@@ -315,7 +315,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf, std::vector<int>& map) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       T* data=&(*m_data)[0];
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
@@ -327,7 +327,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)(m_size*m_stride); i++)
@@ -344,7 +344,7 @@ template<typename T> class CommWrapperPtr: public CommWrapper{
     void resize(const int size)
     {
       m_size=size;
-      throw Common::NotSupported(FromHere(), name() + " (CommWrapperPtr): Resizing a plain dynamic array is forbidden through CommWrapperPtr.");
+      throw common::NotSupported(FromHere(), name() + " (CommWrapperPtr): Resizing a plain dynamic array is forbidden through CommWrapperPtr.");
     }
 
     /// acts like a sizeof() operator
@@ -404,17 +404,17 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     CommWrapperVector(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "CommWrapperVector<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperVector<"+common::class_name<T>()+">"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
     /// @param stride number of array element grouping
     void setup(std::vector<T>& data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride=(int)stride;
-      if (data.size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (data.size()%stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
@@ -423,10 +423,10 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @param stride number of array element grouping
     void setup(std::vector<T>* data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=*data;
       m_stride=(int)stride;
-      if (data->size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (data->size()%stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
@@ -439,9 +439,9 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       std::vector<int>::iterator imap=map.begin();
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
@@ -454,9 +454,9 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
     const void* pack(void* buf=nullptr) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_data->size()+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*m_data)[0];
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)(m_data->size()); i++)
@@ -469,7 +469,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf, std::vector<int>& map) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       std::vector<int>::iterator imap=map.begin();
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
         for (int i=0; i<(const int)m_stride; i++)
@@ -480,7 +480,7 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf) const
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* data=&(*m_data)[0];
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)m_data->size(); i++)
@@ -491,8 +491,8 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// @param size new dimension size
     void resize(const int size)
     {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_data->resize(size*m_stride);
     }
 
@@ -503,8 +503,8 @@ template<typename T> class CommWrapperVector: public CommWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
     int size() const {
-      if (m_data==nullptr) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
-      if (m_data->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (m_data==nullptr) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       return m_data->size()/m_stride;
     }
 
@@ -554,18 +554,18 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     CommWrapperVectorWeakPtr(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "CommWrapperVectorWeakPtr<"+Common::class_name<T>()+">"; }
+    static std::string type_name () { return "CommWrapperVectorWeakPtr<"+common::class_name<T>()+">"; }
 
     /// setup
     /// @param std::vector of data
     /// @param stride number of array element grouping
     void setup(boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=data;
       m_stride=(int)stride;
       boost::shared_ptr< std::vector<T> > sp=data.lock();
-      if (sp->size()%stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (sp->size()%stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       m_needs_update=needs_update;
     }
 
@@ -578,9 +578,9 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       std::vector<int>::iterator imap=map.begin();
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
@@ -594,10 +594,10 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
     const void* pack(void* buf=nullptr) const
     {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       if (buf==nullptr) buf=new T[sp->size()+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* data=&(*sp)[0];
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)sp->size(); i++)
@@ -610,7 +610,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf, std::vector<int>& map) const
     {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       std::vector<int>::iterator imap=map.begin();
       for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
@@ -622,7 +622,7 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// @param pointer to the data to be committed back
     void unpack(void* buf) const
     {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
       T* data=&(*sp)[0];
       T* ibuf=(T*)buf;
@@ -634,9 +634,9 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// @param size new dimension size
     void resize(const int size)
     {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (sp->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       sp->resize(size*m_stride);
     }
 
@@ -647,9 +647,9 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array, if pointer is invalid then returns zero
     int size() const {
-      if (m_data.expired()) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      if (sp->size()%m_stride!=0) throw CF::Common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
+      if (sp->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
       return sp->size()/m_stride;
     }
 
@@ -687,9 +687,9 @@ template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
 ////////////////////////////////////////////////////////////////////////////////
 
 } // PE
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_PEOBJECTWRAPPER_HPP
+#endif // CF3_common_MPI_PEOBJECTWRAPPER_HPP

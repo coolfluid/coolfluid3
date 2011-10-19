@@ -16,12 +16,12 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CConnectivity , Component, LibMesh > CConnectivity_Builder;
+common::ComponentBuilder < CConnectivity , Component, LibMesh > CConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -78,4 +78,4 @@ void CConnectivity::set_lookup(CUnifiedData& lookup)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

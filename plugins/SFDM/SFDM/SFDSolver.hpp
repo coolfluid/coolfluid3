@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_SFDSolver_hpp
-#define CF_SFDM_SFDSolver_hpp
+#ifndef cf3_SFDM_SFDSolver_hpp
+#define cf3_SFDM_SFDSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,9 +17,9 @@
 #include "SFDM/InitialConditions.hpp"
 #include "SFDM/DomainDiscretization.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Common    { class CGroup; }
+namespace common    { class CGroup; }
 namespace Solver    { namespace Actions { class CSynchronizeFields; } }
 
 namespace SFDM {
@@ -80,9 +80,9 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  Common::CGroup&       actions()                { return *m_actions; }
+  common::CGroup&       actions()                { return *m_actions; }
   /// @returns the group of shared fields
-  Common::CGroup&       fields()                 { return *m_fields; }
+  common::CGroup&       fields()                 { return *m_fields; }
 
   Mesh::CMesh& mesh() { return *m_mesh.lock(); }
 
@@ -95,14 +95,14 @@ private: // functions
   void config_mesh();
 
   /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( Common::SignalArgs& args );
+  void on_mesh_changed_event( common::SignalArgs& args );
 
 private: // data
 
   bool m_mesh_configured;
 
-  boost::shared_ptr<Common::CGroup>          m_actions;               ///< the group of shared actions
-  boost::shared_ptr<Common::CGroup>          m_fields;                ///< the group of fields
+  boost::shared_ptr<common::CGroup>          m_actions;               ///< the group of shared actions
+  boost::shared_ptr<common::CGroup>          m_fields;                ///< the group of fields
 
   boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
   boost::weak_ptr<Mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates
@@ -119,8 +119,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_SFDSolver_hpp
+#endif // CF3_SFDM_SFDSolver_hpp

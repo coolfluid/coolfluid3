@@ -8,10 +8,10 @@
 #include "Common/RegistLibrary.hpp"
 #include "Common/LibCommon.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
-CF::Common::RegistLibrary<LibCommon> libCommon;
+cf3::common::RegistLibrary<LibCommon> libCommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,5 +25,5 @@ void LibCommon::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

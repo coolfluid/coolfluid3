@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CreateComponentDataType_hpp
-#define CF_Common_CreateComponentDataType_hpp
+#ifndef cf3_common_CreateComponentDataType_hpp
+#define cf3_common_CreateComponentDataType_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,4 +54,4 @@ private:                                                                       \
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CreateComponentDataType_hpp
+#endif // CF3_common_CreateComponentDataType_hpp

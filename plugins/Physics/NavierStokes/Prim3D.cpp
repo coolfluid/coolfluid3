@@ -8,13 +8,13 @@
 
 #include "Prim3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Prim3D,
+common::ComponentBuilder < NavierStokes::Prim3D,
                            Physics::Variables,
                            LibNavierStokes >
                            Builder_Prim3D;
@@ -30,4 +30,4 @@ Prim3D::~Prim3D() {}
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3

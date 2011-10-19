@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_BoostAssertions_hpp
-#define CF_Common_BoostAssertions_hpp
+#ifndef cf3_common_BoostAssertions_hpp
+#define cf3_common_BoostAssertions_hpp
 
 // disable boost assertions if compiled with -DNDEBUG
 #ifdef NDEBUG
@@ -30,4 +30,4 @@ void assertion_failed( char const * expr,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_BoostAssertions_hpp
+#endif // CF3_common_BoostAssertions_hpp

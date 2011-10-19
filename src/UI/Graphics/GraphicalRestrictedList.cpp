@@ -12,12 +12,12 @@
 
 #include "UI/Graphics/GraphicalRestrictedList.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -137,8 +137,8 @@ Common_TEMPLATE template void GraphicalRestrictedList::vectToStringList<T>(\
 
 TEMPLATE_EXPLICIT_INSTANTIATON( bool );
 TEMPLATE_EXPLICIT_INSTANTIATON( int );
-TEMPLATE_EXPLICIT_INSTANTIATON( CF::Uint );
-TEMPLATE_EXPLICIT_INSTANTIATON( CF::Real );
+TEMPLATE_EXPLICIT_INSTANTIATON( cf3::Uint );
+TEMPLATE_EXPLICIT_INSTANTIATON( cf3::Real );
 TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
 TEMPLATE_EXPLICIT_INSTANTIATON( URI );
 
@@ -148,4 +148,4 @@ TEMPLATE_EXPLICIT_INSTANTIATON( URI );
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

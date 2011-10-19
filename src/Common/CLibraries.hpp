@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CLibraries_hpp
-#define CF_Common_CLibraries_hpp
+#ifndef cf3_common_CLibraries_hpp
+#define cf3_common_CLibraries_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class CLibrary;
 
@@ -54,7 +54,7 @@ class CLibrary;
       typename LIB::Ptr lib;
       if ( is_null(clib) ) // doesnt exist so build it
       {
-        CF::Common::TypeInfo::instance().regist< LIB >( lname );
+        cf3::common::TypeInfo::instance().regist< LIB >( lname );
         lib = create_component_ptr< LIB >(lname);
         cf_assert( is_not_null(lib) );
         return lib;
@@ -109,9 +109,9 @@ class CLibrary;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CLibraries_hpp
+#endif // CF3_common_CLibraries_hpp

@@ -23,22 +23,22 @@
 
 #include "BoundaryConditions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 BoundaryConditions::BoundaryConditions ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -140,4 +140,4 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

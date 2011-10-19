@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMeshReader_hpp
-#define CF_Mesh_CMeshReader_hpp
+#ifndef cf3_Mesh_CMeshReader_hpp
+#define cf3_Mesh_CMeshReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -32,7 +32,7 @@ namespace Mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CMeshReader : public Common::Component {
+class Mesh_API CMeshReader : public common::Component {
 
 public: // typedefs
 
@@ -58,9 +58,9 @@ public: // functions
 
   /// @note: This doesn't read anything from the xml node argument.
   ///        It just reads the config options
-  void signal_read( Common::SignalArgs& node  );
+  void signal_read( common::SignalArgs& node  );
 
-  void read_signature( Common::SignalArgs & node );
+  void read_signature( common::SignalArgs & node );
 
   //@} END SIGNALS
 
@@ -75,7 +75,7 @@ public: // functions
   /// Read a given file to a given mesh. This calls a concrete implementation given by do_read_mesh_into
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  void read_mesh_into(const Common::URI& path, CMesh& mesh);
+  void read_mesh_into(const common::URI& path, CMesh& mesh);
 
 //  /// Read a given file and create a mesh
 //  /// @param [in]   path    the file to read in
@@ -112,15 +112,15 @@ private:
   /// this function implements the concrete mesh reading algorithm and is called by read_mesh_into
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  virtual void do_read_mesh_into(const Common::URI& path, CMesh& mesh) = 0;
+  virtual void do_read_mesh_into(const common::URI& path, CMesh& mesh) = 0;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshReader_hpp
+#endif // CF3_Mesh_CMeshReader_hpp

@@ -45,19 +45,19 @@ static char* string_to_utf8_alloc(const char* str) {
 
 } // extern "C"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Growl {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ComponentBuilder < Notifier, Component, LibGrowl > Notifier_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Notifier::Notifier ( const std::string& name ) :
-  Common::Component(name),
+  common::Component(name),
   m_application_name("COOLFluiD"),
   m_server("localhost"),
   m_password(),
@@ -215,6 +215,6 @@ void Notifier::signal_notify ( SignalArgs& node )
 
 } // Growl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

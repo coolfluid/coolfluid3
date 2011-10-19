@@ -13,11 +13,11 @@
 #include "Mesh/Field.hpp"
 #include "Mesh/CStencilComputer.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -96,4 +96,4 @@ void CInterpolator::interpolate()
 
 
 } // Mesh
-} // CF
+} // cf3

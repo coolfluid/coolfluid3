@@ -17,12 +17,12 @@
 
 #include "test/UI/Graphics/GraphicalRestrictedListTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -285,4 +285,4 @@ QComboBox * GraphicalRestrictedListTest::findComboBox(const GraphicalRestrictedL
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

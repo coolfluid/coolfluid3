@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_TypeInfo_hpp
-#define CF_Common_TypeInfo_hpp
+#ifndef cf3_common_TypeInfo_hpp
+#define cf3_common_TypeInfo_hpp
 
 #include <typeinfo>
 
@@ -13,13 +13,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /// Function to demangle the return of typeid()
 Common_API std::string demangle (const char* type);
 
-#define CF_DEMANGLE_TYPEID(a) CF::Common::demangle(typeid(a).name())
+#define cf3_DEMANGLE_TYPEID(a) CF::Common::demangle(typeid(a).name())
 
 /// @brief Handles type information
 /// This struct allows to associate a type to a string. It is a singleton.
@@ -89,9 +89,9 @@ void regist_typeinfo( TYPE* self )
   TypeInfo::instance().regist<TYPE>( TYPE::type_name() );
 }
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_TypeInfo_hpp
+#endif // CF3_common_TypeInfo_hpp

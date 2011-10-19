@@ -24,14 +24,14 @@
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
-using namespace Common::PE;
+using namespace common;
+using namespace common::XML;
+using namespace common::PE;
 
-Common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
+common::ComponentBuilder < CDomain, Component, LibMesh > CDomain_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ struct CDomain::Implementation
   }
 
 
-  void signature_load_mesh( Common::SignalArgs& node )
+  void signature_load_mesh( common::SignalArgs& node )
   {
     SignalOptions options( node );
 
@@ -60,7 +60,7 @@ struct CDomain::Implementation
   }
 
 
-  void signature_write_mesh( Common::SignalArgs& node )
+  void signature_write_mesh( common::SignalArgs& node )
   {
     SignalOptions options( node );
 
@@ -163,7 +163,7 @@ void CDomain::write_mesh(const URI& file)
 }
 
 
-void CDomain::signal_load_mesh ( Common::SignalArgs& node )
+void CDomain::signal_load_mesh ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -189,4 +189,4 @@ void CDomain::signal_write_mesh(SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

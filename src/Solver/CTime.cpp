@@ -10,12 +10,12 @@
 #include "Solver/LibSolver.hpp"
 #include "Solver/CTime.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CTime, Component, LibSolver > CTime_Builder;
+common::ComponentBuilder < CTime, Component, LibSolver > CTime_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -81,4 +81,4 @@ void CTime::trigger_timestep()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

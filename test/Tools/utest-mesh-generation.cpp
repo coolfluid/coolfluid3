@@ -20,9 +20,9 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 BOOST_AUTO_TEST_SUITE( MeshGenerationSuite )
 

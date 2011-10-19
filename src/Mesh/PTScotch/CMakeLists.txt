@@ -11,7 +11,7 @@ list( APPEND coolfluid_mesh_ptscotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
 set( coolfluid_mesh_ptscotch_kernellib TRUE )
 
-set( coolfluid_mesh_ptscotch_condition ${CF_HAVE_PTSCOTCH} )
+set( coolfluid_mesh_ptscotch_condition ${CF3_HAVE_PTSCOTCH} )
 
 coolfluid_add_library( coolfluid_mesh_ptscotch )
 

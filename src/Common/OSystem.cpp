@@ -11,19 +11,19 @@
 #include "Common/OSystemLayer.hpp"
 #include "Common/StringConversion.hpp"
 
-#ifdef CF_HAVE_DLOPEN
+#ifdef CF3_HAVE_DLOPEN
   #include "Common/PosixDlopenLibLoader.hpp"
 #endif
 
-#ifdef CF_OS_LINUX
+#ifdef CF3_OS_LINUX
   #include "Common/Linux/OSystemLayer.hpp"
 #endif
 
-#ifdef CF_OS_MACOSX
+#ifdef CF3_OS_MACOSX
   #include "Common/MacOSX/OSystemLayer.hpp"
 #endif
 
-#ifdef CF_OS_WINDOWS
+#ifdef CF3_OS_WINDOWS
   #include "Common/Win32/OSystemLayer.hpp"
   #include "Common/Win32/LibLoader.hpp"
 #else
@@ -38,8 +38,8 @@
 
 using namespace std;
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -50,17 +50,17 @@ OSystem::OSystem() :
   m_layer.reset();
   m_lib_loader.reset();
 
-#ifdef CF_HAVE_DLOPEN
+#ifdef CF3_HAVE_DLOPEN
     if ( is_null( m_lib_loader ) )   m_lib_loader.reset( new PosixDlopenLibLoader() );
 #endif
 
-#ifdef CF_OS_LINUX
+#ifdef CF3_OS_LINUX
     if ( is_null( m_layer ) ) m_layer.reset( new Linux::OSystemLayer() );
 #else
-#ifdef CF_OS_MACOSX
+#ifdef CF3_OS_MACOSX
     if ( is_null( m_layer ) ) m_layer.reset( new MacOSX::OSystemLayer() );
 #else
-#ifdef CF_OS_WINDOWS
+#ifdef CF3_OS_WINDOWS
     if ( is_null( m_layer ) ) m_layer.reset( new Win32::OSystemLayer() );
     if ( is_null( m_lib_loader ) )   m_lib_loader.reset( new Win32::LibLoader() );
 #else
@@ -72,7 +72,7 @@ OSystem::OSystem() :
     cf_assert ( is_not_null( m_layer ) );
     cf_assert ( is_not_null( m_lib_loader   ) );
   
-  std::vector< boost::filesystem::path > default_paths(1, boost::filesystem::path(CF_BUILD_DIR) / boost::filesystem::path("dso"));
+  std::vector< boost::filesystem::path > default_paths(1, boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso"));
   m_lib_loader->set_search_paths(default_paths);
 }
 
@@ -104,7 +104,7 @@ boost::shared_ptr<LibLoader> OSystem::lib_loader()
 
 void OSystem::setenv(const string& name, const string& value)
 {
-#ifdef CF_OS_WINDOWS
+#ifdef CF3_OS_WINDOWS
   ::putenv_s(name.c_str(), value.c_str());
 #else
   ::setenv(name.c_str(), value.c_str(), true);
@@ -113,5 +113,5 @@ void OSystem::setenv(const string& name, const string& value)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-} // CF
+  } // common
+} // cf3

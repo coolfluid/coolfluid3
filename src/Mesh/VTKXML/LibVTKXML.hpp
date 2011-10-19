@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibVTKXML_hpp
-#define CF_LibVTKXML_hpp
+#ifndef cf3_LibVTKXML_hpp
+#define cf3_LibVTKXML_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,18 +16,18 @@
 /// Define the macro VTKXML_API
 /// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling VTKXML files
 #ifdef COOLFLUID_GMSH_EXPORTS
-#   define VTKXML_API      CF_EXPORT_API
+#   define VTKXML_API      CF3_EXPORT_API
 #   define VTKXML_TEMPLATE
 #else
-#   define VTKXML_API      CF_IMPORT_API
-#   define VTKXML_TEMPLATE CF_TEMPLATE_EXTERN
+#   define VTKXML_API      CF3_IMPORT_API
+#   define VTKXML_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 /// @brief Library for I/O of the VTK XML format
@@ -38,7 +38,7 @@ namespace VTKXML {
 /// Class defines the VTKXMLtral mesh format operations
 /// @author Willem Deconinck
 class VTKXML_API LibVTKXML :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -46,7 +46,7 @@ public:
   typedef boost::shared_ptr<LibVTKXML const> ConstPtr;
 
   /// Constructor
-  LibVTKXML ( const std::string& name) : Common::CLibrary(name) {   }
+  LibVTKXML ( const std::string& name) : common::CLibrary(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.VTKXML"; }
@@ -82,8 +82,8 @@ protected:
 
 } // VTKXML
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibVTKXML_hpp
+#endif // CF3_LibVTKXML_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CSpace_hpp
-#define CF_Mesh_CSpace_hpp
+#ifndef cf3_Mesh_CSpace_hpp
+#define cf3_Mesh_CSpace_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 #include "Mesh/CEntities.hpp"
 #include "CConnectivity.hpp"
 
-namespace CF {
-namespace Common { class CLink; }
+namespace cf3 {
+namespace common { class CLink; }
 namespace Mesh {
 
   class ElementType;
@@ -28,7 +28,7 @@ namespace Mesh {
 /// CSpace component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API CSpace : public Common::Component {
+class Mesh_API CSpace : public common::Component {
 
 public: // typedefs
 
@@ -108,7 +108,7 @@ protected: // data
   /// node_connectivity or state_connectivity for this space
   boost::shared_ptr<CConnectivity> m_connectivity;
 
-  boost::shared_ptr<Common::CLink> m_bound_fields;
+  boost::shared_ptr<common::CLink> m_bound_fields;
 
   /// keyword "mutable" means that this variable can be changed using a
   /// const access function.
@@ -127,8 +127,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CSpace_hpp
+#endif // CF3_Mesh_CSpace_hpp

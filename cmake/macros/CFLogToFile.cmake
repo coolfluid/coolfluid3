@@ -18,7 +18,7 @@ endmacro()
 # this macro logs to screen if we are verbose
 ##############################################################################
 macro( coolfluid_log_verbose line )
-    if( CF_CMAKE_VERBOSE )
+    if( CF3_CMAKE_VERBOSE )
       coolfluid_log( ${line} )
     else()
       coolfluid_log_file( ${line} )

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_CentralPanel_h
-#define CF_GUI_Graphics_CentralPanel_h
+#ifndef cf3_GUI_Graphics_CentralPanel_h
+#define cf3_GUI_Graphics_CentralPanel_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ class QSplitter;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Core { class CommitDetails; }
@@ -182,7 +182,7 @@ namespace Graphics {
     /// All existing options in the layouts are removed.
     /// @param list The list of options to set. Can be empty.
     /// @todo why don't we use PropertyList?
-    void setOptions(const QList<CF::Common::Option::ConstPtr> & list);
+    void setOptions(const QList<cf3::common::Option::ConstPtr> & list);
 
     /// Set the buttons to a visible/invisible state.
 
@@ -200,8 +200,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_CentralPanel_h
+#endif // CF3_GUI_Graphics_CentralPanel_h

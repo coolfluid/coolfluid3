@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_Transforms_hpp
-#define CF_Solver_Actions_Proto_Transforms_hpp
+#ifndef cf3_Solver_Actions_Proto_Transforms_hpp
+#define cf3_Solver_Actions_Proto_Transforms_hpp
 
 #include <boost/fusion/container/vector/convert.hpp>
 #include <boost/mpl/max.hpp>
@@ -26,7 +26,7 @@
 /// @file
 /// Some generally useful transforms, not bound to mesh or node related expressions
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -306,4 +306,4 @@ struct DeepCopy : //boost::proto::functional::deep_copy
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_Transforms_hpp
+#endif // CF3_Solver_Actions_Proto_Transforms_hpp

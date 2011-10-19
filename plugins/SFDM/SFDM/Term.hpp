@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Term_hpp
-#define CF_SFDM_Term_hpp
+#ifndef cf3_SFDM_Term_hpp
+#define cf3_SFDM_Term_hpp
 
 #include "Solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh   { class Field; class FieldGroup; class CCells; }
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API Term : public CF::Solver::Action {
+class SFDM_API Term : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -74,6 +74,6 @@ protected: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_Term_hpp
+#endif // CF3_SFDM_Term_hpp

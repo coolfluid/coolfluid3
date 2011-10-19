@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP1_ElementTypes_hpp
-#define CF_Mesh_LagrangeP1_ElementTypes_hpp
+#ifndef cf3_Mesh_LagrangeP1_ElementTypes_hpp
+#define cf3_Mesh_LagrangeP1_ElementTypes_hpp
 
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/vector.hpp>
@@ -22,7 +22,7 @@
 #include "Mesh/LagrangeP1/Hexa3D.hpp"
 #include "Mesh/LagrangeP1/Tetra3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
@@ -49,6 +49,6 @@ typedef boost::mpl::filter_view<ElementTypes, IsEdgeType> EdgeTypes;
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_LagrangeP1_ElementTypes_hpp
+#endif // CF3_Mesh_LagrangeP1_ElementTypes_hpp

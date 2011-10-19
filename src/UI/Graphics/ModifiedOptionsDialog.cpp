@@ -13,11 +13,11 @@
 
 #include "UI/Graphics/ModifiedOptionsDialog.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -68,4 +68,4 @@ void ModifiedOptionsDialog::show(CommitDetails & details)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

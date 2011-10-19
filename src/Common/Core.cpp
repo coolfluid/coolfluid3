@@ -29,8 +29,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +145,7 @@ CRoot& Core::root() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::EventHandler& Core::event_handler() const
+common::EventHandler& Core::event_handler() const
 {
   cf_assert(m_event_handler != nullptr);
   return *m_event_handler;
@@ -153,7 +153,7 @@ Common::EventHandler& Core::event_handler() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::BuildInfo& Core::build_info() const
+common::BuildInfo& Core::build_info() const
 {
   cf_assert(m_build_info != nullptr);
   return *m_build_info;
@@ -161,7 +161,7 @@ Common::BuildInfo& Core::build_info() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::CEnv& Core::environment() const
+common::CEnv& Core::environment() const
 {
   cf_assert(m_environment != nullptr);
   return *m_environment;
@@ -169,7 +169,7 @@ Common::CEnv& Core::environment() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::CLibraries&  Core::libraries() const
+common::CLibraries&  Core::libraries() const
 {
   cf_assert(m_libraries != nullptr);
   return *m_libraries;
@@ -177,7 +177,7 @@ Common::CLibraries&  Core::libraries() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::CFactories& Core::factories() const
+common::CFactories& Core::factories() const
 {
   cf_assert(m_factories != nullptr);
   return *m_factories;
@@ -185,7 +185,7 @@ Common::CFactories& Core::factories() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::CGroup& Core::tools() const
+common::CGroup& Core::tools() const
 {
   return root().get_child("Tools").as_type<CGroup>();
 }
@@ -220,5 +220,5 @@ NetworkInfo& Core::network_info () const
 ////////////////////////////////////////////////////////////////////////////////
 
 
-} // Common
-} // CF
+} // common
+} // cf3

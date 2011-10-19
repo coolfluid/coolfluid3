@@ -29,14 +29,14 @@
 #include "UI/Server/ServerNetworkComm.hpp"
 
 using namespace std;
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::UICommon;
-using namespace CF::UI::Server;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::UICommon;
+using namespace cf3::UI::Server;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -422,4 +422,4 @@ void ServerNetworkComm::error(const QString & message)
 
 } // Server
 } // UI
-} // CF
+} // cf3

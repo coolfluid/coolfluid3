@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_IndexLooping_hpp
-#define CF_Solver_Actions_Proto_IndexLooping_hpp
+#ifndef cf3_Solver_Actions_Proto_IndexLooping_hpp
+#define cf3_Solver_Actions_Proto_IndexLooping_hpp
 
 #include <boost/proto/core.hpp>
 
 /// @file
 /// Loop over indices that range over the dimension of the problem
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -189,4 +189,4 @@ struct IndexLooper : boost::proto::transform< IndexLooper<GrammarT> >
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_IndexLooping_hpp
+#endif // CF3_Solver_Actions_Proto_IndexLooping_hpp

@@ -14,10 +14,10 @@
 
 #include "DummyTerm.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ComponentBuilder<DummyTerm,Term,LibSFDM> DummyTerm_builder;
@@ -49,6 +49,6 @@ void DummyTerm::execute()
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////

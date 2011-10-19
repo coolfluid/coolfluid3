@@ -10,12 +10,12 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -78,4 +78,4 @@ void NJournal::list_journal(SignalArgs &)
 
 } // Core
 } // UI
-} // CF
+} // cf3

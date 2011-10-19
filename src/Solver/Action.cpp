@@ -18,16 +18,16 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Action::Action ( const std::string& name ) :
-  Common::CAction(name)
+  common::CAction(name)
 {
   mark_basic();
 
@@ -64,7 +64,7 @@ Physics::PhysModel& Action::physical_model()
 {
   Physics::PhysModel::Ptr model = m_physical_model.lock();
   if( is_null(model) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
   return *model;
 }
@@ -75,7 +75,7 @@ CMesh& Action::mesh()
 {
   CMesh::Ptr m = m_mesh.lock();
   if( is_null(m) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );
   return *m;
 }
@@ -85,7 +85,7 @@ Solver::CSolver& Action::solver()
 {
   Solver::CSolver::Ptr s = m_solver.lock();
   if( is_null(s) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
   return *s;
 }
@@ -118,4 +118,4 @@ void Action::config_regions()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

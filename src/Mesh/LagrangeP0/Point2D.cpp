@@ -13,18 +13,18 @@
 #include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 #include "Mesh/LagrangeP0/Point2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Point2D>, ElementType , LibLagrangeP0 >
+common::ComponentBuilder < ElementTypeT<Point2D>, ElementType , LibLagrangeP0 >
    Point2D_Builder(LibLagrangeP0::library_namespace()+"."+Point2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Point2D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Point2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -38,10 +38,10 @@ const CF::Mesh::ElementType::FaceConnectivity& Point2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Point2D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Point2D::face_type(const cf3::Uint face)
 {
-  throw Common::NotImplemented(FromHere(), "LagrangeP0::Point2D Does not have a face type");
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Point2D> >(Point2D::type_name()) );
+  throw common::NotImplemented(FromHere(), "LagrangeP0::Point2D Does not have a face type");
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Point2D> >(Point2D::type_name()) );
   return *facetype;
 }
 
@@ -78,4 +78,4 @@ Real Point2D::area(const NodesT& nodes)
 
 } // LagrangeP0
 } // Mesh
-} // CF
+} // cf3

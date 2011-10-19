@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Triag.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP1 >
+common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP1 >
    Triag_Builder(LibLagrangeP1::library_namespace()+"."+Triag::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,4 +59,4 @@ const RealMatrix& Triag::local_coordinates()
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

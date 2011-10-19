@@ -15,16 +15,16 @@
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/N.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < N, RDM::CellTerm, LibSchemes > N_Builder;
+common::ComponentBuilder < N, RDM::CellTerm, LibSchemes > N_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,4 +54,4 @@ void N::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

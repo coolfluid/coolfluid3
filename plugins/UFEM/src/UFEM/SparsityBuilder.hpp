@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_SparsityBuilder_hpp
-#define CF_UFEM_SparsityBuilder_hpp
+#ifndef cf3_UFEM_SparsityBuilder_hpp
+#define cf3_UFEM_SparsityBuilder_hpp
 
 #include "UFEM/LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
   namespace Mesh { class CMesh; }
 namespace UFEM {
 
@@ -26,6 +26,6 @@ void UFEM_API build_sparsity(const Mesh::CMesh& mesh, std::vector<Uint>& node_co
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // UFEM
-} // CF
+} // cf3
 
-#endif // CF_UFEM_SparsityBuilder_hpp
+#endif // CF3_UFEM_SparsityBuilder_hpp

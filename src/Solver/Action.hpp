@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Action_hpp
-#define CF_Solver_Action_hpp
+#ifndef cf3_Solver_Action_hpp
+#define cf3_Solver_Action_hpp
 
 #include "Common/CAction.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CRegion; class CMesh; }
 namespace Physics { class PhysModel; }
@@ -23,7 +23,7 @@ class CTime;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API Action : public Common::CAction {
+class Solver_API Action : public common::CAction {
 
 public: // typedefs
 
@@ -56,7 +56,7 @@ public: // functions
   Physics::PhysModel& physical_model();
 
   /// @returns the regions this action is operating on
-  Common::ComponentIteratorRange<Mesh::CRegion> regions();
+  common::ComponentIteratorRange<Mesh::CRegion> regions();
 
   //@} END ACCESSORS
 
@@ -81,6 +81,6 @@ protected: // data
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_Action_hpp
+#endif // CF3_Solver_Action_hpp

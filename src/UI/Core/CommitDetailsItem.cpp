@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -50,4 +50,4 @@ QString CommitDetailsItem::optionName() const
 
 } // Core
 } // UI
-} // CF
+} // cf3

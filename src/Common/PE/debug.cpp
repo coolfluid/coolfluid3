@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Common_MPI_debug_HPP
-#define CF_Common_MPI_debug_HPP
+#ifndef cf3_common_MPI_debug_HPP
+#define cf3_common_MPI_debug_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,4 +39,4 @@ void wait_for_debugger(const int rank)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_debug_HPP
+#endif // CF3_common_MPI_debug_HPP

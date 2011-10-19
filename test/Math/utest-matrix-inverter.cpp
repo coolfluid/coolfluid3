@@ -20,11 +20,11 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
-using namespace CF::Math::Checks;
-using namespace CF::Math::Consts;
+using namespace cf3::Math::Checks;
+using namespace cf3::Math::Consts;
 
 using namespace Eigen;
 

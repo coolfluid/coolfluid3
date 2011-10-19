@@ -8,11 +8,11 @@
 
 #include "UI/Core/LibCore.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
-CF::Common::RegistLibrary<LibCore> LibCore;
+cf3::common::RegistLibrary<LibCore> LibCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibCore::terminate_impl()
 
 } // Client
 } // UI
-} // CF
+} // cf3

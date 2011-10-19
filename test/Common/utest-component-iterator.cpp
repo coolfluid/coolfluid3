@@ -19,8 +19,8 @@
 
 #include "Common/StringConversion.hpp"
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -736,17 +736,17 @@ BOOST_AUTO_TEST_CASE( test_new_range )
   BOOST_FOREACH( Component& comp, new_range )
     CFLogVar(comp.name());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   ComponentIteratorRange<CGroup> new_range2 ( root().begin<CGroup>(), root().end<CGroup>() );
   BOOST_FOREACH( CGroup& comp, new_range2 )
     CFLogVar(comp.name());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   ComponentIteratorRange<const CGroup,IsComponentName> new_range5 ( const_root().begin<CGroup const>(), const_root().end<CGroup const>(), IsComponentName("group1") );
   BOOST_FOREACH( const CGroup& comp, new_range5 )
     CFLogVar(comp.name());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   typedef ComponentIteratorRange<CGroup,IsComponentName> filtered_range;
   typedef ComponentIteratorRange<CGroup> group_range;
 
@@ -757,26 +757,26 @@ BOOST_AUTO_TEST_CASE( test_new_range )
   CFLogVar(group_range(root().begin<CGroup>(),root().end<CGroup>()).as_const_vector().size());
   CFLogVar(group_range(root().begin<CGroup>(),root().end<CGroup>()).size());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   BOOST_FOREACH( CGroup& comp, make_new_range(root().begin<CGroup>(),root().end<CGroup>(),IsComponentName("group1")) )
     CFLogVar(comp.name());
 
   BOOST_FOREACH( const CGroup& comp, make_new_range(const_root().begin<CGroup>(),const_root().end<CGroup>(),IsComponentName("group1")) )
     CFLogVar(comp.name());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   ConstComponentIteratorRange<CGroup> new_range3 ( const_root().begin<CGroup>(), const_root().end<CGroup>() );
   BOOST_FOREACH( const CGroup& comp, new_range3 )
     CFLogVar(comp.name());
 
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
   ConstComponentIteratorRange<CGroup> new_range6 ( root().begin<CGroup const>(), root().end<CGroup const>() );
   BOOST_FOREACH( const CGroup& comp, new_range6 )
     CFLogVar(comp.name());
   CFLogVar(new_range6.size());
 
   //
-  // CF_DEBUG_POINT;
+  // CF3_DEBUG_POINT;
   // BOOST_FOREACH( const CGroup& comp, ConstComponentIteratorRange<CGroup>(const_root()) )
   //   CFLogVar(comp.name());
 

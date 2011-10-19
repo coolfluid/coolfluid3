@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_LibCommon_hpp
-#define CF_Common_LibCommon_hpp
+#ifndef cf3_common_LibCommon_hpp
+#define cf3_common_LibCommon_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,14 +15,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// COOLFluiD Classes
-namespace CF {
+namespace cf3 {
 
 /// Common Classes for Component Environment
-namespace Common {
+namespace common {
 
 /// Class defines the initialization and termination of the library Mesh
 /// @author Tiago Quintino
-class Common_API LibCommon : public Common::CLibrary
+class Common_API LibCommon : public common::CLibrary
 {
 public:
 
@@ -30,7 +30,7 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : Common::CLibrary(name) {   }
+  LibCommon ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -63,9 +63,9 @@ protected:
 
 }; // LibCommon
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LibCommon_hpp
+#endif // CF3_common_LibCommon_hpp

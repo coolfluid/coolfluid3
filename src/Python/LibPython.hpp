@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibPython_hpp
-#define CF_LibPython_hpp
+#ifndef cf3_LibPython_hpp
+#define cf3_LibPython_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Python_API
 /// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_SOLVER_EXPORTS
-#   define Python_API      CF_EXPORT_API
+#   define Python_API      CF3_EXPORT_API
 #   define Python_TEMPLATE
 #else
-#   define Python_API      CF_IMPORT_API
-#   define Python_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Python_API      CF3_IMPORT_API
+#   define Python_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   /// Basic Classes for Python wrapper classes used by CF
   namespace Python {
@@ -34,7 +34,7 @@ namespace CF {
 
   /// Class defines the initialization and termination of the library Python
   /// @author Bart Janssens
-  class Python_API LibPython : public Common::CLibrary {
+  class Python_API LibPython : public common::CLibrary {
 
   public:
 
@@ -42,7 +42,7 @@ namespace CF {
     typedef boost::shared_ptr<LibPython const> ConstPtr;
 
     /// Constructor
-    LibPython ( const std::string& name) : Common::CLibrary(name) {   }
+    LibPython ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -79,8 +79,8 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibPython_hpp
+#endif // CF3_LibPython_hpp

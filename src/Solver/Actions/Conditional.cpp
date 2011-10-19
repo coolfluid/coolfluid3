@@ -13,13 +13,13 @@
 #include "Solver/Actions/Conditional.hpp"
 #include "Solver/Actions/CCriterion.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < Conditional, CAction, LibActions > Conditional_Builder;
+common::ComponentBuilder < Conditional, CAction, LibActions > Conditional_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -73,4 +73,4 @@ void Conditional::execute ()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

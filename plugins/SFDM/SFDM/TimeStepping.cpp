@@ -25,24 +25,24 @@
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < TimeStepping, CAction, LibSFDM > TimeStepping_Builder;
+common::ComponentBuilder < TimeStepping, CAction, LibSFDM > TimeStepping_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 TimeStepping::TimeStepping ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -146,10 +146,10 @@ void TimeStepping::raise_timestep_done()
 
   SignalFrame frame = opts.create_frame("timestep_done", uri(), URI());
 
-  Common::Core::instance().event_handler().raise_event( "timestep_done", frame);
+  common::Core::instance().event_handler().raise_event( "timestep_done", frame);
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
 } // SFDM
-} // CF
+} // cf3

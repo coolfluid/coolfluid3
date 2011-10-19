@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CEigenLSS_hpp
-#define CF_Solver_CEigenLSS_hpp
+#ifndef cf3_Solver_CEigenLSS_hpp
+#define cf3_Solver_CEigenLSS_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,8 +22,8 @@
 
 #include "LibSolver.hpp"
 
-namespace CF {
-  namespace Common { class URI; }
+namespace cf3 {
+  namespace common { class URI; }
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ namespace Solver {
 /// CEigenLSS component class
 /// This class stores a linear system for use by proto expressions
 /// @author Bart Janssens
-class Solver_API CEigenLSS : public Common::Component {
+class Solver_API CEigenLSS : public common::Component {
 
 public: // typedefs
 
@@ -47,7 +47,7 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "CEigenLSS"; }
 
-  void set_config_file(const Common::URI& path);
+  void set_config_file(const common::URI& path);
 
   /// Set the number of equations
   void resize ( Uint nb_dofs );
@@ -100,9 +100,9 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CEigenLSS_hpp
+#endif // CF3_Solver_CEigenLSS_hpp

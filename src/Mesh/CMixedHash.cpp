@@ -16,12 +16,12 @@
 #include "Mesh/CMixedHash.hpp"
 #include "Mesh/CHash.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
-Common::ComponentBuilder < CMixedHash, Component, LibMesh > CMixedHash_Builder;
+common::ComponentBuilder < CMixedHash, Component, LibMesh > CMixedHash_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -202,4 +202,4 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

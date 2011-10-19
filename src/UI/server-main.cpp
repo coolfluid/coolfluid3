@@ -33,12 +33,12 @@
 #include "Common/Core.hpp"
 
 using namespace boost;
-using namespace CF::Common::PE;
-using namespace CF::UI::Server;
+using namespace cf3::common::PE;
+using namespace cf3::UI::Server;
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 int main(int argc, char *argv[])
 {
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     // spawn the
     CPEManager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<CPEManager>();
-    mgr->spawn_group("Workers", nb_workers, (std::string(CF_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver").c_str());
+    mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver").c_str());
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)

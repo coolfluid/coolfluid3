@@ -8,11 +8,11 @@
 
 #include "Mesh/VTKXML/LibVTKXML.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace VTKXML {
 
-CF::Common::RegistLibrary<LibVTKXML> libVTKXML;
+cf3::common::RegistLibrary<LibVTKXML> libVTKXML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibVTKXML::terminate_impl()
 
 } // VTKXML
 } // Mesh
-} // CF
+} // cf3

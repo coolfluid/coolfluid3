@@ -25,11 +25,11 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -487,4 +487,4 @@ void CSimpleMeshGenerator::create_rectangle()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

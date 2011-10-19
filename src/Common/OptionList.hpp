@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OptionList_hpp
-#define CF_Common_OptionList_hpp
+#ifndef cf3_common_OptionList_hpp
+#define cf3_common_OptionList_hpp
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -13,8 +13,8 @@
 
 #include "Common/Option.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 //class Component;
 //template<typename T> class OptionComponent;
@@ -140,9 +140,9 @@ namespace Common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OptionList_hpp
+#endif // CF3_common_OptionList_hpp

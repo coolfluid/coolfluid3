@@ -11,11 +11,11 @@
 #include "UI/Graphics/FilesListItem.hpp"
 #include "UI/Graphics/NRemoteOpen.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -121,4 +121,4 @@ void NRemoteOpen::reinitValues()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

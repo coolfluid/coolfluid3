@@ -14,7 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -193,4 +193,4 @@ void CommitDetails::setNodePath(const QString & nodePath)
 
 } // Core
 } // UI
-} // CF
+} // cf3

@@ -15,8 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 using namespace XML;
 
@@ -62,5 +62,5 @@ Connection* ConnectionManager::manage_connection( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

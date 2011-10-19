@@ -28,15 +28,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Neu {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::Neu::CWriter,
+common::ComponentBuilder < Mesh::Neu::CWriter,
                            Mesh::CMeshWriter,
                            Mesh::Neu::LibNeu>
 aNeuWriter_Builder;
@@ -360,4 +360,4 @@ void CWriter::write_boundaries(std::fstream& file)
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3

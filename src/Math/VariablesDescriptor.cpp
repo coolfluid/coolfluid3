@@ -21,10 +21,10 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ struct VariablesDescriptor::Implementation
     m_component(component),
     m_dim(0u)
   {
-    m_component.options().add_option< OptionT<Uint> >(Common::Tags::dimension(), 0)
+    m_component.options().add_option< OptionT<Uint> >(common::Tags::dimension(), 0)
       ->pretty_name("Dimension")
       ->description("Dimension of the problem, i.e. the number of components for the spatial coordinates")
       ->mark_basic()
@@ -448,7 +448,7 @@ void VariablesDescriptor::set_variables(const std::string& description)
 
 void VariablesDescriptor::set_variables(const std::string& description, const Uint dimension)
 {
-  configure_option(Common::Tags::dimension(), dimension);
+  configure_option(common::Tags::dimension(), dimension);
   m_implementation->set_variables(description);
 }
 
@@ -462,4 +462,4 @@ void VariablesDescriptor::prefix_variable_names(const std::string& prefix)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3

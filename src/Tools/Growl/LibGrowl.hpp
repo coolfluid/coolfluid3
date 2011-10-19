@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Growl_LibGrowl_hpp
-#define CF_Tools_Growl_LibGrowl_hpp
+#ifndef cf3_Tools_Growl_LibGrowl_hpp
+#define cf3_Tools_Growl_LibGrowl_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_TOOLS_GROWL_EXPORTS when compiling
 /// Growl files
 #ifdef COOLFLUID_TOOLS_GROWL_EXPORTS
-#   define Tools_Growl_API      CF_EXPORT_API
+#   define Tools_Growl_API      CF3_EXPORT_API
 #   define Tools_Growl_TEMPLATE
 #else
-#   define Tools_Growl_API      CF_IMPORT_API
-#   define Tools_Growl_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Tools_Growl_API      CF3_IMPORT_API
+#   define Tools_Growl_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 
 /// @brief Classes for %Growl desktop notifications using the GNTP protocol
@@ -41,7 +41,7 @@ namespace Growl {
 ///
 /// @see Growl::Notifier
 /// @author Willem Deconinck
-class Tools_Growl_API LibGrowl : public Common::CLibrary
+class Tools_Growl_API LibGrowl : public common::CLibrary
 {
 public:
 
@@ -49,7 +49,7 @@ public:
   typedef boost::shared_ptr<LibGrowl const> ConstPtr;
 
   /// Constructor
-  LibGrowl ( const std::string& name) : Common::CLibrary(name) {   }
+  LibGrowl ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -87,8 +87,8 @@ protected:
 
 } // Growl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Growl_LibGrowl_hpp
+#endif // CF3_Tools_Growl_LibGrowl_hpp

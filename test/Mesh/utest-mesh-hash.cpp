@@ -14,9 +14,9 @@
 #include "Mesh/CHash.hpp"
 #include "Mesh/CMixedHash.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
-#define CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#ifndef cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#define cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp
 
 // Checks whether a code throws a specified exception.
 // If the exception was not thrown or another was, QFAIL() is called
@@ -58,4 +58,4 @@ catch ( ... ) \
   return;\
 }
 
-#endif // CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#endif // CF3_GUI_Client_uTests_ExceptionThrowHandler_hpp

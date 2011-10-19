@@ -26,14 +26,14 @@
 #include "UI/Graphics/GraphicalUri.hpp"
 #include "UI/Graphics/GraphicalUriArray.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::Math;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -182,4 +182,4 @@ void GraphicalValue::commit()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

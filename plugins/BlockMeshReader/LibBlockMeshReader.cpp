@@ -8,10 +8,10 @@
 
 #include "BlockMeshReader/LibBlockMeshReader.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
-CF::Common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
+cf3::common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,4 +26,4 @@ void LibBlockMeshReader::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMeshReader
-} // CF
+} // cf3

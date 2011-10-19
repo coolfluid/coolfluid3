@@ -8,14 +8,14 @@
 
 #include "Mesh/CCells.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CCells, CEntities, LibMesh > CCells_Builder;
+common::ComponentBuilder < CCells, CEntities, LibMesh > CCells_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,4 +44,4 @@ void CCells::initialize(const std::string& element_type_name, Geometry& nodes)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

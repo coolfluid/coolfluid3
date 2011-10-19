@@ -12,8 +12,8 @@
 #ifndef DUMMYCOMPONENTS_HPP
 #define DUMMYCOMPONENTS_HPP
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class CAbstract : public Component
 {
@@ -105,11 +105,11 @@ public: // functions
 };
 
 
-CF::Common::ComponentBuilder < CConcrete1, CAbstract, LibCommon > aConcrete1Component_Builder;
+cf3::common::ComponentBuilder < CConcrete1, CAbstract, LibCommon > aConcrete1Component_Builder;
 
-CF::Common::ComponentBuilder < CConcrete2, CAbstract, LibCommon > aConcrete2Component_Builder;
+cf3::common::ComponentBuilder < CConcrete2, CAbstract, LibCommon > aConcrete2Component_Builder;
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 #endif // DUMMYCOMPONENTS_HPP

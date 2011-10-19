@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CDomain_hpp
-#define CF_Mesh_CDomain_hpp
+#ifndef cf3_Mesh_CDomain_hpp
+#define cf3_Mesh_CDomain_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -24,7 +24,7 @@ namespace Mesh {
 /// CDomain component class
 /// CDomain stores the meshes and contains a link to the "active" mesh
 /// @author Tiago Quintino
-class Mesh_API CDomain : public Common::Component {
+class Mesh_API CDomain : public common::Component {
 
 public: // typedefs
 
@@ -45,19 +45,19 @@ public: // functions
 
   /// loads the mesh
   /// @post mesh will be (automatically) load balanced in case of parallel run
-  CMesh& load_mesh ( const Common::URI& file, const std::string& name );
+  CMesh& load_mesh ( const common::URI& file, const std::string& name );
   
   /// write the active mesh
-  void write_mesh(const Common::URI& file);
+  void write_mesh(const common::URI& file);
 
   /// @name SIGNALS
   //@{
     
   /// Signal to load a mesh
-  void signal_load_mesh( Common::SignalArgs& node );
+  void signal_load_mesh( common::SignalArgs& node );
   
   /// Signal to write the active mesh
-  void signal_write_mesh( Common::SignalArgs& node );
+  void signal_write_mesh( common::SignalArgs& node );
   
   //@} END SIGNALS
 
@@ -70,8 +70,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CDomain_hpp
+#endif // CF3_Mesh_CDomain_hpp

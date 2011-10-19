@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_OptionPanel_h
-#define CF_GUI_Graphics_OptionPanel_h
+#ifndef cf3_GUI_Graphics_OptionPanel_h
+#define cf3_GUI_Graphics_OptionPanel_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Core { class CommitDetails; }
@@ -77,7 +77,7 @@ namespace Graphics {
     /// object is not cleared.
     void modifiedOptions(Core::CommitDetails & commitDetails) const;
 
-    void addOption(CF::Common::Option::ConstPtr option);
+    void addOption(cf3::common::Option::ConstPtr option);
 
     bool hasOptions() const;
 
@@ -110,7 +110,7 @@ namespace Graphics {
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advancedMode;
 
-    void setOptions(const QList<CF::Common::Option::ConstPtr> & list);
+    void setOptions(const QList<cf3::common::Option::ConstPtr> & list);
 
   }; // class OptionPanel
 
@@ -118,8 +118,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_OptionPanel_h
+#endif // CF3_GUI_Graphics_OptionPanel_h

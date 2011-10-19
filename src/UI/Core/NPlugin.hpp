@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_UI_Core_NPlugin_hpp
-#define CF_UI_Core_NPlugin_hpp
+#ifndef cf3_UI_Core_NPlugin_hpp
+#define cf3_UI_Core_NPlugin_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -38,7 +38,7 @@ public:
 
   virtual QString toolTip() const;
 
-  Common::SignalPtr addSignal( const std::string& name,
+  common::SignalPtr addSignal( const std::string& name,
                                const std::string& descr = std::string(),
                                const std::string& readable_name = std::string() );
 
@@ -52,8 +52,8 @@ protected:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_NPlugin_hpp
+#endif // CF3_UI_Core_NPlugin_hpp

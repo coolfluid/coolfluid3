@@ -13,12 +13,12 @@
 
 #include "UI/Graphics/SignalInspectorDialog.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -54,7 +54,7 @@ SignalInspectorDialog::~SignalInspectorDialog()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalInspectorDialog::show(const Common::XML::SignalFrame & signal)
+void SignalInspectorDialog::show(const common::XML::SignalFrame & signal)
 {
   std::string str;
 
@@ -74,4 +74,4 @@ void SignalInspectorDialog::show(const Common::XML::SignalFrame & signal)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

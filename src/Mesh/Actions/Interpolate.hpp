@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Actions_Interpolate_hpp
-#define CF_Mesh_Actions_Interpolate_hpp
+#ifndef cf3_Mesh_Actions_Interpolate_hpp
+#define cf3_Mesh_Actions_Interpolate_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class COcttree;
@@ -58,8 +58,8 @@ public: // functions
   ///       then interpolate and send result back
   void interpolate(const Field& source, const CTable<Real>& coordinates, CTable<Real>& target);
 
-  void signal_interpolate ( Common::SignalArgs& node);
-  void signature_interpolate ( Common::SignalArgs& node);
+  void signal_interpolate ( common::SignalArgs& node);
+  void signature_interpolate ( common::SignalArgs& node);
 
 private:
 
@@ -84,8 +84,8 @@ private:
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Actions_Interpolate_hpp
+#endif // CF3_Mesh_Actions_Interpolate_hpp

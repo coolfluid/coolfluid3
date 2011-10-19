@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Server_Notifier_hpp
-#define CF_GUI_Server_Notifier_hpp
+#ifndef cf3_GUI_Server_Notifier_hpp
+#define cf3_GUI_Server_Notifier_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -28,7 +28,7 @@ namespace Server {
 
   public:
 
-    Notifier(CF::Common::NotificationQueue * observedQueue, QObject * parent = 0);
+    Notifier(cf3::common::NotificationQueue * observedQueue, QObject * parent = 0);
 
     ~Notifier();
 
@@ -36,15 +36,15 @@ namespace Server {
 
     void begin_notify();
 
-    void newEvent(const std::string & name, const CF::Common::URI & raiserPath);
+    void newEvent(const std::string & name, const cf3::common::URI & raiserPath);
 
   signals:
 
-    void eventOccured(const std::string & name, const CF::Common::URI & raiserPath);
+    void eventOccured(const std::string & name, const cf3::common::URI & raiserPath);
 
   private:
 
-    CF::Common::NotificationQueue * m_observedQueue;
+    cf3::common::NotificationQueue * m_observedQueue;
 
     QMap<std::string, bool> m_onceNotifyingEvents;
 
@@ -54,8 +54,8 @@ namespace Server {
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Server_Notifier_hpp
+#endif // CF3_GUI_Server_Notifier_hpp

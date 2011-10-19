@@ -28,11 +28,11 @@
 #include "Mesh/CFaces.hpp"
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -233,4 +233,4 @@ void CMeshReader::read_signature( SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

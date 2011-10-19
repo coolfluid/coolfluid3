@@ -24,10 +24,10 @@
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/XmlNode.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -209,5 +209,5 @@ void CLibraries::signature_load_libraries ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

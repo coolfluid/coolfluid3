@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_SignatureDialog_hpp
-#define CF_GUI_Graphics_SignatureDialog_hpp
+#ifndef cf3_GUI_Graphics_SignatureDialog_hpp
+#define cf3_GUI_Graphics_SignatureDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,9 +18,9 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common {
+namespace common {
   namespace XML { class XmlNode; }
 }
 
@@ -41,7 +41,7 @@ namespace Graphics {
 
     ~SignatureDialog();
 
-    bool show(Common::XML::XmlNode & sig, const QString & title, bool block = false);
+    bool show(common::XML::XmlNode & sig, const QString & title, bool block = false);
 
   private slots:
 
@@ -57,7 +57,7 @@ namespace Graphics {
 
     QVBoxLayout * m_mainLayout;
 
-    QMap<QString, Common::XML::XmlNode> m_nodes;
+    QMap<QString, common::XML::XmlNode> m_nodes;
 
     bool m_okClicked;
 
@@ -69,8 +69,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_SignatureDialog_hpp
+#endif // CF3_GUI_Graphics_SignatureDialog_hpp

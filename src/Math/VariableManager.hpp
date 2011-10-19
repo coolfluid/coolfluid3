@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_VariableManager_hpp
-#define CF_Math_VariableManager_hpp
+#ifndef cf3_Math_VariableManager_hpp
+#define cf3_Math_VariableManager_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Math/LibMath.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 class VariablesDescriptor;
@@ -23,7 +23,7 @@ class VariablesDescriptor;
 /// Manage the variables needed in a model
 /// @author Bart Janssens
 /// @author Tiago Quintino
-class Math_API VariableManager : public Common::Component {
+class Math_API VariableManager : public common::Component {
 
 public: //typedefs
 
@@ -50,19 +50,19 @@ public: // functions
   /// @name SIGNALS
   //@{
 
-  void signal_create_descriptor(Common::SignalArgs& node);
+  void signal_create_descriptor(common::SignalArgs& node);
 
   //@} END SIGNALS
 
 private:
-  void signature_create_descriptor(Common::SignalArgs& node);
+  void signature_create_descriptor(common::SignalArgs& node);
 }; // VariableManager
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_VariableManager_hpp
+#endif // CF3_Math_VariableManager_hpp

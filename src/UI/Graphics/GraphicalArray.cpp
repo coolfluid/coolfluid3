@@ -17,11 +17,11 @@
 
 #include "UI/Graphics/GraphicalArray.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -188,4 +188,4 @@ void GraphicalArray::keyPressEvent(QKeyEvent * event)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

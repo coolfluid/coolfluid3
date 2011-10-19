@@ -14,10 +14,10 @@
 #include "Tags.hpp"
 #include "TimeLoop.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
@@ -114,4 +114,4 @@ void NavierStokes::trigger_rho()
 
 
 } // UFEM
-} // CF
+} // cf3

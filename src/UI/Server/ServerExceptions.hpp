@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Server_ServerExceptions_hpp
-#define CF_GUI_Server_ServerExceptions_hpp
+#ifndef cf3_GUI_Server_ServerExceptions_hpp
+#define cf3_GUI_Server_ServerExceptions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -23,12 +23,12 @@ namespace Server {
 /// any existing client.
 
 /// @author Quentin Gasper.
-class UnknownClientId : public CF::Common::Exception
+class UnknownClientId : public cf3::common::Exception
 {
 public:
 
     /// Constructor
-    UnknownClientId(const CF::Common::CodeLocation& where,
+    UnknownClientId(const cf3::common::CodeLocation& where,
                              const std::string& what);
 
     virtual ~UnknownClientId() throw ();
@@ -41,12 +41,12 @@ public:
 
 /// @author Quentin Gasper.
 
-class NetworkError : public CF::Common::Exception
+class NetworkError : public cf3::common::Exception
 {
   public:
 
   /// Constructor
-  NetworkError(const CF::Common::CodeLocation& where, const std::string& what);
+  NetworkError(const cf3::common::CodeLocation& where, const std::string& what);
 
   /// Copy constructor
   virtual ~NetworkError() throw ();
@@ -57,8 +57,8 @@ class NetworkError : public CF::Common::Exception
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Server_ServerExceptions_hpp
+#endif // CF3_GUI_Server_ServerExceptions_hpp

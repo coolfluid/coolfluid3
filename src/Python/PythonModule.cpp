@@ -12,7 +12,7 @@
 #include "Python/PythonModule.hpp"
 #include "Python/URI.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
@@ -27,4 +27,4 @@ BOOST_PYTHON_MODULE(libcoolfluid_python)
 }
 
 } // Python
-} // CF
+} // cf3

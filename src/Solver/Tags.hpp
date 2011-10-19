@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Tags_hpp
-#define CF_Solver_Tags_hpp
+#ifndef cf3_Solver_Tags_hpp
+#define cf3_Solver_Tags_hpp
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -43,6 +43,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_Tags_hpp
+#endif // CF3_Solver_Tags_hpp

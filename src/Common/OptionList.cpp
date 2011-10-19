@@ -22,8 +22,8 @@
 
 #include "Common/OptionList.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -344,6 +344,6 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 

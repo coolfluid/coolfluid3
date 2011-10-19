@@ -32,13 +32,13 @@
 #include "test/UI/Graphics/GraphicalValueTest.hpp"
 
 using namespace boost::assign;
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
-using namespace CF::Math;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -443,4 +443,4 @@ const QValidator * GraphicalValueTest::arrayValidator(const GraphicalArray* arra
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

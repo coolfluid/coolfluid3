@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_NavierStokes_LibNavierStokes_hpp
-#define CF_NavierStokes_LibNavierStokes_hpp
+#ifndef cf3_NavierStokes_LibNavierStokes_hpp
+#define cf3_NavierStokes_LibNavierStokes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro NavierStokes_API
 /// @note build system defines COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS when compiling Advection diffusion files
 #ifdef COOLFLUID_PHYSICS_NAVIERSTOKES_EXPORTS
-#   define NavierStokes_API      CF_EXPORT_API
+#   define NavierStokes_API      CF3_EXPORT_API
 #   define TEMPLATE
 #else
-#   define NavierStokes_API      CF_IMPORT_API
-#   define NavierStokes_TEMPLATE CF_TEMPLATE_EXTERN
+#   define NavierStokes_API      CF3_IMPORT_API
+#   define NavierStokes_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
 /// @brief %Physics %NavierStokes classes
@@ -38,7 +38,7 @@ namespace NavierStokes {
 
 /// Class defines the NavierStokes library
 /// @author Tiago Quintino
-class NavierStokes_API LibNavierStokes : public Common::CLibrary
+class NavierStokes_API LibNavierStokes : public common::CLibrary
 {
 public:
 
@@ -46,7 +46,7 @@ public:
   typedef boost::shared_ptr<LibNavierStokes const> ConstPtr;
 
   /// Constructor
-  LibNavierStokes ( const std::string& name) : Common::CLibrary(name) { }
+  LibNavierStokes ( const std::string& name) : common::CLibrary(name) { }
 
   virtual ~LibNavierStokes() { }
 
@@ -86,8 +86,8 @@ protected:
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_NavierStokes_LibNavierStokes_hpp
+#endif // CF3_NavierStokes_LibNavierStokes_hpp

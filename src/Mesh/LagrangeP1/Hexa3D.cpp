@@ -16,18 +16,18 @@
 #include "Mesh/LagrangeP1/Hexa3D.hpp"
 #include "Mesh/LagrangeP1/Quad3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Hexa3D>, ElementType , LibLagrangeP1 >
+common::ComponentBuilder < ElementTypeT<Hexa3D>, ElementType , LibLagrangeP1 >
    Hexa3D_Builder(LibLagrangeP1::library_namespace()+"."+Hexa3D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -47,9 +47,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Hexa3D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Hexa3D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
   return *facetype;
 }
 
@@ -146,7 +146,7 @@ void Hexa3D::compute_mapped_coordinate(const CoordsT& coord, const NodesT& nodes
   }
 
   if(nb_iters > 100)
-    throw Common::FailedToConverge(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
+    throw common::FailedToConverge(FromHere(), "Failed to find Hexa3DLagrangeP1 mapped coordinates");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -370,4 +370,4 @@ bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, co
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

@@ -28,9 +28,9 @@
 
 using namespace boost;
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

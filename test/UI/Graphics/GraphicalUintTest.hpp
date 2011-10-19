@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_GraphicalUintTest_hpp
-#define CF_GUI_Client_uTests_GraphicalUintTest_hpp
+#ifndef cf3_GUI_Client_uTests_GraphicalUintTest_hpp
+#define cf3_GUI_Client_uTests_GraphicalUintTest_hpp
 
 #include <QObject>
 
@@ -13,7 +13,7 @@ class QDoubleSpinBox;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Graphics { class GraphicalInt; }
@@ -52,8 +52,8 @@ private:
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_GraphicalUintTest_hpp
+#endif // CF3_GUI_Client_uTests_GraphicalUintTest_hpp

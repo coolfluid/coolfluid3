@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Server_CCore_h
-#define CF_GUI_Server_CCore_h
+#ifndef cf3_GUI_Server_CCore_h
+#define cf3_GUI_Server_CCore_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,9 +19,9 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common {
+namespace common {
 namespace XML {
   class XmlDoc;
 }
@@ -41,7 +41,7 @@ namespace Server {
 
   class CCore :
       public QObject,
-      public CF::Common::Component
+      public cf3::common::Component
   {
     Q_OBJECT
 
@@ -73,7 +73,7 @@ namespace Server {
      /// Component::derived_type_name implementation
       std::string derived_type_name() const
       {
-        return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+        return common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
       }
      
      /// @param hostame Host name
@@ -81,19 +81,19 @@ namespace Server {
      /// @throw NetworkException
      bool listenToPort(quint16 portNumber);
 
-     void sendSignal(const Common::XML::XmlDoc & signal);
+     void sendSignal(const common::XML::XmlDoc & signal);
 
      static std::string type_name() { return "CCore"; }
 
      void sendFrameRejected(const std::string & clientid,
                             const std::string & frameid,
-                            const CF::Common::URI & sender,
+                            const cf3::common::URI & sender,
                             const QString & reason);
 
      void sendException(const char * what,
                         const std::string & clientid = std::string());
 
-     void forward_signal( Common::SignalArgs & args );
+     void forward_signal( common::SignalArgs & args );
 
      void sendACK( const std::string & clientid,
                    const std::string & frameid,
@@ -118,7 +118,7 @@ namespace Server {
 
   public slots:
 
-    void newEvent(const std::string & name, const CF::Common::URI & path);
+    void newEvent(const std::string & name, const cf3::common::URI & path);
 
   private:
     /// @brief The default path for the file browsing.
@@ -163,23 +163,23 @@ namespace Server {
                        bool includeNoExtension,
                        DirContent & content) const;
 
-    void read_dir(CF::Common::SignalArgs & node);
+    void read_dir(cf3::common::SignalArgs & node);
 
-    void createDir(CF::Common::SignalArgs & node);
+    void createDir(cf3::common::SignalArgs & node);
 
-    void shutdown(CF::Common::SignalArgs & node);
+    void shutdown(cf3::common::SignalArgs & node);
 
-    void saveConfig(CF::Common::SignalArgs & node);
+    void saveConfig(cf3::common::SignalArgs & node);
 
-    void signal_list_tree(CF::Common::SignalArgs & node);
+    void signal_list_tree(cf3::common::SignalArgs & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Server_CCore_h
+#endif // CF3_GUI_Server_CCore_h

@@ -25,24 +25,24 @@
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < DomainDiscretization, CAction, LibSFDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, CAction, LibSFDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -138,4 +138,4 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
 
 } // SFDM
-} // CF
+} // cf3

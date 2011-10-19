@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_Vector_hpp
-#define CF_Math_LSS_Vector_hpp
+#ifndef cf3_Math_LSS_Vector_hpp
+#define cf3_Math_LSS_Vector_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,13 +25,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API Vector : public CF::Common::Component {
+class LSS_API Vector : public cf3::common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -53,7 +53,7 @@ public:
   Vector(const std::string& name) : Component(name) { }
 
   /// Setup sparsity structure
-  virtual void create(Common::PE::CommPattern& cp, Uint neq) = 0;
+  virtual void create(common::PE::CommPattern& cp, Uint neq) = 0;
 
   /// Deallocate underlying data
   virtual void destroy() = 0;
@@ -120,7 +120,7 @@ public:
   //@{
 
   /// Print to wherever
-  virtual void print(Common::LogStream& stream) = 0;
+  virtual void print(common::LogStream& stream) = 0;
 
   /// Print to wherever
   virtual void print(std::ostream& stream) = 0;
@@ -156,4 +156,4 @@ public:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_Vector_hpp
+#endif // CF3_Math_LSS_Vector_hpp

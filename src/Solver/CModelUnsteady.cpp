@@ -23,13 +23,13 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 
-Common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady_Builder;
+common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ CModelUnsteady::~CModelUnsteady() {}
 
 void CModelUnsteady::setup(const std::string& solver_builder_name, const std::string& physics_builder_name)
 {
-  CF::Solver::CModel::setup(solver_builder_name, physics_builder_name);
+  cf3::Solver::CModel::setup(solver_builder_name, physics_builder_name);
   create_time("Time");
 }
 
@@ -109,4 +109,4 @@ CTime& CModelUnsteady::time()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

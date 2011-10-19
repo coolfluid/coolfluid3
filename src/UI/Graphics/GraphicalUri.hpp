@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphicalUrl_hpp
-#define CF_GUI_Graphics_GraphicalUrl_hpp
+#ifndef cf3_GUI_Graphics_GraphicalUrl_hpp
+#define cf3_GUI_Graphics_GraphicalUrl_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ class QStringListModel;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -34,7 +34,7 @@ namespace Graphics {
 
   public:
 
-    GraphicalUri(CF::Common::OptionURI::ConstPtr opt = CF::Common::OptionURI::ConstPtr(),
+    GraphicalUri(cf3::common::OptionURI::ConstPtr opt = cf3::common::OptionURI::ConstPtr(),
                  QWidget *parent = 0);
 
     ~GraphicalUri();
@@ -43,7 +43,7 @@ namespace Graphics {
 
     virtual QVariant value() const;
 
-    void setSchemes(const std::vector<Common::URI::Scheme::Type> & list);
+    void setSchemes(const std::vector<common::URI::Scheme::Type> & list);
 
   private slots:
 
@@ -73,8 +73,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GraphicalUrl_hpp
+#endif // CF3_GUI_Graphics_GraphicalUrl_hpp

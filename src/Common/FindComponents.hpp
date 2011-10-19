@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_FindComponents_hpp
-#define CF_Common_FindComponents_hpp
+#ifndef cf3_common_FindComponents_hpp
+#define cf3_common_FindComponents_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,8 +17,8 @@
 #include "Common/Component.hpp"
 #include "Common/Foreach.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Filter iterator classes and functions
@@ -1221,9 +1221,9 @@ typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_tag(Compo
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_FindComponents_hpp
+#endif // CF3_common_FindComponents_hpp

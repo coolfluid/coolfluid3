@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Core_hpp
-#define CF_Common_Core_hpp
+#ifndef cf3_common_Core_hpp
+#define cf3_common_Core_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,8 +15,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
   class EventHandler;
   class BuildInfo;
@@ -53,31 +53,31 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  Common::CRoot& root() const;
+  common::CRoot& root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
-  Common::EventHandler& event_handler() const;
+  common::EventHandler& event_handler() const;
 
   /// Gets the BuildInfo
   /// @pre Core does not need to be initialized before
-  Common::BuildInfo& build_info() const;
+  common::BuildInfo& build_info() const;
 
   /// Gets the CEnv
   /// @pre Core does not need to be initialized before
-  Common::CEnv& environment() const;
+  common::CEnv& environment() const;
 
   /// Gets the CLibraries
   /// @pre Core does not need to be initialized before
-  Common::CLibraries& libraries() const;
+  common::CLibraries& libraries() const;
 
   /// Gets the CFactories
   /// @pre Core does not need to be initialized before
-  Common::CFactories& factories() const;
+  common::CFactories& factories() const;
 
   /// Gets the tools
   /// @pre Core does not need to be initialized before
-  Common::CGroup& tools() const;
+  common::CGroup& tools() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name
@@ -111,19 +111,19 @@ private: // methods
 private: // data
 
   /// the EventHandler unique object
-  boost::shared_ptr< Common::EventHandler > m_event_handler;
+  boost::shared_ptr< common::EventHandler > m_event_handler;
   /// the BuildInfo unique object
-  boost::shared_ptr< Common::BuildInfo >    m_build_info;
+  boost::shared_ptr< common::BuildInfo >    m_build_info;
   /// the CEnv unique object
-  boost::shared_ptr< Common::CEnv >         m_environment;
+  boost::shared_ptr< common::CEnv >         m_environment;
   /// the CLibraries unique object
-  boost::shared_ptr< Common::CLibraries >   m_libraries;
+  boost::shared_ptr< common::CLibraries >   m_libraries;
   /// the CFactories unique object
-  boost::shared_ptr< Common::CFactories >   m_factories;
+  boost::shared_ptr< common::CFactories >   m_factories;
   /// @brief The component tree root
-  boost::shared_ptr< Common::CRoot >        m_root;
+  boost::shared_ptr< common::CRoot >        m_root;
   /// The network information
-  boost::shared_ptr< Common::NetworkInfo >   m_network_info;
+  boost::shared_ptr< common::NetworkInfo >   m_network_info;
 
   /// command-line arguments count
   int m_argc;
@@ -134,9 +134,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Core_hpp
+#endif // CF3_common_Core_hpp

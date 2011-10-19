@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -57,4 +57,4 @@ NPlugins::Ptr NPlugins::globalPlugins()
 
 } // Core
 } // UI
-} // CF
+} // cf3

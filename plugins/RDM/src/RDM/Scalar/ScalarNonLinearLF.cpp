@@ -14,16 +14,16 @@
 
 #include "RDM/Scalar/LibScalar.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > LF_Burgers2D_Builder;
+common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > LF_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

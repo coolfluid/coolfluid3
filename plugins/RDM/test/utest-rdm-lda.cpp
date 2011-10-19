@@ -13,11 +13,11 @@
 
 #include "RDM/Schemes/LDA.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::common;
 
 /// @todo create a library for support of the utests
 /// @todo move this to a class that all utests global fixtures must inherit from

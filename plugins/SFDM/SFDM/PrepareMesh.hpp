@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_PrepareMesh_hpp
-#define CF_SFDM_PrepareMesh_hpp
+#ifndef cf3_SFDM_PrepareMesh_hpp
+#define cf3_SFDM_PrepareMesh_hpp
 
 #include "Solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 class CellTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API PrepareMesh : public CF::Solver::ActionDirector {
+class SFDM_API PrepareMesh : public cf3::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -45,6 +45,6 @@ public: // functions
 
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_PrepareMesh_hpp
+#endif // CF3_SFDM_PrepareMesh_hpp

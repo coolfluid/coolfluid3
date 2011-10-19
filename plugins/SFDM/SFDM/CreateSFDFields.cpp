@@ -37,10 +37,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-  using namespace Common;
+  using namespace common;
   using namespace Mesh;
   using namespace Solver::Actions;
   using namespace Solver;
@@ -48,7 +48,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CreateSFDFields, Solver::Action, LibSFDM> CreateSFDFields_builder;
+common::ComponentBuilder < CreateSFDFields, Solver::Action, LibSFDM> CreateSFDFields_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -122,4 +122,4 @@ void CreateSFDFields::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

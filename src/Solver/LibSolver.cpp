@@ -8,10 +8,10 @@
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-CF::Common::RegistLibrary<LibSolver> libSolver;
+cf3::common::RegistLibrary<LibSolver> libSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,4 +26,4 @@ void LibSolver::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

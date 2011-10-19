@@ -6,11 +6,11 @@
 
 #include "UI/Server/ServerExceptions.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -18,7 +18,7 @@ namespace Server {
 
 UnknownClientId::UnknownClientId(const CodeLocation& where,
                                                    const std::string& what)
-: Common::Exception(where, what, "UnknownClientId")
+: common::Exception(where, what, "UnknownClientId")
 {}
 
 UnknownClientId::~UnknownClientId() throw ()
@@ -27,7 +27,7 @@ UnknownClientId::~UnknownClientId() throw ()
 //////////////////////////////////////////////////////////////////////////////
 
 NetworkError::NetworkError(const CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "NetworkException")
+: common::Exception(where, what, "NetworkException")
 {}
 
 NetworkError::~NetworkError() throw ()
@@ -37,4 +37,4 @@ NetworkError::~NetworkError() throw ()
 
 } // Server
 } // UI
-} // CF
+} // cf3

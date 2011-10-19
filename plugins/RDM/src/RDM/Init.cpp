@@ -19,20 +19,20 @@
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Init, CF::Solver::Action, LibRDM > Init_Builder;
+common::ComponentBuilder < Init, cf3::Solver::Action, LibRDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -105,4 +105,4 @@ void Init::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

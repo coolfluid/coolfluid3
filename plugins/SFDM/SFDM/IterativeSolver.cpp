@@ -29,18 +29,18 @@
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -293,10 +293,10 @@ void IterativeSolver::raise_iteration_done()
   opts.add_option< OptionT<Uint> >( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
-  Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

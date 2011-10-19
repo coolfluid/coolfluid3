@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_MeshMetadata_hpp
-#define CF_Mesh_MeshMetadata_hpp
+#ifndef cf3_Mesh_MeshMetadata_hpp
+#define cf3_Mesh_MeshMetadata_hpp
 
 #include "Common/Component.hpp"
 #include "Mesh/LibMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace Mesh {
 /// the mesh writer, that needs information about the time,
 /// iteration, date, etc..
 /// @author Willem Deconinck
-class Mesh_API MeshMetadata : public Common::Component
+class Mesh_API MeshMetadata : public common::Component
 {
 public: //typedefs
 
@@ -52,8 +52,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_MeshMetadata_hpp
+#endif // CF3_Mesh_MeshMetadata_hpp

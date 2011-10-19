@@ -17,13 +17,13 @@
 
 #include "UI/Core/NLink.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -126,4 +126,4 @@ void NLink::change_link(SignalArgs & args)
 
 } // Core
 } // UI
-} // CF
+} // cf3

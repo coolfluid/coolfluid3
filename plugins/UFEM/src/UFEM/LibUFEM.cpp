@@ -9,12 +9,12 @@
 
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibUFEM> libUFEM;
+cf3::common::RegistLibrary<LibUFEM> libUFEM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,4 +38,4 @@ void LibUFEM::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // UFEM
-} // CF
+} // cf3

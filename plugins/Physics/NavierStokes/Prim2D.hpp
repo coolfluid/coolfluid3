@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_NavierStokes_Prim2D_hpp
-#define CF_Physics_NavierStokes_Prim2D_hpp
+#ifndef cf3_Physics_NavierStokes_Prim2D_hpp
+#define cf3_Physics_NavierStokes_Prim2D_hpp
 
 #include <iostream>
 
@@ -16,7 +16,7 @@
 
 #include "NavierStokes2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
@@ -85,9 +85,9 @@ public: // functions
           std::cout << "uuvv  : " << p.uuvv << std::endl;
 
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                                   + Common::to_str(coord[XX]) + ","
-                                   + Common::to_str(coord[YY])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + common::to_str(coord[XX]) + ","
+                                   + common::to_str(coord[YY])
                                    + "]");
     }
 
@@ -116,7 +116,7 @@ public: // functions
   static void flux( const MODEL::Properties& p,
                     FM& flux)
   {
-    throw Common::NotImplemented(FromHere(), "flux not implemented for Prim2D");
+    throw common::NotImplemented(FromHere(), "flux not implemented for Prim2D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -125,7 +125,7 @@ public: // functions
                                          const GV& direction,
                                          EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Prim2D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Prim2D");
   }
 
   /// compute the eigen values of the flux jacobians
@@ -136,7 +136,7 @@ public: // functions
                                          OP& op )
 
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Prim2D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_values not implemented for Prim2D");
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
@@ -147,7 +147,7 @@ public: // functions
                                             EM& Lv,
                                             EV& Dv)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Prim2D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Prim2D");
   }
 
   /// compute the PDE residual
@@ -156,7 +156,7 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-    throw Common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Prim2D");
+    throw common::NotImplemented(FromHere(), "flux_jacobian_eigen_structure not implemented for Prim2D");
   }
 
 }; // Prim2D
@@ -165,6 +165,6 @@ public: // functions
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_NavierStokes_Prim2D_hpp
+#endif // CF3_Physics_NavierStokes_Prim2D_hpp

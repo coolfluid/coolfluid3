@@ -14,18 +14,18 @@
 #include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
 #include "Mesh/LagrangeP3/Line2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP3 >
+common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP3 >
    Line2D_Builder(LibLagrangeP3::library_namespace()+"."+Line2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -39,9 +39,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Line2D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Line2D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
   return *facetype;
 }
 
@@ -56,4 +56,4 @@ Real Line2D::volume(const NodesT& nodes)
 
 } // LagrangeP3
 } // Mesh
-} // CF
+} // cf3

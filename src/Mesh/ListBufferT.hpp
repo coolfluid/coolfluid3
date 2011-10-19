@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_ListBufferT_hpp
-#define CF_Mesh_ListBufferT_hpp
+#ifndef cf3_Mesh_ListBufferT_hpp
+#define cf3_Mesh_ListBufferT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ inline typename ListBufferT<T>::value_type& ListBufferT<T>::get_row(const Uint i
       cummulative_size += buffer.size();
     }
   }
-  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+Common::to_str(idx)+">="+Common::to_str(cummulative_size)+"]");
+  throw common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+common::to_str(idx)+">="+common::to_str(cummulative_size)+"]");
   return m_array[0];
 }
 
@@ -433,7 +433,7 @@ inline void ListBufferT<T>::set_row(const Uint array_idx, const value_type& row)
       cummulative_size += buffer.size();
     }
   }
-  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+  throw common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -461,7 +461,7 @@ inline void ListBufferT<T>::rm_row(const Uint array_idx)
       cummulative_size += buffer.size();
     }
   }
-  throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+  throw common::BadValue(FromHere(),"Trying to access index that is not allocated");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -477,7 +477,7 @@ inline void ListBufferT<T>::change_buffersize(const size_t buffersize)
 template<typename T>
 inline std::string ListBufferT<T>::string()
 {
-  using namespace Common;
+  using namespace common;
   std::string str;
   for (Uint i=0; i<m_array.size(); ++i)
   {
@@ -509,8 +509,8 @@ inline std::string ListBufferT<T>::string()
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Buffer_hpp
+#endif // CF3_Mesh_Buffer_hpp

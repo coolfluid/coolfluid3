@@ -13,8 +13,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Shell_Interpreter_hpp
-#define CF_Tools_Shell_Interpreter_hpp
+#ifndef cf3_Tools_Shell_Interpreter_hpp
+#define cf3_Tools_Shell_Interpreter_hpp
 
 #include <deque>
 
@@ -22,7 +22,7 @@
 
 #include "Common/CF.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools { 
 namespace Shell {
 
@@ -91,6 +91,6 @@ private:
 
 } // Shell
 } // Tools
-} // CF
+} // cf3
 
-#endif // CF_Tools_Shell_Interpreter_hpp
+#endif // CF3_Tools_Shell_Interpreter_hpp

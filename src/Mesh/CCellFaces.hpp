@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CCellFaces_hpp
-#define CF_Mesh_CCellFaces_hpp
+#ifndef cf3_Mesh_CCellFaces_hpp
+#define cf3_Mesh_CCellFaces_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CFaceCellConnectivity.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -66,8 +66,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CCellFaces_hpp
+#endif // CF3_Mesh_CCellFaces_hpp

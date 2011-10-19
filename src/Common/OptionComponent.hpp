@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OptionComponent_hpp
-#define CF_Common_OptionComponent_hpp
+#ifndef cf3_common_OptionComponent_hpp
+#define cf3_common_OptionComponent_hpp
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -23,12 +23,12 @@
 #include "Common/XML/Protocol.hpp"
 #include "Common/XML/CastingFunctions.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -94,7 +94,7 @@ public:
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+common::class_name<data_t>());
     }
   }
 
@@ -110,7 +110,7 @@ public:
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+Common::class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+common::class_name<data_t>());
     }
   }
 
@@ -191,7 +191,7 @@ protected: // functions
         }
         catch(boost::bad_any_cast& e)
         {
-          throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+Common::class_name<URI>());
+          throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(value.type())+" to "+common::class_name<URI>());
         }
       }
     }
@@ -209,7 +209,7 @@ protected: // functions
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+Common::class_name<data_t>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+common::class_name<data_t>());
     }
   }
 
@@ -225,7 +225,7 @@ protected: // functions
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+Common::class_name<data_t>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data.type())+" to "+common::class_name<data_t>());
       }
     }
   }
@@ -234,9 +234,9 @@ protected: // functions
 
 /////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OptionComponent_hpp
+#endif // CF3_common_OptionComponent_hpp

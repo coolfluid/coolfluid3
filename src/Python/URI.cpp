@@ -10,24 +10,24 @@
 #include "Common/URI.hpp"
 #include "Python/URI.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
 
 void def_uri()
 {
-  scope in_uri = class_<Common::URI>("URI", "Coolfluid URI class wrapper")
+  scope in_uri = class_<common::URI>("URI", "Coolfluid URI class wrapper")
     .def(init<std::string>())
-    .def(init<std::string, Common::URI::Scheme::Type>())
-    .def("__str__", &Common::URI::string);
+    .def(init<std::string, common::URI::Scheme::Type>())
+    .def("__str__", &common::URI::string);
 
-  enum_<Common::URI::Scheme::Type>("Scheme")
-    .value(Common::URI::Scheme::Convert::instance().to_str(Common::URI::Scheme::HTTP).c_str(), Common::URI::Scheme::HTTP)
-    .value(Common::URI::Scheme::Convert::instance().to_str(Common::URI::Scheme::HTTPS).c_str(), Common::URI::Scheme::HTTPS)
-    .value(Common::URI::Scheme::Convert::instance().to_str(Common::URI::Scheme::CPATH).c_str(), Common::URI::Scheme::CPATH)
-    .value(Common::URI::Scheme::Convert::instance().to_str(Common::URI::Scheme::FILE).c_str(), Common::URI::Scheme::FILE);
+  enum_<common::URI::Scheme::Type>("Scheme")
+    .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::HTTP).c_str(), common::URI::Scheme::HTTP)
+    .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::HTTPS).c_str(), common::URI::Scheme::HTTPS)
+    .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::CPATH).c_str(), common::URI::Scheme::CPATH)
+    .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::FILE).c_str(), common::URI::Scheme::FILE);
 }
 
 } // Python
-} // CF
+} // cf3

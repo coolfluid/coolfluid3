@@ -29,9 +29,9 @@
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementTypes.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////

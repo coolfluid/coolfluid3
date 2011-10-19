@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_RK_hpp
-#define CF_RDM_RK_hpp
+#ifndef cf3_RDM_RK_hpp
+#define cf3_RDM_RK_hpp
 
 #include "Solver/Action.hpp"
 
@@ -13,13 +13,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh { class Field; }
 namespace RDM {
 
 /// Runge-Kutta update step
 /// @author Tiago Quintino
-class RDM_API RK : public CF::Solver::Action {
+class RDM_API RK : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -55,6 +55,6 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_RK_hpp
+#endif // CF3_RDM_RK_hpp

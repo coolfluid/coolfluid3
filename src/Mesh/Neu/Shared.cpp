@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Neu {
   
@@ -188,4 +188,4 @@ Shared::Shared() :
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3

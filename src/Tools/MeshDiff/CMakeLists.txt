@@ -22,9 +22,9 @@ list( APPEND coolfluid-meshdiff_files
 
 list( APPEND coolfluid-meshdiff_cflibs coolfluid_mesh coolfluid_meshdiff coolfluid_shell coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_tecplot )
 
-if(CF_HAVE_CGNS)
+if(CF3_HAVE_CGNS)
   list( APPEND coolfluid-meshdiff_cflibs coolfluid_mesh_cgns3 )
-endif(CF_HAVE_CGNS)
+endif(CF3_HAVE_CGNS)
 
 coolfluid_add_application( coolfluid-meshdiff )
 

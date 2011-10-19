@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CAction_hpp
-#define CF_Common_CAction_hpp
+#ifndef cf3_common_CAction_hpp
+#define cf3_common_CAction_hpp
 
 #include "Common/Component.hpp"
 #include "Common/IAction.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,7 +46,7 @@ public: // functions
   //@{
 
   /// signal to execute this action
-  void signal_execute ( Common::SignalArgs& node );
+  void signal_execute ( common::SignalArgs& node );
 
   //@} END SIGNALS
 
@@ -54,9 +54,9 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CAction_hpp
+#endif // CF3_common_CAction_hpp

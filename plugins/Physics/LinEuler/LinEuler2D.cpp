@@ -14,11 +14,11 @@
 
 #include "LinEuler/LinEuler2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace LinEuler {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ LinEuler2D::Properties::Properties()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LinEuler::LinEuler2D,
+common::ComponentBuilder < LinEuler::LinEuler2D,
                            Physics::PhysModel,
                            LibLinEuler >
                            Builder_LinEuler2D;
@@ -108,4 +108,4 @@ boost::shared_ptr< Physics::Variables > LinEuler2D::create_variables( const std:
 
 } // LinEuler
 } // Physics
-} // CF
+} // cf3

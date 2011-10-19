@@ -12,9 +12,9 @@
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -63,4 +63,4 @@ bool CCriterionTime::operator()()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

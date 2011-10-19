@@ -8,13 +8,13 @@
 
 #include "Roe3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Roe3D,
+common::ComponentBuilder < NavierStokes::Roe3D,
                            Physics::Variables,
                            LibNavierStokes >
                            Builder_Roe3D;
@@ -30,4 +30,4 @@ Roe3D::~Roe3D() {}
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3

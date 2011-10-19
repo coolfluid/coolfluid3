@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OSystemLayer_hpp
-#define CF_Common_OSystemLayer_hpp
+#ifndef cf3_common_OSystemLayer_hpp
+#define cf3_common_OSystemLayer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,15 +13,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API OSystemError : public Common::Exception {
+class Common_API OSystemError : public common::Exception {
 public:
   /// Constructor
-  OSystemError ( const Common::CodeLocation& where, const std::string& what);
+  OSystemError ( const common::CodeLocation& where, const std::string& what);
 }; // end class OSystem
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,14 +51,14 @@ public: // functions
 
   /// Gets the current process ID
   /// @return a integer witht he current process ID
-  virtual CF::Uint process_id () const = 0;
+  virtual cf3::Uint process_id () const = 0;
 
   /// Regists the signal handlers that will be handled by this class
   virtual void regist_os_signal_handlers() = 0;
 
   /// Gets the memory usage
   /// @return a double with the memory usage in bytes
-  virtual CF::Real memory_usage () const = 0;
+  virtual cf3::Real memory_usage () const = 0;
 
   /// @returns a string with the memory usage
   /// @post adds the unit of memory (B, KB, MB or GB)
@@ -77,9 +77,9 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OSystemLayer_hpp
+#endif // CF3_common_OSystemLayer_hpp

@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Hexa.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Hexa>, ShapeFunction, LibLagrangeP1 >
+common::ComponentBuilder < ShapeFunctionT<Hexa>, ShapeFunction, LibLagrangeP1 >
    Hexa_Builder(LibLagrangeP1::library_namespace()+"."+Hexa::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,4 +122,4 @@ const RealMatrix& Hexa::local_coordinates()
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

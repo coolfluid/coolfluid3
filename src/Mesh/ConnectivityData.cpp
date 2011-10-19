@@ -12,10 +12,10 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/ElementType.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 CNodeConnectivity::CNodeConnectivity(const std::string& name): Component(name)
 {
@@ -77,7 +77,7 @@ void CFaceConnectivity::initialize(const CNodeConnectivity& node_connectivity)
 }
 
 
-bool CFaceConnectivity::has_adjacent_element(const Uint element, const CF::Uint face) const
+bool CFaceConnectivity::has_adjacent_element(const Uint element, const cf3::Uint face) const
 {
   return m_face_has_neighbour[element * m_element_nb_faces + face];
 }
@@ -318,4 +318,4 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
 
 
 } // Mesh
-} // CF
+} // cf3

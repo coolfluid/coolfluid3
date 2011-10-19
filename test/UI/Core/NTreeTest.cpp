@@ -32,16 +32,16 @@
 
 #include "test/UI/Core/NTreeTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
 
 ///////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -613,4 +613,4 @@ void NTreeTest::test_indexIsVisible()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3

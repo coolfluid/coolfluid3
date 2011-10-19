@@ -20,9 +20,9 @@
 #include "Mesh/CTable.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::LagrangeP1;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::LagrangeP1;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,15 +40,15 @@ struct MatrixInterpolationFixture
   /// common setup for each test case
     MatrixInterpolationFixture()
     {
-        CTable<Real>::Ptr      V (Common::allocate_component< CTable<Real> >("V"));
+        CTable<Real>::Ptr      V (common::allocate_component< CTable<Real> >("V"));
         V->set_row_size(NDOF);
         V->resize(nbQdPts);
 
-        CTable<Real>::Ptr  dVdxi (Common::allocate_component< CTable<Real> >("dVdxi"));
+        CTable<Real>::Ptr  dVdxi (common::allocate_component< CTable<Real> >("dVdxi"));
         dVdxi->set_row_size(NDOF);
         dVdxi->resize(nbQdPts);
 
-        CTable<Real>::Ptr dVdeta (Common::allocate_component< CTable<Real> >("dVdeta"));
+        CTable<Real>::Ptr dVdeta (common::allocate_component< CTable<Real> >("dVdeta"));
         dVdeta->set_row_size(NDOF);
         dVdeta->resize(nbQdPts);
 

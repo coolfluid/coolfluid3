@@ -24,32 +24,32 @@
 #include "RK.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::Checks;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Math::Checks;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
+common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
   // options
 
   options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
   options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
   options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
 
   options().add_option< OptionT<Real> >( "cfl", 1.0 )
       ->pretty_name("CFL")
@@ -110,4 +110,4 @@ void RK::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

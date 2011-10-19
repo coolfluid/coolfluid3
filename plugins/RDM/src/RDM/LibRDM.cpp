@@ -13,20 +13,20 @@
 #include "RDM/UnsteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibRDM> LibRDM;
+cf3::common::RegistLibrary<LibRDM> LibRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void LibRDM::initiate_impl()
 {
   CGroup& rdm_group =
-      Common::Core::instance().tools().create_component<CGroup>( "RDM" );
+      common::Core::instance().tools().create_component<CGroup>( "RDM" );
   rdm_group.mark_basic();
 
   rdm_group.create_component<RDM::SteadyExplicit>("Steady_Explicit_Wizard").mark_basic();
@@ -37,16 +37,16 @@ void LibRDM::initiate_impl()
 void LibRDM::terminate_impl()
 {
   CGroup& rdm_group =
-      Common::Core::instance().tools().get_child("RDM").as_type<CGroup>();
+      common::Core::instance().tools().get_child("RDM").as_type<CGroup>();
 
   rdm_group.remove_component( "Steady_Explicit_Wizard" );
   rdm_group.remove_component( "Unsteady_Explicit_Wizard" );
   rdm_group.remove_component( "MySim_Wizard" );
 
-  Common::Core::instance().tools().remove_component("RDM");
+  common::Core::instance().tools().remove_component("RDM");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

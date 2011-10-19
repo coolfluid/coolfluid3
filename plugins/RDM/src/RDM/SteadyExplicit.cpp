@@ -37,21 +37,21 @@
 
 #include "SteadyExplicit.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
 
-Common::ComponentBuilder < SteadyExplicit, CF::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
+common::ComponentBuilder < SteadyExplicit, cf3::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  CF::Solver::CWizard ( name )
+  cf3::Solver::CWizard ( name )
 {
   // signals
 
@@ -76,7 +76,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 {
   // (1) create the model
 
-  CModel& model = Common::Core::instance().root().create_component<CModelSteady>( model_name );
+  CModel& model = common::Core::instance().root().create_component<CModelSteady>( model_name );
 
   // (2) create the domain
 
@@ -90,7 +90,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (4) setup solver
 
-  CF::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
 
   solver.mark_basic();
 
@@ -126,7 +126,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 }
 
 
-void SteadyExplicit::signal_create_model ( Common::SignalArgs& node )
+void SteadyExplicit::signal_create_model ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -161,4 +161,4 @@ void SteadyExplicit::signature_create_model( SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CActionDirector_hpp
-#define CF_Common_CActionDirector_hpp
+#ifndef cf3_common_CActionDirector_hpp
+#define cf3_common_CActionDirector_hpp
 
 #include "Common/CAction.hpp"
 
@@ -13,8 +13,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ public: // functions
   void disable_action(const std::string& name);
   
   /// Signal for disabling an action
-  void signal_disable_action(Common::SignalArgs& node);
+  void signal_disable_action(common::SignalArgs& node);
 
 protected:
   /// Called when an action is added. The default implementation does nothing,
@@ -63,7 +63,7 @@ protected:
   
 private:
   /// Signature for the disable_action signal
-  void signature_disable_action(Common::SignalArgs& node);
+  void signature_disable_action(common::SignalArgs& node);
 };
 
 /// Allow growing of the list of actions using the shift left operator:
@@ -76,9 +76,9 @@ CActionDirector& operator<<(CActionDirector& action_director, const CAction::Ptr
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CActionDirector_hpp
+#endif // CF3_common_CActionDirector_hpp

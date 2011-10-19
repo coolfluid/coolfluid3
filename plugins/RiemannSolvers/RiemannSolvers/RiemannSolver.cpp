@@ -10,10 +10,10 @@
 
 #include "RiemannSolvers/RiemannSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,4 +41,4 @@ RiemannSolver::~RiemannSolver()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

@@ -21,11 +21,11 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Mesh::LagrangeP1;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::Mesh::LagrangeP1;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( ShapeFunction )
   const ETYPE::SF::ValueT reference_result(0.1, 0.1, 0.8);
   ETYPE::SF::ValueT result;
   ETYPE::SF::compute_value(mapped_coords, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
+  cf3::Tools::Testing::Accumulator accumulator;
+  cf3::Tools::Testing::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
@@ -116,17 +116,17 @@ BOOST_AUTO_TEST_CASE( MappedCoordinates )
   const ETYPE::MappedCoordsT reference_result(1./3., 1./3.);
   ETYPE::MappedCoordsT result;
   ETYPE::compute_mapped_coordinate(test_coords, nodes, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, reference_result, accumulator);
+  cf3::Tools::Testing::Accumulator accumulator;
+  cf3::Tools::Testing::vector_test(result, reference_result, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 10); // Maximal difference can't be greater than 10 times the least representable unit
 }
 
 BOOST_AUTO_TEST_CASE( IntegrateConst )
 {
   ConstFunctor ftor(nodes);
-  CF::Real result = 0.0;
+  cf3::Real result = 0.0;
   gauss_integrate<1, GeoShape::TRIAG>(ftor, ftor.mapped_coords, result);
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(result, ETYPE::volume(nodes)).ulps), 1);
+  BOOST_CHECK_LT(boost::accumulators::max(cf3::Tools::Testing::test(result, ETYPE::volume(nodes)).ulps), 1);
 }
 
 BOOST_AUTO_TEST_CASE( MappedGradient )
@@ -140,15 +140,15 @@ BOOST_AUTO_TEST_CASE( MappedGradient )
   expected(1,2) = 1.;
   ETYPE::SF::GradientT result;
   ETYPE::SF::compute_gradient(mapped_coords, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  cf3::Tools::Testing::Accumulator accumulator;
+  cf3::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
 BOOST_AUTO_TEST_CASE( JacobianDeterminant )
 {
   // Shapefunction determinant should be double the volume for triangles
-  BOOST_CHECK_LT(boost::accumulators::max(CF::Tools::Testing::test(0.5*ETYPE::jacobian_determinant(mapped_coords, nodes), ETYPE::volume(nodes)).ulps), 5);
+  BOOST_CHECK_LT(boost::accumulators::max(cf3::Tools::Testing::test(0.5*ETYPE::jacobian_determinant(mapped_coords, nodes), ETYPE::volume(nodes)).ulps), 5);
 }
 
 BOOST_AUTO_TEST_CASE( Jacobian )
@@ -160,8 +160,8 @@ BOOST_AUTO_TEST_CASE( Jacobian )
   expected(1,1) = 1.8;
   ETYPE::JacobianT result;
   ETYPE::compute_jacobian(mapped_coords, nodes, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  cf3::Tools::Testing::Accumulator accumulator;
+  cf3::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 
@@ -174,8 +174,8 @@ BOOST_AUTO_TEST_CASE( JacobianAdjoint )
   expected(1,1) = 0.6;
   ETYPE::JacobianT result(2, 2);
   ETYPE::compute_jacobian_adjoint(mapped_coords, nodes, result);
-  CF::Tools::Testing::Accumulator accumulator;
-  CF::Tools::Testing::vector_test(result, expected, accumulator);
+  cf3::Tools::Testing::Accumulator accumulator;
+  cf3::Tools::Testing::vector_test(result, expected, accumulator);
   BOOST_CHECK_LT(boost::accumulators::max(accumulator.ulps), 2);
 }
 

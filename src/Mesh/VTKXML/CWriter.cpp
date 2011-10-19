@@ -38,10 +38,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace VTKXML {
 
@@ -194,7 +194,7 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < VTKXML::CWriter, CMeshWriter, LibVTKXML> aVTKXMLWriter_Builder;
+common::ComponentBuilder < VTKXML::CWriter, CMeshWriter, LibVTKXML> aVTKXMLWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -368,7 +368,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       continue;
 
     // point-based field
-    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == CF::Mesh::FieldGroup::Basis::ELEMENT_BASED))
+    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == cf3::Mesh::FieldGroup::Basis::ELEMENT_BASED))
       continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
@@ -391,7 +391,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == CF::Mesh::FieldGroup::Basis::POINT_BASED)
+      if(field.basis() == cf3::Mesh::FieldGroup::Basis::POINT_BASED)
       {
         if(dim == 2 && var_size == 2)
         {
@@ -500,4 +500,4 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
 } // VTKXML
 } // Mesh
-} // CF
+} // cf3

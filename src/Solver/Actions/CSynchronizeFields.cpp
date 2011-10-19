@@ -15,16 +15,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSynchronizeFields, CAction, LibActions > CSynchronizeFields_Builder;
+common::ComponentBuilder < CSynchronizeFields, CAction, LibActions > CSynchronizeFields_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -74,4 +74,4 @@ void CSynchronizeFields::execute()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

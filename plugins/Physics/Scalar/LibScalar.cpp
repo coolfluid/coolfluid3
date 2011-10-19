@@ -8,13 +8,13 @@
 
 #include "Scalar/LibScalar.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<LibScalar> LibScalar;
+cf3::common::RegistLibrary<LibScalar> LibScalar;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,5 +30,5 @@ void LibScalar::terminate_impl()
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3
 

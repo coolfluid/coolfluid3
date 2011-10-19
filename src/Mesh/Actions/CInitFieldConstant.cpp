@@ -20,15 +20,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CInitFieldConstant, CMeshTransformer, LibActions> CInitFieldConstant_Builder;
+common::ComponentBuilder < CInitFieldConstant, CMeshTransformer, LibActions> CInitFieldConstant_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -87,4 +87,4 @@ void CInitFieldConstant::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

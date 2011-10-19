@@ -15,17 +15,17 @@
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
-using namespace Common;
+using namespace common;
 using namespace Math;
 
 struct DynamicModel::Implementation
 {
   Implementation(Component& component) : m_component(component), m_type("DynamicModel"), m_updating(false)
   {
-    m_component.options().add_option< OptionT<Uint> >(Common::Tags::dimension(), 0u)
+    m_component.options().add_option< OptionT<Uint> >(common::Tags::dimension(), 0u)
       ->pretty_name("Dimensions")
       ->description("Dimensions for the problem")
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
@@ -37,8 +37,8 @@ struct DynamicModel::Implementation
       return;
     
     m_updating = true;
-    m_dimensions = m_component.option(Common::Tags::dimension()).value<Uint>();
-    m_component.configure_option_recursively(Common::Tags::dimension(), m_dimensions);
+    m_dimensions = m_component.option(common::Tags::dimension()).value<Uint>();
+    m_component.configure_option_recursively(common::Tags::dimension(), m_dimensions);
     m_updating = false;
   }
   
@@ -50,7 +50,7 @@ struct DynamicModel::Implementation
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Physics::DynamicModel,
+common::ComponentBuilder < Physics::DynamicModel,
                            Physics::PhysModel,
                            LibPhysics >
                            Builder_DynamicModel;
@@ -106,4 +106,4 @@ std::string DynamicModel::type() const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3

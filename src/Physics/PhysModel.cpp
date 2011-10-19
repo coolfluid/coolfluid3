@@ -11,11 +11,11 @@
 
 #include "Math/VariableManager.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
-using namespace Common;
-using namespace CF::Common::XML;
+using namespace common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -77,4 +77,4 @@ void PhysModel::signature_create_variables( SignalArgs& args )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3

@@ -10,20 +10,20 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CDynTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CDynTable<bool>, Component, LibMesh > CDynTable_bool_Builder;
+common::ComponentBuilder < CDynTable<bool>, Component, LibMesh > CDynTable_bool_Builder;
 
-Common::ComponentBuilder < CDynTable<Uint>, Component, LibMesh > CDynTable_Uint_Builder;
+common::ComponentBuilder < CDynTable<Uint>, Component, LibMesh > CDynTable_Uint_Builder;
 
-Common::ComponentBuilder < CDynTable<int>, Component, LibMesh >  CDynTable_int_Builder;
+common::ComponentBuilder < CDynTable<int>, Component, LibMesh >  CDynTable_int_Builder;
 
-Common::ComponentBuilder < CDynTable<Real>, Component, LibMesh > CDynTable_Real_Builder;
+common::ComponentBuilder < CDynTable<Real>, Component, LibMesh > CDynTable_Real_Builder;
 
-Common::ComponentBuilder < CDynTable<std::string>, Component, LibMesh > CDynTable_string_Builder;
+common::ComponentBuilder < CDynTable<std::string>, Component, LibMesh > CDynTable_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -167,4 +167,4 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

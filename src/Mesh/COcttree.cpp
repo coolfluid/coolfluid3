@@ -35,16 +35,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
-  using namespace Common::PE;
+  using namespace common;
+  using namespace common::PE;
   using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < COcttree, Component, LibMesh > COcttree_Builder;
+cf3::common::ComponentBuilder < COcttree, Component, LibMesh > COcttree_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -475,4 +475,4 @@ bool COcttree::find_element(const RealVector& target_coord, CElements::ConstPtr&
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

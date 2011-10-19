@@ -20,21 +20,21 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::Checks;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Math::Checks;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
+common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 FwdEuler::FwdEuler ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -84,7 +84,7 @@ void FwdEuler::execute()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 

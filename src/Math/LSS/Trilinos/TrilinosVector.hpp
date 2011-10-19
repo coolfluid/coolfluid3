@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_TrilinosVector_hpp
-#define CF_Math_LSS_TrilinosVector_hpp
+#ifndef cf3_Math_LSS_TrilinosVector_hpp
+#define cf3_Math_LSS_TrilinosVector_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
@@ -68,7 +68,7 @@ public:
   TrilinosVector(const std::string& name);
 
   /// Setup sparsity structure
-  void create(Common::PE::CommPattern& cp, Uint neq);
+  void create(common::PE::CommPattern& cp, Uint neq);
 
   /// Deallocate underlying data
   void destroy();
@@ -135,7 +135,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(Common::LogStream& stream);
+  void print(common::LogStream& stream);
 
   /// Print to wherever
   void print(std::ostream& stream);
@@ -198,4 +198,4 @@ private:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_TrilinosVector_hpp
+#endif // CF3_Math_LSS_TrilinosVector_hpp

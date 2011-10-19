@@ -19,12 +19,12 @@
 
 #include "Common/XML/FileOperations.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -53,7 +53,7 @@ NRemoteFSBrowser::~NRemoteFSBrowser()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void NRemoteFSBrowser::signal_read_dir ( Common::SignalArgs & args )
+void NRemoteFSBrowser::signal_read_dir ( common::SignalArgs & args )
 {
   SignalOptions options( args );
   QStringList completionList;
@@ -370,4 +370,4 @@ QString NRemoteFSBrowser::sizeToString( Uint size ) const
 
 } // Core
 } // UI
-} // CF
+} // cf3

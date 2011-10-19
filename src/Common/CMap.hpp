@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CMap_hpp
-#define CF_Common_CMap_hpp
+#ifndef cf3_common_CMap_hpp
+#define cf3_common_CMap_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/Component.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ public: // functions
   virtual ~CMap() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMap<"+Common::class_name<KEY>()+","+Common::class_name<DATA>()+">"; }
+  static std::string type_name () { return "CMap<"+common::class_name<KEY>()+","+common::class_name<DATA>()+">"; }
 
   /// Reserve memory
   /// @param[in] max_size of the map to be set before starting inserting pairs in the  map
@@ -479,9 +479,9 @@ inline bool CMap<KEY,DATA>::unique_key(const value_type& val1, const value_type&
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CMap_hpp
+#endif // CF3_common_CMap_hpp

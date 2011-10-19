@@ -16,18 +16,18 @@
 #include "Mesh/LagrangeP1/Tetra3D.hpp"
 #include "Mesh/LagrangeP1/Triag3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Tetra3D>, ElementType , LibLagrangeP1 >
+common::ComponentBuilder < ElementTypeT<Tetra3D>, ElementType , LibLagrangeP1 >
    Tetra3D_Builder(LibLagrangeP1::library_namespace()+"."+Tetra3D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Tetra3D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Tetra3D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -44,9 +44,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Tetra3D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Tetra3D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Tetra3D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP1::Triag3D> >(LagrangeP1::Triag3D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Triag3D> >(LagrangeP1::Triag3D::type_name()) );
   return *facetype;
 }
 
@@ -217,4 +217,4 @@ Real Tetra3D::area(const NodesT& nodes)
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

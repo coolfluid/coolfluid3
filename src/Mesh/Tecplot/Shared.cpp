@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Tecplot {
 
@@ -387,4 +387,4 @@ std::string Shared::tp_name_to_cf_name(const Uint dim, const Uint tp_type)
 
 } // Tecplot
 } // Mesh
-} // CF
+} // cf3

@@ -44,12 +44,12 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -180,10 +180,10 @@ void CNode::setProperties(const SignalArgs & options)
                 configure_property(keyVal, from_str<bool>(value));
               else if( typeVal == Protocol::Tags::type<int>() )
                 configure_property(keyVal, from_str<int>(value));
-              else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-                configure_property(keyVal, from_str<CF::Uint>(value));
-              else if( typeVal == Protocol::Tags::type<CF::Real>() )
-                configure_property(keyVal, from_str<CF::Real>(value));
+              else if( typeVal == Protocol::Tags::type<cf3::Uint>() )
+                configure_property(keyVal, from_str<cf3::Uint>(value));
+              else if( typeVal == Protocol::Tags::type<cf3::Real>() )
+                configure_property(keyVal, from_str<cf3::Real>(value));
               else if( typeVal == Protocol::Tags::type<std::string>() )
                 configure_property(keyVal, std::string(value));
               else if( typeVal == Protocol::Tags::type<URI>() )
@@ -198,10 +198,10 @@ void CNode::setProperties(const SignalArgs & options)
                 m_properties.add_property(keyVal, from_str<bool>(value));
               else if( typeVal == Protocol::Tags::type<int>() )
                 m_properties.add_property(keyVal, from_str<int>(value));
-              else if( typeVal == Protocol::Tags::type<CF::Uint>() )
-                m_properties.add_property(keyVal, from_str<CF::Uint>(value));
-              else if( typeVal == Protocol::Tags::type<CF::Real>() )
-                m_properties.add_property(keyVal, from_str<CF::Real>(value));
+              else if( typeVal == Protocol::Tags::type<cf3::Uint>() )
+                m_properties.add_property(keyVal, from_str<cf3::Uint>(value));
+              else if( typeVal == Protocol::Tags::type<cf3::Real>() )
+                m_properties.add_property(keyVal, from_str<cf3::Real>(value));
               else if( typeVal == Protocol::Tags::type<std::string>() )
                 m_properties.add_property(keyVal, std::string(value));
               else if( typeVal == Protocol::Tags::type<URI>() )
@@ -405,12 +405,12 @@ CNode::Ptr CNode::createFromXml(XmlNode args)
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::child(CF::Uint index)
+CNode::Ptr CNode::child(cf3::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
   Component::Ptr compo = realComponent();
-  CF::Uint i;
+  cf3::Uint i;
 
   ComponentIterator<CNode> it = compo->begin<CNode>();
 
@@ -722,6 +722,6 @@ void CNode::fetchContent()
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////

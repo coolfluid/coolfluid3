@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_server_RemoteClientAppender_hpp
-#define CF_server_RemoteClientAppender_hpp
+#ifndef cf3_server_RemoteClientAppender_hpp
+#define cf3_server_RemoteClientAppender_hpp
 
 #include "Common/LogStringForwarder.hpp"
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
       
@@ -21,7 +21,7 @@ namespace Server {
 
   /// Appends LoggingEvents to the remote client log window.
   
-  class RemoteClientAppender : public QObject, public CF::Common::LogStringForwarder
+  class RemoteClientAppender : public QObject, public cf3::common::LogStringForwarder
   {
     Q_OBJECT
     
@@ -40,8 +40,8 @@ namespace Server {
   
 } // Server
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_server_RemoteClientAppender_hpp
+#endif // CF3_server_RemoteClientAppender_hpp

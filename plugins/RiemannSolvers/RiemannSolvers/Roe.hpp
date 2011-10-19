@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RiemannSolvers_Roe_hpp
-#define CF_RiemannSolvers_Roe_hpp
+#ifndef cf3_RiemannSolvers_Roe_hpp
+#define cf3_RiemannSolvers_Roe_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 #include "Physics/Variables.hpp"
 #include "RiemannSolvers/RiemannSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RiemannSolvers_Roe_hpp
+#endif // CF3_RiemannSolvers_Roe_hpp

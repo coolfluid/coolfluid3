@@ -22,8 +22,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace XML {
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -75,10 +75,10 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
   Common_API const char * Protocol::Tags::type<int>() { return "integer"; };
 
   template<>
-  Common_API const char * Protocol::Tags::type<CF::Uint>() { return "unsigned"; }
+  Common_API const char * Protocol::Tags::type<cf3::Uint>() { return "unsigned"; }
 
   template<>
-  Common_API const char * Protocol::Tags::type<CF::Real>() { return "real"; }
+  Common_API const char * Protocol::Tags::type<cf3::Real>() { return "real"; }
 
   template<>
   Common_API const char * Protocol::Tags::type<std::string>() { return "string"; }
@@ -117,7 +117,7 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
       fnode.content = fnode.content->next_sibling( Tags::node_doc() );
 
     if ( !fnode.is_valid() )
-      throw Common::XmlError( FromHere(), "No xml doc found" );
+      throw common::XmlError( FromHere(), "No xml doc found" );
 
     return fnode;
   }
@@ -215,5 +215,5 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
 /////////////////////////////////////////////////////////////////////////////////
 
 } // XML
-} // Common
-} // CF
+} // common
+} // cf3

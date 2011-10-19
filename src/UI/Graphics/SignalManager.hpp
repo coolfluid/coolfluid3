@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_SignalManager_hpp
-#define CF_GUI_Graphics_SignalManager_hpp
+#ifndef cf3_GUI_Graphics_SignalManager_hpp
+#define cf3_GUI_Graphics_SignalManager_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@ template<typename T> class QList;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace UI {
 namespace Graphics {
@@ -42,7 +42,7 @@ namespace Graphics {
     ~SignalManager();
 
     void showMenu(const QPoint & pos, Core::CNode::Ptr node,
-                  const QList<CF::UI::Core::ActionInfo> & sigs);
+                  const QList<cf3::UI::Core::ActionInfo> & sigs);
 
   private slots:
 
@@ -50,7 +50,7 @@ namespace Graphics {
 
     void actionHovered();
 
-    void signalSignature(Common::SignalArgs & node);
+    void signalSignature(common::SignalArgs & node);
 
     void dialogFinished(int result);
 
@@ -68,7 +68,7 @@ namespace Graphics {
 
     bool m_waitingForSignature;
 
-    Common::XML::SignalFrame m_frame;
+    common::XML::SignalFrame m_frame;
 
   }; // class SignalManager
 
@@ -76,8 +76,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_UI_SignalManager_hpp
+#endif // CF3_GUI_Graphics_UI_SignalManager_hpp

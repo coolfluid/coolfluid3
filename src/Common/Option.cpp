@@ -14,10 +14,10 @@
 #include "Common/XML/XmlNode.hpp"
 
 using namespace boost::assign;
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 Option::Option(const std::string & name, boost::any def)
   : m_value(def),
@@ -141,5 +141,5 @@ Option::Ptr Option::separator ( const std::string & separator )
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

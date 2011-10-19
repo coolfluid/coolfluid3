@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Assertions_hpp
-#define CF_Common_Assertions_hpp
+#ifndef cf3_common_Assertions_hpp
+#define cf3_common_Assertions_hpp
 
 #include "Common/CommonAPI.hpp"
 
-#ifndef CF_ENABLE_STDASSERT
+#ifndef cf3_ENABLE_STDASSERT
   #include <cassert>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /// Manager of behavior of assertions
 class Common_API AssertionManager : public boost::noncopyable {
@@ -30,10 +30,10 @@ public:
 
   /// If AssertionManager is not handling assertions and those are
   /// passed to the standard assert function
-  /// Controlled by the build option CF_ENABLE_STDASSERT
+  /// Controlled by the build option CF3_ENABLE_STDASSERT
   static bool notHandlingAssertions ()
   {
-    #ifdef CF_ENABLE_STDASSERT
+    #ifdef CF3_ENABLE_STDASSERT
       return true;
     #else
       return false;
@@ -68,7 +68,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CF_ENABLE_STDASSERT
+#ifndef cf3_ENABLE_STDASSERT
 
 /* using coolfluid assertion manager */
 
@@ -93,7 +93,7 @@ public:
   #define cf_assert_desc(m,a)
 #endif
 
-#else // CF_ENABLE_STDASSERT
+#else // CF3_ENABLE_STDASSERT
 
 /* using standard assertions */
 
@@ -111,10 +111,10 @@ public:
   #define cf_always_assert_desc(msg,a)
 #endif
 
-#endif // CF_ENABLE_STDASSERT
+#endif // CF3_ENABLE_STDASSERT
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // CF
+} // cf3
 
-#endif // CF_Common_Assertions_hpp
+#endif // CF3_common_Assertions_hpp

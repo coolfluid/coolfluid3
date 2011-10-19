@@ -31,17 +31,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Functions;
   using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CMatchNodes, CMeshTransformer, LibActions> CMatchNodes_Builder;
+common::ComponentBuilder < CMatchNodes, CMeshTransformer, LibActions> CMatchNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -186,4 +186,4 @@ std::size_t CMatchNodes::hash_value(const RealVector3& coords)
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

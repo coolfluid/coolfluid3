@@ -17,9 +17,9 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::LagrangeP2B;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::LagrangeP2B;
 
 //////////////////////////////////////////////////////////////////////////////
 

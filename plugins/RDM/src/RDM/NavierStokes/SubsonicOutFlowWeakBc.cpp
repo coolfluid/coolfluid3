@@ -19,20 +19,20 @@
 
 #include "Physics/NavierStokes/Cons2D.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SubsonicOutFlowWeakBc,
+common::ComponentBuilder < SubsonicOutFlowWeakBc,
                            RDM::BoundaryTerm,
                            LibRDM > SubsonicOutFlowWeakBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>,
+common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>,
                            RDM::FaceLoop,
                            LibRDM > SubsonicOutFlowWeakBc_Euler2D_Builder;
 
@@ -78,4 +78,4 @@ void SubsonicOutFlowWeakBc::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

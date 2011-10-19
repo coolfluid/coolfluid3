@@ -17,16 +17,16 @@
 #include "CPeriodicWriteMesh.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CPeriodicWriteMesh, CAction, LibActions > CPeriodicWriteMesh_Builder;
+common::ComponentBuilder < CPeriodicWriteMesh, CAction, LibActions > CPeriodicWriteMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,4 +83,4 @@ void CPeriodicWriteMesh::execute()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

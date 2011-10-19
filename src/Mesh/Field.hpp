@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Field_hpp
-#define CF_Mesh_Field_hpp
+#ifndef cf3_Mesh_Field_hpp
+#define cf3_Mesh_Field_hpp
 
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CTable.hpp"
 #include "Mesh/CEntities.hpp"
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 
-namespace Common
+namespace common
 {
   class CLink;
   namespace PE { class CommPattern; }
@@ -103,15 +103,15 @@ public: // functions
 
   CSpace& space(const CEntities& entities) const { return entities.space(field_group().space()); }
 
-  boost::iterator_range< Common::ComponentIterator<CEntities> > entities_range() { return field_group().entities_range(); }
+  boost::iterator_range< common::ComponentIterator<CEntities> > entities_range() { return field_group().entities_range(); }
 
-  boost::iterator_range< Common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
+  boost::iterator_range< common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
 
   Field& coordinates() const { return field_group().coordinates(); }
 
-  Common::PE::CommPattern& parallelize_with( Common::PE::CommPattern& comm_pattern );
+  common::PE::CommPattern& parallelize_with( common::PE::CommPattern& comm_pattern );
 
-  Common::PE::CommPattern& parallelize();
+  common::PE::CommPattern& parallelize();
 
   void synchronize();
 
@@ -132,7 +132,7 @@ private:
   boost::weak_ptr<CRegion> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
-  boost::weak_ptr< Common::PE::CommPattern > m_comm_pattern;
+  boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
 
   boost::weak_ptr< Math::VariablesDescriptor > m_descriptor;
 };
@@ -140,6 +140,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_Field_hpp
+#endif // CF3_Mesh_Field_hpp

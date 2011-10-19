@@ -8,11 +8,11 @@
 
 #include "Mesh/CGNS/LibCGNS.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGNS {
 
-CF::Common::RegistLibrary<LibCGNS> libCGNS;
+cf3::common::RegistLibrary<LibCGNS> libCGNS;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibCGNS::terminate_impl()
 
 } // CGAL
 } // Mesh
-} // CF
+} // cf3

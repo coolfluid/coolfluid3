@@ -8,13 +8,13 @@
 
 #include "SFDM/P4/Line.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 namespace P4 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Line, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Line, Mesh::ShapeFunction, LibSFDM >
   Line_Builder(LibSFDM::library_namespace()+".P4."+Line::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ Line::Line(const std::string& name) : ShapeFunction(name)
 
 const SFDM::ShapeFunction& Line::line() const
 {
-  const static SFDM::ShapeFunction::Ptr line_sf(Common::allocate_component< P4::Line >(P4::Line::type_name()));
+  const static SFDM::ShapeFunction::Ptr line_sf(common::allocate_component< P4::Line >(P4::Line::type_name()));
   return *line_sf;
 }
 
@@ -61,8 +61,8 @@ const SFDM::ShapeFunction& Line::line() const
 
 const SFDM::ShapeFunction& Line::flux_line() const
 {
-  throw Common::NotImplemented(FromHere(),"SFDM::P5::Line not implemented");
-  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< Line >(Line::type_name()));
+  throw common::NotImplemented(FromHere(),"SFDM::P5::Line not implemented");
+  const static SFDM::ShapeFunction::ConstPtr flux_line_sf(common::allocate_component< Line >(Line::type_name()));
   return *flux_line_sf;
 }
 
@@ -124,4 +124,4 @@ const Mesh::GeoShape::Type Line::shape;
 
 } // P4
 } // SFDM
-} // CF
+} // cf3

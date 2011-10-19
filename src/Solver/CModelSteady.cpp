@@ -11,12 +11,12 @@
 #include "Solver/CModelSteady.hpp"
 #include "Solver/CSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CModelSteady, Component, LibSolver > CModelSteady_Builder;
+common::ComponentBuilder < CModelSteady, Component, LibSolver > CModelSteady_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,4 +35,4 @@ CModelSteady::~CModelSteady()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -21,7 +21,7 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
 : QStandardItem(icon, text)
 {
   if(type != DIRECTORY && type != FILE)
-    throw CF::Common::ValueNotFound(FromHere(), "Unknown item type");
+    throw cf3::common::ValueNotFound(FromHere(), "Unknown item type");
 
   m_type = type;
 }
@@ -37,4 +37,4 @@ FilesListItemType FilesListItem::getType() const
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

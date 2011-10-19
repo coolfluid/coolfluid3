@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_PosixDlopenLibLoader_hpp
-#define CF_Common_PosixDlopenLibLoader_hpp
+#ifndef cf3_common_PosixDlopenLibLoader_hpp
+#define cf3_common_PosixDlopenLibLoader_hpp
 
 #include "Common/LibLoader.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,9 +49,9 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_PosixDlopenLibLoader_hpp
+#endif // CF3_common_PosixDlopenLibLoader_hpp

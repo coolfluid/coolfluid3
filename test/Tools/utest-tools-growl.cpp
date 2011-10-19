@@ -18,9 +18,9 @@
 
 #include "Tools/Growl/Notifier.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Tools::Growl;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Tools::Growl;
 
 BOOST_AUTO_TEST_SUITE( Growl )
 

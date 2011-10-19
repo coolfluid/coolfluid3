@@ -8,10 +8,10 @@
 
 #include "Physics/LibPhysics.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
-CF::Common::RegistLibrary<LibPhysics> libPhysics;
+cf3::common::RegistLibrary<LibPhysics> libPhysics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,4 +26,4 @@ void LibPhysics::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3

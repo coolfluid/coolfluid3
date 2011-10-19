@@ -22,12 +22,12 @@
 
 #include "UI/Core/RemoteDispatcher.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -127,5 +127,5 @@ void RemoteDispatcher::send_signal ( Uint index )
 
 } // Core
 } // UI
-} // CF
+} // cf3
 

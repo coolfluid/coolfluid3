@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_all_reduce_hpp
-#define CF_Common_MPI_all_reduce_hpp
+#ifndef cf3_common_MPI_all_reduce_hpp
+#define cf3_common_MPI_all_reduce_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,8 +33,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace detail {
     // there is in_map
     T *in_buf=(T*)in_values;
     if (in_map!=0){
-      if ( (in_buf=new T[stride*in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (in_buf=new T[stride*in_n+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_n; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<in_n; i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
     }
@@ -77,7 +77,7 @@ namespace detail {
     // set up out_buf
     T *out_buf=out_values;
     if ((out_map!=0)||(in_values==out_values)) {
-      if ( (out_buf=new T[in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[in_n*stride+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     }
 
     // do the communication
@@ -120,7 +120,7 @@ all_reduce(const Communicator& comm, const Op& op, const T* in_values, const int
   T* out_buf=out_values;
   if (out_values==0) {
     const int size=stride*in_n>1?stride*in_n:1;
-    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[size]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
@@ -179,7 +179,7 @@ all_reduce(const Communicator& comm, const Op& op, const T* in_values, const int
       for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
       out_sum=out_sum_tmp+1;
     }
-    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
@@ -233,4 +233,4 @@ all_reduce(const Communicator& comm, const Op& op, const std::vector<T>& in_valu
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_all_reduce_hpp
+#endif // CF3_common_MPI_all_reduce_hpp

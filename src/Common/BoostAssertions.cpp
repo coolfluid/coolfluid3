@@ -16,7 +16,7 @@ void assertion_failed( char const * expr,
                        char const * file,
                        long line)
 {
-  CF::Common::AssertionManager::do_assert ( false, expr, file, line, function);
+  cf3::common::AssertionManager::do_assert ( false, expr, file, line, function);
 }
 
 } // namespace boost

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_LibLoader_hpp
-#define CF_Common_LibLoader_hpp
+#ifndef cf3_common_LibLoader_hpp
+#define cf3_common_LibLoader_hpp
 
 #include "Common/BoostFilesystem.hpp"
 
@@ -14,19 +14,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class CLibrary;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LibLoadingError : public Common::Exception {
+class Common_API LibLoadingError : public common::Exception {
 public:
 
   /// Constructor
-  LibLoadingError ( const Common::CodeLocation& where, const std::string& what) :
-    Common::Exception(where, what, "LibLoadingError") {}
+  LibLoadingError ( const common::CodeLocation& where, const std::string& what) :
+    common::Exception(where, what, "LibLoadingError") {}
 
   /// Copy constructor
   LibLoadingError ( const LibLoadingError& e) throw () : Exception(e) {}
@@ -73,9 +73,9 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LibLoader_hpp
+#endif // CF3_common_LibLoader_hpp

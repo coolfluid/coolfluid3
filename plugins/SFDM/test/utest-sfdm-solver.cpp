@@ -55,13 +55,13 @@
 //#include "SFDM/CreateSpace.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::SFDM;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
+using namespace cf3::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
 

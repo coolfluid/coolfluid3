@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
-#define CF_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#ifndef cf3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#define cf3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CLibrary.hpp"
 #include "Mesh/LagrangeP2B/API.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 /// @brief namespace holding LagrangeP2B shape functions and elements
@@ -23,7 +23,7 @@ namespace LagrangeP2B {
 
 /// Shape functions module for LagrangeP2B
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_LagrangeP2B_API LibLagrangeP2B : public Common::CLibrary
+class Mesh_LagrangeP2B_API LibLagrangeP2B : public common::CLibrary
 {
 public:
 
@@ -31,7 +31,7 @@ public:
   typedef boost::shared_ptr<LibLagrangeP2B const> ConstPtr;
 
   /// Constructor
-  LibLagrangeP2B ( const std::string& name) : Common::CLibrary(name) {   }
+  LibLagrangeP2B ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -70,8 +70,8 @@ protected:
 
 } // LagrangeP2B
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#endif // CF3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp

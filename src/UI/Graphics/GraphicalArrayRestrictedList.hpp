@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphicalArrayRestrictedList_hpp
-#define CF_GUI_Graphics_GraphicalArrayRestrictedList_hpp
+#ifndef cf3_GUI_Graphics_GraphicalArrayRestrictedList_hpp
+#define cf3_GUI_Graphics_GraphicalArrayRestrictedList_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -33,7 +33,7 @@ namespace Graphics {
     Q_OBJECT
   public:
 
-    GraphicalArrayRestrictedList(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
+    GraphicalArrayRestrictedList(cf3::common::Option::ConstPtr opt = cf3::common::Option::ConstPtr(),
                                  QWidget * parent = 0);
 
     ~GraphicalArrayRestrictedList();
@@ -83,8 +83,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GraphicalArrayRestrictedList_hpp
+#endif // CF3_GUI_Graphics_GraphicalArrayRestrictedList_hpp

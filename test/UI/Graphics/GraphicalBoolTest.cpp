@@ -15,12 +15,12 @@
 
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -250,4 +250,4 @@ QCheckBox * GraphicalBoolTest::findCheckBox(const GraphicalBool* value)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

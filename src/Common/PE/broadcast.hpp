@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_broadcast_hpp
-#define CF_Common_MPI_broadcast_hpp
+#ifndef cf3_common_MPI_broadcast_hpp
+#define cf3_common_MPI_broadcast_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,8 +31,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ namespace detail {
     // there is in_map
     T *inout_buf=(T*)out_values;
     if (((in_map!=0)&&(irank==root))||(out_map!=0)){
-      if ( (inout_buf=new T[stride*in_n+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (inout_buf=new T[stride*in_n+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (irank==root) {
         if (stride==1) { for(int i=0; i<in_n; i++) inout_buf[i]=in_values[in_map[i]]; }
         else { for(int i=0; i<in_n; i++) memcpy(&inout_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
@@ -119,7 +119,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, T* out_v
   int size=in_n;
   if (out_values==0) {
     detail::broadcast_impl(comm,&size,1,(int*)0,&size,(int*)0,root,1);
-    if ( (out_buf=new T[stride*size>1?stride*size:1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[stride*size>1?stride*size:1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
@@ -213,7 +213,7 @@ broadcast(const Communicator& comm, const T* in_values, const int in_n, const in
       detail::broadcast_impl(comm,&out_sum,1,(int*)0,&out_sum,(int*)0,root,1);
       if (out_sum==0) out_sum=1;
     }
-    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call impl
@@ -282,4 +282,4 @@ broadcast(const Communicator& comm, const std::vector<T>& in_values, const std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_broadcast_hpp
+#endif // CF3_common_MPI_broadcast_hpp

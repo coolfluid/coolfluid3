@@ -21,13 +21,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -96,8 +96,8 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
    }
    else if(type == Protocol::Tags::type<Real>())     // Real option
    {
-     vectToStringList<CF::Real>(vect, restrList);
-     anyToStringList<CF::Real>(opt->value(), valList);
+     vectToStringList<cf3::Real>(vect, restrList);
+     anyToStringList<cf3::Real>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<int>())          // int option
    {
@@ -106,8 +106,8 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
    }
    else if(type == Protocol::Tags::type<Uint>())     // Uint option
    {
-     vectToStringList<CF::Uint>(vect, restrList);
-     anyToStringList<CF::Uint>(opt->value(), valList);
+     vectToStringList<cf3::Uint>(vect, restrList);
+     anyToStringList<cf3::Uint>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<std::string>())  // string option
    {
@@ -242,7 +242,7 @@ void GraphicalArrayRestrictedList::vectToStringList(const std::vector<boost::any
     std::string realType = demangle(it->type().name());
     const char * typeToCast = Protocol::Tags::type<TYPE>();
 
-    throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
+    throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");
   }
 }
@@ -264,10 +264,10 @@ void GraphicalArrayRestrictedList::anyToStringList(const boost::any & value,
   }
   catch(boost::bad_any_cast & bac)
   {
-    std::string realType = CF::Common::demangle(value.type().name());
+    std::string realType = cf3::common::demangle(value.type().name());
     const char * typeToCast = Protocol::Tags::type<TYPE>();
 
-    throw CF::Common::CastingFailed(FromHere(), "Unable to cast [" + realType
+    throw cf3::common::CastingFailed(FromHere(), "Unable to cast [" + realType
                                     + "] to [" + typeToCast +"]");
   }
 }
@@ -283,8 +283,8 @@ Common_TEMPLATE template void GraphicalArrayRestrictedList::anyToStringList<T>(\
 
 TEMPLATE_EXPLICIT_INSTANTIATON( bool );
 TEMPLATE_EXPLICIT_INSTANTIATON( int );
-TEMPLATE_EXPLICIT_INSTANTIATON( CF::Uint );
-TEMPLATE_EXPLICIT_INSTANTIATON( CF::Real );
+TEMPLATE_EXPLICIT_INSTANTIATON( cf3::Uint );
+TEMPLATE_EXPLICIT_INSTANTIATON( cf3::Real );
 TEMPLATE_EXPLICIT_INSTANTIATON( std::string );
 TEMPLATE_EXPLICIT_INSTANTIATON( URI );
 
@@ -295,7 +295,7 @@ TEMPLATE_EXPLICIT_INSTANTIATON( URI );
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 

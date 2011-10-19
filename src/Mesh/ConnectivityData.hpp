@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_ConnectivityData_hpp
-#define CF_Mesh_ConnectivityData_hpp
+#ifndef cf3_Mesh_ConnectivityData_hpp
+#define cf3_Mesh_ConnectivityData_hpp
 
 #include <set>
 
@@ -16,14 +16,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Stores connectivity data between nodes and their adjacent elements
 /// and provides a convenient API to access the data
-class Mesh_API CNodeConnectivity : public Common::Component
+class Mesh_API CNodeConnectivity : public common::Component
 {
 public:
 
@@ -91,7 +91,7 @@ private: // data
 
 /// Stores connectivity data between element faces and their adjacent elements
 /// and provides a convenient API to access the data
-class Mesh_API CFaceConnectivity : public Common::Component
+class Mesh_API CFaceConnectivity : public common::Component
 {
 public:
 
@@ -238,8 +238,8 @@ void CNodeConnectivity::initialize(const Uint nb_nodes, const RangeT& celements_
 }
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ConnectivityData_hpp
+#endif // CF3_Mesh_ConnectivityData_hpp

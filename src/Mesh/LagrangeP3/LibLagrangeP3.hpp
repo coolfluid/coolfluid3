@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP3_LibLagrangeP3_hpp
-#define CF_Mesh_LagrangeP3_LibLagrangeP3_hpp
+#ifndef cf3_Mesh_LagrangeP3_LibLagrangeP3_hpp
+#define cf3_Mesh_LagrangeP3_LibLagrangeP3_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 /// @brief namespace holding LagrangeP3 shape functions and elements
@@ -25,7 +25,7 @@ namespace LagrangeP3 {
 
 /// Shape functions module for LagrangeP3
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_LagrangeP3_API LibLagrangeP3 : public Common::CLibrary
+class Mesh_LagrangeP3_API LibLagrangeP3 : public common::CLibrary
 {
 public:
 
@@ -33,7 +33,7 @@ public:
   typedef boost::shared_ptr<LibLagrangeP3 const> ConstPtr;
 
   /// Constructor
-  LibLagrangeP3 ( const std::string& name) : Common::CLibrary(name) {   }
+  LibLagrangeP3 ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -72,8 +72,8 @@ protected:
 
 } // LagrangeP3
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LagrangeP3_LibLagrangeP3_hpp
+#endif // CF3_Mesh_LagrangeP3_LibLagrangeP3_hpp

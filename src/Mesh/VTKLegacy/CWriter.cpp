@@ -25,15 +25,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace VTKLegacy {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < VTKLegacy::CWriter, CMeshWriter, LibVTKLegacy> aVTKLegacyWriter_Builder;
+common::ComponentBuilder < VTKLegacy::CWriter, CMeshWriter, LibVTKLegacy> aVTKLegacyWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -196,4 +196,4 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
 } // VTKLegacy
 } // Mesh
-} // CF
+} // cf3

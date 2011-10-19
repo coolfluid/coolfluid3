@@ -8,11 +8,11 @@
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshGeneration {
 
-CF::Common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
+cf3::common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibMeshGeneration::terminate_impl()
 
 } // LibMeshGeneration
 } // Tools
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_JournalBrowser_hpp
-#define CF_GUI_Core_JournalBrowser_hpp
+#ifndef cf3_GUI_Core_JournalBrowser_hpp
+#define cf3_GUI_Core_JournalBrowser_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -23,9 +23,9 @@ class QVariant;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common {
+namespace common {
 namespace XML {
   class XmlDoc;
 }
@@ -49,7 +49,7 @@ public: // typedefs
 
 public:
 
-  NJournalBrowser(const Common::XML::XmlNode * rootNode, QObject * parent = 0);
+  NJournalBrowser(const common::XML::XmlNode * rootNode, QObject * parent = 0);
 
   /// @name VIRTUAL FUNCTIONS
   //@{
@@ -114,13 +114,13 @@ public:
 
   //@} END VIRTUAL FUNCTIONS
 
-  const Common::SignalArgs & signal(const QModelIndex & index) const;
+  const common::SignalArgs & signal(const QModelIndex & index) const;
 
-  void setRootNode(const Common::XML::XmlNode * rootNode);
+  void setRootNode(const common::XML::XmlNode * rootNode);
 
   void requestJournal();
 
-  void list_journal(Common::SignalArgs & node);
+  void list_journal(common::SignalArgs & node);
 
   void sendExecSignal(const QModelIndex & index);
 
@@ -139,25 +139,25 @@ private: // data
 
   QStringList m_columns;
 
-  Common::XML::XmlNode m_rootNode;
+  common::XML::XmlNode m_rootNode;
 
-  QList<Common::SignalArgs *> m_children;
+  QList<common::SignalArgs *> m_children;
 
-  boost::shared_ptr<Common::XML::XmlDoc> m_doc;
+  boost::shared_ptr<common::XML::XmlDoc> m_doc;
 
   /// @brief Converts an index to a signal node
 
   /// @param index Node index to convert
   /// @return Returns the tree node, or @c nullptr if the index could
   /// not be converted (i.e. index is invalid)
-  inline Common::SignalArgs * indexToXmlNode(const QModelIndex & index) const
+  inline common::SignalArgs * indexToXmlNode(const QModelIndex & index) const
   {
-    return static_cast<Common::SignalArgs *>(index.internalPointer());
+    return static_cast<common::SignalArgs *>(index.internalPointer());
   }
 
-  QString readAttribute( const Common::SignalArgs & sig, const char * name) const;
+  QString readAttribute( const common::SignalArgs & sig, const char * name) const;
 
-  boost::shared_ptr<Common::XML::XmlDoc> m_currentDoc;
+  boost::shared_ptr<common::XML::XmlDoc> m_currentDoc;
 
 }; // JournalBrowser
 
@@ -165,8 +165,8 @@ private: // data
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_JournalBrowser_hpp
+#endif // CF3_GUI_Core_JournalBrowser_hpp

@@ -23,17 +23,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Math::Consts;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Math::Consts;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibSFDM > ComputeUpdateCoefficient_Builder;
+common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibSFDM > ComputeUpdateCoefficient_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -193,7 +193,7 @@ void ComputeUpdateCoefficient::link_fields()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

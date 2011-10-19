@@ -8,11 +8,11 @@
 
 #include "Tools/Growl/LibGrowl.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Growl {
 
-CF::Common::RegistLibrary<LibGrowl> libGrowl;
+cf3::common::RegistLibrary<LibGrowl> libGrowl;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibGrowl::terminate_impl()
 
 } // Growl
 } // Tools
-} // CF
+} // cf3

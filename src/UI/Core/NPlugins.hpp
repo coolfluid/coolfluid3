@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Core_Plugins_hpp
-#define CF_UI_Core_Plugins_hpp
+#ifndef cf3_UI_Core_Plugins_hpp
+#define cf3_UI_Core_Plugins_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -75,8 +75,8 @@ protected:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_Plugins_hpp
+#endif // CF3_UI_Core_Plugins_hpp

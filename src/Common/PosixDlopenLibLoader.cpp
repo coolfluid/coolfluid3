@@ -9,9 +9,9 @@
 #include "Common/Log.hpp"
 
 // dlopen header
-#ifdef CF_HAVE_DLOPEN
+#ifdef CF3_HAVE_DLOPEN
 #  include <dlfcn.h>
-#endif // CF_HAVE_DLOPEN
+#endif // CF3_HAVE_DLOPEN
 
 #include "Common/BoostFilesystem.hpp"
 
@@ -22,9 +22,9 @@
 
 using namespace std;
 
-namespace CF {
+namespace cf3 {
 
-  namespace Common {
+  namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -118,13 +118,13 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 
   // add library extention
 
-#ifdef CF_OS_LINUX
+#ifdef CF3_OS_LINUX
   filewext = noext + ".so";
 #endif
-#ifdef CF_OS_MACOSX
+#ifdef CF3_OS_MACOSX
   filewext += noext + ".dylib";
 #endif
-#ifdef CF_OS_WINDOWS
+#ifdef CF3_OS_WINDOWS
   filewext += noext + ".dll";
 #endif
 
@@ -144,8 +144,8 @@ void PosixDlopenLibLoader::system_load_library(const std::string& lib)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
+  } // common
 
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

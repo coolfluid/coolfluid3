@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_TimedComponent_hpp
-#define CF_Common_TimedComponent_hpp
+#ifndef cf3_common_TimedComponent_hpp
+#define cf3_common_TimedComponent_hpp
 
 #include <boost/scoped_ptr.hpp>
 
@@ -13,8 +13,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class Component;
 
@@ -38,4 +38,4 @@ void print_timing_tree(Component& root, const bool print_untimed = false, const 
 }
 }
 
-#endif // CF_Common_TimedComponent_hpp
+#endif // CF3_common_TimedComponent_hpp

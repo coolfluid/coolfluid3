@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -152,4 +152,4 @@ void TreeNode::updateChildList()
 
 } // Core
 } // UI
-} // CF
+} // cf3

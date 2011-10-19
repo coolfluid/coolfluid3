@@ -8,8 +8,8 @@
 /// @brief Base class to inherit shape function implementations from
 /// @author Willem Deconinck
 
-#ifndef CF_Mesh_ShapeFunctionBase_hpp
-#define CF_Mesh_ShapeFunctionBase_hpp
+#ifndef cf3_Mesh_ShapeFunctionBase_hpp
+#define cf3_Mesh_ShapeFunctionBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ public:
 
 private:
 
-  static void throw_not_implemented(const Common::CodeLocation& where);
+  static void throw_not_implemented(const common::CodeLocation& where);
 
 };
 
@@ -91,9 +91,9 @@ const Uint ShapeFunctionBase<SF,TR>::order;
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename SF,typename TR>
-inline void ShapeFunctionBase<SF,TR>::throw_not_implemented(const Common::CodeLocation& where)
+inline void ShapeFunctionBase<SF,TR>::throw_not_implemented(const common::CodeLocation& where)
 {
-  throw Common::NotImplemented(where,"static function not implemented / not applicable for shape function ["+SF::type_name()+"]");
+  throw common::NotImplemented(where,"static function not implemented / not applicable for shape function ["+SF::type_name()+"]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,8 +145,8 @@ inline typename ShapeFunctionBase<SF,TR>::GradientT ShapeFunctionBase<SF,TR>::gr
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ShapeFunctionBase_hpp
+#endif // CF3_Mesh_ShapeFunctionBase_hpp

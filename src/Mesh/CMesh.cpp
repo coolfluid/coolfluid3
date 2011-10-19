@@ -40,14 +40,14 @@
 #include "Mesh/CCells.hpp"
 #include "Mesh/CFaces.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
-using namespace Common::PE;
+using namespace common;
+using namespace common::XML;
+using namespace common::PE;
 
-Common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
+common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,7 +62,7 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("nb_faces",Uint(0));
   m_properties.add_property("nb_nodes",Uint(0));
   m_properties.add_property("dimensionality",Uint(0));
-  m_properties.add_property(Common::Tags::dimension(),Uint(0));
+  m_properties.add_property(common::Tags::dimension(),Uint(0));
 
   m_elements   = create_static_component_ptr<CMeshElements>("elements");
   m_topology   = create_static_component_ptr<CRegion>("topology");
@@ -98,13 +98,13 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry().coordinates().set_field_group(geometry());
   geometry().coordinates().set_topology(geometry().topology());
   geometry().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
-  geometry().coordinates().descriptor().configure_option(Common::Tags::dimension(),dimension);
+  geometry().coordinates().descriptor().configure_option(common::Tags::dimension(),dimension);
   geometry().resize(nb_nodes);
 
   cf_assert(geometry().size() == nb_nodes);
   cf_assert(geometry().coordinates().row_size() == dimension);
   m_dimension = dimension;
-  property(Common::Tags::dimension()) = m_dimension;
+  property(common::Tags::dimension()) = m_dimension;
   property("nb_nodes")  = geometry().size();
 }
 
@@ -124,7 +124,7 @@ void CMesh::update_statistics()
   boost_foreach ( CFaces& elements, find_components_recursively<CFaces>(topology()) )
     nb_faces += elements.size();
 
-  property(Common::Tags::dimension()) = m_dimension;
+  property(common::Tags::dimension()) = m_dimension;
   property("dimensionality")= m_dimensionality;
   property("nb_cells") = nb_cells;
   property("nb_faces") = nb_faces;
@@ -363,4 +363,4 @@ void CMesh::check_sanity() const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Core_NetworkQueue_hpp
-#define CF_UI_Core_NetworkQueue_hpp
+#ifndef cf3_UI_Core_NetworkQueue_hpp
+#define cf3_UI_Core_NetworkQueue_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ class QTextStream;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace Tools { namespace Shell { class Interpreter; } }
 
@@ -38,7 +38,7 @@ public:
 
   QString uuid;
 
-  QList< Common::SignalArgs > actions;
+  QList< common::SignalArgs > actions;
 
   bool from_script;
 
@@ -50,7 +50,7 @@ public:
 
 class Core_API NetworkQueue
     : public CNode,
-      public Common::SignalDispatcher
+      public common::SignalDispatcher
 {
 public: // typedefs
 
@@ -75,11 +75,11 @@ public:
 
   static std::string class_name() { return "NetworkQueue"; }
 
-  Transaction * send ( Common::SignalArgs & args, Priority priority = MEDIUM );
+  Transaction * send ( common::SignalArgs & args, Priority priority = MEDIUM );
 
   QString start_transaction();
 
-  void add_to_transaction( const QString & uuid, Common::SignalArgs & args );
+  void add_to_transaction( const QString & uuid, common::SignalArgs & args );
 
   void insert_transaction( const QString & uuid, Priority priority = MEDIUM );
 
@@ -91,11 +91,11 @@ public:
 
   void start();
 
-  void signal_ack ( Common::SignalArgs & args );
+  void signal_ack ( common::SignalArgs & args );
 
   void dispatch_signal( const std::string &target,
-                        const Common::URI &receiver,
-                        Common::SignalArgs &args );
+                        const common::URI &receiver,
+                        common::SignalArgs &args );
 
   void execute_script( const QString & filename );
 
@@ -130,8 +130,8 @@ private: // data
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_NetworkQueue_hpp
+#endif // CF3_UI_Core_NetworkQueue_hpp

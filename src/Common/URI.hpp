@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_URI_hpp
-#define CF_Common_URI_hpp
+#ifndef cf3_common_URI_hpp
+#define cf3_common_URI_hpp
 
 #include "Common/CF.hpp"
 #include "Common/Exception.hpp"
 #include "Common/EnumT.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
   /// Exception thrown when a string does not construct a valid path
-  struct Common_API InvalidURI: public Common::Exception {
+  struct Common_API InvalidURI: public common::Exception {
 
     /// Constructor
-    InvalidURI( const Common::CodeLocation& where, const std::string& what);
+    InvalidURI( const common::CodeLocation& where, const std::string& what);
 
   }; // InvalidPath
 
@@ -182,7 +182,7 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_URI_hpp
+#endif // CF3_common_URI_hpp

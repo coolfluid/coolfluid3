@@ -15,10 +15,10 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -58,6 +58,6 @@ void CForAllElements::execute()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////

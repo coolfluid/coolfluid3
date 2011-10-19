@@ -15,10 +15,10 @@
 
 #include "TimeLoop.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Solver;
 
 struct TimeLoop::Implementation
@@ -49,7 +49,7 @@ TimeLoop::~TimeLoop()
 void TimeLoop::execute()
 {
   if(m_implementation->m_time.expired())
-    throw Common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
+    throw common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
 
   Solver::CTime& time = *m_implementation->m_time.lock();
   const Real& t = time.current_time();
@@ -66,4 +66,4 @@ void TimeLoop::execute()
 
 
 } // UFEM
-} // CF
+} // cf3

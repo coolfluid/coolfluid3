@@ -16,16 +16,16 @@
 #include "RDM/CellLoop.hpp"
 #include "RDM/CellTerm.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 CellTerm::CellTerm ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -75,7 +75,7 @@ ElementLoop& CellTerm::access_element_loop( const std::string& type_name )
   // get the element loop or create it if does not exist
 
   ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
     const std::string update_vars_type =
@@ -96,6 +96,6 @@ ElementLoop& CellTerm::access_element_loop( const std::string& type_name )
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////

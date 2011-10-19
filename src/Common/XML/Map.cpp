@@ -32,8 +32,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace XML {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -419,14 +419,14 @@ bool Map::value_has_ptr ( const XmlNode &node )
 TEMPLATE_EXPLICIT_INSTANTIATION( bool );
 TEMPLATE_EXPLICIT_INSTANTIATION( int );
 TEMPLATE_EXPLICIT_INSTANTIATION( std::string );
-TEMPLATE_EXPLICIT_INSTANTIATION( CF::Uint );
-TEMPLATE_EXPLICIT_INSTANTIATION( CF::Real );
-TEMPLATE_EXPLICIT_INSTANTIATION( CF::Common::URI );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Uint );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Real );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::common::URI );
 
 /////////////////////////////////////////////////////////////////////////////////
 
 } // XML
-} // Common
-} // CF
+} // common
+} // cf3
 
 #undef TEMPLATE_EXPLICIT_INSTANTIATION

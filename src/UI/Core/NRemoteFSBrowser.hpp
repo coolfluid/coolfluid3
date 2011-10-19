@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Core_NRemoteFSBrowser_hpp
-#define CF_UI_Core_NRemoteFSBrowser_hpp
+#ifndef cf3_UI_Core_NRemoteFSBrowser_hpp
+#define cf3_UI_Core_NRemoteFSBrowser_hpp
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -108,7 +108,7 @@ public:
   /// @name Signals
   //@{
 
-  void signal_read_dir ( Common::SignalArgs & node );
+  void signal_read_dir ( common::SignalArgs & node );
 
   // @} END Signals
 
@@ -144,8 +144,8 @@ private: // data
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_NRemoteFSBrowser_hpp
+#endif // CF3_UI_Core_NRemoteFSBrowser_hpp

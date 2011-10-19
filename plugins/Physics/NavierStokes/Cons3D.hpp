@@ -6,8 +6,8 @@
 
 #include <iostream>
 
-#ifndef CF_Physics_NavierStokes_Cons3D_hpp
-#define CF_Physics_NavierStokes_Cons3D_hpp
+#ifndef cf3_Physics_NavierStokes_Cons3D_hpp
+#define cf3_Physics_NavierStokes_Cons3D_hpp
 
 #include <iostream>
 
@@ -20,7 +20,7 @@
 
 #include "NavierStokes3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
@@ -89,10 +89,10 @@ public: // functions
           std::cout << "uuvvww : " << p.uuvvww << std::endl;
 
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                                   + Common::to_str(coord[XX]) + ","
-                                   + Common::to_str(coord[YY]) + ","
-                                   + Common::to_str(coord[ZZ]) + "]");
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + common::to_str(coord[XX]) + ","
+                                   + common::to_str(coord[YY]) + ","
+                                   + common::to_str(coord[ZZ]) + "]");
     }
 
     const Real RT = p.P * p.inv_rho;    // RT = p/rho
@@ -395,6 +395,6 @@ public: // functions
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_NavierStokes_Cons3D_hpp
+#endif // CF3_Physics_NavierStokes_Cons3D_hpp

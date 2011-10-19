@@ -17,16 +17,16 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CAdvanceTime.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CAdvanceTime, CAction, LibActions > CAdvanceTime_Builder;
+common::ComponentBuilder < CAdvanceTime, CAction, LibActions > CAdvanceTime_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ CTime& CAdvanceTime::time()
 {
   CTime::Ptr t = m_time.lock();
   if( is_null(t) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                               "Time not yet set for component " + uri().string() );
   return *t;
 }
@@ -72,4 +72,4 @@ void CAdvanceTime::execute ()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

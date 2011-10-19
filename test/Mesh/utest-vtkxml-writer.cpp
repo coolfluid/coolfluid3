@@ -21,9 +21,9 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/Geometry.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

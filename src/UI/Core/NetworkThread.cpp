@@ -22,12 +22,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -108,7 +108,7 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int NetworkThread::send(Common::SignalArgs& signal)
+int NetworkThread::send(common::SignalArgs& signal)
 {
   if(!isConnected())
     throw IllegalCall(FromHere(), "There is no active connection.");
@@ -255,4 +255,4 @@ void NetworkThread::socketError(QAbstractSocket::SocketError err)
 
 } // Core
 } // UI
-} // CF
+} // cf3

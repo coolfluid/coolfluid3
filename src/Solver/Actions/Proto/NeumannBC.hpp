@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_NeumannBC_hpp
-#define CF_Solver_Actions_Proto_NeumannBC_hpp
+#ifndef cf3_Solver_Actions_Proto_NeumannBC_hpp
+#define cf3_Solver_Actions_Proto_NeumannBC_hpp
 
 #include <boost/proto/core.hpp>
 
@@ -15,7 +15,7 @@
 
 #include "Transforms.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -73,4 +73,4 @@ struct NeumannBCGrammar :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_NeumannBC_hpp
+#endif // CF3_Solver_Actions_Proto_NeumannBC_hpp

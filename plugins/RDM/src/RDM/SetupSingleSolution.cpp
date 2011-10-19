@@ -24,19 +24,19 @@
 #include "SetupSingleSolution.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupSingleSolution, CAction, LibRDM > SetupSingleSolution_Builder;
+common::ComponentBuilder < SetupSingleSolution, CAction, LibRDM > SetupSingleSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : CF::Solver::Action(name)
+SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::Solver::Action(name)
 {
 }
 
@@ -147,4 +147,4 @@ void SetupSingleSolution::execute()
 
 
 } // RDM
-} // CF
+} // cf3

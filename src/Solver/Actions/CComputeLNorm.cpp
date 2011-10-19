@@ -19,10 +19,10 @@
 #include "Solver/Actions/CComputeLNorm.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -88,7 +88,7 @@ void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CComputeLNorm, CAction, LibActions > CComputeLNorm_Builder;
+common::ComponentBuilder < CComputeLNorm, CAction, LibActions > CComputeLNorm_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -153,4 +153,4 @@ void CComputeLNorm::execute()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

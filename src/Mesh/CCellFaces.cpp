@@ -10,12 +10,12 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/ElementType.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CCellFaces, CEntities, LibMesh > CCellFaces_Builder;
+common::ComponentBuilder < CCellFaces, CEntities, LibMesh > CCellFaces_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -90,4 +90,4 @@ void CCellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) c
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

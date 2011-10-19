@@ -39,9 +39,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Math::LSS;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,14 +54,14 @@ TrilinosMatrix::TrilinosMatrix(const std::string& name) :
   m_blockcol_size(0),
   m_p2m(0),
   m_converted_indices(0),
-  m_comm(Common::PE::Comm::instance().communicator())
+  m_comm(common::PE::Comm::instance().communicator())
 {
   options().add_option< CF::Common::OptionT<std::string> >( "settings_file" , "trilinos_settings.xml" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+void TrilinosMatrix::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
 {
   /// @todo structurally symmetricize the matrix
   /// @todo ensure main diagonal blocks always existent
@@ -172,7 +172,7 @@ void TrilinosMatrix::set_value(const Uint icol, const Uint irow, const Real valu
       val[i][0](rowsub,colsub)=value;
       return;
     }
-  throw Common::BadValue(FromHere(),"Trying to access an illegal entry.");
+  throw common::BadValue(FromHere(),"Trying to access an illegal entry.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +195,7 @@ void TrilinosMatrix::add_value(const Uint icol, const Uint irow, const Real valu
       val[i][0](rowsub,colsub)+=value;
       return;
     }
-  throw Common::BadValue(FromHere(),"Trying to access an illegal entry.");
+  throw common::BadValue(FromHere(),"Trying to access an illegal entry.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -218,7 +218,7 @@ void TrilinosMatrix::get_value(const Uint icol, const Uint irow, Real& value)
       value=val[i][0](rowsub,colsub);
       return;
     }
-  throw Common::BadValue(FromHere(),"Trying to access an illegal entry.");
+  throw common::BadValue(FromHere(),"Trying to access an illegal entry.");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ void TrilinosMatrix::solve(LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   /// @todo check whgats wrtong with input options via string
   //clp.setOption( "tol",            &tol,            "Tolerance to check against the scaled residual norm." ); // input options via string, not working for some reason
   int argc=0; char** argv=0; Teuchos::CommandLineProcessor::EParseCommandLineReturn parse_return = clp.parse(argc,argv);
-  if( parse_return != Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL ) throw Common::ParsingFailed(FromHere(),"Emulated command line parsing for stratimikos failed");
+  if( parse_return != Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL ) throw common::ParsingFailed(FromHere(),"Emulated command line parsing for stratimikos failed");
 
   // wrapping epetra to thyra
   Teuchos::RCP<const Thyra::LinearOpBase<double> > A = Thyra::epetraLinearOp( m_mat );
@@ -560,7 +560,7 @@ void TrilinosMatrix::tie_blockrow_pairs (const Uint iblockrow_to, const Uint ibl
   {
     TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_from,dummy_neq,blockrowsize_from,colindices_from,val_from));
     TRILINOS_ASSERT(m_mat->ExtractMyBlockRowView(br_to,  dummy_neq,blockrowsize_to,  colindices_to  ,val_to));
-    if (blockrowsize_to!=blockrowsize_from) throw Common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
+    if (blockrowsize_to!=blockrowsize_from) throw common::BadValue(FromHere(),"Number of blocks do not match for the two block rows to be tied together.");
     for (int i=0; i<blockrowsize_to; i++)
     {
       cf_assert(colindices_to[i]==colindices_from[i]);
@@ -656,7 +656,7 @@ void TrilinosMatrix::reset(Real reset_to)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosMatrix::print(Common::LogStream& stream)
+void TrilinosMatrix::print(common::LogStream& stream)
 {
   if (m_is_created)
   {

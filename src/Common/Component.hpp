@@ -8,8 +8,8 @@
 /// @brief Holds the Component class, as well as the ComponentIterator class
 ///        plus some functions related to component creation
 
-#ifndef CF_Common_Component_hpp
-#define CF_Common_Component_hpp
+#ifndef cf3_common_Component_hpp
+#define cf3_common_Component_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -25,8 +25,8 @@
 #include "Common/ConnectionManager.hpp"
 #include "Common/URI.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
   class CRoot;
 
@@ -956,7 +956,7 @@ typename ATYPE::Ptr build_component_abstract_type_reduced(const std::string& bui
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_Component_hpp
+#endif // CF3_common_Component_hpp

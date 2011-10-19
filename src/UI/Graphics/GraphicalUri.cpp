@@ -18,18 +18,18 @@
 
 #include "UI/Graphics/GraphicalUri.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
-GraphicalUri::GraphicalUri(CF::Common::OptionURI::ConstPtr opt, QWidget *parent) :
+GraphicalUri::GraphicalUri(cf3::common::OptionURI::ConstPtr opt, QWidget *parent) :
     GraphicalValue(parent)
 {
   m_btBrowse = new QPushButton("Browse", this);
@@ -178,4 +178,4 @@ void GraphicalUri::changeType(const QString & type)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

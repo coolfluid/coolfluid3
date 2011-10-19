@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_NodeGrammar_hpp
-#define CF_Solver_Actions_Proto_NodeGrammar_hpp
+#ifndef cf3_Solver_Actions_Proto_NodeGrammar_hpp
+#define cf3_Solver_Actions_Proto_NodeGrammar_hpp
 
 #include "DirichletBC.hpp"
 #include "EigenTransforms.hpp"
@@ -18,7 +18,7 @@
 /// @file
 /// Grammar for node-based expressions
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -175,4 +175,4 @@ struct NodeGrammar :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_NodeGrammar_hpp
+#endif // CF3_Solver_Actions_Proto_NodeGrammar_hpp

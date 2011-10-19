@@ -21,18 +21,18 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/Geometry.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
-using namespace CF::Math;
-using namespace CF::Math::Consts;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::Math;
+using namespace cf3::Math::Consts;
 
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshGeneration {
 
@@ -454,7 +454,7 @@ void create_channel_3d(BlockData& blocks, const Real length, const Real half_hei
 
 } // MeshGeneration
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace UICommon {
 
@@ -59,4 +59,4 @@ std::istream& operator>> (std::istream& is, LogMessage::Type& in )
 
 } // UICommon
 } // UI
-} // CF
+} // cf3

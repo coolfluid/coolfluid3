@@ -27,15 +27,15 @@
 
 using namespace boost::assign;
 
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
+common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -236,4 +236,4 @@ void Field::create_descriptor(const std::string& description, const Uint dimensi
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

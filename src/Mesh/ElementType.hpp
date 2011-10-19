@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_ElementType_hpp
-#define CF_Mesh_ElementType_hpp
+#ifndef cf3_Mesh_ElementType_hpp
+#define cf3_Mesh_ElementType_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ struct ElementTypeFaceConnectivity;
 /// This class represents the the data related to an ElementType
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Mesh_API ElementType : public Common::Component {
+class Mesh_API ElementType : public common::Component {
 
 public: // typedefs
 
@@ -45,7 +45,7 @@ public: // functions
   //@{
 
   /// Default constructor without arguments
-  ElementType( const std::string& name ) : Common::Component(name) {}
+  ElementType( const std::string& name ) : common::Component(name) {}
 
   /// Default destructor
   virtual ~ElementType() {}
@@ -249,8 +249,8 @@ struct IsElementType
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ElementType_hpp
+#endif // CF3_Mesh_ElementType_hpp

@@ -32,14 +32,14 @@
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Shell {
 
   using namespace boost;
   using namespace boost::program_options;
 
-  using namespace CF::Common;
+  using namespace cf3::common;
 
 SignalDispatcher * BasicCommands::dispatcher = new LocalDispatcher();
 
@@ -527,4 +527,4 @@ void BasicCommands::mv(const std::vector<std::string>& params)
 
 } // Shell
 } // Tools
-} // CF
+} // cf3

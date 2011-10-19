@@ -3,7 +3,7 @@
 # config options that affect all the framework libraries and components
 # must be handled in this directory
 
-string( TOUPPER "${CMAKE_BUILD_TYPE}" CF_BUILD_TYPE )
+string( TOUPPER "${CMAKE_BUILD_TYPE}" CF3_BUILD_TYPE )
 
 # coolfluid generic settings
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/coolfluid-config.hpp.in ${coolfluid_BINARY_DIR}/coolfluid-config.hpp)
@@ -26,6 +26,6 @@ install ( FILES ${coolfluid_BINARY_DIR}/coolfluid-config.hpp
                 ${coolfluid_BINARY_DIR}/coolfluid-packages.hpp
                 ${coolfluid_BINARY_DIR}/coolfluid-profiling.hpp
           DESTINATION
-                ${CF_INSTALL_INCLUDE_DIR} )
+                ${CF3_INSTALL_INCLUDE_DIR} )
 
 

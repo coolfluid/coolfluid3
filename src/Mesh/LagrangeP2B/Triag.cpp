@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP2B/LibLagrangeP2B.hpp"
 #include "Mesh/LagrangeP2B/Triag.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP2B {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP2B >
+common::ComponentBuilder < ShapeFunctionT<Triag>, ShapeFunction, LibLagrangeP2B >
    Triag_Builder(LibLagrangeP2B::library_namespace()+"."+Triag::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -98,4 +98,4 @@ const RealMatrix& Triag::local_coordinates()
 
 } // LagrangeP2B
 } // Mesh
-} // CF
+} // cf3

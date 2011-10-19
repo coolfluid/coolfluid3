@@ -30,15 +30,15 @@
 
 #include "UI/Server/ServerRoot.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -50,9 +50,9 @@ ServerRoot::ServerRoot()
     m_thread(nullptr),
     m_root( Core::instance().root().as_ptr<CRoot>() ),
     m_core( new CCore() ),
-    m_journal( Common::allocate_component<CJournal>("Journal") ),
-    m_manager( Common::allocate_component<CPEManager>("PEManager") ),
-    m_plotter( Common::allocate_component<CPlotter>("Plotter") )
+    m_journal( common::allocate_component<CJournal>("Journal") ),
+    m_manager( common::allocate_component<CPEManager>("PEManager") ),
+    m_plotter( common::allocate_component<CPlotter>("Plotter") )
 {
   m_root->add_component(m_core);
 
@@ -167,7 +167,7 @@ void ServerRoot::process_signal( const std::string & target,
         else
           message = "Server is busy.";
       }
-      catch(CF::Common::Exception & cfe)
+      catch(cf3::common::Exception & cfe)
       {
         message = cfe.what();
       }
@@ -201,14 +201,14 @@ void ServerRoot::listen_to_events ()
 
     m_notifier->listenToEvent("tree_updated", true);
 
-    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,CF::Common::URI)),
-                     m_core.get(), SLOT(newEvent(std::string,CF::Common::URI)));
+    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,cf3::common::URI)),
+                     m_core.get(), SLOT(newEvent(std::string,cf3::common::URI)));
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ServerRoot::signal_to_forward( Common::SignalArgs & args )
+void ServerRoot::signal_to_forward( common::SignalArgs & args )
 {
   m_core->sendSignal( *args.xml_doc.get() );
 }
@@ -252,5 +252,5 @@ void ServerRoot::finished ()
 
 } // Server
 } // UI
-} // CF
+} // cf3
 

@@ -17,16 +17,16 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Reset, CAction, LibRDM > Reset_Builder;
+common::ComponentBuilder < Reset, CAction, LibRDM > Reset_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -105,4 +105,4 @@ void Reset::execute()
 
 
 } // RDM
-} // CF
+} // cf3

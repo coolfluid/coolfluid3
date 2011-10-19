@@ -8,13 +8,13 @@
 
 #include "Diffusion2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::Diffusion2D,
+common::ComponentBuilder < Scalar::Diffusion2D,
                            Physics::Variables,
                            LibScalar >
                            Builder_Diffusion2D;
@@ -30,4 +30,4 @@ Diffusion2D::~Diffusion2D() {}
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3

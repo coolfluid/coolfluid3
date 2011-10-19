@@ -10,12 +10,12 @@
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibSchemes> LibSchemes;
+cf3::common::RegistLibrary<LibSchemes> LibSchemes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibSchemes::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

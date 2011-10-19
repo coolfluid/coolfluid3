@@ -26,9 +26,9 @@
 
 using namespace boost::assign;
 
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Math::LSS;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,10 +47,10 @@ struct LSSAtomicFixture
     blockcol_size(0),
     blockrow_size(0)
   {
-    if (Common::PE::Comm::instance().is_initialized())
+    if (common::PE::Comm::instance().is_initialized())
     {
-      nproc=Common::PE::Comm::instance().size();
-      irank=Common::PE::Comm::instance().rank();
+      nproc=common::PE::Comm::instance().size();
+      irank=common::PE::Comm::instance().rank();
       BOOST_CHECK_EQUAL(nproc,2);
     }
     m_argc = boost::unit_test::framework::master_test_suite().argc;
@@ -63,7 +63,7 @@ struct LSSAtomicFixture
   }
 
   /// create a test commpattern
-  void build_commpattern(Common::PE::CommPattern& cp)
+  void build_commpattern(common::PE::CommPattern& cp)
   {
     if (irank==0)
     {
@@ -78,7 +78,7 @@ struct LSSAtomicFixture
   }
 
   /// build a test system
-  void build_system(LSS::System::Ptr& sys, Common::PE::CommPattern& cp)
+  void build_system(LSS::System::Ptr& sys, common::PE::CommPattern& cp)
   {
     if (irank==0)
     {
@@ -125,8 +125,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSAtomicSuite, LSSAtomicFixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  Common::PE::Comm::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),true);
+  common::PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 {
 
   // build a commpattern and a matrix
-  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
-  Common::PE::CommPattern& cp = *cp_ptr;
+  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
+  LSS::System::Ptr sys(common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Matrix::Ptr mat=sys->matrix();
@@ -457,10 +457,10 @@ BOOST_AUTO_TEST_CASE( test_matrix_only )
 BOOST_AUTO_TEST_CASE( test_vector_only )
 {
   // build a commpattern and the two vectors
-  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
-  Common::PE::CommPattern& cp = *cp_ptr;
+  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
+  LSS::System::Ptr sys(common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   LSS::Vector::Ptr sol=sys->solution();
@@ -584,10 +584,10 @@ BOOST_AUTO_TEST_CASE( test_vector_only )
 BOOST_AUTO_TEST_CASE( test_complete_system )
 {
   // build a commpattern and the system
-  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
-  Common::PE::CommPattern& cp = *cp_ptr;
+  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
   build_commpattern(cp);
-  LSS::System::Ptr sys(Common::allocate_component<LSS::System>("sys"));
+  LSS::System::Ptr sys(common::allocate_component<LSS::System>("sys"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys,cp);
   BOOST_CHECK_EQUAL(sys->is_created(),true);
@@ -818,7 +818,7 @@ BOOST_AUTO_TEST_CASE( test_complete_system )
   }
 
   // test swapping rhs and sol
-  LSS::System::Ptr sys2(Common::allocate_component<LSS::System>("sys2"));
+  LSS::System::Ptr sys2(common::allocate_component<LSS::System>("sys2"));
   sys->options().option("solver").change_value(solvertype);
   build_system(sys2,cp);
   BOOST_CHECK_EQUAL(sys2->is_created(),true);
@@ -881,8 +881,8 @@ WHICH RESULTS IN GID ORDER:
     gid += 3,4,5,6,7,8,9;
     rank_updatable += 0,1,1,1,1,1,1;
   }
-  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
-  Common::PE::CommPattern& cp = *cp_ptr;
+  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",gid,1,false);
   cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
 
@@ -895,7 +895,7 @@ WHICH RESULTS IN GID ORDER:
     node_connectivity += 0,1,0,1,2,1,2,3,2,3,4,3,4,5,4,5,6,5,6;
     starting_indices +=  0,2,5,8,11,14,17,19;
   }
-  System::Ptr sys(Common::allocate_component<System>("sys"));
+  System::Ptr sys(common::allocate_component<System>("sys"));
   sys->options().option("solver").change_value(boost::lexical_cast<std::string>(solvertype));
   sys->create(cp,2,node_connectivity,starting_indices);
 
@@ -920,7 +920,7 @@ WHICH RESULTS IN GID ORDER:
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
-  Common::PE::Comm::instance().barrier();
+  common::PE::Comm::instance().barrier();
 
   // set intital values and boundary conditions
   sys->matrix()->reset(-0.5);
@@ -953,8 +953,8 @@ WHICH RESULTS IN GID ORDER:
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   CFinfo.setFilterRankZero(true);
-  Common::PE::Comm::instance().finalize();
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),false);
+  common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

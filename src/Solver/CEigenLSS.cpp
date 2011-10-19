@@ -11,7 +11,7 @@
 
 #include "coolfluid-packages.hpp"
 
-#ifdef CF_HAVE_TRILINOS
+#ifdef CF3_HAVE_TRILINOS
   #include <Epetra_SerialComm.h>
   #include <Epetra_Map.h>
   #include <Epetra_Vector.h>
@@ -27,7 +27,7 @@
   #include "Teuchos_CommandLineProcessor.hpp"
 
 #else
-  #ifdef CF_HAVE_SUPERLU
+  #ifdef CF3_HAVE_SUPERLU
     #define EIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET
     #include <Eigen/SuperLUSupport>
   #endif
@@ -45,13 +45,13 @@
 #include "CEigenLSS.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-CF::Common::ComponentBuilder < CEigenLSS, Common::Component, LibSolver > aCeigenLSS_Builder;
+cf3::common::ComponentBuilder < CEigenLSS, common::Component, LibSolver > aCeigenLSS_Builder;
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
@@ -88,7 +88,7 @@ Uint CEigenLSS::size() const
   return m_system_matrix.cols();
 }
 
-Real& CEigenLSS::at(const CF::Uint row, const CF::Uint col)
+Real& CEigenLSS::at(const cf3::Uint row, const cf3::Uint col)
 {
   return m_system_matrix.coeffRef(row, col);
 }
@@ -101,7 +101,7 @@ void CEigenLSS::set_zero()
   m_solution.setZero();
 }
 
-void CEigenLSS::set_dirichlet_bc(const CF::Uint row, const CF::Real value, const CF::Real coeff)
+void CEigenLSS::set_dirichlet_bc(const cf3::Uint row, const cf3::Real value, const cf3::Real coeff)
 {
   for(MatrixT::InnerIterator it(m_system_matrix, static_cast<int>(row)); it; ++it)
   {
@@ -157,7 +157,7 @@ const RealVector& CEigenLSS::solution()
 
 void CEigenLSS::solve()
 {
-#ifdef CF_HAVE_TRILINOS
+#ifdef CF3_HAVE_TRILINOS
   Timer timer;
   const Uint nb_rows = size();
   cf_assert(nb_rows == m_system_matrix.outerSize());
@@ -285,7 +285,7 @@ void CEigenLSS::solve()
 
 #else // no trilinos
 
-#ifdef CF_HAVE_SUPERLU
+#ifdef CF3_HAVE_SUPERLU
   Eigen::SparseMatrix<Real> A(m_system_matrix);
   Eigen::SparseLU<Eigen::SparseMatrix<Real>,Eigen::SuperLU> lu_of_A(A);
   if(!lu_of_A.solve(rhs(), &m_solution))
@@ -351,4 +351,4 @@ void increment_solution(const RealVector& solution, const std::vector<std::strin
 
 
 } // Solver
-} // CF
+} // cf3

@@ -12,17 +12,17 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
 ComponentBuilder<MeshMetadata, Component, LibMesh> MeshMetadata_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshMetadata::MeshMetadata(const std::string& name) :
-  Common::Component(name)
+  common::Component(name)
 {
   // get the day of today
   m_properties["date"] = boost::gregorian::to_iso_extended_string(boost::gregorian::day_clock::local_day());
@@ -58,4 +58,4 @@ bool MeshMetadata::check(const std::string& name) const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

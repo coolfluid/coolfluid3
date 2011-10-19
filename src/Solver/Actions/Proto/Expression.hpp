@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_Expression_hpp
-#define CF_Solver_Actions_Proto_Expression_hpp
+#ifndef cf3_Solver_Actions_Proto_Expression_hpp
+#define cf3_Solver_Actions_Proto_Expression_hpp
 
 #include <map>
 #include <set>
@@ -34,7 +34,7 @@
 #include "NodeGrammar.hpp"
 #include "Transforms.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -53,7 +53,7 @@ public:
   /// Generate the required options for configurable items in the expression
   /// If an option already existed, only a link will be created
   /// @param options The optionlist that will hold the generated options
-  virtual void add_options(Common::OptionList& options) = 0;
+  virtual void add_options(common::OptionList& options) = 0;
 
   /// Register the variables that appear in the expression with a physical model
   virtual void register_variables(Physics::PhysModel& physical_model) = 0;
@@ -79,13 +79,13 @@ public:
     boost::proto::eval(expr, ctx);
   }
 
-  void add_options(Common::OptionList& options)
+  void add_options(common::OptionList& options)
   {
     // Add scalar options
     for(ConstantStorage::ScalarsT::iterator it = m_constant_values.m_scalars.begin(); it != m_constant_values.m_scalars.end(); ++it)
     {
       const std::string& name = it->first;
-      Common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<Real> >(name, it->second);
+      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<Real> >(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
     }
@@ -94,7 +94,7 @@ public:
     for(ConstantStorage::VectorsT::iterator it = m_constant_values.m_vectors.begin(); it != m_constant_values.m_vectors.end(); ++it)
     {
       const std::string& name = it->first;
-      Common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<RealVector> >(name, it->second);
+      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< Common::OptionT<RealVector> >(name, it->second);
       option.description(m_constant_values.descriptions[name]);
       option.link_to(&it->second);
     }
@@ -161,10 +161,10 @@ private:
     Math::VariablesDescriptor& get_descriptor(const std::string& tag) const
     {
       Math::VariablesDescriptor* result = 0;
-      BOOST_FOREACH(Math::VariablesDescriptor& descriptor, Common::find_components_with_tag<Math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
+      BOOST_FOREACH(Math::VariablesDescriptor& descriptor, common::find_components_with_tag<Math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
       {
         if(is_not_null(result))
-          throw Common::SetupError(FromHere(), "Variablemanager " + m_physical_model.variable_manager().uri().string() + " has multiple descriptors with tag " + tag);
+          throw common::SetupError(FromHere(), "Variablemanager " + m_physical_model.variable_manager().uri().string() + " has multiple descriptors with tag " + tag);
         result = &descriptor;
       }
 
@@ -216,7 +216,7 @@ public:
   void loop(Mesh::CRegion& region)
   {
     // Traverse all CElements under the region and evaluate the expression
-    BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region) )
+    BOOST_FOREACH(Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region) )
     {
       boost::mpl::for_each<boost::mpl::filter_view< ElementTypes, Mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
     }
@@ -245,7 +245,7 @@ public:
     boost::mpl::for_each< boost::mpl::range_c<Uint, 1, 4> >( NodeLooper<typename BaseT::CopiedExprT>(BaseT::m_expr, region, BaseT::m_variables) );
 
     // Synchronize fields if needed
-    if(Common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
       boost::mpl::for_each< boost::mpl::range_c<Uint, 0, BaseT::NbVarsT::value> >(SynchronizeFields(BaseT::m_variables, region));
   }
 private:
@@ -276,8 +276,8 @@ private:
     void apply(boost::mpl::true_, const VarIdxT&)
     {
       const std::string& tag = boost::fusion::at<VarIdxT>(m_variables).field_tag();
-      Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(m_region);
-      Mesh::Field& field = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
+      Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(m_region);
+      Mesh::Field& field = common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
       field.synchronize();
     }
 
@@ -318,4 +318,4 @@ boost::shared_ptr< NodesExpression<ExprT> > nodes_expression(const ExprT& expr)
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_Expression_hpp
+#endif // CF3_Solver_Actions_Proto_Expression_hpp

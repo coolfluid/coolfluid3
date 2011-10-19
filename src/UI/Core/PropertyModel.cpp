@@ -10,7 +10,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -148,4 +148,4 @@ void PropertyModel::emptyList()
 
 } // Core
 } // UI
-} // CF
+} // cf3

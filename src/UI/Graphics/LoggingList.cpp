@@ -10,12 +10,12 @@
 
 #include "UI/Graphics/LoggingList.hpp"
 
-using namespace CF::UI::UICommon;
-using namespace CF::UI::Core;
+using namespace cf3::UI::UICommon;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -100,4 +100,4 @@ void LoggingList::newMessage(const QString & message, LogMessage::Type type)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

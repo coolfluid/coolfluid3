@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CBuildFaces_hpp
-#define CF_Mesh_CBuildFaces_hpp
+#ifndef cf3_Mesh_CBuildFaces_hpp
+#define cf3_Mesh_CBuildFaces_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
   class CRegion;
@@ -76,8 +76,8 @@ private: // data
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CBuildFaces_hpp
+#endif // CF3_Mesh_CBuildFaces_hpp

@@ -40,12 +40,12 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Solver/Tags.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
 
 /// Check close, for testing purposes
 inline void check_close(const RealMatrix2& a, const RealMatrix2& b, const Real threshold)

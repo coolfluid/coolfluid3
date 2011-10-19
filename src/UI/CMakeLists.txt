@@ -1,4 +1,4 @@
-if( QT4_FOUND AND CF_ENABLE_GUI )
+if( QT4_FOUND AND CF3_ENABLE_GUI )
 
   coolfluid_find_orphan_files()
 
@@ -29,7 +29,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   list( APPEND coolfluid-gui_libs ${QT_LIBRARIES} coolfluid_ui_qwt_tab )
 
   if( ParaView_FOUND )
-    add_definitions( -DCF_HAVE_PARAVIEW )
+    add_definitions( -DCF3_HAVE_PARAVIEW )
     include_directories( ${PARAVIEW_INCLUDE_DIRS} )
     list( APPEND coolfluid-gui_libs coolfluid_ui_paraview_tab  )
   endif()
@@ -46,7 +46,7 @@ if( QT4_FOUND AND CF_ENABLE_GUI )
   list( APPEND coolfluid-server_libs ${QT_LIBRARIES} coolfluid_ui_server )
 
 #  if( ParaView_FOUND )
-#    add_definitions( -DCF_HAVE_PARAVIEW )
+#    add_definitions( -DCF3_HAVE_PARAVIEW )
 #    include_directories( ${PARAVIEW_INCLUDE_DIRS} )
 #    list( APPEND coolfluid-server_libs coolfluid_ui_paraview )
 #  endif()

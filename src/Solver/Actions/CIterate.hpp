@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CIterate_hpp
-#define CF_Solver_CIterate_hpp
+#ifndef cf3_Solver_CIterate_hpp
+#define cf3_Solver_CIterate_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Common/CAction.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -24,7 +24,7 @@ namespace Actions {
 /// of iterations, or a stop-criterion, derived from the type Solver::Actions::CCriterion
 ///
 /// @author Willem Deconinck
-class Solver_Actions_API CIterate : public Common::CAction {
+class Solver_Actions_API CIterate : public common::CAction {
 
 public: // typedefs
 
@@ -65,8 +65,8 @@ protected: // data
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CIterate_hpp
+#endif // CF3_Solver_CIterate_hpp

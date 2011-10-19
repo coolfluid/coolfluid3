@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BcBase_hpp
-#define CF_RDM_BcBase_hpp
+#ifndef cf3_RDM_BcBase_hpp
+#define cf3_RDM_BcBase_hpp
 
 #include <functional>
 
@@ -25,7 +25,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -130,6 +130,6 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_BcBase_hpp
+#endif // CF3_RDM_BcBase_hpp

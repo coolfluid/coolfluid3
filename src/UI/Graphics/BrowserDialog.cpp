@@ -30,12 +30,12 @@
 
 #include "UI/Graphics/BrowserDialog.hpp"
 
-using namespace CF::UI::Core;
-using namespace CF::UI::UICommon;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -336,4 +336,4 @@ void BrowserDialog::message( const QString& message , LogMessage::Type type)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

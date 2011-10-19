@@ -17,17 +17,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CLoopOperation::CLoopOperation ( const std::string& name ) :
-  Common::CAction(name),
+  common::CAction(name),
   m_can_start_loop(true),
   m_call_config_elements(true),
   m_idx(0)
@@ -81,7 +81,7 @@ void CLoopOperation::set_elements(CEntities& elements)
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

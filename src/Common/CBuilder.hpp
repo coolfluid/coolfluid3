@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Common_CBuilder_hpp
-#define CF_Common_CBuilder_hpp
+#ifndef cf3_common_CBuilder_hpp
+#define cf3_common_CBuilder_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -23,8 +23,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -99,7 +99,7 @@ public:
   CBuilderT(const std::string& name) : CBuilder(name)
   {
     // verify that BASE derives or is same type of Component
-    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
+    BOOST_STATIC_ASSERT( (boost::is_base_of<common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
@@ -147,9 +147,9 @@ struct ComponentBuilder
                    std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
     // verify that LIB derives from CLibrary
-    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::CLibrary,LIB>::value) );
+    BOOST_STATIC_ASSERT( (boost::is_base_of<common::CLibrary,LIB>::value) );
     // verify that BASE derives or is same type of Component
-    BOOST_STATIC_ASSERT( (boost::is_base_of<Common::Component,BASE>::value) );
+    BOOST_STATIC_ASSERT( (boost::is_base_of<common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
     // verify that CBuilderT derives from CBuilder
@@ -160,16 +160,16 @@ struct ComponentBuilder
 
     // regist the concrete type in TypeInfo
     RegistTypeInfo<CONCRETE,LIB> regist(name);
-    CF::Common::TypeInfo::instance().
+    cf3::common::TypeInfo::instance().
         regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
-    Common::CFactory::Ptr factory =
-        Common::Core::instance().factories().get_factory< BASE >();
+    common::CFactory::Ptr factory =
+        common::Core::instance().factories().get_factory< BASE >();
 
     cf_assert ( is_not_null(factory) );
 
-    boost::shared_ptr< Common::CBuilderT<BASE,CONCRETE> > builder =
+    boost::shared_ptr< common::CBuilderT<BASE,CONCRETE> > builder =
         factory->create_component_ptr< CBuilderT<BASE,CONCRETE> >( name );
 
     // check that CBuilderT can cast to CBuilder
@@ -196,10 +196,10 @@ struct ComponentBuilder
 
 /////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CBuilder_hpp
+#endif // CF3_common_CBuilder_hpp
 

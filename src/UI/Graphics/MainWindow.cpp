@@ -48,18 +48,18 @@
 
 #include "UI/Graphics/MainWindow.hpp"
 
-#define WORKSPACE_FILE QDir::homePath() + "/CF_workspace.xml"
+#define WORKSPACE_FILE QDir::homePath() + "/CF3_workspace.xml"
 
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Tools::Shell;
-using namespace CF::UI::Core;
-using namespace CF::UI::UICommon;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Tools::Shell;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -462,7 +462,7 @@ void MainWindow::connectToServer()
 
   frame.set_option("Hostname", std::string("localhost"),
                    "Name of the computer that hosts the server.");
-  frame.set_option("Port number", CF::Uint(62784),
+  frame.set_option("Port number", cf3::Uint(62784),
                    "The port number the server is listening to.");
 
   if(dlg.show(frame.main_map.content, "Connect to server", true))
@@ -578,7 +578,7 @@ void MainWindow::runScript()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::newLogMessage(const QString & message, CF::UI::UICommon::LogMessage::Type type)
+void MainWindow::newLogMessage(const QString & message, cf3::UI::UICommon::LogMessage::Type type)
 {
   m_logFile << message << '\n';
 }
@@ -616,4 +616,4 @@ void MainWindow::scriptFinished()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

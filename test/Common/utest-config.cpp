@@ -36,8 +36,8 @@ using namespace std;
 using namespace boost;
 using namespace boost::assign;
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 /////////////////////////////////////////////////////////////////////////////////////
 

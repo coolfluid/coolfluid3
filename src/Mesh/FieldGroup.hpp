@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_FieldGroup_hpp
-#define CF_Mesh_FieldGroup_hpp
+#ifndef cf3_Mesh_FieldGroup_hpp
+#define cf3_Mesh_FieldGroup_hpp
 
 #include <boost/range.hpp>
 
@@ -17,8 +17,8 @@
 #include "Mesh/CUnifiedData.hpp"
 #include "Mesh/CEntities.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   class CLink;
   namespace PE { class CommPattern; }
 }
@@ -36,7 +36,7 @@ namespace Mesh {
 
 /// Component that holds Fields of the same type (topology and space)
 /// @author Willem Deconinck
-class Mesh_API FieldGroup : public Common::Component {
+class Mesh_API FieldGroup : public common::Component {
 
 public: // typedefs
 
@@ -50,7 +50,7 @@ public: // typedefs
     /// Enumeration of the Shapes recognized in CF
     enum Type { INVALID=-1, POINT_BASED=0,  ELEMENT_BASED=1, CELL_BASED=2, FACE_BASED=3 };
 
-    typedef Common::EnumT< Basis > ConverterBase;
+    typedef common::EnumT< Basis > ConverterBase;
 
     struct Mesh_API Convert : public ConverterBase
     {
@@ -112,7 +112,7 @@ public: // functions
   CList<Uint>& rank() const { return *m_rank; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
-  Common::PE::CommPattern& comm_pattern();
+  common::PE::CommPattern& comm_pattern();
 
   /// Check if a field row is owned by this rank
   bool is_ghost(const Uint idx) const;
@@ -121,10 +121,10 @@ public: // functions
   /// @throws Common::InvalidStructure
   void check_sanity();
 
-  boost::iterator_range< Common::ComponentIterator<CEntities> > entities_range();
-  boost::iterator_range< Common::ComponentIterator<CElements> > elements_range();
+  boost::iterator_range< common::ComponentIterator<CEntities> > entities_range();
+  boost::iterator_range< common::ComponentIterator<CElements> > elements_range();
 
-  Common::ComponentIteratorRange<Field> fields();
+  common::ComponentIteratorRange<Field> fields();
 
   Field& field(const std::string& name) const;
 
@@ -145,9 +145,9 @@ public: // functions
 
   Basis::Type basis() const { return m_basis; }
 
-  void signal_create_field ( Common::SignalArgs& node );
+  void signal_create_field ( common::SignalArgs& node );
 
-  void signature_create_field ( Common::SignalArgs& node);
+  void signature_create_field ( common::SignalArgs& node);
 
 private: // functions
 
@@ -160,7 +160,7 @@ private: // functions
   void config_type();
 
   /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( Common::SignalArgs& args );
+  void on_mesh_changed_event( common::SignalArgs& args );
 
 protected:
 
@@ -170,17 +170,17 @@ protected:
 
   Uint m_size;
 
-  boost::shared_ptr<Common::CLink> m_topology;
+  boost::shared_ptr<common::CLink> m_topology;
   boost::shared_ptr<CList<Uint> > m_glb_idx;
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;
   boost::shared_ptr<Field> m_coordinates;
-  boost::weak_ptr<Common::PE::CommPattern> m_comm_pattern;
+  boost::weak_ptr<common::PE::CommPattern> m_comm_pattern;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_FieldGroup_hpp
+#endif // CF3_Mesh_FieldGroup_hpp

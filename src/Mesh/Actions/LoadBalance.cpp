@@ -17,16 +17,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-using namespace Common;
-using namespace Common::PE;
+using namespace common;
+using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LoadBalance, CMeshTransformer, LibActions> LoadBalance_Builder;
+common::ComponentBuilder < LoadBalance, CMeshTransformer, LibActions> LoadBalance_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -40,9 +40,9 @@ LoadBalance::LoadBalance( const std::string& name )
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
-#if defined (CF_HAVE_PTSCOTCH)
+#if defined (CF3_HAVE_PTSCOTCH)
   m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner");
-#elif defined (CF_HAVE_ZOLTAN)
+#elif defined (CF3_HAVE_ZOLTAN)
   m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner");
   m_partitioner->configure_option("graph_package", std::string("PHG"));
 #endif
@@ -113,4 +113,4 @@ void LoadBalance::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

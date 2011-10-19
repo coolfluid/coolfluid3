@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_QwtTab_Graph_hpp
-#define CF_UI_QwtTab_Graph_hpp
+#ifndef cf3_UI_QwtTab_Graph_hpp
+#define cf3_UI_QwtTab_Graph_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ class QWheelEvent;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -151,8 +151,8 @@ private slots: //slots
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_QwtTab_Graph_hpp
+#endif // CF3_UI_QwtTab_Graph_hpp

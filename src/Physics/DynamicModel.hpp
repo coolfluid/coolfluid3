@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_DynamicModel_hpp
-#define CF_Physics_DynamicModel_hpp
+#ifndef cf3_Physics_DynamicModel_hpp
+#define cf3_Physics_DynamicModel_hpp
 
 #include "Physics/PhysModel.hpp"
 
@@ -15,7 +15,7 @@
 #include "LibPhysics.hpp"
 #include <boost/scoped_ptr.hpp>
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
@@ -82,6 +82,6 @@ private: // data
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_DynamicModel_hpp
+#endif // CF3_Physics_DynamicModel_hpp

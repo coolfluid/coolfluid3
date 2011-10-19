@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibRDM_hpp
-#define CF_RDM_LibRDM_hpp
+#ifndef cf3_RDM_LibRDM_hpp
+#define cf3_RDM_LibRDM_hpp
 
 #include "Common/CLibrary.hpp"
 
@@ -15,23 +15,23 @@
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_CORE_EXPORTS
-#   define RDM_API      CF_EXPORT_API
+#   define RDM_API      CF3_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_API      CF_IMPORT_API
-#   define RDM_CORE_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_API      CF3_IMPORT_API
+#   define RDM_CORE_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_API LibRDM : public Common::CLibrary {
+class RDM_API LibRDM : public common::CLibrary {
 
 public:
 
@@ -39,7 +39,7 @@ public:
   typedef boost::shared_ptr<LibRDM const> ConstPtr;
 
   /// Constructor
-  LibRDM ( const std::string& name) : Common::CLibrary(name) {   }
+  LibRDM ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -76,6 +76,6 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_LibRDM_hpp
+#endif // CF3_RDM_LibRDM_hpp

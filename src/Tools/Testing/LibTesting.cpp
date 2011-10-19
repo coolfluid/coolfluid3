@@ -8,13 +8,13 @@
 
 #include "Tools/Testing/LibTesting.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
-CF::Common::RegistLibrary<LibTesting> libTesting;
+cf3::common::RegistLibrary<LibTesting> libTesting;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibTesting::terminate_impl()
 
 } // Testing
 } // Tools
-} // CF
+} // cf3

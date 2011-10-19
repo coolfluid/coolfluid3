@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_Consts_hpp
-#define CF_Math_Consts_hpp
+#ifndef cf3_Math_Consts_hpp
+#define cf3_Math_Consts_hpp
 
 #include <limits>    // for std::numeric_limits
 
@@ -13,7 +13,7 @@
 
 #include "Math/LibMath.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -49,6 +49,6 @@ namespace Consts
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
-#endif // CF_Math_Consts_hpp
+#endif // CF3_Math_Consts_hpp

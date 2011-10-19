@@ -8,13 +8,13 @@
 
 #include "Burgers2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::Burgers2D,
+common::ComponentBuilder < Scalar::Burgers2D,
                            Physics::Variables,
                            LibScalar >
                            Variables_Burgers2D;
@@ -31,4 +31,4 @@ Burgers2D::~Burgers2D() {}
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3

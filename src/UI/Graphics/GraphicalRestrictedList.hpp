@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GaphicalRestrictedList_hpp
-#define CF_GUI_Graphics_GaphicalRestrictedList_hpp
+#ifndef cf3_GUI_Graphics_GaphicalRestrictedList_hpp
+#define cf3_GUI_Graphics_GaphicalRestrictedList_hpp
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ class QComboBox;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -27,7 +27,7 @@ namespace Graphics {
 
   public:
 
-    GraphicalRestrictedList(CF::Common::Option::ConstPtr opt = CF::Common::Option::ConstPtr(),
+    GraphicalRestrictedList(cf3::common::Option::ConstPtr opt = cf3::common::Option::ConstPtr(),
                             QWidget * parent = 0);
 
     ~GraphicalRestrictedList();
@@ -55,8 +55,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GaphicalRestrictedList_hpp
+#endif // CF3_GUI_Graphics_GaphicalRestrictedList_hpp

@@ -20,9 +20,9 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +91,7 @@ public: // functions
 
 }; // CSmall
 
-Common::ComponentBuilder < CSmall, Component, LibCommon > CSmall_Builder;
+common::ComponentBuilder < CSmall, Component, LibCommon > CSmall_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

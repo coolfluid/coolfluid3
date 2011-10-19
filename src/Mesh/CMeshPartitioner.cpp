@@ -29,13 +29,13 @@
 #include "Mesh/Manipulations.hpp"
 #include "Mesh/CMeshElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 
-  using namespace Common;
-  using namespace Common::XML;
-  using namespace Common::PE;
+  using namespace common;
+  using namespace common::XML;
+  using namespace common::PE;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -95,7 +95,7 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
 
 //////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance_signature ( Common::SignalArgs& node )
+void CMeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -697,4 +697,4 @@ void CMeshPartitioner::migrate()
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

@@ -30,13 +30,13 @@
 
 #include "UI/Core/NetworkQueue.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Tools::Shell;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Tools::Shell;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -200,7 +200,7 @@ void NetworkQueue::start()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NetworkQueue::signal_ack ( Common::SignalArgs & args )
+void NetworkQueue::signal_ack ( common::SignalArgs & args )
 {
   if( isRunning() )
   {
@@ -300,7 +300,7 @@ void NetworkQueue::execute_script ( const QString & filename )
     }
     else // python
     {
-      const URI script_engine_path("//Root/Tools/Python/ScriptEngine", Common::URI::Scheme::CPATH);
+      const URI script_engine_path("//Root/Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
       options.add_option< OptionT<std::string> >("script", m_scriptStream->readAll().toStdString());
@@ -355,4 +355,4 @@ void NetworkQueue::send_next_command()
 
 } // Core
 } // UI
-} // CF
+} // cf3

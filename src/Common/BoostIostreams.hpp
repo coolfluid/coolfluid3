@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_BOOSTIOSTREAMS_hpp
-#define CF_Common_BOOSTIOSTREAMS_hpp
+#ifndef cf3_common_BOOSTIOSTREAMS_hpp
+#define cf3_common_BOOSTIOSTREAMS_hpp
 
 #define BOOST_SELECT_BY_SIZE_MAX_CASE 20
 
@@ -16,4 +16,4 @@
 #include <boost/iostreams/operations.hpp> // put
 
 
-#endif // CF_Common_BOOSTIOSTREAMS_hpp
+#endif // CF3_common_BOOSTIOSTREAMS_hpp

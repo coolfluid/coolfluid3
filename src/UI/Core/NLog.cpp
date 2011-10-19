@@ -18,13 +18,13 @@
 
 #include "UI/Core/NLog.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::UICommon;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -154,4 +154,4 @@ NLog::Ptr NLog::globalLog()
 
 } // Core
 } // UI
-} // CF
+} // cf3

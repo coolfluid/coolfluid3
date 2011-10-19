@@ -8,11 +8,11 @@
 
 #include "Math/LSS/LibLSS.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
-CF::Common::RegistLibrary<LibLSS> libMath;
+cf3::common::RegistLibrary<LibLSS> libMath;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibLSS::terminate_impl()
 
 } // LSS
 } // Math
-} // CF
+} // cf3

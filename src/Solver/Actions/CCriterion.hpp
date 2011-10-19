@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CCriterion_hpp
-#define CF_Solver_CCriterion_hpp
+#ifndef cf3_Solver_CCriterion_hpp
+#define cf3_Solver_CCriterion_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Common/CAction.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -20,7 +20,7 @@ namespace Actions {
 
 /// CCriterion models a Unsteady PDE problem
 /// @author Tiago Quintino
-class Solver_Actions_API CCriterion : public Common::Component {
+class Solver_Actions_API CCriterion : public common::Component {
 
 public: // typedefs
 
@@ -47,8 +47,8 @@ public: // functions
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CCriterion_hpp
+#endif // CF3_Solver_CCriterion_hpp

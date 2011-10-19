@@ -20,10 +20,10 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,4 +144,4 @@ Physics::PhysModel& CSolver::physics()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

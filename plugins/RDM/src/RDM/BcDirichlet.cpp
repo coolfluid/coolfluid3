@@ -20,15 +20,15 @@
 #include "RDM/BcDirichlet.hpp"
 #include "RDM/RDSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibRDM > BcDirichlet_Builder;
+common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibRDM > BcDirichlet_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -103,4 +103,4 @@ void BcDirichlet::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

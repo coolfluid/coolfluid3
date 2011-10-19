@@ -8,15 +8,15 @@
 
 #include "Common/ConnectionManager.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
   using namespace XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SignalError::SignalError ( const Common::CodeLocation& where, const std::string& what)
-  : Common::Exception(where, what, "SignalError")
+SignalError::SignalError ( const common::CodeLocation& where, const std::string& what)
+  : common::Exception(where, what, "SignalError")
 {
 }
 
@@ -126,5 +126,5 @@ void Connection::disconnect() { m_connection.disconnect(); }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

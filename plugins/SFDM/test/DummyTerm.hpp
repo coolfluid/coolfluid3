@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_DummyTerm_hpp
-#define CF_SFDM_DummyTerm_hpp
+#ifndef cf3_SFDM_DummyTerm_hpp
+#define cf3_SFDM_DummyTerm_hpp
 
 #include "SFDM/Term.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,6 +41,6 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_DummyTerm_hpp
+#endif // CF3_SFDM_DummyTerm_hpp

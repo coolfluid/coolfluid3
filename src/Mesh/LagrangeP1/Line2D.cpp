@@ -16,18 +16,18 @@
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Line2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP1 >
+common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP1 >
    Line2D_Builder(LibLagrangeP1::library_namespace()+"."+Line2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -41,9 +41,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Line2D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Line2D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
   return *facetype;
 }
 
@@ -107,4 +107,4 @@ Line2D::JacobianT Line2D::jacobian(const MappedCoordsT& mapped_coord, const Node
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

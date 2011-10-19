@@ -38,12 +38,12 @@ BOOST_FUSION_ADAPT_STRUCT(
   (std::vector<CF::Mesh::BlockMesh::BlockData::IndicesT>, patch_points)
 )
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::BlockMesh;
 
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;
@@ -190,4 +190,4 @@ void parse_blockmesh_dict(std::istream& file, BlockData& blockData)
 }
 
 } // BlockMeshReader
-} // CF
+} // cf3

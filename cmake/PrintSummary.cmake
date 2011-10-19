@@ -1,11 +1,11 @@
 ### prints the build summary
 
 # get some variables
-site_name(CF_BUILD_HOSTNAME)
+site_name(CF3_BUILD_HOSTNAME)
 
-coolfluid_get_date(CF_BUILD_DATE)
+coolfluid_get_date(CF3_BUILD_DATE)
 
-get_property( CF_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES )
+get_property( CF3_LANGUAGES GLOBAL PROPERTY ENABLED_LANGUAGES )
 
 set( print_counter 0 )
 
@@ -14,12 +14,12 @@ set( print_counter 0 )
 coolfluid_log( "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++" )
 coolfluid_log( " coolfluid configuration summary " )
 coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " version & kernel      : [${CF_VERSION}] @ [${CF_KERNEL_VERSION}]" )
+coolfluid_log( " version & kernel      : [${CF3_VERSION}] @ [${CF3_KERNEL_VERSION}]" )
 if(coolfluid_svn_revision)
   coolfluid_log( " coolfluid revision    : [${coolfluid_svn_revision}]" )
 endif()
-coolfluid_log( " hostname & date       : [${CF_BUILD_HOSTNAME}] @ [${CF_BUILD_DATE}]" )
-coolfluid_log( " operating system      : [${CMAKE_SYSTEM}] @ [${CF_OS_BITS}] bits" )
+coolfluid_log( " hostname & date       : [${CF3_BUILD_HOSTNAME}] @ [${CF3_BUILD_DATE}]" )
+coolfluid_log( " operating system      : [${CMAKE_SYSTEM}] @ [${CF3_OS_BITS}] bits" )
 
 # print cmake information
 
@@ -32,12 +32,12 @@ coolfluid_log( " boost version         : [${Boost_LIB_VERSION}]" )
 # print the compiler information ( put to the log file )
 
 coolfluid_log_file( "---------------------------------------------------------" )
-coolfluid_log_file( " compiler id & version : [${CMAKE_CXX_COMPILER_ID} ${CF_CXX_COMPILER_VERSION}]" )
+coolfluid_log_file( " compiler id & version : [${CMAKE_CXX_COMPILER_ID} ${CF3_CXX_COMPILER_VERSION}]" )
 coolfluid_log_file( " common linker flags   : [${LINK_FLAGS}]" )
 coolfluid_log_file( " shared linker flags   : [${CMAKE_SHARED_LINKER_FLAGS}]" )
 coolfluid_log_file( " link libraries        : [${LINK_LIBRARIES}]" )
-coolfluid_log( " enabled languages     : [${CF_LANGUAGES}]")
-foreach( lang ${CF_LANGUAGES} )
+coolfluid_log( " enabled languages     : [${CF3_LANGUAGES}]")
+foreach( lang ${CF3_LANGUAGES} )
   coolfluid_log_file( " language ${lang} " )
   coolfluid_log_file( "    compiler           : [${CMAKE_${lang}_COMPILER}]" )
   coolfluid_log_file( "    flags              : [${CMAKE_${lang}_FLAGS} ${CMAKE_${lang}_FLAGS_${CMAKE_BUILD_TYPE}}]" )
@@ -47,14 +47,14 @@ endforeach()
 # print most important build options
 
 coolfluid_log( "---------------------------------------------------------" )
-coolfluid_log( " Documentation         : [${CF_ENABLE_DOCS}]")
-coolfluid_log( " Unit Tests            : [${CF_ENABLE_UNIT_TESTS}]")
-coolfluid_log( " Acceptance Tests      : [${CF_ENABLE_ACCEPTANCE_TESTS}]")
-coolfluid_log( " GUI                   : [${CF_ENABLE_GUI}]")
-coolfluid_log( " Sandbox               : [${CF_ENABLE_SANDBOX}]")
-coolfluid_log( " Assertions            : [${CF_ENABLE_ASSERTIONS}]")
-coolfluid_log( " Code coverage         : [${CF_ENABLE_CODECOVERAGE}]")
-coolfluid_log( " Explicit Templates    : [${CF_HAVE_CXX_EXPLICIT_TEMPLATES}]")
+coolfluid_log( " Documentation         : [${CF3_ENABLE_DOCS}]")
+coolfluid_log( " Unit Tests            : [${CF3_ENABLE_UNIT_TESTS}]")
+coolfluid_log( " Acceptance Tests      : [${CF3_ENABLE_ACCEPTANCE_TESTS}]")
+coolfluid_log( " GUI                   : [${CF3_ENABLE_GUI}]")
+coolfluid_log( " Sandbox               : [${CF3_ENABLE_SANDBOX}]")
+coolfluid_log( " Assertions            : [${CF3_ENABLE_ASSERTIONS}]")
+coolfluid_log( " Code coverage         : [${CF3_ENABLE_CODECOVERAGE}]")
+coolfluid_log( " Explicit Templates    : [${CF3_HAVE_CXX_EXPLICIT_TEMPLATES}]")
 
 # print install path
 
@@ -67,7 +67,7 @@ coolfluid_log( "")
 
 set( list_kernel_libs "" )
 set( print_counter 0 )
-foreach( klib ${CF_KERNEL_LIBS} )
+foreach( klib ${CF3_KERNEL_LIBS} )
 
   string(REGEX REPLACE "coolfluid_(.+)" "\\1" klib ${klib} )
 
@@ -89,7 +89,7 @@ coolfluid_log( "")
 
 set( list_plugins "" )
 set( print_counter 0 )
-foreach( plugin ${CF_PLUGIN_LIST} )
+foreach( plugin ${CF3_PLUGIN_LIST} )
 
   set( list_plugins "${list_plugins} ${plugin}" )
 
@@ -110,13 +110,13 @@ if( COMMAND feature_summary )
 
 #  feature_summary( WHAT ENABLED_FEATURES
 #                   DESCRIPTION "Enabled Features:"
-#                   VAR CF_ENABLED_FEATURES )
-#  coolfluid_log( "${CF_ENABLED_FEATURES}" )
+#                   VAR CF3_ENABLED_FEATURES )
+#  coolfluid_log( "${CF3_ENABLED_FEATURES}" )
 
   set( list_features "" )
   set( print_counter 0 )
-  get_property( CF_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
-  foreach( feature ${CF_ENABLED_FEATURES})
+  get_property( CF3_ENABLED_FEATURES  GLOBAL PROPERTY ENABLED_FEATURES )
+  foreach( feature ${CF3_ENABLED_FEATURES})
 
     set( list_features "${list_features} ${feature}")
 
@@ -137,7 +137,7 @@ if( COMMAND feature_summary )
 
 endif()
 
-foreach( utest ${CF_ENABLED_UTESTS} )
+foreach( utest ${CF3_ENABLED_UTESTS} )
 
   set( list_enabled_utests "${list_enabled_utests} ${utest}" )
 
@@ -154,7 +154,7 @@ coolfluid_log_file( " Enabled unit tests:\n\t\t${list_enabled_utests}" )
 if( DEFINED list_enabled_utests )
   coolfluid_log_file( "" )
 endif()
-foreach( utest ${CF_DISABLED_UTESTS} )
+foreach( utest ${CF3_DISABLED_UTESTS} )
 
   set( list_disabled_utests "${list_disabled_utests} ${utest}" )
 
@@ -173,7 +173,7 @@ if( DEFINED list_disabled_utests )
 endif()
 
 
-foreach( atest ${CF_ENABLED_ATESTS} )
+foreach( atest ${CF3_ENABLED_ATESTS} )
 
   set( list_enabled_atests "${list_enabled_atests} ${atest}" )
 
@@ -191,7 +191,7 @@ if( DEFINED list_enabled_atests )
   coolfluid_log_file( "" )
 endif()
 
-foreach( atest ${CF_DISABLED_ATESTS} )
+foreach( atest ${CF3_DISABLED_ATESTS} )
 
   set( list_disabled_atests "${list_disabled_atests} ${atest}" )
 
@@ -209,7 +209,7 @@ if( DEFINED list_disabled_atests )
   coolfluid_log_file( "" )
 endif()
 
-foreach( atest ${CF_ENABLED_PTESTS} )
+foreach( atest ${CF3_ENABLED_PTESTS} )
 
   set( list_enabled_ptests "${list_enabled_ptests} ${ptest}" )
 
@@ -227,7 +227,7 @@ if( DEFINED list_enabled_ptests )
   coolfluid_log_file( "" )
 endif()
 
-foreach( ptest ${CF_DISABLED_PTESTS} )
+foreach( ptest ${CF3_DISABLED_PTESTS} )
 
   set( list_disabled_ptests "${list_disabled_ptests} ${ptest}" )
 
@@ -248,7 +248,7 @@ endif()
 # warn if this is a static build
 # TODO: test static building
 
-if(CF_ENABLE_STATIC)
+if(CF3_ENABLE_STATIC)
   coolfluid_log( ">>>> ------------------------------" )
   coolfluid_log( ">>>> IMPORTANT -- STATIC BUILD <<<<" )
   coolfluid_log( ">>>> ------------------------------" )

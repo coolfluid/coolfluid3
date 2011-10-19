@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CNodeElementConnectivity_hpp
-#define CF_Mesh_CNodeElementConnectivity_hpp
+#ifndef cf3_Mesh_CNodeElementConnectivity_hpp
+#define cf3_Mesh_CNodeElementConnectivity_hpp
 
 #include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
@@ -13,8 +13,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   class CLink;
 }
 namespace Mesh {
@@ -26,7 +26,7 @@ namespace Mesh {
 
 /// Stores connectivity data between nodes and their adjacent elements
 /// and provides a convenient API to access the data
-class Mesh_API CNodeElementConnectivity : public Common::Component
+class Mesh_API CNodeElementConnectivity : public common::Component
 {
 public:
 
@@ -74,7 +74,7 @@ private: //functions
 private: // data
 
   /// link to the nodes component
-  boost::shared_ptr<Common::CLink> m_nodes;
+  boost::shared_ptr<common::CLink> m_nodes;
 
   /// unified view of the elements
   CUnifiedData::Ptr m_elements;
@@ -87,8 +87,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ConnectivityData_hpp
+#endif // CF3_Mesh_ConnectivityData_hpp

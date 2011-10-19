@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CDummyLoopOperation_hpp
-#define CF_Solver_Actions_CDummyLoopOperation_hpp
+#ifndef cf3_Solver_Actions_CDummyLoopOperation_hpp
+#define cf3_Solver_Actions_CDummyLoopOperation_hpp
 
 #include "Mesh/CElements.hpp"
 
@@ -13,7 +13,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   class FieldElements;
   template <typename T> class CList;
@@ -52,6 +52,6 @@ private: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // TestActions
-} // CF
+} // cf3
 
-#endif // CF_TestActions_CDummyLoopOperation_hpp
+#endif // CF3_TestActions_CDummyLoopOperation_hpp

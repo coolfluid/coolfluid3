@@ -10,12 +10,12 @@
 
 #include "RDM/Scalar/LibScalar.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibScalar> LibScalar;
+cf3::common::RegistLibrary<LibScalar> LibScalar;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibScalar::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

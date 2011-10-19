@@ -29,13 +29,13 @@
 
 #include "Python/Component.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, Common::URI, RealVector> AnyTypes;
+typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, common::URI, RealVector> AnyTypes;
 
 /// Conversion for basic types
 struct PythonToAny
@@ -54,7 +54,7 @@ struct PythonToAny
     if(m_found)
       return;
 
-    if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
+    if(common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
 
     extract<T> extracted_value(m_value);
@@ -88,7 +88,7 @@ struct PythonListToAny
     if(m_found)
       return;
 
-    if(Common::class_name_from_typeinfo(typeid(T)) != m_target_type)
+    if(common::class_name_from_typeinfo(typeid(T)) != m_target_type)
       return;
 
     std::vector<T> vec;
@@ -99,7 +99,7 @@ struct PythonListToAny
     {
       extract<T> extracted_value(m_list[i]);
       if(!extracted_value.check())
-        throw Common::BadValue(FromHere(), "Incorrect python extracted value for list item");
+        throw common::BadValue(FromHere(), "Incorrect python extracted value for list item");
 
       vec.push_back(extracted_value());
     }
@@ -117,7 +117,7 @@ struct PythonListToAny
 
 struct OptionCreator
 {
-  OptionCreator(Common::OptionList& options, const object& value, const std::string& name, bool& found) :
+  OptionCreator(common::OptionList& options, const object& value, const std::string& name, bool& found) :
     m_options(options),
     m_value(value),
     m_name(name),
@@ -139,12 +139,12 @@ struct OptionCreator
     }
   }
 
-  void operator()(const Common::URI) const
+  void operator()(const common::URI) const
   {
     if(m_found)
       return;
 
-    extract<Common::URI> extracted_value(m_value);
+    extract<common::URI> extracted_value(m_value);
     if(extracted_value.check())
     {
       m_found = true;
@@ -152,7 +152,7 @@ struct OptionCreator
     }
   }
 
-  Common::OptionList& m_options;
+  common::OptionList& m_options;
   const object& m_value;
   const std::string& m_name;
   bool& m_found;
@@ -177,7 +177,7 @@ boost::any python_to_any(const object& val, const std::string& target_type)
   }
 
   if(!found)
-    throw Common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
+    throw common::CastingFailed(FromHere(), "Failed to convert to boost::any while looking for target type " + target_type);
 
   return result;
 }
@@ -185,7 +185,7 @@ boost::any python_to_any(const object& val, const std::string& target_type)
 // Wrapper for signals
 struct SignalWrapper
 {
-  SignalWrapper(Common::SignalPtr signal) :
+  SignalWrapper(common::SignalPtr signal) :
     m_signal(signal)
   {
   }
@@ -193,21 +193,21 @@ struct SignalWrapper
   object operator()(tuple args, dict kwargs)
   {
     // Get the signature
-    Common::SignalArgs node;
+    common::SignalArgs node;
     ( * m_signal->signature() ) ( node );
-    Common::XML::SignalOptions options(node);
+    common::XML::SignalOptions options(node);
 
     // We support keywordless calling only for signals taking a single argument
     const Uint nb_options = options.store.size();
     if(len(args) == 2 && nb_options == 1)
     {
-      Common::Option& option = *options.begin()->second;
+      common::Option& option = *options.begin()->second;
       option.change_value(python_to_any(args[1], option.type()));
     }
     else // All other cases should use keywords
     {
       if(len(args) != 1)
-        throw Common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments");
+        throw common::IllegalCall(FromHere(), "Method " + m_signal->name() + " can not be called using unnamed arguments");
 
 //       for(Common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
 //       {
@@ -224,7 +224,7 @@ struct SignalWrapper
         const std::string key = extracted_key();
         if(options.check(key))
         {
-          Common::Option& option = options[key];
+          common::Option& option = options[key];
           option.change_value(python_to_any(kwargs[key], option.type()));
         }
         else
@@ -232,7 +232,7 @@ struct SignalWrapper
           bool found = false;
           boost::mpl::for_each<AnyTypes>(OptionCreator(options, kwargs[key], key, found));
           if(!found)
-            throw Common::BadValue(FromHere(), "No conversion found for keyword argument " + key);
+            throw common::BadValue(FromHere(), "No conversion found for keyword argument " + key);
         }
       }
 
@@ -241,7 +241,7 @@ struct SignalWrapper
     options.flush();
 
     std::string node_contents;
-    Common::XML::to_string(node.node, node_contents);
+    common::XML::to_string(node.node, node_contents);
 
     CFdebug << "Calling signal " << m_signal->name() << " with arguments:\n" << node_contents << CFendl;
 
@@ -257,11 +257,11 @@ struct SignalWrapper
     doc_str << "Valid keywords are:\n";
 
     // Get the signature
-    Common::SignalArgs node;
+    common::SignalArgs node;
     ( * m_signal->signature() ) ( node );
 
-    Common::XML::SignalOptions options(node);
-    for(Common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
+    common::XML::SignalOptions options(node);
+    for(common::OptionList::iterator option_it = options.begin(); option_it != options.end(); ++option_it)
     {
       doc_str << "  " << option_it->first << ": " << option_it->second->description() << "\n";
     }
@@ -276,17 +276,17 @@ struct SignalWrapper
     setattr(python_object, m_signal->name(), import("types").attr("MethodType")(signal_func, python_object));
   }
 
-  Common::SignalPtr m_signal;
+  common::SignalPtr m_signal;
 };
 
 class ComponentWrapper
 {
 public:
-  ComponentWrapper(Common::Component& component) :
+  ComponentWrapper(common::Component& component) :
     m_component(component.as_ptr<Common::Component>())
   {
     // Add the signals
-    boost_foreach(Common::SignalPtr signal, component.signal_list())
+    bcommonoreach(Common::SignalPtr signal, component.signal_list())
     {
       if(signal->name() != "create_component")
         wrap_signal(signal);
@@ -300,7 +300,7 @@ public:
 
   object create_component(const std::string& name, const std::string& builder_name)
   {
-    Common::Component::Ptr built_comp = Common::build_component(builder_name, name);
+    common::Component::Ptr built_comp = common::build_component(builder_name, name);
     component().add_component(built_comp);
     return wrap_component(*built_comp);
   }
@@ -317,7 +317,7 @@ public:
 
   void configure_option(const std::string& optname, const object& val)
   {
-    Common::Option& option = component().option(optname);
+    common::Option& option = component().option(optname);
     option.change_value(python_to_any(val, option.type()));
   }
 
@@ -326,12 +326,12 @@ public:
     return component().option(optname).value_str();
   }
 
-  Common::URI uri()
+  common::URI uri()
   {
     return component().uri();
   }
 
-  void wrap_signal(Common::SignalPtr signal)
+  void wrap_signal(common::SignalPtr signal)
   {
     m_wrapped_signals.push_back(SignalWrapper(signal));
   }
@@ -346,24 +346,24 @@ public:
 
   void print_timing_tree()
   {
-    CF::Common::print_timing_tree(component());
+    cf3::common::print_timing_tree(component());
   }
 
 private:
   // checked access
-  Common::Component& component()
+  common::Component& component()
   {
     if(m_component.expired())
-      throw Common::BadPointer(FromHere(), "Wrapped object was deleted");
+      throw common::BadPointer(FromHere(), "Wrapped object was deleted");
 
     return *m_component.lock();
   }
-  boost::weak_ptr<Common::Component> m_component;
+  boost::weak_ptr<common::Component> m_component;
 
   std::vector<SignalWrapper> m_wrapped_signals;
 };
 
-object wrap_component(Common::Component& component)
+object wrap_component(common::Component& component)
 {
   object result = object(ComponentWrapper(component));
   ComponentWrapper& wrapped = extract<ComponentWrapper&>(result);
@@ -386,4 +386,4 @@ void def_component()
 }
 
 } // Python
-} // CF
+} // cf3

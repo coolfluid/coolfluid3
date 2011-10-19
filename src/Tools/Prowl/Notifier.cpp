@@ -17,19 +17,19 @@ extern "C" {
 #include "Tools/Prowl/prowl/prowl.h"
 }
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Prowl {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ComponentBuilder < Notifier, Component, LibProwl > Notifier_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Notifier::Notifier ( const std::string& name ) :
-  Common::Component(name),
+  common::Component(name),
   m_priority(NORMAL),
   m_application_name("COOLFluiD")
 {
@@ -135,6 +135,6 @@ void Notifier::signal_notify ( SignalArgs& node )
 
 } // Prowl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

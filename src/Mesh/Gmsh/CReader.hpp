@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Gmsh_CReader_hpp
-#define CF_Mesh_Gmsh_CReader_hpp
+#ifndef cf3_Mesh_Gmsh_CReader_hpp
+#define cf3_Mesh_Gmsh_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 class CElements;
@@ -73,7 +73,7 @@ private: // functions
 
 private: // data
 
-  virtual void do_read_mesh_into(const Common::URI& fp, CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& fp, CMesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;
@@ -147,8 +147,8 @@ private: // data
 
 } // Gmsh
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Gmsh_CReader_hpp
+#endif // CF3_Mesh_Gmsh_CReader_hpp

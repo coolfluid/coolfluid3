@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_LibActions_hpp
-#define CF_Solver_Actions_LibActions_hpp
+#ifndef cf3_Solver_Actions_LibActions_hpp
+#define cf3_Solver_Actions_LibActions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Actions_API
 /// @note build system defines COOLFLUID_SOLVER_ACTIONS_EXPORTS when compiling files
 #ifdef COOLFLUID_SOLVER_ACTIONS_EXPORTS
-#   define Solver_Actions_API      CF_EXPORT_API
+#   define Solver_Actions_API      CF3_EXPORT_API
 #   define Solver_Actions_TEMPLATE
 #else
-#   define Solver_Actions_API      CF_IMPORT_API
-#   define Solver_Actions_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Solver_Actions_API      CF3_IMPORT_API
+#   define Solver_Actions_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -33,7 +33,7 @@ namespace Actions {
 
 /// Class defines the initialization and termination of the library Actions
 class Solver_Actions_API LibActions :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : Common::CLibrary(name) {   }
+  LibActions ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -80,8 +80,8 @@ protected:
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_LibActions_hpp
+#endif // CF3_Solver_Actions_LibActions_hpp

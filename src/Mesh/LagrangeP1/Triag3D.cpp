@@ -14,13 +14,13 @@
 #include "Mesh/LagrangeP1/Triag3D.hpp"
 #include "Mesh/LagrangeP1/Line2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Triag3D>, ElementType , LibLagrangeP1 >
+common::ComponentBuilder < ElementTypeT<Triag3D>, ElementType , LibLagrangeP1 >
    Triag3D_Builder(LibLagrangeP1::library_namespace()+"."+Triag3D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ Real jacobian_determinant_helper(const Triag3D::NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Triag3D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Triag3D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -54,9 +54,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag3D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Triag3D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Triag3D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<Triag3D> >(Triag3D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Triag3D> >(Triag3D::type_name()) );
   return *facetype;
 }
 
@@ -155,4 +155,4 @@ void Triag3D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes, Coo
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

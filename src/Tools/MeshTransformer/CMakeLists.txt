@@ -4,6 +4,6 @@ list( APPEND coolfluid-mesh-transformer_files
         Transformer.cpp 
     )
 
-list( APPEND coolfluid-mesh-transformer_cflibs ${CF_KERNEL_LIBS} coolfluid_shell)
+list( APPEND coolfluid-mesh-transformer_cflibs ${CF3_KERNEL_LIBS} coolfluid_shell)
 
 coolfluid_add_application( coolfluid-mesh-transformer )

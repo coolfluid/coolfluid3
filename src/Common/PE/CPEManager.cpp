@@ -31,17 +31,17 @@
 #include "Common/Log.hpp"
 
 using namespace boost::assign; // bring 'operator+=()' into scope
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CPEManager, Component, LibCommon > CPEManager_Builder;
+common::ComponentBuilder < CPEManager, Component, LibCommon > CPEManager_Builder;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -353,7 +353,7 @@ boost::thread & CPEManager::listening_thread ()
 void CPEManager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const std::string cmd = std::string(CF_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
+  const std::string cmd = std::string(CF3_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
 
   Uint nb_workers = options.value<Uint>("count");
   std::string name = options.value<std::string>("name");
@@ -461,5 +461,5 @@ void CPEManager::signature_kill_group ( SignalArgs & args )
 ////////////////////////////////////////////////////////////////////////////
 
 } // PE
-} // Common
-} // CF
+} // common
+} // cf3

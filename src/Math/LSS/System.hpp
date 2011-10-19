@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_System_hpp
-#define CF_Math_LSS_System_hpp
+#ifndef cf3_Math_LSS_System_hpp
+#define cf3_Math_LSS_System_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -46,13 +46,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class LSS_API System : public Common::Component {
+class LSS_API System : public common::Component {
 public:
 
   /// @name CREATION, DESTRUCTION AND COMPONENT SYSTEM
@@ -72,7 +72,7 @@ public:
 
   /// Setup sparsity structure
   /// @todo action for it
-  void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices);
 
   /// Exchange to existing matrix and vectors
   /// @todo action for it
@@ -131,7 +131,7 @@ public:
   //@{
 
   /// Print to logstream
-  void print(Common::LogStream& stream);
+  void print(common::LogStream& stream);
 
   /// Print to wherever
   void print(std::ostream& stream);
@@ -160,13 +160,13 @@ public:
   //@{
 
   /// Signal to write the system to disk as a tecplot file, for debugging purposes.
-  void signal_print(Common::SignalArgs& args);
+  void signal_print(common::SignalArgs& args);
 
   //@}
 
 private:
 
-  void signature_print(Common::SignalArgs& args);
+  void signature_print(common::SignalArgs& args);
 
   /// shared_ptr to system matrix
   LSS::Matrix::Ptr m_mat;
@@ -185,4 +185,4 @@ private:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_System_hpp
+#endif // CF3_Math_LSS_System_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_ForEachDimension_hpp
-#define CF_Solver_Actions_Proto_ForEachDimension_hpp
+#ifndef cf3_Solver_Actions_Proto_ForEachDimension_hpp
+#define cf3_Solver_Actions_Proto_ForEachDimension_hpp
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/include/for_each.hpp>
@@ -17,7 +17,7 @@
 /// @file
 /// Grammar and transform to make grouping expressions possible
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -90,6 +90,6 @@ struct ForEachDimensionGrammar :
 } // Proto
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_Actions_Proto_ForEachDimension_hpp
+#endif // CF3_Solver_Actions_Proto_ForEachDimension_hpp

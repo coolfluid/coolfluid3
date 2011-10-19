@@ -15,7 +15,7 @@
 #include "Python/Core.hpp"
 #include "Python/Component.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
@@ -24,12 +24,12 @@ struct Core
 {
   static object root()
   {
-    return wrap_component(Common::Core::instance().root());
+    return wrap_component(common::Core::instance().root());
   }
 
   static object environment()
   {
-    return wrap_component(Common::Core::instance().environment());
+    return wrap_component(common::Core::instance().environment());
   }
 
   static void initiate(list arglist)
@@ -46,8 +46,8 @@ struct Core
         arg_i.copy(argv[i], arg_i.size());
       }
 
-      Common::Core::instance().initiate(argc, argv);
-      Common::PE::Comm::instance().init(argc, argv);
+      common::Core::instance().initiate(argc, argv);
+      common::PE::Comm::instance().init(argc, argv);
     }
   }
 };
@@ -64,4 +64,4 @@ void def_core()
 }
 
 } // Python
-} // CF
+} // cf3

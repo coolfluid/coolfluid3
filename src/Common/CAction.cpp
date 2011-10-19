@@ -11,8 +11,8 @@
 
 #include "Common/LibCommon.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ CAction& CAction::create_action(const std::string& action_provider,
 }
 
 
-void CAction::signal_execute ( Common::SignalArgs& node )
+void CAction::signal_execute ( common::SignalArgs& node )
 {
   this->execute();
 }
@@ -44,4 +44,4 @@ void CAction::signal_execute ( Common::SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // CF
+} // cf3

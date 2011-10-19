@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 #include "Mesh/LagrangeP1/Line.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Line>, ShapeFunction, LibLagrangeP1 >
+common::ComponentBuilder < ShapeFunctionT<Line>, ShapeFunction, LibLagrangeP1 >
    Line_Builder(LibLagrangeP1::library_namespace()+"."+Line::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,4 +53,4 @@ const RealMatrix& Line::local_coordinates()
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

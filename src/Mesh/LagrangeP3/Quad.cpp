@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
 #include "Mesh/LagrangeP3/Quad.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Quad>, ShapeFunction, LibLagrangeP3 >
+common::ComponentBuilder < ShapeFunctionT<Quad>, ShapeFunction, LibLagrangeP3 >
    Quad_Builder(LibLagrangeP3::library_namespace()+"."+Quad::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,4 +152,4 @@ const RealMatrix& Quad::local_coordinates()
 
 } // LagrangeP3
 } // Mesh
-} // CF
+} // cf3

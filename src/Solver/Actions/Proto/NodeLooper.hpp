@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_NodeLooper_hpp
-#define CF_Solver_Actions_Proto_NodeLooper_hpp
+#ifndef cf3_Solver_Actions_Proto_NodeLooper_hpp
+#define cf3_Solver_Actions_Proto_NodeLooper_hpp
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/mpl/range_c.hpp>
@@ -16,7 +16,7 @@
 /// @file
 /// Loop over the nodes for a region
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -207,4 +207,4 @@ void for_each_node(Mesh::CRegion& root_region, const ExprT& expr)
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_NodeLooper_hpp
+#endif // CF3_Solver_Actions_Proto_NodeLooper_hpp

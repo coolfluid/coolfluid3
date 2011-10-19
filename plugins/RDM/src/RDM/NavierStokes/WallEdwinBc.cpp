@@ -23,18 +23,18 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < WallEdwinBc, RDM::BoundaryTerm, LibRDM > WallEdwinBc_Builder;
+common::ComponentBuilder < WallEdwinBc, RDM::BoundaryTerm, LibRDM > WallEdwinBc_Builder;
 
-Common::ComponentBuilder < FaceLoopT< WallEdwinBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallEdwinBc_Euler2D_Builder;
+common::ComponentBuilder < FaceLoopT< WallEdwinBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallEdwinBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -66,7 +66,7 @@ void WallEdwinBc::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

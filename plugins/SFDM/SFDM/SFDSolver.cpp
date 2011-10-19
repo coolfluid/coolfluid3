@@ -25,19 +25,19 @@
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
+common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -197,4 +197,4 @@ void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

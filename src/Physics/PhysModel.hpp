@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_PhysModel_hpp
-#define CF_Physics_PhysModel_hpp
+#ifndef cf3_Physics_PhysModel_hpp
+#define cf3_Physics_PhysModel_hpp
 
 #include "Common/Component.hpp"
 
 #include "Physics/LibPhysics.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math { class VariableManager; }
 namespace Physics {
 
@@ -28,7 +28,7 @@ namespace Physics {
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 /// @author Bart Janssens
-class Physics_API PhysModel : public Common::Component {
+class Physics_API PhysModel : public common::Component {
 
 public: //typedefs
 
@@ -48,8 +48,8 @@ public: // functions
   static std::string type_name () { return "PhysModel"; }
 
 
-  void signal_create_variables( Common::SignalArgs& args );
-  void signature_create_variables( Common::SignalArgs& args );
+  void signal_create_variables( common::SignalArgs& args );
+  void signature_create_variables( common::SignalArgs& args );
 
   /// @name INTERFACE
   //@{
@@ -90,6 +90,6 @@ private:
 
 
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_PhysModel_hpp
+#endif // CF3_Physics_PhysModel_hpp

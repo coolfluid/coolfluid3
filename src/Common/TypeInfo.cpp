@@ -11,21 +11,21 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#ifdef CF_HAVE_CXXABI_H
+#ifdef CF3_HAVE_CXXABI_H
 #include <cxxabi.h>
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 std::string demangle(const char* type)
 {
   int status = 0;
   char* r = 0;
 
-#ifdef CF_HAVE_CXXABI_H
+#ifdef CF3_HAVE_CXXABI_H
   r = abi::__cxa_demangle(type, 0, 0, &status);
 #else // dont have cxxabi.h
   status = 0;
@@ -48,17 +48,17 @@ std::string demangle(const char* type)
 TypeInfo::TypeInfo()
 {
   regist<int>("integer");
-  regist<CF::Uint>("unsigned");
+  regist<cf3::Uint>("unsigned");
   regist<std::string>("string");
   regist<bool>("bool");
-  regist<CF::Real>("real");
-  regist<Common::URI>("uri");
+  regist<cf3::Real>("real");
+  regist<common::URI>("uri");
   regist<std::vector<int> >("array[integer]");
   regist<std::vector<Uint> >("array[unsigned]");
   regist<std::vector<std::string> >("array[string]");
   regist<std::vector<bool> >("array[bool]");
   regist<std::vector<Real> >("array[real]");
-  regist<std::vector<Common::URI> >("array[uri]");
+  regist<std::vector<common::URI> >("array[uri]");
   regist<RealVector>("realvector");
 }
 
@@ -74,10 +74,10 @@ std::string class_name_from_typeinfo (const std::type_info & info)
   std::map<std::string, std::string>::const_iterator it =
       ti.portable_types.find(info.name());
 
-  cf_assert_desc(Common::demangle(info.name()).c_str(), it != ti.portable_types.end() );
+  cf_assert_desc(common::demangle(info.name()).c_str(), it != ti.portable_types.end() );
 
   return it->second;
 }
 
-} // Common
-} // CF
+} // common
+} // cf3

@@ -25,15 +25,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGNS {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
+common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -930,4 +930,4 @@ Uint CReader::get_total_nbElements()
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3

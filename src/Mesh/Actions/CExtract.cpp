@@ -24,11 +24,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions{
 
-  using namespace Common;
+  using namespace common;
 
   class IsGroup
   {
@@ -44,7 +44,7 @@ namespace Actions{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Mesh::Actions::CExtract, Mesh::CMeshTransformer, Mesh::Actions::LibActions > CExtract_Builder;
+common::ComponentBuilder < Mesh::Actions::CExtract, Mesh::CMeshTransformer, Mesh::Actions::LibActions > CExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -172,4 +172,4 @@ void CExtract::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

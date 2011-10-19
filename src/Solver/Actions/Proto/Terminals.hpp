@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Solver_Actions_Proto_Terminals_hpp
-#define CF_Solver_Actions_Proto_Terminals_hpp
+#ifndef cf3_Solver_Actions_Proto_Terminals_hpp
+#define cf3_Solver_Actions_Proto_Terminals_hpp
 
 #include<iostream>
 
@@ -19,7 +19,7 @@
 /// @file
 /// Some commonly used, statically defined terminal types
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -205,4 +205,4 @@ static boost::proto::terminal< double(*)(double) >::type const _sqrt = {&sqrt};
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_Terminals_hpp
+#endif // CF3_Solver_Actions_Proto_Terminals_hpp

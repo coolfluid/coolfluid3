@@ -17,14 +17,14 @@
 #include "Mesh/CTable.hpp"
 
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 using namespace Tools::Testing;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 
 namespace Testing {
@@ -144,6 +144,6 @@ bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
 
 } // MeshDiff
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,12 +12,12 @@
 
 #include "UI/Graphics/OptionLayout.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -115,7 +115,7 @@ void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::addOption(CF::Common::Option::ConstPtr option)
+void OptionLayout::addOption(cf3::common::Option::ConstPtr option)
 {
   GraphicalValue * value = GraphicalValue::createFromOption(option);
   QString name(option->name().c_str());
@@ -144,4 +144,4 @@ bool OptionLayout::hasOptions() const
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

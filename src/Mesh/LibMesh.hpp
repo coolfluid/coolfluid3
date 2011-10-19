@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibMesh_hpp
-#define CF_LibMesh_hpp
+#ifndef cf3_LibMesh_hpp
+#define cf3_LibMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,16 +18,16 @@
 /// Define the macro Mesh_API
 /// @note build system defines COOLFLUID_MESH_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_MESH_EXPORTS
-#   define Mesh_API      CF_EXPORT_API
+#   define Mesh_API      CF3_EXPORT_API
 #   define Mesh_TEMPLATE
 #else
-#   define Mesh_API      CF_IMPORT_API
-#   define Mesh_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Mesh_API      CF3_IMPORT_API
+#   define Mesh_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 /// Basic Classes for %Mesh applications used by %COOLFluiD
 namespace Mesh {
@@ -39,7 +39,7 @@ namespace Mesh {
 ///       and add a update() function that can be used to trigger dependent (linked) fields for update
 ///
 /// @author Tiago Quintino
-class Mesh_API LibMesh :  public Common::CLibrary
+class Mesh_API LibMesh :  public common::CLibrary
 {
 public:
 
@@ -47,7 +47,7 @@ public:
   typedef boost::shared_ptr<LibMesh const> ConstPtr;
 
   /// Constructor
-  LibMesh ( const std::string& name) : Common::CLibrary(name) {   }
+  LibMesh ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -83,7 +83,7 @@ protected:
 }; // end LibMesh
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -91,4 +91,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibMesh_hpp
+#endif // CF3_LibMesh_hpp

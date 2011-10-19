@@ -16,13 +16,13 @@
 
 #include "Common/OptionURI.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -105,7 +105,7 @@ void OptionURI::copy_to_linked_params ( const boost::any& val )
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+Common::class_name<value_type>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+common::class_name<value_type>());
     }
 
   }
@@ -124,6 +124,6 @@ void OptionURI::set_supported_protocols( const std::vector<URI::Scheme::Type> & 
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 

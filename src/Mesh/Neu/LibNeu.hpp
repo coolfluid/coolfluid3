@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Neu_LibNeu_hpp
-#define CF_Mesh_Neu_LibNeu_hpp
+#ifndef cf3_Mesh_Neu_LibNeu_hpp
+#define cf3_Mesh_Neu_LibNeu_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Neu_API
 /// @note build system defines COOLFLUID_NEU_EXPORTS when compiling Neu files
 #ifdef COOLFLUID_NEU_EXPORTS
-#   define Neu_API      CF_EXPORT_API
+#   define Neu_API      CF3_EXPORT_API
 #   define Neu_TEMPLATE
 #else
-#   define Neu_API      CF_IMPORT_API
-#   define Neu_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Neu_API      CF3_IMPORT_API
+#   define Neu_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for I/O of the neutral format
@@ -35,7 +35,7 @@ namespace Neu {
 
 /// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
-class Neu_API LibNeu : public Common::CLibrary
+class Neu_API LibNeu : public common::CLibrary
 {
 public:
 
@@ -43,7 +43,7 @@ public:
   typedef boost::shared_ptr<LibNeu const> ConstPtr;
 
   /// Constructor
-  LibNeu ( const std::string& name) : Common::CLibrary(name) {   }
+  LibNeu ( const std::string& name) : common::CLibrary(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Neu"; }
@@ -79,8 +79,8 @@ protected:
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_LibNeu_hpp
+#endif // CF3_Mesh_Neu_LibNeu_hpp

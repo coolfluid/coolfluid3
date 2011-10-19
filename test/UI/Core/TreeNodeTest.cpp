@@ -16,12 +16,12 @@
 
 #include "test/UI/Core/TreeNodeTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 //////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -309,5 +309,5 @@ void TreeNodeTest::test_updateChildList()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
 

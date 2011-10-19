@@ -14,8 +14,8 @@
 ///
 /// @author Willem Deconinck
 
-#ifndef CF_Mesh_ElementTypeBase_hpp
-#define CF_Mesh_ElementTypeBase_hpp
+#ifndef cf3_Mesh_ElementTypeBase_hpp
+#define cf3_Mesh_ElementTypeBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   class  ElementType;
   struct ElementTypeFaceConnectivity;
@@ -54,7 +54,7 @@ public:
   static const Uint nb_edges       = (Uint) TR::nb_edges           ;
   static const Uint nb_nodes       = (Uint) TR::SF::nb_nodes       ;
 
-  static std::string type_name() { return GeoShape::Convert::instance().to_str(shape)+Common::to_str((Uint)dimension)+"D"; }
+  static std::string type_name() { return GeoShape::Convert::instance().to_str(shape)+common::to_str((Uint)dimension)+"D"; }
 
   // Typedefs for special matrices
   // -----------------------------
@@ -84,7 +84,7 @@ public:
 
 private:
 
-  static void throw_not_implemented(const Common::CodeLocation& where);
+  static void throw_not_implemented(const common::CodeLocation& where);
 
 };
 
@@ -114,9 +114,9 @@ const Uint ElementTypeBase<ETYPE,TR>::nb_nodes;
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ETYPE,typename TR>
-inline void ElementTypeBase<ETYPE,TR>::throw_not_implemented(const Common::CodeLocation& where)
+inline void ElementTypeBase<ETYPE,TR>::throw_not_implemented(const common::CodeLocation& where)
 {
-  throw Common::NotImplemented(where,"static function not implemented / not applicable for element type ["+ETYPE::type_name()+"]");
+  throw common::NotImplemented(where,"static function not implemented / not applicable for element type ["+ETYPE::type_name()+"]");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -233,8 +233,8 @@ void ElementTypeBase<ETYPE,TR>::compute_plane_jacobian_normal(const MappedCoords
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ElementTypeBase_hpp
+#endif // CF3_Mesh_ElementTypeBase_hpp

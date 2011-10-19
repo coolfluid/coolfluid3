@@ -8,13 +8,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FailedAssertion::FailedAssertion (const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "FailedAssertion")
+FailedAssertion::FailedAssertion (const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "FailedAssertion")
 {}
 
 FailedAssertion::~FailedAssertion () throw()
@@ -22,8 +22,8 @@ FailedAssertion::~FailedAssertion () throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BadValue::BadValue ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "BadValue")
+BadValue::BadValue ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "BadValue")
 {}
 
 BadValue::~BadValue () throw()
@@ -31,8 +31,8 @@ BadValue::~BadValue () throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CastingFailed::CastingFailed ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "CastingFailed")
+CastingFailed::CastingFailed ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "CastingFailed")
 {}
 
 CastingFailed::~CastingFailed() throw()
@@ -40,8 +40,8 @@ CastingFailed::~CastingFailed() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FileFormatError::FileFormatError (const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where,what,"FileFormatError")
+FileFormatError::FileFormatError (const common::CodeLocation& where, const std::string& what)
+: common::Exception(where,what,"FileFormatError")
 {}
 
 FileFormatError::~FileFormatError() throw()
@@ -49,8 +49,8 @@ FileFormatError::~FileFormatError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FileSystemError::FileSystemError (const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where,what,"FileSystemError")
+FileSystemError::FileSystemError (const common::CodeLocation& where, const std::string& what)
+: common::Exception(where,what,"FileSystemError")
 {}
 
 FileSystemError::~FileSystemError() throw()
@@ -59,8 +59,8 @@ FileSystemError::~FileSystemError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FloatingPointError::FloatingPointError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "FloatingPointError")
+FloatingPointError::FloatingPointError ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "FloatingPointError")
 {}
 
 FloatingPointError::~FloatingPointError() throw()
@@ -68,8 +68,8 @@ FloatingPointError::~FloatingPointError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ValueExists::ValueExists ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "ValueExists")
+ValueExists::ValueExists ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "ValueExists")
 {}
 
 ValueExists::~ValueExists() throw()
@@ -77,8 +77,8 @@ ValueExists::~ValueExists() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ValueNotFound::ValueNotFound ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "ValueNotFound")
+ValueNotFound::ValueNotFound ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "ValueNotFound")
 {}
 
 ValueNotFound::~ValueNotFound() throw()
@@ -86,7 +86,7 @@ ValueNotFound::~ValueNotFound() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FailedToConverge::FailedToConverge(const Common::CodeLocation& where, const std::string& what)
+FailedToConverge::FailedToConverge(const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"FailedToConverge")
 {}
 
@@ -95,7 +95,7 @@ FailedToConverge::~FailedToConverge() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NotImplemented::NotImplemented(const Common::CodeLocation& where, const std::string& what)
+NotImplemented::NotImplemented(const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"NotImplemented")
 {}
 
@@ -104,7 +104,7 @@ NotImplemented::~NotImplemented() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NotSupported::NotSupported(const Common::CodeLocation& where, const std::string& what)
+NotSupported::NotSupported(const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"NotSupported")
 {}
 
@@ -113,7 +113,7 @@ NotSupported::~NotSupported() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ParallelError::ParallelError(const Common::CodeLocation& where, const std::string& what)
+ParallelError::ParallelError(const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ParallelError")
 {}
 
@@ -122,7 +122,7 @@ ParallelError::~ParallelError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ParsingFailed::ParsingFailed ( const Common::CodeLocation& where, const std::string& what)
+ParsingFailed::ParsingFailed ( const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ParsingFailed")
 {}
 
@@ -131,7 +131,7 @@ ParsingFailed::~ParsingFailed() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-SetupError::SetupError ( const Common::CodeLocation& where, const std::string& what)
+SetupError::SetupError ( const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"SetupError")
 {}
 
@@ -140,7 +140,7 @@ SetupError::~SetupError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ShouldNotBeHere::ShouldNotBeHere(const Common::CodeLocation& where, const std::string& what)
+ShouldNotBeHere::ShouldNotBeHere(const common::CodeLocation& where, const std::string& what)
 : Exception(where, what,"ShouldNotBeHere")
 {}
 
@@ -149,8 +149,8 @@ ShouldNotBeHere::~ShouldNotBeHere() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-URLError::URLError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "URLError")
+URLError::URLError ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "URLError")
 {}
 
 URLError::~URLError() throw()
@@ -158,8 +158,8 @@ URLError::~URLError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlError::XmlError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "XmlError")
+XmlError::XmlError ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "XmlError")
 {}
 
 XmlError::~XmlError() throw()
@@ -167,8 +167,8 @@ XmlError::~XmlError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-InvalidStructure::InvalidStructure ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "InvalidStructure")
+InvalidStructure::InvalidStructure ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "InvalidStructure")
 {}
 
 InvalidStructure::~InvalidStructure() throw()
@@ -176,8 +176,8 @@ InvalidStructure::~InvalidStructure() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-IllegalCall::IllegalCall ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "IllegalCall")
+IllegalCall::IllegalCall ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "IllegalCall")
 {}
 
 IllegalCall::~IllegalCall() throw()
@@ -185,8 +185,8 @@ IllegalCall::~IllegalCall() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-NotEnoughMemory::NotEnoughMemory ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "NotEnoughMemory")
+NotEnoughMemory::NotEnoughMemory ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "NotEnoughMemory")
 {}
 
 NotEnoughMemory::~NotEnoughMemory() throw()
@@ -194,8 +194,8 @@ NotEnoughMemory::~NotEnoughMemory() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ProtocolError::ProtocolError ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "ProtocolError")
+ProtocolError::ProtocolError ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "ProtocolError")
 {}
 
 ProtocolError::~ProtocolError() throw()
@@ -203,8 +203,8 @@ ProtocolError::~ProtocolError() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BadPointer::BadPointer ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "BadPointer")
+BadPointer::BadPointer ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "BadPointer")
 {}
 
 BadPointer::~BadPointer() throw()
@@ -212,6 +212,6 @@ BadPointer::~BadPointer() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  } // Common
-} // CF
+  } // common
+} // cf3
 

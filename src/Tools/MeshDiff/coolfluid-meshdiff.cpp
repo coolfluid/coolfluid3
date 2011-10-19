@@ -19,10 +19,10 @@
 
 using namespace boost::program_options;
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Tools::Shell;
-using namespace CF::Tools::MeshDiff;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Tools::Shell;
+using namespace cf3::Tools::MeshDiff;
 
 ////////////////////////////////////////////////////////////////////////////////
 

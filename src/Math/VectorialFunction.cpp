@@ -15,11 +15,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,7 +168,7 @@ void VectorialFunction::parse()
       msg += " Error [" +std::string(ptr->ErrorMsg()) + "]";
       msg += " Function [" + m_functions[i] + "]";
       msg += " Vars: ["    + m_vars + "]";
-      throw Common::ParsingFailed (FromHere(),msg);
+      throw common::ParsingFailed (FromHere(),msg);
     }
   }
 
@@ -243,7 +243,7 @@ RealVector& VectorialFunction::operator()( const RealVector& var_values)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

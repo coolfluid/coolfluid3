@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_ScriptEngine_hpp
-#define CF_Python_ScriptEngine_hpp
+#ifndef cf3_Python_ScriptEngine_hpp
+#define cf3_Python_ScriptEngine_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Python/LibPython.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ namespace Python {
 ///
 /// Exposes an execute_script signal, taking as single argument the string containing the python script to run
 /// @author Bart Janssens
-class Python_API ScriptEngine : public Common::Component {
+class Python_API ScriptEngine : public common::Component {
 
 public: // typedefs
 
@@ -46,18 +46,18 @@ public: // functions
   void execute_script(std::string script);
   
   /// Signal to execute a script
-  void signal_execute_script(Common::SignalArgs& node);
+  void signal_execute_script(common::SignalArgs& node);
   
 private:
   /// Signature for the execute_script signal
-  void signature_execute_script(Common::SignalArgs& node);
+  void signature_execute_script(common::SignalArgs& node);
 }; // ScriptEngine
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_ScriptEngine_hpp
+#endif // CF3_Python_ScriptEngine_hpp

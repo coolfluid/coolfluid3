@@ -8,13 +8,13 @@
 
 #include "Cons2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace LinEuler {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LinEuler::Cons2D,
+common::ComponentBuilder < LinEuler::Cons2D,
                            Physics::Variables,
                            LibLinEuler >
                            Builder_Cons2D;
@@ -30,4 +30,4 @@ Cons2D::~Cons2D() {}
 
 } // LinEuler
 } // Physics
-} // CF
+} // cf3

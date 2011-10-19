@@ -35,11 +35,11 @@
 #include "UI/QwtTab/PixMaps.hpp"
 #include "UI/QwtTab/Graph.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -472,5 +472,5 @@ namespace QwtTab {
 
 } // QwtTab
 } // UI
-} // CF
+} // cf3
 

@@ -18,13 +18,13 @@
 #include "Solver/CSimpleSolver.hpp"
 #include "Solver/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 
-Common::ComponentBuilder < CSimpleSolver, CSolver, LibSolver > Builder_CSimpleSolver;
+common::ComponentBuilder < CSimpleSolver, CSolver, LibSolver > Builder_CSimpleSolver;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
   m_mesh = mesh.as_ptr<CMesh>();
 
   // Update the dimensions on the physics
-  physics().configure_option(Common::Tags::dimension(), mesh.topology().geometry().dim());
+  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,4 +60,4 @@ CMesh& CSimpleSolver::mesh()
 
 
 } // Solver
-} // CF
+} // cf3

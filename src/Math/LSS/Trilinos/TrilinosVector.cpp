@@ -25,9 +25,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Math::LSS;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,13 +38,13 @@ TrilinosVector::TrilinosVector(const std::string& name) :
   m_is_created(false),
   m_vec(0),
   m_converted_indices(0),
-  m_comm(Common::PE::Comm::instance().communicator())
+  m_comm(common::PE::Comm::instance().communicator())
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::create(Common::PE::CommPattern& cp, Uint neq)
+void TrilinosVector::create(common::PE::CommPattern& cp, Uint neq)
 {
   // if built
   if (m_is_created) destroy();
@@ -312,7 +312,7 @@ void TrilinosVector::set( boost::multi_array<Real, 2>& data)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void TrilinosVector::print(Common::LogStream& stream)
+void TrilinosVector::print(common::LogStream& stream)
 {
   if (m_is_created)
   {

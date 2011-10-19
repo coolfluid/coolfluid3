@@ -8,11 +8,11 @@
 
 #include "UI/UICommon/LibUICommon.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace UICommon {
 
-CF::Common::RegistLibrary<LibUICommon> LibUICommon;
+cf3::common::RegistLibrary<LibUICommon> LibUICommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibUICommon::terminate_impl()
 
 } // Network
 } // UI
-} // CF
+} // cf3

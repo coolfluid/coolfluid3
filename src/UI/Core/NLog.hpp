@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NLog_hpp
-#define CF_GUI_Core_NLog_hpp
+#ifndef cf3_GUI_Core_NLog_hpp
+#define cf3_GUI_Core_NLog_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ class QString;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace UI {
 namespace Core {
@@ -34,7 +34,7 @@ namespace Core {
   class Core_API NLog :
       public QObject,
       public CNode,
-      public Common::LogStringForwarder
+      public common::LogStringForwarder
   {
     Q_OBJECT
 
@@ -110,11 +110,11 @@ namespace Core {
     /// string format.
 
     /// The key is the type. The value is the name.
-    QHash<CF::UI::UICommon::LogMessage::Type, QString> m_typeNames;
+    QHash<cf3::UI::UICommon::LogMessage::Type, QString> m_typeNames;
 
     /// @brief Boost slot called when a message comes from the server
     /// @param node Signal node
-    void signal_message(Common::SignalArgs & node);
+    void signal_message(common::SignalArgs & node);
 
     /// @brief Appends a message to the log
 
@@ -124,7 +124,7 @@ namespace Core {
     /// @param fromServer If @c true, the message comes from the server;
     /// otherwise it comes from the client.
     /// @param message Message
-    void appendToLog(CF::UI::UICommon::LogMessage::Type type, bool fromServer,
+    void appendToLog(cf3::UI::UICommon::LogMessage::Type type, bool fromServer,
                      const QString & message);
 
   }; // class NLog
@@ -133,8 +133,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NLog_hpp
+#endif // CF3_GUI_Core_NLog_hpp

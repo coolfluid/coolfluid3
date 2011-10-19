@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_ElementTransforms_hpp
-#define CF_Solver_Actions_Proto_ElementTransforms_hpp
+#ifndef cf3_Solver_Actions_Proto_ElementTransforms_hpp
+#define cf3_Solver_Actions_Proto_ElementTransforms_hpp
 
 #include <boost/mpl/assert.hpp>
 
@@ -19,7 +19,7 @@
 /// @file 
 /// Transforms used in element-wise expression evaluation
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -100,7 +100,7 @@ struct ElementValue : boost::proto::transform<ElementValue>
     template<typename SF>
     result_type dispatch(const SF&, VarDataT&, typename impl::expr_param var)
     {
-      throw Common::SetupError(FromHere(), "Variable " + var.variable_value.name() + " is used like an element-based variable, but it is stored in a node-based field");
+      throw common::SetupError(FromHere(), "Variable " + var.variable_value.name() + " is used like an element-based variable, but it is stored in a node-based field");
     }
     
     /// static dispatch in case of element-based field
@@ -163,4 +163,4 @@ struct ElementMathImplicit :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_ElementTransforms_hpp
+#endif // CF3_Solver_Actions_Proto_ElementTransforms_hpp

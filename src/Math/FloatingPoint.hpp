@@ -39,8 +39,8 @@
 // Modified by Fred Richards
 // Adapted by Tiago Quintino to accept a variable Ulps
 
-#ifndef CF_Math_FloatingPoint_hpp
-#define CF_Math_FloatingPoint_hpp
+#ifndef cf3_Math_FloatingPoint_hpp
+#define cf3_Math_FloatingPoint_hpp
 
 #include <cstddef>
 
@@ -52,7 +52,7 @@
 #endif
 #include <limits>
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -150,6 +150,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
-#endif // CF_Math_FloatingPoint_hpp
+#endif // CF3_Math_FloatingPoint_hpp

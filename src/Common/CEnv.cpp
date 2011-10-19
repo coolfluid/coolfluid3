@@ -12,12 +12,12 @@
 #include "Common/Log.hpp"
 #include "Common/CEnv.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CEnv, Component, LibCommon > CEnv_Builder;
+common::ComponentBuilder < CEnv, Component, LibCommon > CEnv_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -179,5 +179,5 @@ void CEnv::trigger_log_level()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

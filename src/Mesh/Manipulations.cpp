@@ -12,11 +12,11 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::PE;
+using namespace common;
+using namespace common::PE;
 using namespace Math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -270,4 +270,4 @@ void PackUnpackNodes::flush()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

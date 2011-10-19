@@ -9,22 +9,22 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CList.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 //////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CList<bool>, Component, LibMesh > CList_bool_Builder;
+common::ComponentBuilder < CList<bool>, Component, LibMesh > CList_bool_Builder;
 
-Common::ComponentBuilder < CList<Uint>, Component, LibMesh > CList_Uint_Builder;
+common::ComponentBuilder < CList<Uint>, Component, LibMesh > CList_Uint_Builder;
 
-Common::ComponentBuilder < CList<int>, Component, LibMesh >  CList_int_Builder;
+common::ComponentBuilder < CList<int>, Component, LibMesh >  CList_int_Builder;
 
-Common::ComponentBuilder < CList<Real>, Component, LibMesh > CList_Real_Builder;
+common::ComponentBuilder < CList<Real>, Component, LibMesh > CList_Real_Builder;
 
-Common::ComponentBuilder < CList<std::string>, Component, LibMesh > CList_string_Builder;
+common::ComponentBuilder < CList<std::string>, Component, LibMesh > CList_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -86,4 +86,4 @@ std::ostream& operator<<(std::ostream& os, const CList<std::string>& list)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

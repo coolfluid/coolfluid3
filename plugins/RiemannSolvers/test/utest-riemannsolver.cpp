@@ -24,11 +24,11 @@
 #include "Physics/NavierStokes/Roe3D.hpp"
 #include "Math/Defs.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::RiemannSolvers;
-using namespace CF::Physics;
-using namespace CF::Physics::NavierStokes;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::RiemannSolvers;
+using namespace cf3::Physics;
+using namespace cf3::Physics::NavierStokes;
 
 //////////////////////////////////////////////////////////////////////////////
 

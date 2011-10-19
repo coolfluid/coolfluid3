@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CRegion_hpp
-#define CF_Mesh_CRegion_hpp
+#ifndef cf3_Mesh_CRegion_hpp
+#define cf3_Mesh_CRegion_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 #include "Mesh/CEntities.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   template <typename T> class CTable;
@@ -29,15 +29,15 @@ namespace Mesh {
 ///   - subregions (same class)
 ///   - element sets (CElements)
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_API CRegion : public Common::Component {
+class Mesh_API CRegion : public common::Component {
 
 public: // typedefs
 
   typedef boost::shared_ptr<CRegion> Ptr;
   typedef boost::shared_ptr<CRegion const> ConstPtr;
 
-  typedef Common::ComponentIteratorRange<CEntities const> ConstElementsRange;
-  typedef Common::ComponentIteratorRange<CEntities>       ElementsRange;
+  typedef common::ComponentIteratorRange<CEntities const> ConstElementsRange;
+  typedef common::ComponentIteratorRange<CEntities>       ElementsRange;
 
 public: // functions
 
@@ -108,15 +108,15 @@ template <typename Predicate>
 inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) const
 {
   Uint elem_count = 0;
-  BOOST_FOREACH(const CEntities& elements, Common::find_components_recursively_with_filter<CEntities>(*this,pred))
+  BOOST_FOREACH(const CEntities& elements, common::find_components_recursively_with_filter<CEntities>(*this,pred))
     elem_count += elements.size();
 
   return elem_count;
 }
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CRegion_hpp
+#endif // CF3_Mesh_CRegion_hpp

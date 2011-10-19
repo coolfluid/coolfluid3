@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Option_hpp
-#define CF_Common_Option_hpp
+#ifndef cf3_common_Option_hpp
+#define cf3_common_Option_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -21,8 +21,8 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 namespace XML { class XmlNode; }
 
@@ -105,7 +105,7 @@ namespace XML { class XmlNode; }
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data_to_value(m_value).type())+" to "+Common::class_name<TYPE>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(data_to_value(m_value).type())+" to "+common::class_name<TYPE>());
       }
     }
 
@@ -188,7 +188,7 @@ namespace XML { class XmlNode; }
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<TYPE>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+common::class_name<TYPE>());
       }
     }
 
@@ -222,7 +222,7 @@ namespace XML { class XmlNode; }
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+Common::class_name<TYPE>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+common::class_name<TYPE>());
       }
     }
 
@@ -237,7 +237,7 @@ namespace XML { class XmlNode; }
       }
       catch(boost::bad_any_cast& e)
       {
-        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+Common::class_name<TYPE>());
+        throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_default.type())+" to "+common::class_name<TYPE>());
       }
     }
 
@@ -320,7 +320,7 @@ namespace XML { class XmlNode; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_Option_hpp
+#endif // CF3_common_Option_hpp

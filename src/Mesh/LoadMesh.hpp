@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LoadMesh_hpp
-#define CF_Mesh_LoadMesh_hpp
+#ifndef cf3_Mesh_LoadMesh_hpp
+#define cf3_Mesh_LoadMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,13 +15,13 @@
 
 #include "Mesh/LibMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   class CMesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
-class Mesh_API LoadMesh : public Common::Component {
+class Mesh_API LoadMesh : public common::Component {
 
 public: // typedefs
 
@@ -46,17 +46,17 @@ public: // functions
   //@{
 
   /// signal to load the mesh
-  void signal_load_mesh ( Common::SignalArgs& node );
+  void signal_load_mesh ( common::SignalArgs& node );
   /// signature of signal to load the mesh
-  void signature_load_mesh ( Common::SignalArgs& node);
+  void signature_load_mesh ( common::SignalArgs& node);
 
   //@} END SIGNALS
 
   /// Read the file into an existing mesh
-  void load_mesh_into(const Common::URI& file, CMesh& mesh);
+  void load_mesh_into(const common::URI& file, CMesh& mesh);
   
   /// function load the mesh
-  boost::shared_ptr<CMesh> load_mesh(const Common::URI& file);
+  boost::shared_ptr<CMesh> load_mesh(const common::URI& file);
 
 protected: // helper functions
 
@@ -72,8 +72,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LoadMesh_hpp
+#endif // CF3_Mesh_LoadMesh_hpp

@@ -16,9 +16,9 @@
 
 #include "NavierStokes/Cons2D.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Physics::NavierStokes;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Physics::NavierStokes;
 
 //////////////////////////////////////////////////////////////////////////////
 

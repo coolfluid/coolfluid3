@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_MeshGeneration_Tools_hpp
-#define CF_Tools_MeshGeneration_Tools_hpp
+#ifndef cf3_Tools_MeshGeneration_Tools_hpp
+#define cf3_Tools_MeshGeneration_Tools_hpp
 
 #include "Math/Consts.hpp"
 #include "Mesh/CMesh.hpp"
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshGeneration {
 
@@ -61,7 +61,7 @@ struct MeshSourceGlobalFixture {
   {
     static Mesh::CMesh::Ptr grid2D;
     if(!grid2D) {
-      grid2D = Common::allocate_component<Mesh::CMesh>("grid2D");
+      grid2D = common::allocate_component<Mesh::CMesh>("grid2D");
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);
     }
     return *grid2D;
@@ -74,9 +74,9 @@ struct MeshSourceGlobalFixture {
 
 } // MeshGeneration
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_MeshGeneration_Tools_hpp
+#endif // CF3_Tools_MeshGeneration_Tools_hpp
 

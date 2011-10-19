@@ -46,16 +46,16 @@
 #include "Math/Consts.hpp"
 #define UNKNOWN Math::Consts::uint_max()
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 using namespace boost::assign;
 
-using namespace Common;
-using namespace Common::PE;
-using namespace Common::XML;
+using namespace common;
+using namespace common::PE;
+using namespace common::XML;
 
-Common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
+common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -256,8 +256,8 @@ Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescript
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
-  if (variables_descriptor.option(Common::Tags::dimension()).value<Uint>() == 0)
-    field.descriptor().configure_option(Common::Tags::dimension(),parent().as_type<CMesh>().dimension());
+  if (variables_descriptor.option(common::Tags::dimension()).value<Uint>() == 0)
+    field.descriptor().configure_option(common::Tags::dimension(),parent().as_type<CMesh>().dimension());
   field.resize(m_size);
   return field;
 }
@@ -281,7 +281,7 @@ void FieldGroup::check_sanity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< Common::ComponentIterator<CEntities> > FieldGroup::entities_range()
+boost::iterator_range< common::ComponentIterator<CEntities> > FieldGroup::entities_range()
 {
   std::vector<CEntities::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
@@ -294,7 +294,7 @@ boost::iterator_range< Common::ComponentIterator<CEntities> > FieldGroup::entiti
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< Common::ComponentIterator<CElements> > FieldGroup::elements_range()
+boost::iterator_range< common::ComponentIterator<CElements> > FieldGroup::elements_range()
 {
   std::vector<CElements::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
@@ -307,7 +307,7 @@ boost::iterator_range< Common::ComponentIterator<CElements> > FieldGroup::elemen
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentIteratorRange<Field> FieldGroup::fields()
+common::ComponentIteratorRange<Field> FieldGroup::fields()
 {
   return find_components<Field>(*this);
 }
@@ -323,7 +323,7 @@ Field& FieldGroup::field(const std::string& name) const
 
 void FieldGroup::on_mesh_changed_event( SignalArgs& args )
 {
-  Common::XML::SignalOptions options( args );
+  common::XML::SignalOptions options( args );
 
   URI mesh_uri = options.value<URI>("mesh_uri");
   if (mesh_uri.is_relative())
@@ -1004,6 +1004,6 @@ void FieldGroup::signal_create_field( SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 #undef UNKNOWN

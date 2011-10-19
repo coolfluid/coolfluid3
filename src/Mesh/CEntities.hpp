@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CEntities_hpp
-#define CF_Mesh_CEntities_hpp
+#ifndef cf3_Mesh_CEntities_hpp
+#define cf3_Mesh_CEntities_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,8 +15,8 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
 
-namespace CF {
-namespace Common { class CLink; class CGroup;}
+namespace cf3 {
+namespace common { class CLink; class CGroup;}
 namespace Mesh {
 
   template <typename T> class CList;
@@ -29,7 +29,7 @@ namespace Mesh {
 /// CEntities component class
 /// This class stores information about a set of elements of the same type
 /// @author Willem Deconinck, Tiago Quintino, Bart Janssens
-class Mesh_API CEntities : public Common::Component {
+class Mesh_API CEntities : public common::Component {
 
 public: // typedefs
 
@@ -102,9 +102,9 @@ public: // functions
 
   void allocate_coordinates(RealMatrix& coords) const;
 
-  void signal_create_space ( Common::SignalArgs& node );
+  void signal_create_space ( common::SignalArgs& node );
 
-  void signature_create_space ( Common::SignalArgs& node);
+  void signature_create_space ( common::SignalArgs& node);
 
 protected: // data
 
@@ -116,7 +116,7 @@ protected: // data
 
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
-  boost::shared_ptr<Common::CGroup> m_spaces_group;
+  boost::shared_ptr<common::CGroup> m_spaces_group;
 
   boost::shared_ptr<CList<Uint> > m_rank;
 
@@ -145,8 +145,8 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CEntities_hpp
+#endif // CF3_Mesh_CEntities_hpp

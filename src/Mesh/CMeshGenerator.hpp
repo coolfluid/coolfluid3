@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMeshGenerator_hpp
-#define CF_Mesh_CMeshGenerator_hpp
+#ifndef cf3_Mesh_CMeshGenerator_hpp
+#define cf3_Mesh_CMeshGenerator_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -28,7 +28,7 @@ namespace Mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CMeshGenerator : public Common::CAction {
+class Mesh_API CMeshGenerator : public common::CAction {
 
 public: // typedefs
 
@@ -72,8 +72,8 @@ protected: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshGenerator_hpp
+#endif // CF3_Mesh_CMeshGenerator_hpp

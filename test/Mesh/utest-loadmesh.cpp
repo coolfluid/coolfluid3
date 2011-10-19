@@ -28,10 +28,10 @@
 
 #include "Mesh/LoadMesh.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
 //////////////////////////////////////////////////////////////////////////////
 

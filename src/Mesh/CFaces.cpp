@@ -8,14 +8,14 @@
 
 #include "Mesh/CFaces.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CFaces, CEntities, LibMesh > CFaces_Builder;
+common::ComponentBuilder < CFaces, CEntities, LibMesh > CFaces_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +46,4 @@ void CFaces::initialize(const std::string& element_type_name, Geometry& nodes)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

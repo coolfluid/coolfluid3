@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Shell_LibShell_hpp
-#define CF_Tools_Shell_LibShell_hpp
+#ifndef cf3_Tools_Shell_LibShell_hpp
+#define cf3_Tools_Shell_LibShell_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_TOOLS_SHELL_EXPORTS when compiling
 /// CommandLineInterpreter files
 #ifdef COOLFLUID_TOOLS_SHELL_EXPORTS
-#   define Tools_Shell_API      CF_EXPORT_API
+#   define Tools_Shell_API      CF3_EXPORT_API
 #   define Tools_Shell_TEMPLATE
 #else
-#   define Tools_Shell_API      CF_IMPORT_API
-#   define Tools_Shell_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Tools_Shell_API      CF3_IMPORT_API
+#   define Tools_Shell_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 
 /// @brief Classes for command line interpreting %COOLFluiD
@@ -40,7 +40,7 @@ namespace Shell {
 
 /// Class defines the initialization and termination of the library CommandLineInterpreter
 /// @author Tiago Quintino
-class Tools_Shell_API LibShell : public Common::CLibrary
+class Tools_Shell_API LibShell : public common::CLibrary
 {
 public:
 
@@ -48,7 +48,7 @@ public:
   typedef boost::shared_ptr<LibShell const> ConstPtr;
 
   /// Constructor
-  LibShell ( const std::string& name) : Common::CLibrary(name) {   }
+  LibShell ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -86,8 +86,8 @@ protected:
 
 } // Shell
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Shell_LibShell_hpp
+#endif // CF3_Tools_Shell_LibShell_hpp

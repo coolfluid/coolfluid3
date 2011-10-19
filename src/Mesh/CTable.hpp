@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CTable_hpp
-#define CF_Mesh_CTable_hpp
+#ifndef cf3_Mesh_CTable_hpp
+#define cf3_Mesh_CTable_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ namespace Mesh {
 /// @author Tiago Quintino
 
 template<typename ValueT>
-class CTable : public Common::Component
+class CTable : public common::Component
 {
 public: // typedefs
 
@@ -97,7 +97,7 @@ public: // functions
 
   /// Get the component type name
   /// @returns the component type name
-  static std::string type_name () { return "CTable<"+Common::class_name<ValueT>()+">"; }
+  static std::string type_name () { return "CTable<"+common::class_name<ValueT>()+">"; }
 
   /// Initialize the array with a fixed column size and remove all existing rows, if any.
   /// The number of rows can be changed dynamically.
@@ -173,17 +173,17 @@ public: // functions
       row_to_set[j] = row[j];
   }
 
-  void signal_resize ( Common::SignalArgs& node )
+  void signal_resize ( common::SignalArgs& node )
   {
-    Common::XML::SignalOptions options( node );
+    common::XML::SignalOptions options( node );
     std::vector<Uint> size = options.array<Uint>("size");
     resize(size[0]);
     set_row_size(size[1]);
   }
 
-  void signature_resize ( Common::SignalArgs& node)
+  void signature_resize ( common::SignalArgs& node)
   {
-    Common::XML::SignalOptions options( node );
+    common::XML::SignalOptions options( node );
 
     std::vector<Uint> size;
 
@@ -191,17 +191,17 @@ public: // functions
         ->description("Vector of [nb_rows,nb_cols]");
   }
 
-  void signal_set_row ( Common::SignalArgs& node )
+  void signal_set_row ( common::SignalArgs& node )
   {
-    Common::XML::SignalOptions options(node);
+    common::XML::SignalOptions options(node);
     Uint index = options.value<Uint>("index");
     std::vector<value_type> row = options.array<value_type>("row");
     set_row(index,row);
   }
 
-  void signature_set_row ( Common::SignalArgs& node)
+  void signature_set_row ( common::SignalArgs& node)
   {
-    Common::XML::SignalOptions options(node);
+    common::XML::SignalOptions options(node);
 
     options.add_option< Common::OptionT<Uint> >("index");
 
@@ -209,12 +209,12 @@ public: // functions
         ->description("Row");
   }
 
-  void signal_print_table ( Common::SignalArgs& node )
+  void signal_print_table ( common::SignalArgs& node )
   {
     CFinfo << uri().string() <<" :\n" << *this << CFendl;
   }
 
-  void signature_print_table ( Common::SignalArgs& node)
+  void signature_print_table ( common::SignalArgs& node)
   {
 
   }
@@ -425,8 +425,8 @@ std::vector<typename RowT::value_type> to_vector(RowT& table_row)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CTable_hpp
+#endif // CF3_Mesh_CTable_hpp

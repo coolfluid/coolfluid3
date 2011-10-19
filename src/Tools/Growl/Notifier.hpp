@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Growl_hpp
-#define CF_Tools_Growl_hpp
+#ifndef cf3_Tools_Growl_hpp
+#define cf3_Tools_Growl_hpp
 
 #include "Tools/Growl/LibGrowl.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Growl {
 
@@ -37,7 +37,7 @@ namespace Growl {
 /// This component wraps functions from the library <a href="https://github.com/mattn/gntp-send">gntp-send</a>
 ///
 /// @author Willem Deconinck
-class Tools_Growl_API Notifier: public Common::Component
+class Tools_Growl_API Notifier: public common::Component
 {
 public: // typedefs
 
@@ -65,10 +65,10 @@ public: // functions
 
   /// @brief Signal to notify %Growl
   /// @see notify()
-  void signal_notify ( Common::SignalArgs& node );
+  void signal_notify ( common::SignalArgs& node );
 
   /// @brief signature for the signal_notify() function
-  void signature_notify ( Common::SignalArgs& node);
+  void signature_notify ( common::SignalArgs& node);
 
 private: // data
 
@@ -91,9 +91,9 @@ private: // data
 
 } // Growl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Growl_hpp
+#endif // CF3_Tools_Growl_hpp
 

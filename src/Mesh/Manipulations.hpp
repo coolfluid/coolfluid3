@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Manipulations_hpp
-#define CF_Mesh_Manipulations_hpp
+#ifndef cf3_Mesh_Manipulations_hpp
+#define cf3_Mesh_Manipulations_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 #include "Mesh/CTable.hpp"
 #include "Mesh/CDynTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class Geometry;
@@ -51,7 +51,7 @@ struct RemoveElements
 };
 
 
-struct PackUnpackElements: Common::PE::PackedObject
+struct PackUnpackElements: common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -61,9 +61,9 @@ struct PackUnpackElements: Common::PE::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::PE::Buffer& buf);
+  virtual void pack(common::PE::Buffer& buf);
 
-  virtual void unpack(Common::PE::Buffer& buf);
+  virtual void unpack(common::PE::Buffer& buf);
 
   void flush();
 
@@ -76,7 +76,7 @@ struct PackUnpackElements: Common::PE::PackedObject
 };
 
 
-struct PackUnpackNodes: Common::PE::PackedObject
+struct PackUnpackNodes: common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
@@ -86,9 +86,9 @@ struct PackUnpackNodes: Common::PE::PackedObject
 
   void remove(const Uint idx);
 
-  virtual void pack(Common::PE::Buffer& buf);
+  virtual void pack(common::PE::Buffer& buf);
 
-  virtual void unpack(Common::PE::Buffer& buf);
+  virtual void unpack(common::PE::Buffer& buf);
 
   void flush();
 
@@ -104,8 +104,8 @@ struct PackUnpackNodes: Common::PE::PackedObject
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Manipulations_hpp
+#endif // CF3_Mesh_Manipulations_hpp

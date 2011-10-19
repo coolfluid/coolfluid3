@@ -11,8 +11,8 @@
 
 //#include "Common/PE/debug.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////

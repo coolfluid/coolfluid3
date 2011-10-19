@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CConnectivity_hpp
-#define CF_Mesh_CConnectivity_hpp
+#ifndef cf3_Mesh_CConnectivity_hpp
+#define cf3_Mesh_CConnectivity_hpp
 
 //#include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   class CLink;
   class CGroup;
 }
@@ -58,15 +58,15 @@ private: // data
 
   boost::shared_ptr<CUnifiedData> m_lookup;
 
-  boost::shared_ptr<Common::CLink> m_lookup_link;
+  boost::shared_ptr<common::CLink> m_lookup_link;
 
 }; // CConnectivity
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Connectivity_hpp
+#endif // CF3_Mesh_Connectivity_hpp

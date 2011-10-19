@@ -8,11 +8,11 @@
 
 #include "Mesh/Tecplot/LibTecplot.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Tecplot {
 
-CF::Common::RegistLibrary<LibTecplot> libTecplot;
+cf3::common::RegistLibrary<LibTecplot> libTecplot;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibTecplot::terminate_impl()
 
 } // Tecplot
 } // Mesh
-} // CF
+} // cf3

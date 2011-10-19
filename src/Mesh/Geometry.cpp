@@ -10,12 +10,12 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CDynTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < Geometry, Component, LibMesh > Geometry_Builder;
+common::ComponentBuilder < Geometry, Component, LibMesh > Geometry_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,4 +40,4 @@ Geometry::~Geometry()
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

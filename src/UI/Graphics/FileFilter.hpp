@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Graphics_FileFilter_hpp
-#define CF_UI_Graphics_FileFilter_hpp
+#ifndef cf3_UI_Graphics_FileFilter_hpp
+#define cf3_UI_Graphics_FileFilter_hpp
 
 #include <QSortFilterProxyModel>
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Core { class NRemoteFSBrowser; }
@@ -39,8 +39,8 @@ private: // data
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Graphics_FileFilter_hpp
+#endif // CF3_UI_Graphics_FileFilter_hpp

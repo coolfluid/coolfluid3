@@ -30,7 +30,7 @@ list( APPEND coolfluid_ui_server_files
 # Use Qt Libraries
 #list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 
-list( APPEND coolfluid_ui_server_cflibs ${CF_KERNEL_LIBS} )
+list( APPEND coolfluid_ui_server_cflibs ${CF3_KERNEL_LIBS} )
 
 list( APPEND coolfluid_ui_server_libs ${QT_LIBRARIES} )
 

@@ -21,11 +21,11 @@
 
 #include "Python/ScriptEngine.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ ScriptEngine::ScriptEngine ( const std::string& name ) : Component ( name )
 {
   if(!Py_IsInitialized())
   {
-    const boost::filesystem::path dso_dir = boost::filesystem::path(CF_BUILD_DIR) / boost::filesystem::path("dso");
+    const boost::filesystem::path dso_dir = boost::filesystem::path(CF3_BUILD_DIR) / boost::filesystem::path("dso");
     OSystem::setenv("PYTHONPATH", dso_dir.string());
     Py_Initialize();
   }
@@ -104,5 +104,5 @@ void ScriptEngine::signature_execute_script(SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

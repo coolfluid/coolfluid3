@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_LogStream_hpp
-#define CF_Common_LogStream_hpp
+#ifndef cf3_common_LogStream_hpp
+#define cf3_common_LogStream_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,8 +13,8 @@
 
 #include "Common/PE/Comm.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class CodeLocation;
 class LogToStream;
@@ -337,9 +337,9 @@ class Common_API LogStream
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_LogStream_hpp
+#endif // CF3_common_LogStream_hpp

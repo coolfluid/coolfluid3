@@ -14,8 +14,8 @@
 ///
 /// @author Willem Deconinck
 
-#ifndef CF_Mesh_ElementTypeT_hpp
-#define CF_Mesh_ElementTypeT_hpp
+#ifndef cf3_Mesh_ElementTypeT_hpp
+#define cf3_Mesh_ElementTypeT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +24,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ public: // functions
   /// @return the shape function defining this geometric element
   virtual const ShapeFunction& shape_function() const
   {
-    const static ShapeFunction::Ptr sf(Common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name()));
+    const static ShapeFunction::Ptr sf(common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name()));
     return *sf;
   }
 
@@ -190,8 +190,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ElementTypeT_hpp
+#endif // CF3_Mesh_ElementTypeT_hpp

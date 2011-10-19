@@ -13,12 +13,12 @@
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/WriteMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibMesh> libMesh;
+cf3::common::RegistLibrary<LibMesh> libMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,4 +40,4 @@ void LibMesh::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

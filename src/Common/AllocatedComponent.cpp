@@ -15,12 +15,12 @@
 #include "Common/CAction.hpp"
 #include "Common/Timer.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef CF_ENABLE_COMPONENT_TIMING
+#ifdef CF3_ENABLE_COMPONENT_TIMING
 
 struct TimedActionImpl::Implementation
 {
@@ -86,4 +86,4 @@ void TimedActionImpl::store_timings()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // CF
+} // cf3

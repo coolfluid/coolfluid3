@@ -12,13 +12,13 @@
 
 #include "Common/PE/CWorkerGroup.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ Communicator CWorkerGroup::communicator() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CWorkerGroup::signal_solve( Common::SignalArgs & args)
+void CWorkerGroup::signal_solve( common::SignalArgs & args)
 {
   std::string str;
   char * buffer;

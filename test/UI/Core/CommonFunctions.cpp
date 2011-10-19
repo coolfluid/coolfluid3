@@ -15,12 +15,12 @@
 #include "test/UI/Core/ExceptionThrowHandler.hpp"
 #include "test/UI/Core/CommonFunctions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
-NRoot::Ptr CF::UI::CoreTest::makeTreeFromFile()
+NRoot::Ptr cf3::UI::CoreTest::makeTreeFromFile()
 {
   static XmlDoc::Ptr doc = XML::parse_file(boost::filesystem::path("./tree.xml"));
 

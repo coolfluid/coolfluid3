@@ -17,10 +17,10 @@
 #include "Math/MatrixTypes.hpp"
 
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -68,7 +68,7 @@ void OptionT<TYPE>::copy_to_linked_params (const boost::any& val )
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+Common::class_name<TYPE>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+common::class_name<TYPE>());
     }
 
   }
@@ -98,12 +98,12 @@ std::string OptionT<TYPE>::def_str () const
 Common_TEMPLATE template class OptionT< bool >;
 Common_TEMPLATE template class OptionT< int >;
 Common_TEMPLATE template class OptionT< std::string >;
-Common_TEMPLATE template class OptionT< CF::Uint >;
-Common_TEMPLATE template class OptionT< CF::Real >;
+Common_TEMPLATE template class OptionT< cf3::Uint >;
+Common_TEMPLATE template class OptionT< cf3::Real >;
 Common_TEMPLATE template class OptionT< RealVector >;
 //Common_TEMPLATE template class OptionT< CF::Common::URI >;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

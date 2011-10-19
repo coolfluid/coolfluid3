@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_NodeData_hpp
-#define CF_Solver_Actions_Proto_NodeData_hpp
+#ifndef cf3_Solver_Actions_Proto_NodeData_hpp
+#define cf3_Solver_Actions_Proto_NodeData_hpp
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 
@@ -28,7 +28,7 @@
 /// @file
 /// Data associated with node expressions
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -37,10 +37,10 @@ namespace Proto {
 inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
 {
   const Mesh::CTable<Real>* coordinates = nullptr;
-  coordinates = Common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, Mesh::Tags::coordinates()).get();
+  coordinates = common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, Mesh::Tags::coordinates()).get();
   if(!coordinates)
   {
-    BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
+    BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
     {
       if(coordinates)
       {
@@ -83,9 +83,9 @@ private:
 /// Helper function to find a field starting from a region
 inline Mesh::Field& find_field(Mesh::CRegion& region, const std::string& tag)
 {
-  Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(region);
+  Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(region);
   Mesh::FieldGroup& field_group =  mesh.geometry();
-  return Common::find_component_with_tag<Mesh::Field>(field_group, tag);
+  return common::find_component_with_tag<Mesh::Field>(field_group, tag);
 }
 
 template<>
@@ -407,7 +407,7 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
+  BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
   {
     const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
@@ -434,7 +434,7 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
 
   // Add the unique node indices
   node_is_used.assign(coordinates.size(), false);
-  BOOST_FOREACH(const Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(region))
+  BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
   {
     const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
@@ -461,4 +461,4 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_NodeData_hpp
+#endif // CF3_Solver_Actions_Proto_NodeData_hpp

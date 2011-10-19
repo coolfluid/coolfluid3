@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CForAllElementsT_hpp
-#define CF_Solver_Actions_CForAllElementsT_hpp
+#ifndef cf3_Solver_Actions_CForAllElementsT_hpp
+#define cf3_Solver_Actions_CForAllElementsT_hpp
 
 #include <boost/mpl/for_each.hpp>
 
@@ -19,7 +19,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -62,7 +62,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
       template < typename SFType >
       void operator() ( SFType& T )
       {
-        boost_foreach(Mesh::CElements& elements, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
+        boost_foreach(Mesh::CElementcommonments, Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
         {
           op.set_elements(elements);
           if (op.can_start_loop())
@@ -90,7 +90,7 @@ public: // functions
   /// @param name of the component
   CForAllElementsT ( const std::string& name ) :
     CLoop(name),
-    m_action( Common::allocate_component<ActionT>(ActionT::type_name()) )
+    m_action( common::allocate_component<ActionT>(ActionT::type_name()) )
   {
     regist_typeinfo(this);
     add_static_component ( m_action );
@@ -137,8 +137,8 @@ private: // data
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CForAllElementsT_hpp
+#endif // CF3_Mesh_CForAllElementsT_hpp

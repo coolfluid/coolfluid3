@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_TrilinosMatrix_hpp
-#define CF_Math_LSS_TrilinosMatrix_hpp
+#ifndef cf3_Math_LSS_TrilinosMatrix_hpp
+#define cf3_Math_LSS_TrilinosMatrix_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
@@ -60,7 +60,7 @@ public:
   TrilinosMatrix(const std::string& name);
 
   /// Setup sparsity structure
-  void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs);
 
   /// Deallocate underlying data
   void destroy();
@@ -132,7 +132,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(Common::LogStream& stream);
+  void print(common::LogStream& stream);
 
   /// Print to wherever
   void print(std::ostream& stream);
@@ -197,4 +197,4 @@ private:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_TrilinosMatrix_hpp
+#endif // CF3_Math_LSS_TrilinosMatrix_hpp

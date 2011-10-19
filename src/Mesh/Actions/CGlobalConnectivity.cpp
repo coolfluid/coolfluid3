@@ -37,11 +37,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Functions;
   using namespace Math::Consts;
 
@@ -49,7 +49,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CGlobalConnectivity, CMeshTransformer, LibActions> CGlobalConnectivity_Builder;
+common::ComponentBuilder < CGlobalConnectivity, CMeshTransformer, LibActions> CGlobalConnectivity_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -209,4 +209,4 @@ void CGlobalConnectivity::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

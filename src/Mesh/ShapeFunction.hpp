@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_ShapeFunction_hpp
-#define CF_Mesh_ShapeFunction_hpp
+#ifndef cf3_Mesh_ShapeFunction_hpp
+#define cf3_Mesh_ShapeFunction_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ namespace Mesh {
 /// A shape function only exists in local coordinates. It has only a
 /// dimensionality, and not a dimension.
 /// @author Willem Deconinck
-class Mesh_API ShapeFunction : public Common::Component {
+class Mesh_API ShapeFunction : public common::Component {
 
 public: // typedefs
 
@@ -42,7 +42,7 @@ public: // functions
   //@{
 
   /// Default constructor without arguments
-  ShapeFunction( const std::string& name ) : Common::Component(name) {}
+  ShapeFunction( const std::string& name ) : common::Component(name) {}
 
   /// Default destructor
   virtual ~ShapeFunction() {}
@@ -118,8 +118,8 @@ protected: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ShapeFunction_hpp
+#endif // CF3_Mesh_ShapeFunction_hpp

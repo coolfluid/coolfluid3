@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Tests_Timer_hpp
-#define CF_Tools_Tests_Timer_hpp
+#ifndef cf3_Tools_Tests_Timer_hpp
+#define cf3_Tools_Tests_Timer_hpp
 
 #include <iostream>
 
@@ -18,7 +18,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
@@ -53,15 +53,15 @@ public:
     std::cout << "<DartMeasurement name=\"" << unit.p_name.get() << " time\" type=\"numeric/double\">" << m_timer.elapsed() << "</DartMeasurement>" << std::endl;
   }
 private:
-  Common::Timer m_timer;
+  common::Timer m_timer;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Testing
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Tests_TimedTestFixture_hpp
+#endif // CF3_Tools_Tests_TimedTestFixture_hpp

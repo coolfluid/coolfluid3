@@ -20,14 +20,14 @@
 #include "Solver/Actions/CIterate.hpp"
 #include "Solver/Actions/CCriterion.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 using namespace Math::Consts;
 
-Common::ComponentBuilder < CIterate, CAction, LibActions > CIterate_Builder;
+common::ComponentBuilder < CIterate, CAction, LibActions > CIterate_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -99,4 +99,4 @@ void CIterate::execute ()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

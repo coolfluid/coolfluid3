@@ -31,16 +31,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CBuildFaceNormals, CMeshTransformer, LibActions> CBuildFaceNormals_Builder;
+common::ComponentBuilder < CBuildFaceNormals, CMeshTransformer, LibActions> CBuildFaceNormals_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -144,4 +144,4 @@ void CBuildFaceNormals::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

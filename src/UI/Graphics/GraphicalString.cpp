@@ -11,7 +11,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -62,4 +62,4 @@ void GraphicalString::textUpdated(const QString & text)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

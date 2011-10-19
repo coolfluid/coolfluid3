@@ -7,7 +7,7 @@
 #include <boost/program_options.hpp>
 #include "Tools/MeshDiff/LibMeshDiff.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshDiff {
   
@@ -29,7 +29,7 @@ public: // functions
 
 public: // data
 
-  static boost::shared_ptr<Common::Component> current_component;
+  static boost::shared_ptr<common::Component> current_component;
 
 };
 
@@ -37,4 +37,4 @@ public: // data
 
 } // MeshDiff
 } // Tools
-} // CF
+} // cf3

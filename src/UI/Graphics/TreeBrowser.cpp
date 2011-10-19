@@ -21,12 +21,12 @@
 
 #include "UI/Graphics/TreeBrowser.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -205,4 +205,4 @@ void TreeBrowser::updateButtons()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

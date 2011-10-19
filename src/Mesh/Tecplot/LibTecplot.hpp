@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibTecplot_hpp
-#define CF_LibTecplot_hpp
+#ifndef cf3_LibTecplot_hpp
+#define cf3_LibTecplot_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,18 +16,18 @@
 /// Define the macro Tecplot_API
 /// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling Tecplot files
 #ifdef COOLFLUID_GMSH_EXPORTS
-#   define Tecplot_API      CF_EXPORT_API
+#   define Tecplot_API      CF3_EXPORT_API
 #   define Tecplot_TEMPLATE
 #else
-#   define Tecplot_API      CF_IMPORT_API
-#   define Tecplot_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Tecplot_API      CF3_IMPORT_API
+#   define Tecplot_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for I/O of the Tecplot format 
@@ -38,7 +38,7 @@ namespace Tecplot {
 /// Class defines the Tecplot mesh format operations
 /// @author Willem Deconinck
 class Tecplot_API LibTecplot :
-    public Common::CLibrary {
+    public common::CLibrary {
 
 public:
 
@@ -46,7 +46,7 @@ public:
   typedef boost::shared_ptr<LibTecplot const> ConstPtr;
 
   /// Constructor
-  LibTecplot ( const std::string& name) : Common::CLibrary(name) {   }
+  LibTecplot ( const std::string& name) : common::CLibrary(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Tecplot"; }
@@ -82,8 +82,8 @@ protected:
 
 } // Tecplot
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibTecplot_hpp
+#endif // CF3_LibTecplot_hpp

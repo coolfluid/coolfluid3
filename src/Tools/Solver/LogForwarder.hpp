@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Solver_LogForwarder_hpp
-#define CF_Tools_Solver_LogForwarder_hpp
+#ifndef cf3_Tools_Solver_LogForwarder_hpp
+#define cf3_Tools_Solver_LogForwarder_hpp
 
 #include "Common/PE/CPEManager.hpp"
 #include "Common/LogStringForwarder.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Solver {
 
@@ -20,7 +20,7 @@ namespace Solver {
 
   /// Appends LoggingEvents to the remote client log window.
 
-  class LogForwarder : public Common::LogStringForwarder
+  class LogForwarder : public common::LogStringForwarder
   {
 
   public:
@@ -33,7 +33,7 @@ namespace Solver {
 
   private:
 
-    Common::PE::CPEManager::Ptr m_manager;
+    common::PE::CPEManager::Ptr m_manager;
 
   };
 
@@ -41,8 +41,8 @@ namespace Solver {
 
 } // Tools
 } // Tools
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Solver_LogForwarder_hpp
+#endif // CF3_Tools_Solver_LogForwarder_hpp

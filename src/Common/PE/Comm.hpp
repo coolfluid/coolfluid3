@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_PE_hpp
-#define CF_Common_MPI_PE_hpp
+#ifndef cf3_common_MPI_PE_hpp
+#define cf3_common_MPI_PE_hpp
 
 
 #include <mpi.h>
@@ -33,8 +33,8 @@
 /// @todo Quentin raised parent-child mpi_comm wrapping via pe -> faking a pe class which is not singleton???
 
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /// @brief Classes offering a %MPI interface for %COOLFluiD
 namespace PE {
@@ -328,4 +328,4 @@ private:
 } // namespace Common
 } // namespace CF
 
-#endif // CF_Common_MPI_PE_hpp
+#endif // CF3_common_MPI_PE_hpp

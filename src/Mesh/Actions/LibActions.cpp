@@ -11,13 +11,13 @@
 #include "Mesh/Actions/LibActions.hpp"
 #include "Mesh/Actions/LoadBalance.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibActions> libActions;
+cf3::common::RegistLibrary<LibActions> libActions;
 
 const char * balancer_name = "LoadBalancer";
 
@@ -40,4 +40,4 @@ void LibActions::terminate_impl()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

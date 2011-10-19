@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_ConfirmCommitDialog_h
-#define CF_GUI_Graphics_ConfirmCommitDialog_h
+#ifndef cf3_GUI_Graphics_ConfirmCommitDialog_h
+#define cf3_GUI_Graphics_ConfirmCommitDialog_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ class QString;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Core { class CommitDetails; }
@@ -119,8 +119,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_ConfirmCommitDialog_h
+#endif // CF3_GUI_Graphics_ConfirmCommitDialog_h

@@ -152,7 +152,7 @@ list( APPEND coolfluid_common_files
 
 ###############################################################################
 # MPI Files
-if(CF_HAVE_MPI)
+if(CF3_HAVE_MPI)
 list( APPEND coolfluid_common_files
       PE/Buffer.hpp
       PE/CPEManager.cpp
@@ -192,17 +192,17 @@ endif()
 ### UNIXES ####
 if(UNIX)
 
-  if( CF_HAVE_DLOPEN )
+  if( CF3_HAVE_DLOPEN )
     list( APPEND coolfluid_common_files PosixDlopenLibLoader.hpp PosixDlopenLibLoader.cpp )
     list( APPEND coolfluid_common_libs  dl )
-    set( CF_HAVE_LIBLOADER ON )
+    set( CF3_HAVE_LIBLOADER ON )
   endif()
 
-  if( CF_OS_MACOSX )
+  if( CF3_OS_MACOSX )
     list( APPEND coolfluid_common_files MacOSX/OSystemLayer.hpp   MacOSX/OSystemLayer.cpp )
   endif()
 
-  if( CF_OS_LINUX )
+  if( CF3_OS_LINUX )
     list( APPEND coolfluid_common_files Linux/OSystemLayer.hpp   Linux/OSystemLayer.cpp )
   endif()
 
@@ -219,16 +219,16 @@ if(WIN32)
   # libraries for OSystemLayerWin32
   list( APPEND coolfluid_common_libs dbghelp psapi )
 
-  if( CF_HAVE_WINDOWSH )
+  if( CF3_HAVE_WINDOWSH )
     list( APPEND coolfluid_common_files Win32/LibLoader.hpp     Win32/LibLoader.cpp )
-    set( CF_HAVE_LIBLOADER ON )
+    set( CF3_HAVE_LIBLOADER ON )
   endif()
 
 endif()
 
 ###############################################################################
 
-if( NOT CF_HAVE_LIBLOADER )
+if( NOT CF3_HAVE_LIBLOADER )
   message( FATAL_ERROR "No dynamic library loader was found!")
 endif()
 
@@ -242,15 +242,15 @@ coolfluid_mark_not_orphan(
 
 ###############################################################################
 
-list( APPEND coolfluid_common_libs ${CF_BOOST_LIBRARIES})
+list( APPEND coolfluid_common_libs ${CF3_BOOST_LIBRARIES})
 
 # explicit linking of all libraries for modern linkers (gcc4.5)
-if( CF_HAVE_RT )
+if( CF3_HAVE_RT )
   list( APPEND coolfluid_common_libs ${RT_LIBRARIES})
 endif()
 
 # faster allocation and memory porfiling
-if( CF_ENABLE_TCMALLOC )
+if( CF3_ENABLE_TCMALLOC )
   list(APPEND coolfluid_common_libs ${GOOGLEPERFTOOLS_TCMALLOC_LIBRARY} )
 endif()
 

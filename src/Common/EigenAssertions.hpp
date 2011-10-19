@@ -8,8 +8,8 @@
 ///
 /// This file should be included before including any Eigen files
 
-#ifndef CF_Common_EigenAssertions_hpp
-#define CF_Common_EigenAssertions_hpp
+#ifndef cf3_common_EigenAssertions_hpp
+#define cf3_common_EigenAssertions_hpp
 
 #include "Common/Assertions.hpp"
 
@@ -37,4 +37,4 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_EigenAssertions_hpp
+#endif // CF3_common_EigenAssertions_hpp

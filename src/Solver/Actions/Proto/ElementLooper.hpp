@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_ElementLooper_hpp
-#define CF_Solver_Actions_Proto_ElementLooper_hpp
+#ifndef cf3_Solver_Actions_Proto_ElementLooper_hpp
+#define cf3_Solver_Actions_Proto_ElementLooper_hpp
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
@@ -24,7 +24,7 @@
 #include "Mesh/CSpace.hpp"
 #include "Mesh/ElementTypePredicates.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -39,13 +39,13 @@ struct CheckSameEtype
   void operator() ( const VarT& var ) const
   {
     // Find the field group for the variable
-    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-    const Mesh::FieldGroup& var_field_group = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
+    Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
+    const Mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
     Mesh::CSpace& space = var_field_group.space(elements);
 
     if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
     {
-      throw Common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+      throw common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
     }
   }
 
@@ -105,8 +105,8 @@ struct ExpressionRunner
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
 
     // Find the field group for the variable
-    Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-    const Mesh::FieldGroup& var_field_group = Common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
+    Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
+    const Mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
     Mesh::CSpace& space = var_field_group.space(elements);
 
     ++m_nb_tests;
@@ -117,7 +117,7 @@ struct ExpressionRunner
     {
       if(m_nb_tests == boost::mpl::size<ElementTypesT>::value && !m_found)
       {
-        throw Common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
+        throw common::SetupError(FromHere(), "Needed element type " + space.element_type().derived_type_name() + " for variable " + var.name() + " but it was not in the compiled list");
       }
 
       return;
@@ -292,7 +292,7 @@ void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
   boost::proto::eval(expr, ctx); // calling eval using the above context stores all variables in vars
 
   // Traverse all CElements under the root and evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, Common::find_components_recursively<Mesh::CElements>(root_region))
+  BOOST_FOREACH(Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(root_region))
   {
     // We skip order 0 functions in the top-call, because first the support shape function is determined, and order 0 is not allowed there
     boost::mpl::for_each< boost::mpl::filter_view< ElementTypesT, Mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypesT, ExprT>(elements, expr, vars) );
@@ -304,4 +304,4 @@ void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_ElementLooper_hpp
+#endif // CF3_Solver_Actions_Proto_ElementLooper_hpp

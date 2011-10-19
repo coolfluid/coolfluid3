@@ -25,15 +25,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Gmsh::CWriter, CMeshWriter, LibGmsh> aGmshWriter_Builder;
+common::ComponentBuilder < Gmsh::CWriter, CMeshWriter, LibGmsh> aGmshWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -641,4 +641,4 @@ void CWriter::write_element_data(std::fstream& file)
 
 } // Gmsh
 } // Mesh
-} // CF
+} // cf3

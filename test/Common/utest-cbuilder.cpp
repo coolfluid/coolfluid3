@@ -17,8 +17,8 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //------------------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_SUITE( CFactoryTest, CBuilder_fixture )
 
 BOOST_AUTO_TEST_CASE( registration )
 {
-  Common::ComponentBuilder < CConcrete1 , CAbstract, Common::LibCommon > aBuilder;
+  common::ComponentBuilder < CConcrete1 , CAbstract, common::LibCommon > aBuilder;
 
   CAbstract::Ptr ptr = build_component_abstract_type< CAbstract >("CF.Common.CConcrete1","acomp");
 

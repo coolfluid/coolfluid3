@@ -8,17 +8,17 @@
 
 #include "Tools/Solver/Notifier.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Solver {
 
 //////////////////////////////////////////////////////////////////////////////
 
-Notifier::Notifier( boost::shared_ptr<Common::PE::CPEManager> manager )
+Notifier::Notifier( boost::shared_ptr<common::PE::CPEManager> manager )
   : m_manager(manager)
 {
   cf_assert( is_not_null(manager) );
@@ -75,4 +75,4 @@ void Notifier::new_event(const std::string & name, const URI & raiserPath)
 
 } // Solver
 } // Tools
-} // CF
+} // cf3

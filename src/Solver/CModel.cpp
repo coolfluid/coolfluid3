@@ -34,14 +34,14 @@
 #include "Solver/CModel.hpp"
 #include "Solver/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 using namespace Mesh;
 
-Common::ComponentBuilder < CModel, CModel, LibSolver > CModel_Builder;
+common::ComponentBuilder < CModel, CModel, LibSolver > CModel_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +216,7 @@ CSolver& CModel::create_solver( const std::string& builder)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signature_create_physics ( Common::SignalArgs& node )
+void CModel::signature_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -237,7 +237,7 @@ void CModel::signature_create_physics ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_create_physics ( Common::SignalArgs& node )
+void CModel::signal_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
   std::string builder = options.value<std::string>( "builder" );
@@ -246,14 +246,14 @@ void CModel::signal_create_physics ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signature_create_domain ( Common::SignalArgs& node )
+void CModel::signature_create_domain ( common::SignalArgs& node )
 {
   // no signature parameters needed
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_create_domain ( Common::SignalArgs& node )
+void CModel::signal_create_domain ( common::SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
@@ -262,7 +262,7 @@ void CModel::signal_create_domain ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signature_create_solver ( Common::SignalArgs& node )
+void CModel::signature_create_solver ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -283,7 +283,7 @@ void CModel::signature_create_solver ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_create_solver ( Common::SignalArgs& node )
+void CModel::signal_create_solver ( common::SignalArgs& node )
 {
   SignalOptions options( node );
   std::string builder_name = options.value<std::string>( "builder" );
@@ -323,7 +323,7 @@ void CModel::signal_setup(SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CModel::signal_simulate ( Common::SignalArgs& node )
+void CModel::signal_simulate ( common::SignalArgs& node )
 {
   this->simulate(); // dispatch to virtual function
 }
@@ -379,4 +379,4 @@ void CModel::on_mesh_changed_event(SignalArgs& args)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

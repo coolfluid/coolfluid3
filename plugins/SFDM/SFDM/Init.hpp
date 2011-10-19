@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Init_hpp
-#define CF_SFDM_Init_hpp
+#ifndef cf3_SFDM_Init_hpp
+#define cf3_SFDM_Init_hpp
 
 #include "Math/VectorialFunction.hpp"
 
@@ -13,7 +13,7 @@
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Physics { class Variables; }
 namespace Mesh    { class CMesh; class Field; }
@@ -22,7 +22,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API Init : public CF::Solver::Action {
+class SFDM_API Init : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -59,6 +59,6 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_Init_hpp
+#endif // CF3_SFDM_Init_hpp

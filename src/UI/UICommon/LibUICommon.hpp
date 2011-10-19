@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_UICommon_LibUICommon_hpp
-#define CF_GUI_UICommon_LibUICommon_hpp
+#ifndef cf3_GUI_UICommon_LibUICommon_hpp
+#define cf3_GUI_UICommon_LibUICommon_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro UICommon_API
 /// @note build system defines COOLFLUID_UICommon_EXPORTS when compiling Network files
 #ifdef COOLFLUID_UICOMMONs_EXPORTS
-#   define UICommon_API CF_EXPORT_API
+#   define UICommon_API CF3_EXPORT_API
 #   define UICommon_TEMPLATE
 #else
-#   define UICommon_API CF_IMPORT_API
-#   define UICommon_TEMPLATE CF_TEMPLATE_EXTERN
+#   define UICommon_API CF3_IMPORT_API
+#   define UICommon_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 /// Common classes for the client and the server
@@ -36,7 +36,7 @@ namespace UICommon {
   /// Class defines the initialization and termination of the library Network
   /// @author Tiago Quintino
   class UICommon_API LibUICommon :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -44,7 +44,7 @@ namespace UICommon {
     typedef boost::shared_ptr<LibUICommon const> ConstPtr;
 
     /// Constructor
-    LibUICommon ( const std::string& name) : Common::CLibrary(name) {   }
+    LibUICommon ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -82,6 +82,6 @@ namespace UICommon {
 
 } // Network
 } // UI
-} // CF
+} // cf3
 
-#endif // CF_GUI_UICommon_LibUICommon_hpp
+#endif // CF3_GUI_UICommon_LibUICommon_hpp

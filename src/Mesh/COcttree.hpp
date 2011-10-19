@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_COcttree_hpp
-#define CF_Mesh_COcttree_hpp
+#ifndef cf3_Mesh_COcttree_hpp
+#define cf3_Mesh_COcttree_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -26,7 +26,7 @@ namespace Mesh {
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Mesh_API COcttree : public Common::Component
+class Mesh_API COcttree : public common::Component
 {
 public: // typedefs
 
@@ -110,8 +110,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_COcttree_hpp
+#endif // CF3_Mesh_Neu_COcttree_hpp

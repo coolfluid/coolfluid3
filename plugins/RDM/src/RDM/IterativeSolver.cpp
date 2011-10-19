@@ -24,23 +24,23 @@
 
 #include "IterativeSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < IterativeSolver, CAction, LibRDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, CAction, LibRDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -156,10 +156,10 @@ void IterativeSolver::raise_iteration_done()
   opts.add_option< OptionT<Uint> >( "iteration", iter );
   SignalFrame frame = opts.create_frame("iteration_done", uri(), URI());
 
-  Common::Core::instance().event_handler().raise_event( "iteration_done", frame);
+  common::Core::instance().event_handler().raise_event( "iteration_done", frame);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

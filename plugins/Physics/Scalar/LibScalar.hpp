@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LibScalar_hpp
-#define CF_Physics_Scalar_LibScalar_hpp
+#ifndef cf3_Physics_Scalar_LibScalar_hpp
+#define cf3_Physics_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Scalar_API
 /// @note build system defines COOLFLUID_PHYSICS_SCALAR_EXPORTS when compiling Scalar files
 #ifdef COOLFLUID_PHYSICS_SCALAR_EXPORTS
-#   define Scalar_API      CF_EXPORT_API
+#   define Scalar_API      CF3_EXPORT_API
 #   define Scalar_TEMPLATE
 #else
-#   define Scalar_API      CF_IMPORT_API
-#   define Scalar_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Scalar_API      CF3_IMPORT_API
+#   define Scalar_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
 /// @brief %Scalar transport equations
@@ -37,7 +37,7 @@ namespace Scalar {
 
 /// Class defines the Scalar library
 /// @author Tiago Quintino
-class Scalar_API LibScalar : public Common::CLibrary
+class Scalar_API LibScalar : public common::CLibrary
 {
 public:
 
@@ -45,7 +45,7 @@ public:
   typedef boost::shared_ptr<LibScalar const> ConstPtr;
 
   /// Constructor
-  LibScalar ( const std::string& name) : Common::CLibrary(name) { }
+  LibScalar ( const std::string& name) : common::CLibrary(name) { }
 
   virtual ~LibScalar() { }
 
@@ -85,9 +85,9 @@ protected:
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Physics_Scalar_LibScalar_hpp
+#endif // CF3_Physics_Scalar_LibScalar_hpp
 

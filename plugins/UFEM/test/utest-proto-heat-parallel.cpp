@@ -32,13 +32,13 @@
 #include "UFEM/LinearSolver.hpp"
 #include "UFEM/Tags.hpp"
 
-using namespace CF;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
-using namespace CF::Common;
-using namespace CF::Math::Consts;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::common;
+using namespace cf3::Math::Consts;
+using namespace cf3::Mesh;
 
 using namespace boost::assign;
 
@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_SUITE( ProtoHeatSuite, ProtoHeatFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
-  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
   //PE::wait_for_debugger(0);
 }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Save
   model.domain().create_component("writer", "CF.Mesh.VTKXML.CWriter");
-  model.domain().write_mesh(URI("utest-proto-heat-parallel_output.pvtu", CF::Common::URI::Scheme::FILE));
+  model.domain().write_mesh(URI("utest-proto-heat-parallel_output.pvtu", cf3::common::URI::Scheme::FILE));
 //   lss.matrix()->print("utest-proto-heat-parallel_matrix-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");
 //   lss.rhs()->print("utest-proto-heat-parallel_rhs-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");
 //   lss.solution()->print("utest-proto-heat-parallel_solution-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");

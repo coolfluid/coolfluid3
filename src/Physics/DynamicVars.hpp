@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_DynamicVars_hpp
-#define CF_Physics_DynamicVars_hpp
+#ifndef cf3_Physics_DynamicVars_hpp
+#define cf3_Physics_DynamicVars_hpp
 
 #include "Physics/DynamicModel.hpp"
 #include "Physics/Variables.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -103,8 +103,8 @@ public: // functions
 
   virtual Math::VariablesDescriptor& description()
   {
-    throw Common::NotSupported(FromHere(),"querying description not supported for DynamicVars, see VariableManager");
-    static Math::VariablesDescriptor::Ptr desc (Common::allocate_component<Math::VariablesDescriptor>("desc"));
+    throw common::NotSupported(FromHere(),"querying description not supported for DynamicVars, see VariableManager");
+    static Math::VariablesDescriptor::Ptr desc (common::allocate_component<Math::VariablesDescriptor>("desc"));
     return *desc;
   }
   //@} END INTERFACE
@@ -114,6 +114,6 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_DynamicVars_hpp
+#endif // CF3_Physics_DynamicVars_hpp

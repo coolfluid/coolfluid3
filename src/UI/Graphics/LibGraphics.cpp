@@ -8,11 +8,11 @@
 
 #include "UI/Graphics/LibGraphics.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
-CF::Common::RegistLibrary<LibGraphics> libGraphics;
+cf3::common::RegistLibrary<LibGraphics> libGraphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibGraphics::terminate_impl()
 
 } // Client
 } // UI
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_JournalBrowserDialog_hpp
-#define CF_GUI_Graphics_JournalBrowserDialog_hpp
+#ifndef cf3_GUI_Graphics_JournalBrowserDialog_hpp
+#define cf3_GUI_Graphics_JournalBrowserDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -21,9 +21,9 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common {
+namespace common {
   namespace XML { class XmlNode; }
 }
 
@@ -66,7 +66,7 @@ public:
 
   ~JournalBrowserDialog();
 
-  void show(const Common::XML::XmlNode * rootNode);
+  void show(const common::XML::XmlNode * rootNode);
 
 private slots:
 
@@ -92,8 +92,8 @@ private:
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_JournalBrowserDialog_hpp
+#endif // CF3_GUI_Graphics_JournalBrowserDialog_hpp

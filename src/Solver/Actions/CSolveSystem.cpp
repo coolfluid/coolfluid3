@@ -11,14 +11,14 @@
 
 #include "CSolveSystem.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 using namespace Math;
 
-Common::ComponentBuilder < CSolveSystem, CAction, LibActions > CSolveSystem_Builder;
+common::ComponentBuilder < CSolveSystem, CAction, LibActions > CSolveSystem_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,4 +57,4 @@ void CSolveSystem::execute ()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

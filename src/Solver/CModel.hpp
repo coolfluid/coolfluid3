@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CModel_hpp
-#define CF_Solver_CModel_hpp
+#ifndef cf3_Solver_CModel_hpp
+#define cf3_Solver_CModel_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,9 +13,9 @@
 #include "Solver/LibSolver.hpp"
 #include <boost/scoped_ptr.hpp>
 
-namespace CF {
+namespace cf3 {
 
-  namespace Common  { class CGroup; }
+  namespace common  { class CGroup; }
   namespace Mesh    { class CDomain; }
   namespace Physics { class PhysModel; }
 
@@ -31,7 +31,7 @@ namespace CF {
 /// - Iterative solver
 /// - Discretization
 /// @author Martin Vymazal
-class Solver_API CModel : public Common::Component {
+class Solver_API CModel : public common::Component {
 
 public: // typedefs
 
@@ -71,7 +71,7 @@ public: // functions
   virtual CSolver& solver();
 
   /// gets the solver from this model
-  virtual Common::CGroup& tools();
+  virtual common::CGroup& tools();
 
   /// Simulates this model
   virtual void simulate();
@@ -85,27 +85,27 @@ public: // functions
   //@{
 
   /// Signature of create physics signal @see signal_create_domain
-  void signature_create_physics ( Common::SignalArgs& node );
+  void signature_create_physics ( common::SignalArgs& node );
   /// Signal to create the physics
-  void signal_create_physics ( Common::SignalArgs& node );
+  void signal_create_physics ( common::SignalArgs& node );
 
   /// Signature of create domain signal @see signal_create_domain
-  void signature_create_domain ( Common::SignalArgs& node );
+  void signature_create_domain ( common::SignalArgs& node );
   /// Signal to create a domain and load a mesh into it
-  void signal_create_domain ( Common::SignalArgs& node );
+  void signal_create_domain ( common::SignalArgs& node );
 
   /// Signature of create domain signal @see signal_create_domain
-  void signature_create_solver ( Common::SignalArgs& node );
+  void signature_create_solver ( common::SignalArgs& node );
   /// Signal to create a domain and load a mesh into it
-  void signal_create_solver ( Common::SignalArgs& node );
+  void signal_create_solver ( common::SignalArgs& node );
 
   /// Signature to easily set up a model
-  void signature_setup(Common::SignalArgs& node);
+  void signature_setup(common::SignalArgs& node);
   /// Signal to set up the model, i.e. create the domain, solver and physical model
-  void signal_setup(Common::SignalArgs& node);
+  void signal_setup(common::SignalArgs& node);
 
   /// Signal to start simulating
-  void signal_simulate ( Common::SignalArgs& node );
+  void signal_simulate ( common::SignalArgs& node );
 
   //@} END SIGNALS
 
@@ -117,16 +117,16 @@ private:
   /// This function is hooked to the mesh_loaded event.
   /// It checks if the mesh that raised the event is in the domain, and if so
   /// calls the mesh_loaded function of the solvers
-  void on_mesh_loaded_event(Common::SignalArgs& args);
-  void on_mesh_changed_event(Common::SignalArgs& args);
+  void on_mesh_loaded_event(common::SignalArgs& args);
+  void on_mesh_changed_event(common::SignalArgs& args);
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CModel_hpp
+#endif // CF3_Solver_CModel_hpp

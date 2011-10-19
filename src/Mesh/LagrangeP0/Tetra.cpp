@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 #include "Mesh/LagrangeP0/Tetra.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Tetra>, ShapeFunction, LibLagrangeP0 >
+common::ComponentBuilder < ShapeFunctionT<Tetra>, ShapeFunction, LibLagrangeP0 >
    Tetra_Builder(LibLagrangeP0::library_namespace()+"."+Tetra::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,4 +52,4 @@ const RealMatrix& Tetra::local_coordinates()
 
 } // LagrangeP0
 } // Mesh
-} // CF
+} // cf3

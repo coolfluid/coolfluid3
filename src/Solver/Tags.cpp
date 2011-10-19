@@ -6,32 +6,32 @@
 
 #include "Solver/Tags.hpp"
 
-const char* CF::Solver::Tags::domain()
+const char* cf3::Solver::Tags::domain()
 {
   return "domain";
 }
 
-const char* CF::Solver::Tags::solver()
+const char* cf3::Solver::Tags::solver()
 {
   return "solver";
 }
 
-const char* CF::Solver::Tags::mesh()
+const char* cf3::Solver::Tags::mesh()
 {
   return "mesh";
 }
 
-const char* CF::Solver::Tags::regions()
+const char* cf3::Solver::Tags::regions()
 {
   return "regions";
 }
 
-const char* CF::Solver::Tags::time()
+const char* cf3::Solver::Tags::time()
 {
   return "ctime";
 }
 
-const char* CF::Solver::Tags::physical_model()
+const char* cf3::Solver::Tags::physical_model()
 {
   return "physical_model";
 }

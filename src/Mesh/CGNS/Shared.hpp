@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CGNS_Shared_hpp
-#define CF_Mesh_CGNS_Shared_hpp
+#ifndef cf3_Mesh_CGNS_Shared_hpp
+#define cf3_Mesh_CGNS_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class Geometry;
@@ -57,7 +57,7 @@ public:
 protected:
 
   std::map<ElementType_t,std::string> m_elemtype_CGNS_to_CF;
-  std::map<std::string,ElementType_t> m_elemtype_CF_to_CGNS;
+  std::map<std::string,ElementType_t> m_elemtype_CF3_to_CGNS;
 
   struct CGNS_Size
   {
@@ -155,8 +155,8 @@ private:
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_Shared_hpp
+#endif // CF3_Mesh_CGNS_Shared_hpp

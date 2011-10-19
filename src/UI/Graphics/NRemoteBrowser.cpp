@@ -40,14 +40,14 @@
 
 #include "UI/Graphics/NRemoteBrowser.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::UICommon;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -804,4 +804,4 @@ QString NRemoteBrowser::selectedFile() const
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

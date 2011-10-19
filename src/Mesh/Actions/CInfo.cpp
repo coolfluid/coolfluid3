@@ -19,11 +19,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
 
   class IsElementRegion
   {
@@ -53,7 +53,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
+common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -148,4 +148,4 @@ std::string CInfo::print_elements(const Component& region, Uint level)
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

@@ -30,10 +30,10 @@
 #include "Common/XML/FileOperations.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -752,7 +752,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 //  CFinfo << "xml tree for " << name() << CFendl;
 
   if(type_name.empty())
-    CFerror << "Unknown derived name for " << CF_DEMANGLE_TYPEID(*this)
+    CFerror << "Unknown derived name for " << CF3_DEMANGLE_TYPEID(*this)
             << ". Was this class added to the component builder?" << CFendl;
   else
   {
@@ -895,7 +895,7 @@ void Component::signal_configure ( SignalArgs& args )
   using namespace rapidxml;
 
  if ( !args.has_map( Protocol::Tags::key_options() ) )
-   throw  Common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
+   throw  common::XmlError( FromHere(), "ConfigObject received  XML without a \'" + std::string(Protocol::Tags::key_options()) + "\' map" );
 
  XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;
 
@@ -1501,5 +1501,5 @@ Component::Ptr build_component(const std::string& builder_name,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

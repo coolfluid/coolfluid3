@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_EigenTransforms_hpp
-#define CF_Solver_Actions_Proto_EigenTransforms_hpp
+#ifndef cf3_Solver_Actions_Proto_EigenTransforms_hpp
+#define cf3_Solver_Actions_Proto_EigenTransforms_hpp
 
 #include <boost/mpl/equal_to.hpp>
 #include <boost/proto/core.hpp>
@@ -19,7 +19,7 @@
 /// @file EigenTransforms.hpp
 /// @brief Transforms related to Eigen matrix library functionality
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -444,4 +444,4 @@ struct EigenMath :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_EigenTransforms_hpp
+#endif // CF3_Solver_Actions_Proto_EigenTransforms_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_ModifiedOptionsDialog_hpp
-#define CF_GUI_Graphics_ModifiedOptionsDialog_hpp
+#ifndef cf3_GUI_Graphics_ModifiedOptionsDialog_hpp
+#define cf3_GUI_Graphics_ModifiedOptionsDialog_hpp
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ class QVBoxLayout;
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Core { class CommitDetails; }
@@ -70,8 +70,8 @@ private:
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_ModifiedOptionsDialog_hpp
+#endif // CF3_GUI_Graphics_ModifiedOptionsDialog_hpp

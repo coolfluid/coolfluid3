@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CGNS_CReader_hpp
-#define CF_Mesh_CGNS_CReader_hpp
+#ifndef cf3_Mesh_CGNS_CReader_hpp
+#define cf3_Mesh_CGNS_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   class CRegion;
 namespace CGNS {
@@ -51,7 +51,7 @@ public: // functions
 
 private: // functions
 
-  virtual void do_read_mesh_into(const Common::URI& fp, CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& fp, CMesh& mesh);
 
   void read_base(CMesh& parent_region);
   void read_zone(CRegion& parent_region);
@@ -85,8 +85,8 @@ private: // data
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_CReader_hpp
+#endif // CF3_Mesh_CGNS_CReader_hpp

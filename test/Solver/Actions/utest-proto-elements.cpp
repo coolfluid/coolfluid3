@@ -48,14 +48,14 @@
 
 #include "Tools/Testing/TimedTestFixture.hpp"
 
-using namespace CF;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
-using namespace CF::Math::Consts;
+using namespace cf3::Math::Consts;
 
 using namespace boost::assign;
 

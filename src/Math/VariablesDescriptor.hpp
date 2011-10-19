@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_VariablesDescriptor_hpp
-#define CF_Math_VariablesDescriptor_hpp
+#ifndef cf3_Math_VariablesDescriptor_hpp
+#define cf3_Math_VariablesDescriptor_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 #include "Math/LibMath.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Math {
 
@@ -27,7 +27,7 @@ namespace Math {
 /// dimensions: Dimension of the problem (i.e. number of spatial coordinates used)
 /// @author Bart Janssens
 /// @author Tiago Quintino
-class Math_API VariablesDescriptor : public Common::Component {
+class Math_API VariablesDescriptor : public common::Component {
 
 public: //typedefs
 
@@ -58,7 +58,7 @@ public: // functions
   {
     enum Type { INVALID=-1, SCALAR=1, VECTOR=-2, TENSOR=-3};
 
-    struct Math_API Convert : public Common::EnumT< Dimensionalities >
+    struct Math_API Convert : public common::EnumT< Dimensionalities >
     {
       /// constructor where all the converting maps are built
       Convert();
@@ -157,8 +157,8 @@ Math_API std::ostream& operator<< ( std::ostream& os, const VariablesDescriptor:
 Math_API std::istream& operator>> ( std::istream& is, VariablesDescriptor::Dimensionalities::Type& in );
 
 } // Math
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_VariablesDescriptor_hpp
+#endif // CF3_Math_VariablesDescriptor_hpp

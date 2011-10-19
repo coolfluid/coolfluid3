@@ -6,11 +6,11 @@
 
 #include "UI/Core/CNodeBuilders.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -59,4 +59,4 @@ CNode::Ptr CNodeBuilders::buildCNode( const QString & componentType,
 
 } // Core
 } // UI
-} // CF
+} // cf3

@@ -24,12 +24,12 @@
 #include "UI/Graphics/NRemoteOpen.hpp"
 #include "UI/Graphics/SelectPathDialog.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -335,4 +335,4 @@ void GraphicalUriArray::selectionChanged(const QItemSelection &, const QItemSele
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

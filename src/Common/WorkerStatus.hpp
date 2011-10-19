@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_StatusWorker_hpp
-#define CF_Common_StatusWorker_hpp
+#ifndef cf3_common_StatusWorker_hpp
+#define cf3_common_StatusWorker_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ class Common_API WorkerStatus
                WAITING     = 5,
                IDLE        = 6 };
 
-  typedef Common::EnumT< WorkerStatus > ConverterBase;
+  typedef common::EnumT< WorkerStatus > ConverterBase;
 
   struct Common_API Convert : public ConverterBase
   {
@@ -53,9 +53,9 @@ Common_API std::istream& operator>> ( std::istream& is, WorkerStatus::Type& in )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_StatusWorker_hpp
+#endif // CF3_common_StatusWorker_hpp

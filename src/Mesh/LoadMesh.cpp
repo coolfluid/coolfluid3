@@ -23,14 +23,14 @@
 #include "Mesh/LoadMesh.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
-using namespace CF::Mesh;
+using namespace common;
+using namespace common::XML;
+using namespace cf3::Mesh;
 
-Common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
+common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +134,7 @@ boost::shared_ptr< CMesh > LoadMesh::load_mesh(const URI& file)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
+void LoadMesh::signal_load_mesh ( common::SignalArgs& node )
 {
   update_list_of_available_readers();
 
@@ -202,7 +202,7 @@ void LoadMesh::signal_load_mesh ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
+void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
@@ -232,4 +232,4 @@ void LoadMesh::signature_load_mesh ( Common::SignalArgs& node)
 }
 
 } // Mesh
-} // CF
+} // cf3

@@ -22,16 +22,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-using namespace Common;
-using namespace Common::PE;
+using namespace common;
+using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Interpolate, CMeshTransformer, LibActions> Interpolate_Builder;
+common::ComponentBuilder < Interpolate, CMeshTransformer, LibActions> Interpolate_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -336,9 +336,9 @@ void Interpolate::interpolate_coordinate(const RealVector& target_coord, const C
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::signal_interpolate ( Common::SignalArgs& node )
+void Interpolate::signal_interpolate ( common::SignalArgs& node )
 {
-  Common::XML::SignalOptions options( node );
+  common::XML::SignalOptions options( node );
 
   URI source_uri = options.value<URI>("source");
   URI target_uri = options.value<URI>("target");
@@ -372,9 +372,9 @@ void Interpolate::signal_interpolate ( Common::SignalArgs& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::signature_interpolate ( Common::SignalArgs& node)
+void Interpolate::signature_interpolate ( common::SignalArgs& node)
 {
-  Common::XML::SignalOptions options( node );
+  common::XML::SignalOptions options( node );
 
   options.add_option< OptionURI >("source",URI())
       ->description("Source field")
@@ -394,4 +394,4 @@ void Interpolate::signature_interpolate ( Common::SignalArgs& node)
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

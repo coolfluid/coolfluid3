@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_Core_LibGraphics_hpp
-#define CF_GUI_Graphics_Core_LibGraphics_hpp
+#ifndef cf3_GUI_Graphics_Core_LibGraphics_hpp
+#define cf3_GUI_Graphics_Core_LibGraphics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Graphics_API
 /// @note build system defines COOLFLUID_UI_GRAPHICS_EXPORTS when compiling GraphicsTools files
 #ifdef COOLFLUID_UI_GRAPHICS_EXPORTS
-#   define Graphics_API      CF_EXPORT_API
+#   define Graphics_API      CF3_EXPORT_API
 #   define Graphics_TEMPLATE
 #else
-#   define Graphics_API      CF_IMPORT_API
-#   define Graphics_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Graphics_API      CF3_IMPORT_API
+#   define Graphics_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   namespace UI {
   /// Basic Classes for Graphics applications used by CF
@@ -36,7 +36,7 @@ namespace CF {
   /// Class defines the initialization and termination of the library Graphics
   /// @author Tiago Quintino
   class Graphics_API LibGraphics :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -44,7 +44,7 @@ namespace CF {
     typedef boost::shared_ptr<LibGraphics const> ConstPtr;
 
     /// Constructor
-    LibGraphics ( const std::string& name) : Common::CLibrary(name) {   }
+    LibGraphics ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -83,8 +83,8 @@ namespace CF {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_Core_LibGraphics_hpp
+#endif // CF3_GUI_Graphics_Core_LibGraphics_hpp

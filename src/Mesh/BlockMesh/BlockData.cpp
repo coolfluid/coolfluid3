@@ -36,13 +36,13 @@
 #include "Mesh/LagrangeP1/Line1D.hpp"
 #include "Mesh/LagrangeP1/Quad2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace BlockMesh {
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::LagrangeP1;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::LagrangeP1;
 
 ComponentBuilder < BlockData, Component, LibBlockMesh > BlockData_Builder;
 
@@ -793,7 +793,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
 
 void build_mesh_3d(BlockData& block_data, CMesh& mesh)
 {
-  Common::Timer timer;
+  common::Timer timer;
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
   cf_assert(block_data.block_distribution.size() == nb_procs+1);
@@ -1960,7 +1960,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   }
 }
 
-void partition_blocks(const CF::Mesh::BlockMesh::BlockData& blocks_in, const CF::Uint nb_partitions, const CF::CoordXYZ direction, CF::Mesh::BlockMesh::BlockData& blocks_out)
+void partition_blocks(const cf3::Mesh::BlockMesh::BlockData& blocks_in, const cf3::Uint nb_partitions, const cf3::CoordXYZ direction, cf3::Mesh::BlockMesh::BlockData& blocks_out)
 {
   CMesh& block_mesh = blocks_out.create_component<CMesh>("serial_block_mesh");
 
@@ -1994,4 +1994,4 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh)
 
 } // BlockMesh
 } // Mesh
-} // CF
+} // cf3

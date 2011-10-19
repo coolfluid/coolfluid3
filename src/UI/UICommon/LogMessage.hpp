@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_UICommon_LogMessage_hpp
-#define CF_GUI_UICommon_LogMessage_hpp
+#ifndef cf3_GUI_UICommon_LogMessage_hpp
+#define cf3_GUI_UICommon_LogMessage_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace UICommon {
 
@@ -31,7 +31,7 @@ class UICommon_API LogMessage
                EXCEPTION  = 2,
                WARNING    = 3};
 
-  typedef Common::EnumT< LogMessage > ConverterBase;
+  typedef common::EnumT< LogMessage > ConverterBase;
 
   struct Common_API Convert : public ConverterBase
   {
@@ -53,8 +53,8 @@ UICommon_API std::istream& operator>> ( std::istream& is, LogMessage::Type& in )
 
 } // Network
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_UICommon_LogMessage_hpp
+#endif // CF3_GUI_UICommon_LogMessage_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibSolver_hpp
-#define CF_LibSolver_hpp
+#ifndef cf3_LibSolver_hpp
+#define cf3_LibSolver_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Solver_API
 /// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_SOLVER_EXPORTS
-#   define Solver_API      CF_EXPORT_API
+#   define Solver_API      CF3_EXPORT_API
 #   define Solver_TEMPLATE
 #else
-#   define Solver_API      CF_IMPORT_API
-#   define Solver_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Solver_API      CF3_IMPORT_API
+#   define Solver_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   /// Basic Classes for Solver applications used by CF
   namespace Solver {
@@ -36,7 +36,7 @@ namespace CF {
   /// @author Tiago Quintino
   /// @author Martin Vymazal
   class Solver_API LibSolver :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -44,7 +44,7 @@ namespace CF {
     typedef boost::shared_ptr<LibSolver const> ConstPtr;
 
     /// Constructor
-    LibSolver ( const std::string& name) : Common::CLibrary(name) {   }
+    LibSolver ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -81,8 +81,8 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibSolver_hpp
+#endif // CF3_LibSolver_hpp

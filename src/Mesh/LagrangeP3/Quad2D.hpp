@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP3_Quad2D_hpp
-#define CF_Mesh_LagrangeP3_Quad2D_hpp
+#ifndef cf3_Mesh_LagrangeP3_Quad2D_hpp
+#define cf3_Mesh_LagrangeP3_Quad2D_hpp
 
 #include "Mesh/ElementTypeBase.hpp"
 #include "Mesh/LagrangeP3/Quad.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP3 {
 
@@ -59,6 +59,6 @@ struct Mesh_LagrangeP3_API Quad2D : public ElementTypeBase<Quad2D,Quad2D_traits>
 
 } // LagrangeP3
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_LagrangeP3_Quad2D_hpp
+#endif // CF3_Mesh_LagrangeP3_Quad2D_hpp

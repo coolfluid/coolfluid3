@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GooglePerfTools_ProfiledTestFixture_hpp
-#define CF_GooglePerfTools_ProfiledTestFixture_hpp
+#ifndef cf3_GooglePerfTools_ProfiledTestFixture_hpp
+#define cf3_GooglePerfTools_ProfiledTestFixture_hpp
 
 
 #include <boost/test/test_observer.hpp>
@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
@@ -57,8 +57,8 @@ private:
 
 } // Testing
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GooglePerfTools_ProfiledTestFixture_hpp
+#endif // CF3_GooglePerfTools_ProfiledTestFixture_hpp

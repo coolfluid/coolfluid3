@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MacOSX_OSystemLayer_hpp
-#define CF_Common_MacOSX_OSystemLayer_hpp
+#ifndef cf3_common_MacOSX_OSystemLayer_hpp
+#define cf3_common_MacOSX_OSystemLayer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,8 +13,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /// @brief Specialized classes for interacting with Mac OSX operating system
 namespace MacOSX {
@@ -24,7 +24,7 @@ namespace MacOSX {
 /// This class represents the current information on the memory usage.
 /// Is is an implementation for the MacOSX operating system
 /// @author Tiago Quintino
-class Common_API OSystemLayer : public Common::OSystemLayer {
+class Common_API OSystemLayer : public common::OSystemLayer {
 
 public:
 
@@ -71,9 +71,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // MacOSX
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MacOSX_OSystemLayer_hpp
+#endif // CF3_common_MacOSX_OSystemLayer_hpp

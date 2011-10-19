@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_BOOSTMATH_HPP
-#define CF_Math_BOOSTMATH_HPP
+#ifndef cf3_Math_BOOSTMATH_HPP
+#define cf3_Math_BOOSTMATH_HPP
 
 #include "Common/CF.hpp"
 
@@ -21,4 +21,4 @@
 // for erfc
 #include <boost/math/special_functions/erf.hpp>
 
-#endif // CF_Math_BOOSTMATH_HPP
+#endif // CF3_Math_BOOSTMATH_HPP

@@ -11,6 +11,6 @@ list( APPEND coolfluid_mesh_zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EX
 
 set( coolfluid_mesh_zoltan_kernellib TRUE )
 
-set( coolfluid_mesh_zoltan_condition ${CF_HAVE_ZOLTAN} )
+set( coolfluid_mesh_zoltan_condition ${CF3_HAVE_ZOLTAN} )
 
 coolfluid_add_library( coolfluid_mesh_zoltan )

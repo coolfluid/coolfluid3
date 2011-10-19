@@ -8,11 +8,11 @@
 
 #include "Mesh/Neu/LibNeu.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Neu {
 
-CF::Common::RegistLibrary<LibNeu> libNeu;
+cf3::common::RegistLibrary<LibNeu> libNeu;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibNeu::terminate_impl()
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3

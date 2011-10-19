@@ -10,13 +10,13 @@
 #include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
 #include "Mesh/LagrangeP0/Point.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ShapeFunctionT<Point>, ShapeFunction, LibLagrangeP0 >
+common::ComponentBuilder < ShapeFunctionT<Point>, ShapeFunction, LibLagrangeP0 >
    Point_Builder(LibLagrangeP0::library_namespace()+"."+Point::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,4 +62,4 @@ const Uint Point::order;
 
 } // LagrangeP0
 } // Mesh
-} // CF
+} // cf3

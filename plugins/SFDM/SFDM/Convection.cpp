@@ -33,17 +33,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-  using namespace Common;
+  using namespace common;
   using namespace Mesh;
   using namespace Physics;
   using namespace RiemannSolvers;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Convection, Term, LibSFDM> Convection_builder;
+common::ComponentBuilder < Convection, Term, LibSFDM> Convection_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -855,4 +855,4 @@ void Convection::compute_inner_face_flux_points_contribution()
 /////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

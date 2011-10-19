@@ -6,18 +6,18 @@ list( APPEND coolfluid-solver_files  coolfluid-solver.cpp
    LogForwarder.cpp
    LogForwarder.hpp )
 
-if(CF_HAVE_PTHREAD)
+if(CF3_HAVE_PTHREAD)
   list( APPEND coolfluid-solver_libs ${PTHREAD_LIBRARIES} )
 endif()
 
 if( ParaView_FOUND )
-  add_definitions( -DCF_HAVE_PARAVIEW )
+  add_definitions( -DCF3_HAVE_PARAVIEW )
   include_directories( ${PARAVIEW_INCLUDE_DIRS} )
   list( APPEND coolfluid-solver_libs coolfluid_ui_paraview )
 endif()
 
 
-list( APPEND coolfluid-solver_cflibs ${CF_KERNEL_LIBS} )
+list( APPEND coolfluid-solver_cflibs ${CF3_KERNEL_LIBS} )
 
 coolfluid_add_application( coolfluid-solver )
 

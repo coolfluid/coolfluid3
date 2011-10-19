@@ -28,15 +28,15 @@ TODO:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common  {
+namespace cf3 {
+namespace common  {
 namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 // Provider
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CommPattern, Component, LibCommon > CommPattern_Provider;
+common::ComponentBuilder < CommPattern, Component, LibCommon > CommPattern_Provider;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Constructor & destructor
@@ -83,8 +83,8 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
 
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
-  if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
-  if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
+  if (gid->stride()!=1) throw cf3::common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
+  if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
   if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
@@ -92,7 +92,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, std::vector<Uint>& rank)
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
     if ((Uint) pobj.size()!=m_isUpdatable.size()+gid->size())
-      throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
+      throw cf3::common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
   // if performance issues, replace for(...) add_global(...) with direct push_back
@@ -135,8 +135,8 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
 
   // basic check
   BOOST_ASSERT( (Uint)gid->size() == rank.size() );
-  if (gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
-  if (gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
+  if (gid->stride()!=1) throw cf3::common::BadValue(FromHere(),"Data to be registered as gid is not of stride=1.");
+  if (gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Data to be registered as gid is not of type Uint.");
   m_gid=gid;
   m_gid->add_tag("gid_of_"+this->name());
   if (get_child_ptr(gid->name()).get() == nullptr) add_component(gid);
@@ -144,7 +144,7 @@ void CommPattern::setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank)
   // sizesof datas matching
   BOOST_FOREACH( CommWrapper& pobj, find_components_recursively<CommWrapper>(*this) )
     if ((Uint) pobj.size()!=m_isUpdatable.size()+gid->size())
-      throw CF::Common::BadValue(FromHere(),"Size does not match commpattern's size.");
+      throw cf3::common::BadValue(FromHere(),"Size does not match commpattern's size.");
 
   // add to add buffer
   // if performance issues, replace for(...) add_global(...) with direct push_back
@@ -270,9 +270,9 @@ void CommPattern::setup()
   // get stuff
   const CPint irank=(CPint)PE::Comm::instance().rank();
   const CPint nproc=(CPint)PE::Comm::instance().size();
-  if (m_gid.get()==nullptr) throw CF::Common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
-  if (m_gid->stride()!=1) throw CF::Common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
-  if (m_gid->is_data_type_Uint()!=true) throw CF::Common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
+  if (m_gid.get()==nullptr) throw cf3::common::BadValue(FromHere(),"Gid is not registered for for commpattern: " + name());
+  if (m_gid->stride()!=1) throw cf3::common::BadValue(FromHere(),"Gid is not of stride==1 for commpattern: " + name());
+  if (m_gid->is_data_type_Uint()!=true) throw cf3::common::CastingFailed(FromHere(),"Gid is not of type Uint for commpattern: " + name());
 
   // look around for max gid for the global array's size
   Uint nglobalarray=0;
@@ -369,9 +369,9 @@ void CommPattern::setup()
       }
     }
     if ((nupdatable==0)&&(global_nelems[i]!=0))
-      throw Common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
+      throw common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is not updatable on any of the processes." );
     if (nupdatable>1)
-      throw Common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
+      throw common::BadValue(FromHere(), type_name() + ": " + uri().path() + ": Error with gid " + boost::lexical_cast<std::string>(i+COMPUTE_INODE(irank,nproc,nglobalarray)) + ", it is updatable on more than one ranks." );
   }
 
   // lookup information for m_recvCount, m_recvMap
@@ -609,7 +609,7 @@ void CommPattern::add_global(Uint gid, Uint rank)
 {
   // later a mechanism could be implemented when commpattern can give gids by calling a "reserve(int num)" beforehand, to optimize performance
   // submits NEGATIVE lid's to distuingish add_global and add_local
-  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
+  if (m_isFreeze) throw common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   int next_lid=m_free_lids.back();
   if (m_free_lids.size()>1) m_free_lids.pop_back();
   else m_free_lids[0]=next_lid+1;
@@ -621,7 +621,7 @@ void CommPattern::add_global(Uint gid, Uint rank)
 
 Uint CommPattern::add_local(bool as_ghost)
 {
-  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
+  if (m_isFreeze) throw common::ShouldNotBeHere(FromHere(),"Wanted to add nodes to commpattern '" + name() + "' which is freezed.");
   int next_lid=m_free_lids.back();
   if (m_free_lids.size()>1) m_free_lids.pop_back();
   else m_free_lids[0]=next_lid+1;
@@ -634,7 +634,7 @@ Uint CommPattern::add_local(bool as_ghost)
 
 void CommPattern::move_local(Uint lid, Uint rank, bool keep_as_ghost)
 {
-  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
+  if (m_isFreeze) throw common::ShouldNotBeHere(FromHere(),"Wanted to moves nodes of commpattern '" + name() + "' which is freezed.");
   m_mov_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),rank,keep_as_ghost));
   if (!keep_as_ghost) m_free_lids.push_back(lid);
   m_isUpToDate=false;
@@ -644,7 +644,7 @@ void CommPattern::move_local(Uint lid, Uint rank, bool keep_as_ghost)
 
 void CommPattern::remove_local(Uint lid, bool on_all_ranks)
 {
-  if (m_isFreeze) throw Common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
+  if (m_isFreeze) throw common::ShouldNotBeHere(FromHere(),"Wanted to delete nodes from commpattern '" + name() + "' which is freezed.");
   m_rem_buffer.push_back(temp_buffer_item(lid,std::numeric_limits<Uint>::max(),PE::Comm::instance().rank(),on_all_ranks));
   m_free_lids.push_back(lid);
   m_isUpToDate=false;
@@ -657,5 +657,5 @@ void CommPattern::remove_local(Uint lid, bool on_all_ranks)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // PE
-} // Common
-} // CF
+} // common
+} // cf3

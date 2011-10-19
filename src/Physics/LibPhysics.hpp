@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibPhysics_hpp
-#define CF_LibPhysics_hpp
+#ifndef cf3_LibPhysics_hpp
+#define cf3_LibPhysics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Physics_API
 /// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_SOLVER_EXPORTS
-#   define Physics_API      CF_EXPORT_API
+#   define Physics_API      CF3_EXPORT_API
 #   define Physics_TEMPLATE
 #else
-#   define Physics_API      CF_IMPORT_API
-#   define Physics_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Physics_API      CF3_IMPORT_API
+#   define Physics_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   /// Basic Classes for Physics applications used by CF
   namespace Physics {
@@ -35,7 +35,7 @@ namespace CF {
   /// Class defines the initialization and termination of the library Physics
   /// @author Tiago Quintino
   /// @author Martin Vymazal
-  class Physics_API LibPhysics : public Common::CLibrary {
+  class Physics_API LibPhysics : public common::CLibrary {
 
   public:
 
@@ -43,7 +43,7 @@ namespace CF {
     typedef boost::shared_ptr<LibPhysics const> ConstPtr;
 
     /// Constructor
-    LibPhysics ( const std::string& name) : Common::CLibrary(name) {   }
+    LibPhysics ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -80,8 +80,8 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibPhysics_hpp
+#endif // CF3_LibPhysics_hpp

@@ -24,7 +24,7 @@
 #include "Common/MacOSX/OSystemLayer.hpp"
 
 
-#ifdef CF_HAVE_CXXABI_H
+#ifdef CF3_HAVE_CXXABI_H
 #include <cxxabi.h>
 #include <boost/regex.hpp>
 #endif
@@ -33,8 +33,8 @@
 
 using namespace std;
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     namespace MacOSX {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +80,7 @@ std::string OSystemLayer::dump_back_trace ()
   if (strings == NULL)
     oss << "\nno backtrace_symbols found\n";
 
-#ifdef CF_HAVE_CXXABI_H
+#ifdef CF3_HAVE_CXXABI_H
 
 	boost::regex e("([0-9]+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+(.+)[[:space:]]+\\+[[:space:]]+(.+)");
 	boost::match_results<std::string::const_iterator> what;
@@ -249,7 +249,7 @@ void OSystemLayer::regist_os_signal_handlers()
 
 int OSystemLayer::handleSIGFPE (int signal)
 {
-  throw Common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
+  throw common::FloatingPointError (FromHere(), "Some floating point operation has given an invalid result");
   return SIGFPE;
 }
 
@@ -276,6 +276,6 @@ int OSystemLayer::handleSIGABRT(int signal)
 ////////////////////////////////////////////////////////////////////////////////
 
     } // MacOSX
-  } // Common
-} // CF
+  } // common
+} // cf3
 

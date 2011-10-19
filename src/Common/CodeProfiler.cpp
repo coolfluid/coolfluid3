@@ -6,8 +6,8 @@
 
 #include "Common/CodeProfiler.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 CodeProfiler::CodeProfiler(const std::string& name) : Component (name)
 {
@@ -18,6 +18,6 @@ CodeProfiler::~CodeProfiler()
 {
 }
 
-} // Common
-} // CF
+} // common
+} // cf3
 

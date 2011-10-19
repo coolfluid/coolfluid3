@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_ConfigurableConstant_hpp
-#define CF_Solver_Actions_Proto_ConfigurableConstant_hpp
+#ifndef cf3_Solver_Actions_Proto_ConfigurableConstant_hpp
+#define cf3_Solver_Actions_Proto_ConfigurableConstant_hpp
 
 #include <string>
 
@@ -17,9 +17,9 @@
 /// Grammar for node-based expressions
 
 class C;
-namespace CF {
+namespace cf3 {
 
-  namespace Common { class PropertyList; }
+  namespace common { class PropertyList; }
 
 namespace Solver {
 namespace Actions {
@@ -128,4 +128,4 @@ struct ReplaceConfigurableConstants :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_ConfigurableConstant_hpp
+#endif // CF3_Solver_Actions_Proto_ConfigurableConstant_hpp

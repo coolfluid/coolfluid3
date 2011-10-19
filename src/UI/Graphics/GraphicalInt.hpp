@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphicalInt_hpp
-#define CF_GUI_Graphics_GraphicalInt_hpp
+#ifndef cf3_GUI_Graphics_GraphicalInt_hpp
+#define cf3_GUI_Graphics_GraphicalInt_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ class QDoubleSpinBox;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -51,8 +51,8 @@ private:
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GraphicalInt_hpp
+#endif // CF3_GUI_Graphics_GraphicalInt_hpp

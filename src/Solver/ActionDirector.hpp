@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_ActionDirector_hpp
-#define CF_Solver_ActionDirector_hpp
+#ifndef cf3_Solver_ActionDirector_hpp
+#define cf3_Solver_ActionDirector_hpp
 
 #include "Common/CActionDirector.hpp"
 #include "Common/FindComponents.hpp"
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; }
 namespace Physics { class PhysModel; }
@@ -24,7 +24,7 @@ class CTime;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API ActionDirector : public Common::CActionDirector {
+class Solver_API ActionDirector : public common::CActionDirector {
 
 public: // typedefs
 
@@ -86,6 +86,6 @@ protected: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_ActionDirector_hpp
+#endif // CF3_Solver_ActionDirector_hpp

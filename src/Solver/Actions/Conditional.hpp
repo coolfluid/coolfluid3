@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Conditional_hpp
-#define CF_Solver_Conditional_hpp
+#ifndef cf3_Solver_Conditional_hpp
+#define cf3_Solver_Conditional_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Common/CAction.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
@@ -20,7 +20,7 @@ namespace Actions {
 
 /// Action that gets executed Conditionalally
 /// @author Tiago Quintino
-class Solver_Actions_API Conditional : public Common::CAction {
+class Solver_Actions_API Conditional : public common::CAction {
 
 public: // typedefs
 
@@ -51,8 +51,8 @@ protected: // data
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Conditional_hpp
+#endif // CF3_Solver_Conditional_hpp

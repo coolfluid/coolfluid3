@@ -32,20 +32,20 @@
 #include "RDM/RDSolver.hpp"
 #include "RDM/SetupSingleSolution.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > Solver_Builder;
+common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > Solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -126,9 +126,9 @@ TimeStepping&         RDSolver::time_stepping()          { return *m_time_steppi
 
 CActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
-Common::CGroup& RDSolver::actions() { return *m_actions; }
+common::CGroup& RDSolver::actions() { return *m_actions; }
 
-Common::CGroup& RDSolver::fields()  { return *m_fields; }
+common::CGroup& RDSolver::fields()  { return *m_fields; }
 
 
 
@@ -217,4 +217,4 @@ void RDSolver::on_mesh_changed_event( SignalArgs& args )
 
 
 } // RDM
-} // CF
+} // cf3

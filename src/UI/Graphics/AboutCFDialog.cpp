@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -26,7 +26,7 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
   : QDialog(parent)
 {
   this->setWindowTitle("About CF");
-  QString os = QString("%1 [%2bits]").arg(CF_OS_LONGNAME).arg(CF_OS_BITS);
+  QString os = QString("%1 [%2bits]").arg(CF3_OS_LONGNAME).arg(CF3_OS_BITS);
 
   m_mainLayout = new QVBoxLayout(this);
   m_infoLayout = new QFormLayout();
@@ -41,10 +41,10 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
   m_labQwt->setWordWrap(true);
   m_labQwt->setOpenExternalLinks(true);
 
-  m_infoLayout->addRow( "CF version:", new QLabel(CF_VERSION_STR) );
-  m_infoLayout->addRow( "Kernel version:", new QLabel(CF_KERNEL_VERSION_STR) );
+  m_infoLayout->addRow( "CF version:", new QLabel(CF3_VERSION_STR) );
+  m_infoLayout->addRow( "Kernel version:", new QLabel(CF3_KERNEL_VERSION_STR) );
   m_infoLayout->addRow( "Build operating system:", new QLabel(os) );
-  m_infoLayout->addRow( "Build processor:", new QLabel(CF_BUILD_PROCESSOR) );
+  m_infoLayout->addRow( "Build processor:", new QLabel(CF3_BUILD_PROCESSOR) );
   m_infoLayout->addRow( "Qt version:", new QLabel(QT_VERSION_STR) );
   m_infoLayout->addRow( "Build time:", new QLabel(__DATE__ " - " __TIME__) );
 
@@ -69,4 +69,4 @@ AboutCFDialog::~AboutCFDialog()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

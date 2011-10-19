@@ -16,17 +16,17 @@
 
 #include "Tools/Solver/CWorker.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CWorker, Component, LibCommon > CWorker_Builder;
+common::ComponentBuilder < CWorker, Component, LibCommon > CWorker_Builder;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -77,4 +77,4 @@ void CWorker::signal_solve ( SignalArgs & args )
 
 } // Solver
 } // Tools
-} // CF
+} // cf3

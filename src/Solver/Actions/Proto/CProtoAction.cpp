@@ -18,12 +18,12 @@
 #include "CProtoAction.hpp"
 #include "Expression.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 using namespace Physics;
 

@@ -33,15 +33,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Gmsh {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < Gmsh::CReader, CMeshReader, LibGmsh> aGmshReader_Builder;
+cf3::common::ComponentBuilder < Gmsh::CReader, CMeshReader, LibGmsh> aGmshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -893,4 +893,4 @@ std::string CReader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 
 } // Gmsh
 } // Mesh
-} // CF
+} // cf3

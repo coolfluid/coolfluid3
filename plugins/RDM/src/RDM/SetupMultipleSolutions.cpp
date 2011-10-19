@@ -26,20 +26,20 @@
 #include "SetupMultipleSolutions.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupMultipleSolutions, CAction, LibRDM > SetupMultipleSolutions_Builder;
+common::ComponentBuilder < SetupMultipleSolutions, CAction, LibRDM > SetupMultipleSolutions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : CF::Solver::Action(name)
+SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::Solver::Action(name)
 {
   // options
 
@@ -191,4 +191,4 @@ void SetupMultipleSolutions::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

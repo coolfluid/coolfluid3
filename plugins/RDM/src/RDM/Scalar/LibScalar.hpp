@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibScalar_hpp
-#define CF_RDM_LibScalar_hpp
+#ifndef cf3_RDM_LibScalar_hpp
+#define cf3_RDM_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,23 +17,23 @@
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_SCALAR_EXPORTS
-#   define RDM_SCALAR_API      CF_EXPORT_API
+#   define RDM_SCALAR_API      CF3_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_SCALAR_API      CF_IMPORT_API
-#   define RDM_SCALAR_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_SCALAR_API      CF3_IMPORT_API
+#   define RDM_SCALAR_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_SCALAR_API LibScalar : public Common::CLibrary {
+class RDM_SCALAR_API LibScalar : public common::CLibrary {
 
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibScalar const> ConstPtr;
 
   /// Constructor
-  LibScalar ( const std::string& name) : Common::CLibrary(name) {   }
+  LibScalar ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -78,8 +78,8 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_LibScalar_hpp
+#endif // CF3_RDM_LibScalar_hpp

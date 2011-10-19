@@ -5,7 +5,7 @@
 macro( coolfluid_add_application APPNAME )
 
   # option to build it or not (option is basic)
-  option( CF_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
+  option( CF3_BUILD_${APPNAME} "Build the ${APPNAME} application" ON )
 
   # by default, applications are not part of the sandbox
   if( NOT DEFINED ${APPNAME}_sandbox_app )
@@ -23,10 +23,10 @@ macro( coolfluid_add_application APPNAME )
   # check if all required modules are present
   set( ${APPNAME}_has_all_plugins TRUE )
   foreach( req_plugin ${${APPNAME}_requires_plugins} )
-    list( FIND CF_PLUGIN_LIST ${req_plugin} pos )
+    list( FIND CF3_PLUGIN_LIST ${req_plugin} pos )
     if( ${pos} EQUAL -1 )
       set( ${APPNAME}_has_all_plugins FALSE )
-      if( CF_BUILD_${APPNAME} )
+      if( CF3_BUILD_${APPNAME} )
           coolfluid_log_verbose( "     \# APP [${APPNAME}] requires plugin [${req_plugin}] which is not present")
       endif()
     endif()
@@ -48,7 +48,7 @@ macro( coolfluid_add_application APPNAME )
     set( ${APPNAME}_condition TRUE )
   endif()
 
-  if( CF_BUILD_${APPNAME} AND ${APPNAME}_has_all_plugins AND ${APPNAME}_condition )
+  if( CF3_BUILD_${APPNAME} AND ${APPNAME}_has_all_plugins AND ${APPNAME}_condition )
     set( ${APPNAME}_builds YES CACHE INTERNAL "" )
   else()
     set( ${APPNAME}_builds NO  CACHE INTERNAL "" )
@@ -81,17 +81,17 @@ macro( coolfluid_add_application APPNAME )
 
       # tell cpack the destination of the bundle when generating the installer
       # package
-      SET( ${APPNAME}_specific_destination BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} )
+      SET( ${APPNAME}_specific_destination BUNDLE DESTINATION ${CF3_INSTALL_BIN_DIR} )
 
       # set the long and short version strings
-      SET( MACOSX_BUNDLE_LONG_VERSION_STRING "${CF_VERSION} (Kernel ${CF_KERNEL_VERSION})")
-      SET( MACOSX_BUNDLE_SHORT_VERSION_STRING "${CF_VERSION}" )
+      SET( MACOSX_BUNDLE_LONG_VERSION_STRING "${CF3_VERSION} (Kernel ${CF3_KERNEL_VERSION})")
+      SET( MACOSX_BUNDLE_SHORT_VERSION_STRING "${CF3_VERSION}" )
       #  SET( MACOSX_BUNDLE_BUNDLE_VERSION )
 
       #  SET( MACOSX_BUNDLE_COPYRIGHT )
 
       set( ${APPNAME}_fixup_bundle "include(BundleUtilities)
-        fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/coolfluid-client.app\" \"${CF_BOOST_LIBRARIES}\"
+        fixup_bundle(\"${CMAKE_INSTALL_PREFIX}/coolfluid-client.app\" \"${CF3_BOOST_LIBRARIES}\"
                      \"\")" )
 
       coolfluid_log_verbose("${APPNAME} application will be built as a Mac OS bundle.")
@@ -101,7 +101,7 @@ macro( coolfluid_add_application APPNAME )
     add_executable( ${APPNAME} ${${APPNAME}_platform} ${${APPNAME}_sources} ${${APPNAME}_headers} ${${APPNAME}_moc_files} ${${APPNAME}_RCC})
 
     # if mpi was found add it to the libraries
-    if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
 #           message( STATUS
     # if mpi was found ad"${APPNAME} links to ${MPI_LIBRARIES}" )
           TARGET_LINK_LIBRARIES ( ${APPNAME} ${MPI_LIBRARIES} )
@@ -123,10 +123,10 @@ macro( coolfluid_add_application APPNAME )
 
       if( NOT ${APPNAME}_sandbox_app )
         install( TARGETS ${APPNAME}
-          RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
-          LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
-          ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR} COMPONENT applications
-          BUNDLE DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
+          RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR} COMPONENT applications
+          LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF3_INSTALL_ARCHIVE_DIR} COMPONENT applications
+          BUNDLE DESTINATION ${CF3_INSTALL_BIN_DIR} COMPONENT applications
         )
 
       endif()
@@ -135,9 +135,9 @@ macro( coolfluid_add_application APPNAME )
       # add installation paths, if it not a sandbox application
       if( NOT ${APPNAME}_sandbox_app )
         install( TARGETS ${APPNAME}
-          RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT applications
-          LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT applications
-          ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR} COMPONENT applications
+          RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR} COMPONENT applications
+          LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR} COMPONENT applications
+          ARCHIVE DESTINATION ${CF3_INSTALL_ARCHIVE_DIR} COMPONENT applications
         )
       endif()
 
@@ -150,7 +150,7 @@ macro( coolfluid_add_application APPNAME )
   get_target_property( ${APPNAME}_TYPE             ${APPNAME} TYPE )
 
   # log some info about the app
-  coolfluid_log_file("${APPNAME} user option     : [${CF_BUILD_${APPNAME}}]")
+  coolfluid_log_file("${APPNAME} user option     : [${CF3_BUILD_${APPNAME}}]")
   coolfluid_log_file("${APPNAME}_builds          : [${${APPNAME}_builds}]")
   coolfluid_log_file("${APPNAME}_dir             : [${${APPNAME}_dir}]")
   coolfluid_log_file("${APPNAME}_includedirs     : [${${APPNAME}_includedirs}]")

@@ -7,8 +7,8 @@
 /// @file AllocatedComponent.hpp
 /// @brief Wrapper around component, ensuring proper allocation and type identification, as well as optional function wrapping
 
-#ifndef CF_Common_AllocatedComponent_hpp
-#define CF_Common_AllocatedComponent_hpp
+#ifndef cf3_common_AllocatedComponent_hpp
+#define cf3_common_AllocatedComponent_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -20,8 +20,8 @@
 #include "Common/CF.hpp"
 #include "Common/TypeInfo.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /// Wraps a component that has been allocated using Common::allocate_component.
 /// This class implements derived_type_name, making it transparent to the portable typing system
@@ -44,7 +44,7 @@ public:
   }
 };
 
-#ifdef CF_ENABLE_COMPONENT_TIMING
+#ifdef CF3_ENABLE_COMPONENT_TIMING
 }
 }
 
@@ -133,7 +133,7 @@ struct SelectComponentWrapper
 #endif
 
 
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_AllocatedComponent_hpp
+#endif // CF3_common_AllocatedComponent_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CSolveSystem_hpp
-#define CF_Solver_CSolveSystem_hpp
+#ifndef cf3_Solver_CSolveSystem_hpp
+#define cf3_Solver_CSolveSystem_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Solver/Actions/LibActions.hpp"
 
-namespace CF {
+namespace cf3 {
   namespace Math { namespace LSS { class System; } }
 namespace Solver {
 namespace Actions {
@@ -22,7 +22,7 @@ namespace Actions {
 
 /// CSolveSystem wraps a linear system solver in an action that will execute the solve
 /// @author Bart Janssens
-class Solver_Actions_API CSolveSystem : public Common::CAction
+class Solver_Actions_API CSolveSystem : public common::CAction
 {
 
 public: // typedefs
@@ -50,8 +50,8 @@ private:
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CSolveSystem_hpp
+#endif // CF3_Solver_CSolveSystem_hpp

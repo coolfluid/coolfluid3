@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CDynTable_hpp
-#define CF_Mesh_CDynTable_hpp
+#ifndef cf3_Mesh_CDynTable_hpp
+#define cf3_Mesh_CDynTable_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@ class DynArrayBufferT;
 /// Component holding a connectivity table with variable row-size per row
 /// @author Willem Deconinck
 template<typename T>
-class Mesh_API CDynTable : public Common::Component {
+class Mesh_API CDynTable : public common::Component {
 
 public:
   typedef boost::shared_ptr<CDynTable> Ptr;
@@ -46,7 +46,7 @@ public:
   ~CDynTable () {}
 
   /// Get the class name
-  static std::string type_name () { return "CDynTable<"+Common::class_name<T>()+">"; }
+  static std::string type_name () { return "CDynTable<"+common::class_name<T>()+">"; }
 
   Uint size() const { return m_array.size(); }
 
@@ -189,7 +189,7 @@ public:
 
   std::string string()
   {
-    using namespace Common;
+    using namespace common;
     std::string str;
     for (Uint i=0; i<m_array.size(); ++i)
     {
@@ -276,7 +276,7 @@ public:
         cummulative_size += buffer.size();
       }
     }
-    throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+    throw common::BadValue(FromHere(),"Trying to access index that is not allocated");
   }
 
 
@@ -302,7 +302,7 @@ public:
        cummulative_size += buffer.size();
      }
    }
-   throw Common::BadValue(FromHere(),"Trying to access index that is not allocated");
+   throw common::BadValue(FromHere(),"Trying to access index that is not allocated");
   }
 
   Row get_row(const Uint idx)
@@ -321,7 +321,7 @@ public:
         cummulative_size += buffer.size();
       }
     }
-    throw Common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+Common::to_str(idx)+">="+Common::to_str(cummulative_size)+"]");
+    throw common::BadValue(FromHere(),"Trying to access index that is not allocated: ["+common::to_str(idx)+">="+common::to_str(cummulative_size)+"]");
     return m_array[0];
   }
 
@@ -481,8 +481,8 @@ private:
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CDynTable_hpp
+#endif // CF3_Mesh_CDynTable_hpp

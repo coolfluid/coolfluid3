@@ -16,20 +16,20 @@
 
 #include "RDM/Scalar/LibScalar.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > B_LinearAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > B_LinearAdv2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > B_LinearAdvSys2D_Builder;
+common::ComponentBuilder < CellLoopT<B, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > B_LinearAdvSys2D_Builder;
 
-Common::ComponentBuilder < CellLoopT<B, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > B_RotationAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<B, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > B_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

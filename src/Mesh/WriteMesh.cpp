@@ -30,14 +30,14 @@
 
 #include "Mesh/WriteMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
-using namespace CF::Mesh;
+using namespace common;
+using namespace common::XML;
+using namespace cf3::Mesh;
 
-Common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
+common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -242,7 +242,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
+void WriteMesh::signal_write_mesh ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -262,7 +262,7 @@ void WriteMesh::signal_write_mesh ( Common::SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
+void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
@@ -291,4 +291,4 @@ void WriteMesh::signature_write_mesh ( Common::SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

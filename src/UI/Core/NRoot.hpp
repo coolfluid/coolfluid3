@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NRoot_hpp
-#define CF_GUI_Core_NRoot_hpp
+#ifndef cf3_GUI_Core_NRoot_hpp
+#define cf3_GUI_Core_NRoot_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -17,9 +17,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { class URI; }
+namespace common { class URI; }
 
 namespace UI {
 namespace Core {
@@ -55,7 +55,7 @@ namespace Core {
 
     /// @brief Gives the CRoot internal shared pointer
     /// @return Returns the CRoot internal shared pointer
-    inline CF::Common::CRoot::Ptr root() const
+    inline cf3::common::CRoot::Ptr root() const
     {
       return m_root;
     }
@@ -64,7 +64,7 @@ namespace Core {
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::Ptr childFromRoot(CF::Uint number) const;
+    CNode::Ptr childFromRoot(cf3::Uint number) const;
 
     /// @brief Gives the client UUID
     /// @return Returns the Client UUID
@@ -73,13 +73,13 @@ namespace Core {
     /// @name SIGNALS
     // @{
 
-    void signature_connect_server( Common::SignalArgs & frame );
+    void signature_connect_server( common::SignalArgs & frame );
 
-    void signature_disconnect_server( Common::SignalArgs & frame );
+    void signature_disconnect_server( common::SignalArgs & frame );
 
-    void signal_connect_server( Common::SignalArgs & frame );
+    void signal_connect_server( common::SignalArgs & frame );
 
-    void signal_disconnect_server( Common::SignalArgs & frame );
+    void signal_disconnect_server( common::SignalArgs & frame );
 
     // }@
 
@@ -106,7 +106,7 @@ namespace Core {
   private :
 
     /// @brief The internal CRoot component
-    CF::Common::CRoot::Ptr m_root;
+    cf3::common::CRoot::Ptr m_root;
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;
@@ -117,7 +117,7 @@ namespace Core {
 
     /// @brief Method called when the server sends a shutdown event.
     /// @param node Signal parameters. This parameter is not used.
-    void shutdown(Common::SignalArgs & node);
+    void shutdown(common::SignalArgs & node);
 
     /// @brief Method called when the server confirms/rejects the client
     /// registration.
@@ -125,13 +125,13 @@ namespace Core {
     /// "accepted". If this value is @c true, the server has accepted the
     /// registration. Otherwise the server rejects the registration, in this
     /// case, the method closes the network connection.
-    void client_registration(Common::SignalArgs & node);
+    void client_registration(common::SignalArgs & node);
 
     /// @brief Method called when the server rejects a request.
     /// @param node Signal parameters. Should contain two values:
     /// @li a string named "uuid" that contains the rejected frame UUID
     /// @li a string named "reason" that contains the reason of the reject
-    void frame_rejected(Common::SignalArgs & node);
+    void frame_rejected(common::SignalArgs & node);
 
     //@} END Signals
 
@@ -143,8 +143,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NRoot_hpp
+#endif // CF3_GUI_Core_NRoot_hpp

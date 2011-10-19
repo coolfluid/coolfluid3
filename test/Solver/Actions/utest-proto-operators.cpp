@@ -44,14 +44,14 @@
 #include "Tools/Testing/TimedTestFixture.hpp"
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 
-using namespace CF;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
-using namespace CF::Math::Consts;
+using namespace cf3::Math::Consts;
 
 using namespace boost;
 
@@ -468,7 +468,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");
-  physics.configure_option(Common::Tags::dimension(), 2u);
+  physics.configure_option(common::Tags::dimension(), 2u);
 
   // Create the initialization expression
   Expression::Ptr init = nodes_expression(u = coordinates);

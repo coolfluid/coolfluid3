@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_Component_hpp
-#define CF_Python_Component_hpp
+#ifndef cf3_Python_Component_hpp
+#define cf3_Python_Component_hpp
 
 #include <boost/python/object.hpp>
 
 #include "Python/LibPython.hpp"
 
-namespace CF {
-  namespace Common { class Component; }
+namespace cf3 {
+  namespace common { class Component; }
 namespace Python {
 
 /// Python wrapping for the Component class
 void Python_API def_component();
 
-boost::python::object wrap_component(Common::Component& component);
+boost::python::object wrap_component(common::Component& component);
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_Component_hpp
+#endif // CF3_Python_Component_hpp

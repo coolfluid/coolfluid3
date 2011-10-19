@@ -10,12 +10,12 @@
 
 #include "RDM/NavierStokes/LibNavierStokes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibNavierStokes> LibNavierStokes;
+cf3::common::RegistLibrary<LibNavierStokes> LibNavierStokes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibNavierStokes::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_LibUICore_hpp
-#define CF_GUI_Core_LibUICore_hpp
+#ifndef cf3_GUI_Core_LibUICore_hpp
+#define cf3_GUI_Core_LibUICore_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro Core_API
 /// @note build system defines COOLFLUID_UI_CORE_EXPORTS when compiling ClientCoreTools files
 #ifdef COOLFLUID_UI_CORE_EXPORTS
-#   define Core_API      CF_EXPORT_API
+#   define Core_API      CF3_EXPORT_API
 #   define Core_TEMPLATE
 #else
-#   define Core_API      CF_IMPORT_API
-#   define Core_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Core_API      CF3_IMPORT_API
+#   define Core_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace UI {
 /// Basic Classes for client-core library used by coolfluid-client application
@@ -36,7 +36,7 @@ namespace Core {
   /// Class defines the initialization and termination of the library ClientCore
   /// @author Tiago Quintino
   class Core_API LibCore :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -44,7 +44,7 @@ namespace Core {
     typedef boost::shared_ptr<LibCore const> ConstPtr;
 
     /// Constructor
-    LibCore ( const std::string& name) : Common::CLibrary(name) {   }
+    LibCore ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -83,8 +83,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_LibUICore_hpp
+#endif // CF3_GUI_Core_LibUICore_hpp

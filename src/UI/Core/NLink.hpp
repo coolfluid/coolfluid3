@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NLink_hpp
-#define CF_GUI_Core_NLink_hpp
+#ifndef cf3_GUI_Core_NLink_hpp
+#define cf3_GUI_Core_NLink_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -13,9 +13,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { class URI; }
+namespace common { class URI; }
 
 namespace UI {
 namespace Core {
@@ -46,12 +46,12 @@ namespace Core {
 
     /// @brief Gives the target path
     /// @return Returns the target path.
-    CF::Common::URI targetPath() const;
+    cf3::common::URI targetPath() const;
 
     /// @brief Sets new target from its path.
     /// @param path New target path.
     /// @throw InvalidPath If the path does exist.
-    void setTargetPath(const CF::Common::URI & path);
+    void setTargetPath(const cf3::common::URI & path);
 
     /// @brief Sets new target.
     /// If the node is null, nothing is done.
@@ -59,7 +59,7 @@ namespace Core {
     void setTargetNode(const CNode::Ptr & node);
 
     /// @brief Slot called when user wants to switch to the target
-    void goToTarget(Common::SignalArgs & node);
+    void goToTarget(common::SignalArgs & node);
 
   protected:
 
@@ -79,7 +79,7 @@ namespace Core {
     /// @brief Method called when target path changes.
     /// @param node Signal parameters. Should contain a string value named
     /// "target_path" with the new target path.
-    void change_link(Common::SignalArgs & node);
+    void change_link(common::SignalArgs & node);
 
     //@} END Signals
 
@@ -89,8 +89,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NLink_hpp
+#endif // CF3_GUI_Core_NLink_hpp

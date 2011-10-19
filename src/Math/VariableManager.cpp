@@ -18,15 +18,15 @@
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < VariableManager, Component, LibMath > VariableManager_Builder;
+common::ComponentBuilder < VariableManager, Component, LibMath > VariableManager_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -75,4 +75,4 @@ void VariableManager::signature_create_descriptor(SignalArgs& node)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3

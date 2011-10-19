@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP3_API_hpp
-#define CF_Mesh_LagrangeP3_API_hpp
+#ifndef cf3_Mesh_LagrangeP3_API_hpp
+#define cf3_Mesh_LagrangeP3_API_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Mesh_LagrangeP3_API
 /// @note build system defines COOLFLUID_MESH_LAGRANGEP3_EXPORTS when compiling SF files
 #ifdef COOLFLUID_MESH_LAGRANGEP3_EXPORTS
-#   define Mesh_LagrangeP3_API      CF_EXPORT_API
+#   define Mesh_LagrangeP3_API      CF3_EXPORT_API
 #   define Mesh_LagrangeP3_TEMPLATE
 #else
-#   define Mesh_LagrangeP3_API      CF_IMPORT_API
-#   define Mesh_LagrangeP3_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Mesh_LagrangeP3_API      CF3_IMPORT_API
+#   define Mesh_LagrangeP3_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_LagrangeP3_API_hpp
+#endif // CF3_Mesh_LagrangeP3_API_hpp

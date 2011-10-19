@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SteadyExplicit_hpp
-#define CF_RDM_SteadyExplicit_hpp
+#ifndef cf3_RDM_SteadyExplicit_hpp
+#define cf3_RDM_SteadyExplicit_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
  namespace Solver { class CModel; }
 
@@ -44,16 +44,16 @@ public: // functions
 
   // functions specific to the SteadyExplicit component
 
-  CF::Solver::CModel& create_model( const std::string& model_name,
+  cf3::Solver::CModel& create_model( const std::string& model_name,
                                     const std::string& physics_builder );
 
   /// @name SIGNALS
   //@{
 
   /// Signal to create a model
-  void signal_create_model ( Common::SignalArgs& node );
+  void signal_create_model ( common::SignalArgs& node );
 
-  void signature_create_model( Common::SignalArgs& node);
+  void signature_create_model( common::SignalArgs& node);
 
   //@} END SIGNALS
 
@@ -62,8 +62,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_SteadyExplicit_hpp
+#endif // CF3_RDM_SteadyExplicit_hpp

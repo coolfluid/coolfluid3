@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibLinEuler_hpp
-#define CF_RDM_LibLinEuler_hpp
+#ifndef cf3_RDM_LibLinEuler_hpp
+#define cf3_RDM_LibLinEuler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,21 +17,21 @@
 /// @note build system defines COOLFLUID_RDM_EXPORTS when compiling
 /// RDM files
 #ifdef COOLFLUID_RDM_LINEULER_EXPORTS
-#   define RDM_LINEULER_API      CF_EXPORT_API
+#   define RDM_LINEULER_API      CF3_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_LINEULER_API      CF_IMPORT_API
-#   define RDM_LINEULER_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_LINEULER_API      CF3_IMPORT_API
+#   define RDM_LINEULER_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_LINEULER_API LibLinEuler : public Common::CLibrary {
+class RDM_LINEULER_API LibLinEuler : public common::CLibrary {
 
 public:
 
@@ -39,7 +39,7 @@ public:
   typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
 
   /// Constructor
-  LibLinEuler ( const std::string& name) : Common::CLibrary(name) {   }
+  LibLinEuler ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -76,6 +76,6 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_LibLinEuler_hpp
+#endif // CF3_RDM_LibLinEuler_hpp

@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Quadrature_hpp
-#define CF_RDM_Quadrature_hpp
+#ifndef cf3_RDM_Quadrature_hpp
+#define cf3_RDM_Quadrature_hpp
 
 #include "Mesh/CElements.hpp"
 
 #include "Mesh/Integrators/GaussImplementation.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -51,6 +51,6 @@ struct DefaultQuadrature
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SupportedCells_hpp
+#endif // CF3_RDM_SupportedCells_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_ElementData_hpp
-#define CF_Solver_Actions_Proto_ElementData_hpp
+#ifndef cf3_Solver_Actions_Proto_ElementData_hpp
+#define cf3_Solver_Actions_Proto_ElementData_hpp
 
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 #include <boost/fusion/adapted/mpl.hpp>
@@ -37,7 +37,7 @@
 #include "ElementOperations.hpp"
 #include "Terminals.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -243,8 +243,8 @@ private:
 /// Helper function to find a field starting from a region
 inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
 {
-  Mesh::CMesh& mesh = Common::find_parent_component<Mesh::CMesh>(elements);
-  return Common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
+  Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
+  return common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
 }
 
 /// Dummy shape function type used for element-based fields
@@ -616,7 +616,7 @@ public:
     m_equation_data(m_variables_data)
   {
     boost::mpl::for_each< boost::mpl::range_c<int, 0, NbVarsT::value> >(InitVariablesData(m_variables, m_elements, m_variables_data, m_support));
-    for(Uint i = 0; i != CF_PROTO_MAX_ELEMENT_MATRICES; ++i)
+    for(Uint i = 0; i != CF3_PROTO_MAX_ELEMENT_MATRICES; ++i)
       m_element_matrices[i].setZero();
 
     // TODO Fix for multi-shapefunction case
@@ -751,7 +751,7 @@ private:
 
   Uint m_element_idx;
 
-  ElementMatrixT m_element_matrices[CF_PROTO_MAX_ELEMENT_MATRICES];
+  ElementMatrixT m_element_matrices[CF3_PROTO_MAX_ELEMENT_MATRICES];
   ElementVectorT m_element_rhs;
 
   /// Filtered view of the data associated with equation variables
@@ -913,4 +913,4 @@ private:
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_ElementData_hpp
+#endif // CF3_Solver_Actions_Proto_ElementData_hpp

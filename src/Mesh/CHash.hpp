@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CHash_hpp
-#define CF_Mesh_CHash_hpp
+#ifndef cf3_Mesh_CHash_hpp
+#define cf3_Mesh_CHash_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Mesh/LibMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ namespace Mesh {
 /// This class serves as a component that that will hash
 /// objects and return which partition or processor it belongs to
 /// @author Willem Deconinck
-class Mesh_API CHash : public Common::Component {
+class Mesh_API CHash : public common::Component {
 
 public: // typedefs
 
@@ -83,8 +83,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CHash_hpp
+#endif // CF3_Mesh_CHash_hpp

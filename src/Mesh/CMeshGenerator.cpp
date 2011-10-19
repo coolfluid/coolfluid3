@@ -16,11 +16,11 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -94,4 +94,4 @@ CMeshGenerator::~CMeshGenerator()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

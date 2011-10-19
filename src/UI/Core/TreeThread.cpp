@@ -32,13 +32,13 @@
 
 #include "UI/Core/TreeThread.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::UICommon;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -123,7 +123,7 @@ void TreeThread::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
+void TreeThread::newSignal(common::XML::XmlDoc::Ptr doc)
 {
   const char * tag = Protocol::Tags::node_frame();
   XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
@@ -150,7 +150,7 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
       else
         realRoot->retrieve_component_checked(receiver)->call_signal(type, frame);
     }
-    catch(CF::Common::Exception & cfe)
+    catch(cf3::common::Exception & cfe)
     {
       NLog::globalLog()->addException(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
     }
@@ -172,4 +172,4 @@ void TreeThread::newSignal(Common::XML::XmlDoc::Ptr doc)
 
 } // Core
 } // UI
-} // CF
+} // cf3

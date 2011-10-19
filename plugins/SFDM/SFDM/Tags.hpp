@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Tags_hpp
-#define CF_SFDM_Tags_hpp
+#ifndef cf3_SFDM_Tags_hpp
+#define cf3_SFDM_Tags_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Tags.hpp"
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,8 +35,8 @@ struct SFDM_API Tags : public Solver::Tags
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Tags_hpp
+#endif // CF3_SFDM_Tags_hpp

@@ -4,7 +4,7 @@
 
 function( coolfluid_add_python_test  )
 
-  if( CF_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
+  if( CF3_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
     set( options ATEST UTEST MPI ) # valid test type
     set( single_value_args NAME SCRIPT NBPROCS )
     set( multi_value_args ARGUMENTS) # arguments to the python script itself
@@ -31,11 +31,11 @@ function( coolfluid_add_python_test  )
     # add the test
 
     set(SCRIPT_COMMAND ${PYTHON_EXECUTABLE})
-    if(_PAR_MPI AND CF_HAVE_MPI)
-      set(SCRIPT_COMMAND ${CF_MPIRUN_PROGRAM} -np ${_PAR_NBPROCS} ${SCRIPT_COMMAND})
+    if(_PAR_MPI AND CF3_HAVE_MPI)
+      set(SCRIPT_COMMAND ${CF3_MPIRUN_PROGRAM} -np ${_PAR_NBPROCS} ${SCRIPT_COMMAND})
     endif()
 
-    if( (_PAR_ATEST AND CF_ENABLE_ACCEPTANCE_TESTS) OR (_PAR_UTEST AND CF_ENABLE_UNIT_TESTS) )
+    if( (_PAR_ATEST AND CF3_ENABLE_ACCEPTANCE_TESTS) OR (_PAR_UTEST AND CF3_ENABLE_UNIT_TESTS) )
 
       coolfluid_log_file( " ADDED PYTHON TEST [${_PAR_NAME}]" )
 

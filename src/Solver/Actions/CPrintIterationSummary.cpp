@@ -19,17 +19,17 @@
 #include "Solver/Actions/CPrintIterationSummary.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Math::Checks;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Math::Checks;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CPrintIterationSummary, CAction, LibActions > CPrintIterationSummary_Builder;
+common::ComponentBuilder < CPrintIterationSummary, CAction, LibActions > CPrintIterationSummary_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -80,4 +80,4 @@ void CPrintIterationSummary::execute()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

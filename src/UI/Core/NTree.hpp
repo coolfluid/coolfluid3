@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NTree_hpp
-#define CF_GUI_Core_NTree_hpp
+#ifndef cf3_GUI_Core_NTree_hpp
+#define cf3_GUI_Core_NTree_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,9 +22,9 @@ template<typename T> class QList;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { class URI; }
+namespace common { class URI; }
 
 namespace UI {
 namespace Core {
@@ -51,7 +51,7 @@ namespace Core {
 
     /// If the root node is a @c nullptr pointer
     /// @param rootNode The root node. May be @c nullptr.
-    NTree(CF::UI::Core::NRoot::Ptr rootNode = CF::UI::Core::NRoot::Ptr());
+    NTree(cf3::UI::Core::NRoot::Ptr rootNode = cf3::UI::Core::NRoot::Ptr());
 
     /// @brief Replaces the current component tree.
 
@@ -86,7 +86,7 @@ namespace Core {
     /// @brief Gives the path of the current index.
     /// @return Returns the path of the index returned by @c #getCurrentIndex()
     /// or an empty path if not valid current index is set.
-    CF::Common::URI currentPath() const;
+    cf3::common::URI currentPath() const;
 
     /// @brief Gets node options
 
@@ -95,7 +95,7 @@ namespace Core {
     /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
     void listNodeOptions(const QModelIndex & index,
-                         QList<CF::Common::Option::ConstPtr> & options,
+                         QList<cf3::common::Option::ConstPtr> & options,
                          bool * ok = nullptr) const;
 
     /// @brief Gets node properties
@@ -150,27 +150,27 @@ namespace Core {
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::ConstPtr nodeByPath(const CF::Common::URI & path) const;
+    CNode::ConstPtr nodeByPath(const cf3::common::URI & path) const;
 
     /// @brief Retrieves a node from its path.
 
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr nodeByPath(const CF::Common::URI & path);
+    CNode::Ptr nodeByPath(const cf3::common::URI & path);
 
     /// @brief Retrieves a node index from its path.
 
     /// @param path The node index path
     /// @return Returns the found node index, or a invalid index if
     /// it does not exist.
-    QModelIndex indexFromPath(const CF::Common::URI & path) const;
+    QModelIndex indexFromPath(const cf3::common::URI & path) const;
 
     /// @brief Gives the path of the provided index.
     /// @param index Index of which we want to know the path.
     /// @return Returns the index path, or an empty path if the index is not
     /// valid.
-    CF::Common::URI pathFromIndex(const QModelIndex & index) const;
+    cf3::common::URI pathFromIndex(const QModelIndex & index) const;
 
     /// @brief Modifies options of a node
 
@@ -264,7 +264,7 @@ namespace Core {
     /// decrease the program performances.
     void updateRootChildren();
 
-    void optionsChanged(const CF::Common::URI & path);
+    void optionsChanged(const cf3::common::URI & path);
 
     /// @brief Checks whether a node name or one of its children matches a
     /// provided regular expression.
@@ -290,7 +290,7 @@ namespace Core {
     /// The current index must be a valid index.
     /// @param uri The URI to resolve. Must of scheme @c URI::Scheme::CPATH.
     /// @return Returns the complete path.
-    Common::URI completeRelativePath(const Common::URI & uri) const;
+    common::URI completeRelativePath(const common::URI & uri) const;
 
     /// @name Signals
     /// @{
@@ -298,7 +298,7 @@ namespace Core {
     /// @brief Signal called when the tree needs to be updated
 
     /// @param node New tree
-    void list_tree_reply(CF::Common::SignalArgs & node);
+    void list_tree_reply(cf3::common::SignalArgs & node);
 
     /// @} END Signals
 
@@ -393,8 +393,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NTree_hpp
+#endif // CF3_GUI_Core_NTree_hpp

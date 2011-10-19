@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP2_Line_hpp
-#define CF_Mesh_LagrangeP2_Line_hpp
+#ifndef cf3_Mesh_LagrangeP2_Line_hpp
+#define cf3_Mesh_LagrangeP2_Line_hpp
 
 #include "Mesh/ShapeFunctionBase.hpp"
 #include "Mesh/LagrangeP2/API.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP2 {
 
@@ -44,6 +44,6 @@ struct Mesh_LagrangeP2_API Line : ShapeFunctionBase<Line,Line_traits>
 
 } // LagrangeP2
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_LagrangeP2_Line_hpp
+#endif // CF3_Mesh_LagrangeP2_Line_hpp

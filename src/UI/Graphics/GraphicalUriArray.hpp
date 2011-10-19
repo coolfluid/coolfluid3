@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphicalUriArray_hpp
-#define CF_GUI_Graphics_GraphicalUriArray_hpp
+#ifndef cf3_GUI_Graphics_GraphicalUriArray_hpp
+#define cf3_GUI_Graphics_GraphicalUriArray_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -25,7 +25,7 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -100,4 +100,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GraphicalUriArray_hpp
+#endif // CF3_GUI_Graphics_GraphicalUriArray_hpp

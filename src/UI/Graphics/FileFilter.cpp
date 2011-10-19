@@ -10,11 +10,11 @@
 
 #include "UI/Graphics/FileFilter.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -58,5 +58,5 @@ QVariant FileFilter::data ( const QModelIndex &index, int role ) const
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 

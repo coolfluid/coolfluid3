@@ -6,11 +6,11 @@
 
 #include "Solver/Actions/CCriterion.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,4 +36,4 @@ CCriterion::~CCriterion()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

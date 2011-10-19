@@ -21,9 +21,9 @@
 
 #include "Mesh/ElementTypes.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   // Check if compute_normal throws, as it is not implemented in the static implementation
   Core::instance().environment().configure_option("exception_outputs",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
-  BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),Common::NotImplemented);
+  BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),common::NotImplemented);
   Core::instance().environment().configure_option("exception_outputs",true);
   Core::instance().environment().configure_option("exception_backtrace",true);
 

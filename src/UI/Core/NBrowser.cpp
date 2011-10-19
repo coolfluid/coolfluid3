@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -52,4 +52,4 @@ NBrowser::Ptr NBrowser::globalBrowser()
 
 } // Core
 } // UI
-} // CF
+} // cf3

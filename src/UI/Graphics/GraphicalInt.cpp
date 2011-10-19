@@ -12,11 +12,11 @@
 
 #include "UI/Graphics/GraphicalInt.hpp"
 
-using namespace CF::Math;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -87,4 +87,4 @@ void GraphicalInt::integerChanged(double value)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

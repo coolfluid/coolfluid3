@@ -8,7 +8,7 @@
 
 #include "Common/TaggedObject.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 TaggedObject::TaggedObject() :
     m_tags(":") // empty tags

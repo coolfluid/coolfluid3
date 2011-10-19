@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Solver_Notifier_hpp
-#define CF_Tools_Solver_Notifier_hpp
+#ifndef cf3_Tools_Solver_Notifier_hpp
+#define cf3_Tools_Solver_Notifier_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,9 +15,9 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { namespace PE { class CPEManager; } }
+namespace common { namespace PE { class CPEManager; } }
 
 namespace Tools {
 namespace Solver {
@@ -28,7 +28,7 @@ namespace Solver {
   {
   public:
 
-    Notifier( boost::shared_ptr<Common::PE::CPEManager> manager );
+    Notifier( boost::shared_ptr<common::PE::CPEManager> manager );
 
     ~Notifier();
 
@@ -36,9 +36,9 @@ namespace Solver {
 
     void begin_notify();
 
-    void new_event(const std::string & name, const CF::Common::URI & raiserPath);
+    void new_event(const std::string & name, const cf3::common::URI & raiserPath);
 
-    boost::signals2::signal< void (const std::string &, const Common::URI &) > event_occured;
+    boost::signals2::signal< void (const std::string &, const common::URI &) > event_occured;
 
 //  signals:
 
@@ -46,11 +46,11 @@ namespace Solver {
 
   private:
 
-    Common::NotificationQueue * m_observed_queue;
+    common::NotificationQueue * m_observed_queue;
 
     std::map<std::string, bool> m_once_notifying_events;
 
-    boost::shared_ptr<Common::PE::CPEManager> m_manager;
+    boost::shared_ptr<common::PE::CPEManager> m_manager;
 
   }; // class Notifier
 
@@ -58,8 +58,8 @@ namespace Solver {
 
 } // Solver
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Solver_Notifier_hpp
+#endif // CF3_Tools_Solver_Notifier_hpp

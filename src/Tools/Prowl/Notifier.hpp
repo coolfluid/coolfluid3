@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Prowl_hpp
-#define CF_Tools_Prowl_hpp
+#ifndef cf3_Tools_Prowl_hpp
+#define cf3_Tools_Prowl_hpp
 
 #include "Tools/Prowl/LibProwl.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Prowl {
 
@@ -26,7 +26,7 @@ namespace Prowl {
 /// webpage. The API key needs to be configured in this component, but will have already a
 /// default value from the Environment Variable "PROWL_API_KEY", if available.
 /// @author Willem Deconinck
-class Tools_Prowl_API Notifier: public Common::Component
+class Tools_Prowl_API Notifier: public common::Component
 {
 public: // typedefs
 
@@ -71,10 +71,10 @@ public: // functions
 
   /// @brief Signal to notify %Prowl
   /// @see notify()
-  void signal_notify ( Common::SignalArgs& node );
+  void signal_notify ( common::SignalArgs& node );
 
   /// @brief signature for the signal_notify() function
-  void signature_notify ( Common::SignalArgs& node);
+  void signature_notify ( common::SignalArgs& node);
 
 private: // data
 
@@ -96,9 +96,9 @@ private: // data
 
 } // Prowl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Prowl_hpp
+#endif // CF3_Tools_Prowl_hpp
 

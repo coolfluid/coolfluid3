@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_PropertyModel_hpp
-#define CF_GUI_Core_PropertyModel_hpp
+#ifndef cf3_GUI_Core_PropertyModel_hpp
+#define cf3_GUI_Core_PropertyModel_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ template<class T> class QList;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -142,8 +142,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_PropertyModel_hpp
+#endif // CF3_GUI_Core_PropertyModel_hpp

@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_IterativeSolver_hpp
-#define CF_SFDM_IterativeSolver_hpp
+#ifndef cf3_SFDM_IterativeSolver_hpp
+#define cf3_SFDM_IterativeSolver_hpp
 
 #include "Solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
-namespace Common { class CActionDirector; }
+namespace cf3 {
+namespace common { class CActionDirector; }
 namespace Solver { class CTime; }
 namespace Mesh   { class Field; }
 namespace SFDM {
@@ -42,8 +42,8 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Common::CActionDirector& pre_update()    { return *m_pre_update; }
-  Common::CActionDirector& post_update()   { return *m_post_update; }
+  common::CActionDirector& pre_update()    { return *m_pre_update; }
+  common::CActionDirector& post_update()   { return *m_post_update; }
 
   /// @name SIGNALS
   //@{
@@ -73,9 +73,9 @@ private: // data
   boost::weak_ptr<Solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
-  boost::shared_ptr<Common::CActionDirector> m_pre_update;
+  boost::shared_ptr<common::CActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
-  boost::shared_ptr<Common::CActionDirector> m_post_update;
+  boost::shared_ptr<common::CActionDirector> m_post_update;
 
 };
 
@@ -83,6 +83,6 @@ private: // data
 
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_IterativeSolver_hpp
+#endif // CF3_SFDM_IterativeSolver_hpp

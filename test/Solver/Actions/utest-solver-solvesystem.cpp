@@ -24,12 +24,12 @@
 
 using namespace boost::assign;
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Math;
 
 BOOST_AUTO_TEST_SUITE( SolveSystemSuite )
 

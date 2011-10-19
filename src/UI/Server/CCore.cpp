@@ -31,13 +31,13 @@
 
 #include "UI/Server/CCore.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::UICommon;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::UICommon;
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -105,7 +105,7 @@ void CCore::sendSignal( const XmlDoc & signal )
 
 void CCore::sendFrameRejected(const std::string & clientid,
                               const std::string & frameid,
-                              const CF::Common::URI & sender,
+                              const cf3::common::URI & sender,
                               const QString & reason)
 {
   m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
@@ -354,4 +354,4 @@ void CCore::sendACK( const std::string & clientid,
 
 } // Server
 } // UI
-} // CF
+} // cf3

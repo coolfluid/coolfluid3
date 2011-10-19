@@ -6,15 +6,15 @@
 
 #include "Common/Assertions.hpp"
 
-#ifndef CF_Math_MatrixTypes_hpp
-#define CF_Math_MatrixTypes_hpp
+#ifndef cf3_Math_MatrixTypes_hpp
+#define cf3_Math_MatrixTypes_hpp
 
 #include "Common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
 #include "Common/CF.hpp"
 
-namespace CF {
+namespace cf3 {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -49,6 +49,6 @@ typedef Eigen::Matrix<Real, 1, 4> RealRowVector4;  ///< Fixed size 1x4 row vecto
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-} // CF
+} // cf3
 
-#endif // CF_Math_MatrixTypes_hpp
+#endif // CF3_Math_MatrixTypes_hpp

@@ -12,10 +12,10 @@ list( APPEND coolfluid_math_lss_files
   EmptyLSS/EmptyLSSMatrix.hpp
 )
 
-list( APPEND coolfluid_math_lss_libs coolfluid_common ${CF_BOOST_LIBRARIES})
+list( APPEND coolfluid_math_lss_libs coolfluid_common ${CF3_BOOST_LIBRARIES})
 
 # happen to have trilinos
-if(CF_HAVE_TRILINOS)
+if(CF3_HAVE_TRILINOS)
   list( APPEND coolfluid_math_lss_files
     Trilinos/TrilinosMatrix.hpp
     Trilinos/TrilinosMatrix.cpp
@@ -24,7 +24,7 @@ if(CF_HAVE_TRILINOS)
     )
 list(APPEND coolfluid_math_lss_includedirs ${TRILINOS_INCLUDE_DIR})
     list( APPEND coolfluid_math_lss_libs ${TRILINOS_LIBRARIES} )
-    ADD_DEFINITIONS(-DCF_HAVE_TRILINOS)
+    ADD_DEFINITIONS(-DCF3_HAVE_TRILINOS)
 else()
   coolfluid_mark_not_orphan(
   Trilinos/TrilinosMatrix.hpp

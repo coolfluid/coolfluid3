@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_CPEManager_hpp
-#define CF_Common_MPI_CPEManager_hpp
+#ifndef cf3_common_MPI_CPEManager_hpp
+#define cf3_common_MPI_CPEManager_hpp
 
 #include <boost/thread/thread.hpp>
 
@@ -16,8 +16,8 @@
 
 #include "Common/Component.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class NotificationQueue;
 namespace XML { class XmlDoc; }
@@ -63,13 +63,13 @@ public: // functions
 
   boost::thread & listening_thread();
 
-  Common::Signal::signal_type signal_to_forward( SignalArgs & args );
+  common::Signal::signal_type signal_to_forward( SignalArgs & args );
 
-  Common::NotificationQueue * notification_queue() { return m_queue; }
+  common::NotificationQueue * notification_queue() { return m_queue; }
 
-  const Common::NotificationQueue * notification_queue() const { return m_queue; }
+  const common::NotificationQueue * notification_queue() const { return m_queue; }
 
-  void new_event( const std::string & name, const Common::URI & raiserPath );
+  void new_event( const std::string & name, const common::URI & raiserPath );
 
   /// @name SIGNALS
   //@{
@@ -109,14 +109,14 @@ private:
 
   ListeningThread * m_listener;
 
-  Common::NotificationQueue * m_queue;
+  common::NotificationQueue * m_queue;
 
 }; // CPEManager
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 } // PE
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_MPI_CPEManager_hpp
+#endif // CF3_common_MPI_CPEManager_hpp

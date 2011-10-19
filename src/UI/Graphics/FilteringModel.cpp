@@ -11,11 +11,11 @@
 
 #include "UI/Graphics/FilteringModel.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -71,4 +71,4 @@ bool FilteringModel::filterAcceptsRow(int row, const QModelIndex & parent) const
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_Tags_hpp
-#define CF_UFEM_Tags_hpp
+#ifndef cf3_UFEM_Tags_hpp
+#define cf3_UFEM_Tags_hpp
 
 #include "UFEM/LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -33,6 +33,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // UFEM
-} // CF
+} // cf3
 
-#endif // CF_UFEM_Tags_hpp
+#endif // CF3_UFEM_Tags_hpp

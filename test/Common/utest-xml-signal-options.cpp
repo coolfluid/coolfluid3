@@ -24,9 +24,9 @@
 #include "Common/XML/SignalOptions.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -75,12 +75,12 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 2. check option "cfl"
   //
-  OptionT<CF::Real>::Ptr cfl;
+  OptionT<cf3::Real>::Ptr cfl;
   BOOST_CHECK( options.check("cfl") );
-  cfl = boost::dynamic_pointer_cast<OptionT<CF::Real> >(options.store["cfl"]);
+  cfl = boost::dynamic_pointer_cast<OptionT<cf3::Real> >(options.store["cfl"]);
   BOOST_CHECK( cfl.get() != nullptr );
   BOOST_CHECK_EQUAL( cfl->name(), std::string("cfl") );
-  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<CF::Real>() ) );
+  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<cf3::Real>() ) );
   BOOST_CHECK_EQUAL( cfl->description(), std::string("CFL number") );
   BOOST_CHECK_EQUAL( cfl->value<CF::Real>(), 3.1415 );
   BOOST_CHECK_EQUAL( cfl->has_tag("basic"), true );

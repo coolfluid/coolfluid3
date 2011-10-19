@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_Checks_hpp
-#define CF_Math_Checks_hpp
+#ifndef cf3_Math_Checks_hpp
+#define cf3_Math_Checks_hpp
 
 #include "Common/CF.hpp"
 
@@ -13,7 +13,7 @@
 #include "Math/Consts.hpp"
 #include "Math/FloatingPoint.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -112,6 +112,6 @@ inline bool is_neg(const Real& value)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
-#endif // CF_Math_Checks_hpp
+#endif // CF3_Math_Checks_hpp

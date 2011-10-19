@@ -11,20 +11,20 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CTable.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CTable<bool>, Component, LibMesh > CTable_bool_Builder;
+common::ComponentBuilder < CTable<bool>, Component, LibMesh > CTable_bool_Builder;
 
-Common::ComponentBuilder < CTable<Uint>, Component, LibMesh > CTable_Uint_Builder;
+common::ComponentBuilder < CTable<Uint>, Component, LibMesh > CTable_Uint_Builder;
 
-Common::ComponentBuilder < CTable<int>, Component, LibMesh >  CTable_int_Builder;
+common::ComponentBuilder < CTable<int>, Component, LibMesh >  CTable_int_Builder;
 
-Common::ComponentBuilder < CTable<Real>, Component, LibMesh > CTable_Real_Builder;
+common::ComponentBuilder < CTable<Real>, Component, LibMesh > CTable_Real_Builder;
 
-Common::ComponentBuilder < CTable<std::string>, Component, LibMesh > CTable_string_Builder;
+common::ComponentBuilder < CTable<std::string>, Component, LibMesh > CTable_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -143,4 +143,4 @@ std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

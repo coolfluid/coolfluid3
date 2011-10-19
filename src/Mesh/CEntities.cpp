@@ -22,10 +22,10 @@
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CSpace.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -218,7 +218,7 @@ bool CEntities::exists_space(const std::string& name) const
 
 RealMatrix CEntities::get_coordinates(const Uint elem_idx) const
 {
-  throw Common::NotImplemented(FromHere(),"Should implement in derived class");
+  throw common::NotImplemented(FromHere(),"Should implement in derived class");
   return RealMatrix(1,1);
 }
 
@@ -226,7 +226,7 @@ RealMatrix CEntities::get_coordinates(const Uint elem_idx) const
 
 void CEntities::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
-  throw Common::NotImplemented(FromHere(),"Should implement in derived class");
+  throw common::NotImplemented(FromHere(),"Should implement in derived class");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,4 +295,4 @@ bool IsElementsSurface::operator()(const CEntities& component)
 
 ////////////////////////////////////////////////////////////////////////////////
 } // Mesh
-} // CF
+} // cf3

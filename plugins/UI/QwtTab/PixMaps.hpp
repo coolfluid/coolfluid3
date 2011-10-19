@@ -6,8 +6,8 @@
 
 
 
-#ifndef CF_UI_QwtTab_PixMaps_hpp
-#define CF_UI_QwtTab_PixMaps_hpp
+#ifndef cf3_UI_QwtTab_PixMaps_hpp
+#define cf3_UI_QwtTab_PixMaps_hpp
 
 //represent print icone
 static const char *print_xpm[]={
@@ -103,4 +103,4 @@ static const char *zoom_xpm[]={
 "...########################..##."};
 
 
-#endif // CF_UI_QwtTab_PixMaps_hpp
+#endif // CF3_UI_QwtTab_PixMaps_hpp

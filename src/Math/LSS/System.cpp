@@ -39,19 +39,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef CF_HAVE_TRILINOS
+#ifdef CF3_HAVE_TRILINOS
   #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
   #include "Math/LSS/Trilinos/TrilinosVector.hpp"
-#endif // CF_HAVE_TRILINOS
+#endif // CF3_HAVE_TRILINOS
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builder;
+common::ComponentBuilder < LSS::System, LSS::System, LSS::LibLSS > System_Builder;
 
 LSS::System::System(const std::string& name) :
   Component(name)
@@ -71,7 +71,7 @@ LSS::System::System(const std::string& name) :
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
+void LSS::System::create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices)
 {
 
   if (is_created()) destroy();
@@ -84,12 +84,12 @@ void LSS::System::create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<
   }
 
   if (solvertype=="Trilinos"){
-    #ifdef CF_HAVE_TRILINOS
+    #ifdef CF3_HAVE_TRILINOS
     m_mat=create_component_ptr<LSS::TrilinosMatrix>("Matrix");
     m_rhs=create_component_ptr<LSS::TrilinosVector>("RHS");
     m_sol=create_component_ptr<LSS::TrilinosVector>("Solution");
     #else
-      throw Common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
+      throw common::SetupError(FromHere(),"Trilinos is selected for linear solver, but COOLFluiD was not compiled with it.");
     #endif
   }
 
@@ -105,19 +105,19 @@ void LSS::System::swap(LSS::Matrix::Ptr matrix, LSS::Vector::Ptr solution, LSS::
   if (m_mat->is_swappable(solution,rhs))
   {
   if ((matrix->is_created()!=solution->is_created())||(matrix->is_created()!=rhs->is_created()))
-    throw Common::SetupError(FromHere(),"Inconsistent states.");
+    throw common::SetupError(FromHere(),"Inconsistent states.");
   if ((matrix->solvertype()!=solution->solvertype())||(matrix->solvertype()!=rhs->solvertype()))
-    throw Common::NotSupported(FromHere(),"Inconsistent linear solver types.");
+    throw common::NotSupported(FromHere(),"Inconsistent linear solver types.");
   if ((matrix->neq()!=solution->neq())||(matrix->neq()!=rhs->neq()))
-    throw Common::BadValue(FromHere(),"Inconsistent number of equations.");
+    throw common::BadValue(FromHere(),"Inconsistent number of equations.");
   if ((matrix->blockcol_size()!=solution->blockrow_size())||(matrix->blockcol_size()!=rhs->blockrow_size()))
-    throw Common::BadValue(FromHere(),"Inconsistent number of block rows.");
+    throw common::BadValue(FromHere(),"Inconsistent number of block rows.");
   if (m_mat!=matrix) m_mat=matrix;
   if (m_rhs!=rhs) m_rhs=rhs;
   if (m_sol!=solution) m_sol=solution;
   options().option("solver").change_value(matrix->solvertype());
   } else {
-    throw Common::NotSupported(FromHere(),"System of '" + matrix->name() + "' x '" + solution->name() + "' = '" + rhs->name() + "' is incompatible." );
+    throw common::NotSupported(FromHere(),"System of '" + matrix->name() + "' x '" + solution->name() + "' = '" + rhs->name() + "' is incompatible." );
   }
 }
 
@@ -248,7 +248,7 @@ void LSS::System::reset(Real reset_to)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::print(Common::LogStream& stream)
+void LSS::System::print(common::LogStream& stream)
 {
   if (is_created())
   {
@@ -293,24 +293,24 @@ const bool LSS::System::is_created()
   switch (numcreated) {
     case 0 : return false;
     case 7 : return true;
-    default: throw Common::SetupError(FromHere(),"LSS System is in inconsistent state.");
+    default: throw common::SetupError(FromHere(),"LSS System is in inconsistent state.");
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::signal_print(Common::SignalArgs& args)
+void LSS::System::signal_print(common::SignalArgs& args)
 {
-  Common::XML::SignalOptions options( args );
+  common::XML::SignalOptions options( args );
   std::string filename = options.value<std::string>( "file_name" );
   print(filename);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void LSS::System::signature_print(Common::SignalArgs& args)
+void LSS::System::signature_print(common::SignalArgs& args)
 {
-  Common::XML::SignalOptions options( args );
+  common::XML::SignalOptions options( args );
 
   options.add_option< Common::OptionT<std::string> >("file_name")
     ->pretty_name("File name")

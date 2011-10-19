@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CTime_hpp
-#define CF_Solver_CTime_hpp
+#ifndef cf3_Solver_CTime_hpp
+#define cf3_Solver_CTime_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace Solver {
 /// This class keeps track of time for use in unsteady
 /// simulations
 /// @author Willem Deconinck
-class Solver_API CTime : public Common::Component {
+class Solver_API CTime : public common::Component {
 
 public: // typedefs
 
@@ -83,8 +83,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CTime_hpp
+#endif // CF3_Solver_CTime_hpp

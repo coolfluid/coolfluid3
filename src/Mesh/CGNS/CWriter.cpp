@@ -18,16 +18,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CGNS::CWriter, CMeshWriter, LibCGNS > aCGNSWriter_Builder;
+common::ComponentBuilder < CGNS::CWriter, CMeshWriter, LibCGNS > aCGNSWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -216,7 +216,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
   CRegion::ConstPtr section_region = grouped_elements[0]->parent().as_ptr<CRegion const>();
 
   m_section.name = section_region->name();
-  m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];
+  m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF3_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];
 
   switch (m_section.type)
   {
@@ -252,7 +252,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
         m_section.elemEndIdx = m_section.elemEndIdx + nbElems;
         m_section.nbBdry = 0; // unsorted boundary
 
-        ElementType_t type = m_elemtype_CF_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
+        ElementType_t type = m_elemtype_CF3_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
         const CConnectivity::ArrayT& connectivity_table = elements->node_connectivity().array();
         int start_idx = m_global_start_idx[&elements->geometry().coordinates()];
 
@@ -322,4 +322,4 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3

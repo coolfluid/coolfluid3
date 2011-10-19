@@ -32,16 +32,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
-  using namespace Common::PE;
+  using namespace common;
+  using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < GrowOverlap, CMeshTransformer, LibActions> GrowOverlap_Builder;
+common::ComponentBuilder < GrowOverlap, CMeshTransformer, LibActions> GrowOverlap_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -495,4 +495,4 @@ void GrowOverlap::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

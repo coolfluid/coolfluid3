@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_NotificationQueue_hpp
-#define CF_Common_NotificationQueue_hpp
+#ifndef cf3_common_NotificationQueue_hpp
+#define cf3_common_NotificationQueue_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -17,8 +17,8 @@
 
 /////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
   ///////////////////////////////////////////////////////////////////////////////
 
@@ -67,7 +67,7 @@ namespace Common {
     /// if counted.
     /// @return Returns the notifications count for the event, or the number
     /// of all notification if @c name is empty.
-    CF::Uint nb_notifications ( const std::string & name = std::string() ) const;
+    cf3::Uint nb_notifications ( const std::string & name = std::string() ) const;
 
     /// @brief Flushes the notification buffer.
 
@@ -145,7 +145,7 @@ namespace Common {
 
   ///////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
-#endif // CF_Common_NotificationQueue_hpp
+#endif // CF3_common_NotificationQueue_hpp

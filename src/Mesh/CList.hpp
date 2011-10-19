@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CList_hpp
-#define CF_Mesh_CList_hpp
+#ifndef cf3_Mesh_CList_hpp
+#define cf3_Mesh_CList_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ namespace Mesh {
 /// @author Tiago Quintino
 
 template <typename ValueT>
-class Mesh_API CList : public Common::Component
+class Mesh_API CList : public common::Component
 {
 public: // typedefs
 
@@ -70,7 +70,7 @@ public: // functions
 
   /// Get the component type name
   /// @returns the component type name
-  static std::string type_name () { return "CList<"+Common::class_name<ValueT>()+">"; }
+  static std::string type_name () { return "CList<"+common::class_name<ValueT>()+">"; }
 
   /// Resize the array to the given number of rows
   /// @param[in] new_size The size allocated after resizing
@@ -136,8 +136,8 @@ std::ostream& operator<<(std::ostream& os, const CList<std::string>& list);
 /////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CList_hpp
+#endif // CF3_Mesh_CList_hpp

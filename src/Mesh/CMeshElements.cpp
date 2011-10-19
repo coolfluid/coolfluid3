@@ -13,10 +13,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
 ComponentBuilder<CMeshElements, Component, LibMesh> CMeshElements_Builder;
 
@@ -39,4 +39,4 @@ void CMeshElements::update()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

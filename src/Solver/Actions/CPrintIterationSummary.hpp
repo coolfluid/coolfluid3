@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CPrintIterationSummary_hpp
-#define CF_Solver_Actions_CPrintIterationSummary_hpp
+#ifndef cf3_Solver_Actions_CPrintIterationSummary_hpp
+#define cf3_Solver_Actions_CPrintIterationSummary_hpp
 
 #include "Common/CAction.hpp"
 
@@ -13,12 +13,12 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh   { class Field; }
 namespace Solver {
 namespace Actions {
 
-class Solver_Actions_API CPrintIterationSummary : public Common::CAction {
+class Solver_Actions_API CPrintIterationSummary : public common::CAction {
 
 public: // typedefs
 
@@ -51,6 +51,6 @@ private: // data
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_Actions_CPrintIterationSummary_hpp
+#endif // CF3_Solver_Actions_CPrintIterationSummary_hpp

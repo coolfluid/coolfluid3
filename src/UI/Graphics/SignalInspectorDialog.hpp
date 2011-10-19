@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_SignalInspectorDialog_hpp
-#define CF_GUI_Graphics_SignalInspectorDialog_hpp
+#ifndef cf3_GUI_Graphics_SignalInspectorDialog_hpp
+#define cf3_GUI_Graphics_SignalInspectorDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -18,9 +18,9 @@ class QVBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common
+namespace common
 {
   namespace XML { class SignalFrame; }
 }
@@ -41,7 +41,7 @@ public:
 
   ~SignalInspectorDialog();
 
-  void show(const Common::XML::SignalFrame & node);
+  void show(const common::XML::SignalFrame & node);
 
 private:
 
@@ -57,8 +57,8 @@ private:
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_SignalInspectorDialog_hpp
+#endif // CF3_GUI_Graphics_SignalInspectorDialog_hpp

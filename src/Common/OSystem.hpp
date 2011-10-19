@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_OSystem_hpp
-#define CF_Common_OSystem_hpp
+#ifndef cf3_common_OSystem_hpp
+#define cf3_common_OSystem_hpp
 
 #include <boost/shared_ptr.hpp>
 
@@ -13,8 +13,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
   class OSystemLayer;
   class LibLoader;
@@ -28,10 +28,10 @@ class Common_API OSystem : public boost::noncopyable {
 public: // methods
 
   /// @return ProcessInfo object
-  boost::shared_ptr<Common::OSystemLayer> layer();
+  boost::shared_ptr<common::OSystemLayer> layer();
 
   /// @return LibLoader object
-  boost::shared_ptr<Common::LibLoader> lib_loader();
+  boost::shared_ptr<common::LibLoader> lib_loader();
 
   /// @return the single object that represents the operating system
   static OSystem& instance();
@@ -49,17 +49,17 @@ private: // functions
 private: // data
 
   /// memory usage object
-  boost::shared_ptr<Common::OSystemLayer> m_layer;
+  boost::shared_ptr<common::OSystemLayer> m_layer;
   /// libloader object
-  boost::shared_ptr<Common::LibLoader> m_lib_loader;
+  boost::shared_ptr<common::LibLoader> m_lib_loader;
 
 }; // class OSystem
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_OSystem_hpp
+#endif // CF3_common_OSystem_hpp

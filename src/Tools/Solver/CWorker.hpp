@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Solver_CWorker_hpp
-#define CF_Tools_Solver_CWorker_hpp
+#ifndef cf3_Tools_Solver_CWorker_hpp
+#define cf3_Tools_Solver_CWorker_hpp
 
 #include "Common/Component.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////
 
-class CWorker : public Common::Component
+class CWorker : public common::Component
 {
 public: // typedefs
 
@@ -37,7 +37,7 @@ public:
   /// @name SIGNALS
   //@{
 
-  void signal_solve( Common::SignalArgs & args );
+  void signal_solve( common::SignalArgs & args );
 
   //@} END SIGNALS
 };
@@ -47,8 +47,8 @@ public:
 
 } // Tools
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Solver_CWorker_hpp
+#endif // CF3_Tools_Solver_CWorker_hpp

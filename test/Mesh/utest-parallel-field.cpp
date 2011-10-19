@@ -39,10 +39,10 @@
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

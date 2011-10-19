@@ -17,13 +17,13 @@
 
 #include "Common/Log.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Solver {
 
@@ -56,4 +56,4 @@ void LogForwarder::message(const std::string &data)
 
 } // Tools
 } // Tools
-} // CF
+} // cf3

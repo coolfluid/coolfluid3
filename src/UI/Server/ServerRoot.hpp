@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Server_ServerRoot_hpp
-#define CF_GUI_Server_ServerRoot_hpp
+#ifndef cf3_GUI_Server_ServerRoot_hpp
+#define cf3_GUI_Server_ServerRoot_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,9 +23,9 @@ template<typename T> class QList;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { namespace PE { class CPEManager; } }
+namespace common { namespace PE { class CPEManager; } }
 namespace Solver { class CPlotter; }
 
 namespace UI {
@@ -45,33 +45,33 @@ namespace Server {
 
     static ServerRoot & instance();
 
-    Common::CRoot::Ptr root() { return m_root; }
+    common::CRoot::Ptr root() { return m_root; }
 
-    Common::CRoot::ConstPtr root() const { return m_root; }
+    common::CRoot::ConstPtr root() const { return m_root; }
 
     CCore::Ptr core() { return m_core; }
 
     CCore::ConstPtr core() const { return m_core; }
 
-    Common::CJournal::Ptr journal() { return m_journal; }
+    common::CJournal::Ptr journal() { return m_journal; }
 
-    Common::CJournal::ConstPtr journal() const { return m_journal; }
+    common::CJournal::ConstPtr journal() const { return m_journal; }
 
-    boost::shared_ptr<Common::PE::CPEManager> manager() { return m_manager; }
+    boost::shared_ptr<common::PE::CPEManager> manager() { return m_manager; }
 
-    boost::shared_ptr<Common::PE::CPEManager const> manager() const { return m_manager; }
+    boost::shared_ptr<common::PE::CPEManager const> manager() const { return m_manager; }
 
     void process_signal(const std::string & target,
-                       const Common::URI & receiver,
+                       const common::URI & receiver,
                        const std::string & clientid,
                        const std::string & frameid,
-                       Common::SignalArgs & node);
+                       common::SignalArgs & node);
 
 
 
     void listen_to_events();
 
-    void signal_to_forward( Common::SignalArgs & args );
+    void signal_to_forward( common::SignalArgs & args );
 
   public slots:
 
@@ -85,19 +85,19 @@ namespace Server {
 
   private: // data
 
-    boost::shared_ptr<Common::XML::XmlDoc> m_doc;
+    boost::shared_ptr<common::XML::XmlDoc> m_doc;
 
     ProcessingThread * m_thread;
 
-    Common::CRoot::Ptr m_root;
+    common::CRoot::Ptr m_root;
 
     CCore::Ptr m_core;
 
-    Common::CJournal::Ptr m_journal;
+    common::CJournal::Ptr m_journal;
 
     QMutex m_mutex;
 
-    Common::NotificationQueue * m_queue;
+    common::NotificationQueue * m_queue;
 
     Notifier * m_notifier;
 
@@ -105,9 +105,9 @@ namespace Server {
 
     std::string m_current_frame_id;
 
-    QList< Common::URI > m_local_components;
+    QList< common::URI > m_local_components;
 
-    boost::shared_ptr<Common::PE::CPEManager> m_manager;
+    boost::shared_ptr<common::PE::CPEManager> m_manager;
 
     boost::shared_ptr<Solver::CPlotter> m_plotter;
 
@@ -116,8 +116,8 @@ namespace Server {
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Server_ServerRoot_hpp
+#endif // CF3_GUI_Server_ServerRoot_hpp

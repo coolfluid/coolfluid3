@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Prowl_LibProwl_hpp
-#define CF_Tools_Prowl_LibProwl_hpp
+#ifndef cf3_Tools_Prowl_LibProwl_hpp
+#define cf3_Tools_Prowl_LibProwl_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_TOOLS_PROWL_EXPORTS when compiling
 /// Prowl files
 #ifdef COOLFLUID_TOOLS_PROWL_EXPORTS
-#   define Tools_Prowl_API      CF_EXPORT_API
+#   define Tools_Prowl_API      CF3_EXPORT_API
 #   define Tools_Prowl_TEMPLATE
 #else
-#   define Tools_Prowl_API      CF_IMPORT_API
-#   define Tools_Prowl_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Tools_Prowl_API      CF3_IMPORT_API
+#   define Tools_Prowl_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 
 /// @brief Classes for %Prowl push notifications on Apple iOS devices
@@ -43,7 +43,7 @@ namespace Prowl {
 /// %Prowl is an iOS app that can receive push notifications (http://www.prowlapp.com/),
 /// sent from different sources (most notably <a href="http://growl.info/">Growl</a>).
 /// @author Willem Deconinck
-class Tools_Prowl_API LibProwl : public Common::CLibrary
+class Tools_Prowl_API LibProwl : public common::CLibrary
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   typedef boost::shared_ptr<LibProwl const> ConstPtr;
 
   /// Constructor
-  LibProwl ( const std::string& name) : Common::CLibrary(name) {   }
+  LibProwl ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -89,8 +89,8 @@ protected:
 
 } // Prowl
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Prowl_LibProwl_hpp
+#endif // CF3_Tools_Prowl_LibProwl_hpp

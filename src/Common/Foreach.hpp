@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_FOREACH_hpp
-#define CF_Common_FOREACH_hpp
+#ifndef cf3_common_FOREACH_hpp
+#define cf3_common_FOREACH_hpp
 
 #include <boost/foreach.hpp>
 #include <boost/fusion/include/at_c.hpp>
@@ -48,4 +48,4 @@
         for (; !BOOST_FOREACH_ID(_foreach_continue); BOOST_FOREACH_ID(_foreach_continue) = true)
 
 
-#endif // CF_Common_FOREACH_hpp
+#endif // CF3_common_FOREACH_hpp

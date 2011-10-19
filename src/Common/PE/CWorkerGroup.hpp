@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_CWorkerGroup_hpp
-#define CF_Common_MPI_CWorkerGroup_hpp
+#ifndef cf3_common_MPI_CWorkerGroup_hpp
+#define cf3_common_MPI_CWorkerGroup_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +16,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ public:
   /// @name SIGNALS
   //@{
 
-  void signal_solve( Common::SignalArgs & args);
+  void signal_solve( common::SignalArgs & args);
 
   //@} END SIGNALS
 
@@ -66,4 +66,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_CWorkerGroup_hpp
+#endif // CF3_common_MPI_CWorkerGroup_hpp

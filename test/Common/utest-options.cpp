@@ -26,8 +26,8 @@
 using namespace std;
 using namespace boost::assign;
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( TestOptionURI )
   CRoot& root = Core::instance().root();
 
   // Since the result is properly typed, we can immediately call supported_protocol
-  add_option<URI>(root.options(), "test_uri_option", root.uri()).supported_protocol(CF::Common::URI::Scheme::CPATH);
+  add_option<URI>(root.options(), "test_uri_option", root.uri()).supported_protocol(cf3::common::URI::Scheme::CPATH);
 
   BOOST_CHECK(root.uri() == root.option("test_uri_option").value< URI >());
 }

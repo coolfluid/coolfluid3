@@ -31,10 +31,10 @@
 
 #include "Tools/Testing/Difference.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( Construct_Geometry )
   Geometry::Ptr geometry = allocate_component<Geometry>("geometry");
   BOOST_CHECK( is_not_null(geometry) );
 
-  geometry->coordinates().descriptor().configure_option(Common::Tags::dimension(),2u);
+  geometry->coordinates().descriptor().configure_option(common::Tags::dimension(),2u);
   geometry->resize(10);
   BOOST_CHECK_EQUAL(geometry->coordinates().size() , 10u);
   BOOST_CHECK_EQUAL(geometry->coordinates().row_size() , 2u);

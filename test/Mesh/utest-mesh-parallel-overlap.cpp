@@ -45,11 +45,11 @@
 #include "Mesh/CSpace.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Math::Consts;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Math::Consts;
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)

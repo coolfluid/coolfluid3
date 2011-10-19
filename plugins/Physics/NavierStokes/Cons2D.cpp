@@ -8,13 +8,13 @@
 
 #include "Cons2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::Cons2D,
+common::ComponentBuilder < NavierStokes::Cons2D,
                            Physics::Variables,
                            LibNavierStokes >
                            Builder_Cons2D;
@@ -30,4 +30,4 @@ Cons2D::~Cons2D() {}
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3

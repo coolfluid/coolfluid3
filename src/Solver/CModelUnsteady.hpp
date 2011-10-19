@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CModelUnsteady_hpp
-#define CF_Solver_CModelUnsteady_hpp
+#ifndef cf3_Solver_CModelUnsteady_hpp
+#define cf3_Solver_CModelUnsteady_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/CModel.hpp"
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh{
   class Field;
 }
@@ -53,7 +53,7 @@ public: // functions
   CTime& create_time(const std::string& name = "Time");
   
   /// Signal to create time
-  void signal_create_time(Common::SignalArgs node);
+  void signal_create_time(common::SignalArgs node);
   
   /// Reference to the time
   CTime& time();
@@ -66,8 +66,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_CModelUnsteady_hpp
+#endif // CF3_Solver_CModelUnsteady_hpp

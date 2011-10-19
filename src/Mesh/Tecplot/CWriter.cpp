@@ -26,17 +26,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Tecplot {
 
-#define CF_BREAK_LINE(f,x) { if( x+1 % 10) { f << "\n"; } }
+#define cf3_BREAK_LINE(f,x) { if( x+1 % 10) { f << "\n"; } }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Tecplot::CWriter, CMeshWriter, LibTecplot> aTecplotWriter_Builder;
+common::ComponentBuilder < Tecplot::CWriter, CMeshWriter, LibTecplot> aTecplotWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -191,7 +191,7 @@ void CWriter::write_file(std::fstream& file)
       boost_foreach(Uint n, used_nodes.array())
       {
         file << coordinates[n][d] << " ";
-        CF_BREAK_LINE(file,n);
+        CF3_BREAK_LINE(file,n);
       }
       file << "\n";
     }
@@ -217,7 +217,7 @@ void CWriter::write_file(std::fstream& file)
               boost_foreach(Uint n, used_nodes.array())
               {
                 file << field[n][var_idx] << " ";
-                CF_BREAK_LINE(file,n);
+                CF3_BREAK_LINE(file,n);
               }
               file << "\n";
             }
@@ -266,7 +266,7 @@ void CWriter::write_file(std::fstream& file)
                 for (Uint n=0; n<nodal_data.size(); ++n)
                 {
                   file << nodal_data[n] << " ";
-                  CF_BREAK_LINE(file,n)
+                  CF3_BREAK_LINE(file,n)
                 }
                 file << "\n";
               }
@@ -300,7 +300,7 @@ void CWriter::write_file(std::fstream& file)
 
                   /// Write cell centred value
                   file << cell_centred_data << " ";
-                  CF_BREAK_LINE(file,e);
+                  CF3_BREAK_LINE(file,e);
                 }
                 file << "\n";
               }
@@ -348,7 +348,7 @@ void CWriter::write_file(std::fstream& file)
                 for (Uint n=0; n<nodal_data.size(); ++n)
                 {
                   file << nodal_data[n] << " ";
-                    CF_BREAK_LINE(file,n)
+                    CF3_BREAK_LINE(file,n)
                 }
                 file << "\n";
 
@@ -402,4 +402,4 @@ std::string CWriter::zone_type(const ElementType& etype) const
 
 } // Tecplot
 } // Mesh
-} // CF
+} // cf3

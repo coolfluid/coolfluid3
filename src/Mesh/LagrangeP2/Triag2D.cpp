@@ -14,18 +14,18 @@
 #include "Mesh/LagrangeP2/Triag2D.hpp"
 #include "Mesh/LagrangeP2/Line2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ElementTypeT<Triag2D>, ElementType , LibLagrangeP2 >
+common::ComponentBuilder < ElementTypeT<Triag2D>, ElementType , LibLagrangeP2 >
    Triag2D_Builder(LibLagrangeP2::library_namespace()+"."+Triag2D::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
+const cf3::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -41,9 +41,9 @@ const CF::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const CF::Mesh::ElementType& Triag2D::face_type(const CF::Uint face)
+const cf3::Mesh::ElementType& Triag2D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( Common::allocate_component<ElementTypeT<LagrangeP2::Line2D> >(LagrangeP2::Line2D::type_name()) );
+  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP2::Line2D> >(LagrangeP2::Line2D::type_name()) );
   return *facetype;
 }
 
@@ -58,4 +58,4 @@ Real Triag2D::area(const NodesT& nodes)
 
 } // LagrangeP2
 } // Mesh
-} // CF
+} // cf3

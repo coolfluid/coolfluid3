@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_FaceLoop_hpp
-#define CF_RDM_FaceLoop_hpp
+#ifndef cf3_RDM_FaceLoop_hpp
+#define cf3_RDM_FaceLoop_hpp
 
 #include "Mesh/Field.hpp"
 
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /// FaceLoop defines the base class for all FaceLoopT
@@ -33,7 +33,7 @@ struct FaceLoop : public ElementLoop
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
-    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
+    common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
     typename TermT::Ptr term;
     if( is_null( cterm ) )
     {
@@ -78,7 +78,7 @@ struct FaceLoopT1 : public FaceLoop
   void operator() ( SF& )
   {
     if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -88,7 +88,7 @@ struct FaceLoopT1 : public FaceLoop
     // loop on the (sub)regions that hold elements of this type
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -132,7 +132,7 @@ struct FaceLoopT : public FaceLoop
   void operator() ( SF& )
   {
     if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -142,7 +142,7 @@ struct FaceLoopT : public FaceLoop
     // loop on the (sub)regions that hold elements of this type
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
     {
       TermT& term = this->access_term<TermT>();
 
@@ -163,6 +163,6 @@ struct FaceLoopT : public FaceLoop
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_FaceLoop_hpp
+#endif // CF3_RDM_FaceLoop_hpp

@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Solver_Actions_Proto_ComponentWrapper_hpp
-#define CF_Solver_Actions_Proto_ComponentWrapper_hpp
+#ifndef cf3_Solver_Actions_Proto_ComponentWrapper_hpp
+#define cf3_Solver_Actions_Proto_ComponentWrapper_hpp
 
 #include <boost/proto/core.hpp>
 
@@ -18,7 +18,7 @@
 /// @file
 /// Wraps Component classes for Proto
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -42,7 +42,7 @@ public:
   }
 
   /// Construction using an option that will point to the actual component.
-  ComponentWrapperImpl(Common::Option& component_option) :
+  ComponentWrapperImpl(common::Option& component_option) :
     m_component( new boost::weak_ptr<ComponentT>() )
   {
     component_option.link_to(m_component.get());
@@ -52,7 +52,7 @@ public:
   ComponentT& component()
   {
     if(m_component->expired())
-      throw Common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
+      throw common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
 
     return *(m_component->lock());
   }
@@ -81,7 +81,7 @@ public:
   }
 
   /// Construction using an option that will point to the actual component.
-  ComponentWrapper(Common::Option& component_option) :
+  ComponentWrapper(common::Option& component_option) :
     m_component_wrapper(component_option),
     base_type(m_component_wrapper)
   {
@@ -97,4 +97,4 @@ private:
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_ComponentWrapper_hpp
+#endif // CF3_Solver_Actions_Proto_ComponentWrapper_hpp

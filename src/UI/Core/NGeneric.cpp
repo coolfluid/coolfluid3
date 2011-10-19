@@ -8,7 +8,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -31,4 +31,4 @@ QString NGeneric::toolTip() const
 
 } // Core
 } // UI
-} // CF
+} // cf3

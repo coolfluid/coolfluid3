@@ -11,11 +11,11 @@
 
 #include "UI/Graphics/GraphicalBool.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -77,4 +77,4 @@ void GraphicalBool::stateChanged(int state)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

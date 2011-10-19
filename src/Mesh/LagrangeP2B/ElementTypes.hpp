@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_LagrangeP2B_ElementTypes_hpp
-#define CF_Mesh_LagrangeP2B_ElementTypes_hpp
+#ifndef cf3_Mesh_LagrangeP2B_ElementTypes_hpp
+#define cf3_Mesh_LagrangeP2B_ElementTypes_hpp
 
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/vector.hpp>
@@ -14,7 +14,7 @@
 
 #include "Mesh/LagrangeP2B/Triag2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP2B {
 
@@ -32,6 +32,6 @@ typedef boost::mpl::filter_view<ElementTypes, IsEdgeType> EdgeTypes;
 
 } // LagrangeP2B
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_LagrangeP2B_ElementTypes_hpp
+#endif // CF3_Mesh_LagrangeP2B_ElementTypes_hpp

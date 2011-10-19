@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_CommWrapperMArray_HPP
-#define CF_Common_MPI_CommWrapperMArray_HPP
+#ifndef cf3_common_MPI_CommWrapperMArray_HPP
+#define cf3_common_MPI_CommWrapperMArray_HPP
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +18,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common  {
+namespace cf3 {
+namespace common  {
 namespace PE  {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,7 +62,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     CommWrapperMArray(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "CommWrapperMArray<"+Common::class_name<T>()+",1>"; }
+    static std::string type_name () { return "CommWrapperMArray<"+common::class_name<T>()+",1>"; }
 
 
     /// setup of passing by reference
@@ -70,7 +70,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @param stride number of array element grouping
     void setup(boost::multi_array<T,1>& data, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride = 1;
       m_needs_update=needs_update;
@@ -85,9 +85,9 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
         *ibuf++ = (*m_data)[local_idx];
@@ -99,9 +99,9 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
     virtual const void* pack(void* buf=nullptr) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_data->num_elements()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)(m_data->num_elements()*m_stride); i++)
         *ibuf++=(*m_data)[i];
@@ -113,7 +113,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @param pointer to the data to be committed back
     virtual void unpack(void* buf, std::vector<int>& map) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
         (*m_data)[local_idx] = *ibuf++;
@@ -123,7 +123,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @param pointer to the data to be committed back
     virtual void unpack(void* buf) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)(m_data->num_elements()*m_stride); i++)
         (*m_data)[i]=*ibuf++;
@@ -133,7 +133,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @param size new dimension size
     void resize(const int size)
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       m_data->resize(boost::extents[size]);
     }
 
@@ -145,7 +145,7 @@ class CommWrapperMArray<T,1>: public CommWrapper{
     /// @return length of the array
     int size() const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       return m_data->num_elements();
     }
 
@@ -197,14 +197,14 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     CommWrapperMArray(const std::string& name) : CommWrapper(name) {   }
 
     /// Get the class name
-    static std::string type_name () { return "CommWrapperMArray<"+Common::class_name<T>()+",2>"; }
+    static std::string type_name () { return "CommWrapperMArray<"+common::class_name<T>()+",2>"; }
 
     /// setup of passing by reference
     /// @param std::vector of data
     /// @param stride number of array element grouping
     void setup(boost::multi_array<T,2>& data, const bool needs_update)
     {
-      if (boost::is_pod<T>::value==false) throw CF::Common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
+      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
       m_data=&data;
       m_stride = data.shape()[1];
       m_needs_update=needs_update;
@@ -219,9 +219,9 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
     virtual const void* pack(std::vector<int>& map, void* buf=nullptr) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
       {
@@ -237,9 +237,9 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
     virtual const void* pack(void* buf=nullptr) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       if (buf==nullptr) buf=new T[m_data->num_elements()*m_stride+1];
-      if ( buf == nullptr ) throw CF::Common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
+      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)m_data->size(); i++)
         for (int j=0; j<(const int)m_stride; j++)
@@ -252,7 +252,7 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// @param pointer to the data to be committed back
     virtual void unpack(void* buf, std::vector<int>& map) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* ibuf=(T*)buf;
       boost_foreach( int local_idx, map)
       {
@@ -265,7 +265,7 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// @param pointer to the data to be committed back
     virtual void unpack(void* buf) const
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       T* ibuf=(T*)buf;
       for (int i=0; i<(const int)m_data->size(); i++)
         for (int j=0; j<(const int)m_stride; j++)
@@ -276,7 +276,7 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// @param size new dimension size
     void resize(const int size)
     {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       m_data->resize(boost::extents[size][m_stride]);
     }
 
@@ -287,7 +287,7 @@ class CommWrapperMArray<T,2>: public CommWrapper{
     /// accessor to the size of the array (without divided by stride)
     /// @return length of the array
     int size() const {
-      if ( is_null(m_data) ) throw CF::Common::BadPointer(FromHere(),name()+": Data expired.");
+      if ( is_null(m_data) ) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
       return m_data->size();
     }
 
@@ -323,9 +323,9 @@ class CommWrapperMArray<T,2>: public CommWrapper{
 ////////////////////////////////////////////////////////////////////////////////
 
 } // PE
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_CommWrapperMArray_HPP
+#endif // CF3_common_MPI_CommWrapperMArray_HPP

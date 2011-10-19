@@ -8,11 +8,11 @@
 
 #include "Tools/MeshDiff/LibMeshDiff.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshDiff {
 
-CF::Common::RegistLibrary<LibMeshDiff> libMeshDiff;
+cf3::common::RegistLibrary<LibMeshDiff> libMeshDiff;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibMeshDiff::terminate_impl()
 
 } // MeshDiff
 } // Tools
-} // CF
+} // cf3

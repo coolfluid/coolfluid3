@@ -16,10 +16,10 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Field.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,4 +109,4 @@ void CMeshWriter::execute()
 
 
 } // Mesh
-} // CF
+} // cf3

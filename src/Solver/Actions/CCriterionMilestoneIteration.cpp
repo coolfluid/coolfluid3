@@ -11,11 +11,11 @@
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CCriterionMilestoneIteration.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
 ComponentBuilder< CCriterionMilestoneIteration, CCriterion, LibActions > CCriterionMilestoneIteration_Builder;
 
@@ -66,4 +66,4 @@ bool CCriterionMilestoneIteration::operator()()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

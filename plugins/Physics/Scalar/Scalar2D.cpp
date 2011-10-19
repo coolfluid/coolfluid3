@@ -12,15 +12,15 @@
 
 #include "Scalar2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::Scalar2D,
+common::ComponentBuilder < Scalar::Scalar2D,
                            Physics::PhysModel,
                            LibScalar >
                            Builder_Scalar2D;
@@ -46,4 +46,4 @@ boost::shared_ptr< Physics::Variables > Scalar2D::create_variables( const std::s
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3

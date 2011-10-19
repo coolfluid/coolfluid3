@@ -41,11 +41,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Functions;
   using namespace Math::Consts;
 
@@ -53,7 +53,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CGlobalNumberingElements, CMeshTransformer, LibActions> CGlobalNumberingElements_Builder;
+common::ComponentBuilder < CGlobalNumberingElements, CMeshTransformer, LibActions> CGlobalNumberingElements_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -217,4 +217,4 @@ std::size_t CGlobalNumberingElements::hash_value(const RealMatrix& coords)
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

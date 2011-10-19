@@ -16,8 +16,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 struct CMapFixture
 {

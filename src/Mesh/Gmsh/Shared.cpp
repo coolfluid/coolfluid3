@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Gmsh {
 
@@ -386,4 +386,4 @@ std::string Shared::gmsh_name_to_cf_name(const Uint dim, const Uint gmsh_type)
 
 } // Gmsh
 } // Mesh
-} // CF
+} // cf3

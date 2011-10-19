@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CellTerm_hpp
-#define CF_RDM_CellTerm_hpp
+#ifndef cf3_RDM_CellTerm_hpp
+#define cf3_RDM_CellTerm_hpp
 
 #include "Solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class Field; }
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CellTerm : public CF::Solver::Action {
+class RDM_API CellTerm : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -71,6 +71,6 @@ protected: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_CellTerm_hpp
+#endif // CF3_RDM_CellTerm_hpp

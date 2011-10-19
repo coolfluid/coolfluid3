@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CInterpolator_hpp
-#define CF_Mesh_CInterpolator_hpp
+#ifndef cf3_Mesh_CInterpolator_hpp
+#define cf3_Mesh_CInterpolator_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/CMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -27,7 +27,7 @@ namespace Mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CInterpolator : public Common::Component {
+class Mesh_API CInterpolator : public common::Component {
 
 public: // typedefs
 
@@ -49,7 +49,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_interpolate( Common::SignalArgs& node  );
+  void signal_interpolate( common::SignalArgs& node  );
   
   // --------- Direct access ---------
 
@@ -83,8 +83,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CInterpolator_hpp
+#endif // CF3_Mesh_CInterpolator_hpp

@@ -11,8 +11,8 @@
 #include "Common/Signal.hpp"
 #include "Common/LibCommon.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 RegistTypeInfo<CBuilder,LibCommon> CBuilder_TypeRegistration();
 
@@ -81,5 +81,5 @@ std::string CBuilder::extract_library_name (const std::string& builder_name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

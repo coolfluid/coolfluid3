@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_Defs_hpp
-#define CF_Math_Defs_hpp
+#ifndef cf3_Math_Defs_hpp
+#define cf3_Math_Defs_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   /// Enumeration of the dimensions
   enum Dim                  { DIM_0D, DIM_1D, DIM_2D, DIM_3D };
@@ -20,8 +20,8 @@ namespace CF {
   /// Enumeration of sides
   enum Side                 { LEFT, RIGHT };
 
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_Defs_hpp
+#endif // CF3_Math_Defs_hpp

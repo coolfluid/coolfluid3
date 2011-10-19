@@ -29,10 +29,10 @@
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 using namespace boost::program_options;
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Shell {
 
@@ -473,7 +473,7 @@ void Interpreter::write_prompt()
 
 } // Shell
 } // Tools
-} // CF
+} // cf3
 
 
 

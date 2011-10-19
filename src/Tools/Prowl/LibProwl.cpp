@@ -8,11 +8,11 @@
 
 #include "Tools/Prowl/LibProwl.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Prowl {
 
-CF::Common::RegistLibrary<LibProwl> libProwl;
+cf3::common::RegistLibrary<LibProwl> libProwl;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibProwl::terminate_impl()
 
 } // Prowl
 } // Tools
-} // CF
+} // cf3

@@ -11,12 +11,12 @@
 
 #include "Mesh/CHash.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
-Common::ComponentBuilder < CHash, Component, LibMesh > CHash_Builder;
+common::ComponentBuilder < CHash, Component, LibMesh > CHash_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -136,4 +136,4 @@ Uint CHash::end_idx_in_proc(const Uint proc) const
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

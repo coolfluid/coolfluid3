@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_Core_hpp
-#define CF_Python_Core_hpp
+#ifndef cf3_Python_Core_hpp
+#define cf3_Python_Core_hpp
 
 #include "Python/LibPython.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 /// Python wrapping for the Core class
 void Python_API def_core();
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_Core_hpp
+#endif // CF3_Python_Core_hpp

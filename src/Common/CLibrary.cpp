@@ -7,8 +7,8 @@
 #include "Common/CLibrary.hpp"
 #include "Common/LibCommon.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 RegistTypeInfo<CLibrary,LibCommon> CLibrary_TypeRegistration();
 
@@ -28,12 +28,12 @@ CLibrary::~CLibrary()
 
 std::string CLibrary::lib_kversion()
 {
-  return CF_KERNEL_VERSION_STR;
+  return CF3_KERNEL_VERSION_STR;
 }
 
 std::string CLibrary::lib_version()
 {
-  return CF_KERNEL_VERSION_STR; // by default return the kernel version
+  return CF3_KERNEL_VERSION_STR; // by default return the kernel version
 }
 
 void  CLibrary::initiate()
@@ -58,6 +58,6 @@ void  CLibrary::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 

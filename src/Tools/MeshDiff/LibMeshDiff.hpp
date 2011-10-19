@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_MeshDiff_LibMeshDiff_hpp
-#define CF_Tools_MeshDiff_LibMeshDiff_hpp
+#ifndef cf3_Tools_MeshDiff_LibMeshDiff_hpp
+#define cf3_Tools_MeshDiff_LibMeshDiff_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_MESHDIFF_EXPORTS when compiling
 /// MeshDiff files
 #ifdef COOLFLUID_MESHDIFF_EXPORTS
-#   define MeshDiff_API      CF_EXPORT_API
+#   define MeshDiff_API      CF3_EXPORT_API
 #   define MeshDiff_TEMPLATE
 #else
-#   define MeshDiff_API      CF_IMPORT_API
-#   define MeshDiff_TEMPLATE CF_TEMPLATE_EXTERN
+#   define MeshDiff_API      CF3_IMPORT_API
+#   define MeshDiff_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshDiff {
 
@@ -35,7 +35,7 @@ namespace MeshDiff {
   /// Class defines the initialization and termination of the library MeshDiff
   /// @author Tiago Quintino
   class MeshDiff_API LibMeshDiff :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -43,7 +43,7 @@ namespace MeshDiff {
     typedef boost::shared_ptr<LibMeshDiff const> ConstPtr;
 
     /// Constructor
-    LibMeshDiff ( const std::string& name) : Common::CLibrary(name) {   }
+    LibMeshDiff ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -81,8 +81,8 @@ namespace MeshDiff {
 
 } // MeshDiff
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_MeshDiff_LibMeshDiff_hpp
+#endif // CF3_Tools_MeshDiff_LibMeshDiff_hpp

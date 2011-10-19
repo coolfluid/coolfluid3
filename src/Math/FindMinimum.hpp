@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_FindMinimum_hpp
-#define CF_Math_FindMinimum_hpp
+#ifndef cf3_Math_FindMinimum_hpp
+#define cf3_Math_FindMinimum_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   namespace Math {
 
@@ -427,9 +427,9 @@ public:
 
   } // Math
 
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Math_FindMinimum_hpp
+#endif // CF3_Math_FindMinimum_hpp
 

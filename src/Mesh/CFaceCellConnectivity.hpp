@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CFaceCellConnectivity_hpp
-#define CF_Mesh_CFaceCellConnectivity_hpp
+#ifndef cf3_Mesh_CFaceCellConnectivity_hpp
+#define cf3_Mesh_CFaceCellConnectivity_hpp
 
 //#include "Mesh/CElements.hpp"
 #include "Mesh/CUnifiedData.hpp"
@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
   class CLink;
 }
 namespace Mesh {
@@ -30,7 +30,7 @@ namespace Mesh {
 /// and provides a convenient API to access the data
 /// @author Andrea Lani
 /// @author Willem Deconinck
-class Mesh_API CFaceCellConnectivity : public Common::Component
+class Mesh_API CFaceCellConnectivity : public common::Component
 {
 public:
 
@@ -95,7 +95,7 @@ private: // data
   Uint m_nb_faces;
 
   /// unified view of the elements
-  boost::shared_ptr<Common::CGroup> m_used_components;
+  boost::shared_ptr<common::CGroup> m_used_components;
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;
@@ -114,8 +114,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_ConnectivityData_hpp
+#endif // CF3_Mesh_ConnectivityData_hpp

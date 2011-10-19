@@ -18,12 +18,12 @@
 #include "Mesh/ShapeFunction.hpp"
 #include "Mesh/Field.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
+common::ComponentBuilder < CSpace, Component, LibMesh > CSpace_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -228,4 +228,4 @@ RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

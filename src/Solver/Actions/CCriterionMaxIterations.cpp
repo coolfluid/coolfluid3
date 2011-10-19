@@ -11,11 +11,11 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
 ComponentBuilder< CCriterionMaxIterations, CCriterion, LibActions > CCriterionMaxIterations_Builder;
 
@@ -64,4 +64,4 @@ bool CCriterionMaxIterations::operator()()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

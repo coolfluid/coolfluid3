@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_EmptyLSSMatrix_hpp
-#define CF_Math_LSS_EmptyLSSMatrix_hpp
+#ifndef cf3_Math_LSS_EmptyLSSMatrix_hpp
+#define cf3_Math_LSS_EmptyLSSMatrix_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
@@ -65,7 +65,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(CF::Common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
+  void create(cf3::common::PE::CommPattern& cp, Uint neq, std::vector<Uint>& node_connectivity, std::vector<Uint>& starting_indices, LSS::Vector::Ptr solution, LSS::Vector::Ptr rhs)
   {
     destroy();
     m_neq=neq;
@@ -150,7 +150,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(Common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
+  void print(common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
 
   /// Print to wherever
   void print(std::ostream& stream) { cf_assert(m_is_created); stream << "EmptyLSSMatrix::print of '" << name() << "'.\n"; }
@@ -203,4 +203,4 @@ private:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_EmptyLSSMatrix_hpp
+#endif // CF3_Math_LSS_EmptyLSSMatrix_hpp

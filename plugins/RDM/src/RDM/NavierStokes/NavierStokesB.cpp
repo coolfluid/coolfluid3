@@ -14,16 +14,16 @@
 
 #include "RDM/NavierStokes/LibNavierStokes.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<B,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > B_Euler2D_Builder;
+common::ComponentBuilder < CellLoopT<B,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > B_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

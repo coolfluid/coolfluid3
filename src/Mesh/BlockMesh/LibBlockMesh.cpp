@@ -8,11 +8,11 @@
 
 #include "Mesh/BlockMesh/LibBlockMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace BlockMesh {
 
-CF::Common::RegistLibrary<LibBlockMesh> libBlockMesh;
+cf3::common::RegistLibrary<LibBlockMesh> libBlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibBlockMesh::terminate_impl()
 
 } // BlockMesh
 } // Mesh
-} // CF
+} // cf3

@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CFaces_hpp
-#define CF_Mesh_CFaces_hpp
+#ifndef cf3_Mesh_CFaces_hpp
+#define cf3_Mesh_CFaces_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 
 #include "Mesh/CElements.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +48,8 @@ public: // functions
 };
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CFaces_hpp
+#endif // CF3_Mesh_CFaces_hpp

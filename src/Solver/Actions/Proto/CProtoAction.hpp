@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_Proto_CProtoAction_hpp
-#define CF_Solver_Actions_Proto_CProtoAction_hpp
+#ifndef cf3_Solver_Actions_Proto_CProtoAction_hpp
+#define cf3_Solver_Actions_Proto_CProtoAction_hpp
 
 #include <set>
 
@@ -14,8 +14,8 @@
 
 #include "Solver/Action.hpp"
 
-namespace CF {
-  namespace Common { template<typename T> class OptionComponent; }
+namespace cf3 {
+  namespace common { template<typename T> class OptionComponent; }
   namespace Mesh { class CRegion; }
   namespace Physics { class PhysModel; }
 namespace Solver {
@@ -59,4 +59,4 @@ CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shar
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_CProtoAction_hpp
+#endif // CF3_Solver_Actions_Proto_CProtoAction_hpp

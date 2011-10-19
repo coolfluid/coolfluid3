@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CGNS_CGNSException_hpp
-#define CF_Mesh_CGNS_CGNSException_hpp
+#ifndef cf3_Mesh_CGNS_CGNSException_hpp
+#define cf3_Mesh_CGNS_CGNSException_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGNS {
 
@@ -21,11 +21,11 @@ namespace CGNS {
 
 /// Exception thrown when CGNS throws an exception.
 /// @author Willem Deconinck
-struct Mesh_CGNS_API CGNSException : public Common::Exception {
+struct Mesh_CGNS_API CGNSException : public common::Exception {
 
  /// Constructor
- CGNSException (const Common::CodeLocation& where, const std::string& what)
-   : Common::Exception(where, what, "CGNSException") {}
+ CGNSException (const common::CodeLocation& where, const std::string& what)
+   : common::Exception(where, what, "CGNSException") {}
 
  virtual ~CGNSException() throw() {}
  
@@ -35,9 +35,9 @@ struct Mesh_CGNS_API CGNSException : public Common::Exception {
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CGNS_CGNSException_hpp
+#endif // CF3_Mesh_CGNS_CGNSException_hpp
 

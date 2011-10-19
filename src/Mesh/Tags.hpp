@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibMesh_hpp
+#ifndef cf3_LibMesh_hpp
 #error The header Mesh/Tags.hpp shouldnt be included directly but rather by including LibMesh.hpp instead
 #endif
 
-#ifndef CF_Mesh_Tags_hpp
-#define CF_Mesh_Tags_hpp
+#ifndef cf3_Mesh_Tags_hpp
+#define cf3_Mesh_Tags_hpp
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -54,6 +54,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
-#endif // CF_Mesh_Tags_hpp
+#endif // CF3_Mesh_Tags_hpp

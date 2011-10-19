@@ -5,14 +5,14 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_GUI_Client_uTests_PropertyModelTest_hpp
-#define CF_GUI_Client_uTests_PropertyModelTest_hpp
+#ifndef cf3_GUI_Client_uTests_PropertyModelTest_hpp
+#define cf3_GUI_Client_uTests_PropertyModelTest_hpp
 
 #include <QObject>
 
 ///////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -44,8 +44,8 @@ private slots:
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_PropertyModelTest_hpp
+#endif // CF3_GUI_Client_uTests_PropertyModelTest_hpp

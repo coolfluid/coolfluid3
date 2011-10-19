@@ -13,15 +13,15 @@
 
 #include "NavierStokes2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < NavierStokes::NavierStokes2D,
+common::ComponentBuilder < NavierStokes::NavierStokes2D,
                            Physics::PhysModel,
                            LibNavierStokes >
                            Builder_NavierStokes2D;
@@ -65,4 +65,4 @@ boost::shared_ptr< Physics::Variables > NavierStokes2D::create_variables( const 
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3

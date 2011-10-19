@@ -18,10 +18,10 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ void CPlotter::signal_create_xyplot(SignalArgs &args)
 
   // create and add the component
   Component::Ptr parent_comp = Core::instance().root().access_component_ptr(parent);
-  CPlotXY::Ptr plot(Common::allocate_component<CPlotXY>(name));
+  CPlotXY::Ptr plot(common::allocate_component<CPlotXY>(name));
   parent_comp->add_component( plot );
   plot->mark_basic();
   plot->set_data(m_data);
@@ -101,8 +101,8 @@ void CPlotter::set_data_set(const URI &uri)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

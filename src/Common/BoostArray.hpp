@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_BOOSTARRAY_hpp
-#define CF_Common_BOOSTARRAY_hpp
+#ifndef cf3_common_BOOSTARRAY_hpp
+#define cf3_common_BOOSTARRAY_hpp
 
 #include "CF.hpp" // for more defined macros
 
@@ -13,4 +13,4 @@
 #include <boost/multi_array.hpp> 
 #undef BOOST_MULTI_ARRAY_NO_GENERATORS
 
-#endif // CF_Common_BOOSTARRAY_hpp
+#endif // CF3_common_BOOSTARRAY_hpp

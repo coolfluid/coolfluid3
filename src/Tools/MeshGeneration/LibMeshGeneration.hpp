@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_MeshGeneration_LibMeshGeneration_hpp
-#define CF_Tools_MeshGeneration_LibMeshGeneration_hpp
+#ifndef cf3_Tools_MeshGeneration_LibMeshGeneration_hpp
+#define cf3_Tools_MeshGeneration_LibMeshGeneration_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_MESH_GENERATION_EXPORTS when compiling
 /// MeshGeneration files
 #ifdef COOLFLUID_MESH_GENERATION_EXPORTS
-#   define MeshGeneration_API      CF_EXPORT_API
+#   define MeshGeneration_API      CF3_EXPORT_API
 #   define MeshGeneration_TEMPLATE
 #else
-#   define MeshGeneration_API      CF_IMPORT_API
-#   define MeshGeneration_TEMPLATE CF_TEMPLATE_EXTERN
+#   define MeshGeneration_API      CF3_IMPORT_API
+#   define MeshGeneration_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshGeneration {
 
@@ -35,7 +35,7 @@ namespace MeshGeneration {
   /// Class defines the initialization and termination of the library MeshGeneration
   /// @author Tiago Quintino
   class MeshGeneration_API LibMeshGeneration :
-      public Common::CLibrary
+      public common::CLibrary
   {
   public:
 
@@ -43,7 +43,7 @@ namespace MeshGeneration {
     typedef boost::shared_ptr<LibMeshGeneration const> ConstPtr;
 
     /// Constructor
-    LibMeshGeneration ( const std::string& name) : Common::CLibrary(name) {   }
+    LibMeshGeneration ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -82,8 +82,8 @@ namespace MeshGeneration {
 
 } // MeshGeneration
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_MeshGeneration_LibMeshGeneration_hpp
+#endif // CF3_Tools_MeshGeneration_LibMeshGeneration_hpp

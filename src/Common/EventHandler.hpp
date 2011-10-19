@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_EventHandler_hpp
-#define CF_Common_EventHandler_hpp
+#ifndef cf3_common_EventHandler_hpp
+#define cf3_common_EventHandler_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ namespace Common {
 /// @todo make this a component?
 /// @author Tiago Quintino
 class Common_API EventHandler :
-    public Common::SignalHandler,
+    public common::SignalHandler,
     public boost::noncopyable {
 
 public: // methods
@@ -50,9 +50,9 @@ public: // methods
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_EventHandler_hpp
+#endif // CF3_common_EventHandler_hpp

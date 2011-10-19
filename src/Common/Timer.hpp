@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Timer_hpp
-#define CF_Common_Timer_hpp
+#ifndef cf3_common_Timer_hpp
+#define cf3_common_Timer_hpp
 
 #include <boost/scoped_ptr.hpp>
 
@@ -13,7 +13,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#ifdef CF_OS_LINUX
+#ifdef CF3_OS_LINUX
 
 namespace CF {
 namespace Common {
@@ -39,15 +39,15 @@ private:
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 #else
 
 #include <boost/timer.hpp>
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,11 +55,11 @@ typedef boost::timer Timer;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 #endif
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Timer_hpp
+#endif // CF3_common_Timer_hpp

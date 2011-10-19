@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -71,4 +71,4 @@ TreeThread & ThreadManager::tree()
 
 } // Core
 } // UI
-} // CF
+} // cf3

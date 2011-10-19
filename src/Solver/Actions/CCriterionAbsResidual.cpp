@@ -11,11 +11,11 @@
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionAbsResidual.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
 ComponentBuilder< CCriterionAbsResidual, CCriterion, LibActions > CCriterionAbsResidual_Builder;
 
@@ -58,4 +58,4 @@ bool CCriterionAbsResidual::operator()()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

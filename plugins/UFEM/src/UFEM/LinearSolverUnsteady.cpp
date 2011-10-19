@@ -14,10 +14,10 @@
 #include "LinearSolverUnsteady.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -66,4 +66,4 @@ Real& LinearSolverUnsteady::invdt()
 
 
 } // UFEM
-} // CF
+} // cf3

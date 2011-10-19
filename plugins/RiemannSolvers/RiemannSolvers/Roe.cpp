@@ -10,13 +10,13 @@
 #include "RiemannSolvers/Roe.hpp"
 #include "Common/OptionComponent.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-using namespace Common;
+using namespace common;
 using namespace Physics;
 
-Common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
+common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -149,4 +149,4 @@ void Roe::compute_interface_flux_and_wavespeeds(const RealVector& left, const Re
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

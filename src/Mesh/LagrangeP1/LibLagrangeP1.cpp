@@ -8,11 +8,11 @@
 
 #include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace LagrangeP1 {
 
-CF::Common::RegistLibrary<LibLagrangeP1> LibLagrangeP1;
+cf3::common::RegistLibrary<LibLagrangeP1> LibLagrangeP1;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibLagrangeP1::terminate_impl()
 
 } // LagrangeP1
 } // Mesh
-} // CF
+} // cf3

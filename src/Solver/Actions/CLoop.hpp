@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_CLoop_hpp
-#define CF_Solver_Actions_CLoop_hpp
+#ifndef cf3_Solver_Actions_CLoop_hpp
+#define cf3_Solver_Actions_CLoop_hpp
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Action.hpp"
@@ -13,7 +13,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   namespace Mesh
   {
@@ -63,8 +63,8 @@ public: // functions
 
 } // Actions
 } // Solver
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_CLoop_hpp
+#endif // CF3_Solver_Actions_CLoop_hpp

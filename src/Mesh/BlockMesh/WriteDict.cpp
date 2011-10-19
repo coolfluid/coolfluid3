@@ -11,9 +11,9 @@
 
 #include "WriteDict.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace BlockMesh {
 
@@ -85,4 +85,4 @@ std::ostream& operator<<(std::ostream& os, const BlockData& block_data)
   
 } // BlockMesh
 } // Mesh
-} // CF
+} // cf3

@@ -26,15 +26,15 @@
 #include "Tools/MeshDiff/Commands.hpp"
 #include "Tools/MeshDiff/MeshDiff.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshDiff {
 
   using namespace boost;
   using namespace boost::program_options;
 
-  using namespace CF::Common;
-  using namespace CF::Mesh;
+  using namespace cf3::common;
+  using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -92,4 +92,4 @@ void Commands::compare(const std::vector<std::string>& params)
 
 } // MeshDiff
 } // Tools
-} // CF
+} // cf3

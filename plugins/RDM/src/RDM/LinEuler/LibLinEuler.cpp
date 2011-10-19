@@ -10,12 +10,12 @@
 
 #include "RDM/LinEuler/LibLinEuler.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibLinEuler> LibLinEuler;
+cf3::common::RegistLibrary<LibLinEuler> LibLinEuler;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibLinEuler::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

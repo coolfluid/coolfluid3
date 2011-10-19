@@ -11,11 +11,11 @@
 
 #include "UI/Graphics/GraphicalDouble.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -82,4 +82,4 @@ void GraphicalDouble::textUpdated(const QString & text)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

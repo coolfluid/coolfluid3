@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CPlotter_hpp
-#define CF_Common_CPlotter_hpp
+#ifndef cf3_Solver_CPlotter_hpp
+#define cf3_Solver_CPlotter_hpp
 
 #include "Common/Component.hpp"
 
@@ -13,12 +13,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API CPlotter : public Common::Component
+class Solver_API CPlotter : public common::Component
 {
 public: // typedefs
 
@@ -31,28 +31,28 @@ public:
 
   static std::string type_name() { return "CPlotter"; }
 
-  void set_data_set(const Common::URI & uri);
+  void set_data_set(const common::URI & uri);
 
   /// @name SIGNALS
   //@{
 
-  void signal_create_xyplot( Common::SignalArgs & args);
+  void signal_create_xyplot( common::SignalArgs & args);
 
-  void signature_create_xyplot( Common::SignalArgs & args);
+  void signature_create_xyplot( common::SignalArgs & args);
 
   //@} END SIGNALS
 
 private: // data
 
-  Common::URI m_data;
+  common::URI m_data;
 
 }; // CPlotter
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CPlotter_hpp
+#endif // CF3_common_CPlotter_hpp

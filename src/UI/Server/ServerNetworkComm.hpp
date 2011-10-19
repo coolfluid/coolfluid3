@@ -25,7 +25,7 @@ class QString;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -81,12 +81,12 @@ namespace Server {
                              UICommon::LogMessage::Type type,
                              const std::string & uuid = std::string());
 
-    void sendSignalToClient(const Common::XML::XmlDoc & signal,
+    void sendSignalToClient(const common::XML::XmlDoc & signal,
                             const std::string & uuid = std::string());
 
     void sendFrameRejectedToClient(const std::string clientid,
                                    const std::string & frameid,
-                                   const Common::URI & sender,
+                                   const common::URI & sender,
                                    const QString & reason);
 
     void disconnectAll();
@@ -163,11 +163,11 @@ namespace Server {
     /// to all clients.
     /// @param signal Signal frame to send.
     /// @return Returns the number of bytes sent.
-    int send(QTcpSocket * client, const Common::XML::XmlDoc & signal);
+    int send(QTcpSocket * client, const common::XML::XmlDoc & signal);
 
     bool sendFrameRejected(QTcpSocket * client,
                            const std::string & frameid,
-                           const CF::Common::URI & sender,
+                           const cf3::common::URI & sender,
                            const QString & reason);
 
     /// @brief Retrieves a client socket from its UUID.
@@ -178,7 +178,7 @@ namespace Server {
     /// @throw UnknownClientIdException if Client id is unknown.
     QTcpSocket * getSocket(const std::string & uuid) const;
 
-    std::string getAttr(const Common::XML::XmlNode & node,
+    std::string getAttr(const common::XML::XmlNode & node,
                         const char * paramName,
                         QString & reason);
 
@@ -188,7 +188,7 @@ namespace Server {
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

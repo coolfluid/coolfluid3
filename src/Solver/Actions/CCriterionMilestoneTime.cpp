@@ -11,11 +11,11 @@
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CCriterionMilestoneTime.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-using namespace Common;
+using namespace common;
 
 ComponentBuilder< CCriterionMilestoneTime, CCriterion, LibActions > CCriterionMilestoneTime_Builder;
 
@@ -65,4 +65,4 @@ bool CCriterionMilestoneTime::operator()()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

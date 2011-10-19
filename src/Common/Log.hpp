@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_Log_hpp
-#define CF_Common_Log_hpp
+#ifndef cf3_common_Log_hpp
+#define cf3_common_Log_hpp
 
 #include "Common/CommonAPI.hpp"
 #include "Common/LogLevel.hpp"
@@ -14,8 +14,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 class LogStream;
 
@@ -117,33 +117,33 @@ class Common_API Logger : public boost::noncopyable {
 // Debugging macros
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef CF_NO_DEBUG_MACROS
+#ifndef cf3_NO_DEBUG_MACROS
 
 /// log the value of a variable
 #define CFLogVar(x) CFinfo << #x << " = " << x << CFendl;
 /// Definition of a macro for placing a debug point in the code
-#define CF_DEBUG_POINT  CFdebug << "DEBUG : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
+#define cf3_DEBUG_POINT  CFdebug << "DEBUG : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for outputing an object that implements the output stream operator
-#define CF_DEBUG_OBJ(x) CFdebug << "DEBUG : OBJECT " << #x << " -> " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
+#define cf3_DEBUG_OBJ(x) CFdebug << "DEBUG : OBJECT " << #x << " -> " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for outputing a debug string in the code
-#define CF_DEBUG_STR(x) CFdebug << "DEBUG : STRING : " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
+#define cf3_DEBUG_STR(x) CFdebug << "DEBUG : STRING : " << x << " : " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush()
 /// Definition of a macro for debug abort
-#define CF_DEBUG_ABORT  CFdebug << "DEBUG : ABORT " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush() ; abort()
+#define cf3_DEBUG_ABORT  CFdebug << "DEBUG : ABORT " << __FILE__ << " : " << __LINE__ << " : " << __FUNCTION__ << "\n" ; CFdebug.flush() ; abort()
 
 #else
 
-#define CF_DEBUG_POINT
-#define CF_DEBUG_OBJ(x)
-#define CF_DEBUG_STR(x)
-#define CF_DEBUG_ABORT
+#define cf3_DEBUG_POINT
+#define cf3_DEBUG_OBJ(x)
+#define cf3_DEBUG_STR(x)
+#define cf3_DEBUG_ABORT
 
-#endif // CF_NO_DEBUG_MACROS
-
-////////////////////////////////////////////////////////////////////////////////
-
-} // Common
-} // CF
+#endif // CF3_NO_DEBUG_MACROS
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_Log.hpp
+} // common
+} // cf3
+
+////////////////////////////////////////////////////////////////////////////////
+
+#endif // CF3_common_Log.hpp

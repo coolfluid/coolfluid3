@@ -9,10 +9,10 @@
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-CF::Common::RegistLibrary<LibSFDM> LibSFDM;
+cf3::common::RegistLibrary<LibSFDM> LibSFDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,4 +27,4 @@ void LibSFDM::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

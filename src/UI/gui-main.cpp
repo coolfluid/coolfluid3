@@ -20,10 +20,10 @@
 #include "UI/Graphics/MainWindow.hpp"
 #include "UI/Graphics/JournalBrowserDialog.hpp"
 
-using namespace CF::Common;
-using namespace CF::Tools::Shell;
-using namespace CF::UI::Core;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::Tools::Shell;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::Graphics;
 
 int main(int argc, char *argv[])
 {
@@ -39,8 +39,8 @@ int main(int argc, char *argv[])
   Core::instance().initiate(argc, argv);
   PE::Comm::instance().init(argc,argv);   // this might modify argc and argv
 
-  CF::Common::AssertionManager::instance().AssertionThrows = true;
-  CF::Common::AssertionManager::instance().AssertionDumps = true;
+  cf3::common::AssertionManager::instance().AssertionThrows = true;
+  cf3::common::AssertionManager::instance().AssertionDumps = true;
 
   // tell CF core that the client is running
   Core::instance().network_info().start_client();

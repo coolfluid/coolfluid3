@@ -22,16 +22,16 @@
 
 #include "Common/CJournal.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CJournal, Component, LibCommon > CJournal_Builder;
+common::ComponentBuilder < CJournal, Component, LibCommon > CJournal_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -256,6 +256,6 @@ XmlNode CJournal::copy_node(const XmlNode & in, XmlNode & out) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 

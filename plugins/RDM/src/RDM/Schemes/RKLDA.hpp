@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_RKLDA_hpp
-#define CF_RDM_Schemes_RKLDA_hpp
+#ifndef cf3_RDM_Schemes_RKLDA_hpp
+#define cf3_RDM_Schemes_RKLDA_hpp
 
 #include <iostream>
 
@@ -22,7 +22,7 @@
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ protected: // helper function
 
   void config_coeffs()
   {
-    using namespace Common;
+    using namespace common;
 
     RDSolver& mysolver = this->parent().as_type<CellTerm>().solver().as_type<RDSolver>();
     rkorder = mysolver.properties().template value<Uint>("rkorder");
@@ -376,6 +376,6 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Schemes_RKLDA_hpp
+#endif // CF3_RDM_Schemes_RKLDA_hpp

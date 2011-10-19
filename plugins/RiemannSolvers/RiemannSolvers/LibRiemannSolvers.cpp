@@ -7,12 +7,12 @@
 #include "Common/RegistLibrary.hpp"
 #include "RiemannSolvers/LibRiemannSolvers.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<LibRiemannSolvers> libRiemannSolvers;
+cf3::common::RegistLibrary<LibRiemannSolvers> libRiemannSolvers;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,4 +27,4 @@ void LibRiemannSolvers::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

@@ -6,8 +6,8 @@
 
 #include <boost/program_options.hpp>
 
-namespace CF {
-namespace Common { class Component; class CRoot; class SignalDispatcher; }
+namespace cf3 {
+namespace common { class Component; class CRoot; class SignalDispatcher; }
 namespace Tools {
 namespace Shell {
 
@@ -63,15 +63,15 @@ public: // functions
 
 public: // data
 
-  static boost::shared_ptr<Common::Component> current_component;
+  static boost::shared_ptr<common::Component> current_component;
 
-  static boost::shared_ptr<Common::CRoot> tree_root;
+  static boost::shared_ptr<common::CRoot> tree_root;
 
-  static Common::SignalDispatcher * dispatcher;
+  static common::SignalDispatcher * dispatcher;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Shell
 } // Tools
-} // CF
+} // cf3

@@ -14,15 +14,15 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace TestActions {
 
 /// Class defines the initialization and termination of the library Actions
-class LibTestActions : public Common::CLibrary {
+class LibTestActions : public common::CLibrary {
 
 public:
 
@@ -30,7 +30,7 @@ public:
   typedef boost::shared_ptr<LibTestActions const> ConstPtr;
 
   /// Constructor
-  LibTestActions ( const std::string& name) : Common::CLibrary(name) {   }
+  LibTestActions ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -67,9 +67,9 @@ protected:
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::RegistLibrary<LibTestActions> libTestActions;
+common::RegistLibrary<LibTestActions> libTestActions;
 
-Common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
+common::ComponentBuilder < CDummyLoopOperation, CLoopOperation, LibTestActions > CDummyLoopOperation_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -89,7 +89,7 @@ void CDummyLoopOperation::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // TestActions
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

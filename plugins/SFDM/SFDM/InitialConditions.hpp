@@ -4,22 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_InitialConditions_hpp
-#define CF_SFDM_InitialConditions_hpp
+#ifndef cf3_SFDM_InitialConditions_hpp
+#define cf3_SFDM_InitialConditions_hpp
 
 #include "Solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
-namespace Common { class URI; }
+namespace cf3 {
+namespace common { class URI; }
 namespace Solver { class Action; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API InitialConditions : public CF::Solver::ActionDirector {
+class SFDM_API InitialConditions : public cf3::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -41,15 +41,15 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Solver::Action& create_initial_condition( const std::string& name, const std::vector<Common::URI>& regions = std::vector<Common::URI>() );
+  Solver::Action& create_initial_condition( const std::string& name, const std::vector<common::URI>& regions = std::vector<common::URI>() );
 
   /// @name SIGNALS
   //@{
 
   /// adds an initialization
-  void signal_create_initial_condition( Common::SignalArgs& args );
+  void signal_create_initial_condition( common::SignalArgs& args );
   /// signature for @see signal_create_initial_condition
-  void signature_signal_create_initial_condition( Common::SignalArgs& node );
+  void signature_signal_create_initial_condition( common::SignalArgs& node );
 
   //@} END SIGNALS
 
@@ -59,6 +59,6 @@ public: // functions
 
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_InitialConditions_hpp
+#endif // CF3_SFDM_InitialConditions_hpp

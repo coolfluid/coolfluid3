@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_CNode_hpp
-#define CF_GUI_Core_CNode_hpp
+#ifndef cf3_GUI_Core_CNode_hpp
+#define cf3_GUI_Core_CNode_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,7 +23,7 @@ template<typename T, typename V> class QMap;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -56,7 +56,7 @@ namespace Core {
 
     /// @warning fix this link "contentChanged()" [wdeconinck]
     /// Emits @c #contentChanged() signal.
-    void notifySignalSignature(Common::SignalArgs * node);
+    void notifySignalSignature(common::SignalArgs * node);
 
   signals:
 
@@ -64,7 +64,7 @@ namespace Core {
     void childCountChanged();
 
     /// Signal emitted when a signal signature has been received.
-    void signalSignature(Common::SignalArgs * node);
+    void signalSignature(common::SignalArgs * node);
 
   private:
 
@@ -118,7 +118,7 @@ namespace Core {
 
   /// @author Quentin Gasper
   class Core_API CNode :
-      public Common::Component
+      public common::Component
   {
   public:
 
@@ -152,7 +152,7 @@ namespace Core {
     /// Component::derived_type_name implementation
     std::string derived_type_name() const
     {
-      return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+      return common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
     }
 
     /// Gives the corresponding component type name
@@ -204,14 +204,14 @@ namespace Core {
 
     /// Sets node properties
     /// @param node Node containing the options
-    void setProperties(const Common::SignalArgs & node);
+    void setProperties(const common::SignalArgs & node);
 
     /// Sets node signals
     /// Those are considered as non-local ones, meaning that asking the node
     /// to execute them will result to the sendng of a request to the remote
     /// component.
     /// @param node Node containing the signals
-    void setSignals(const Common::SignalArgs & node);
+    void setSignals(const common::SignalArgs & node);
 
     /// Modifies options
 
@@ -226,7 +226,7 @@ namespace Core {
     /// Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void listOptions(QList<Common::Option::ConstPtr> & list);
+    void listOptions(QList<common::Option::ConstPtr> & list);
 
     /// Gives properties
     /// @param props Reference to a map where properties will be put. The map
@@ -243,7 +243,7 @@ namespace Core {
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXml(Common::XML::XmlNode node);
+    static CNode::Ptr createFromXml(common::XML::XmlNode node);
 
     /// Casts this node to a constant component of type TYPE.
     /// @return Returns the cast pointer
@@ -321,19 +321,19 @@ namespace Core {
     /// This methods calls @c NTree::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
-    void update_tree( Common::SignalArgs & node);
+    void update_tree( common::SignalArgs & node);
 
     /// Method called when receiving a reply to a previously sent
     /// "configure" signal.
     /// @param node An XML representation of the modified options.
-    void configure_reply(Common::SignalArgs & node);
+    void configure_reply(common::SignalArgs & node);
 
     /// Method called when the server replies to a @c list_content request.
     /// @param node Signal data.
-    void list_content_reply( Common::SignalArgs & node );
+    void list_content_reply( common::SignalArgs & node );
 
     /// Method called when the server replies to a signal
-    void signal_signature_reply( Common::SignalArgs & node );
+    void signal_signature_reply( common::SignalArgs & node );
 
     //@} END Signals
 
@@ -341,7 +341,7 @@ namespace Core {
 
     /// @param name The signal name.
     /// @param node node @c SignalFrame where the signature will be stored.
-    void localSignature(const QString & name, Common::SignalArgs& node );
+    void localSignature(const QString & name, common::SignalArgs& node );
 
     void finishSetUp();
 
@@ -403,8 +403,8 @@ namespace Core {
     /// @param linkTargets Map where links
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXmlRec(Common::XML::XmlNode & node,
-               QMap<boost::shared_ptr<NLink>, Common::URI> & linkTargets);
+    static CNode::Ptr createFromXmlRec(common::XML::XmlNode & node,
+               QMap<boost::shared_ptr<NLink>, common::URI> & linkTargets);
 
     void fetchContent();
 
@@ -414,8 +414,8 @@ namespace Core {
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_CNode_hpp
+#endif // CF3_GUI_Core_CNode_hpp

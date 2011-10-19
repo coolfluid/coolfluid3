@@ -19,15 +19,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVolume_Builder;
+common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVolume_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -88,4 +88,4 @@ void CBuildVolume::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

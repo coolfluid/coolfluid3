@@ -29,17 +29,17 @@
 #include "SparsityBuilder.hpp"
 #include "Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Math;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
-class ZeroAction : public Common::CAction
+class ZeroAction : public common::CAction
 {
 public:
 
@@ -65,7 +65,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ZeroAction, CAction, LibUFEM > ZeroAction_Builder;
+common::ComponentBuilder < ZeroAction, CAction, LibUFEM > ZeroAction_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +166,7 @@ void LinearSolver::mesh_changed(CMesh& mesh)
     cf_assert(is_not_null(field));
 
     // Parallelize
-    if(Common::PE::Comm::instance().is_active())
+    if(common::PE::Comm::instance().is_active())
     {
       field->parallelize_with(mesh.geometry().comm_pattern());
     }
@@ -228,4 +228,4 @@ void LinearSolver::trigger_lss()
 
 
 } // UFEM
-} // CF
+} // cf3

@@ -17,27 +17,27 @@
 #include "CopySolution.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CopySolution, CAction, LibRDM > CopySolution_Builder;
+common::ComponentBuilder < CopySolution, CAction, LibRDM > CopySolution_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 CopySolution::CopySolution ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
   // options
 
   options().add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution))
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution");
 }
 
@@ -61,4 +61,4 @@ void CopySolution::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

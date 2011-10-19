@@ -8,11 +8,11 @@
 
 #include "Tools/Shell/LibShell.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Shell {
 
-CF::Common::RegistLibrary<LibShell> libShell;
+cf3::common::RegistLibrary<LibShell> libShell;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibShell::terminate_impl()
 
 } // Shell
 } // Tools
-} // CF
+} // cf3

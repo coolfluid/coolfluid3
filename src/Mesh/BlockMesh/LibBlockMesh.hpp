@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_BlockMesh_LibBlockMesh_hpp
-#define CF_Mesh_BlockMesh_LibBlockMesh_hpp
+#ifndef cf3_Mesh_BlockMesh_LibBlockMesh_hpp
+#define cf3_Mesh_BlockMesh_LibBlockMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,16 +16,16 @@
 /// Define the macro BlockMesh_API
 /// @note build system defines COOLFLUID_BLOCKMESH_EXPORTS when compiling BlockMesh files
 #ifdef COOLFLUID_BLOCKMESH_EXPORTS
-#   define BlockMesh_API      CF_EXPORT_API
+#   define BlockMesh_API      CF3_EXPORT_API
 #   define BlockMesh_TEMPLATE
 #else
-#   define BlockMesh_API      CF_IMPORT_API
-#   define BlockMesh_TEMPLATE CF_TEMPLATE_EXTERN
+#   define BlockMesh_API      CF3_IMPORT_API
+#   define BlockMesh_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for I/O of the OpenFOAM BlockMesh dict files
@@ -36,7 +36,7 @@ namespace BlockMesh {
 /// Class defines the BlockMeshtral mesh format operations
 /// @author Willem Deconinck
 class BlockMesh_API LibBlockMesh :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -44,7 +44,7 @@ public:
   typedef boost::shared_ptr<LibBlockMesh const> ConstPtr;
 
   /// Constructor
-  LibBlockMesh ( const std::string& name) : Common::CLibrary(name) {   }
+  LibBlockMesh ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -80,8 +80,8 @@ public: // functions
 
 } // BlockMesh
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_BlockMesh_LibBlockMesh_hpp
+#endif // CF3_Mesh_BlockMesh_LibBlockMesh_hpp

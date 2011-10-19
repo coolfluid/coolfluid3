@@ -18,16 +18,16 @@
 #include "Solver/Tags.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 ActionDirector::ActionDirector ( const std::string& name ) :
-  Common::CActionDirector(name)
+  common::CActionDirector(name)
 {
   mark_basic();
 
@@ -61,7 +61,7 @@ Physics::PhysModel& ActionDirector::physical_model()
 {
   Physics::PhysModel::Ptr model = m_physical_model.lock();
   if( is_null(model) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );
   return *model;
 }
@@ -71,7 +71,7 @@ CTime& ActionDirector::time()
 {
   CTime::Ptr t = m_time.lock();
   if( is_null(t) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Time not yet set for component " + uri().string() );
   return *t;
 }
@@ -81,7 +81,7 @@ CMesh& ActionDirector::mesh()
 {
   CMesh::Ptr m = m_mesh.lock();
   if( is_null(m) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );
   return *m;
 }
@@ -91,7 +91,7 @@ Solver::CSolver& ActionDirector::solver()
 {
   Solver::CSolver::Ptr s = m_solver.lock();
   if( is_null(s) )
-    throw Common::SetupError( FromHere(),
+    throw common::SetupError( FromHere(),
                              "Solver not yet set for component " + uri().string() );
   return *s;
 }
@@ -100,4 +100,4 @@ Solver::CSolver& ActionDirector::solver()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3

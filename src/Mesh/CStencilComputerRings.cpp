@@ -25,14 +25,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CStencilComputerRings, CStencilComputer, LibMesh > CStencilComputerRings_Builder;
+cf3::common::ComponentBuilder < CStencilComputerRings, CStencilComputer, LibMesh > CStencilComputerRings_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -108,4 +108,4 @@ void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Ui
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_TreeThread_hpp
-#define CF_GUI_Core_TreeThread_hpp
+#ifndef cf3_GUI_Core_TreeThread_hpp
+#define cf3_GUI_Core_TreeThread_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -18,9 +18,9 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { namespace XML { class XmlDoc; } }
+namespace common { namespace XML { class XmlDoc; } }
 
 namespace UI {
 namespace Core {
@@ -61,7 +61,7 @@ public:
 
   NRoot::Ptr root() { return m_root; }
 
-  void newSignal( boost::shared_ptr<Common::XML::XmlDoc> doc);
+  void newSignal( boost::shared_ptr<common::XML::XmlDoc> doc);
 
 private:
 
@@ -75,8 +75,8 @@ private:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_TreeThread_hpp
+#endif // CF3_GUI_Core_TreeThread_hpp

@@ -10,7 +10,7 @@
 #include "Math/MatrixTypes.hpp"
 #include "Python/MatrixTypes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 using namespace boost::python;
@@ -18,14 +18,14 @@ using namespace boost::python;
 Real get_item(const RealVector& self, const Uint i)
 {
   if(i >= self.size())
-    throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for vector of size " + boost::lexical_cast<std::string>(self.size()));
+    throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for vector of size " + boost::lexical_cast<std::string>(self.size()));
   return self[i];
 }
 
 void set_item(RealVector& self, const Uint i, const Real value)
 {
   if(i >= self.size())
-    throw Common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for vector of size " + boost::lexical_cast<std::string>(self.size()));
+    throw common::BadValue(FromHere(), "Index " + boost::lexical_cast<std::string>(i) + " is out of range for vector of size " + boost::lexical_cast<std::string>(self.size()));
   self[i] = value;
 }
 
@@ -44,4 +44,4 @@ void def_matrix_types()
 }
 
 } // Python
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LSSAPI_hpp
-#define CF_LSSAPI_hpp
+#ifndef cf3_LSSAPI_hpp
+#define cf3_LSSAPI_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,23 +16,23 @@
 
 /// Define the macro LSS_API
 #ifdef COOLFLUID_MATH_EXPORTS
-#   define LSS_API      CF_EXPORT_API
+#   define LSS_API      CF3_EXPORT_API
 #   define Math_TEMPLATE
 #else
-#   define LSS_API      CF_IMPORT_API
-#   define Math_TEMPLATE CF_TEMPLATE_EXTERN
+#   define LSS_API      CF3_IMPORT_API
+#   define Math_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library LSS
-  class LSS_API LibLSS :  public Common::CLibrary
+  class LSS_API LibLSS :  public common::CLibrary
   {
   public:
 
@@ -40,7 +40,7 @@ namespace LSS {
     typedef boost::shared_ptr<LibLSS const> ConstPtr;
 
     /// Constructor
-    LibLSS ( const std::string& name) : Common::CLibrary(name) {   }
+    LibLSS ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -79,8 +79,8 @@ namespace LSS {
 
 } // LSS
 } // Math
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LSSAPI_hpp
+#endif // CF3_LSSAPI_hpp

@@ -13,19 +13,19 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CNodeFaceCellConnectivity , Component, LibMesh > CNodeFaceCellConnectivity_Builder;
+common::ComponentBuilder < CNodeFaceCellConnectivity , Component, LibMesh > CNodeFaceCellConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name ) : 
   Component(name)
 {
-  m_nodes = create_static_component_ptr<Common::CLink>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<common::CLink>(Mesh::Tags::nodes());
   m_face_cell_connectivity = create_static_component_ptr<CUnifiedData>("elements");
   m_connectivity = create_static_component_ptr<CDynTable<Uint> >(Mesh::Tags::connectivity_table());
   mark_basic();
@@ -99,4 +99,4 @@ void CNodeFaceCellConnectivity::build_connectivity()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

@@ -21,12 +21,12 @@
 
 #include "UI/Core/NTree.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -819,4 +819,4 @@ CNode::Ptr NTree::indexToNode(const QModelIndex & index) const
 
 } // Core
 } // UI
-} // CF
+} // cf3

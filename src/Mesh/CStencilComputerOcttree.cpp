@@ -21,14 +21,14 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CStencilComputerOcttree, CStencilComputer, LibMesh > CStencilComputerOcttree_Builder;
+cf3::common::ComponentBuilder < CStencilComputerOcttree, CStencilComputer, LibMesh > CStencilComputerOcttree_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -82,4 +82,4 @@ void CStencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

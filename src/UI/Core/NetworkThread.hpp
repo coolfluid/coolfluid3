@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NetworkThread_hpp
-#define CF_GUI_Core_NetworkThread_hpp
+#ifndef cf3_GUI_Core_NetworkThread_hpp
+#define cf3_GUI_Core_NetworkThread_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,9 +21,9 @@ class QTcpSocket;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common {
+namespace common {
 namespace XML {
   class XmlDoc;
 }
@@ -69,7 +69,7 @@ public:
   /// The client UUID is added to the frame.
   /// @param signal The signal to send.
   /// @return Returns the number of bytes written.
-  int send(Common::SignalArgs & signal);
+  int send(common::SignalArgs & signal);
 
   /// Executes the thread event loop.
   void run();
@@ -77,7 +77,7 @@ public:
 public: // boost signals
 
   /// Signal executed when a new frame arrived (given as parameter).
-  boost::signals2::signal< void ( boost::shared_ptr<Common::XML::XmlDoc> ) > newSignal;
+  boost::signals2::signal< void ( boost::shared_ptr<common::XML::XmlDoc> ) > newSignal;
 
 private slots :
 
@@ -128,7 +128,7 @@ private: // data
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

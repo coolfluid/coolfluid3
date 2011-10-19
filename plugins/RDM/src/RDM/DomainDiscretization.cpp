@@ -25,22 +25,22 @@
 
 #include "DomainDiscretization.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < DomainDiscretization, CAction, LibRDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, CAction, LibRDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -217,4 +217,4 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
 
 
 } // RDM
-} // CF
+} // cf3

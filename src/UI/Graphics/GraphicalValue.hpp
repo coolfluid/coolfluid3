@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_GraphicalValue_hpp
-#define CF_GUI_Graphics_GraphicalValue_hpp
+#ifndef cf3_GUI_Graphics_GraphicalValue_hpp
+#define cf3_GUI_Graphics_GraphicalValue_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -20,7 +20,7 @@ class QHBoxLayout;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -31,7 +31,7 @@ namespace Graphics {
     Q_OBJECT
   public:
 
-    static GraphicalValue * createFromOption(CF::Common::Option::ConstPtr option,
+    static GraphicalValue * createFromOption(cf3::common::Option::ConstPtr option,
                                              QWidget * parent = nullptr);
 
     GraphicalValue(QWidget * parent = 0);
@@ -74,8 +74,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_GraphicalValut_hpp
+#endif // CF3_GUI_Graphics_GraphicalValut_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_Core_CNodeBuilders_hpp
-#define CF_UI_Core_CNodeBuilders_hpp
+#ifndef cf3_UI_Core_CNodeBuilders_hpp
+#define cf3_UI_Core_CNodeBuilders_hpp
 
 #include <QMap>
 
@@ -16,7 +16,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -31,11 +31,11 @@ public:
   template<typename TYPE>
   void registerBuilder(const QString & componentType)
   {
-    typedef typename Common::CBuilderT<CNode, TYPE> BuilderType;
+    typedef typename common::CBuilderT<CNode, TYPE> BuilderType;
 
     cf_assert( !m_builders.contains(componentType) );
 
-    m_builders[componentType] = Common::allocate_component< typename Common::CBuilderT<CNode, TYPE> >( componentType.toStdString() );
+    m_builders[componentType] = common::allocate_component< typename common::CBuilderT<CNode, TYPE> >( componentType.toStdString() );
   }
 
   bool hasBuilder(const QString & componentType) const;
@@ -48,7 +48,7 @@ private:
 
   ~CNodeBuilders();
 
-  QMap<QString, Common::Component::Ptr> m_builders;
+  QMap<QString, common::Component::Ptr> m_builders;
 
 }; // CNodeBuilders
 
@@ -56,8 +56,8 @@ private:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_UI_Core_CNodeBuilders_hpp
+#endif // CF3_UI_Core_CNodeBuilders_hpp

@@ -15,13 +15,13 @@
 #include "Common/Log.hpp"
 #include "Common/StringConversion.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-InvalidURI::InvalidURI( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "InvalidURI")
+InvalidURI::InvalidURI( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "InvalidURI")
 {}
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -268,7 +268,7 @@ std::string URI::base_name() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

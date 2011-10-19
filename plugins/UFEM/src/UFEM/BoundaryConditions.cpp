@@ -30,11 +30,11 @@
 #include "BoundaryConditions.hpp"
 #include "Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
-using namespace Common::XML;
+using namespace common;
+using namespace common::XML;
 using namespace Math;
 using namespace Mesh;
 using namespace Solver;
@@ -43,7 +43,7 @@ using namespace Solver::Actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BoundaryConditions, CActionDirector, LibUFEM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, CActionDirector, LibUFEM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -184,4 +184,4 @@ void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)
 }
 
 } // UFEM
-} // CF
+} // cf3

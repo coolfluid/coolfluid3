@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_CSolver_hpp
-#define CF_Solver_CSolver_hpp
+#ifndef cf3_Solver_CSolver_hpp
+#define cf3_Solver_CSolver_hpp
 
 #include <boost/scoped_ptr.hpp>
 
@@ -14,7 +14,7 @@
 
 #include "Solver/LibSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CDomain; class CMesh; class FieldManager; }
 namespace Physics { class PhysModel; }
@@ -30,7 +30,7 @@ namespace Solver {
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 /// @author Bart Janssens
-class Solver_API CSolver : public Common::CActionDirector {
+class Solver_API CSolver : public common::CActionDirector {
 
 public: // typedefs
 
@@ -75,6 +75,6 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Solver
-} // CF
+} // cf3
 
-#endif // CF_Solver_CSolver_hpp
+#endif // CF3_Solver_CSolver_hpp

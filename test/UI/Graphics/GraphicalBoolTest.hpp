@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_GUI_Client_uTests_GraphicalBoolTest_hpp
-#define CF_GUI_Client_uTests_GraphicalBoolTest_hpp
+#ifndef cf3_GUI_Client_uTests_GraphicalBoolTest_hpp
+#define cf3_GUI_Client_uTests_GraphicalBoolTest_hpp
 
 #include <QObject>
 
@@ -14,7 +14,7 @@ class QCheckBox;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 
 namespace Graphics { class GraphicalBool; }
@@ -53,8 +53,8 @@ private:
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_GraphicalBoolTest_hpp
+#endif // CF3_GUI_Client_uTests_GraphicalBoolTest_hpp

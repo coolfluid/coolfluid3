@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NJournal_hpp
-#define CF_GUI_Core_NJournal_hpp
+#ifndef cf3_GUI_Core_NJournal_hpp
+#define cf3_GUI_Core_NJournal_hpp
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +19,7 @@ class QString;
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -41,7 +41,7 @@ public:
   /// @name SIGNALS
   //@{
 
-  void list_journal(Common::SignalArgs & node);
+  void list_journal(common::SignalArgs & node);
 
   //@} END SIGNALS
 
@@ -93,9 +93,9 @@ private:
 
 } // Core
 } // UI
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NJournal_hpp
+#endif // CF3_GUI_Core_NJournal_hpp
 

@@ -24,9 +24,9 @@
 #include "Common/PE/debug.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
   // ----------------------------------
 
   // Create a buffer
-  Common::PE::Buffer buffer;
+  common::PE::Buffer buffer;
   int root = 0;
 
   // pack the buffer on root processor

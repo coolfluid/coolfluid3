@@ -8,13 +8,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-OutOfBounds::OutOfBounds (const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "OutOfBounds")
+OutOfBounds::OutOfBounds (const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "OutOfBounds")
 {}
 
 OutOfBounds::~OutOfBounds() throw()
@@ -22,8 +22,8 @@ OutOfBounds::~OutOfBounds() throw()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ZeroDeterminant::ZeroDeterminant ( const Common::CodeLocation& where, const std::string& what)
-: Common::Exception(where, what, "ZeroDeterminant")
+ZeroDeterminant::ZeroDeterminant ( const common::CodeLocation& where, const std::string& what)
+: common::Exception(where, what, "ZeroDeterminant")
 {}
 
 ZeroDeterminant::~ZeroDeterminant() throw()
@@ -32,5 +32,5 @@ ZeroDeterminant::~ZeroDeterminant() throw()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 

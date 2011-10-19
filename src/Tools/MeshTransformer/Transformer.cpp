@@ -24,16 +24,16 @@
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/MeshTransformer/Transformer.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace MeshTransformer {
 
   using namespace boost;
   using namespace boost::program_options;
 
-  using namespace CF;
-  using namespace CF::Common;
-  using namespace CF::Mesh;
+  using namespace cf3;
+  using namespace cf3::common;
+  using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -324,4 +324,4 @@ void Transformer::transform( const std::vector<std::string>& params )
 
 } // MeshTransformer
 } // Tools
-} // CF
+} // cf3

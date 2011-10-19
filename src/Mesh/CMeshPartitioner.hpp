@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMeshPartitioner_hpp
-#define CF_Mesh_CMeshPartitioner_hpp
+#ifndef cf3_Mesh_CMeshPartitioner_hpp
+#define cf3_Mesh_CMeshPartitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshTransformer.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
   class CMesh;
@@ -74,9 +74,9 @@ public: // functions
   /// @todo this is now virtual because Zoltan is used.
   virtual void migrate();
 
-  void load_balance ( Common::SignalArgs& args );
+  void load_balance ( common::SignalArgs& args );
 
-  void load_balance_signature ( Common::SignalArgs& node );
+  void load_balance_signature ( common::SignalArgs& node );
 
   /// location finding functions
 
@@ -121,7 +121,7 @@ protected: // functions
 
   boost::tuple<Uint,Uint> location_idx(const Uint glb_obj) const;
 
-  boost::tuple<Common::Component::Ptr,Uint> location(const Uint glb_obj) const;
+  boost::tuple<common::Component::Ptr,Uint> location(const Uint glb_obj) const;
 
   Uint part_of_obj(const Uint obj) const
   {
@@ -130,7 +130,7 @@ protected: // functions
       if ( obj < m_end_id_per_part[p])
         return p;
     }
-    cf_assert_desc("[obj " + Common::to_str(obj)+ ">"+Common::to_str(m_end_id_per_part.back())+" Should not be here", false);
+    cf_assert_desc("[obj " + common::to_str(obj)+ ">"+common::to_str(m_end_id_per_part.back())+" Should not be here", false);
     return 0;
   }
 
@@ -151,7 +151,7 @@ private: // data
   Uint m_nb_owned_obj;
 
 
-  Common::CMap<Uint,Uint>::Ptr m_global_to_local;
+  common::CMap<Uint,Uint>::Ptr m_global_to_local;
 
   std::vector<Uint> m_start_id_per_part;
   std::vector<Uint> m_end_id_per_part;
@@ -190,7 +190,7 @@ template <typename VectorT>
 Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const
 {
   // declaration for boost::tie
-  Common::Component::Ptr comp;
+  common::Component::Ptr comp;
   Uint loc_idx;
   Uint size = 0;
   Uint idx = 0;
@@ -214,7 +214,7 @@ Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb
       ++idx;
     }
   }
-  cf_assert_desc(Common::to_str(idx)+"!="+Common::to_str(nb_objects_owned_by_part(part)), idx == nb_objects_owned_by_part(part));
+  cf_assert_desc(common::to_str(idx)+"!="+common::to_str(nb_objects_owned_by_part(part)), idx == nb_objects_owned_by_part(part));
   return size;
 }
 
@@ -224,7 +224,7 @@ template <typename VectorT>
 void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
 {
   // declaration for boost::tie
-  Common::Component::Ptr comp;
+  common::Component::Ptr comp;
   Uint loc_idx;
 
   Uint idx = 0;
@@ -260,7 +260,7 @@ template <typename VectorT>
 void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& connected_procs) const
 {
   // declaration for boost::tie
-  Common::Component::Ptr comp;
+  common::Component::Ptr comp;
   Uint loc_idx;
 
   Uint idx = 0;
@@ -291,8 +291,8 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
 //////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshPartitioner_hpp
+#endif // CF3_Mesh_CMeshPartitioner_hpp

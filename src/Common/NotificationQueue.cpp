@@ -7,7 +7,7 @@
 #include "Common/URI.hpp"
 #include "Common/NotificationQueue.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 NotificationQueue::NotificationQueue(CRoot::Ptr root)
 : m_sig_begin_flush(new SignalTypeFlush_t()),
@@ -37,9 +37,9 @@ void NotificationQueue::add_notification ( const std::string & name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
+cf3::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
 {
-  CF::Uint count = 0;
+  cf3::Uint count = 0;
 
   if ( name.empty() )
     count = m_notifications.size();

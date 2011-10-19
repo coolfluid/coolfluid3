@@ -25,12 +25,12 @@
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CFaceCellConnectivity , Component, LibMesh > CFaceCellConnectivity_Builder;
+common::ComponentBuilder < CFaceCellConnectivity , Component, LibMesh > CFaceCellConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -375,4 +375,4 @@ std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

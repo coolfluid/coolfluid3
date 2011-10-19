@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_CFactories_hpp
-#define CF_Common_CFactories_hpp
+#ifndef cf3_common_CFactories_hpp
+#define cf3_common_CFactories_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CFactory.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ namespace Common {
         return boost::dynamic_pointer_cast< CFactoryT<CBase> >(factory);
       else
       {
-        CF::Common::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
+        cf3::common::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
         return create_component_ptr< CFactoryT<CBase> >(tname);
       }
     }
@@ -57,9 +57,9 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_CFactories_hpp
+#endif // CF3_common_CFactories_hpp

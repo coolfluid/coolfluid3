@@ -26,11 +26,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -105,14 +105,14 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
     boost::filesystem::path infile(m_profile_dir / m_current_filename);
     std::string basename = boost::algorithm::erase_last_copy(m_current_filename, ".pprof");
     boost::filesystem::path outfile(m_profile_dir / basename);
-    std::string pprof_command(CF_PPROF_COMMAND);
+    std::string pprof_command(CF3_PPROF_COMMAND);
 
     if(pprof_command.size() && m_process_profile) // process the profile file, if the command exists
     {
       try {
         // note: graph output is too heavy for the dashboard
         //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
-        //std::string dot_line(std::string(CF_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
+        //std::string dot_line(std::string(CF3_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
         std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.file_string() + " | head -n 10 > " + outfile.file_string() + ".txt");
         OSystem::instance().layer()->execute_command(pprof_line);
         //OSystem::instance().execute_command(dot_line);
@@ -140,5 +140,5 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
 
 } // Testing
 } // Tools
-} // CF
+} // cf3
 

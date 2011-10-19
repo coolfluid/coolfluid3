@@ -26,12 +26,12 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Mesh::LagrangeP1;
-using namespace CF::Tools::Testing;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -231,8 +231,8 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   const Uint segments = 10000;
 
   // complete circle
-  CTable<Real>::Ptr coordinates(Common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
-  CTable<Uint>::Ptr connectivity(Common::allocate_component< CTable<Uint> >("connectivity"));
+  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
   create_helix(*coordinates, *connectivity, radius, height, tours, segments);
 
   // Check the length, using the line integral of one times the norm of the tangent vector

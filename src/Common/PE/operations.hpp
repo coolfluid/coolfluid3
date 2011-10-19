@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_operations_hpp
-#define CF_Common_MPI_operations_hpp
+#ifndef cf3_common_MPI_operations_hpp
+#define cf3_common_MPI_operations_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,8 +29,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -141,4 +141,4 @@ MPI_CUSTOM_OPERATION(customplus,true,*out=*in+*out);
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_operations_hpp
+#endif // CF3_common_MPI_operations_hpp

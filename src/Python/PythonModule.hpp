@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Python_PythonModule_hpp
-#define CF_Python_PythonModule_hpp
+#ifndef cf3_Python_PythonModule_hpp
+#define cf3_Python_PythonModule_hpp
 
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
 } // Python
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Python_PythonModule_hpp
+#endif // CF3_Python_PythonModule_hpp

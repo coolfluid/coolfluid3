@@ -21,15 +21,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CreateSpaceP0, CMeshTransformer, LibActions> CreateSpaceP0_Builder;
+common::ComponentBuilder < CreateSpaceP0, CMeshTransformer, LibActions> CreateSpaceP0_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -58,4 +58,4 @@ void CreateSpaceP0::execute()
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

@@ -28,8 +28,8 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace XML {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ Option::Ptr make_option_t(const std::string & name, const std::string & pretty_n
       .find_value(Protocol::Tags::key_restricted_values(), Protocol::Tags::node_array());
 
 
-  Option::Ptr option(new Common::OptionT<TYPE>(name, value));
+  Option::Ptr option(new common::OptionT<TYPE>(name, value));
 
   option->description( descr );
   option->pretty_name( pretty_name );
@@ -190,7 +190,7 @@ Option::Ptr SignalOptions::xml_to_option( const XmlNode & node )
       }
 
       // create the option
-      option_uri = OptionURI::Ptr (new Common::OptionURI(key_str, value));
+      option_uri = OptionURI::Ptr (new common::OptionURI(key_str, value));
 
       option_uri->description( descr_str );
       option_uri->pretty_name( pretty_name );
@@ -465,8 +465,8 @@ SignalFrame SignalOptions::create_reply_to( SignalFrame & frame, const URI & sen
 TEMPLATE_EXPLICIT_INSTANTIATION( bool );
 TEMPLATE_EXPLICIT_INSTANTIATION( int );
 TEMPLATE_EXPLICIT_INSTANTIATION( std::string );
-TEMPLATE_EXPLICIT_INSTANTIATION( CF::Uint );
-TEMPLATE_EXPLICIT_INSTANTIATION( CF::Real );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Uint );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Real );
 TEMPLATE_EXPLICIT_INSTANTIATION( URI );
 
 #undef TEMPLATE_EXPLICIT_INSTANTIATION
@@ -474,7 +474,7 @@ TEMPLATE_EXPLICIT_INSTANTIATION( URI );
 //////////////////////////////////////////////////////////////////////////////
 
 } // XML
-} // Common
-} // CF
+} // common
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////

@@ -6,7 +6,7 @@
 
 #include <boost/program_options.hpp>
 
-namespace CF {
+namespace cf3 {
   namespace Mesh {
     class CMeshReader;
     class CMeshWriter;
@@ -43,4 +43,4 @@ public:
 
 } // MeshTransformer
 } // Tools
-} // CF
+} // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Scalar_LinearAdv3D_hpp
-#define CF_Physics_Scalar_LinearAdv3D_hpp
+#ifndef cf3_Physics_Scalar_LinearAdv3D_hpp
+#define cf3_Physics_Scalar_LinearAdv3D_hpp
 
 #include "Common/StringConversion.hpp"
 #include "Math/Defs.hpp"
@@ -14,7 +14,7 @@
 
 #include "Scalar3D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
@@ -143,6 +143,6 @@ public: // functions
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_Scalar_LinearAdv3D_hpp
+#endif // CF3_Physics_Scalar_LinearAdv3D_hpp

@@ -6,7 +6,7 @@
 
 #include "Common/LogStampFilter.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 LogStampFilter::LogStampFilter(const std::string & streamName,
                                const std::string & stamp)

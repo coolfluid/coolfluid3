@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Neu_Shared_hpp
-#define CF_Mesh_Neu_Shared_hpp
+#ifndef cf3_Mesh_Neu_Shared_hpp
+#define cf3_Mesh_Neu_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Neu {
 
@@ -53,8 +53,8 @@ protected:
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Neu_Shared_hpp
+#endif // CF3_Mesh_Neu_Shared_hpp

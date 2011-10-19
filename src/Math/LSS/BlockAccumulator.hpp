@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_BlockAccumulator_hpp
-#define CF_Math_LSS_BlockAccumulator_hpp
+#ifndef cf3_Math_LSS_BlockAccumulator_hpp
+#define cf3_Math_LSS_BlockAccumulator_hpp
 
 // blockaccumulator would keep local RealMatrix and rhs and solution together
 // time splitting could be implemented here?
@@ -19,7 +19,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
@@ -82,4 +82,4 @@ public:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_BlockAccumulator_hpp
+#endif // CF3_Math_LSS_BlockAccumulator_hpp

@@ -32,15 +32,15 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Neu {
 
-  using namespace Common;
+  using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Builder;
+cf3::common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -159,7 +159,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   m_mesh->update_statistics();
 
   cf_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
-  cf_assert(m_mesh->properties().value<Uint>(Common::Tags::dimension()) == m_headerData.NDFCD);
+  cf_assert(m_mesh->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -524,10 +524,10 @@ void CReader::read_boundaries()
     std::stringstream ss(line);
     ss >> NAME >> ITYPE >> NENTRY >> NVALUES >> IBCODE1 >> IBCODE2 >> IBCODE3 >> IBCODE4 >> IBCODE5;
     if (ITYPE!=1) {
-      throw Common::NotSupported(FromHere(),"error: supports only boundary condition data 1 (element/cell): page C-11 of user's guide");
+      throw common::NotSupported(FromHere(),"error: supports only boundary condition data 1 (element/cell): page C-11 of user's guide");
     }
     if (IBCODE1!=6) {
-      throw Common::NotSupported(FromHere(),"error: supports only IBCODE1 6 (ELEMENT_SIDE)");
+      throw common::NotSupported(FromHere(),"error: supports only IBCODE1 6 (ELEMENT_SIDE)");
     }
 
     CRegion& bc_region = m_region->create_region(NAME);
@@ -590,11 +590,11 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
   else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.LagrangeP1.Tetra" + dim + "D";  // tetrahedron
   /// @todo to be implemented
   else if (neu_type==5 && nb_nodes==6) // wedge (prism)
-    throw Common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
+    throw common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");
   else if (neu_type==7 && nb_nodes==5) // pyramid
-    throw Common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
+    throw common::NotImplemented(FromHere(),"pyramid element not able to convert to COOLFluiD yet.");
   else {
-    throw Common::NotSupported(FromHere(),"no support for element type/nodes "
+    throw common::NotSupported(FromHere(),"no support for element type/nodes "
                                + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
                                " in Neutral format");
   }
@@ -606,4 +606,4 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
 
 } // Neu
 } // Mesh
-} // CF
+} // cf3

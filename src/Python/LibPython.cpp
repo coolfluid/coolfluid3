@@ -9,27 +9,27 @@
 
 #include "Python/LibPython.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Python {
 
-CF::Common::RegistLibrary<LibPython> libPython;
+cf3::common::RegistLibrary<LibPython> libPython;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void LibPython::initiate_impl()
 {
-  Common::Component& group = Common::Core::instance().tools().create_component("Python", "CF.Common.CGroup");
+  common::Component& group = common::Core::instance().tools().create_component("Python", "CF.Common.CGroup");
   group.create_component("ScriptEngine", "CF.Python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()
 {
-  Common::Component& group = Common::Core::instance().tools().get_child("Python");
+  common::Component& group = common::Core::instance().tools().get_child("Python");
   group.remove_component("ScriptEngine");
-  Common::Core::instance().tools().remove_component("Python");
+  common::Core::instance().tools().remove_component("Python");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Python
-} // CF
+} // cf3

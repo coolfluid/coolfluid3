@@ -18,12 +18,12 @@
 
 #include "UI/Graphics/CentralPanel.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -328,4 +328,4 @@ void CentralPanel::valueChanged()
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

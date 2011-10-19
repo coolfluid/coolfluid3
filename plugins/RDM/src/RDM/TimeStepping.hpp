@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_TimeStepping_hpp
-#define CF_RDM_TimeStepping_hpp
+#ifndef cf3_RDM_TimeStepping_hpp
+#define cf3_RDM_TimeStepping_hpp
 
 #include "Solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 
   namespace Solver { class CTime; }
 
@@ -20,7 +20,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API TimeStepping : public CF::Solver::ActionDirector {
+class RDM_API TimeStepping : public cf3::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -41,10 +41,10 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Common::CActionDirector& pre_actions()  { return *m_pre_actions; }
-  Common::CActionDirector& post_actions() { return *m_post_actions; }
+  common::CActionDirector& pre_actions()  { return *m_pre_actions; }
+  common::CActionDirector& post_actions() { return *m_post_actions; }
 
-  CF::Solver::CTime&       time()         { return *m_time; }
+  cf3::Solver::CTime&       time()         { return *m_time; }
 
   /// @name SIGNALS
   //@{
@@ -62,9 +62,9 @@ private: // data
 
   boost::shared_ptr< Solver::CTime > m_time;   ///< component tracking time
 
-  Common::CActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
+  common::CActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
 
-  Common::CActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
+  common::CActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
 
 };
 
@@ -72,6 +72,6 @@ private: // data
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_TimeStepping_hpp
+#endif // CF3_RDM_TimeStepping_hpp

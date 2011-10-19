@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_Zoltan_LibZoltan_hpp
-#define CF_Mesh_Zoltan_LibZoltan_hpp
+#ifndef cf3_Mesh_Zoltan_LibZoltan_hpp
+#define cf3_Mesh_Zoltan_LibZoltan_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,16 +23,16 @@ typedef Zoltan ZoltanHandle;
 /// Define the macro Zoltan_API
 /// @note build system defines COOLFLUID_ZOLTAN_EXPORTS when compiling Zoltan files
 #ifdef COOLFLUID_NEU_EXPORTS
-#   define Zoltan_API      CF_EXPORT_API
+#   define Zoltan_API      CF3_EXPORT_API
 #   define Zoltan_TEMPLATE
 #else
-#   define Zoltan_API      CF_IMPORT_API
-#   define Zoltan_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Zoltan_API      CF3_IMPORT_API
+#   define Zoltan_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for Zoltan mesh partitioning and load balancing
@@ -43,7 +43,7 @@ namespace Zoltan {
 
 /// Class defines a mesh partitioner using the Zoltan external library
 /// @author Willem Deconinck
-class Zoltan_API LibZoltan : public Common::CLibrary
+class Zoltan_API LibZoltan : public common::CLibrary
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   typedef boost::shared_ptr<LibZoltan const> ConstPtr;
 
   /// Constructor
-  LibZoltan ( const std::string& name) : Common::CLibrary(name) { }
+  LibZoltan ( const std::string& name) : common::CLibrary(name) { }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Zoltan"; }
@@ -87,8 +87,8 @@ protected:
 
 } // Zoltan
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_Zoltan_LibZoltan_hpp
+#endif // CF3_Mesh_Zoltan_LibZoltan_hpp

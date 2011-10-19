@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Testing_LibTesting_hpp
-#define CF_Tools_Testing_LibTesting_hpp
+#ifndef cf3_Tools_Testing_LibTesting_hpp
+#define cf3_Tools_Testing_LibTesting_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,16 +17,16 @@
 /// @note build system defines COOLFLUID_TESTING_EXPORTS when compiling
 /// Testing files
 #ifdef COOLFLUID_TESTING_EXPORTS
-#   define Testing_API      CF_EXPORT_API
+#   define Testing_API      CF3_EXPORT_API
 #   define Testing_TEMPLATE
 #else
-#   define Testing_API      CF_IMPORT_API
-#   define Testing_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Testing_API      CF3_IMPORT_API
+#   define Testing_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
@@ -34,7 +34,7 @@ namespace Testing {
 
   /// Class defines the initialization and termination of the library Testing
   /// @author Tiago Quintino
-  class Testing_API LibTesting : public Common::CLibrary
+  class Testing_API LibTesting : public common::CLibrary
   {
   public:
 
@@ -42,7 +42,7 @@ namespace Testing {
     typedef boost::shared_ptr<LibTesting const> ConstPtr;
 
     /// Constructor
-    LibTesting ( const std::string& name) : Common::CLibrary(name) {   }
+    LibTesting ( const std::string& name) : common::CLibrary(name) {   }
 
   public: // functions
 
@@ -80,8 +80,8 @@ namespace Testing {
 
 } // Testing
 } // Tools
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Tools_Testing_LibTesting_hpp
+#endif // CF3_Tools_Testing_LibTesting_hpp

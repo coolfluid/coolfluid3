@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_MathAPI_hpp
-#define CF_MathAPI_hpp
+#ifndef cf3_MathAPI_hpp
+#define cf3_MathAPI_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,16 +18,16 @@
 /// Define the macro Math_API
 /// @note build system defines COOLFLUID_MATH_EXPORTS when compiling MathTools files
 #ifdef COOLFLUID_MATH_EXPORTS
-#   define Math_API      CF_EXPORT_API
+#   define Math_API      CF3_EXPORT_API
 #   define Math_TEMPLATE
 #else
-#   define Math_API      CF_IMPORT_API
-#   define Math_TEMPLATE CF_TEMPLATE_EXTERN
+#   define Math_API      CF3_IMPORT_API
+#   define Math_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
   /// Basic Classes for Mathematical applications used by %COOLFluiD
   namespace Math {
@@ -36,7 +36,7 @@ namespace CF {
 
     /// Class defines the initialization and termination of the library MeshDiff
     /// @author Tiago Quintino
-    class Math_API LibMath :  public Common::CLibrary
+    class Math_API LibMath :  public common::CLibrary
     {
     public:
 
@@ -44,7 +44,7 @@ namespace CF {
       typedef boost::shared_ptr<LibMath const> ConstPtr;
 
       /// Constructor
-      LibMath ( const std::string& name) : Common::CLibrary(name) {   }
+      LibMath ( const std::string& name) : common::CLibrary(name) {   }
 
     public: // functions
 
@@ -81,8 +81,8 @@ namespace CF {
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Math
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_MathAPI_hpp
+#endif // CF3_MathAPI_hpp

@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_P1_Quad_hpp
-#define CF_SFDM_P1_Quad_hpp
+#ifndef cf3_SFDM_P1_Quad_hpp
+#define cf3_SFDM_P1_Quad_hpp
 
 #include "SFDM/ShapeFunction.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 namespace P1 {
 
@@ -50,6 +50,6 @@ public:
 
 } // P1
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_Mesh_P1_Quad
+#endif // CF3_Mesh_P1_Quad

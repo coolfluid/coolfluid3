@@ -20,10 +20,10 @@
 #include "Common/XML/Map.hpp"
 #include "Common/XML/CastingFunctions.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -90,7 +90,7 @@ void OptionArrayT<TYPE>::copy_to_linked_params ( const boost::any& val )
     }
     catch(boost::bad_any_cast& e)
     {
-      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+Common::class_name<value_type>());
+      throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(val.type())+" to "+common::class_name<value_type>());
     }
   }
 }
@@ -125,7 +125,7 @@ std::string OptionArrayT<TYPE>::dump_to_str ( const boost::any& c ) const
   }
   catch(boost::bad_any_cast& e)
   {
-    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(c.type())+" to "+Common::class_name<value_type>());
+    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(c.type())+" to "+common::class_name<value_type>());
   }
 
   return result;
@@ -140,7 +140,7 @@ std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
   }
   catch(boost::bad_any_cast& e)
   {
-    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+Common::class_name<value_type>());
+    throw CastingFailed( FromHere(), "Bad boost::any cast from "+class_name_from_typeinfo(m_value.type())+" to "+common::class_name<value_type>());
   }
 }
 
@@ -151,11 +151,11 @@ std::vector<TYPE> OptionArrayT<TYPE>::value_vect() const
 Common_TEMPLATE template class OptionArrayT< bool >;
 Common_TEMPLATE template class OptionArrayT< int >;
 Common_TEMPLATE template class OptionArrayT< std::string >;
-Common_TEMPLATE template class OptionArrayT< CF::Uint >;
-Common_TEMPLATE template class OptionArrayT< CF::Real >;
-Common_TEMPLATE template class OptionArrayT< CF::Common::URI >;
+Common_TEMPLATE template class OptionArrayT< cf3::Uint >;
+Common_TEMPLATE template class OptionArrayT< cf3::Real >;
+Common_TEMPLATE template class OptionArrayT< cf3::common::URI >;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

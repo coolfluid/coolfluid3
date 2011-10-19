@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMesh_hpp
-#define CF_Mesh_CMesh_hpp
+#ifndef cf3_Mesh_CMesh_hpp
+#define cf3_Mesh_CMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,8 +13,8 @@
 #include "Mesh/LibMesh.hpp"
 #include "Mesh/FieldGroup.hpp"
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     class CLink;
   }
 namespace Mesh {
@@ -32,7 +32,7 @@ namespace Mesh {
 ///   - arrays containing coordinates, variables, ...
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Mesh_API CMesh : public Common::Component {
+class Mesh_API CMesh : public common::Component {
 public: // typedefs
 
   typedef boost::shared_ptr<CMesh> Ptr;
@@ -92,11 +92,11 @@ public: // functions
   /// @return metadata component
   const MeshMetadata& metadata() const { return *m_metadata; }
 
-  void write_mesh( const Common::URI& file, const std::vector<Common::URI> fields = std::vector<Common::URI>());
+  void write_mesh( const common::URI& file, const std::vector<common::URI> fields = std::vector<common::URI>());
 
-  void signal_write_mesh ( Common::SignalArgs& node );
+  void signal_write_mesh ( common::SignalArgs& node );
 
-  void signature_write_mesh ( Common::SignalArgs& node);
+  void signature_write_mesh ( common::SignalArgs& node);
 
   Uint dimension() const { return m_dimension; }
 
@@ -126,8 +126,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMesh_hpp
+#endif // CF3_Mesh_CMesh_hpp

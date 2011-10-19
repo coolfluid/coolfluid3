@@ -23,11 +23,11 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Actions;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

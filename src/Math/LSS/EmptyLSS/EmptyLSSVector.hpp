@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Math_LSS_EmptyLSSVector_hpp
-#define CF_Math_LSS_EmptyLSSVector_hpp
+#ifndef cf3_Math_LSS_EmptyLSSVector_hpp
+#define cf3_Math_LSS_EmptyLSSVector_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Math {
 namespace LSS {
 
@@ -62,7 +62,7 @@ public:
   { }
 
   /// Setup sparsity structure
-  void create(Common::PE::CommPattern& cp, Uint neq)
+  void create(common::PE::CommPattern& cp, Uint neq)
   {
     destroy();
     m_neq=neq;
@@ -153,7 +153,7 @@ public:
   //@{
 
   /// Print to wherever
-  void print(Common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSVector::print of '" << name() << "'.\n"; }
+  void print(common::LogStream& stream) { cf_assert(m_is_created); stream << "EmptyLSSVector::print of '" << name() << "'.\n"; }
 
   /// Print to wherever
   void print(std::ostream& stream) { cf_assert(m_is_created); stream << "EmptyLSSVector::print of '" << name() << "'.\n"; }
@@ -200,4 +200,4 @@ private:
 } // namespace Math
 } // namespace CF
 
-#endif // CF_Math_LSS_EmptyLSSVector_hpp
+#endif // CF3_Math_LSS_EmptyLSSVector_hpp

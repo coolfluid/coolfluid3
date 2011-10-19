@@ -32,10 +32,10 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   const std::string tag = "solution";
 
   VariableManager& var_manager = root.create_component<VariableManager>("varmanager");
-  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(Common::Tags::dimension(), 2u);
+  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 2u);
 
   // Test mesh
   CMesh& mesh = root.create_component<CMesh>("mesh");
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   
   // Now change the descriptor and ensure there is an error
   var_manager.get_child(tag).remove_tag(tag);
-  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(Common::Tags::dimension(), 3u);
+  var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 3u);
   BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry()), SetupError);
 }
 

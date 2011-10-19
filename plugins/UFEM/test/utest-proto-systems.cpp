@@ -27,13 +27,13 @@
 #include "UFEM/TimeLoop.hpp"
 #include "UFEM/Tags.hpp"
 
-using namespace CF;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
-using namespace CF::Common;
-using namespace CF::Math::Consts;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::common;
+using namespace cf3::Math::Consts;
+using namespace cf3::Mesh;
 
 using namespace boost;
 
@@ -44,8 +44,8 @@ BOOST_AUTO_TEST_SUITE( ProtoSystemSuite )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
-  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
+  common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( ProtoSystem )

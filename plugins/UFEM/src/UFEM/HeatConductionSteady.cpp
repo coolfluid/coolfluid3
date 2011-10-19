@@ -12,10 +12,10 @@
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
@@ -51,4 +51,4 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
 
 
 } // UFEM
-} // CF
+} // cf3

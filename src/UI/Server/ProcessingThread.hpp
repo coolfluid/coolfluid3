@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Server_ProcessingThread_hpp
-#define CF_GUI_Server_ProcessingThread_hpp
+#ifndef cf3_GUI_Server_ProcessingThread_hpp
+#define cf3_GUI_Server_ProcessingThread_hpp
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Server {
 
@@ -28,8 +28,8 @@ namespace Server {
 
   public:
 
-    ProcessingThread(Common::SignalArgs & signal, const std::string & target,
-                     Common::Component::Ptr receiver);
+    ProcessingThread(common::SignalArgs & signal, const std::string & target,
+                     common::Component::Ptr receiver);
 
     void run();
 
@@ -39,11 +39,11 @@ namespace Server {
 
   private:
 
-    Common::SignalArgs m_signal;
+    common::SignalArgs m_signal;
 
     std::string m_target;
 
-    Common::Component::Ptr m_receiver;
+    common::Component::Ptr m_receiver;
 
     bool m_success;
 
@@ -55,8 +55,8 @@ namespace Server {
 
 } // Server
 } // UI
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Server_ProcessingThread_hpp
+#endif // CF3_GUI_Server_ProcessingThread_hpp

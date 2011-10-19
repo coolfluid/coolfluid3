@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_XML_Map_hpp
-#define CF_Common_XML_Map_hpp
+#ifndef cf3_common_XML_Map_hpp
+#define cf3_common_XML_Map_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "Common/CF.hpp"
 #include "Common/XML/XmlNode.hpp"
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 namespace XML {
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -209,9 +209,9 @@ namespace XML {
 /////////////////////////////////////////////////////////////////////////////////
 
 } // XML
-} // Common
-} // CF
+} // common
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_XML_Map_hpp
+#endif // CF3_common_XML_Map_hpp

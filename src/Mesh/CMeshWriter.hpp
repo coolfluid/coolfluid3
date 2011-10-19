@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_CMeshWriter_hpp
-#define CF_Mesh_CMeshWriter_hpp
+#ifndef cf3_Mesh_CMeshWriter_hpp
+#define cf3_Mesh_CMeshWriter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,8 +17,8 @@
 #include "Mesh/CElements.hpp"
 #include "Mesh/Geometry.hpp"
 
-namespace CF {
-namespace Common {  class URI;  }
+namespace cf3 {
+namespace common {  class URI;  }
 namespace Mesh {
 
   class Geometry;
@@ -30,7 +30,7 @@ namespace Mesh {
 /// This class serves as a component that that will write
 /// the mesh to a file
 /// @author Willem Deconinck
-class Mesh_API CMeshWriter : public Common::CAction {
+class Mesh_API CMeshWriter : public common::CAction {
 
 public: // typedefs
 
@@ -52,7 +52,7 @@ public: // functions
 
   // --------- Signals ---------
 
-  void signal_write( Common::SignalArgs& node  );
+  void signal_write( common::SignalArgs& node  );
 
   // --------- Direct access ---------
 
@@ -60,7 +60,7 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions() = 0;
 
-  virtual void write_from_to(const CMesh& mesh, const Common::URI& filepath) = 0;
+  virtual void write_from_to(const CMesh& mesh, const common::URI& filepath) = 0;
 
   virtual void execute();
 
@@ -79,7 +79,7 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(Common::find_components<CEntities>(component));
+       return count(common::find_components<CEntities>(component));
      }
 
   }; // IsGroup
@@ -96,8 +96,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_CMeshWriter_hpp
+#endif // CF3_Mesh_CMeshWriter_hpp

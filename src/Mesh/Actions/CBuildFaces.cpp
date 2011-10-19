@@ -26,16 +26,16 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Actions {
 
-  using namespace Common;
+  using namespace common;
   using namespace Math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CBuildFaces, CMeshTransformer, LibActions> CBuildFaces_Builder;
+common::ComponentBuilder < CBuildFaces, CMeshTransformer, LibActions> CBuildFaces_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -681,4 +681,4 @@ void CBuildFaces::build_cell_face_connectivity(Component& parent)
 
 } // Actions
 } // Mesh
-} // CF
+} // cf3

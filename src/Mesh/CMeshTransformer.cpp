@@ -12,12 +12,12 @@
 #include "Mesh/CMeshTransformer.hpp"
 #include "Mesh/CMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CMeshTransformer, CMeshTransformer, LibMesh> CMeshTransformer_Builder;
+common::ComponentBuilder < CMeshTransformer, CMeshTransformer, LibMesh> CMeshTransformer_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -90,4 +90,4 @@ void CMeshTransformer::execute()
 
 
 } // Mesh
-} // CF
+} // cf3

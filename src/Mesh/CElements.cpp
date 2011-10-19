@@ -18,14 +18,14 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CSpace.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CElements, CEntities, LibMesh > CElements_Builder;
+common::ComponentBuilder < CElements, CEntities, LibMesh > CElements_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,4 +112,4 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx) const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3

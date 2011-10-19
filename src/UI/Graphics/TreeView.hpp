@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Graphics_TreeView_h
-#define CF_GUI_Graphics_TreeView_h
+#ifndef cf3_GUI_Graphics_TreeView_h
+#define cf3_GUI_Graphics_TreeView_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,9 +21,9 @@ class QSortFilterProxyModel;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
-namespace Common { class URI; }
+namespace common { class URI; }
 
 namespace UI {
 
@@ -74,13 +74,13 @@ namespace Graphics {
     /// Otherwise, returns @c false.
     bool isReadOnly() const;
 
-    CF::Common::URI selectedPath() const;
+    cf3::common::URI selectedPath() const;
 
-    CF::Common::URI pathFromIndex(const QModelIndex & index);
+    cf3::common::URI pathFromIndex(const QModelIndex & index);
 
     QIcon iconFromIndex(const QModelIndex & index);
 
-    void selectItem(const CF::Common::URI & path);
+    void selectItem(const cf3::common::URI & path);
 
     void setFilter(const QString & pattern);
 
@@ -160,8 +160,8 @@ namespace Graphics {
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
   /////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Graphics_TreeView_h
+#endif // CF3_GUI_Graphics_TreeView_h

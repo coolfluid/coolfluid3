@@ -25,22 +25,22 @@
 
 #include "InitialConditions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -131,4 +131,4 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
 
 } // RDM
-} // CF
+} // cf3

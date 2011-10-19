@@ -20,12 +20,12 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 
-using namespace Common;
+using namespace common;
 
-Common::ComponentBuilder < CRegion, Component, LibMesh > CRegion_Builder;
+common::ComponentBuilder < CRegion, Component, LibMesh > CRegion_Builder;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -152,4 +152,4 @@ CRegion::ElementsRange CRegion::elements_range()
 
 
 } // Mesh
-} // CF
+} // cf3

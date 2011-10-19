@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Common_MPI_all_to_all_hpp
-#define CF_Common_MPI_all_to_all_hpp
+#ifndef cf3_common_MPI_all_to_all_hpp
+#define cf3_common_MPI_all_to_all_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,8 +35,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-  namespace Common {
+namespace cf3 {
+  namespace common {
     namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ namespace detail {
     // set up out_buf
     T* out_buf=0;
     if (in_values==out_values) {
-      if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[nproc*in_n*stride+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -136,7 +136,7 @@ namespace detail {
     // set up in_buf
     T *in_buf=0;
     if (in_map!=0) {
-      if ( (in_buf=new T[in_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (in_buf=new T[in_sum+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
       if (stride==1) { for(int i=0; i<in_sum; i++) in_buf[i]=in_values[in_map[i]]; }
       else { for(int i=0; i<in_sum/stride; i++) memcpy(&in_buf[stride*i],&in_values[stride*in_map[i]],stride*sizeof(T)); }
     } else {
@@ -146,7 +146,7 @@ namespace detail {
     // set up out_buf
     T *out_buf=0;
     if ((out_map!=0)||(in_values==out_values)) {
-      if ( (out_buf=new T[out_sum+1]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
+      if ( (out_buf=new T[out_sum+1]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer."); // +1 for avoiding possible zero allocation
     } else {
       out_buf=out_values;
     }
@@ -199,7 +199,7 @@ all_to_all(const Communicator& comm, const T* in_values, const int in_n, T* out_
   T* out_buf=out_values;
   if (out_values==0) {
     const int size=stride*nproc*in_n>1?stride*nproc*in_n:1;
-    if ( (out_buf=new T[size]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[size]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call c_impl
@@ -325,7 +325,7 @@ all_to_all(const Communicator& comm, const T* in_values, const int *in_n, const 
   int out_sum=0;
   for (int i=0; i<nproc; i++) out_sum+=out_n[i];
   if (out_sum==-nproc) {
-    if (out_map!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
+    if (out_map!=0) throw cf3::common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::all_to_allc_impl(comm,in_n,1,out_n,1);
     out_sum=0;
     for (int i=0; i<nproc; i++) out_sum+=out_n[i];
@@ -339,7 +339,7 @@ all_to_all(const Communicator& comm, const T* in_values, const int *in_n, const 
       for (int i=0; i<out_sum; i++) out_sum_tmp=out_map[i]>out_sum_tmp?out_map[i]:out_sum_tmp;
       out_sum=out_sum_tmp+1;
     }
-    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw CF::Common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
+    if ( (out_buf=new T[stride*out_sum]) == (T*)0 ) throw cf3::common::NotEnoughMemory(FromHere(),"Could not allocate temporary buffer.");
   }
 
   // call vm_impl
@@ -372,7 +372,7 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
   int nproc;
   MPI_CHECK_RESULT(MPI_Comm_size,(comm,&nproc));
   cf_assert( (int)in_n.size() == nproc );
-  if ((int)out_n.size()!=nproc) CF::Common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
+  if ((int)out_n.size()!=nproc) cf3::common::BadValue(FromHere(),"Size of vector for number of items to be received does not match to number of processes.");
 
   // compute number of send and receive
   int in_sum=0;
@@ -382,7 +382,7 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
 
   // if necessary, do communication for out_n
   if (out_sum == -nproc){
-    if (out_map.size()!=0) throw CF::Common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
+    if (out_map.size()!=0) throw cf3::common::ParallelError(FromHere(),"Trying to perform communication with receive map while receive counts are unknown, this is bad usage of parallel environment.");
     detail::all_to_allc_impl(comm,&in_n[0],1,&out_n[0],1);
     out_sum=0;
     boost_foreach( int & i, out_n ) out_sum+=i;
@@ -411,4 +411,4 @@ all_to_all(const Communicator& comm, const std::vector<T>& in_values, const std:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Common_MPI_all_to_all_hpp
+#endif // CF3_common_MPI_all_to_all_hpp

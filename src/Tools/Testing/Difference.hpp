@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Tools_Tests_Difference_hpp
-#define CF_Tools_Tests_Difference_hpp
+#ifndef cf3_Tools_Tests_Difference_hpp
+#define cf3_Tools_Tests_Difference_hpp
 
 // Adapted from K-3D by Bart Janssens
 // Copyright (c) 1995-2010, Timothy M. Shead
@@ -42,7 +42,7 @@
 
 #include "Common/CF.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Tools {
 namespace Testing {
 
@@ -153,7 +153,7 @@ void vector_test(const Eigen::Matrix<Real, NbRows, NbCols>& A, const Eigen::Matr
 
 } // Testing
 } // Tools
-} // CF
+} // cf3
 
-#endif // !CF_Tools_Tests_Difference_hpp
+#endif // !CF3_Tools_Tests_Difference_hpp
 

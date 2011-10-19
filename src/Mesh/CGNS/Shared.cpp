@@ -8,7 +8,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGNS {
 
@@ -33,19 +33,19 @@ Shared::Shared()
   m_elemtype_CGNS_to_CF[TETRA_4] = "CF.Mesh.LagrangeP1.Tetra";
   m_elemtype_CGNS_to_CF[HEXA_8 ] = "CF.Mesh.LagrangeP1.Hexa";
 
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line1D" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line2D" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Line3D" ] = BAR_2;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Triag2D"] = TRI_3;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Triag3D"] = TRI_3;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Quad2D" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Quad3D" ] = QUAD_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Tetra3D"] = TETRA_4;
-  m_elemtype_CF_to_CGNS["CF.Mesh.LagrangeP1.Hexa3D" ] = HEXA_8;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Line1D" ] = BAR_2;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Line2D" ] = BAR_2;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Line3D" ] = BAR_2;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Triag2D"] = TRI_3;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Triag3D"] = TRI_3;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Quad2D" ] = QUAD_4;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Quad3D" ] = QUAD_4;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Tetra3D"] = TETRA_4;
+  m_elemtype_CF3_to_CGNS["CF.Mesh.LagrangeP1.Hexa3D" ] = HEXA_8;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 } // CGNS
 } // Mesh
-} // CF
+} // cf3

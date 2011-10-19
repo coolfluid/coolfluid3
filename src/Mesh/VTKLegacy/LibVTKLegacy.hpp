@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_LibVTKLegacy_hpp
-#define CF_LibVTKLegacy_hpp
+#ifndef cf3_LibVTKLegacy_hpp
+#define cf3_LibVTKLegacy_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,18 +16,18 @@
 /// Define the macro VTKLegacy_API
 /// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling VTKLegacy files
 #ifdef COOLFLUID_GMSH_EXPORTS
-#   define VTKLegacy_API      CF_EXPORT_API
+#   define VTKLegacy_API      CF3_EXPORT_API
 #   define VTKLegacy_TEMPLATE
 #else
-#   define VTKLegacy_API      CF_IMPORT_API
-#   define VTKLegacy_TEMPLATE CF_TEMPLATE_EXTERN
+#   define VTKLegacy_API      CF3_IMPORT_API
+#   define VTKLegacy_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   
 /// @brief Library for I/O of the VTK legacy format
@@ -38,7 +38,7 @@ namespace VTKLegacy {
 /// Class defines the VTKLegacytral mesh format operations
 /// @author Willem Deconinck
 class VTKLegacy_API LibVTKLegacy :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -46,7 +46,7 @@ public:
   typedef boost::shared_ptr<LibVTKLegacy const> ConstPtr;
 
   /// Constructor
-  LibVTKLegacy ( const std::string& name) : Common::CLibrary(name) {   }
+  LibVTKLegacy ( const std::string& name) : common::CLibrary(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.VTKLegacy"; }
@@ -82,8 +82,8 @@ protected:
 
 } // VTKLegacy
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_LibVTKLegacy_hpp
+#endif // CF3_LibVTKLegacy_hpp

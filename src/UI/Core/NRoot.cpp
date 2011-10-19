@@ -25,12 +25,12 @@
 
 #include "UI/Core/NRoot.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -88,10 +88,10 @@ QString NRoot::toolTip() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NRoot::childFromRoot(CF::Uint number) const
+CNode::Ptr NRoot::childFromRoot(cf3::Uint number) const
 {
   ComponentIterator<CNode> it = m_root->begin<CNode>();
-  CF::Uint i;
+  cf3::Uint i;
 
   for(i = 0 ; i < number && it != m_root->end<CNode>() ; i++)
     it++;
@@ -232,4 +232,4 @@ void NRoot::signal_disconnect_server( SignalArgs & frame )
 
 } // Core
 } // UI
-} // CF
+} // cf3

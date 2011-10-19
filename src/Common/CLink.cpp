@@ -13,14 +13,14 @@
 
 #include "Common/CLink.hpp"
 
-using namespace CF::Common::XML;
+using namespace cf3::common::XML;
 
-namespace CF {
-namespace Common {
+namespace cf3 {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CLink, Component, LibCommon > CLink_Builder;
+common::ComponentBuilder < CLink, Component, LibCommon > CLink_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -107,5 +107,5 @@ void CLink::change_link( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Common
-} // CF
+} // common
+} // cf3

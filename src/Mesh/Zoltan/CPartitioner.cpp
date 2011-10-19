@@ -18,18 +18,18 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/Zoltan/CPartitioner.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace Zoltan {
 
-  using namespace Common;
-  using namespace Common::PE;
+  using namespace common;
+  using namespace common::PE;
 
 #define RANK "[" << Comm::instance().rank() << "] "
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < CPartitioner, CMeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
+cf3::common::ComponentBuilder < CPartitioner, CMeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -330,4 +330,4 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
 
 } // Zoltan
 } // Mesh
-} // CF
+} // cf3

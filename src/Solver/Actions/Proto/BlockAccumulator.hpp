@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_Solver_Actions_Proto_BlockAccumulator_hpp
-#define CF_Solver_Actions_Proto_BlockAccumulator_hpp
+#ifndef cf3_Solver_Actions_Proto_BlockAccumulator_hpp
+#define cf3_Solver_Actions_Proto_BlockAccumulator_hpp
 
 #include <boost/mpl/assert.hpp>
 #include <boost/proto/core.hpp>
@@ -25,7 +25,7 @@
 /// @file
 /// System matrix block accumulation.
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 namespace Proto {
@@ -198,4 +198,4 @@ struct BlockAccumulation :
 } // namespace Solver
 } // namespace CF
 
-#endif // CF_Solver_Actions_Proto_BlockAccumulator_hpp
+#endif // CF3_Solver_Actions_Proto_BlockAccumulator_hpp

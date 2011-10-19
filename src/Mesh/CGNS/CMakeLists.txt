@@ -16,6 +16,6 @@
 
   set( coolfluid_mesh_cgns3_kernellib TRUE )
 
-  set( coolfluid_mesh_cgns3_condition ${CF_HAVE_CGNS} )
+  set( coolfluid_mesh_cgns3_condition ${CF3_HAVE_CGNS} )
 
   coolfluid_add_library( coolfluid_mesh_cgns3 )

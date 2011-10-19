@@ -37,16 +37,16 @@
 #include "RDM/DomainDiscretization.hpp"
 #include "RDM/CellTerm.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
 
-Common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ MySim::~MySim()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MySim::signal_create_model ( Common::SignalArgs& node )
+void MySim::signal_create_model ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -204,4 +204,4 @@ void MySim::signature_create_model( SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

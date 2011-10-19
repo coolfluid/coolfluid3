@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_Variables_hpp
-#define CF_Physics_Variables_hpp
+#ifndef cf3_Physics_Variables_hpp
+#define cf3_Physics_Variables_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Physics {
 
@@ -35,7 +35,7 @@ namespace Physics {
 
 /// Interface to a set of variables
 /// @author Tiago Quintino
-class Physics_API Variables : public Common::Component {
+class Physics_API Variables : public common::Component {
 
 public: //typedefs
 
@@ -116,7 +116,7 @@ public:
   /// constructor
   VariablesT ( const std::string& name ) :
     Variables( name ),
-    m_description (Common::allocate_component<Math::VariablesDescriptor>("description"))
+    m_description (common::allocate_component<Math::VariablesDescriptor>("description"))
   {
     regist_typeinfo(this);
     add_static_component (m_description);
@@ -222,8 +222,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Physics
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Physics_Variables_hpp
+#endif // CF3_Physics_Variables_hpp

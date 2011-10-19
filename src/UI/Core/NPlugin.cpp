@@ -7,12 +7,12 @@
 #include "UI/Core/NPlugin.hpp"
 #include "Common/XML/SignalOptions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Core {
 
@@ -57,4 +57,4 @@ QString NPlugin::toolTip() const
 
 } // Core
 } // UI
-} // CF
+} // cf3

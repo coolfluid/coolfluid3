@@ -22,18 +22,18 @@
 #include "SFDM/Tags.hpp"
 #include "SFDM/Term.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 Term::Term ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -97,6 +97,6 @@ void Term::link_fields()
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////

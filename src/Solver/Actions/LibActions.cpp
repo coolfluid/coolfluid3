@@ -8,11 +8,11 @@
 
 #include "Solver/Actions/LibActions.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-CF::Common::RegistLibrary<LibActions> libActions;
+cf3::common::RegistLibrary<LibActions> libActions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,4 +28,4 @@ void LibActions::terminate_impl()
 
 } // Actions
 } // Solver
-} // CF
+} // cf3

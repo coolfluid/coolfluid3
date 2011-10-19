@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_WriteMesh_hpp
-#define CF_Mesh_WriteMesh_hpp
+#ifndef cf3_Mesh_WriteMesh_hpp
+#define cf3_Mesh_WriteMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,13 +15,13 @@
 
 #include "Mesh/LibMesh.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
   class CMesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
-class Mesh_API WriteMesh : public Common::CAction {
+class Mesh_API WriteMesh : public common::CAction {
 
 public: // typedefs
 
@@ -46,19 +46,19 @@ public: // functions
   //@{
 
   /// signal to write the mesh
-  void signal_write_mesh ( Common::SignalArgs& node );
+  void signal_write_mesh ( common::SignalArgs& node );
   /// signature of signal to write the mesh
-  void signature_write_mesh ( Common::SignalArgs& node);
+  void signature_write_mesh ( common::SignalArgs& node);
 
   //@} END SIGNALS
 
   /// function to write the mesh
   /// @param fields selection of the fields of data to write
-  void write_mesh( const CMesh&, const Common::URI& file, const std::vector<Common::URI>& fields);
+  void write_mesh( const CMesh&, const common::URI& file, const std::vector<common::URI>& fields);
 
   /// function to write the mesh
   /// writes all the fields on the mesh
-  void write_mesh( const CMesh&, const Common::URI& file);
+  void write_mesh( const CMesh&, const common::URI& file);
 
   virtual void execute();
 
@@ -72,16 +72,16 @@ private: // data
   std::map<std::string,std::vector<Mesh::CMeshWriter::Ptr> > m_extensions_to_writers;
 
   boost::weak_ptr<CMesh> m_mesh;
-  Common::URI m_file;
-  std::vector<Common::URI> m_fields;
+  common::URI m_file;
+  std::vector<common::URI> m_fields;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Mesh
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_WriteMesh_hpp
+#endif // CF3_Mesh_WriteMesh_hpp
