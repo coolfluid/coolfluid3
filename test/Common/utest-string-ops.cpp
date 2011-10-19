@@ -11,8 +11,8 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Common/StringConversion.hpp"
-#include "Common/URI.hpp"
+#include "common/StringConversion.hpp"
+#include "common/URI.hpp"
 
 using namespace std;
 using namespace boost;

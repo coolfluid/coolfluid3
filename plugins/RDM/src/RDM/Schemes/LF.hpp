@@ -155,4 +155,4 @@ void LF::Term<SF,QD,PHYS>::execute()
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_Schemes_LF_hpp
+#endif // cf3_RDM_Schemes_LF_hpp

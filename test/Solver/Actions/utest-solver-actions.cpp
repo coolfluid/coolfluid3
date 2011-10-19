@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Actions"
+#define BOOST_TEST_MODULE "Test module for cf3::Actions"
 
 #include <iomanip>
 
@@ -13,13 +13,13 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/LibCommon.hpp"
+#include "common/LibCommon.hpp"
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CLibraries.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CLibraries.hpp"
+#include "common/CEnv.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CMeshWriter.hpp"

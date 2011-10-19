@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::BlockMesh::BlockMeshMPI"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::BlockMesh::BlockMeshMPI"
 
 #include <boost/assign.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Core.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CDomain.hpp"
@@ -45,7 +45,7 @@ struct BockMesh3DFixture :
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-    cf_assert(argc >= 4);
+    cf3_assert(argc >= 4);
     x_segs = boost::lexical_cast<Uint>(argv[1]);
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);

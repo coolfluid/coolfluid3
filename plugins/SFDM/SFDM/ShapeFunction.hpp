@@ -7,7 +7,7 @@
 #ifndef cf3_SFDM_ShapeFunction_hpp
 #define cf3_SFDM_ShapeFunction_hpp
 
-#include "Common/BoostArray.hpp"
+#include "common/BoostArray.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/ShapeFunctionBase.hpp"
@@ -119,4 +119,4 @@ protected:
 } // SFDM
 } // cf3
 
-#endif // CF3_SFDM_ShapeFunction_hpp
+#endif // cf3_SFDM_ShapeFunction_hpp

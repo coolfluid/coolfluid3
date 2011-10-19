@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/Geometry.hpp"

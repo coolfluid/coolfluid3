@@ -63,4 +63,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_RiemannSolvers_RiemannSolver_hpp
+#endif // cf3_RiemannSolvers_RiemannSolver_hpp

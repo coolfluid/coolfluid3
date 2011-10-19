@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::SFDM"
+#define BOOST_TEST_MODULE "Test module for cf3::SFDM"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CEnv.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  model.time().configure_option("time_step",5.);
 
 //  /// Initialize solution field with the function sin(2*pi*x)
-//  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+//  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
 //  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
 //  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";

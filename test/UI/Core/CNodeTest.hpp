@@ -11,7 +11,7 @@
 
 #include <QObject>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -63,4 +63,4 @@ private slots:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_GUI_Client_uTests_CNodeTest_hpp
+#endif // cf3_GUI_Client_uTests_CNodeTest_hpp

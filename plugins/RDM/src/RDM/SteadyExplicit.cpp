@@ -6,11 +6,11 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshReader.hpp"
 #include "Mesh/CDomain.hpp"
@@ -90,7 +90,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (4) setup solver
 
-  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< CF::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
 
   solver.mark_basic();
 

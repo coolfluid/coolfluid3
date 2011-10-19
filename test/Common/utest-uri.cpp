@@ -9,8 +9,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/URI.hpp"
+#include "common/Log.hpp"
+#include "common/URI.hpp"
 
 using namespace std;
 using namespace boost;

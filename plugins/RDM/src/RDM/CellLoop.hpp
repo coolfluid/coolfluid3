@@ -168,4 +168,4 @@ struct CellLoopT : public CellLoop
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_CellLoop_hpp
+#endif // cf3_RDM_CellLoop_hpp

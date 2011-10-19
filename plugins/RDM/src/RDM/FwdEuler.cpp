@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/Foreach.hpp"
 
 #include "Math/Checks.hpp"
 

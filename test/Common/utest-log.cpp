@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 using namespace std;
 using namespace boost;

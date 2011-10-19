@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Component.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Component.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"

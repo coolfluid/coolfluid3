@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Solver_hpp
 #define cf3_RDM_Solver_hpp
 
-#include "Common/CGroup.hpp"
+#include "common/CGroup.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
@@ -126,4 +126,4 @@ private: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_Solver_hpp
+#endif // cf3_RDM_Solver_hpp

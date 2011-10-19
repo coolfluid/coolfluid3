@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CLink.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Foreach.hpp"
+#include "common/CLink.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 

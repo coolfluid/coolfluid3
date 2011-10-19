@@ -8,7 +8,7 @@
 #define BOOST_TEST_MODULE "Tests mesh interpolation"
 
 #include <boost/test/unit_test.hpp>
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 
 #include "Mesh/CHash.hpp"

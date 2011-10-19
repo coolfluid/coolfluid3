@@ -9,13 +9,13 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 
-#include "Common/CFactories.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/CFactories.hpp"
+#include "common/CBuilder.hpp"
 
 
 using namespace std;

@@ -5,14 +5,14 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests CF::Mesh::CUnifiedData<T>"
+#define BOOST_TEST_MODULE "Tests cf3::Mesh::CUnifiedData<T>"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"

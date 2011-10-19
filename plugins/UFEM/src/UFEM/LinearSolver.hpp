@@ -7,8 +7,8 @@
 #ifndef cf3_UFEM_LinearSolver_hpp
 #define cf3_UFEM_LinearSolver_hpp
 
-#include "Common/CActionDirector.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/CActionDirector.hpp"
+#include "common/OptionURI.hpp"
 
 #include "Solver/CSimpleSolver.hpp"
 
@@ -83,4 +83,4 @@ public:
 } // cf3
 
 
-#endif // CF3_UFEM_LinearSolver_hpp
+#endif // cf3_UFEM_LinearSolver_hpp

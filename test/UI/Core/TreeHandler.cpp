@@ -6,7 +6,7 @@
 
 #include <QtCore>
 
-//#include "Common/Component"
+//#include "common/Component"
 
 #include "UI/Core/NTree.hpp"
 

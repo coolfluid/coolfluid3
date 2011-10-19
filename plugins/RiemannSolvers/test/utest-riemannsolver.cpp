@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RiemannSolvers"
+#define BOOST_TEST_MODULE "Test module for cf3::RiemannSolvers"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/OptionComponent.hpp"
 
 #include "RiemannSolvers/RiemannSolver.hpp"
 #include "Physics/NavierStokes/Cons1D.hpp"

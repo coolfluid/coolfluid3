@@ -252,4 +252,4 @@ void N::Term<SF,QD,PHYS>::execute()
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_Schemes_N_hpp
+#endif // cf3_RDM_Schemes_N_hpp

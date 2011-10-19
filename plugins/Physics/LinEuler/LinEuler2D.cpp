@@ -6,9 +6,9 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
 #include "Physics/Variables.hpp"
 

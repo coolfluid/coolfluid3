@@ -8,7 +8,7 @@
 #define cf3_UI_QwtTab_LibQwtTab_hpp
 
 //header
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -91,4 +91,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_UI_QwtTab_LibQwtTab_hpp
+#endif // cf3_UI_QwtTab_LibQwtTab_hpp

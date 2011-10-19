@@ -61,4 +61,4 @@ public: // functions
 } // SFDM
 } // cf3
 
-#endif // CF3_SFDM_InitialConditions_hpp
+#endif // cf3_SFDM_InitialConditions_hpp

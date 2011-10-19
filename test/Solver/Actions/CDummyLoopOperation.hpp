@@ -54,4 +54,4 @@ private: // data
 } // TestActions
 } // cf3
 
-#endif // CF3_TestActions_CDummyLoopOperation_hpp
+#endif // cf3_TestActions_CDummyLoopOperation_hpp

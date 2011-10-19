@@ -74,4 +74,4 @@ private: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_TimeStepping_hpp
+#endif // cf3_RDM_TimeStepping_hpp

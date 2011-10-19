@@ -11,13 +11,13 @@
 
 #include <boost/assign.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -81,8 +81,8 @@ protected: // helper functions
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
     residual   = cresidual.lock();
@@ -347,4 +347,4 @@ void SchemeBase<SF, QD,PHYS>::sol_gradients_at_qdpoint(const Uint q)
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_SchemeBase_hpp
+#endif // cf3_RDM_SchemeBase_hpp

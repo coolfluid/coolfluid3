@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
@@ -161,4 +161,4 @@ public: // functions
 } // Physics
 } // cf3
 
-#endif // CF3_Physics_NavierStokes_Prim1D_hpp
+#endif // cf3_Physics_NavierStokes_Prim1D_hpp

@@ -6,12 +6,12 @@
 
 #include <iostream>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/Checks.hpp"
 
@@ -87,7 +87,7 @@ void RK::execute()
     csolution_k = mysolver.fields().get_child( RDM::Tags::solution() + to_str(step) ).follow()->as_ptr_checked<Field>();
   }
 
-  cf_assert( is_not_null(csolution_k) );
+  cf3_assert( is_not_null(csolution_k) );
 
   Field& solution_k   = *csolution_k;
   Field& dual_area    = *m_dual_area.lock();

@@ -13,13 +13,13 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CF.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/StringConversion.hpp"
+#include "common/CF.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
 
-#include "Common/XML/Protocol.hpp"
+#include "common/XML/Protocol.hpp"
 
-#include "Common/XML/Map.hpp"
+#include "common/XML/Map.hpp"
 
 using namespace cf3;
 using namespace cf3::common;

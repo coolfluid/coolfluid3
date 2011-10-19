@@ -9,7 +9,7 @@
 
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -61,4 +61,4 @@ protected: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_ElementLoop_hpp
+#endif // cf3_RDM_ElementLoop_hpp

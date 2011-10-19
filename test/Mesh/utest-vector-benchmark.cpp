@@ -10,10 +10,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/CRoot.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CElements.hpp"

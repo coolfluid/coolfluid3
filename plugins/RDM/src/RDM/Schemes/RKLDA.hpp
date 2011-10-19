@@ -9,7 +9,7 @@
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 
 #include "Mesh/Field.hpp"
 
@@ -378,4 +378,4 @@ void RKLDA::Term<SF,QD,PHYS>::execute()
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_Schemes_RKLDA_hpp
+#endif // cf3_RDM_Schemes_RKLDA_hpp

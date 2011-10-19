@@ -159,4 +159,4 @@ private slots: //functions - slots
 } // UI
 } // cf3
 
-#endif // CF3_UI_QwtTab_GraphOption_hpp
+#endif // cf3_UI_QwtTab_GraphOption_hpp

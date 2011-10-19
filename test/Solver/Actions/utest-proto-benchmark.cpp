@@ -11,9 +11,9 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -78,7 +78,7 @@ struct ProtoBenchmarkFixture :
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char** argv = boost::unit_test::framework::master_test_suite().argv;
 
-    cf_assert(argc == 4);
+    cf3_assert(argc == 4);
     const Uint x_segs = boost::lexical_cast<Uint>(argv[1]);
     const Uint y_segs = boost::lexical_cast<Uint>(argv[2]);
     const Uint z_segs = boost::lexical_cast<Uint>(argv[3]);

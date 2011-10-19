@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::LSS where testing on a distributed matrix."
+#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing on a distributed matrix."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,9 +15,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/CommPattern.hpp"
+#include "common/Log.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/CommPattern.hpp"
 #include "Math/LSS/System.hpp"
 #include "test/Math/utest-lss-test-matrix.hpp"
 
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( system_solve )
   common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
   common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),m.irank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),m.irank_updatable);
 
   // system
   LSS::System::Ptr sys_ptr = common::allocate_component<LSS::System>("system");

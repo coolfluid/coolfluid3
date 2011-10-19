@@ -9,12 +9,12 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CGroup.hpp"
-#include "Common/CLink.hpp"
-#include "Common/OptionT.hpp"
+#include "common/CGroup.hpp"
+#include "common/CLink.hpp"
+#include "common/OptionT.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/XmlDoc.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/XmlDoc.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 

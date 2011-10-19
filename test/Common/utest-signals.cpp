@@ -9,14 +9,14 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Signal.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/LibCommon.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Signal.hpp"
+#include "common/CRoot.hpp"
+#include "common/LibCommon.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/OptionT.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 using namespace std;
 using namespace boost;

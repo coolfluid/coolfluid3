@@ -12,11 +12,11 @@
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 
-#include "Common/OptionT.hpp"
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/OptionT.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CDomain.hpp"

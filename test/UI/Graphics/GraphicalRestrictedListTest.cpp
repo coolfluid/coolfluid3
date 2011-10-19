@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "Common/OptionT.hpp"
+#include "common/OptionT.hpp"
 
 #include "UI/Graphics/GraphicalRestrictedList.hpp"
 

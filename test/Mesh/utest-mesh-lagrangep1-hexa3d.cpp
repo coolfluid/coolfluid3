@@ -10,11 +10,11 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/StdVector>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"

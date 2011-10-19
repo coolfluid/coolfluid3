@@ -12,12 +12,12 @@
 #include <boost/foreach.hpp>
 #include <boost/iterator.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Component.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/CLink.hpp"
+#include "common/Log.hpp"
+#include "common/Component.hpp"
+#include "common/FindComponents.hpp"
+#include "common/CRoot.hpp"
+#include "common/CGroup.hpp"
+#include "common/CLink.hpp"
 
 using namespace std;
 using namespace boost;

@@ -20,9 +20,9 @@
 #include "Solver/Actions/Proto/NodeLooper.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 

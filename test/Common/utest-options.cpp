@@ -14,14 +14,14 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/PropertyList.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/CGroup.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 
 using namespace std;
 using namespace boost::assign;

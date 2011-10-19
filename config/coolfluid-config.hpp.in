@@ -79,9 +79,9 @@
 #cmakedefine CF3_ENABLE_STDASSERT
 #cmakedefine CF3_ENABLE_COMPONENT_TIMING
 
-#cmakedefine CF3_REAL_IS_FLOAT       // CF::Real is float
-#cmakedefine CF3_REAL_IS_DOUBLE      // CF::Real is double
-#cmakedefine CF3_REAL_IS_LONGDOUBLE  // CF::Real is long double
+#cmakedefine CF3_REAL_IS_FLOAT       // cf3::Real is float
+#cmakedefine CF3_REAL_IS_DOUBLE      // cf3::Real is double
+#cmakedefine CF3_REAL_IS_LONGDOUBLE  // cf3::Real is long double
 
 // for compilers that do not define the __FUNCTION__ variable
 #ifndef cf3_HAVE_FUNCTION_DEF

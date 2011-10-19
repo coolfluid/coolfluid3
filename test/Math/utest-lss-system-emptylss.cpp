@@ -6,17 +6,17 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::LSS where testing LSS::System and the dummy EmptyLSS."
+#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing LSS::System and the dummy EmptyLSS."
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/std/vector.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 #include "Math/LSS/System.hpp"
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/CommWrapper.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/CommWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ struct LSSSystem_EmptyLSSFixture
     conn += 0,2,1,2,2,7,3,8,4,5,5,2,6,0,7,1,8,7,9,8;
     startidx += 0,2,4,6,8,10,12,14,16,18,20;
     cp->insert("gid",gid,1,false);
-    cp->setup(cp->get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rnk);
+    cp->setup(cp->get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),rnk);
   }
   std::vector<Uint> gid;
   std::vector<Uint> conn;

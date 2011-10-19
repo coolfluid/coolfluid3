@@ -11,11 +11,11 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/PE/debug.hpp"
+#include "common/PE/debug.hpp"
 
 #include "Math/LSS/System.hpp"
 
@@ -164,9 +164,9 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   // Save
   model.domain().create_component("writer", "CF.Mesh.VTKXML.CWriter");
   model.domain().write_mesh(URI("utest-proto-heat-parallel_output.pvtu", cf3::common::URI::Scheme::FILE));
-//   lss.matrix()->print("utest-proto-heat-parallel_matrix-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");
-//   lss.rhs()->print("utest-proto-heat-parallel_rhs-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");
-//   lss.solution()->print("utest-proto-heat-parallel_solution-" + boost::lexical_cast<std::string>(Common::PE::Comm::instance().rank()) + ".plt");
+//   lss.matrix()->print("utest-proto-heat-parallel_matrix-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");
+//   lss.rhs()->print("utest-proto-heat-parallel_rhs-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");
+//   lss.solution()->print("utest-proto-heat-parallel_solution-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -119,4 +119,4 @@ private :
 } // Physics
 } // cf3
 
-#endif // CF3_Physics_LinEuler_LinEuler2D_hpp
+#endif // cf3_Physics_LinEuler_LinEuler2D_hpp

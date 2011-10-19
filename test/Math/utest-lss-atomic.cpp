@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::LSS where testing indivdual operations."
+#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing indivdual operations."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,11 +16,11 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 #include "Math/LSS/System.hpp"
 
 /// @todo remove when finished debugging
-#include "Common/PE/debug.hpp"
+#include "common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ struct LSSAtomicFixture
       rank_updatable += 0,1,1,0,0,1,0,0,1;
     }
     cp.insert("gid",gid,1,false);
-    cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
+    cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),rank_updatable);
   }
 
   /// build a test system
@@ -884,7 +884,7 @@ WHICH RESULTS IN GID ORDER:
   common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
   common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",gid,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),rank_updatable);
 
   // lss
   if (irank==0)

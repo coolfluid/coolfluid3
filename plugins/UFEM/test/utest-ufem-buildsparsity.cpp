@@ -10,11 +10,11 @@
 #include <boost/assign.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/PE/CommPattern.hpp"
+#include "common/PE/CommPattern.hpp"
 
 #include "Math/LSS/System.hpp"
 

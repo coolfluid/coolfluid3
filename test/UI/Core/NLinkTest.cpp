@@ -7,9 +7,9 @@
 #include <QtTest>
 #include <QModelIndex>
 
-#include "Common/URI.hpp"
+#include "common/URI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "UI/Core/ThreadManager.hpp"
 #include "UI/Core/TreeThread.hpp"

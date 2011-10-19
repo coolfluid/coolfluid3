@@ -6,15 +6,15 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/EventHandler.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OSystem.hpp"
+#include "common/LibLoader.hpp"
+#include "common/EventHandler.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 

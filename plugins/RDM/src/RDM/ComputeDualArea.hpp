@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_ComputeDualArea_hpp
 #define cf3_RDM_ComputeDualArea_hpp
 
-#include "Common/OptionComponent.hpp"
+#include "common/OptionComponent.hpp"
 
 #include "Math/Checks.hpp"
 
@@ -103,8 +103,8 @@ protected: // helper functions
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
     dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
@@ -266,4 +266,4 @@ void ComputeDualArea::Term<SF,QD>::execute()
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_ComputeDualArea_hpp
+#endif // cf3_RDM_ComputeDualArea_hpp

@@ -9,10 +9,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CF.hpp"
-#include "Common/CMap.hpp"
-#include "Common/Log.hpp"
-#include "Common/Foreach.hpp"
+#include "common/CF.hpp"
+#include "common/CMap.hpp"
+#include "common/Log.hpp"
+#include "common/Foreach.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

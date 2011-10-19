@@ -10,11 +10,11 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
+#include "common/Core.hpp"
  
-#include "Common/CRoot.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/OSystem.hpp"
+#include "common/CRoot.hpp"
+#include "common/LibLoader.hpp"
+#include "common/OSystem.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 

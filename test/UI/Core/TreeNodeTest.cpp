@@ -6,7 +6,7 @@
 
 #include <QtTest>
 
-#include "Common/BasicExceptions.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "UI/Core/NGeneric.hpp"
 #include "UI/Core/NRoot.hpp"

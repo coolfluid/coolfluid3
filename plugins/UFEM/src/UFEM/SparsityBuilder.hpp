@@ -28,4 +28,4 @@ void UFEM_API build_sparsity(const Mesh::CMesh& mesh, std::vector<Uint>& node_co
 } // UFEM
 } // cf3
 
-#endif // CF3_UFEM_SparsityBuilder_hpp
+#endif // cf3_UFEM_SparsityBuilder_hpp

@@ -11,10 +11,10 @@
 #include <boost/foreach.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"

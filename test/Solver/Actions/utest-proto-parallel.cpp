@@ -11,13 +11,13 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Log.hpp"
 
-#include "Common/PE/all_reduce.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/PE/all_reduce.hpp"
+#include "common/PE/debug.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -78,7 +78,7 @@ struct ProtoParallelFixture :
   {
     int argc = boost::unit_test::framework::master_test_suite().argc;
     char** argv = boost::unit_test::framework::master_test_suite().argv;
-    cf_assert(argc == 4);
+    cf3_assert(argc == 4);
     x_segs = boost::lexical_cast<Uint>(argv[1]);
     y_segs = boost::lexical_cast<Uint>(argv[2]);
     z_segs = boost::lexical_cast<Uint>(argv[3]);
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_SUITE( ProtoParallelSuite )
 BOOST_AUTO_TEST_CASE( Initialize )
 {
   PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  //Common::PE::wait_for_debugger(1);
+  //common::PE::wait_for_debugger(1);
 }
 
 BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )

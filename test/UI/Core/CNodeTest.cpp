@@ -11,13 +11,13 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/BoostAnyConversion.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Signal.hpp"
+#include "common/BoostAnyConversion.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Signal.hpp"
 
-#include "Common/XML/FileOperations.hpp"
-#include "Common/XML/Protocol.hpp"
+#include "common/XML/FileOperations.hpp"
+#include "common/XML/Protocol.hpp"
 
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Core/CNode.hpp"

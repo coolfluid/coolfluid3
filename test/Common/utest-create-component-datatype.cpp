@@ -10,10 +10,10 @@
 #include <set>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CF.hpp"
-#include "Common/CreateComponentDataType.hpp"
-#include "Common/Log.hpp"
-#include "Common/Foreach.hpp"
+#include "common/CF.hpp"
+#include "common/CreateComponentDataType.hpp"
+#include "common/Log.hpp"
+#include "common/Foreach.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

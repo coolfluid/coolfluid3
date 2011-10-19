@@ -8,10 +8,10 @@
 #define BOOST_TEST_MODULE "Proposition for new element / shapefunction API"
 
 #include <boost/test/unit_test.hpp>
-#include "Common/Log.hpp"
-#include "Common/Component.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Component.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
 
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ShapeFunctionT.hpp"

@@ -39,4 +39,4 @@ namespace CoreTest {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_GUI_Client_uTests_CommonFunctions_hpp
+#endif // cf3_GUI_Client_uTests_CommonFunctions_hpp

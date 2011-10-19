@@ -5,13 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Python::ScriptEngine"
+#define BOOST_TEST_MODULE "Test module for cf3::Python::ScriptEngine"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/BoostFilesystem.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Core.hpp"
+#include "common/BoostFilesystem.hpp"
+#include "common/CRoot.hpp"
+#include "common/Core.hpp"
 
 #include "Python/ScriptEngine.hpp"
 

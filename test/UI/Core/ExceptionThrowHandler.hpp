@@ -16,7 +16,7 @@
 } \
 catch ( the_exception & e ) \
 { } \
-catch ( CF::Common::Exception ex) \
+catch ( cf3::common::Exception ex) \
 { \
   QFAIL(QString(#the_exception " expected but another CF exception was "\
                 "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
@@ -40,7 +40,7 @@ catch ( ... ) \
 { \
   instr; \
 } \
-catch ( CF::Common::Exception ex) \
+catch ( cf3::common::Exception ex) \
 { \
   QFAIL(QString("No exception expected but a CF exception was "\
                 "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
@@ -58,4 +58,4 @@ catch ( ... ) \
   return;\
 }
 
-#endif // CF3_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#endif // cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp

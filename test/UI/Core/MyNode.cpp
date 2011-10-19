@@ -7,7 +7,7 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "Common/OptionT.hpp"
+#include "common/OptionT.hpp"
 
 #include "test/UI/Core/MyNode.hpp"
 

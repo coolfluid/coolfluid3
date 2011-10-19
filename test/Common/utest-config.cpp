@@ -16,19 +16,19 @@
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include "Common/OptionArray.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/URI.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
+#include "common/OptionArray.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/URI.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionT.hpp"
 
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/XmlDoc.hpp"
-#include "Common/XML/FileOperations.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/XmlDoc.hpp"
+#include "common/XML/FileOperations.hpp"
 
 #include "test/Common/DummyComponents.hpp"
 
@@ -117,7 +117,7 @@ public:
   {
     boost::any value = option("OptBool").value();
     // bool b = boost::any_cast<bool>(value);
-    // CFinfo << "config bool [" << Common::String::to_str(b) << "]\n" << CFendl;
+    // CFinfo << "config bool [" << common::String::to_str(b) << "]\n" << CFendl;
   }
 
   void config_int ()

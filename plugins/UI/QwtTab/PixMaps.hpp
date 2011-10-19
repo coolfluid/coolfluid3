@@ -103,4 +103,4 @@ static const char *zoom_xpm[]={
 "...########################..##."};
 
 
-#endif // CF3_UI_QwtTab_PixMaps_hpp
+#endif // cf3_UI_QwtTab_PixMaps_hpp

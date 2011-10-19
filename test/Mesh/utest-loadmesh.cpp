@@ -5,23 +5,23 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::LoadMesh"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::LoadMesh"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/FindComponents.hpp"
-#include "Common/Log.hpp"
-#include "Common/CLink.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CLink.hpp"
+#include "common/Foreach.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMeshWriter.hpp"

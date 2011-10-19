@@ -8,7 +8,7 @@
 #define cf3_Physics_LinEuler_LibLinEuler_hpp
 
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 /// Define the macro LinEuler_API
 /// @note build system defines COOLFLUID_PHYSICS_LINEULER_EXPORTS when compiling LinEuler files
@@ -84,5 +84,5 @@ protected:
 } // Physics
 } // cf3
 
-#endif // CF3_Physics_LinEuler_LibLinEuler_hpp
+#endif // cf3_Physics_LinEuler_LibLinEuler_hpp
 

@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"

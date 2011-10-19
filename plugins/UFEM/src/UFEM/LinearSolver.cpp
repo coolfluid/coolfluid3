@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
@@ -163,7 +163,7 @@ void LinearSolver::mesh_changed(CMesh& mesh)
     // Create the field
     field_manager().create_field(tag, mesh.geometry());
     field = find_component_ptr_with_tag<Field>(mesh.geometry(), tag);
-    cf_assert(is_not_null(field));
+    cf3_assert(is_not_null(field));
 
     // Parallelize
     if(common::PE::Comm::instance().is_active())
@@ -207,7 +207,7 @@ void LinearSolver::trigger_lss()
   m_implementation->m_updating = true;
 
   m_implementation->m_lss = dynamic_cast<OptionComponent<LSS::System>&>(option("lss")).component().as_ptr<LSS::System>();
-  cf_assert(!m_implementation->m_lss.expired());
+  cf3_assert(!m_implementation->m_lss.expired());
 
   // Create the LSS if the mesh is set
   if(!m_mesh.expired() && !m_implementation->m_lss.lock()->is_created())

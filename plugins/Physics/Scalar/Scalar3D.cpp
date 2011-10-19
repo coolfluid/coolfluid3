@@ -6,7 +6,7 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Physics/Variables.hpp"
 

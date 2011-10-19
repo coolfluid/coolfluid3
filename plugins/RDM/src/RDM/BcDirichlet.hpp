@@ -61,4 +61,4 @@ private: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_BcDirichlet_hpp
+#endif // cf3_RDM_BcDirichlet_hpp

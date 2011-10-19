@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/LibCommon.hpp"
-#include "Common/Component.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/LibCommon.hpp"
+#include "common/Component.hpp"
+#include "common/OptionURI.hpp"
+#include "common/CBuilder.hpp"
 
 #ifndef DUMMYCOMPONENTS_HPP
 #define DUMMYCOMPONENTS_HPP

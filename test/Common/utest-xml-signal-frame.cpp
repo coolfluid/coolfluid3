@@ -10,13 +10,13 @@
 #include "rapidxml/rapidxml.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/URI.hpp"
+#include "common/Log.hpp"
+#include "common/URI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/XmlDoc.hpp"
-#include "Common/XML/FileOperations.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/XmlDoc.hpp"
+#include "common/XML/FileOperations.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;

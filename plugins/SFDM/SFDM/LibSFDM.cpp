@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
-#include "Common/CRoot.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/CRoot.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 

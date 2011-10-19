@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::Gmsh::CReader"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::Gmsh::CReader"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 

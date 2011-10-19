@@ -14,7 +14,7 @@
 #include "qwt/qwt_plot.h"
 
 // header
-#include "Common/CF.hpp"
+#include "common/CF.hpp"
 #include "UI/QwtTab/LibQwtTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,4 +179,4 @@ private: //data
 } // UI
 } // cf3
 
-#endif // CF3_UI_QwtTab_BodePlot_hpp
+#endif // cf3_UI_QwtTab_BodePlot_hpp

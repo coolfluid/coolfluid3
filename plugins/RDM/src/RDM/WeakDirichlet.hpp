@@ -197,7 +197,7 @@ public: // functions
     Mesh::CFaceCellConnectivity& f2c =
         B::elements().get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
 
-    // cf_assert( f2c.is_bdry_face()[face_idx] );
+    // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
     Component::Ptr neighbor_cells;
     Uint neighbor_cell_idx;
@@ -373,4 +373,4 @@ public: // functions
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_WeakDirichlet_hpp
+#endif // cf3_RDM_WeakDirichlet_hpp

@@ -10,8 +10,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "Math/Consts.hpp"
 #include "Math/Functions.hpp"

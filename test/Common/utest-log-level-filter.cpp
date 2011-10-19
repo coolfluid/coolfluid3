@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "Common/LogLevelFilter.hpp"
+#include "common/LogLevelFilter.hpp"
 
 using namespace std;
 using namespace boost;

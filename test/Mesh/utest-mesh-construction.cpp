@@ -11,10 +11,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Core.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CMesh.hpp"

@@ -9,11 +9,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/PE/debug.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Mesh/Actions/Interpolate.hpp"
 

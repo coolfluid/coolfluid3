@@ -10,11 +10,11 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/Actions/CreateSpaceP0.hpp"
 #include "Mesh/Actions/CBuildFaces.hpp"

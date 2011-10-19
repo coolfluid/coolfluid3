@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"

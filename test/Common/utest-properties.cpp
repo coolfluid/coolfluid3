@@ -9,9 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Assertions.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/PropertyList.hpp"
+#include "common/Assertions.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/PropertyList.hpp"
 
 using namespace std;
 using namespace boost;

@@ -9,9 +9,9 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/CDomain.hpp"
 

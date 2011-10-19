@@ -78,7 +78,7 @@ void GraphicalBoolTest::test_setValue()
   QVERIFY( !value->originalValue().toBool() );
 
   //
-  // 2. check with strings (those supported by CF::Common::from_str<bool>())
+  // 2. check with strings (those supported by cf3::common::from_str<bool>())
   //
   QVERIFY( value->setValue("true") );
   QVERIFY( checkbox->isChecked() );

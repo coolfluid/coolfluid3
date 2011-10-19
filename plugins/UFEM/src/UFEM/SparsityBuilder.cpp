@@ -6,7 +6,7 @@
 
 #include <set>
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"

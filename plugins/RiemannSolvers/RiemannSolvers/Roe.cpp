@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/FindComponents.hpp"
 #include "RiemannSolvers/Roe.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/OptionComponent.hpp"
 
 namespace cf3 {
 namespace RiemannSolvers {

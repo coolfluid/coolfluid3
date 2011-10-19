@@ -12,19 +12,19 @@
 #include <boost/foreach.hpp>
 #include <boost/regex.hpp>
 
-#include "Common/OptionT.hpp"
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/OptionT.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionURI.hpp"
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/FileOperations.hpp"
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/FileOperations.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CDomain.hpp"
 #include "Mesh/CMesh.hpp"

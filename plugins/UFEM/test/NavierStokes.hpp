@@ -43,4 +43,4 @@ Solver::Actions::Proto::Expression::Ptr navier_stokes_bulk(LinearSolverUnsteady&
 }
 }
 
-#endif // CF3_UFEM_test_NavierStokes_hpp
+#endif // cf3_UFEM_test_NavierStokes_hpp

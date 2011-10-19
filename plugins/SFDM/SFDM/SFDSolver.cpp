@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/Core.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/EventHandler.hpp"
+#include "common/CGroup.hpp"
+#include "common/Core.hpp"
 
 #include "Mesh/CMesh.hpp"
 

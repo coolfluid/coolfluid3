@@ -10,14 +10,14 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/timer.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Component.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/CLink.hpp"
+#include "common/Log.hpp"
+#include "common/Component.hpp"
+#include "common/FindComponents.hpp"
+#include "common/CRoot.hpp"
+#include "common/CGroup.hpp"
+#include "common/CLink.hpp"
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -774,11 +774,6 @@ BOOST_AUTO_TEST_CASE( test_new_range )
   BOOST_FOREACH( const CGroup& comp, new_range6 )
     CFLogVar(comp.name());
   CFLogVar(new_range6.size());
-
-  //
-  // CF3_DEBUG_POINT;
-  // BOOST_FOREACH( const CGroup& comp, ConstComponentIteratorRange<CGroup>(const_root()) )
-  //   CFLogVar(comp.name());
 
 }
 

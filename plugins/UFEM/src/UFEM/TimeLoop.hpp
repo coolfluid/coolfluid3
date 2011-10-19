@@ -9,7 +9,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "Common/CActionDirector.hpp"
+#include "common/CActionDirector.hpp"
 
 #include "LibUFEM.hpp"
 
@@ -47,4 +47,4 @@ private:
 } // cf3
 
 
-#endif // CF3_UFEM_TimeLoop_hpp
+#endif // cf3_UFEM_TimeLoop_hpp

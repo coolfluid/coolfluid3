@@ -10,10 +10,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/SVD>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/Checks.hpp"

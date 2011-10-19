@@ -81,4 +81,4 @@ protected: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_BoundaryTerm_hpp
+#endif // cf3_RDM_BoundaryTerm_hpp

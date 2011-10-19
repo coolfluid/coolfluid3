@@ -73,4 +73,4 @@ protected: // data
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_FaceTerm_hpp
+#endif // cf3_RDM_FaceTerm_hpp

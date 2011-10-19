@@ -9,9 +9,9 @@
 
 #include <functional>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "Mesh/ElementData.hpp"
 #include "Mesh/Field.hpp"
@@ -62,8 +62,8 @@ protected: // helper functions
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
     residual   = cresidual.lock();
@@ -132,4 +132,4 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_BcBase_hpp
+#endif // cf3_RDM_BcBase_hpp

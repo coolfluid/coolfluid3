@@ -5,11 +5,11 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::Schemes::LDA"
+#define BOOST_TEST_MODULE "Test module for cf3::RDM::Schemes::LDA"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
+#include "common/Core.hpp"
 
 #include "RDM/Schemes/LDA.hpp"
 

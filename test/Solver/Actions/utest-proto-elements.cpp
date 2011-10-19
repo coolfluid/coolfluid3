@@ -11,9 +11,9 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/Consts.hpp"

@@ -11,7 +11,7 @@
 
 #include <boost/iostreams/device/back_inserter.hpp>
 
-#include "Common/LogStampFilter.hpp"
+#include "common/LogStampFilter.hpp"
 
 using namespace std;
 using namespace boost;

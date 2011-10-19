@@ -6,8 +6,8 @@
 
 #include <QtTest>
 
-#include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionT.hpp"
 
 #include "UI/Core/NTree.hpp"
 #include "UI/Core/PropertyModel.hpp"

@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Signal.hpp"
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/CActionDirector.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Signal.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/EventHandler.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/CActionDirector.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 

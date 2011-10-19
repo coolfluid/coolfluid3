@@ -142,4 +142,4 @@ struct DefaultQuadrature< Mesh::LagrangeP2B::Triag2D, 2 >
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_SupportedCells_hpp
+#endif // cf3_RDM_SupportedCells_hpp

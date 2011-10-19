@@ -56,4 +56,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_GUI_Client_uTests_GraphicalIntTest_hpp
+#endif // cf3_GUI_Client_uTests_GraphicalIntTest_hpp

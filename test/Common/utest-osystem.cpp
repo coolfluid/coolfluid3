@@ -9,8 +9,8 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
 using namespace std;
 using namespace cf3;

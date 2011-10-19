@@ -33,4 +33,4 @@ private slots:
 } // UI
 } // cf3
 
-#endif // CF3_GUI_Client_uTests_NRootTest_hpp
+#endif // cf3_GUI_Client_uTests_NRootTest_hpp

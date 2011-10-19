@@ -48,4 +48,4 @@ private slots:
 
 /////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_GUI_Client_uTests_PropertyModelTest_hpp
+#endif // cf3_GUI_Client_uTests_PropertyModelTest_hpp

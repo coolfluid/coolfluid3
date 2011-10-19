@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/RegistLibrary.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/Log.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "CDummyLoopOperation.hpp"

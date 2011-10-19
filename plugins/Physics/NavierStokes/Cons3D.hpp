@@ -11,8 +11,8 @@
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "Math/Defs.hpp"
 
@@ -397,4 +397,4 @@ public: // functions
 } // Physics
 } // cf3
 
-#endif // CF3_Physics_NavierStokes_Cons3D_hpp
+#endif // cf3_Physics_NavierStokes_Cons3D_hpp

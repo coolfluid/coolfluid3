@@ -9,9 +9,9 @@
 #include <QApplication>
 #include <QtTest>
 
-#include "Common/CF.hpp"
-#include "Common/Assertions.hpp"
-#include "Common/Exception.hpp"
+#include "common/CF.hpp"
+#include "common/Assertions.hpp"
+#include "common/Exception.hpp"
 
 #include "test/UI/Graphics/GraphicalArrayTest.hpp"
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"

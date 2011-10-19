@@ -8,7 +8,7 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/XML/FileOperations.hpp"
+#include "common/XML/FileOperations.hpp"
 
 #include "UI/Core/CNode.hpp"
 

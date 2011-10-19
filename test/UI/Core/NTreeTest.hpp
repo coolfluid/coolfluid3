@@ -79,4 +79,4 @@ private slots:
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // CF3_GUI_Client_uTests_NTreeTest_hpp
+#endif // cf3_GUI_Client_uTests_NTreeTest_hpp

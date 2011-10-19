@@ -6,9 +6,9 @@
 
 // header
 #include <boost/multi_array/storage_order.hpp>
-#include "Common/Signal.hpp"
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/MultiArray.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/MultiArray.hpp"
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"

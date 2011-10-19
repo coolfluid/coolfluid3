@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
@@ -84,7 +84,7 @@ void Init::execute()
 
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {
-      cf_assert(node < field.size());
+      cf3_assert(node < field.size());
 
       CTable<Real>::ConstRow coords = nodes.coordinates()[node];
 

@@ -9,10 +9,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/LibCommon.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CBuilder.hpp"
+#include "common/LibCommon.hpp"
  
 
 using namespace std;

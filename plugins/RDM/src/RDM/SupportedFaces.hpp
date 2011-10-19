@@ -92,4 +92,4 @@ struct DefaultQuadrature< Mesh::LagrangeP3::Line2D, 3 >
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_SupportedFaces_hpp
+#endif // cf3_RDM_SupportedFaces_hpp

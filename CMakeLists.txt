@@ -114,7 +114,7 @@ coolfluid_log(" kernel configuration ")
 # dir includes
 include_directories( ${coolfluid_BINARY_DIR} )
 include_directories( ${coolfluid_SOURCE_DIR}/include )
-include_directories( ${coolfluid_SOURCE_DIR}/src )
+include_directories( ${coolfluid_SOURCE_DIR}/cf3 )
 include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 
 # add dir with kernel config (automatic generated headers)
@@ -127,7 +127,7 @@ add_subdirectory( resources )
 add_subdirectory( include )
 
 # add dir with kernel sources
-add_subdirectory( src )
+add_subdirectory( cf3 )
 
 # add dir with unit tests
 add_subdirectory( test )

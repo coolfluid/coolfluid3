@@ -90,4 +90,4 @@ static Solver::Actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {}
 } // cf3
 
 
-#endif // CF3_UFEM_NavierStokesOps_hpp
+#endif // cf3_UFEM_NavierStokesOps_hpp

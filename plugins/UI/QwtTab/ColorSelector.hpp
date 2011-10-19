@@ -73,4 +73,4 @@ signals: //signals
 } // UI
 } // cf3
 
-#endif // CF3_UI_QwtTab_ColorSelector_hpp
+#endif // cf3_UI_QwtTab_ColorSelector_hpp

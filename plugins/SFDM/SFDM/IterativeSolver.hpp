@@ -85,4 +85,4 @@ private: // data
 } // SFDM
 } // cf3
 
-#endif // CF3_SFDM_IterativeSolver_hpp
+#endif // cf3_SFDM_IterativeSolver_hpp

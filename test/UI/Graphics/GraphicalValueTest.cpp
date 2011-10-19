@@ -11,8 +11,8 @@
 
 #include <boost/assign/std/vector.hpp>
 
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
 #include "Math/Consts.hpp"
 

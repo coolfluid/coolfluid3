@@ -48,4 +48,4 @@ public:
 } // SFDM
 } // cf3
 
-#endif // CF3_SFDM_P4_Line_hpp
+#endif // cf3_SFDM_P4_Line_hpp

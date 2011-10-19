@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_LibRDM_hpp
 #define cf3_RDM_LibRDM_hpp
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -78,4 +78,4 @@ protected:
 } // RDM
 } // cf3
 
-#endif // CF3_RDM_LibRDM_hpp
+#endif // cf3_RDM_LibRDM_hpp

@@ -9,8 +9,8 @@
 #ifndef cf3_Physics_LinEuler_Cons2D_hpp
 #define cf3_Physics_LinEuler_Cons2D_hpp
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/StringConversion.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
@@ -223,7 +223,7 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-//    throw Common::NotImplemented(FromHere(), "Cons2D::residual()");
+//    throw common::NotImplemented(FromHere(), "Cons2D::residual()");
 
 //    const Real gamma_minus_3 = p.gamma - 3.;
 
@@ -285,4 +285,4 @@ public: // functions
 } // Physics
 } // cf3
 
-#endif // CF3_Physics_LinEuler_Cons2D_hpp
+#endif // cf3_Physics_LinEuler_Cons2D_hpp

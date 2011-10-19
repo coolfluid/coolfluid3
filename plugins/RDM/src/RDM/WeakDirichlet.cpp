@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CRegion.hpp"
@@ -37,7 +37,7 @@ namespace RDM {
 common::ComponentBuilder < WeakDirichlet, RDM::BoundaryTerm, LibRDM > WeakDirichlet_Builder;
 
 common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv2D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv2D_Builder;
-//Common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv3D_Builder;
+//common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdv3D>    , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdv3D_Builder;
 common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::LinearAdvSys2D> , RDM::FaceLoop, LibRDM > WeakDirichlet_LinearAdvSys2D_Builder;
 common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::RotationAdv2D>  , RDM::FaceLoop, LibRDM > WeakDirichlet_RotationAdv2D_Builder;
 common::ComponentBuilder < FaceLoopT< WeakDirichlet, Scalar::Burgers2D>      , RDM::FaceLoop, LibRDM > WeakDirichlet_Burgers2D_Builder;

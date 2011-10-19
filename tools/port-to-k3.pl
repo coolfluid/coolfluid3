@@ -149,14 +149,14 @@ sub process ($)
 
       s/COOLFluiD_Common/CF3_Common/;
       
-      s/Config::/Common::/g;
+      s/Config::/common::/g;
       s/Config\//Common\//g;
       s/Config_API/Common_API/g;
       s/(CF|COOLFluiD)_Config/CF3_Common/;
       s/namespace(\s+)Config/namespace Common/;
       
-      s/Environment::/Common::/g;
-      s/Environment::/Common::/g;
+      s/Environment::/common::/g;
+      s/Environment::/common::/g;
       s/Environment\//Common\//g;
       s/Environment_API/Common_API/g;
       s/(CF|COOLFluiD)_Environment/CF3_Common/;
@@ -211,7 +211,7 @@ sub process ($)
       # class rename
       s/CFEnvVars/CoreVars/g;
       s/CFEnv/CoreEnv/g;
-      s/Common::SelfRegistPtr/boost::shared_ptr/g;
+      s/common::SelfRegistPtr/boost::shared_ptr/g;
       s/SelfRegistPtr/boost::shared_ptr/g;
       s/CFMatrix/MatrixT/g;
       s/CFVector/VectorT/g;
