@@ -59,6 +59,7 @@ struct ConstantStorage
   typedef std::map<std::string, std::string> DescriptionsT;
   typedef ConstantStorageType<Real>::type ScalarsT;
   typedef ConstantStorageType<RealVector>::type VectorsT;
+  typedef ConstantStorageType< std::vector<Real> >::type VectorsProxiesT;
 
   ScalarsT& values(const Real&)
   {
@@ -70,9 +71,25 @@ struct ConstantStorage
     return m_vectors;
   }
 
+  /// Triggered when an option changes, copies all stored constants to RealVector storage
+  void convert_vector_proxy()
+  {
+
+    for(VectorsProxiesT::const_iterator vec_it = m_vector_proxies.begin(); vec_it != m_vector_proxies.end(); ++vec_it)
+    {
+      const std::vector<Real>& vec_vals = vec_it->second;
+      RealVector& real_vec = m_vectors[vec_it->first];
+      const Uint nb_comps = vec_vals.size();
+      real_vec.resize(nb_comps);
+      for(Uint i = 0; i != nb_comps; ++i)
+        real_vec[i] = vec_vals[i];
+    }
+  }
+
   DescriptionsT descriptions;
   ScalarsT m_scalars;
   VectorsT m_vectors;
+  VectorsProxiesT m_vector_proxies;
 };
 
 /// Transform to replace an occurance of ConfigurableConstant with a reference to its value

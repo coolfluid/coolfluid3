@@ -9,8 +9,6 @@
 #include "Common/TypeInfo.hpp"
 #include "Common/URI.hpp"
 
-#include "Math/MatrixTypes.hpp"
-
 #ifdef CF_HAVE_CXXABI_H
 #include <cxxabi.h>
 #endif
@@ -59,7 +57,6 @@ TypeInfo::TypeInfo()
   regist<std::vector<bool> >("array[bool]");
   regist<std::vector<Real> >("array[real]");
   regist<std::vector<Common::URI> >("array[uri]");
-  regist<RealVector>("realvector");
 }
 
 TypeInfo& TypeInfo::instance()

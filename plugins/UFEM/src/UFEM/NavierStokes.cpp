@@ -30,10 +30,10 @@ NavierStokes::NavierStokes(const std::string& name) : LinearSolverUnsteady(name)
     ->pretty_name("Initial pressure")
     ->link_to(&m_p0);
 
-  options().add_option< OptionT<RealVector> >("initial_velocity")
+  options().add_option< OptionArrayT<Real> >("initial_velocity")
     ->description("Initial condition for the velocity")
     ->pretty_name("Initial velocity")
-    ->link_to(&m_u0);
+    ->attach_trigger(boost::bind(&NavierStokes::trigger_u, this));
 
   options().add_option< OptionT<Real> >("reference_velocity")
     ->description("Reference velocity for the calculation of the stabilization coefficients")
@@ -110,8 +110,16 @@ void NavierStokes::trigger_rho()
   m_coeffs.one_over_rho = 1. / option("density").value<Real>();
 }
 
+void NavierStokes::trigger_u()
+{
+  std::vector<Real> u_vec;
+  option("initial_velocity").put_value(u_vec);
 
-
+  const Uint nb_comps = u_vec.size();
+  m_u0.resize(nb_comps);
+  for(Uint i = 0; i != nb_comps; ++i)
+    m_u0[i] = u_vec[i];
+}
 
 } // UFEM
 } // CF
