@@ -11,6 +11,7 @@
 #include "common/StringConversion.hpp"
 
 #include "Math/VectorialFunction.hpp"
+#include "Math/Consts.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -156,10 +157,10 @@ void VectorialFunction::parse()
   for(Uint i = 0; i < m_functions.size(); ++i)
   {
     FunctionParser* ptr = new FunctionParser();
-    ptr->AddConstant("pi", 3.1415926535897932);
+    ptr->AddConstant("pi", Consts::pi());
     m_parsers.push_back(ptr);
 
-//    CFinfo << "Parsing Function: \'" << m_functions[i] << "\' Vars: \'" << m_vars << "\'\n" << CFendl;
+    // CFinfo << "Parsing Function: \'" << m_functions[i] << "\' Vars: \'" << m_vars << "\'\n" << CFendl;
     ptr->Parse(m_functions[i],m_vars);
 
     if ( ptr->GetParseErrorType() !=  FunctionParser::FP_NO_ERROR )

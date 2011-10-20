@@ -21,7 +21,7 @@ step: 1
 #include <string>
 
 template<typename Parser>
-void runExample(const char* valueTypeName)
+inline void runExample(const char* valueTypeName)
 {
     typedef typename Parser::value_type Value_t;
 
@@ -76,9 +76,9 @@ int main()
     switch(choice)
     {
       case 1: runExample<FunctionParser>("double"); break;
-//      case 2: runExample<FunctionParser_f>("float"); break;
-//      case 3: runExample<FunctionParser_ld>("long double"); break;
-//      case 4: runExample<FunctionParser_li>("long int"); break;
+      case 2: runExample<FunctionParser_f>("float"); break;
+      case 3: runExample<FunctionParser_ld>("long double"); break;
+      case 4: runExample<FunctionParser_li>("long int"); break;
     }
 
     return 0;

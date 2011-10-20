@@ -44,7 +44,7 @@ CPartitioner::~CPartitioner ( )
 
 void CPartitioner::build_graph()
 {
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   // resize vertloctab to the number of owned objects
   // +1 because of compact form without holes in global numbering
@@ -79,7 +79,7 @@ void CPartitioner::build_graph()
   edgegsttab.resize(total_nb_edges);
   edgeloctab.resize(total_nb_edges);
 
-  cf_assert(edgelocsiz >= vertloctab[vertlocnbr]);
+  cf3_assert(edgelocsiz >= vertloctab[vertlocnbr]);
 
   list_of_connected_objects_in_part(Comm::instance().rank(),edgeloctab);
 
@@ -108,12 +108,12 @@ void CPartitioner::build_graph()
     proccnttab.resize(Comm::instance().size());
     procvrttab.resize(Comm::instance().size()+1);
 
-    CF_DEBUG_POINT;
+    CF3_DEBUG_POINT;
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
     Comm::instance().all_gather(vertlocnbr, proccnttab);
 
-    CF_DEBUG_POINT;
+    CF3_DEBUG_POINT;
 
     Uint cnt=0;
     for (Uint p=0; p<proccnttab.size(); ++p)
@@ -148,14 +148,14 @@ void CPartitioner::build_graph()
 void CPartitioner::partition_graph()
 {
   //PECheckPoint(1,"begin partition_graph()");
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   SCOTCH_Strat stradat;
   if(SCOTCH_stratInit(&stradat))
     throw BadValue (FromHere(), "Could not initialze a PT-scotch strategy");
 
   partloctab.resize(vertlocmax);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   //PECheckPoint(1,"  begin SCOTCH_dgraphPart()");
   if (SCOTCH_dgraphPart(&graph,
@@ -165,7 +165,7 @@ void CPartitioner::partition_graph()
     throw BadValue (FromHere(), "Could not partition PT-scotch graph");
   //PECheckPoint(1,"  end SCOTCH_dgraphPart()");
   SCOTCH_stratExit(&stradat);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   std::vector<Uint> owned_objects(vertlocnbr);
   list_of_objects_owned_by_part(Comm::instance().rank(),owned_objects);
@@ -189,7 +189,7 @@ void CPartitioner::partition_graph()
 //  }
 
 //  m_changes->sort_keys();
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
 
   Uint comp; Uint loc_idx; bool found;

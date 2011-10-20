@@ -20,18 +20,18 @@
 /// Define the macro PTScotch_API
 /// @note build system defines COOLFLUID_PTSCOTCH_EXPORTS when compiling PTScotch files
 #ifdef COOLFLUID_NEU_EXPORTS
-#   define PTScotch_API      CF_EXPORT_API
+#   define PTScotch_API      CF3_EXPORT_API
 #   define PTScotch_TEMPLATE
 #else
-#   define PTScotch_API      CF_IMPORT_API
-#   define PTScotch_TEMPLATE CF_TEMPLATE_EXTERN
+#   define PTScotch_API      CF3_IMPORT_API
+#   define PTScotch_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace Mesh {
-  
+
 /// @brief Library for PTScotch mesh partitioning and load balancing
 /// @author Willem Deconinck
 namespace PTScotch {
