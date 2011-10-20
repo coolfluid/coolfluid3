@@ -79,15 +79,15 @@ private: // helper functions
 
     /// @todo modify these to option components configured from
 
-    Mesh::CField::Ptr csolution = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "solution" );
+    Mesh::CField::Ptr csolution = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    Mesh::CField::Ptr cresidual = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "residual" );
+    Mesh::CField::Ptr cresidual = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField::Ptr cwave_speed = Common::find_component_ptr_recursively_with_tag<Mesh::CField>( Common::Core::instance().root(), "wave_speed" );
+    Mesh::CField::Ptr cwave_speed = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "wave_speed" );
     cf_assert( is_not_null( cwave_speed ) );
     wave_speed = cwave_speed->data_ptr();
   }

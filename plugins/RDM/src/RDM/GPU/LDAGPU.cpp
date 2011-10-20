@@ -35,7 +35,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
+common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ struct LDAGPU::ElementLoop
     typedef SchemeLDAGPU< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
     {
       // get the scheme or create it if does not exist
       Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );

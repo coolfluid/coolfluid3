@@ -22,7 +22,7 @@ namespace GooglePerfTools {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class GooglePerfTools_API GooglePerfProfiling : public Common::CodeProfiler
+class GooglePerfTools_API GooglePerfProfiling : public common::CodeProfiler
 {
 public: // typedefs
 

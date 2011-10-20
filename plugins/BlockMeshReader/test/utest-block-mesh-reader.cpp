@@ -46,7 +46,7 @@ struct BlockMeshReaderFixture
     base_dir = URI(argv[1], cf3::common::URI::Scheme::FILE);
   }
   URI base_dir;
-  Common::CRoot& root;
+  common::CRoot& root;
 };
 
 //////////////////////////////////////////////////////////////////////////////

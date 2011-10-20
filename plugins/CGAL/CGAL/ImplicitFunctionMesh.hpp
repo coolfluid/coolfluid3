@@ -89,7 +89,7 @@ CGAL_API void create_mesh(const ImplicitFunction& function, CMesh& mesh, const M
 
 } //  CGAL
 } //  Mesh
-} //  CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -23,7 +23,7 @@ namespace ParaView {
   /// @brief C3DView class builder.
   /// @author Wertz Gil
 class ParaView_API C3DViewBuilder :
-    public Common::Component
+    public common::Component
 {
 public: // typedefs
 
@@ -42,9 +42,9 @@ public:
   /// @name SIGNALS
   //@{
 
-  void signal_create_3dview( Common::SignalArgs & args);
+  void signal_create_3dview( common::SignalArgs & args);
 
-  void signature_create_3dview( Common::SignalArgs & args);
+  void signature_create_3dview( common::SignalArgs & args);
 
   //@} END SIGNALS
 

@@ -46,11 +46,11 @@ public: //function
 
     /// This function send paraview server information to the 3D View.
     /// @param node
-    void launch_pvserver( Common::SignalArgs& node );
+    void launch_pvserver( common::SignalArgs& node );
 
     /// This function send server file information to the 3D View.
     /// @param node
-    void send_server_info_to_client( Common::SignalArgs& node );
+    void send_server_info_to_client( common::SignalArgs& node );
 
 protected:
 

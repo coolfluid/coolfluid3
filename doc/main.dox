@@ -78,7 +78,7 @@ namespace cf3 {
  Say you have a component "myComp" of type Component.
  To create a subcomponent of type CGroup with name "group1" inside myComp , use @b Component::create_component<T>() function:
  @code
- Common::CGroup& myGroup = myComp->create_component<Common::CGroup>("group1");
+ common::CGroup& myGroup = myComp->create_component<common::CGroup>("group1");
  @endcode
  @anchor using_build_component
  Say you want to create a component of the abstract type Mesh::CMeshReader, but with concrete implementation from a Gmsh reader,
@@ -261,7 +261,7 @@ namespace cf3 {
 /*! \page coding_components Coding your own Components
 
 A new component always has to inherit from a parent class which is also a component.
-A simple example is the class Common::CGroup, which adds actually no extra functionality.
+A simple example is the class common::CGroup, which adds actually no extra functionality.
 
 @code
 namespace cf3 {
@@ -312,22 +312,22 @@ Options offer a convinient way to manipulate data no matter its type is. Interna
 <a href="http://www.boost.org/doc/libs/release/doc/html/any.html">boost::any</a> object that theorically supports 
 any type of value. In practice, template functions are defined in CPP files by using the explicit template 
 declaration concept in order to optimize the compilation process. That is, only six types are supported by 
-COOLFluiD options : @c bool, @c int, @c cf3::Uint, @c cf3::Real, @c std::string and @c Common::URI. 
+COOLFluiD options : @c bool, @c int, @c cf3::Uint, @c cf3::Real, @c std::string and @c common::URI. 
 Trying to instanciate an option with another type will lead to a linking error (undefined reference).<br>
 
-Options are defined by the class @c Common::Option, which is an abstract class. A list of options can be 
-easily managed by using the class @c Common::OptionList. The Common library provides some classes for different 
+Options are defined by the class @c common::Option, which is an abstract class. A list of options can be 
+easily managed by using the class @c common::OptionList. The Common library provides some classes for different 
 purposes of use :
 
 <ul>
- <li> @c Common::OptionT : single value options. Cannot be used with URI.
- <li> @c Common::OptionURI : options with type @c Common::URI. These class can be seen as an implementation of 
+ <li> @c common::OptionT : single value options. Cannot be used with URI.
+ <li> @c common::OptionURI : options with type @c common::URI. These class can be seen as an implementation of 
 @c OptionT<URI>. It allows to manage a list of supported protocols (see further for more information)
- <li> @c Common::OptionComponent : options which point to components. The value type is @c Common::URI (the CPATH 
+ <li> @c common::OptionComponent : options which point to components. The value type is @c common::URI (the CPATH 
 to the component) and the object holds a <a href="http://www.boost.org/doc/libs/release/libs/smart_ptr/weak_ptr.htm">boost::weak_ptr</a> 
 to the component.
- <li> @c Common::OptionArrayT : arrays of values. 
- <li> @c Common::OptionEnum : acts as an @c OptionT<std::string> of which data is an enumeration. This class is not implemented yet.
+ <li> @c common::OptionArrayT : arrays of values. 
+ <li> @c common::OptionEnum : acts as an @c OptionT<std::string> of which data is an enumeration. This class is not implemented yet.
 </ul>
 
 @section using_options Using options

@@ -43,7 +43,7 @@ namespace GooglePerfTools {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class GooglePerfTools_API LibGooglePerfTools : public Common::CLibrary
+class GooglePerfTools_API LibGooglePerfTools : public common::CLibrary
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   typedef boost::shared_ptr<LibGooglePerfTools const> ConstPtr;
 
   /// Constructor
-  LibGooglePerfTools ( const std::string& name) : Common::CLibrary(name) {   }
+  LibGooglePerfTools ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 

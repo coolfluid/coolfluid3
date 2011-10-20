@@ -26,7 +26,7 @@ class ShapeFunction;
 /// Example: States defined in solution points need to be reconstructed
 ///          in Flux points.
 /// @author Willem Deconinck
-class SFDM_API Reconstruct : public Common::Component
+class SFDM_API Reconstruct : public common::Component
 {
 public: // typedefs
 

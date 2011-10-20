@@ -34,7 +34,7 @@ cf3::common::RegistLibrary<LibParaViewTab> libParaViewTab;
 
 void LibParaViewTab::initiate_impl()
 {
-  Common::Core & core = Common::Core::instance();
+  common::Core & core = common::Core::instance();
   m_argc = core.argc();
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());

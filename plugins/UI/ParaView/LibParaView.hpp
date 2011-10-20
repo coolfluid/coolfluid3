@@ -33,7 +33,7 @@ namespace ParaView {
 ///////////////////////////////////////////////////////////////////////////////
 
 class ParaView_API LibParaView :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibParaView const> ConstPtr;
 
   /// Constructor
-  LibParaView ( const std::string& name) : Common::CLibrary(name) {   }
+  LibParaView ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 

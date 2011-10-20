@@ -109,7 +109,7 @@ namespace $libname {
 
 /// Class defines the $libname library
 /// \@author 
-class $libname\_API Lib$libname : public Common::CLibrary
+class $libname\_API Lib$libname : public common::CLibrary
 {
 public:
 
@@ -117,7 +117,7 @@ public:
   typedef boost::shared_ptr<Lib$libname const> ConstPtr;
 
   /// Constructor
-  Lib$libname ( const std::string& name) : Common::CLibrary(name) { }
+  Lib$libname ( const std::string& name) : common::CLibrary(name) { }
 
   virtual ~Lib$libname() { }
 

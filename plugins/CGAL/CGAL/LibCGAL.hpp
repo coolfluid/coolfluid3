@@ -43,7 +43,7 @@ public:
   typedef boost::shared_ptr<LibCGAL const> ConstPtr;
 
   /// Constructor
-  LibCGAL ( const std::string& name) : Common::CLibrary(name) {   }
+  LibCGAL ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 

@@ -30,7 +30,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
+common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ void CSysLDAGPU::execute()
 {
   // get the element loop or create it if does not exist
   ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
     const std::string update_vars_type =

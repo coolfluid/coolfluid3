@@ -24,7 +24,7 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ComputeJacobianDeterminant, Solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
+common::ComponentBuilder < ComputeJacobianDeterminant, Solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
