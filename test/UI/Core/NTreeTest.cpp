@@ -53,11 +53,11 @@ void NTreeTest::test_constructor()
   NTree t2(makeTreeFromFile());
 
   // the root must be the same as the client root
-  QCOMPARE(t.treeRoot().get(), ThreadManager::instance().tree().root().get());
-  QCOMPARE(makeTreeFromFile().get(), t2.treeRoot().get());
+  QCOMPARE(t.tree_root().get(), ThreadManager::instance().tree().root().get());
+  QCOMPARE(makeTreeFromFile().get(), t2.tree_root().get());
 
   // the root must be different from nullptr
-  QVERIFY(t2.treeRoot().get() != nullptr);
+  QVERIFY(t2.tree_root().get() != nullptr);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -74,16 +74,16 @@ void NTreeTest::test_setRoot()
   newRoot->root()->create_component_ptr<CGroup>("Group3");
   newRoot->root()->create_component_ptr<CGroup>("Group4");
 
-  t.setRoot(newRoot);
+  t.set_tree_root(newRoot);
 
   // the tree must have emitted a layoutChanged signal exactly once
   QCOMPARE(spy.count(), 1);
 
   // newRoot must be the tree root now
-  QCOMPARE(t.treeRoot(), newRoot);
+  QCOMPARE(t.tree_root(), newRoot);
 
   // the tree root should have 5 children now
-  QCOMPARE( t.treeRoot()->root()->count_children(), std::size_t(5));
+  QCOMPARE( t.tree_root()->root()->count_children(), std::size_t(5));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -94,39 +94,39 @@ void NTreeTest::test_setCurrentIndex()
   qRegisterMetaType<QModelIndex>("QModelIndex");
   QList<QVariant> arguments;
   NTree t;
-  QModelIndex index = t.currentIndex();
-  QSignalSpy spy(&t, SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
+  QModelIndex index = t.current_index();
+  QSignalSpy spy(&t, SIGNAL(current_index_changed(QModelIndex,QModelIndex)));
 
   //
   // 1. setting a correct index
   //
-  t.setCurrentIndex(t.index(0, 0));
+  t.set_current_index(t.index(0, 0));
 
-  QVERIFY(index != t.currentIndex());
+  QVERIFY(index != t.current_index());
 
-  // the tree must have emitted a currentIndexChanged signal exactly once
+  // the tree must have emitted a current_index_changed signal exactly once
   QCOMPARE(spy.count(), 1);
 
   // check signal parameters
   arguments = spy.takeFirst();
-  QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)), t.currentIndex());
+  QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(0)), t.current_index());
   QCOMPARE(qvariant_cast<QModelIndex>(arguments.at(1)), index);
 
   //
   // 2. setting the same index as the current one (no signal should be emitted)
   //
-  index = t.currentIndex();
+  index = t.current_index();
   spy.clear();
-  t.setCurrentIndex( t.index(0,0) );
+  t.set_current_index( t.index(0,0) );
 
   QCOMPARE(spy.count(), 0);
 
   //
   // 3. setting an invalid index (should work as well)
   //
-  index = t.currentIndex();
+  index = t.current_index();
   spy.clear();
-  t.setCurrentIndex(QModelIndex());
+  t.set_current_index(QModelIndex());
 
   QCOMPARE(spy.count(), 1);
 
@@ -144,15 +144,15 @@ void NTreeTest::test_currentPath()
   QModelIndex rootIndex = t.index(0, 0);
 
   // 1. when the current index is not valid
-  QCOMPARE( QString( t.currentPath().string().c_str()), QString() );
+  QCOMPARE( QString( t.current_path().string().c_str()), QString() );
 
   // 2. when the current index is the root
-  t.setCurrentIndex( rootIndex );
-  QCOMPARE( QString( t.currentPath().string().c_str()), QString("cpath://Root") );
+  t.set_current_index( rootIndex );
+  QCOMPARE( QString( t.current_path().string().c_str()), QString("cpath://Root") );
 
   // 3. when the current index is not the root (i.e the UI group)
-  t.setCurrentIndex( t.index(0, 0, rootIndex) );
-  QCOMPARE( QString( t.currentPath().string().c_str()), QString("cpath://Root/UI") );
+  t.set_current_index( t.index(0, 0, rootIndex) );
+  QCOMPARE( QString( t.current_path().string().c_str()), QString("cpath://Root/UI") );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -163,13 +163,13 @@ void NTreeTest::test_nodePath()
   QModelIndex rootIndex = t.index(0, 0);
 
   // 1. when the index is not valid
-  QCOMPARE( t.nodePath( QModelIndex() ), QString() );
+  QCOMPARE( t.node_path( QModelIndex() ), QString() );
 
   // 2. when the index is the root
-  QCOMPARE( t.nodePath( rootIndex ), QString("Root/") );
+  QCOMPARE( t.node_path( rootIndex ), QString("Root/") );
 
   // 3. when the index is not the root (i.e the UI group)
-  QCOMPARE( t.nodePath( t.index(0, 0, rootIndex) ), QString("Root/UI/") );
+  QCOMPARE( t.node_path( t.index(0, 0, rootIndex) ), QString("Root/UI/") );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -203,7 +203,7 @@ void NTreeTest::test_listNodeOptions()
   //
   // 1. index is not valid
   //
-  t.listNodeOptions(QModelIndex(), options, &ok);
+  t.list_node_options(QModelIndex(), options, &ok);
   QVERIFY(!ok);
   QCOMPARE(options.count(), 0);
 
@@ -213,25 +213,25 @@ void NTreeTest::test_listNodeOptions()
   options.append( Option::Ptr(new OptionT<bool>("opt1", true)) );
   options.append( Option::Ptr(new OptionT<int>("opt2", 42)) );
   options.append( Option::Ptr(new OptionT<std::string>("opt3", std::string())) );
-  t.listNodeOptions(QModelIndex(), options, &ok);
+  t.list_node_options(QModelIndex(), options, &ok);
   QVERIFY(!ok);
   QCOMPARE(options.count(), 0);
 
   //
   // 3. everything is OK
   //
-  t.treeRoot()->addNode(node);
+  t.tree_root()->add_node(node);
 
-  index = t.indexFromPath( node->uri() );
+  index = t.index_from_path( node->uri() );
 
   QVERIFY(index.isValid());
 
-  t.listNodeOptions(index, options, &ok);
+  t.list_node_options(index, options, &ok);
 
   QVERIFY(ok);
   QCOMPARE(options.count(), 3);
 
-  t.treeRoot()->root()->remove_component(node->name());
+  t.tree_root()->root()->remove_component(node->name());
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -239,7 +239,7 @@ void NTreeTest::test_listNodeOptions()
 void NTreeTest::test_setAdvancedMode()
 {
   NTree t;
-  QSignalSpy spy(&t, SIGNAL(advancedModeChanged(bool)));
+  QSignalSpy spy(&t, SIGNAL(advanced_mode_changed(bool)));
   QList<QVariant> arguments;
 
   //
@@ -247,14 +247,14 @@ void NTreeTest::test_setAdvancedMode()
   //
 
   // by default, advanced is disabled
-  QVERIFY(!t.isAdvancedMode());
+  QVERIFY(!t.is_advanced_mode());
 
   //
   // 2. enable advanced mode
   //
-  t.setAdvancedMode(true);
+  t.set_advanced_mode(true);
 
-  // the tree must have emitted a advancedModeChanged signal exactly once
+  // the tree must have emitted a advanced_mode_changed signal exactly once
   QCOMPARE(spy.count(), 1);
 
   // check signal parameter
@@ -265,9 +265,9 @@ void NTreeTest::test_setAdvancedMode()
   // 3. disable advanced mode
   //
   spy.clear();
-  t.setAdvancedMode(false);
+  t.set_advanced_mode(false);
 
-  // the tree must have emitted a advancedModeChanged signal exactly once
+  // the tree must have emitted a advanced_mode_changed signal exactly once
   QCOMPARE(spy.count(), 1);
 
   // check signal parameter
@@ -283,10 +283,10 @@ void NTreeTest::test_areFromSameNode()
   QModelIndex index = t.index(0, 0);
   QModelIndex anotherIndex = t.index(0, 0, index);
 
-  t.setCurrentIndex(index);
+  t.set_current_index(index);
 
-  QVERIFY(t.areFromSameNode(t.currentIndex(), index));
-  QVERIFY(!t.areFromSameNode(t.currentIndex(), anotherIndex));
+  QVERIFY(t.are_from_same_node(t.current_index(), index));
+  QVERIFY(!t.are_from_same_node(t.current_index(), anotherIndex));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -294,13 +294,13 @@ void NTreeTest::test_areFromSameNode()
 void NTreeTest::test_nodeByPath()
 {
   NTree t;
-  CNode::Ptr logNode = t.nodeByPath("cpath://Path/That/Does/Not/Exist") ;
+  CNode::Ptr logNode = t.node_by_path("cpath://Path/That/Does/Not/Exist") ;
 
   QVERIFY(logNode.get() == nullptr);
 
-  logNode = t.nodeByPath(CLIENT_LOG_PATH);
+  logNode = t.node_by_path(CLIENT_LOG_PATH);
 
-  QCOMPARE(logNode.get(), NLog::globalLog().get());
+  QCOMPARE(logNode.get(), NLog::global().get());
 
   // note: we can freely use logNode here, even if the previous QCOMPARE() failed,
   // since a failing QCOMPARE() interrupts the test case execution
@@ -319,25 +319,25 @@ void NTreeTest::test_indexFromPath()
 
 
   // 1. get the root
-  QModelIndex foundRootIndex = t.indexFromPath("cpath://Root");
+  QModelIndex foundRootIndex = t.index_from_path("cpath://Root");
   QVERIFY( foundRootIndex.isValid() );
   QCOMPARE( foundRootIndex, rootIndex );
 
   // 2. get another node
-  QModelIndex foundIndex = t.indexFromPath(node->uri());
+  QModelIndex foundIndex = t.index_from_path(node->uri());
   QVERIFY( foundIndex.isValid() );
   QCOMPARE( foundIndex, index );
 
   // 3. unexisting path
-  QModelIndex badIndex = t.indexFromPath("cpath://Unexisting/Path");
+  QModelIndex badIndex = t.index_from_path("cpath://Unexisting/Path");
   QVERIFY( !badIndex.isValid() );
 
   // 4. unexisting path (bis, no path but just a name)
-  QModelIndex badIndexBis = t.indexFromPath("cpath:UnexistingPath");
+  QModelIndex badIndexBis = t.index_from_path("cpath:UnexistingPath");
   QVERIFY( !badIndexBis.isValid() );
 
   // 5. path is not a CPATH
-  GUI_CHECK_THROW( t.indexFromPath("http://www.google.com"), FailedAssertion);
+  GUI_CHECK_THROW( t.index_from_path("http://www.google.com"), FailedAssertion);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -345,7 +345,7 @@ void NTreeTest::test_indexFromPath()
 void NTreeTest::test_data()
 {
   NTree t;
-  QModelIndex logIndex = t.indexFromPath(CLIENT_LOG_PATH);
+  QModelIndex logIndex = t.index_from_path(CLIENT_LOG_PATH);
   QModelIndex logScndCol = t.index(logIndex.row(), 1, logIndex.parent());
 
   //
@@ -362,7 +362,7 @@ void NTreeTest::test_data()
   QVERIFY( !t.data(logScndCol, Qt::DisplayRole).isValid() );
   QVERIFY( !t.data(logScndCol, Qt::ToolTip).isValid()     );
 
-  t.setDebugModeEnabled(true);
+  t.set_debug_mode_enabled(true);
 
   //
   // 3. try to get the log (local component) while in debug mode
@@ -374,8 +374,8 @@ void NTreeTest::test_data()
 
   // verify data
   QCOMPARE( logName.toString(), QString(CLIENT_LOG)        );
-  QCOMPARE( logToolTip.toString(), NLog().toolTip()        );
-  QCOMPARE( logToolTipScndCol.toString(), NLog().toolTip() );
+  QCOMPARE( logToolTip.toString(), NLog().tool_tip()        );
+  QCOMPARE( logToolTipScndCol.toString(), NLog().tool_tip() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -442,9 +442,9 @@ void NTreeTest::test_setDebugModeEnabled()
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
   // by default, debug mode is disabled
-  QVERIFY(!t.isDebugModeEnabled());
+  QVERIFY(!t.is_debug_mode_enabled());
 
-  t.setDebugModeEnabled(true);
+  t.set_debug_mode_enabled(true);
 
   // the tree must have emitted a layout changed signal exactly once
   QCOMPARE(spy.count(), 1);
@@ -454,11 +454,11 @@ void NTreeTest::test_setDebugModeEnabled()
 
 void NTreeTest::test_signal_list_tree()
 {
-  NTree::Ptr t = NTree::globalTree();
+  NTree::Ptr t = NTree::global();
   NGeneric::Ptr node(new NGeneric("ThisNodeShouldDisappear", "MyType"));
   XmlDoc::Ptr doc;
   SignalFrame frame;
-  NRoot::Ptr root = t->treeRoot();
+  NRoot::Ptr root = t->tree_root();
   CRoot::Ptr newRoot = CRoot::create("Root");
 
   newRoot->create_component_ptr<CLink>("Environment");
@@ -469,7 +469,7 @@ void NTreeTest::test_signal_list_tree()
   SignalFrame replyFrame = frame.get_reply();
 
   // add a node
-  root->addNode(node);
+  root->add_node(node);
 
   // set the new tree
   GUI_CHECK_NO_THROW ( t->list_tree_reply( replyFrame ) );
@@ -497,14 +497,14 @@ void NTreeTest::test_optionsChanged()
 {
   NTree t;
   QSignalSpy spy(&t, SIGNAL(dataChanged(QModelIndex,QModelIndex)));
-  QModelIndex index = t.indexFromPath( CLIENT_LOG_PATH );
+  QModelIndex index = t.index_from_path( CLIENT_LOG_PATH );
   QList<QVariant> args;
 
-  t.optionsChanged("//A/Path/That/Does/Not/Exist");
+  t.options_changed("//A/Path/That/Does/Not/Exist");
 
   QCOMPARE( spy.count(), 0 );
 
-  t.optionsChanged( CLIENT_LOG_PATH );
+  t.options_changed( CLIENT_LOG_PATH );
 
   QCOMPARE( spy.count(), 1 );
   args = spy.takeFirst();
@@ -518,45 +518,45 @@ void NTreeTest::test_nodeMatches()
 {
   NTree t;
   NGeneric::Ptr node(new NGeneric("MyNode", "MyType"));
-  QModelIndex rootIndex = t.indexFromPath( CLIENT_ROOT_PATH );
-  QModelIndex treeIndex = t.indexFromPath( CLIENT_TREE_PATH );
-  QModelIndex logIndex = t.indexFromPath( CLIENT_LOG_PATH );
+  QModelIndex rootIndex = t.index_from_path( CLIENT_ROOT_PATH );
+  QModelIndex treeIndex = t.index_from_path( CLIENT_TREE_PATH );
+  QModelIndex logIndex = t.index_from_path( CLIENT_LOG_PATH );
 
-  t.treeRoot()->root()->get_child("UI").get_child("Log").as_type<NLog>().addNode( node );
+  t.tree_root()->root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
 
-  QModelIndex nodeIndex = t.indexFromPath( CLIENT_TREE_PATH "/MyNode" );
+  QModelIndex nodeIndex = t.index_from_path( CLIENT_TREE_PATH "/MyNode" );
 
   //
   // 1. check with an invalid index
   //
-  QVERIFY( !t.nodeMatches(QModelIndex(), QRegExp("(nothing)")));
+  QVERIFY( !t.node_matches(QModelIndex(), QRegExp("(nothing)")));
 
   //
   // 2. check with a direct local component child while not in debug mode
   //
-  QVERIFY( !t.nodeMatches(rootIndex, QRegExp("Tree", Qt::CaseSensitive)) );
+  QVERIFY( !t.node_matches(rootIndex, QRegExp("Tree", Qt::CaseSensitive)) );
 
-  t.setDebugModeEnabled(true);
+  t.set_debug_mode_enabled(true);
 
   //
   // 3. check with a direct child
   //
   // 3a. lower case and case sensitive (should return false)
-  QVERIFY( !t.nodeMatches(rootIndex, QRegExp("tree", Qt::CaseSensitive)) );
+  QVERIFY( !t.node_matches(rootIndex, QRegExp("tree", Qt::CaseSensitive)) );
   // 3b. lower case and case insensitive (should return true)
-  QVERIFY( t.nodeMatches(rootIndex, QRegExp("tree", Qt::CaseInsensitive)) );
+  QVERIFY( t.node_matches(rootIndex, QRegExp("tree", Qt::CaseInsensitive)) );
   // 3c. correct case and case sensitive (should return true)
-  QVERIFY( t.nodeMatches(rootIndex, QRegExp("Tree", Qt::CaseSensitive)) );
+  QVERIFY( t.node_matches(rootIndex, QRegExp("Tree", Qt::CaseSensitive)) );
 
   //
   // 4. check with a non-direct child
   //
   // 4a. lower case and case sensitive (should return false)
-  QVERIFY( !t.nodeMatches(rootIndex, QRegExp("mynode", Qt::CaseSensitive)) );
+  QVERIFY( !t.node_matches(rootIndex, QRegExp("mynode", Qt::CaseSensitive)) );
   // 4b. lower case and case insensitive (should return true)
-  QVERIFY( t.nodeMatches(rootIndex, QRegExp("mynode", Qt::CaseInsensitive)) );
+  QVERIFY( t.node_matches(rootIndex, QRegExp("mynode", Qt::CaseInsensitive)) );
   // 4c. correct case and case sensitive (should return true)
-  QVERIFY( t.nodeMatches(rootIndex, QRegExp("MyNode", Qt::CaseSensitive)) );
+  QVERIFY( t.node_matches(rootIndex, QRegExp("MyNode", Qt::CaseSensitive)) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -567,46 +567,46 @@ void NTreeTest::test_indexIsVisible()
   NGeneric::Ptr node(new NGeneric("Node", "MyType"));
   MyNode::Ptr myNode(new MyNode("AnotherNode"));
 
-  t.treeRoot()->addNode(node);
-  t.treeRoot()->addNode(myNode);
+  t.tree_root()->add_node(node);
+  t.tree_root()->add_node(myNode);
 
-  QModelIndex nodeIndex = t.indexFromPath( node->uri() );
-  QModelIndex myNodeIndex = t.indexFromPath( myNode->uri() );
+  QModelIndex nodeIndex = t.index_from_path( node->uri() );
+  QModelIndex myNodeIndex = t.index_from_path( myNode->uri() );
 
   // 1. invalid index
-  QVERIFY( !t.isIndexVisible( QModelIndex() ) );
+  QVERIFY( !t.check_index_visible( QModelIndex() ) );
 
   // 2. check with the root (should always be visible)
-  QVERIFY( t.isIndexVisible( t.index(0,0) ) );
+  QVERIFY( t.check_index_visible( t.index(0,0) ) );
 
   //
   // 3. checks with a non-local but advanced component
   //
   // 3a. in basic mode (components are advanced by default)
-  QVERIFY( !t.isIndexVisible( nodeIndex ) );
+  QVERIFY( !t.check_index_visible( nodeIndex ) );
   // 3b. in advanced mode
-  t.setAdvancedMode(true);
-  QVERIFY( t.isIndexVisible( nodeIndex ) );
+  t.set_advanced_mode(true);
+  QVERIFY( t.check_index_visible( nodeIndex ) );
   // 3c. in advanced mode with the component marked as basic
   node->mark_basic();
-  QVERIFY( t.isIndexVisible( nodeIndex ) );
+  QVERIFY( t.check_index_visible( nodeIndex ) );
 
-  t.setAdvancedMode(true);
+  t.set_advanced_mode(true);
 
   //
   // 4. checks with a non-local but advanced component
   //
   // 4a. in basic mode (components are advanced by default)
-  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
+  QVERIFY( !t.check_index_visible( myNodeIndex ) );
   // 4b. in advanced mode
-  t.setAdvancedMode(true);
-  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
+  t.set_advanced_mode(true);
+  QVERIFY( !t.check_index_visible( myNodeIndex ) );
   // 4c. in advanced mode with the component marked as basic
   myNode->mark_basic();
-  QVERIFY( !t.isIndexVisible( myNodeIndex ) );
+  QVERIFY( !t.check_index_visible( myNodeIndex ) );
   // 4d. in debug mode
-  t.setDebugModeEnabled(true);
-  QVERIFY( t.isIndexVisible( myNodeIndex ) );
+  t.set_debug_mode_enabled(true);
+  QVERIFY( t.check_index_visible( myNodeIndex ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////

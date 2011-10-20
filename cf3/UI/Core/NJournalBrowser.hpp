@@ -110,36 +110,36 @@ public:
 
   /// @brief Gives the tool tip text
   /// @return Returns The class name
-  virtual QString toolTip() const;
+  virtual QString tool_tip() const;
 
   //@} END VIRTUAL FUNCTIONS
 
   const common::SignalArgs & signal(const QModelIndex & index) const;
 
-  void setRootNode(const common::XML::XmlNode * rootNode);
+  void set_root_node(const common::XML::XmlNode * root_node);
 
-  void requestJournal();
+  void request_journal();
 
   void list_journal(common::SignalArgs & node);
 
-  void sendExecSignal(const QModelIndex & index);
+  void send_exec_signal(const QModelIndex & index);
 
 signals:
 
-  void updateView();
+  void update_view();
 
 protected:
 
   /// Disables the local signals that need to.
   /// @param localSignals Map of local signals. All values are set to true
   /// by default.
-  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+  virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
 private: // data
 
   QStringList m_columns;
 
-  common::XML::XmlNode m_rootNode;
+  common::XML::XmlNode m_root_node;
 
   QList<common::SignalArgs *> m_children;
 
@@ -150,14 +150,14 @@ private: // data
   /// @param index Node index to convert
   /// @return Returns the tree node, or @c nullptr if the index could
   /// not be converted (i.e. index is invalid)
-  inline common::SignalArgs * indexToXmlNode(const QModelIndex & index) const
+  inline common::SignalArgs * index_to_xml_node(const QModelIndex & index) const
   {
     return static_cast<common::SignalArgs *>(index.internalPointer());
   }
 
-  QString readAttribute( const common::SignalArgs & sig, const char * name) const;
+  QString read_attribute( const common::SignalArgs & sig, const char * name) const;
 
-  boost::shared_ptr<common::XML::XmlDoc> m_currentDoc;
+  boost::shared_ptr<common::XML::XmlDoc> m_current_doc;
 
 }; // JournalBrowser
 

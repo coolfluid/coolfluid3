@@ -50,20 +50,20 @@ public:
 
   /// @brief Gives the tool tip text
   /// @return Returns The class name
-  virtual QString toolTip() const;
+  virtual QString tool_tip() const;
 
   //@} END VIRTUAL FUNCTIONS
 
 signals:
 
-  void journalRequest(bool local);
+  void journal_request(bool local);
 
 protected:
 
   /// Disables the local signals that need to.
   /// @param localSignals Map of local signals. All values are set to true
   /// by default.
-  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+  virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
 }; // NJournal
 
@@ -81,7 +81,7 @@ public:
 
 signals:
 
-  void journalRequest(bool local);
+  void journal_request(bool local);
 
 private:
 

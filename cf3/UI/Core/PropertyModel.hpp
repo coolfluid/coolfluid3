@@ -123,7 +123,7 @@ namespace Core {
 
     /// @param newIndex New current index.
     /// @param oldIndex Old current index.
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
   private:
 
@@ -134,7 +134,7 @@ namespace Core {
     QStringList m_columns;
 
     /// @brief Clean the model data.
-    void emptyList();
+    void empty_list();
 
   }; // class PropertyModel
 

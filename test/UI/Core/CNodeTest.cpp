@@ -78,7 +78,7 @@ void CNodeTest::test_getComponentType()
 {
   MyNode node("Node");
 
-  QCOMPARE(node.componentType(), QString("MyNode"));
+  QCOMPARE(node.component_type(), QString("MyNode"));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -95,15 +95,15 @@ void CNodeTest::test_isClientComponent()
   NRoot root("Root");
   NTree tree;
 
-  QVERIFY( browser.isLocalComponent() );
-  QVERIFY( !group.isLocalComponent()  );
-  QVERIFY( !link.isLocalComponent()   );
-  QVERIFY( log.isLocalComponent()     );
-  QVERIFY( !mesh.isLocalComponent()   );
-  QVERIFY( !method.isLocalComponent() );
-  QVERIFY( !root.isLocalComponent()   );
-  QVERIFY( node.isLocalComponent()    );
-  QVERIFY( tree.isLocalComponent()    );
+  QVERIFY( browser.is_local_component() );
+  QVERIFY( !group.is_local_component()  );
+  QVERIFY( !link.is_local_component()   );
+  QVERIFY( log.is_local_component()     );
+  QVERIFY( !mesh.is_local_component()   );
+  QVERIFY( !method.is_local_component() );
+  QVERIFY( !root.is_local_component()   );
+  QVERIFY( node.is_local_component()    );
+  QVERIFY( tree.is_local_component()    );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -183,10 +183,10 @@ void CNodeTest::test_setProperties()
       "</node>");
 
   SignalArgs args_wrong(XmlNode(wrongOpt->content->first_node("node")));
-  GUI_CHECK_THROW(MyNode("Node").setProperties(args_wrong), ShouldNotBeHere);
+  GUI_CHECK_THROW(MyNode("Node").set_properties(args_wrong), ShouldNotBeHere);
 
   SignalArgs args_correct(XmlNode(correctOpt->content->first_node("node")));
-  GUI_CHECK_NO_THROW(node.setProperties(args_correct));
+  GUI_CHECK_NO_THROW(node.set_properties(args_correct));
 
   boost::any prop;
 
@@ -245,14 +245,14 @@ void CNodeTest::test_setSignals()
       "</node>");
 
   QList<ActionInfo> list;
-  node.listSignals(list);
+  node.list_signals(list);
   int sigCount = list.size();
 
   SignalFrame frame(sigs->content->first_node("node"));
-  GUI_CHECK_NO_THROW( node.setSignals(frame) );
+  GUI_CHECK_NO_THROW( node.set_signals(frame) );
 
   // 4 signals should have been added (my_signal1 is hidden and should have been ignored)
-  node.listSignals(list);
+  node.list_signals(list);
   QCOMPARE( list.size(), sigCount + 4 );
 
   // Below, the key is empty, we should have an assertion failure
@@ -266,11 +266,11 @@ void CNodeTest::test_setSignals()
       "</node>");
 
   SignalFrame frame2(sigs->content->first_node("node"));
-  GUI_CHECK_THROW( node.setSignals(frame2), FailedAssertion );
+  GUI_CHECK_THROW( node.set_signals(frame2), FailedAssertion );
 
   // remote signals list should have been cleared as well
   list.clear();
-  node.listSignals( list );
+  node.list_signals( list );
   QCOMPARE( list.size(), sigCount );
 
   // Below, the key is missing, we should have an assertion failure
@@ -284,7 +284,7 @@ void CNodeTest::test_setSignals()
       "</node>");
 
   SignalFrame frame3(sigs->content->first_node("node"));
-  GUI_CHECK_THROW( node.setSignals(frame3), FailedAssertion );
+  GUI_CHECK_THROW( node.set_signals(frame3), FailedAssertion );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -295,7 +295,7 @@ void CNodeTest::test_modifyOptions()
   QMap<QString, QString> map;
 
   // call with an empty map, nothing should change
-  GUI_CHECK_NO_THROW( node.modifyOptions(map) );
+  GUI_CHECK_NO_THROW( node.modify_options(map) );
   QCOMPARE( node.option("theAnswer").value<int>(), int(42) );
   QCOMPARE( node.option("someBool").value<bool>(), true );
   QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
@@ -304,7 +304,7 @@ void CNodeTest::test_modifyOptions()
   // modify some options
   map["someBool"] = QVariant(false).toString();
   map["theAnswer"] = QString::number(-45782446);
-  GUI_CHECK_NO_THROW( node.modifyOptions(map) );
+  GUI_CHECK_NO_THROW( node.modify_options(map) );
   QCOMPARE( node.option("theAnswer").value<int>(), int(-45782446) );
   QCOMPARE( node.option("someBool").value<bool>(), false );
   QCOMPARE( node.option("myString").value<std::string>(), std::string("This is a string") );
@@ -312,17 +312,17 @@ void CNodeTest::test_modifyOptions()
 
   // try to modify a property (should fail)
   map["someProp"] = QString::number(2.71);
-  GUI_CHECK_THROW( node.modifyOptions(map), ValueNotFound );
+  GUI_CHECK_THROW( node.modify_options(map), ValueNotFound );
 
   // option that does not exist
   map.clear();
   map["optionThatDoesNotExist"] = "Hello, World!";
-  GUI_CHECK_THROW( node.modifyOptions(map), ValueNotFound );
+  GUI_CHECK_THROW( node.modify_options(map), ValueNotFound );
 
   // wrong type
   map.clear();
   map["theAnswer"] = QString::number(2.15467654);
-  GUI_CHECK_THROW( node.modifyOptions(map), CastingFailed );
+  GUI_CHECK_THROW( node.modify_options(map), CastingFailed );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -335,7 +335,7 @@ void CNodeTest::test_listProperties()
   QMap<QString, QString> map;
   PropertyList::PropertyStorage_t::iterator it = list.begin();
 
-  node->listProperties( map );
+  node->list_properties( map );
 
   QCOMPARE( itemCount, map.size() );
 
@@ -350,7 +350,7 @@ void CNodeTest::test_listOptions()
   MyNode node("MyNode");
   QList<Option::ConstPtr> options;
 
-  node.listOptions(options);
+  node.list_options(options);
 
   // MyNode has 3 options
   QCOMPARE( options.size(), 3 );
@@ -377,16 +377,16 @@ void CNodeTest::test_addNode()
   NRoot::Ptr root(new NRoot("Root"));
   NGeneric::Ptr node(new NGeneric("Node", "NGeneric"));
   NLog::Ptr log( new NLog() );
-  QSignalSpy rootSpy(root->notifier(), SIGNAL(childCountChanged()));
-  QSignalSpy nodeSpy(node->notifier(), SIGNAL(childCountChanged()));
+  QSignalSpy rootSpy(root->notifier(), SIGNAL(child_count_changed()));
+  QSignalSpy nodeSpy(node->notifier(), SIGNAL(child_count_changed()));
 
-  GUI_CHECK_NO_THROW( root->addNode(node));
+  GUI_CHECK_NO_THROW( root->add_node(node));
   // the component should have been added to the *real* root (CRoot)
   GUI_CHECK_NO_THROW( root->root()->access_component_ptr("cpath://Root/Node")->as_ptr<NGeneric>() );
 
   QCOMPARE(rootSpy.count(), 1);
 
-  GUI_CHECK_NO_THROW( node->addNode(log) );
+  GUI_CHECK_NO_THROW( node->add_node(log) );
   GUI_CHECK_NO_THROW( node->access_component_ptr("cpath://Root/Node/" CLIENT_LOG)->as_ptr<NLog>() );
 
   QCOMPARE(nodeSpy.count(), 1);
@@ -401,19 +401,19 @@ void CNodeTest::test_removeNode()
   NLog::Ptr log( new NLog() );
   Component * nullComp = (Component*)nullptr;
 
-  root->addNode(node);
-  node->addNode(log);
+  root->add_node(node);
+  node->add_node(log);
 
-  QSignalSpy rootSpy(root->notifier(), SIGNAL(childCountChanged()));
-  QSignalSpy nodeSpy(node->notifier(), SIGNAL(childCountChanged()));
+  QSignalSpy rootSpy(root->notifier(), SIGNAL(child_count_changed()));
+  QSignalSpy nodeSpy(node->notifier(), SIGNAL(child_count_changed()));
 
-  GUI_CHECK_NO_THROW( root->removeNode("Node"));
+  GUI_CHECK_NO_THROW( root->remove_node("Node"));
   // the component should have been removed from the REAL root (CRoot)
   QCOMPARE( root->root()->access_component_ptr("cpath://Root/Node").get(), nullComp);
 
   QCOMPARE(rootSpy.count(), 1);
 
-  GUI_CHECK_NO_THROW( node->removeNode( CLIENT_LOG ) );
+  GUI_CHECK_NO_THROW( node->remove_node( CLIENT_LOG ) );
   QCOMPARE( root->root()->access_component_ptr( "cpath://Root/Node/" CLIENT_LOG ).get(), nullComp );
 
   QCOMPARE(nodeSpy.count(), 1);
@@ -448,20 +448,20 @@ void CNodeTest::test_listChildPaths()
   NGeneric::Ptr node4(new NGeneric("Node4", "NGeneric"));
   NGeneric::Ptr node5(new NGeneric("Node5", "NGeneric"));
 
-  root->addNode(log);
-  root->addNode(node2);
-  root->addNode(node5);
+  root->add_node(log);
+  root->add_node(node2);
+  root->add_node(node5);
 
-  log->addNode(node1);
+  log->add_node(node1);
 
-  node2->addNode(node3);
-  node2->addNode(tree);
-  node2->addNode(node4);
+  node2->add_node(node3);
+  node2->add_node(tree);
+  node2->add_node(node4);
 
   //
   // 1. Get everything
   //
-  root->listChildPaths(list, true, true);
+  root->list_child_paths(list, true, true);
   // should have 8 strings
   QCOMPARE( list.count(), 8);
   // check the strings
@@ -481,7 +481,7 @@ void CNodeTest::test_listChildPaths()
   //
   // 2. Skip local components
   //
-  root->listChildPaths(list, true, false);
+  root->list_child_paths(list, true, false);
   // should have 5 strings
   QCOMPARE( list.count(), 5);
   // check the strings
@@ -496,7 +496,7 @@ void CNodeTest::test_listChildPaths()
   //
   // 3. Not recursive
   //
-  root->listChildPaths(list, false, true);
+  root->list_child_paths(list, false, true);
   // should have 4 strings
   QCOMPARE( list.count(), 4);
   // check the strings
@@ -511,7 +511,7 @@ void CNodeTest::test_listChildPaths()
   //
   // 4. Neither local components, nor recursive
   //
-  root->listChildPaths(list, false, false);
+  root->list_child_paths(list, false, false);
   // should have 3 strings
   QCOMPARE( list.count(), 3);
   // check the strings
@@ -524,7 +524,7 @@ void CNodeTest::test_listChildPaths()
   //
   // 5. From another component than the root
   //
-  node2->listChildPaths(list, true, true);
+  node2->list_child_paths(list, true, true);
   // should have 4 strings
   QCOMPARE( list.count(), 4);
   // check the strings

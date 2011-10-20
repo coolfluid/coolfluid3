@@ -52,9 +52,9 @@ private: // functions
 private: // data
 
   /// The network thread.
-  NetworkThread * m_networkThread;
+  NetworkThread * m_network_thread;
 
-  TreeThread * m_treeThread;
+  TreeThread * m_tree_thread;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

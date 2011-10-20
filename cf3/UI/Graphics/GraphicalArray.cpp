@@ -122,7 +122,7 @@ bool GraphicalArray::setValue(const QVariant & value)
 
     msg = msg.arg(invalidValues.join("\"\n   \"").prepend("\n   \"").append("\""));
 
-    NLog::globalLog()->addMessage(msg);
+    NLog::global()->add_message(msg);
   }
   else
   {

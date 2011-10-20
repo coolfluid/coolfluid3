@@ -72,7 +72,7 @@ ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails 
 {
   m_answer = CANCEL;
 
-  if(commitDetails.hasOptions())
+  if(commitDetails.has_options())
   {
     m_detailsView->setModel(&commitDetails);
     this->exec();

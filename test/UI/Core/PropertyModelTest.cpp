@@ -52,10 +52,10 @@ void PropertyModelTest::initTestCase()
   QCOMPARE( opts.store.size(), size_t(4));
 
   // add the node to the tree
-  ThreadManager::instance().tree().root()->addNode( node );
+  ThreadManager::instance().tree().root()->add_node( node );
 
   // set the node as the current index
-  NTree::globalTree()->setCurrentIndex( NTree::globalTree()->indexFromPath( node->uri() ) );
+  NTree::global()->set_current_index( NTree::global()->index_from_path( node->uri() ) );
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -163,7 +163,7 @@ void PropertyModelTest::test_headerData()
 
 void PropertyModelTest::cleanupTestCase()
 {
-  ThreadManager::instance().tree().root()->removeNode("MyAdditionalNode");
+  ThreadManager::instance().tree().root()->remove_node("MyAdditionalNode");
 }
 
 /////////////////////////////////////////////////////////////////////////

@@ -24,7 +24,7 @@ NPlugins::NPlugins(const std::string & name)
 {
   m_properties["brief"] = std::string("Manages the client plugins.");
   m_properties["description"] =
-      std::string("All the plugins currently loaded are references as "
+      std::string("All the plugins currently loaded are referenced as "
                   "children of this component. Each allows to do specific "
                   "actions defined by the related plugin.");
 }
@@ -38,17 +38,17 @@ NPlugins::~NPlugins()
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NPlugins::toolTip() const
+QString NPlugins::tool_tip() const
 {
   return "Client plugin manager.";
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-NPlugins::Ptr NPlugins::globalPlugins()
+NPlugins::Ptr NPlugins::global()
 {
   static NPlugins::Ptr plugins =
-      ThreadManager::instance().tree().rootChild<NPlugins>(CLIENT_PLUGINS);
+      ThreadManager::instance().tree().root_child<NPlugins>(CLIENT_PLUGINS);
   cf3_assert( is_not_null(plugins.get()) );
   return plugins;
 }

@@ -136,27 +136,27 @@ MainWindow::MainWindow()
 
   NRoot* root = ThreadManager::instance().tree().root().get();
 
-  connect(NLog::globalLog().get(), SIGNAL(newException(QString)),
+  connect(NLog::global().get(), SIGNAL(newException(QString)),
           this, SLOT(newException(QString)));
 
-  connect(NLog::globalLog().get(),
+  connect(NLog::global().get(),
           SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(newLogMessage(QString, UICommon::LogMessage::Type)));
 
   connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
 
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer(bool)),
-          this, SLOT(disconnectedFromServer(bool)));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
+          this, SLOT(disconnected_from_server(bool)));
 
-  connect(NTree::globalTree().get(),
-          SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
-          this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
+  connect(NTree::global().get(),
+          SIGNAL(current_index_changed(QModelIndex,QModelIndex)),
+          this, SLOT(current_index_changed(QModelIndex,QModelIndex)));
 
   connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
   this->setConnectedState(false);
 
-  NLog::globalLog()->addMessage("Client successfully launched.");
+  NLog::global()->add_message("Client successfully launched.");
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -233,7 +233,7 @@ void MainWindow::buildMenus()
 
   //-----------------------------------------------
 
-  action = m_mnuFile->addAction("&Update tree", NTree::globalTree().get(),
+  action = m_mnuFile->addAction("&Update tree", NTree::global().get(),
                                 SLOT(updateTree()), tr("ctrl+u") );
   m_actions[ACTION_UPDATE_TREE] = action;
 
@@ -332,7 +332,7 @@ int MainWindow::confirmClose()
     discBox.setInformativeText("What do you want to do ?");
 
     // show the message box
-    if(ThreadManager::instance().network().isConnected())
+    if(ThreadManager::instance().network().is_connected())
     {
       discBox.exec();
 
@@ -376,7 +376,7 @@ void MainWindow::closeEvent(QCloseEvent * event)
   else
   {
     event->accept();
-    ThreadManager::instance().network().disconnectFromServer( answer == CLOSE_SHUTDOWN );
+    ThreadManager::instance().network().disconnect_from_server( answer == CLOSE_SHUTDOWN );
   }
 
   // if the event is accepted, we write the current workspace to the disk
@@ -415,7 +415,7 @@ void MainWindow::quit()
 void MainWindow::toggleAdvanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
-  NTree::globalTree()->setAdvancedMode(advanced);
+  NTree::global()->set_advanced_mode(advanced);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -423,7 +423,7 @@ void MainWindow::toggleAdvanced()
 void MainWindow::toggleDebugMode()
 {
   bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
-  NTree::globalTree()->setDebugModeEnabled(debug);
+  NTree::global()->set_debug_mode_enabled(debug);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -471,7 +471,7 @@ void MainWindow::connectToServer()
     quint16 port = frame.get_option<cf3::Uint>("Port number");
 
 
-    ThreadManager::instance().network().connectToHost(hostname, port);
+    ThreadManager::instance().network().connect_to_host(hostname, port);
   }
 }
 
@@ -479,7 +479,7 @@ void MainWindow::connectToServer()
 
 void MainWindow::disconnectFromServer()
 {
-  ThreadManager::instance().network().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ThreadManager::instance().network().disconnect_from_server(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -491,10 +491,10 @@ void MainWindow::connectedToServer()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnectedFromServer(bool requested)
+void MainWindow::disconnected_from_server(bool requested)
 {
   this->setConnectedState(false);
-  NTree::globalTree()->clearTree();
+  NTree::global()->clear_tree();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -568,11 +568,11 @@ void MainWindow::runScript()
   try
   {
     if( dlg.exec() == QFileDialog::Accepted )
-      NetworkQueue::global_queue()->execute_script( dlg.selectedFiles().first() );
+      NetworkQueue::global()->execute_script( dlg.selectedFiles().first() );
   }
   catch( Exception & e)
   {
-    NLog::globalLog()->addException( e.what() );
+    NLog::global()->add_exception( e.what() );
   }
 }
 
@@ -593,13 +593,13 @@ void MainWindow::tabClicked(int num)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::currentIndexChanged(const QModelIndex & newIndex,
+void MainWindow::current_index_changed(const QModelIndex & newIndex,
                                      const QModelIndex & oldIndex)
 {
   QString text = "<b>%1</b><br><br>%2";
   QMap<QString, QString> data;
 
-  NTree::globalTree()->listNodeProperties(newIndex, data);
+  NTree::global()->list_node_properties(newIndex, data);
 
   text = text.arg(data["brief"]).arg(data["description"]);
   m_labDescription->setText(text.replace("\n","<br>"));

@@ -14,17 +14,17 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-NGeneric::NGeneric(const std::string & name, const QString & type, CNode::Type nodeType) :
-    CNode(name, type, nodeType)
+NGeneric::NGeneric(const std::string & name, const QString & type, CNode::Type node_type) :
+    CNode(name, type, node_type)
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NGeneric::toolTip() const
+QString NGeneric::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 //////////////////////////////////////////////////////////////////////////////
