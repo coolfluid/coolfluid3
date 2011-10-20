@@ -39,8 +39,10 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   const Uint x_segments = 25;
   const Uint y_segments = 10;
 
+  CRoot& root = Core::instance().root();
+  
   // Setup a domain
-  CDomain& domain = Core::instance().root().create_component<CDomain>("Domain");
+  CDomain& domain = root.create_component<CDomain>("Domain");
 
   // Setup mesh
   Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh"), length, height, x_segments, y_segments);
@@ -48,11 +50,16 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   // Remove mesh
   domain.remove_component("Mesh");
 
+  // Setup a new mesh
+  Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh2"), length, height, x_segments, y_segments);
+  
+  domain.remove_component("Mesh2");
+  root.remove_component("Libraries");
+  root.remove_component("Factories");
+  
+  
   XML::SignalFrame frame;
   Core::instance().event_handler().raise_event("ping", frame);
-
-  // Setup a new mesh
-  //Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh2"), length, height, x_segments, y_segments);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

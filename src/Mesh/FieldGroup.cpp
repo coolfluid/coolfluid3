@@ -285,7 +285,7 @@ boost::iterator_range< Common::ComponentIterator<CEntities> > FieldGroup::entiti
 {
   std::vector<CEntities::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c]->as_ptr<CEntities>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<CEntities>();
 
   ComponentIterator<CEntities> begin_iter(elements_vec,0);
   ComponentIterator<CEntities> end_iter(elements_vec,elements_vec.size());
@@ -298,7 +298,7 @@ boost::iterator_range< Common::ComponentIterator<CElements> > FieldGroup::elemen
 {
   std::vector<CElements::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c]->as_ptr<CElements>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<CElements>();
 
   ComponentIterator<CElements> begin_iter(elements_vec,0);
   ComponentIterator<CElements> end_iter(elements_vec,elements_vec.size());

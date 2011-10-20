@@ -56,9 +56,9 @@ void CNodeFaceCellConnectivity::build_connectivity()
   
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
+  boost_foreach(boost::weak_ptr<Component> face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp.lock()->as_type<CFaceCellConnectivity>();
     for (Uint f=0; f<face_cell_connectivity.size(); ++f)
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
@@ -79,9 +79,9 @@ void CNodeFaceCellConnectivity::build_connectivity()
   // fill m_connectivity->array()
   
   Uint glb_face_idx(0);
-  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
+  boost_foreach(boost::weak_ptr<Component> face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp.lock()->as_type<CFaceCellConnectivity>();
     for (Uint f=0; f<face_cell_connectivity.size(); ++f, ++glb_face_idx)
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
