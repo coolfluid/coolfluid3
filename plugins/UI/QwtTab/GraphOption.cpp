@@ -26,11 +26,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -735,4 +735,4 @@ void GraphOption::save_functions_to_file_no_buffering(){
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_NavierStokes_Cons2D_hpp
-#define CF_Physics_NavierStokes_Cons2D_hpp
+#ifndef cf3_Physics_NavierStokes_Cons2D_hpp
+#define cf3_Physics_NavierStokes_Cons2D_hpp
 
 #include <iostream>
 
-#include "Common/StringConversion.hpp"
+#include "common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 
 #include "NavierStokes2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
@@ -82,9 +82,9 @@ public: // functions
           std::cout << "uuvv  : " << p.uuvv << std::endl;
 
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                                   + Common::to_str(coord[XX]) + ","
-                                   + Common::to_str(coord[YY])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                                   + common::to_str(coord[XX]) + ","
+                                   + common::to_str(coord[YY])
                                    + "]");
     }
 
@@ -304,6 +304,6 @@ public: // functions
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_NavierStokes_Cons2D_hpp
+#endif // cf3_Physics_NavierStokes_Cons2D_hpp

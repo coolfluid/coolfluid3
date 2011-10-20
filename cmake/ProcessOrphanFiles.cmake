@@ -6,12 +6,12 @@ endif()
 
 
 # if orphan files where found, put the list on the file
-list( LENGTH CF_ORPHAN_FILES CF_LENGTH_ORPHAN_FILES)
-if( CF_LENGTH_ORPHAN_FILES )
+list( LENGTH CF3_ORPHAN_FILES CF3_LENGTH_ORPHAN_FILES)
+if( CF3_LENGTH_ORPHAN_FILES )
 
   coolfluid_log( " !!! ERROR !!! ")
   coolfluid_log  ( "Orphan file list:" )
-  foreach( AFILE ${CF_ORPHAN_FILES} )
+  foreach( AFILE ${CF3_ORPHAN_FILES} )
     file( APPEND ${ORPHAN_FILE} "${AFILE}\n" )
     coolfluid_log  ( "${AFILE}" )
   endforeach()

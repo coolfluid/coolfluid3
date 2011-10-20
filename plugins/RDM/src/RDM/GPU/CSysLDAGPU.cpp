@@ -6,11 +6,11 @@
 
 #include <iostream>
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
-//#include "Common/CreateComponent.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
+//#include "common/CreateComponent.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -21,16 +21,16 @@
 #include "RDM/GPU/CellLoopGPU.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
+common::ComponentBuilder < CSysLDAGPU, RDM::CellTerm, LibGPU > CSysLDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ void CSysLDAGPU::execute()
 {
   // get the element loop or create it if does not exist
   ElementLoop::Ptr loop;
-  Common::Component::Ptr cloop = get_child_ptr( "LOOP" );
+  common::Component::Ptr cloop = get_child_ptr( "LOOP" );
   if( is_null( cloop ) )
   {
     const std::string update_vars_type =

@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::LagrangeSF"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::LagrangeSF"
 
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -31,10 +31,10 @@
 
 #include "Tools/Testing/Difference.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( Construct_Geometry )
   Geometry::Ptr geometry = allocate_component<Geometry>("geometry");
   BOOST_CHECK( is_not_null(geometry) );
 
-  geometry->coordinates().descriptor().configure_option(Common::Tags::dimension(),2u);
+  geometry->coordinates().descriptor().configure_option(common::Tags::dimension(),2u);
   geometry->resize(10);
   BOOST_CHECK_EQUAL(geometry->coordinates().size() , 10u);
   BOOST_CHECK_EQUAL(geometry->coordinates().row_size() , 2u);

@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Physics::PhysModel"
+#define BOOST_TEST_MODULE "Test module for cf3::Physics::PhysModel"
 
 #include <iostream>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/mpl/void.hpp>
 
-#include "Common/CF.hpp"
+#include "common/CF.hpp"
 
-using namespace CF;
+using namespace cf3;
 
 //////////////////////////////////////////////////////////////////////////////
 

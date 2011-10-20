@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CF.hpp"
-#include "Common/Core.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/CPEManager.hpp"
+#include "common/CF.hpp"
+#include "common/Core.hpp"
+#include "common/CGroup.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/CPEManager.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::mpi;
+using namespace cf3::common;
+using namespace cf3::common::mpi;
 
 int main(int argc, char * argv[])
 {

@@ -44,6 +44,6 @@ int main(void)
 }
 ")
 
-check_cxx_source_compiles("${CHECK_nullptr_SRC}" CF_CXX_SUPPORTS_NULLPTR )
+check_cxx_source_compiles("${CHECK_nullptr_SRC}" CF3_CXX_SUPPORTS_NULLPTR )
 
-coolfluid_log_file( "+++++  Checking for pre compiled header support -- ${CF_CXX_SUPPORTS_NULLPTR}" )
+coolfluid_log_file( "+++++  Checking for pre compiled header support -- ${CF3_CXX_SUPPORTS_NULLPTR}" )

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_WeakDirichlet_hpp
-#define CF_RDM_WeakDirichlet_hpp
+#ifndef cf3_RDM_WeakDirichlet_hpp
+#define cf3_RDM_WeakDirichlet_hpp
 
 #include "Math/VectorialFunction.hpp"
 
@@ -15,7 +15,7 @@
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; class Field; }
 
@@ -197,7 +197,7 @@ public: // functions
     Mesh::CFaceCellConnectivity& f2c =
         B::elements().get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
 
-    // cf_assert( f2c.is_bdry_face()[face_idx] );
+    // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
     Component::Ptr neighbor_cells;
     Uint neighbor_cell_idx;
@@ -371,6 +371,6 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_WeakDirichlet_hpp
+#endif // cf3_RDM_WeakDirichlet_hpp

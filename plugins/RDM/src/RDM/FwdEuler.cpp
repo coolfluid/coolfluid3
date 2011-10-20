@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/Foreach.hpp"
 
 #include "Math/Checks.hpp"
 
@@ -20,21 +20,21 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Math::Checks;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Math::Checks;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
+common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 FwdEuler::FwdEuler ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -84,7 +84,7 @@ void FwdEuler::execute()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////////
 

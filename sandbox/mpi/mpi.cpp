@@ -12,14 +12,14 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CF.hpp"
+#include "common/CF.hpp"
 
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 struct MyGlobalFixture
 {

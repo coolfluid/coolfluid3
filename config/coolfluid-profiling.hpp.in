@@ -3,7 +3,7 @@
 
 #cmakedefine coolfluid_tools_googleperftools_builds
 
-#define CF_PPROF_COMMAND "${CF_PPROF_COMMAND}"
-#define CF_DOT_COMMAND   "${CF_DOT_COMMAND}"
+#define CF3_PPROF_COMMAND "${CF3_PPROF_COMMAND}"
+#define CF3_DOT_COMMAND   "${CF3_DOT_COMMAND}"
 
 #endif // !coolfluid_profiling_config_hpp

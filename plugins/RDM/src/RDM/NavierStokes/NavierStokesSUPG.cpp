@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
 #include "RDM/Schemes/SUPG.hpp"
 
@@ -14,16 +14,16 @@
 
 #include "RDM/NavierStokes/LibNavierStokes.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<SUPG,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > SUPG_Euler2D_Builder;
+common::ComponentBuilder < CellLoopT<SUPG,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > SUPG_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

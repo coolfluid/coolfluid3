@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Log.hpp"
 
 #include "Physics/Variables.hpp"
 
@@ -26,21 +26,21 @@
 #include "SFDM/Init.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Init, CF::Solver::Action, LibSFDM > Init_Builder;
+common::ComponentBuilder < Init, cf3::Solver::Action, LibSFDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -150,4 +150,4 @@ void Init::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

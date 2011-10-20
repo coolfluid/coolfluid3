@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "NavierStokes/LibNavierStokes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace NavierStokes {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<LibNavierStokes> LibNavierStokes;
+cf3::common::RegistLibrary<LibNavierStokes> LibNavierStokes;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,4 +30,4 @@ void LibNavierStokes::terminate_impl()
 
 } // NavierStokes
 } // Physics
-} // CF
+} // cf3

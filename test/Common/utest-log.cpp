@@ -13,12 +13,12 @@
 
 #include <iostream>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE( openFiles )
   Logger::instance().openFiles();
 
   // files are not created if PE is not initializaed
-  if(Common::PE::Comm::instance().is_active())
+  if(common::PE::Comm::instance().is_active())
   {
     BOOST_CHECK(Logger::instance().getStream(INFO).isFileOpen());
     BOOST_CHECK(Logger::instance().getStream(ERROR).isFileOpen());

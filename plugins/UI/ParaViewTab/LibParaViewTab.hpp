@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // header
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +28,7 @@ class pqApplicationCore;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace UI {
 /// Basic Classes for ParaViewTab applications used by CF
@@ -39,7 +39,7 @@ namespace ParaViewTab {
 /// Class defines the initialization and termination of the library ParaViewTab
 /// @author Tiago Quintino
 class ParaViewTab_API LibParaViewTab :
-        public Common::CLibrary
+        public common::CLibrary
 {
 public:
 
@@ -47,7 +47,7 @@ public:
     typedef boost::shared_ptr<LibParaViewTab const> ConstPtr;
 
     /// Constructor
-    LibParaViewTab ( const std::string& name) : Common::CLibrary(name), m_appCore(nullptr) {   }
+    LibParaViewTab ( const std::string& name) : common::CLibrary(name), m_appCore(nullptr) {   }
 
 public: // functions
 

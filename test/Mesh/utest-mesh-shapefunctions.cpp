@@ -8,10 +8,10 @@
 #define BOOST_TEST_MODULE "Proposition for new element / shapefunction API"
 
 #include <boost/test/unit_test.hpp>
-#include "Common/Log.hpp"
-#include "Common/Component.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Component.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
 
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ShapeFunctionT.hpp"
@@ -21,9 +21,9 @@
 
 #include "Mesh/ElementTypes.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   // Check if compute_normal throws, as it is not implemented in the static implementation
   Core::instance().environment().configure_option("exception_outputs",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
-  BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),Common::NotImplemented);
+  BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),common::NotImplemented);
   Core::instance().environment().configure_option("exception_outputs",true);
   Core::instance().environment().configure_option("exception_backtrace",true);
 

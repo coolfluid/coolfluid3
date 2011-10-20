@@ -1,18 +1,18 @@
 # parser library
 
-if( CF_HAVE_MATH_ASINH )
+if( CF3_HAVE_MATH_ASINH )
   add_definitions( -DFP_SUPPORT_ASINH )
 endif()
-if( CF_HAVE_MATH_EXP2 )
+if( CF3_HAVE_MATH_EXP2 )
   add_definitions( -DFP_SUPPORT_EXP2 )
 endif()
-if( CF_HAVE_MATH_LOG2 )
+if( CF3_HAVE_MATH_LOG2 )
   add_definitions( -DFP_SUPPORT_LOG2 )
 endif()
-if( CF_HAVE_MATH_CBRT )
+if( CF3_HAVE_MATH_CBRT )
   add_definitions( -DFP_SUPPORT_CBRT )
 endif()
-if( CF_HAVE_MATH_HYPOT )
+if( CF3_HAVE_MATH_HYPOT )
   add_definitions( -DFP_SUPPORT_HYPOT )
 endif()
 #if( APPLE ) # duplicate symbols , so no optimizer on APPLE
@@ -37,7 +37,7 @@ list( APPEND coolfluid_fparser_files
 # mpfr/MpfrFloat.cc
 )
 
-if(CF_HAVE_CMATH)
+if(CF3_HAVE_CMATH)
   list( APPEND coolfluid_fparser_libs ${CMATH_LIBRARIES} )
 endif()
 set( coolfluid_fparser_kernellib TRUE )

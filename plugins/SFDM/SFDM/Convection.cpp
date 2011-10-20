@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/PE/debug.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/PE/debug.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldGroup.hpp"
 #include "Mesh/CMesh.hpp"
@@ -33,17 +33,17 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-  using namespace Common;
+  using namespace common;
   using namespace Mesh;
   using namespace Physics;
   using namespace RiemannSolvers;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Convection, Term, LibSFDM> Convection_builder;
+common::ComponentBuilder < Convection, Term, LibSFDM> Convection_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -462,9 +462,9 @@ void Convection::compute_cell_interior_flux_points_contribution()
           for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
           {
 
-            cf_assert(shape_func.points()[orientation][line][sol_pt] < field_idx.size());
+            cf3_assert(shape_func.points()[orientation][line][sol_pt] < field_idx.size());
             const Uint pt_idx = field_idx[ shape_func.points()[orientation][line][sol_pt] ];
-            cf_assert(pt_idx < solution_field.size());
+            cf3_assert(pt_idx < solution_field.size());
             for (Uint var=0; var<nb_vars; ++var)
               solution_in_sol_pts(sol_pt,var) = solution_field[pt_idx][var];
           }
@@ -520,9 +520,9 @@ void Convection::compute_cell_interior_flux_points_contribution()
           /// 5) add contribution to the residual
           for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
           {
-            cf_assert(shape_func.points()[orientation][line][sol_pt]<field_idx.size());
+            cf3_assert(shape_func.points()[orientation][line][sol_pt]<field_idx.size());
             const Uint pt_idx = field_idx[ shape_func.points()[orientation][line][sol_pt] ];
-            cf_assert(pt_idx<residual_field.size());
+            cf3_assert(pt_idx<residual_field.size());
             for (Uint var=0; var<residual_field.row_size(); ++var)
             {
               residual_field[pt_idx][var] -= flux_grad_in_sol_pts(sol_pt,var) / jacob_det_field[pt_idx][0];
@@ -855,4 +855,4 @@ void Convection::compute_inner_face_flux_points_contribution()
 /////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

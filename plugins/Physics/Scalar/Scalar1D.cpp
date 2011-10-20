@@ -6,18 +6,18 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
 
 #include "Physics/Variables.hpp"
 
 #include "Scalar1D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace Scalar {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ Scalar1D::Properties::Properties()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Scalar::Scalar1D,
+common::ComponentBuilder < Scalar::Scalar1D,
                            Physics::PhysModel,
                            LibScalar >
                            Builder_Scalar1D;
@@ -79,4 +79,4 @@ boost::shared_ptr< Physics::Variables > Scalar1D::create_variables( const std::s
 
 } // Scalar
 } // Physics
-} // CF
+} // cf3

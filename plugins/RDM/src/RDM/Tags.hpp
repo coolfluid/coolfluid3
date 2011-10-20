@@ -8,10 +8,10 @@
 
 #include "RDM/LibRDM.hpp"
 
-#ifndef CF_RDM_Tags_hpp
-#define CF_RDM_Tags_hpp
+#ifndef cf3_RDM_Tags_hpp
+#define cf3_RDM_Tags_hpp
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,6 +36,6 @@ public:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Tags_hpp
+#endif // cf3_RDM_Tags_hpp

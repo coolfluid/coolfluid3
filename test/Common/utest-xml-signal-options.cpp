@@ -13,20 +13,20 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
 
-#include "Common/XML/FileOperations.hpp"
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/FileOperations.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   data[3] = "And then the last item";
 
   map.set_value<bool>("my_bool", false, "MyBool description").set_attribute( "mode", "adv" );
-  map.set_value<CF::Real>("cfl", 3.1415, "CFL number").set_attribute( "mode", "basic" );
+  map.set_value<cf3::Real>("cfl", 3.1415, "CFL number").set_attribute( "mode", "basic" );
   map.set_array<std::string>("strings", data, ";", "Some special data"); // should be advanced by default
   map.set_value<URI>("website", URI("http://coolfluidsrv.vki.ac.be"), "CF website")
       .set_attribute( Protocol::Tags::attr_uri_schemes(), "http");
@@ -75,14 +75,14 @@ BOOST_AUTO_TEST_CASE ( contructors )
   //
   // 2. check option "cfl"
   //
-  OptionT<CF::Real>::Ptr cfl;
+  OptionT<cf3::Real>::Ptr cfl;
   BOOST_CHECK( options.check("cfl") );
-  cfl = boost::dynamic_pointer_cast<OptionT<CF::Real> >(options.store["cfl"]);
+  cfl = boost::dynamic_pointer_cast<OptionT<cf3::Real> >(options.store["cfl"]);
   BOOST_CHECK( cfl.get() != nullptr );
   BOOST_CHECK_EQUAL( cfl->name(), std::string("cfl") );
-  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<CF::Real>() ) );
+  BOOST_CHECK_EQUAL( cfl->type(), std::string( Protocol::Tags::type<cf3::Real>() ) );
   BOOST_CHECK_EQUAL( cfl->description(), std::string("CFL number") );
-  BOOST_CHECK_EQUAL( cfl->value<CF::Real>(), 3.1415 );
+  BOOST_CHECK_EQUAL( cfl->value<cf3::Real>(), 3.1415 );
   BOOST_CHECK_EQUAL( cfl->has_tag("basic"), true );
 
   //

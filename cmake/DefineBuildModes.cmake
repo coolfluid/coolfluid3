@@ -5,16 +5,16 @@ endif()
 
 # capitalize the build type
 string( TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_CAPS )
-set(CF_BUILD_TYPE_OK OFF)
+set(CF3_BUILD_TYPE_OK OFF)
 
 #######################################################
 ### DEBUG mode
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "DEBUG")
 
-  set(CF_BUILD_TYPE_OK ON)
+  set(CF3_BUILD_TYPE_OK ON)
 
-  if( CMAKE_COMPILER_IS_GNUCC AND CF_ENABLE_STDDEBUG )
+  if( CMAKE_COMPILER_IS_GNUCC AND CF3_ENABLE_STDDEBUG )
       set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC" CACHE STRING "")
   endif()
 
@@ -24,9 +24,9 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "DEBUG")
   endif()
 
 
-  coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_DEBUG_MACROS ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
+  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   ON   )
+  coolfluid_set_if_not_defined( CF3_ENABLE_DEBUG_MACROS ON   )
+  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
 
 endif()
 
@@ -35,11 +35,11 @@ endif()
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELWITHDEBINFO")
 
-  set(CF_BUILD_TYPE_OK ON)
+  set(CF3_BUILD_TYPE_OK ON)
 
-  coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_OPTIM_MACROS ON   )
-  coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
+  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   ON   )
+  coolfluid_set_if_not_defined( CF3_ENABLE_OPTIM_MACROS ON   )
+  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
 
 endif()
 
@@ -48,7 +48,7 @@ endif()
 
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
 
-  set(CF_BUILD_TYPE_OK ON)
+  set(CF3_BUILD_TYPE_OK ON)
 
   if(CMAKE_COMPILER_IS_GNUCC)
     set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
@@ -56,16 +56,16 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
     set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
   endif()
 
-  coolfluid_set_if_not_defined( CF_ENABLE_ASSERTIONS   OFF  )
-  coolfluid_set_if_not_defined( CF_ENABLE_DEBUG_MACROS OFF  )
-  coolfluid_set_if_not_defined( CF_ENABLE_STATIC       OFF  )
+  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   OFF  )
+  coolfluid_set_if_not_defined( CF3_ENABLE_DEBUG_MACROS OFF  )
+  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
 
 endif()
 
 #######################################################
 
 # check that the build type belongs to the list [ Debug Release RelWithDebInfo MinSizeRel ]
-if( NOT CF_BUILD_TYPE_OK )
+if( NOT CF3_BUILD_TYPE_OK )
   message( FATAL_ERROR "Build type (case insensitive) [${CMAKE_BUILD_TYPE_CAPS}] is not one of [ Debug Release RelWithDebInfo MinSizeRel ]" )
 endif()
 

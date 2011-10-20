@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::LSS where testing on a distributed matrix."
+#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing on a distributed matrix."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,17 +15,17 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/CommPattern.hpp"
+#include "common/Log.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/CommPattern.hpp"
 #include "Math/LSS/System.hpp"
 #include "test/Math/utest-lss-test-matrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Math::LSS;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,8 +56,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSDistributedMatrixSuite, LSSDistributedMatrixFixture
 
 BOOST_AUTO_TEST_CASE( init_parallel_environment )
 {
-  Common::PE::Comm::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),true);
+  common::PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -69,13 +69,13 @@ BOOST_AUTO_TEST_CASE( system_solve )
   test_matrix m;
 
   // commpattern
-  Common::PE::CommPattern::Ptr cp_ptr = Common::allocate_component<Common::PE::CommPattern>("commpattern");
-  Common::PE::CommPattern& cp = *cp_ptr;
+  common::PE::CommPattern::Ptr cp_ptr = common::allocate_component<common::PE::CommPattern>("commpattern");
+  common::PE::CommPattern& cp = *cp_ptr;
   cp.insert("gid",m.global_numbering,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),m.irank_updatable);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),m.irank_updatable);
 
   // system
-  LSS::System::Ptr sys_ptr = Common::allocate_component<LSS::System>("system");
+  LSS::System::Ptr sys_ptr = common::allocate_component<LSS::System>("system");
   LSS::System& sys = *sys_ptr;
   sys.options().option("solver").change_value(boost::lexical_cast<std::string>("Trilinos"));
   sys.create(cp,m.nbeqs,m.column_indices,m.rowstart_positions);
@@ -155,7 +155,7 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
     trilinos_xml << "</ParameterList>\n";
     trilinos_xml.close();
   }
-  Common::PE::Comm::instance().barrier();
+  common::PE::Comm::instance().barrier();
 
 //  // filling the system with prescribed values
 //  sys.reset();
@@ -207,8 +207,8 @@ sys.print("sys_test_assembly_bc_" + boost::lexical_cast<std::string>(m.irank) + 
 BOOST_AUTO_TEST_CASE( finalize_parallel_environment )
 {
   CFinfo.setFilterRankZero(true);
-  Common::PE::Comm::instance().finalize();
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),false);
+  common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

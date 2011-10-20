@@ -10,10 +10,10 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CMesh.hpp"
@@ -29,11 +29,11 @@
 #include "Tools/Testing/ProfiledTestFixture.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Tools::Testing;
-using namespace CF::Tools::MeshGeneration;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::Tools::Testing;
+using namespace cf3::Tools::MeshGeneration;
 
 //////////////////////////////////////////////////////////////////////////////
 

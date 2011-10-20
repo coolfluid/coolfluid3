@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"
@@ -14,10 +14,10 @@
 
 #include "DummyTerm.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ComponentBuilder<DummyTerm,Term,LibSFDM> DummyTerm_builder;
@@ -49,6 +49,6 @@ void DummyTerm::execute()
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////

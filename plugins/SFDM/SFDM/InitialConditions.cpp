@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -24,22 +24,22 @@
 
 #include "InitialConditions.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < InitialConditions, CAction, LibSFDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, CAction, LibSFDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -144,4 +144,4 @@ void InitialConditions::signature_signal_create_initial_condition ( SignalArgs& 
 
 
 } // SFDM
-} // CF
+} // cf3

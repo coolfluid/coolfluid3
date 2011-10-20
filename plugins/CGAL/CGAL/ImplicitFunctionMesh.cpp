@@ -13,7 +13,7 @@
 #include <CGAL/Handle_hash_function.h>
 #include <CGAL/number_utils.h>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CElements.hpp"
@@ -24,12 +24,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh {
 namespace CGAL {
 
@@ -123,6 +123,6 @@ void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParame
 
 } // namespace CGAL
 } // namespace Mesh
-} // namespace CF
+} // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////

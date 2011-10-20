@@ -8,10 +8,10 @@
 #include <boost/timer.hpp>
 
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 
@@ -26,16 +26,16 @@
 #include "RDM/GPU/LDAGPU.hpp"
 #include "RDM/GPU/SchemeLDAGPU.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
+common::ComponentBuilder < LDAGPU, RDM::CellTerm, LibGPU > LDAGPU_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -60,7 +60,7 @@ struct LDAGPU::ElementLoop
     typedef SchemeLDAGPU< SF, QD, PHYS > SchemeT;
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
     {
       // get the scheme or create it if does not exist
       Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );

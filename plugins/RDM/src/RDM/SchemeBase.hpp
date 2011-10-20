@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SchemeBase_hpp
-#define CF_RDM_SchemeBase_hpp
+#ifndef cf3_RDM_SchemeBase_hpp
+#define cf3_RDM_SchemeBase_hpp
 
 #include <functional>
 
 #include <boost/assign.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/BasicExceptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -34,7 +34,7 @@
 #include "RDM/CellLoop.hpp"
 #include "RDM/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -81,8 +81,8 @@ protected: // helper functions
     coordinates =
         elements().geometry().coordinates().as_ptr< Mesh::Field >();
 
-    cf_assert( is_not_null(connectivity) );
-    cf_assert( is_not_null(coordinates) );
+    cf3_assert( is_not_null(connectivity) );
+    cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
     residual   = cresidual.lock();
@@ -201,11 +201,11 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
   m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
   m_options.add_option(
-        Common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
+        common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
   m_options["elements"]
@@ -345,6 +345,6 @@ void SchemeBase<SF, QD,PHYS>::sol_gradients_at_qdpoint(const Uint q)
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SchemeBase_hpp
+#endif // cf3_RDM_SchemeBase_hpp

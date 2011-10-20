@@ -35,11 +35,11 @@
 #include "UI/QwtTab/PixMaps.hpp"
 #include "UI/QwtTab/Graph.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -345,7 +345,7 @@ namespace QwtTab {
   void Graph::set_xy_data(NPlotXY::PlotDataPtr fcts,
                           std::vector<QString> & fct_label){
 
-    cf_assert( is_not_null(m_plot) );
+    cf3_assert( is_not_null(m_plot) );
     m_graph_option->set_data(fcts,fct_label);
 
     show_info();
@@ -472,5 +472,5 @@ namespace QwtTab {
 
 } // QwtTab
 } // UI
-} // CF
+} // cf3
 

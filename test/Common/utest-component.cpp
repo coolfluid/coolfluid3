@@ -5,28 +5,28 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Component"
+#define BOOST_TEST_MODULE "Test module for cf3::Component"
 
 #include <boost/test/unit_test.hpp>
 
 #include <boost/foreach.hpp>
 #include <boost/iterator.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Component.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/CLink.hpp"
+#include "common/Log.hpp"
+#include "common/Component.hpp"
+#include "common/FindComponents.hpp"
+#include "common/CRoot.hpp"
+#include "common/CGroup.hpp"
+#include "common/CLink.hpp"
 
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/SignalFrame.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 

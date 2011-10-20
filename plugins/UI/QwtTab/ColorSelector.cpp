@@ -13,7 +13,7 @@ class QColorDialog;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -88,4 +88,4 @@ void ColorSelector::set_row(int row){
 
 } // Graphics
 } // UI
-} // CF
+} // cf3

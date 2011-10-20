@@ -4,10 +4,10 @@
 #
 # CGAL_INCLUDE_DIR  = where parmetis.h can be found
 # CGAL_LIBRARIES      = the library to link against (parmetis etc)
-# CF_HAVE_CGAL        = set to true after finding the library
+# CF3_HAVE_CGAL        = set to true after finding the library
 #
 
-option( CF_SKIP_CGAL "Skip search for CGAL library" OFF )
+option( CF3_SKIP_CGAL "Skip search for CGAL library" OFF )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path

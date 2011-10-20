@@ -187,5 +187,5 @@ coolfluid_add_library(coolfluid_qwt)
 # install rapidxml headers since tests dont install sources
 #install( FILES ${rapidxml_files}
 #         DESTINATION
-#         ${CF_INSTALL_INCLUDE_DIR}/rapidxml )
+#         ${CF3_INSTALL_INCLUDE_DIR}/rapidxml )
 

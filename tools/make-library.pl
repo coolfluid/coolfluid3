@@ -81,7 +81,7 @@ print   LIBHPP <<ZZZ;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -97,7 +97,7 @@ print   LIBHPP <<ZZZ;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 /// \@brief %$libname classes
 ///
@@ -109,7 +109,7 @@ namespace $libname {
 
 /// Class defines the $libname library
 /// \@author 
-class $libname\_API Lib$libname : public Common::CLibrary
+class $libname\_API Lib$libname : public common::CLibrary
 {
 public:
 
@@ -117,7 +117,7 @@ public:
   typedef boost::shared_ptr<Lib$libname const> ConstPtr;
 
   /// Constructor
-  Lib$libname ( const std::string& name) : Common::CLibrary(name) { }
+  Lib$libname ( const std::string& name) : common::CLibrary(name) { }
 
   virtual ~Lib$libname() { }
 
@@ -175,16 +175,16 @@ print   LIBCPP <<ZZZ;
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "$libname/Lib$libname.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace $libname {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<Lib$libname> Lib$libname;
+cf3::common::RegistLibrary<Lib$libname> Lib$libname;
 
 ////////////////////////////////////////////////////////////////////////////////
 

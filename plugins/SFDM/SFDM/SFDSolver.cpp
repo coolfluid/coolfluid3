@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/CGroup.hpp"
-#include "Common/Core.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/EventHandler.hpp"
+#include "common/CGroup.hpp"
+#include "common/Core.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -25,19 +25,19 @@
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
 
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
+common::ComponentBuilder < SFDSolver, CSolver, LibSFDM > SFDSolver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -197,4 +197,4 @@ void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

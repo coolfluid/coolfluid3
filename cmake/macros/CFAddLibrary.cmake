@@ -5,8 +5,8 @@
 macro( coolfluid_add_library LIBNAME )
 
   # option to build it or not (option is advanced and does not appear in the cmake gui)
-  option( CF_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
-  mark_as_advanced( CF_BUILD_${LIBNAME} )
+  option( CF3_BUILD_${LIBNAME} "Build the ${LIBNAME} library" ON )
+  mark_as_advanced( CF3_BUILD_${LIBNAME} )
 
   # by default libraries are not part of the kernel
   if( NOT DEFINED ${LIBNAME}_kernellib )
@@ -23,10 +23,10 @@ macro( coolfluid_add_library LIBNAME )
   # check if all required plugins are present
   set( ${LIBNAME}_has_all_plugins TRUE )
   foreach( req_plugin ${${LIBNAME}_requires_plugins} )
-    list( FIND CF_PLUGIN_LIST ${req_plugin} pos )
+    list( FIND CF3_PLUGIN_LIST ${req_plugin} pos )
     if( ${pos} EQUAL -1 )
       set( ${LIBNAME}_has_all_plugins FALSE )
-      if( CF_BUILD_${LIBNAME} )
+      if( CF3_BUILD_${LIBNAME} )
           coolfluid_log_verbose( "\# LIB [${LIBNAME}] requires plugin [${req_plugin}] which is not present")
       endif()
     endif()
@@ -48,7 +48,7 @@ macro( coolfluid_add_library LIBNAME )
     set( ${LIBNAME}_condition TRUE )
   endif()
 
-  if(CF_BUILD_${LIBNAME} AND ${LIBNAME}_has_all_plugins AND ${LIBNAME}_condition)
+  if(CF3_BUILD_${LIBNAME} AND ${LIBNAME}_has_all_plugins AND ${LIBNAME}_condition)
     set( ${LIBNAME}_builds YES CACHE INTERNAL "" )
   else()
     set( ${LIBNAME}_builds NO  CACHE INTERNAL "" )
@@ -70,31 +70,31 @@ macro( coolfluid_add_library LIBNAME )
     # default for kernel libs is to install
     # default for plugin libs is not to install
     if( ${LIBNAME}_kernellib )
-        option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
-        set( CF_KERNEL_LIBS ${CF_KERNEL_LIBS} ${LIBNAME} CACHE INTERNAL "" )
+        option( CF3_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (kernel) library API" ON )
+        set( CF3_KERNEL_LIBS ${CF3_KERNEL_LIBS} ${LIBNAME} CACHE INTERNAL "" )
     else()
-        option( CF_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
+        option( CF3_BUILD_${LIBNAME}_API "Publish the ${LIBNAME} (plugin) library API" OFF )
     endif()
-    mark_as_advanced( CF_BUILD_${LIBNAME}_API )	# and mark the option advanced
+    mark_as_advanced( CF3_BUILD_${LIBNAME}_API )	# and mark the option advanced
 
     add_library(${LIBNAME} ${${LIBNAME}_buildtype} ${${LIBNAME}_sources} ${${LIBNAME}_headers}  ${${LIBNAME}_moc_files} ${${LIBNAME}_RCC})
 
-    SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES LINK_FLAGS "${CF_LIBRARY_LINK_FLAGS}" )
+    SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES LINK_FLAGS "${CF3_LIBRARY_LINK_FLAGS}" )
     string( TOUPPER ${LIBNAME} LIBNAME_CAPS )
     SET_TARGET_PROPERTIES( ${LIBNAME} PROPERTIES DEFINE_SYMBOL ${LIBNAME_CAPS}_EXPORTS )
 
     # add installation paths
     install( TARGETS ${LIBNAME}
-      RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR} COMPONENT libraries
-      LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
-      ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR} COMPONENT libraries
+      RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR} COMPONENT libraries
+      LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR} COMPONENT libraries
+      ARCHIVE DESTINATION ${CF3_INSTALL_LIB_DIR} COMPONENT libraries
     )
 
     # install headers for the libraries but
     # check if this library headers should be installed with the API
-    if( CF_BUILD_${LIBNAME}_API )
+    if( CF3_BUILD_${LIBNAME}_API )
       # replace the current directory with target
-      string( REPLACE ${CMAKE_BINARY_DIR} ${CF_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
+      string( REPLACE ${CMAKE_BINARY_DIR} ${CF3_INSTALL_INCLUDE_DIR} ${LIBNAME}_INSTALL_HEADERS ${CMAKE_CURRENT_BINARY_DIR} )
       string( REPLACE coolfluid/src  coolfluid ${LIBNAME}_INSTALL_HEADERS ${${LIBNAME}_INSTALL_HEADERS} )
 
       install( FILES ${${LIBNAME}_headers}
@@ -120,7 +120,7 @@ macro( coolfluid_add_library LIBNAME )
     endif()
 
     # if mpi was found add it to the libraries
-    if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
     #           message( STATUS "${LIBNAME} links to ${MPI_LIBRARIES}" )
         target_link_libraries( ${LIBNAME} ${MPI_LIBRARIES} )
     endif()
@@ -158,8 +158,8 @@ macro( coolfluid_add_library LIBNAME )
 
     # if not kernel lib and static is set
     # then this lib will be added to the list of kernel libs
-    if( NOT ${LIBNAME}_kernellib AND CF_ENABLE_STATIC )
-        coolfluid_append_cached_list( CF_KERNEL_STATIC_LIBS ${LIBNAME} )
+    if( NOT ${LIBNAME}_kernellib AND CF3_ENABLE_STATIC )
+        coolfluid_append_cached_list( CF3_KERNEL_STATIC_LIBS ${LIBNAME} )
     endif()
 
   endif()
@@ -167,7 +167,7 @@ macro( coolfluid_add_library LIBNAME )
   get_target_property( ${LIBNAME}_LINK_LIBRARIES  ${LIBNAME} LINK_LIBRARIES )
 
   # log some info about the library
-  coolfluid_log_file("${LIBNAME} user option     : [${CF_BUILD_${LIBNAME}}]")
+  coolfluid_log_file("${LIBNAME} user option     : [${CF3_BUILD_${LIBNAME}}]")
   coolfluid_log_file("${LIBNAME}_builds          : [${${LIBNAME}_builds}]")
   coolfluid_log_file("${LIBNAME}_dir             : [${${LIBNAME}_dir}]")
   coolfluid_log_file("${LIBNAME}_kernellib       : [${${LIBNAME}_kernellib}]")
@@ -180,7 +180,7 @@ macro( coolfluid_add_library LIBNAME )
   coolfluid_log_file("${LIBNAME}_LINK_LIBRARIES  : [${${LIBNAME}_LINK_LIBRARIES}]")
 
   coolfluid_log_file("${LIBNAME} install dir     : [${${LIBNAME}_INSTALL_HEADERS}]")
-  coolfluid_log_file("${LIBNAME} install API     : [${CF_BUILD_${LIBNAME}_API}]")
+  coolfluid_log_file("${LIBNAME} install API     : [${CF3_BUILD_${LIBNAME}_API}]")
 
   #coolfluid_install_targets( ${LIBNAME} )
 

@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::FieldGroup"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::FieldGroup"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/VariablesDescriptor.hpp"
@@ -29,9 +29,9 @@
 #include "Mesh/CCells.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
