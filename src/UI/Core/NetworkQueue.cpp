@@ -202,12 +202,12 @@ void NetworkQueue::start()
 
 void NetworkQueue::signal_ack ( Common::SignalArgs & args )
 {
-  if( isRunning() )
+//  if( isRunning() )
   {
     SignalOptions & options = args.options();
     std::string frameid = options.value<std::string>( "frameid" );
 
-    if( m_currentFrameID == frameid )
+//    if( m_currentFrameID == frameid )
     {
       bool success = options.value<bool>( "success" );
 
@@ -243,12 +243,12 @@ void NetworkQueue::signal_ack ( Common::SignalArgs & args )
           send_next_command();
       }
     }
-    else
-      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
-                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
+//    else
+//      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
+//                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
   }
-  else
-    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
+//  else
+//    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
 
 }
 
@@ -301,11 +301,11 @@ void NetworkQueue::execute_script ( const QString & filename )
     else // python
     {
       const URI script_engine_path("//Root/Tools/Python/ScriptEngine", Common::URI::Scheme::CPATH);
-      
+
       SignalOptions options;
       options.add_option< OptionT<std::string> >("script", m_scriptStream->readAll().toStdString());
       SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
-      
+
       dispatch_signal("execute_script", script_engine_path, frame);
     }
   }

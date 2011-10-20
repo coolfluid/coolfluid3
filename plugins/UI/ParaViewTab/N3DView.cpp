@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <QDebug>
+
 // header
 #include "Common/Signal.hpp"
 #include "Common/XML/Protocol.hpp"
@@ -41,6 +43,20 @@ N3DView::N3DView(const std::string & name) :
       ->description("Load last dumped file")
       ->pretty_name("Get file info")
       ->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+N3DView::~N3DView()
+{
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void N3DView::aboutToBeRemoved()
+{
+  TabBuilder::instance()->queueTab( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////

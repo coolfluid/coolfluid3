@@ -345,6 +345,8 @@ namespace Core {
 
     void finishSetUp();
 
+    virtual void aboutToBeRemoved() {}
+
   protected: // data
 
     /// This internal notifier.
@@ -369,6 +371,7 @@ namespace Core {
     /// If @c true, this component is a NRoot object.
     bool m_isRoot;
 
+
   private: // data
 
     /// Component type name.
@@ -388,6 +391,7 @@ namespace Core {
     virtual void disableLocalSignals( QMap<QString, bool> & localSignals) const = 0;
 
     virtual void setUpFinished() {}
+
 
   private: // helper functions
 

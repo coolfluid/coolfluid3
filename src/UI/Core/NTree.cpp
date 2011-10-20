@@ -5,10 +5,12 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QMutex>
+#include <QDebug>
 
 #include "rapidxml/rapidxml.hpp"
 
 #include "Common/Signal.hpp"
+#include "Common/XML/FileOperations.hpp"
 
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Core/NetworkQueue.hpp"
@@ -595,9 +597,10 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 void NTree::list_tree_reply(SignalArgs & args)
 {
 
-
+  qDebug() << "begin" << __FUNCTION__;
   //QMutexLocker locker(m_mutex);
-  emit beginResetModel();
+  emit beginUpdateTree();
+  beginResetModel();
 
   try
   {
@@ -610,8 +613,6 @@ void NTree::list_tree_reply(SignalArgs & args)
     {
       currentIndexPath = indexToTreeNode(m_currentIndex)->node()->uri();
     }
-
-
 
     //
     // rename the root
@@ -635,7 +636,11 @@ void NTree::list_tree_reply(SignalArgs & args)
     itList = listToRemove.begin();
 
     for( ; itList != listToRemove.end() ; itList++)
+    {
+      CNode::Ptr node = treeRoot->root()->access_component_ptr_checked(*itList)->as_ptr<CNode>();
+      node->aboutToBeRemoved();
       treeRoot->root()->remove_component(*itList);
+    }
 
     //
     // add the new nodes
@@ -660,9 +665,12 @@ void NTree::list_tree_reply(SignalArgs & args)
   }
 
   // tell the view to update the whole thing
-  emit endResetModel();
+  endResetModel();
+
+  emit endUpdateTree();
 
   emit currentIndexChanged(m_currentIndex, QModelIndex());
+  qDebug() << "end" << __FUNCTION__;
 
 //  qDebug() << "tree updated !";
 }

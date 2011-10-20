@@ -616,6 +616,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
   rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute("mode");
 
+  std::string uuid = node.attribute_value( "uuid" );
+
 //  if( is_null(typeAttr) )
 //  {
 //    std::string str;
@@ -657,6 +659,9 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
   if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
     rootNode->mark_basic();
+
+  if( !uuid.empty() )
+    rootNode->configure_property( "uuid", uuid );
 
   while( child.is_valid() )
   {

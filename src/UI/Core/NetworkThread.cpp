@@ -151,10 +151,10 @@ void NetworkThread::newData()
   while(!m_socket->atEnd())
   {
     in.readBytes(frame, m_blockSize);
-    
+
     std::string frame_str;
     frame_str.reserve(m_blockSize);
-    
+
     char* frame_part = frame;
     quint32 offset = frame_part - frame;
 
@@ -174,7 +174,7 @@ void NetworkThread::newData()
     {
       if( m_blockSize > 0 )
       {
-        XmlDoc::Ptr doc = XML::parse_string(frame_str);
+        XmlDoc::Ptr doc = XML::parse_cstring(frame, m_blockSize - 1);
         newSignal(doc);
       }
     }

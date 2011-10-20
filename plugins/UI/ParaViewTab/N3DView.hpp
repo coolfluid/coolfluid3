@@ -41,6 +41,8 @@ public: //function
     /// @param name Name of the node.
     N3DView(const std::string& name);
 
+    virtual ~N3DView();
+
     /// toolTip
     virtual QString toolTip() const;
 
@@ -52,6 +54,7 @@ public: //function
     /// @param node
     void send_server_info_to_client( Common::SignalArgs& node );
 
+    virtual void aboutToBeRemoved();
 protected:
 
   /// Disables the local signals that need to.
@@ -62,6 +65,7 @@ protected:
   void reload_client_view();
 
   virtual void setUpFinished();
+
 
 };
 

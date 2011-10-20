@@ -16,6 +16,7 @@
 
 #include "UI/Graphics/LibGraphics.hpp"
 
+
 ///////////////////////////////////////////////////////////////////////////
 
 namespace CF {
@@ -46,7 +47,7 @@ public:
   TYPE * getWidget( Core::CNode::ConstPtr node )
   {
     TYPE * widget = nullptr;
-    std::string key = node->uri().path();
+    std::string key = node->properties().value_str("uuid"); //node->uri().path();
 
     if( !m_tabs.contains(key) )
     {
@@ -58,7 +59,10 @@ public:
       m_tabs[key] = info;
     }
     else
+    {
       setTabText( m_tabs[key].tabIndex, node->uri().path().c_str() );
+      m_lastTabs.remove( key );
+    }
 
     widget = static_cast<TYPE*>(m_tabs[key].widget);
 
@@ -68,9 +72,15 @@ public:
 
   void showTab( Core::CNode::ConstPtr node );
 
+  void queueTab( Core::CNode::ConstPtr node);
+
 private slots:
 
   void tabClicked(int index);
+
+  void beginModelReset();
+
+  void endModelReset();
 
 private: // functions
 
@@ -81,6 +91,8 @@ private: // functions
 private : // data
 
   QMap<std::string, TabInfo> m_tabs;
+
+  QMap<std::string, int> m_lastTabs;
 
 
 }; // TabManager
