@@ -10,10 +10,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/numeric/ublas/vector.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "Common/CRoot.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 #include "Mesh/CElements.hpp"
@@ -23,11 +23,11 @@
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Math;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Math;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::BlockMesh;
 
 struct VectorBenchmarkFixture : Tools::Testing::TimedTestFixture
 {

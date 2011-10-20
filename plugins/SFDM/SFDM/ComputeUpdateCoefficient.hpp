@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_ComputeUpdateCoefficient_hpp
-#define CF_SFDM_ComputeUpdateCoefficient_hpp
+#ifndef cf3_SFDM_ComputeUpdateCoefficient_hpp
+#define cf3_SFDM_ComputeUpdateCoefficient_hpp
 
 #include "Solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh   { class Field; }
 namespace Solver { class CTime;   }
 namespace SFDM {
@@ -58,8 +58,8 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_ComputeUpdateCoefficient_hpp
+#endif // cf3_SFDM_ComputeUpdateCoefficient_hpp

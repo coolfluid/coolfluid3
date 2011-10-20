@@ -9,11 +9,11 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/PE/debug.hpp"
+#include "common/PE/Comm.hpp"
 
 #include "Mesh/Actions/Interpolate.hpp"
 
@@ -23,11 +23,11 @@
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CSimpleMeshGenerator.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Actions;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

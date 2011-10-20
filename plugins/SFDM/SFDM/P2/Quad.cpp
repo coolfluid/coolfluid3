@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
 #include "SFDM/P2/Quad.hpp"
 #include "SFDM/P2/Line.hpp"
 #include "SFDM/P3/Line.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 namespace P2 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
   Quad_Builder(LibSFDM::library_namespace()+".P2."+Quad::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ Quad::Quad(const std::string& name) : ShapeFunction(name)
 
 const ShapeFunction& Quad::line() const
 {
-  const static ShapeFunction::ConstPtr line_sf(Common::allocate_component< P2::Line >(P2::Line::type_name()));
+  const static ShapeFunction::ConstPtr line_sf(common::allocate_component< P2::Line >(P2::Line::type_name()));
   return *line_sf;
 }
 
@@ -81,7 +81,7 @@ const ShapeFunction& Quad::line() const
 
 const ShapeFunction& Quad::flux_line() const
 {
-  const static ShapeFunction::ConstPtr flux_line_sf(Common::allocate_component< P3::Line >(P2::Line::type_name()));
+  const static ShapeFunction::ConstPtr flux_line_sf(common::allocate_component< P3::Line >(P2::Line::type_name()));
   return *flux_line_sf;
 }
 
@@ -187,4 +187,4 @@ const Mesh::GeoShape::Type Quad::shape;
 
 } // P2
 } // SFDM
-} // CF
+} // cf3

@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "common/RegistLibrary.hpp"
 #include "RiemannSolvers/LibRiemannSolvers.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-  using namespace Common;
+  using namespace common;
 
-CF::Common::RegistLibrary<LibRiemannSolvers> libRiemannSolvers;
+cf3::common::RegistLibrary<LibRiemannSolvers> libRiemannSolvers;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,4 +27,4 @@ void LibRiemannSolvers::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

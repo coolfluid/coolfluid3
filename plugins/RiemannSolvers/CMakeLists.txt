@@ -8,7 +8,7 @@ project( RiemannSolvers CXX )
 
 coolfluid_define_plugin( RiemannSolvers ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CF_PLUGIN_RIEMANNSOLVERS )
+if( CF3_PLUGIN_RIEMANNSOLVERS )
 
   coolfluid_find_orphan_files()
 

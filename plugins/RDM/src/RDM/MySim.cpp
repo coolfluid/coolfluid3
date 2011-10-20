@@ -6,16 +6,16 @@
 
 #include "boost/assign/list_of.hpp"
 
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/Log.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/FindComponents.hpp"
 
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/LoadMesh.hpp"
 #include "Mesh/CCells.hpp"
@@ -37,16 +37,16 @@
 #include "RDM/DomainDiscretization.hpp"
 #include "RDM/CellTerm.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Physics;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Physics;
+using namespace cf3::Solver;
 
-Common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ MySim::~MySim()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MySim::signal_create_model ( Common::SignalArgs& node )
+void MySim::signal_create_model ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -124,7 +124,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
       regions.push_back( region.uri() );
 
-    cf_assert( regions.size() == 2u);
+    cf3_assert( regions.size() == 2u);
 
     std::string name ("WEAK_INLET");
 
@@ -135,7 +135,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     solver.boundary_conditions().signal_create_boundary_condition(frame);
 
     Component::Ptr inletbc = find_component_ptr_recursively_with_name( solver, name );
-    cf_assert( is_not_null(inletbc) );
+    cf3_assert( is_not_null(inletbc) );
 
     std::vector<std::string> fns;
     fns.push_back("if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)");
@@ -167,7 +167,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
       domain_terms.remove_component( name );
     }
 
-    cf_assert( domain_terms.count_children() == 0 );
+    cf3_assert( domain_terms.count_children() == 0 );
 
     CMesh& mesh = find_component<CMesh>(domain);
 
@@ -178,7 +178,7 @@ void MySim::signal_create_model ( Common::SignalArgs& node )
     boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
       regions.push_back( region.uri() );
 
-    cf_assert( regions.size() == 1u);
+    cf3_assert( regions.size() == 1u);
 
     options.add_option< OptionT<std::string> >("Name","INTERNAL");
     options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.LDA");
@@ -204,4 +204,4 @@ void MySim::signature_create_model( SignalArgs& node )
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

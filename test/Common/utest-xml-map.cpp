@@ -13,17 +13,17 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CF.hpp"
-#include "Common/BasicExceptions.hpp"
-#include "Common/StringConversion.hpp"
+#include "common/CF.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
 
-#include "Common/XML/Protocol.hpp"
+#include "common/XML/Protocol.hpp"
 
-#include "Common/XML/Map.hpp"
+#include "common/XML/Map.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 using namespace boost::assign; // for list_of
 
 /////////////////////////////////////////////////////////////////////////////
@@ -112,8 +112,8 @@ BOOST_AUTO_TEST_CASE ( set_array )
 
   std::vector<int> vect_first = list_of<int>(12)(5)(546)(2135)(12164)(3464)(1);
   std::vector<int> vect_second = list_of<int>(7987)(346)(101);
-  CF::Uint size_first = vect_first.size();
-  CF::Uint size_second = vect_second.size();
+  cf3::Uint size_first = vect_first.size();
+  cf3::Uint size_second = vect_second.size();
 
   // the values as they should be written in the array
   std::string str_first("12 ; 5 ; 546 ; 2135 ; 12164 ; 3464 ; 1"); // delimiter is " ; "

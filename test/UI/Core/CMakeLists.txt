@@ -23,7 +23,7 @@ coolfluid_add_test( UTEST      utest-ui-core
                                PropertyModelTest.hpp
                                TreeNodeTest.hpp
                     LIBS       coolfluid_ui_core ${QT_LIBRARIES}
-                    CONDITION  CF_ENABLE_GUI )
+                    CONDITION  CF3_ENABLE_GUI )
 
 add_custom_command( TARGET utest-ui-core
                     POST_BUILD

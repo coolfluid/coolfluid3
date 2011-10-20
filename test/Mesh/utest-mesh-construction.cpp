@@ -11,10 +11,10 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Core.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CMesh.hpp"
@@ -29,9 +29,9 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

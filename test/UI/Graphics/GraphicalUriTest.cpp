@@ -16,12 +16,12 @@
 
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -330,4 +330,4 @@ QWidget * GraphicalUriTest::findWidget(const GraphicalUri* value, int index)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

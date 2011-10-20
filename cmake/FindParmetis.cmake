@@ -4,10 +4,10 @@
 #
 # PARMETIS_INCLUDE_DIR  = where parmetis.h can be found
 # PARMETIS_LIBRARIES      = the library to link against (parmetis etc)
-# CF_HAVE_PARMETIS        = set to true after finding the library
+# CF3_HAVE_PARMETIS        = set to true after finding the library
 #
 
-option( CF_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
+option( CF3_SKIP_PARMETIS "Skip search for Parmetis library" OFF )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path

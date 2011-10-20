@@ -11,15 +11,15 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/CF.hpp"
-#include "Common/CActionDirector.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/URI.hpp"
+#include "common/CF.hpp"
+#include "common/CActionDirector.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Foreach.hpp"
+#include "common/URI.hpp"
 
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 

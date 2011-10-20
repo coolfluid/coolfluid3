@@ -59,12 +59,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::UI::Core;
-using namespace CF::UI::Graphics;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaViewTab {
 

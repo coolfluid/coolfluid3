@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Core_NPlotXY_hpp
-#define CF_GUI_Core_NPlotXY_hpp
+#ifndef cf3_GUI_Core_NPlotXY_hpp
+#define cf3_GUI_Core_NPlotXY_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ class QString;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -47,11 +47,11 @@ public:
 
   virtual QString toolTip() const;
 
-  void convergence_history ( Common::SignalArgs& node );
+  void convergence_history ( common::SignalArgs& node );
 
-  void show_hide_plot( Common::SignalArgs& node );
+  void show_hide_plot( common::SignalArgs& node );
 
-  void go_to_plot( Common::SignalArgs& node );
+  void go_to_plot( common::SignalArgs& node );
 
 protected:
 
@@ -68,8 +68,8 @@ protected:
 
 } // QwtTab
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Core_NPlotXY_hpp
+#endif // cf3_GUI_Core_NPlotXY_hpp

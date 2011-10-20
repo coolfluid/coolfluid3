@@ -9,9 +9,9 @@
 #include <QApplication>
 #include <QtTest>
 
-#include "Common/CF.hpp"
-#include "Common/Assertions.hpp"
-#include "Common/Exception.hpp"
+#include "common/CF.hpp"
+#include "common/Assertions.hpp"
+#include "common/Exception.hpp"
 
 #include "test/UI/Graphics/GraphicalArrayTest.hpp"
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
@@ -23,7 +23,7 @@
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
 #include "test/UI/Graphics/GraphicalValueTest.hpp"
 
-using namespace CF::UI::GraphicsTest;
+using namespace cf3::UI::GraphicsTest;
 
 int main(int argc, char * argv[])
 {
@@ -38,11 +38,11 @@ int main(int argc, char * argv[])
   QApplication app(argc, argv);
   int passed = 0;
 
-  CF::Common::ExceptionManager::instance().ExceptionDumps = false;
-  CF::Common::ExceptionManager::instance().ExceptionAborts = false;
-  CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
+  cf3::common::ExceptionManager::instance().ExceptionDumps = false;
+  cf3::common::ExceptionManager::instance().ExceptionAborts = false;
+  cf3::common::ExceptionManager::instance().ExceptionOutputs = false;
 
-  CF::Common::AssertionManager::instance().AssertionThrows = true;
+  cf3::common::AssertionManager::instance().AssertionThrows = true;
 
   passed += QTest::qExec(new GraphicalArrayTest(), argc, argv);
   passed += QTest::qExec(new GraphicalBoolTest(), argc, argv);

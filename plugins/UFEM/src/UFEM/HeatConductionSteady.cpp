@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
@@ -12,10 +12,10 @@
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
@@ -51,4 +51,4 @@ HeatConductionSteady::HeatConductionSteady(const std::string& name) : LinearSolv
 
 
 } // UFEM
-} // CF
+} // cf3

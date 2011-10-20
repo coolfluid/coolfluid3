@@ -5,25 +5,25 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for Common::EventHandler"
+#define BOOST_TEST_MODULE "Test module for common::EventHandler"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/thread.hpp>
 
 #include <iostream>
 
-#include "Common/Core.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/ConnectionManager.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/Core.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/ConnectionManager.hpp"
+#include "common/EventHandler.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 //------------------------------------------------------------------------------------------
 // Auxiliary classes

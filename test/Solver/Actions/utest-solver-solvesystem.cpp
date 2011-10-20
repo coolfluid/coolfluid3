@@ -13,23 +13,23 @@
 
 #include "Solver/Actions/CSolveSystem.hpp"
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/CommWrapper.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/CommWrapper.hpp"
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/LSS/System.hpp"
 
 using namespace boost::assign;
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Math;
 
 BOOST_AUTO_TEST_SUITE( SolveSystemSuite )
 
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
   conn += 0,2,1,2,2,7,3,8,4,5,5,2,6,0,7,1,8,7,9,8;
   startidx += 0,2,4,6,8,10,12,14,16,18,20;
   cp.insert("gid",gid,1,false);
-  cp.setup(cp.get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rnk);
+  cp.setup(cp.get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),rnk);
   
   lss.configure_option("solver", std::string("EmptyLSS"));
   lss.create(cp, 4u, conn, startidx);

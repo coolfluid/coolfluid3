@@ -68,7 +68,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
         SET(libNAME "${curNAME}.lib")
         IF(EXISTS ${dllNAME})
             INSTALL(FILES ${dllNAME}
-                DESTINATION ${CF_INSTALL_BIN_DIR}
+                DESTINATION ${CF3_INSTALL_BIN_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
@@ -82,7 +82,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
         IF(EXISTS ${libNAME})
             # also install the import libraries
             INSTALL(FILES ${libNAME}
-                DESTINATION ${CF_INSTALL_LIB_DIR}
+                DESTINATION ${CF3_INSTALL_LIB_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
@@ -144,7 +144,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                         IF(IS_DIRECTORY ${curNAMEWithExt})
                             # It is a framework, install as a directory
                             INSTALL(DIRECTORY ${curNAMEWithExt}
-                                DESTINATION ${CF_INSTALL_LIB_DIR}
+                                DESTINATION ${CF3_INSTALL_LIB_DIR}
                                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                                 FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
@@ -156,13 +156,13 @@ function ( coolfluid_install_third_party_library LIBFILE )
                             STRING(REGEX MATCH "${frameworkNameWE}[A-Za-z0-9._/-]*" frameworkMatch ${realFramework})
                             INSTALL(CODE
                                 "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                                    COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${frameworkMatch}\"
+                                    COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}/${frameworkMatch}\"
                                     OUTPUT_VARIABLE OSXOUT)
                                  MESSAGE(STATUS \"\${OSXOUT}\")
                                 ")
                         ELSE(IS_DIRECTORY ${curNAMEWithExt})
                             INSTALL(FILES ${curNAMEWithExt}
-                                DESTINATION ${CF_INSTALL_LIB_DIR}
+                                DESTINATION ${CF3_INSTALL_LIB_DIR}
                                 PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                             )
@@ -172,7 +172,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                                 GET_FILENAME_COMPONENT(libName ${curNAMEWithExt} NAME)
                                 INSTALL(CODE
                                     "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                                        COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${libName}\"
+                                        COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}/${libName}\"
                                         OUTPUT_VARIABLE OSXOUT)
                                      MESSAGE(STATUS \"\${OSXOUT}\")
                                     ")
@@ -187,7 +187,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
             IF(IS_DIRECTORY ${tmpLIBFILE})
                 # It is a framework, install as a directory.
                 INSTALL(DIRECTORY ${tmpLIBFILE}
-                    DESTINATION ${CF_INSTALL_LIB_DIR}
+                    DESTINATION ${CF3_INSTALL_LIB_DIR}
                     DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                     FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                     CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
@@ -200,14 +200,14 @@ function ( coolfluid_install_third_party_library LIBFILE )
                 STRING(REGEX MATCH "${frameworkNameWE}[A-Za-z0-9._/-]*" frameworkMatch ${realFramework})
                 INSTALL(CODE
                     "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                        COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${frameworkMatch}\"
+                        COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}/${frameworkMatch}\"
                         OUTPUT_VARIABLE OSXOUT)
                      MESSAGE(STATUS \"\${OSXOUT}\")
                     ")
             ELSE(IS_DIRECTORY ${tmpLIBFILE})
                 # Create an install target for just the library file
                 INSTALL(FILES ${tmpLIBFILE}
-                    DESTINATION ${CF_INSTALL_LIB_DIR}
+                    DESTINATION ${CF3_INSTALL_LIB_DIR}
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                     CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
                 )
@@ -217,7 +217,7 @@ function ( coolfluid_install_third_party_library LIBFILE )
                     GET_FILENAME_COMPONENT(libName ${tmpLIBFILE} NAME)
                     INSTALL(CODE
                         "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                            COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${libName}\"
+                            COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}/${libName}\"
                             OUTPUT_VARIABLE OSXOUT)
                          MESSAGE(STATUS \"\${OSXOUT}\")
                         ")
@@ -228,9 +228,9 @@ function ( coolfluid_install_third_party_library LIBFILE )
     ELSE(${isSHAREDLIBRARY} STREQUAL "YES")
         # We have a .a that we need to install to archives.
         # IF(VISIT_INSTALL_THIRD_PARTY)
-#            coolfluid_log("***INSTALL ${LIBFILE} to ${CF_INSTALL_ARCHIVE_DIR}")
+#            coolfluid_log("***INSTALL ${LIBFILE} to ${CF3_INSTALL_ARCHIVE_DIR}")
             INSTALL(FILES ${tmpLIBFILE}
-                DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
+                DESTINATION ${CF3_INSTALL_ARCHIVE_DIR}
                 PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE WORLD_READ
                 CONFIGURATIONS "";None;Debug;Release;RelWithDebInfo;MinSizeRel
             )
@@ -249,9 +249,9 @@ endfunction (coolfluid_install_third_party_library)
 function ( coolfluid_install_third_party_include  pkg incdir)
 #        IF(VISIT_INSTALL_THIRD_PARTY)
             STRING(TOLOWER ${pkg} lcpkg)
-            coolfluid_log("***INSTALL ${incdir} -> ${CF_INSTALL_INCLUDE_DIR}/${lcpkg}")
+            coolfluid_log("***INSTALL ${incdir} -> ${CF3_INSTALL_INCLUDE_DIR}/${lcpkg}")
             INSTALL(DIRECTORY ${incdir}
-                DESTINATION ${CF_INSTALL_INCLUDE_DIR}/${lcpkg}
+                DESTINATION ${CF3_INSTALL_INCLUDE_DIR}/${lcpkg}
                 DIRECTORY_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_WRITE GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
                 COMPONENT headers

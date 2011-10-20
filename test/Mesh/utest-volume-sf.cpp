@@ -19,19 +19,19 @@
 #include <boost/fusion/container/map/convert.hpp>
 #include <boost/fusion/sequence/intrinsic/at_key.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/GeoShape.hpp"
 #include "Mesh/ElementType.hpp"
 #include "Mesh/ElementTypes.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -238,7 +238,7 @@ struct VolumeSFFixture
     template<typename ETYPE> void operator()(const ETYPE& T)
     {
       FunctorT functor;
-      cf_assert(ETYPE::dimension == ETYPE::dimensionality);
+      cf3_assert(ETYPE::dimension == ETYPE::dimensionality);
       CFinfo << "---------------------- Start " << allocate_component< ElementTypeT<ETYPE> >("lala")->derived_type_name() << " test ----------------------" << CFendl;
       const Uint segments = 5; // number of segments in each direction for the mapped coord calculation
       try

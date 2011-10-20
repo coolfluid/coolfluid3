@@ -9,14 +9,14 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/PE/Comm.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/PE/Comm.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 

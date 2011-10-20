@@ -67,7 +67,7 @@ if( ParaView_FOUND )
   coolfluid_log_file("ParaView libraries: ${ParaView_LIBRARIES}" )
 
   # add paraview libraries to list of third party libraries
-  list( APPEND CF_DEPS_LIBRARIES ${ParaView_LIBRARIES} )
+  list( APPEND CF3_DEPS_LIBRARIES ${ParaView_LIBRARIES} )
 endif()
 
 coolfluid_add_package( PACKAGE ParaView

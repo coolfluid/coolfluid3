@@ -9,7 +9,7 @@
 
 #include <QObject> // Qt header
 
-#include "Common/Signal.hpp"
+#include "common/Signal.hpp"
 
 #include "Mesh/CMesh.hpp"
 
@@ -17,7 +17,7 @@
 
 class QProcess;
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 
@@ -27,7 +27,7 @@ namespace ParaView {
   /// @author Wertz Gil
   class ParaView_API C3DView :
       public QObject,
-      public Common::Component
+      public common::Component
 {
     Q_OBJECT
 
@@ -48,7 +48,7 @@ public:
   /// Component::derived_type_name implementation
   std::string derived_type_name() const
   {
-    return Common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
+    return common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
   }
 
   /// Get the class name
@@ -56,19 +56,19 @@ public:
 
   /// Launche a paraview server
   /// @param args
-  void launch_pvserver( Common::SignalArgs & args );
+  void launch_pvserver( common::SignalArgs & args );
 
   /// Dump a vtk or exodusII file.
   /// @param args
-//  void dump_file( Common::SignalArgs & args );
+//  void dump_file( common::SignalArgs & args );
 
   /// Send paths and names of dumped file to the client
   /// @param args
-  void send_server_info_to_client( Common::SignalArgs & args );
+  void send_server_info_to_client( common::SignalArgs & args );
 
   /// signal that responds to the event "iteration_done"
   /// @param args
-  void signal_iteration_done( Common::SignalArgs & args );
+  void signal_iteration_done( common::SignalArgs & args );
 
 private slots:
 

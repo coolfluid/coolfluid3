@@ -14,10 +14,10 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       set(CPACK_PACKAGE_VENDOR "von Karman Institute for Fluid Dynamics")
 #       set(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Copyright.txt")
       set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/doc/lgpl.txt")
-      set(CPACK_PACKAGE_VERSION "${CF_KERNEL_VERSION}")
-      set(CPACK_PACKAGE_VERSION_MAJOR ${CF_KERNEL_VERSION_MAJOR})
-      set(CPACK_PACKAGE_VERSION_MINOR ${CF_KERNEL_VERSION_MINOR})
-      set(CPACK_PACKAGE_VERSION_PATCH ${CF_KERNEL_VERSION_PATCH})
+      set(CPACK_PACKAGE_VERSION "${CF3_KERNEL_VERSION}")
+      set(CPACK_PACKAGE_VERSION_MAJOR ${CF3_KERNEL_VERSION_MAJOR})
+      set(CPACK_PACKAGE_VERSION_MINOR ${CF3_KERNEL_VERSION_MINOR})
+      set(CPACK_PACKAGE_VERSION_PATCH ${CF3_KERNEL_VERSION_PATCH})
       set(CPACK_PACKAGE_INSTALL_DIRECTORY "coolfluid-${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")
       set(CPACK_PACKAGE_RELOCATABLE "true")
 
@@ -36,18 +36,18 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
       # not copy the files into the installer, so we copy them manually
 
       #install(DIRECTORY ${DEPS_ROOT}/lib/
-      # DESTINATION ${CF_INSTALL_LIB_DIR}
+      # DESTINATION ${CF3_INSTALL_LIB_DIR}
       # COMPONENT libraries
       # FILES_MATCHING REGEX "^.*\\.(so|dylib|dll)$")
 
-      foreach( DEP_LIB ${CF_DEPS_LIBRARIES} )
+      foreach( DEP_LIB ${CF3_DEPS_LIBRARIES} )
       #  coolfluid_log (" +++ installing ${DEP_LIB}")
         coolfluid_install_third_party_library( ${DEP_LIB} )
       endforeach()
 
-      #foreach ( CF_QT_LIB ${QT_LIBRARIES} )
-      #  coolfluid_log (" +++ installing ${CF_QT_LIB}")
-      #  coolfluid_install_third_party_library( ${CF_QT_LIB} )
+      #foreach ( CF3_QT_LIB ${QT_LIBRARIES} )
+      #  coolfluid_log (" +++ installing ${CF3_QT_LIB}")
+      #  coolfluid_install_third_party_library( ${CF3_QT_LIB} )
       #endforeach()
 
       # platform specific configuration
@@ -59,12 +59,12 @@ if(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
         set(CPACK_BUNDLE_ICON "${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid.icns")
 
         file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/start_coolfluid.sh F0)
-        string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
+        string(REPLACE CF3_VERSION "${CF3_KERNEL_VERSION}" F1 "${F0}")
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh "${F1}")
         set(CPACK_BUNDLE_STARTUP_COMMAND "${CMAKE_CURRENT_BINARY_DIR}/start_coolfluid.sh")
 
         file(READ ${CMAKE_SOURCE_DIR}/tools/MacOSX_Bundle/coolfluid-Info.plist F0)
-        string(REPLACE CF_VERSION "${CF_KERNEL_VERSION}" F1 "${F0}")
+        string(REPLACE CF3_VERSION "${CF3_KERNEL_VERSION}" F1 "${F0}")
         file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info.plist "${F1}")
         set(CPACK_BUNDLE_PLIST ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
       elseif(UNIX)

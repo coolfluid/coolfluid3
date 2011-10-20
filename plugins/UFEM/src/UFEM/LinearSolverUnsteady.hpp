@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_LinearSolverUnsteady_hpp
-#define CF_UFEM_LinearSolverUnsteady_hpp
+#ifndef cf3_UFEM_LinearSolverUnsteady_hpp
+#define cf3_UFEM_LinearSolverUnsteady_hpp
 
 #include "LinearSolver.hpp"
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
@@ -46,7 +46,7 @@ private:
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_LinearSolverUnsteady_hpp
+#endif // cf3_UFEM_LinearSolverUnsteady_hpp

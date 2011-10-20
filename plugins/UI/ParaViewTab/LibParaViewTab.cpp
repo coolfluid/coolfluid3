@@ -8,8 +8,8 @@
 #include <pqApplicationCore.h>
 
 // CF headers
-#include "Common/Core.hpp"
-#include "Common/RegistLibrary.hpp"
+#include "common/Core.hpp"
+#include "common/RegistLibrary.hpp"
 #include "UI/Core/NPlugin.hpp"
 #include "UI/Core/NPlugins.hpp"
 #include "UI/Core/NLog.hpp"
@@ -18,23 +18,23 @@
 #include "UI/ParaViewTab/N3DView.hpp"
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaViewTab {
 
-CF::Common::RegistLibrary<LibParaViewTab> libParaViewTab;
+cf3::common::RegistLibrary<LibParaViewTab> libParaViewTab;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void LibParaViewTab::initiate_impl()
 {
-  Common::Core & core = Common::Core::instance();
+  common::Core & core = common::Core::instance();
   m_argc = core.argc();
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());

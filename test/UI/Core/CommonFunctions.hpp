@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_CommonFunctions_hpp
-#define CF_GUI_Client_uTests_CommonFunctions_hpp
+#ifndef cf3_GUI_Client_uTests_CommonFunctions_hpp
+#define cf3_GUI_Client_uTests_CommonFunctions_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -35,8 +35,8 @@ namespace CoreTest {
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_CommonFunctions_hpp
+#endif // cf3_GUI_Client_uTests_CommonFunctions_hpp

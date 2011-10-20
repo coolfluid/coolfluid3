@@ -5,19 +5,19 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::RDM::Schemes::LDA"
+#define BOOST_TEST_MODULE "Test module for cf3::RDM::Schemes::LDA"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
+#include "common/Core.hpp"
 
 #include "RDM/Schemes/LDA.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
+using namespace cf3::common;
 
 /// @todo create a library for support of the utests
 /// @todo move this to a class that all utests global fixtures must inherit from

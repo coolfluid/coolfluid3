@@ -9,16 +9,16 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Math/Checks.hpp"
 
 using namespace std;
 using namespace boost;
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Math;
 
 typedef long int lint;
 

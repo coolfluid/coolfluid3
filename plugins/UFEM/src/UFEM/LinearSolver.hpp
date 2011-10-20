@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_LinearSolver_hpp
-#define CF_UFEM_LinearSolver_hpp
+#ifndef cf3_UFEM_LinearSolver_hpp
+#define cf3_UFEM_LinearSolver_hpp
 
-#include "Common/CActionDirector.hpp"
-#include "Common/OptionURI.hpp"
+#include "common/CActionDirector.hpp"
+#include "common/OptionURI.hpp"
 
 #include "Solver/CSimpleSolver.hpp"
 
@@ -19,7 +19,7 @@
 #include "BoundaryConditions.hpp"
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace UFEM {
 
@@ -52,10 +52,10 @@ public: // functions
   virtual void mesh_changed(Mesh::CMesh& mesh);
 
   /// Return an action that resets the LSS to zero
-  Common::CAction& zero_action();
+  common::CAction& zero_action();
 
   /// Return the action used for solving the system
-  Common::CAction& solve_action();
+  common::CAction& solve_action();
 
   /// Get the component that manages boundary conditions
   BoundaryConditions& boundary_conditions();
@@ -80,7 +80,7 @@ public:
 };
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_LinearSolver_hpp
+#endif // cf3_UFEM_LinearSolver_hpp

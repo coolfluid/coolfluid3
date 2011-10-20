@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
 
-#include "Common/PE/debug.hpp"
+#include "common/PE/debug.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -37,10 +37,10 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-  using namespace Common;
+  using namespace common;
   using namespace Mesh;
   using namespace Solver::Actions;
   using namespace Solver;
@@ -48,7 +48,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CreateSFDFields, Solver::Action, LibSFDM> CreateSFDFields_builder;
+common::ComponentBuilder < CreateSFDFields, Solver::Action, LibSFDM> CreateSFDFields_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -122,4 +122,4 @@ void CreateSFDFields::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3

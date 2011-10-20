@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RiemannSolvers_LibRiemannSolvers_hpp
-#define CF_RiemannSolvers_LibRiemannSolvers_hpp
+#ifndef cf3_RiemannSolvers_LibRiemannSolvers_hpp
+#define cf3_RiemannSolvers_LibRiemannSolvers_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro RiemannSolvers_API
 /// @note build system defines COOLFLUID_RIEMANNSOLVERS_EXPORTS when compiling RiemannSolvers files
 #ifdef COOLFLUID_RIEMANNSOLVERS_EXPORTS
-#   define RiemannSolvers_API      CF_EXPORT_API
+#   define RiemannSolvers_API      CF3_EXPORT_API
 #   define RiemannSolvers_TEMPLATE
 #else
-#   define RiemannSolvers_API      CF_IMPORT_API
-#   define RiemannSolvers_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RiemannSolvers_API      CF3_IMPORT_API
+#   define RiemannSolvers_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 /// @brief Riemann Solver classes
 ///
 /// A Riemann solver is a numerical method used to solve a Riemann problem. 
@@ -45,7 +45,7 @@ namespace RiemannSolvers {
 /// Class defines the RiemannSolvers library
 /// @author Willem Deconinck
 class RiemannSolvers_API LibRiemannSolvers :
-    public Common::CLibrary
+    public common::CLibrary
 {
 public:
 
@@ -53,7 +53,7 @@ public:
   typedef boost::shared_ptr<LibRiemannSolvers const> ConstPtr;
 
   /// Constructor
-  LibRiemannSolvers ( const std::string& name) : Common::CLibrary(name) { }
+  LibRiemannSolvers ( const std::string& name) : common::CLibrary(name) { }
 
   virtual ~LibRiemannSolvers() { }
 
@@ -92,8 +92,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RiemannSolversLibRiemannSolvers_hpp
+#endif // cf3_RiemannSolversLibRiemannSolvers_hpp

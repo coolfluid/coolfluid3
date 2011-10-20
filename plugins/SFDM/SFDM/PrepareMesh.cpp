@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/Signal.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionArray.hpp"
+#include "common/Log.hpp"
+#include "common/Signal.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/FieldManager.hpp"
@@ -24,24 +24,24 @@
 #include "SFDM/CreateSFDFields.hpp"
 #include "SFDM/Tags.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Actions;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < PrepareMesh, CAction, LibSFDM > PrepareMesh_Builder;
+common::ComponentBuilder < PrepareMesh, CAction, LibSFDM > PrepareMesh_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 PrepareMesh::PrepareMesh ( const std::string& name ) :
-  CF::Solver::ActionDirector(name)
+  cf3::Solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -80,4 +80,4 @@ void PrepareMesh::execute()
 
 
 } // SFDM
-} // CF
+} // cf3

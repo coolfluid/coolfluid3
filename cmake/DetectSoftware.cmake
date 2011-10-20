@@ -88,19 +88,19 @@ find_package(Trilinos)        # Trilinos sparse matrix library
 find_package(Gnuplot QUIET)   # Find gnuplot executable
 
 # opencl support
-if( CF_ENABLE_OPENCL AND CF_ENABLE_GPU )
+if( CF3_ENABLE_OPENCL AND CF3_ENABLE_GPU )
   find_package(OpenCL)
   coolfluid_set_package( PACKAGE OpenCL DESCRIPTION "gpu computing" )
 endif()
 
 # cuda support
-if( CF_ENABLE_CUDA AND CF_ENABLE_GPU )
+if( CF3_ENABLE_CUDA AND CF3_ENABLE_GPU )
   find_package(CUDA)
   coolfluid_log_file( "CUDA_FOUND: [${CUDA_FOUND}]" )
   coolfluid_set_package( PACKAGE CUDA DESCRIPTION "gpu computing" )
 endif()
 
 # python support
-if( CF_ENABLE_PYTHON )
+if( CF3_ENABLE_PYTHON )
   include(FindPythonLibs)
 endif()
