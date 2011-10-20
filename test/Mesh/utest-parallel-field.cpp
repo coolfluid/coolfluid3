@@ -12,18 +12,18 @@
 
 #include "coolfluid-packages.hpp"
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CEnv.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/Foreach.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/CommWrapperMArray.hpp"
-#include "Common/PE/debug.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/CommWrapperMArray.hpp"
+#include "common/PE/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CElements.hpp"
@@ -39,10 +39,10 @@
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

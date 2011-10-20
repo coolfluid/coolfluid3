@@ -6,15 +6,15 @@
 
 #include <QtCore>
 
-//#include "Common/Component"
+//#include "common/Component"
 
 #include "UI/Core/NTree.hpp"
 
 #include "test/UI/Core/TreeHandler.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 TreeHandler::~TreeHandler()
 {

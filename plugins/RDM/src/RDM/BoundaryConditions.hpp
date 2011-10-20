@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BoundaryConditions_hpp
-#define CF_RDM_BoundaryConditions_hpp
+#ifndef cf3_RDM_BoundaryConditions_hpp
+#define cf3_RDM_BoundaryConditions_hpp
 
 #include "Solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 class BoundaryTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BoundaryConditions : public CF::Solver::ActionDirector {
+class RDM_API BoundaryConditions : public cf3::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -42,22 +42,22 @@ public: // functions
 
   RDM::BoundaryTerm& create_boundary_condition( const std::string& type,
                                                 const std::string& name,
-                                                const std::vector<Common::URI>& regions );
+                                                const std::vector<common::URI>& regions );
   /// @name SIGNALS
   //@{
 
   /// creates a boundary BC
-  void signal_create_boundary_condition( Common::SignalArgs& args );
+  void signal_create_boundary_condition( common::SignalArgs& args );
   /// signature for @see signal_create_boundary_condition
-  void signature_signal_create_boundary_condition( Common::SignalArgs& node );
+  void signature_signal_create_boundary_condition( common::SignalArgs& node );
 
   //@} END SIGNALS
 
 private:
 
-  Common::CActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
+  common::CActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
 
-  Common::CActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
+  common::CActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
 
 };
 
@@ -65,6 +65,6 @@ private:
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_BoundaryConditions_hpp
+#endif // cf3_RDM_BoundaryConditions_hpp

@@ -4,34 +4,34 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_LibSchemes_hpp
-#define CF_RDM_LibSchemes_hpp
+#ifndef cf3_RDM_LibSchemes_hpp
+#define cf3_RDM_LibSchemes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro RDM_SCHEMES_API
 #ifdef COOLFLUID_RDM_SCHEMES_EXPORTS
-#   define RDM_SCHEMES_API      CF_EXPORT_API
+#   define RDM_SCHEMES_API      CF3_EXPORT_API
 #   define RDM_TEMPLATE
 #else
-#   define RDM_SCHEMES_API      CF_IMPORT_API
-#   define RDM_SCHEMES_TEMPLATE CF_TEMPLATE_EXTERN
+#   define RDM_SCHEMES_API      CF3_IMPORT_API
+#   define RDM_SCHEMES_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_SCHEMES_API LibSchemes : public Common::CLibrary {
+class RDM_SCHEMES_API LibSchemes : public common::CLibrary {
 
 public:
 
@@ -39,7 +39,7 @@ public:
   typedef boost::shared_ptr<LibSchemes const> ConstPtr;
 
   /// Constructor
-  LibSchemes ( const std::string& name) : Common::CLibrary(name) {   }
+  LibSchemes ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 
@@ -76,8 +76,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_LibSchemes_hpp
+#endif // cf3_RDM_LibSchemes_hpp

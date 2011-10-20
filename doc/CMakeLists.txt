@@ -1,14 +1,14 @@
-if( CF_ENABLE_DOCS )
+if( CF3_ENABLE_DOCS )
 
 find_package(Doxygen QUIET)
 coolfluid_set_package( PACKAGE Doxygen DESCRIPTION "code documentation" )
 
  if( DOXYGEN_FOUND )
 
-  option( CF_ENABLE_DOXYGEN_DOT "Enable diagrams in doxygen output" ON )
-  if( CF_ENABLE_DOXYGEN_DOT )
+  option( CF3_ENABLE_DOXYGEN_DOT "Enable diagrams in doxygen output" ON )
+  if( CF3_ENABLE_DOXYGEN_DOT )
     if( DOXYGEN_DOT_FOUND )
-      set( CF_HAVE_DOXYGEN_DOT ON )
+      set( CF3_HAVE_DOXYGEN_DOT ON )
     endif()
   endif()
 

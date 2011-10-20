@@ -20,9 +20,9 @@
 #include "test/UI/Core/PropertyModelTest.hpp"
 #include "test/UI/Core/TreeNodeTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 int main(int argc, char * argv[])
 {
@@ -31,11 +31,11 @@ int main(int argc, char * argv[])
 
   ThreadManager::instance().tree();
 
-  CF::Common::ExceptionManager::instance().ExceptionDumps = false;
-  CF::Common::ExceptionManager::instance().ExceptionAborts = false;
-  CF::Common::ExceptionManager::instance().ExceptionOutputs = false;
+  cf3::common::ExceptionManager::instance().ExceptionDumps = false;
+  cf3::common::ExceptionManager::instance().ExceptionAborts = false;
+  cf3::common::ExceptionManager::instance().ExceptionOutputs = false;
 
-  CF::Common::AssertionManager::instance().AssertionThrows = true;
+  cf3::common::AssertionManager::instance().AssertionThrows = true;
 
   // CommonFunctionsTest must be the first to be run !!
   passed += QTest::qExec(new CommonFunctionsTest(), argc, argv);

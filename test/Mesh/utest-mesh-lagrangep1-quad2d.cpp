@@ -10,8 +10,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/Geometry.hpp"
@@ -22,12 +22,12 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Mesh::LagrangeP1;
-using namespace CF::Tools::Testing;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( computeMappedCoordinates )
 BOOST_AUTO_TEST_CASE( computeMappedGradient )
 {
   ETYPE::SF::GradientT expected;
-  const CF::Real ksi  = mapped_coords[0];
-  const CF::Real eta = mapped_coords[1];
+  const cf3::Real ksi  = mapped_coords[0];
+  const cf3::Real eta = mapped_coords[1];
   expected(0,0) = 0.25 * (-1 + eta);
   expected(1,0) = 0.25 * (-1 + ksi);
   expected(0,1) = 0.25 * ( 1 - eta);
@@ -282,12 +282,12 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   ConstFunctor ftor(nodes);
   const Real vol = ETYPE::volume(nodes);
 
-  CF::Real result1 = 0.0;
-  CF::Real result2 = 0.0;
-  CF::Real result4 = 0.0;
-  CF::Real result8 = 0.0;
-  CF::Real result16 = 0.0;
-  CF::Real result32 = 0.0;
+  cf3::Real result1 = 0.0;
+  cf3::Real result2 = 0.0;
+  cf3::Real result4 = 0.0;
+  cf3::Real result8 = 0.0;
+  cf3::Real result16 = 0.0;
+  cf3::Real result32 = 0.0;
 
   gauss_integrate<1, GeoShape::QUAD>(ftor, ftor.mapped_coords, result1);
   gauss_integrate<2, GeoShape::QUAD>(ftor, ftor.mapped_coords, result2);

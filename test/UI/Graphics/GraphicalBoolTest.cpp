@@ -15,12 +15,12 @@
 
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -78,7 +78,7 @@ void GraphicalBoolTest::test_setValue()
   QVERIFY( !value->originalValue().toBool() );
 
   //
-  // 2. check with strings (those supported by CF::Common::from_str<bool>())
+  // 2. check with strings (those supported by cf3::common::from_str<bool>())
   //
   QVERIFY( value->setValue("true") );
   QVERIFY( checkbox->isChecked() );
@@ -250,4 +250,4 @@ QCheckBox * GraphicalBoolTest::findCheckBox(const GraphicalBool* value)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

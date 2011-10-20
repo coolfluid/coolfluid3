@@ -4,10 +4,10 @@
 #
 # PTSCOTCH_INCLUDE_DIR  = where ptscotch.h can be found
 # PTSCOTCH_LIBRARY      = the library to link against (ptscotch etc)
-# CF_HAVE_PTSCOTCH      = set to true after finding the library
+# CF3_HAVE_PTSCOTCH      = set to true after finding the library
 #
 
-option( CF_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
+option( CF3_SKIP_PTSCOTCH "Skip search for PTScotch library" OFF )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path

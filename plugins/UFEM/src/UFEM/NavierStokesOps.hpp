@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UFEM_NavierStokesOps_hpp
-#define CF_UFEM_NavierStokesOps_hpp
+#ifndef cf3_UFEM_NavierStokesOps_hpp
+#define cf3_UFEM_NavierStokesOps_hpp
 
 #include "Math/MatrixTypes.hpp"
 
 #include "Solver/Actions/Proto/ElementOperations.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
 /// Stores the coefficients for the SUPG model and shares them inside a proto expression through the state
@@ -49,7 +49,7 @@ struct ComputeTau
   template<typename UT>
   void apply(const boost::mpl::int_<1>, const UT& u, SUPGCoeffs& coeffs) const
   {
-    throw Common::NotImplemented(FromHere(), "1D PSPG and SUPG stabilization is not implemented");
+    throw common::NotImplemented(FromHere(), "1D PSPG and SUPG stabilization is not implemented");
   }
   
   /// Static dispatch for 2D case
@@ -79,7 +79,7 @@ struct ComputeTau
   template<typename UT>
   void apply(const boost::mpl::int_<3>, const UT& u, SUPGCoeffs& coeffs) const
   {
-    throw Common::NotImplemented(FromHere(), "3D PSPG and SUPG stabilization is not implemented");
+    throw common::NotImplemented(FromHere(), "3D PSPG and SUPG stabilization is not implemented");
   }
 };
 
@@ -87,7 +87,7 @@ struct ComputeTau
 static Solver::Actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 } // UFEM
-} // CF
+} // cf3
 
 
-#endif // CF_UFEM_NavierStokesOps_hpp
+#endif // cf3_UFEM_NavierStokesOps_hpp

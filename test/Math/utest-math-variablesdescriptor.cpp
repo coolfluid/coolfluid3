@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::VariablesDescriptor"
+#define BOOST_TEST_MODULE "Test module for cf3::Math::VariablesDescriptor"
 
 #include <boost/test/unit_test.hpp>
 
 #include "Math/VariablesDescriptor.hpp"
 
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Math;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Math;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -26,9 +26,9 @@ BOOST_AUTO_TEST_SUITE( VariablesDescriptorSuite )
 BOOST_AUTO_TEST_CASE( PushBackScalar )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
-  descriptor->push_back("a", CF::Math::VariablesDescriptor::Dimensionalities::SCALAR);
+  descriptor->push_back("a", cf3::Math::VariablesDescriptor::Dimensionalities::SCALAR);
 
-  descriptor->configure_option(Common::Tags::dimension(), 3u);
+  descriptor->configure_option(common::Tags::dimension(), 3u);
 
   BOOST_CHECK_EQUAL(descriptor->size(), 1);
   BOOST_CHECK_EQUAL(descriptor->user_variable_name("a"), "a");
@@ -43,11 +43,11 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->configure_option(Common::Tags::dimension(), 2u);
+  descriptor->configure_option(common::Tags::dimension(), 2u);
 
-  descriptor->push_back("v1", CF::Math::VariablesDescriptor::Dimensionalities::VECTOR);
-  descriptor->push_back("v2", CF::Math::VariablesDescriptor::Dimensionalities::VECTOR);
-  descriptor->push_back("t1", CF::Math::VariablesDescriptor::Dimensionalities::TENSOR);
+  descriptor->push_back("v1", cf3::Math::VariablesDescriptor::Dimensionalities::VECTOR);
+  descriptor->push_back("v2", cf3::Math::VariablesDescriptor::Dimensionalities::VECTOR);
+  descriptor->push_back("t1", cf3::Math::VariablesDescriptor::Dimensionalities::TENSOR);
 
   BOOST_CHECK_EQUAL(descriptor->size(), 8);
   BOOST_CHECK_EQUAL(descriptor->size("v1"), 2);
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("v2"), 2);
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 4);
 
-  descriptor->configure_option(Common::Tags::dimension(), 3u);
+  descriptor->configure_option(common::Tags::dimension(), 3u);
   BOOST_CHECK_EQUAL(descriptor->size(), 15);
   BOOST_CHECK_EQUAL(descriptor->size("v1"), 3);
   BOOST_CHECK_EQUAL(descriptor->size("v2"), 3);
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("v2"), 3);
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 6);
 
-  descriptor->push_back("s", CF::Math::VariablesDescriptor::Dimensionalities::SCALAR);
+  descriptor->push_back("s", cf3::Math::VariablesDescriptor::Dimensionalities::SCALAR);
   BOOST_CHECK_EQUAL(descriptor->description(), "v1[vector],v2[vector],t1[tensor],s[scalar]");
 }
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( ParseString )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->configure_option(Common::Tags::dimension(), 2u);
+  descriptor->configure_option(common::Tags::dimension(), 2u);
 
   // Add a scalar, vector and tensor
   descriptor->set_variables("a, b[v], c[t]");
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( ParseStringArray )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
 
-  descriptor->configure_option(Common::Tags::dimension(), 2u);
+  descriptor->configure_option(common::Tags::dimension(), 2u);
 
   // Add 5 scalars
   descriptor->set_variables("a[5]");

@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Log.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Log.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
@@ -20,15 +20,15 @@
 #include "RDM/BcDirichlet.hpp"
 #include "RDM/RDSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibRDM > BcDirichlet_Builder;
+common::ComponentBuilder < BcDirichlet, RDM::BoundaryTerm, LibRDM > BcDirichlet_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -82,7 +82,7 @@ void BcDirichlet::execute()
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {
-      cf_assert(node < solution_field.size());
+      cf3_assert(node < solution_field.size());
 
       CTable<Real>::ConstRow coords = nodes.coordinates()[node];
 
@@ -103,4 +103,4 @@ void BcDirichlet::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

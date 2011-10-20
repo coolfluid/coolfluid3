@@ -3,10 +3,10 @@
 ##############################################################################
 # Command line options for cmake:
 # -DCMAKE_BUILD_TYPE=DEBUG     will set the build type
-# -DCF_SKIP_FORTRAN=:BOOL=ON   will not test for fortran language
+# -DCF3_SKIP_FORTRAN=:BOOL=ON   will not test for fortran language
 # -G"Visual Studio 9 2008"     will generate for WIN32
 # -DCMAKE_INSTALL_PREFIX=DIR   will specify where to install
-# -DCF_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
+# -DCF3_PLUGIN_DIRS:STRING="/dir/path1;/dir/path2"
 ##############################################################################
 #
 # TODO
@@ -41,11 +41,11 @@ endif()
 # option to skip fortran language
 # kernel does not need fortran but some plugins might
 # developers that know that they wont need it may turn it off in systems where is not available
-if(NOT CF_SKIP_FORTRAN)
+if(NOT CF3_SKIP_FORTRAN)
   enable_language( Fortran OPTIONAL )
 else()
-  set( CF_SKIP_FORTRAN ON CACHE BOOL "Skipping fortran language" FORCE )
-endif(NOT CF_SKIP_FORTRAN)
+  set( CF3_SKIP_FORTRAN ON CACHE BOOL "Skipping fortran language" FORCE )
+endif(NOT CF3_SKIP_FORTRAN)
 
 # optionally include personal options ( alternative to passing a cache initialization to cmake)
 # developers may create this file and to define options that they don't want on the cache
@@ -114,7 +114,7 @@ coolfluid_log(" kernel configuration ")
 # dir includes
 include_directories( ${coolfluid_BINARY_DIR} )
 include_directories( ${coolfluid_SOURCE_DIR}/include )
-include_directories( ${coolfluid_SOURCE_DIR}/src )
+include_directories( ${coolfluid_SOURCE_DIR}/cf3 )
 include_directories( ${coolfluid_SOURCE_DIR}/plugins )
 
 # add dir with kernel config (automatic generated headers)
@@ -127,13 +127,13 @@ add_subdirectory( resources )
 add_subdirectory( include )
 
 # add dir with kernel sources
-add_subdirectory( src )
+add_subdirectory( cf3 )
 
 # add dir with unit tests
 add_subdirectory( test )
 
 # sandbox is where we play around before putting stuff in the released code, off by default
-if( CF_ENABLE_SANDBOX )
+if( CF3_ENABLE_SANDBOX )
   add_subdirectory( sandbox EXCLUDE_FROM_ALL )
 endif()
 
@@ -149,7 +149,7 @@ add_subdirectory( plugins )
 
 # find plugins
 # developer may set several base directories that host multiple plugins each
-foreach( EXDIR ${CF_PLUGIN_DIRS} )
+foreach( EXDIR ${CF3_PLUGIN_DIRS} )
 
   include_directories( ${EXDIR} )
 
@@ -189,7 +189,7 @@ include( PrintSummary )
 # finalize build
 ##############################################################################
 
-if(CF_CHECK_ORPHAN_FILES)
+if(CF3_CHECK_ORPHAN_FILES)
   include( ProcessOrphanFiles )    # processes the list of orphan files
 endif()
 

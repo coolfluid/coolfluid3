@@ -3,7 +3,7 @@
 # Sets:
 # MPI_INCLUDE_DIR  = where MPI headers can be found
 # MPI_LIBRARY      = the library to link against
-# CF_MPI_LIBS_FOUND = set to true after finding the library
+# CF3_MPI_LIBS_FOUND = set to true after finding the library
 #
 
 
@@ -19,9 +19,9 @@ check_cxx_source_compiles(
      MPI_Init(&argc, &argv); int rank; MPI_Comm_rank(MPI_COMM_WORLD, &rank); MPI_Finalize();
      return 0;
    }"
-   CF_MPI_COMPILER_AVAILABLE )
+   CF3_MPI_COMPILER_AVAILABLE )
 
-if( CF_MPI_COMPILER_AVAILABLE )
+if( CF3_MPI_COMPILER_AVAILABLE )
   coolfluid_log_file( "[MPI] Already using MPI C++ compiler, no need of MPI libraries." )
   coolfluid_log_file( "     MPI CXX COMPILER   : [${CMAKE_CXX_COMPILER}]")
 else()
@@ -116,8 +116,8 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 
    mark_as_advanced( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
-#    CF_DEBUG_VAR ( ${mpi_extra_lib} )
-#    CF_DEBUG_VAR ( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
+#    CF3_DEBUG_VAR ( ${mpi_extra_lib} )
+#    CF3_DEBUG_VAR ( MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
 
     if( NOT MPI_EXTRA_LIBRARY_${mpi_extra_lib} )
       message( FATAL_ERROR "User defined MPI extra lib \'${mpi_extra_lib}\' NOT FOUND" )
@@ -132,14 +132,14 @@ if( DEFINED MPI_EXTRA_LIBRARY_NAMES )
 
 endif()
 
-if( ${CF_HAVE_MPI} )
-    list( APPEND CF_DEPS_LIBRARIES ${MPI_LIBRARIES} )
+if( ${CF3_HAVE_MPI} )
+    list( APPEND CF3_DEPS_LIBRARIES ${MPI_LIBRARIES} )
 endif()
 
 if( MPI_INCLUDE_PATH AND MPI_LIBRARY )
-  set(CF_MPI_LIBS_FOUND 1 CACHE BOOL "Found MPI libraries")
+  set(CF3_MPI_LIBS_FOUND 1 CACHE BOOL "Found MPI libraries")
 else()
-  set(CF_MPI_LIBS_FOUND 0 CACHE BOOL "Did not find MPI libraries")
+  set(CF3_MPI_LIBS_FOUND 0 CACHE BOOL "Did not find MPI libraries")
 endif()
 
 mark_as_advanced(
@@ -147,7 +147,7 @@ mark_as_advanced(
   MPI_LIBRARY
   MPICXX_LIBRARY
   MPI_LIBRARIES
-  CF_MPI_LIBS_FOUND
+  CF3_MPI_LIBS_FOUND
 )
 
 coolfluid_log_file( "     MPI_INCLUDE_PATH   : [${MPI_INCLUDE_PATH}]")
@@ -156,11 +156,11 @@ coolfluid_log_file( "     MPI_LIBRARIES      : [${MPI_LIBRARIES}]")
 ###############################################################################
 # check that MPI was found
 
-if(CF_MPI_COMPILER_AVAILABLE)
-  set( CF_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
+if(CF3_MPI_COMPILER_AVAILABLE)
+  set( CF3_HAVE_MPI 1 CACHE BOOL "Found MPI compiler" )
 else()
-  if( CF_MPI_LIBS_FOUND )
-    set( CF_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
+  if( CF3_MPI_LIBS_FOUND )
+    set( CF3_HAVE_MPI 1 CACHE BOOL "User enabled MPI [FOUND]" )
   else()
     message( FATAL_ERROR "[MPI] no MPI compiler or libraries were found.\n   MPI is required to compile coolfluid." )
   endif()
@@ -170,9 +170,9 @@ endif()
 # add MPI include path
 
 # if mpi was found add it to the include path if needed
-if( CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER )
+if( CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER )
   include_directories( ${MPI_INCLUDE_PATH} )
-  list( APPEND CF_DEPS_LIBRARIES ${MPI_LIBRARIES} )
+  list( APPEND CF3_DEPS_LIBRARIES ${MPI_LIBRARIES} )
 endif()
 
 #######################################################################
@@ -202,23 +202,23 @@ endif()
 #######################################################################
 # find mpirun
 
-find_program( CF_MPIRUN_PROGRAM mpirun
+find_program( CF3_MPIRUN_PROGRAM mpirun
               PATHS ${MPI_HOME}/bin $ENV{MPI_HOME}/bin
               PATH_SUFFIXES mpi/bin
               DOC "mpirun program"
               NO_DEFAULT_PATH )
 
-find_program( CF_MPIRUN_PROGRAM mpirun
+find_program( CF3_MPIRUN_PROGRAM mpirun
               PATH_SUFFIXES mpi/bin
               DOC "mpirun program" )
 
-# if( NOT CF_MPIRUN_PROGRAM)
-#  set(CF_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
+# if( NOT CF3_MPIRUN_PROGRAM)
+#  set(CF3_MPIRUN_PROGRAM mpirun CACHE STRING "mpirun program set by default")
 # endif()
 
-coolfluid_log_file( "     CF_MPIRUN_PROGRAM : [${CF_MPIRUN_PROGRAM}]" )
+coolfluid_log_file( "     CF3_MPIRUN_PROGRAM : [${CF3_MPIRUN_PROGRAM}]" )
 
-mark_as_advanced( CF_HAVE_MPI CF_MPIRUN_PROGRAM )
+mark_as_advanced( CF3_HAVE_MPI CF3_MPIRUN_PROGRAM )
 
-set( MPI_FOUND ${CF_HAVE_MPI} )
+set( MPI_FOUND ${CF3_HAVE_MPI} )
 

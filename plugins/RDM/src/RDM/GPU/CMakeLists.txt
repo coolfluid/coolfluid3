@@ -19,7 +19,7 @@ list( APPEND coolfluid_rdm_gpu_files
           CellLoopGPU.hpp
 )
    
-if(CF_ENABLE_GPU AND OPENCL_FOUND)
+if(CF3_ENABLE_GPU AND OPENCL_FOUND)
   set( RDM_GPU 1 )
 else()
   set( RDM_GPU 0 )

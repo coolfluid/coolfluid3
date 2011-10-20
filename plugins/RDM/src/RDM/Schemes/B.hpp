@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Schemes_B_hpp
-#define CF_RDM_Schemes_B_hpp
+#ifndef cf3_RDM_Schemes_B_hpp
+#define cf3_RDM_Schemes_B_hpp
 
 #include "Math/Checks.hpp"
 
@@ -14,7 +14,7 @@
 
 #include "RDM/Schemes/LibSchemes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -222,6 +222,6 @@ void B::Term<SF,QD,PHYS>::execute()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Schemes_B_hpp
+#endif // cf3_RDM_Schemes_B_hpp

@@ -22,7 +22,7 @@ md %builddir%
 pushd %builddir%
 
 : execute cmake
-cmake ..\..\kernel -G"Visual Studio 10" -DMPI_ROOT="C:\Program Files\MPICH2" -DBOOST_ROOT="C:\Program Files\boost" -DCF_SKIP_FORTRAN:BOOL=OFF -DBoost_COMPILER="-vc100" -DCMAKE_BUILD_TYPE=DEBUG
+cmake ..\..\kernel -G"Visual Studio 10" -DMPI_ROOT="C:\Program Files\MPICH2" -DBOOST_ROOT="C:\Program Files\boost" -DCF3_SKIP_FORTRAN:BOOL=OFF -DBoost_COMPILER="-vc100" -DCMAKE_BUILD_TYPE=DEBUG
 
 : go to original directory
 popd

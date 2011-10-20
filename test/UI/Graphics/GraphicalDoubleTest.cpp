@@ -15,12 +15,12 @@
 
 #include "test/UI/Graphics/GraphicalDoubleTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -235,4 +235,4 @@ QLineEdit * GraphicalDoubleTest::findLineEdit(const GraphicalDouble* value)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

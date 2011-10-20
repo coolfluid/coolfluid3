@@ -32,4 +32,4 @@ source_group( Headers FILES ${EIGEN_FOUND_FILES} )
 # install Eigen headers
 install( FILES ${EIGEN_FOUND_FILES}
 DESTINATION
-${CF_INSTALL_INCLUDE_DIR}/Eigen )
+${CF3_INSTALL_INCLUDE_DIR}/Eigen )

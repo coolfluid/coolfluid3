@@ -58,8 +58,8 @@ coolfluid_add_test( ATEST     atest-rdm-rk-lineuler2d
 
 coolfluid_add_test( ATEST     atest-rdm-euler2d-gpu
                     CFSCRIPT  atest-rdm-euler2d-gpu.cfscript
-                    CONDITION CF_ENABLE_GPU AND OPENCL_FOUND )
+                    CONDITION CF3_ENABLE_GPU AND OPENCL_FOUND )
 
 coolfluid_add_test( ATEST     atest-rdm-rotationadv2d-gpu
                     CFSCRIPT  atest-rdm-rotationadv2d-gpu.cfscript
-                    CONDITION CF_ENABLE_GPU AND OPENCL_FOUND )
+                    CONDITION CF3_ENABLE_GPU AND OPENCL_FOUND )

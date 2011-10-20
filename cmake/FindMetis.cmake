@@ -4,10 +4,10 @@
 #
 # METIS_INCLUDE_DIR  = where metis.h can be found
 # METIS_LIBRARIES      = the library to link against (metis etc)
-# CF_HAVE_METIS        = set to true after finding the library
+# CF3_HAVE_METIS        = set to true after finding the library
 #
 
-option( CF_SKIP_METIS "Skip search for Metis library" OFF )
+option( CF3_SKIP_METIS "Skip search for Metis library" OFF )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path

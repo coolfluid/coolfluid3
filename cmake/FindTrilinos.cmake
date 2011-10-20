@@ -6,9 +6,9 @@
 # Sets
 #   TRILINOS_INCLUDE_DIR
 #   TRILINOS_LIBRARIES
-#   CF_HAVE_TRILINOS
+#   CF3_HAVE_TRILINOS
 #
-option( CF_SKIP_TRILINOS "Skip search for Zoltan library" OFF )
+option( CF3_SKIP_TRILINOS "Skip search for Zoltan library" OFF )
 
 coolfluid_set_trial_include_path("") # clear include search path
 coolfluid_set_trial_library_path("") # clear library search path
@@ -47,12 +47,12 @@ foreach (test_lib ${trilinos_req_libs})
 endforeach()
 
 
-if( ${CF_HAVE_PARMETIS} )
+if( ${CF3_HAVE_PARMETIS} )
   list( APPEND TRILINOS_LIBRARIES ${PARMETIS_LIBRARIES} )
   list( APPEND TRILINOS_INCLUDE_DIR ${PARMETIS_INCLUDE_DIR} )
 endif()
 
-if( ${CF_HAVE_PTSCOTCH} )
+if( ${CF3_HAVE_PTSCOTCH} )
   list( APPEND TRILINOS_LIBRARIES ${PTSCOTCH_LIBRARIES} )
   list( APPEND TRILINOS_INCLUDE_DIR ${PTSCOTCH_INCLUDE_DIR} )
 endif()

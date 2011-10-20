@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/FindComponents.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/CGroupActions.hpp"
-#include "Common/Signal.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/CGroupActions.hpp"
+#include "common/Signal.hpp"
 
-#include "Common/XML/SignalOptions.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/FlowSolver.hpp"
@@ -49,11 +49,11 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
-  using namespace Common;
-  using namespace Common::XML;
+  using namespace common;
+  using namespace common::XML;
 
   using namespace Mesh;
   using namespace Solver;
@@ -62,7 +62,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SFDWizard, CWizard, LibSFDM> SFDWizard_Builder;
+common::ComponentBuilder < SFDWizard, CWizard, LibSFDM> SFDWizard_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

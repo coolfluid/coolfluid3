@@ -7,13 +7,13 @@
 #include <QtCore>
 #include <QtGui>
 
-#include "Common/OptionT.hpp"
+#include "common/OptionT.hpp"
 
 #include "test/UI/Core/MyNode.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 MyNode::MyNode(const std::string & name)
   : CNode(name, "MyNode", CNode::DEBUG_NODE)

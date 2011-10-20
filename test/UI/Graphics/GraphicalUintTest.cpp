@@ -17,13 +17,13 @@
 
 #include "test/UI/Graphics/GraphicalUintTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
-using namespace CF::Math;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
+using namespace cf3::Math;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -234,4 +234,4 @@ QDoubleSpinBox * GraphicalUintTest::findSpinBox(const GraphicalInt* value)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

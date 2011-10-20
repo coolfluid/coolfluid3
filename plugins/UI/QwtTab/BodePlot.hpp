@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef CF_UI_QwtTab_BodePlot_hpp
-#define CF_UI_QwtTab_BodePlot_hpp
+#ifndef cf3_UI_QwtTab_BodePlot_hpp
+#define cf3_UI_QwtTab_BodePlot_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 #include "qwt/qwt_plot.h"
 
 // header
-#include "Common/CF.hpp"
+#include "common/CF.hpp"
 #include "UI/QwtTab/LibQwtTab.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ class QwtPlotGrid;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -177,6 +177,6 @@ private: //data
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
 
-#endif // CF_UI_QwtTab_BodePlot_hpp
+#endif // cf3_UI_QwtTab_BodePlot_hpp

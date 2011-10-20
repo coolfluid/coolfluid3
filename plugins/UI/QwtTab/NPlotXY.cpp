@@ -6,9 +6,9 @@
 
 // header
 #include <boost/multi_array/storage_order.hpp>
-#include "Common/Signal.hpp"
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/MultiArray.hpp"
+#include "common/Signal.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/MultiArray.hpp"
 #include "UI/UICommon/ComponentNames.hpp"
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Graphics/TabBuilder.hpp"
@@ -17,13 +17,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -70,7 +70,7 @@ void NPlotXY::disableLocalSignals(QMap<QString, bool> & localSignals) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NPlotXY::show_hide_plot( Common::SignalArgs& node )
+void NPlotXY::show_hide_plot( common::SignalArgs& node )
 {
 //  TabBuilder & builder = *TabBuilder::instance();
 
@@ -82,7 +82,7 @@ void NPlotXY::show_hide_plot( Common::SignalArgs& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NPlotXY::go_to_plot( Common::SignalArgs& node )
+void NPlotXY::go_to_plot( common::SignalArgs& node )
 {
   TabBuilder::instance()->showTab( as_ptr<CNode>() );
 }
@@ -141,4 +141,4 @@ void NPlotXY::convergence_history ( SignalArgs& node )
 
 } // Core
 } // UI
-} // CF
+} // cf3

@@ -35,7 +35,7 @@ project( RDM CXX )
 
 coolfluid_define_plugin( RDM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CF_PLUGIN_RDM )
+if( CF3_PLUGIN_RDM )
 
   coolfluid_find_orphan_files()
 

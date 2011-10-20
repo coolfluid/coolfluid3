@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/Geometry.hpp"
 #include "Mesh/CRegion.hpp"
@@ -19,20 +19,20 @@
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < Init, CF::Solver::Action, LibRDM > Init_Builder;
+common::ComponentBuilder < Init, cf3::Solver::Action, LibRDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  CF::Solver::Action(name)
+  cf3::Solver::Action(name)
 {
   mark_basic();
 
@@ -84,7 +84,7 @@ void Init::execute()
 
     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
     {
-      cf_assert(node < field.size());
+      cf3_assert(node < field.size());
 
       CTable<Real>::ConstRow coords = nodes.coordinates()[node];
 
@@ -105,4 +105,4 @@ void Init::execute()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

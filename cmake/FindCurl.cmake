@@ -1,9 +1,9 @@
 #Sets:
 # CURL_INCLUDE_DIR  = where curl.h can be found
 # CURL_LIBRARIES      = the library to link against (curl etc)
-# CF_HAVE_CURL        = set to true after finding the library
+# CF3_HAVE_CURL        = set to true after finding the library
 
-option( CF_SKIP_CURL "Skip search for Curl library" OFF )
+option( CF3_SKIP_CURL "Skip search for Curl library" OFF )
 
   coolfluid_set_trial_include_path("") # clear include search path
   coolfluid_set_trial_library_path("") # clear library search path

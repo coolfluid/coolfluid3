@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_InitialConditions_hpp
-#define CF_RDM_InitialConditions_hpp
+#ifndef cf3_RDM_InitialConditions_hpp
+#define cf3_RDM_InitialConditions_hpp
 
 #include "Solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API InitialConditions : public CF::Solver::ActionDirector {
+class RDM_API InitialConditions : public cf3::Solver::ActionDirector {
 
 public: // typedefs
 
@@ -43,9 +43,9 @@ public: // functions
   //@{
 
   /// adds an initialization
-  void signal_create_initial_condition( Common::SignalArgs& args );
+  void signal_create_initial_condition( common::SignalArgs& args );
   /// signature for @see signal_create_initial_condition
-  void signature_signal_create_initial_condition( Common::SignalArgs& node );
+  void signature_signal_create_initial_condition( common::SignalArgs& node );
 
   //@} END SIGNALS
 
@@ -55,6 +55,6 @@ public: // functions
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_InitialConditions_hpp
+#endif // cf3_RDM_InitialConditions_hpp

@@ -1,14 +1,14 @@
 macro (coolfluid_install_targets)
-    IF(CF_ENABLE_STATIC)
+    IF(CF3_ENABLE_STATIC)
         # Skip installation of static libraries when we build statically
         FOREACH(T ${ARGN})
             GET_TARGET_PROPERTY(pType ${T} TYPE)
             IF(NOT ${pType} STREQUAL "STATIC_LIBRARY")
                 INSTALL(TARGETS ${T}
-                    RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-                    BUNDLE  DESTINATION ${CF_INSTALL_BIN_DIR}
-                    LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-                    ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
+                    RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR}
+                    BUNDLE  DESTINATION ${CF3_INSTALL_BIN_DIR}
+                    LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR}
+                    ARCHIVE DESTINATION ${CF3_INSTALL_ARCHIVE_DIR}
                     PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                                 GROUP_READ GROUP_WRITE GROUP_EXECUTE 
                                 WORLD_READ             WORLD_EXECUTE
@@ -16,12 +16,12 @@ macro (coolfluid_install_targets)
                 )
             ENDIF(NOT ${pType} STREQUAL "STATIC_LIBRARY")
         ENDFOREACH(T)
-    ELSE(CF_ENABLE_STATIC)
+    ELSE(CF3_ENABLE_STATIC)
         INSTALL(TARGETS ${ARGN}
-            RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-            BUNDLE  DESTINATION ${CF_INSTALL_BIN_DIR}
-            LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-            ARCHIVE DESTINATION ${CF_INSTALL_ARCHIVE_DIR}
+            RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR}
+            BUNDLE  DESTINATION ${CF3_INSTALL_BIN_DIR}
+            LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR}
+            ARCHIVE DESTINATION ${CF3_INSTALL_ARCHIVE_DIR}
             PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE 
                         GROUP_READ GROUP_WRITE GROUP_EXECUTE 
                         WORLD_READ             WORLD_EXECUTE
@@ -36,7 +36,7 @@ macro (coolfluid_install_targets)
                     SET(filename lib${target}.dylib)
                     INSTALL(CODE 
                         "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                             COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_LIB_DIR}/${filename}\"
+                             COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -lib \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_LIB_DIR}/${filename}\"
                              OUTPUT_VARIABLE OSXOUT)
                          MESSAGE(STATUS \"\${OSXOUT}\")
                         ")
@@ -50,7 +50,7 @@ macro (coolfluid_install_targets)
                     IF(${bundle} STREQUAL "ON")
                         INSTALL(CODE 
                             "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                                COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -bundle \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_BIN_DIR}\" ${filename}
+                                COMMAND /bin/sh ${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -bundle \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_BIN_DIR}\" ${filename}
                                 OUTPUT_VARIABLE OSXOUT)
                              MESSAGE(STATUS \"\${OSXOUT}\")
                             ")
@@ -58,7 +58,7 @@ macro (coolfluid_install_targets)
                     ELSE(${bundle} STREQUAL "ON")
                         INSTALL(CODE 
                             "EXECUTE_PROCESS(WORKING_DIRECTORY ${CMAKE_INSTALL_PREFIX}
-                                COMMAND /bin/sh${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -exe \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF_INSTALL_BIN_DIR}/${filename}\"
+                                COMMAND /bin/sh${coolfluid_SOURCE_DIR}/tools/MacOSX_Bundle/osxfixup -exe \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CF3_INSTALL_BIN_DIR}/${filename}\"
                                 OUTPUT_VARIABLE OSXOUT)
                              MESSAGE(STATUS \"\${OSXOUT}\")
                             ")
@@ -68,5 +68,5 @@ macro (coolfluid_install_targets)
                 ENDIF(${type} STREQUAL "SHARED_LIBRARY")
             ENDFOREACH(target)
         ENDIF(APPLE)
-    ENDIF(CF_ENABLE_STATIC)
+    ENDIF(CF3_ENABLE_STATIC)
 endmacro()

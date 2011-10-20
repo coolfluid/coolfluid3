@@ -13,8 +13,8 @@
 #include <boost/foreach.hpp>
 #include <boost/mpl/for_each.hpp>
 
-#include "Common/FindComponents.hpp"
-#include "Common/Log.hpp"
+#include "common/FindComponents.hpp"
+#include "common/Log.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -29,10 +29,10 @@
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::CGAL;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::CGAL;
 
 //////////////////////////////////////////////////////////////////////////////
 

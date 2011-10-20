@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
+#include "common/RegistLibrary.hpp"
 
 #include "BlockMeshReader/LibBlockMeshReader.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
-CF::Common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
+cf3::common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,4 +26,4 @@ void LibBlockMeshReader::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMeshReader
-} // CF
+} // cf3

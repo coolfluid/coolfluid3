@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/CLibrary.hpp"
+#include "common/CLibrary.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,14 +26,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_GPU_API LibGPU : public Common::CLibrary {
+class RDM_GPU_API LibGPU : public common::CLibrary {
 
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibGPU const> ConstPtr;
 
   /// Constructor
-  LibGPU ( const std::string& name) : Common::CLibrary(name) {   }
+  LibGPU ( const std::string& name) : common::CLibrary(name) {   }
 
 public: // functions
 

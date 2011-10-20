@@ -11,13 +11,13 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/BoostAnyConversion.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Signal.hpp"
+#include "common/BoostAnyConversion.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Signal.hpp"
 
-#include "Common/XML/FileOperations.hpp"
-#include "Common/XML/Protocol.hpp"
+#include "common/XML/FileOperations.hpp"
+#include "common/XML/Protocol.hpp"
 
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Core/CNode.hpp"
@@ -38,14 +38,14 @@
 #include "test/UI/Core/CNodeTest.hpp"
 
 using namespace boost::assign;
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -65,8 +65,8 @@ bool compareVectors(const std::vector<TYPE> & left, const std::vector<TYPE> & ri
     equal = left[i] == right[i];
 
     if(!equal)
-      qDebug() <<  "Item" << i << ": [" << Common::to_str(left[i]).c_str() <<
-          "] is different from [" << Common::to_str(right[i]).c_str() << "].";
+      qDebug() <<  "Item" << i << ": [" << common::to_str(left[i]).c_str() <<
+          "] is different from [" << common::to_str(right[i]).c_str() << "].";
   }
 
   return equal;
@@ -540,4 +540,4 @@ void CNodeTest::test_listChildPaths()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
