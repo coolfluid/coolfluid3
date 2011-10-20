@@ -1,5 +1,5 @@
 /***************************************************************************\
-|* Function Parser for C++ v4.3                                            *|
+|* Function Parser for C++ v4.4.3                                          *|
 |*-------------------------------------------------------------------------*|
 |* Copyright: Juha Nieminen, Joel Yliluoma                                 *|
 |*                                                                         *|
@@ -13,8 +13,6 @@
 
 #include <string>
 #include <vector>
-
-#include "fparser/LibFParser.hpp"
 
 #ifdef FUNCTIONPARSER_SUPPORT_DEBUGGING
 #include <iostream>
@@ -31,7 +29,7 @@ namespace FPoptimizer_CodeTree { template<typename Value_t> class CodeTree; }
 template<typename Value_t>
 class FunctionParserBase
 {
-public:
+ public:
     enum ParseErrorType
     {
         SYNTAX_ERROR=0, MISM_PARENTH, MISSING_PARENTH, EMPTY_PARENTH,
@@ -53,10 +51,10 @@ public:
     void setDelimiterChar(char);
 
     const char* ErrorMsg() const;
-    ParseErrorType GetParseErrorType() const { return mParseErrorType; }
+    ParseErrorType GetParseErrorType() const;
 
     Value_t Eval(const Value_t* Vars);
-    int EvalError() const { return mEvalErrorType; }
+    int EvalError() const;
 
     bool AddConstant(const std::string& name, Value_t value);
     bool AddUnit(const std::string& name, Value_t value);
@@ -66,6 +64,14 @@ public:
     bool AddFunction(const std::string& name,
                      FunctionPtr, unsigned paramsAmount);
     bool AddFunction(const std::string& name, FunctionParserBase&);
+
+    class FunctionWrapper;
+
+    template<typename DerivedWrapper>
+    bool AddFunctionWrapper(const std::string& name, const DerivedWrapper&,
+                            unsigned paramsAmount);
+
+    FunctionWrapper* GetFunctionWrapper(const std::string& name);
 
     bool RemoveIdentifier(const std::string& name);
 
@@ -111,25 +117,24 @@ public:
 
 
 //========================================================================
-private:
+ protected:
+//========================================================================
+    // A derived class can implement its own evaluation logic by using
+    // the parser data (found in fptypes.hh).
+    struct Data;
+    Data* getParserData();
+
+
+//========================================================================
+ private:
 //========================================================================
 
     friend class FPoptimizer_CodeTree::CodeTree<Value_t>;
 
 // Private data:
 // ------------
-    char mDelimiterChar;
-    ParseErrorType mParseErrorType;
-    int mEvalErrorType;
-
-    struct Data;
     Data* mData;
-
-    bool mUseDegreeConversion;
-    bool mHasByteCodeFlags;
-    unsigned mEvalRecursionLevel;
     unsigned mStackPtr;
-    const char* mErrorLocation;
 
 
 // Private methods:
@@ -167,6 +172,10 @@ private:
     inline void PutOpcodeParamAt(unsigned, unsigned offset);
     const char* Compile(const char*);
 
+    bool addFunctionWrapperPtr(const std::string&, FunctionWrapper*, unsigned);
+    static void incFuncWrapperRefCount(FunctionWrapper*);
+    static unsigned decFuncWrapperRefCount(FunctionWrapper*);
+
 protected:
     // Parsing utility functions
     static std::pair<const char*, Value_t> ParseLiteral(const char*);
@@ -178,4 +187,34 @@ class FunctionParser_f: public FunctionParserBase<float> {};
 class FunctionParser_ld: public FunctionParserBase<long double> {};
 class FunctionParser_li: public FunctionParserBase<long> {};
 
+#include <complex>
+class FunctionParser_cd: public FunctionParserBase<std::complex<double> > {};
+class FunctionParser_cf: public FunctionParserBase<std::complex<float> > {};
+class FunctionParser_cld: public FunctionParserBase<std::complex<long double> > {};
+
+
+
+template<typename Value_t>
+class FunctionParserBase<Value_t>::FunctionWrapper
+{
+    unsigned mReferenceCount;
+    friend class FunctionParserBase<Value_t>;
+
+ public:
+    FunctionWrapper(): mReferenceCount(1) {}
+    FunctionWrapper(const FunctionWrapper&): mReferenceCount(1) {}
+    virtual ~FunctionWrapper() {}
+    FunctionWrapper& operator=(const FunctionWrapper&) { return *this; }
+
+    virtual Value_t callFunction(const Value_t*) = 0;
+};
+
+template<typename Value_t>
+template<typename DerivedWrapper>
+bool FunctionParserBase<Value_t>::AddFunctionWrapper
+(const std::string& name, const DerivedWrapper& wrapper, unsigned paramsAmount)
+{
+    return addFunctionWrapperPtr
+        (name, new DerivedWrapper(wrapper), paramsAmount);
+}
 #endif
