@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include "Common/CommonAPI.hpp"
 
@@ -115,9 +116,9 @@ private: // data
   /// the CEnv unique object
   boost::shared_ptr< Common::CEnv >         m_environment;
   /// the CLibraries unique object
-  boost::shared_ptr< Common::CLibraries >   m_libraries;
+  boost::weak_ptr< Common::CLibraries >   m_libraries;
   /// the CFactories unique object
-  boost::shared_ptr< Common::CFactories >   m_factories;
+  boost::weak_ptr< Common::CFactories >   m_factories;
   /// @brief The component tree root
   boost::shared_ptr< Common::CRoot >        m_root;
   /// The network information

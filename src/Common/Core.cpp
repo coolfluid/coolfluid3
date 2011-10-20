@@ -65,8 +65,6 @@ Core::Core()
   // these are critical to library object registration
 
   m_environment   = allocate_component<CEnv>( "Environment" );
-  m_libraries     = allocate_component<CLibraries>( "Libraries" );
-  m_factories     = allocate_component<CFactories>( "Factories" );
 
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
@@ -77,13 +75,16 @@ Core::Core()
   // create the root component and its structure structure
   m_root = CRoot::create("Root");
   m_root->mark_basic();
+  
+  m_libraries = m_root->create_component_ptr<CLibraries>("Libraries");
+  m_factories = m_root->create_component_ptr<CFactories>("Factories");
+  libraries().mark_basic();
+  factories().mark_basic();
 
   // these components are placed on the root structure
   // but ownership is shared with Core, so they get destroyed in ~Core()
   /// @todo should these be static components?
   m_root->add_component( m_environment ).mark_basic();
-  m_root->add_component( m_libraries ).mark_basic();
-  m_root->add_component( m_factories ).mark_basic();
 
   CGroup::Ptr tools = m_root->create_component_ptr<CGroup>("Tools");
   tools->mark_basic();
@@ -122,7 +123,7 @@ void Core::initiate ( int argc, char** argv )
 
   // initiate here all the libraries which the kernel was linked to
 
-  m_libraries->initiate_all_libraries();
+  libraries().initiate_all_libraries();
 
 }
 
@@ -132,7 +133,7 @@ void Core::terminate()
 {
   // terminate all
 
-  m_libraries->terminate_all_libraries();
+  libraries().terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,16 +171,16 @@ Common::CEnv& Core::environment() const
 
 Common::CLibraries&  Core::libraries() const
 {
-  cf_assert(m_libraries != nullptr);
-  return *m_libraries;
+  cf_assert(!m_libraries.expired());
+  return *m_libraries.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Common::CFactories& Core::factories() const
 {
-  cf_assert(m_factories != nullptr);
-  return *m_factories;
+  cf_assert(!m_factories.expired());
+  return *m_factories.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
