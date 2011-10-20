@@ -20,6 +20,7 @@
 #include "common/Foreach.hpp"
 #include "common/CBuilder.hpp"
 #include "common/BasicExceptions.hpp"
+#include "common/EventHandler.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -141,6 +142,8 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("brief", std::string("No brief description available"));
   m_properties.add_property("description", std::string("This component has not a long description"));
   m_properties.add_property("uuid", boost::lexical_cast<std::string>(boost::uuids::random_generator()()));
+  // events
+  EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);
 }
 
 
@@ -1502,6 +1505,13 @@ Component::Ptr build_component(const std::string& builder_name,
   Component::Ptr comp = builder.build( name );
 
   return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::on_ping_event(SignalArgs& args)
+{
+  CFdebug << "Ping response: " << uri().path() << " of type " << derived_type_name() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

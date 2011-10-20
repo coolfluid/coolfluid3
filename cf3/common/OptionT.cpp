@@ -14,8 +14,6 @@
 
 #include "common/XML/Protocol.hpp"
 
-#include "Math/MatrixTypes.hpp"
-
 
 using namespace cf3::common::XML;
 
@@ -100,7 +98,6 @@ Common_TEMPLATE template class OptionT< int >;
 Common_TEMPLATE template class OptionT< std::string >;
 Common_TEMPLATE template class OptionT< cf3::Uint >;
 Common_TEMPLATE template class OptionT< cf3::Real >;
-Common_TEMPLATE template class OptionT< RealVector >;
 //Common_TEMPLATE template class OptionT< cf3::common::URI >;
 
 ////////////////////////////////////////////////////////////////////////////////

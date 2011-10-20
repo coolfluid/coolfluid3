@@ -28,8 +28,7 @@ class Common_API EventHandler :
 
 public: // methods
 
-  /// Constructor
-  EventHandler();
+  static EventHandler& instance();
 
   /// Destructor
   ~EventHandler();
@@ -45,6 +44,10 @@ public: // methods
 
   /// raises an event and dispatches immedietly to all listeners
   void raise_event( const std::string& ename, SignalArgs& args);
+  
+private:
+  /// Constructor
+  EventHandler();
 
 }; // class EventHandler
 

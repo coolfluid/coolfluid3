@@ -254,7 +254,7 @@ void CMeshPartitioner::show_changes()
       }
       for (Uint comp=0; comp<m_elements_to_export.size(); ++comp)
       {
-        std::string elements = m_lookup->components()[comp+1]->uri().path();
+        std::string elements = m_lookup->components()[comp+1].lock()->uri().path();
         for (Uint to_part=0; to_part<m_elements_to_export[comp].size(); ++to_part)
         {
           std::cout << "[" << PE::Comm::instance().rank() << "] export " << elements << " to part " << to_part << ":  ";
@@ -495,7 +495,7 @@ void CMeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
 
-  std::vector<Component::Ptr> mesh_element_comps = mesh.elements().components();
+  std::vector< boost::weak_ptr<Component> > mesh_element_comps = mesh.elements().components();
 
   PE::Buffer send_to_proc;  std::vector<int> send_strides(PE::Comm::instance().size());
   PE::Buffer recv_from_all; std::vector<int> recv_strides(PE::Comm::instance().size());
@@ -503,7 +503,7 @@ void CMeshPartitioner::migrate()
   // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
   {
-    CElements& elements = mesh_element_comps[i]->as_type<CElements>();
+    CElements& elements = mesh_element_comps[i].lock()->as_type<CElements>();
 
     send_to_proc.reset();
     recv_from_all.reset();

@@ -25,8 +25,6 @@
 
 #include "common/XML/FileOperations.hpp"
 
-#include "Math/MatrixTypes.hpp"
-
 #include "Python/Component.hpp"
 #include "Python/CTable.hpp"
 
@@ -36,7 +34,7 @@ namespace Python {
 using namespace boost::python;
 
 // Types that can be held by any
-typedef boost::mpl::vector7<std::string, Real, Uint, int, bool, common::URI, RealVector> AnyTypes;
+typedef boost::mpl::vector6<std::string, Real, Uint, int, bool, common::URI> AnyTypes;
 
 /// Conversion for basic types
 struct PythonToAny
