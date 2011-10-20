@@ -126,6 +126,14 @@ include(CheckNullPtr)
 
   coolfluid_log_file( "+++++  Checking for erfc function -- ${CF3_HAVE_MATH_ERFC}" )
 
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::erfc (0.); }
+  "
+  CF3_HAVE_MATH_TR1_ERFC )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::erfc function -- ${CF3_HAVE_MATH_TR1_ERFC}" )
+
 #######################################################################################
 
   check_cxx_source_compiles(
@@ -135,6 +143,14 @@ include(CheckNullPtr)
   CF3_HAVE_MATH_CBRT )
 
   coolfluid_log_file( "+++++  Checking for cbrt function -- ${CF3_HAVE_MATH_CBRT}" )
+
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::cbrt (0.); }
+  "
+  CF3_HAVE_MATH_TR1_CBRT )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::cbrt function -- ${CF3_HAVE_MATH_TR1_CBRT}" )
 
 #######################################################################################
 
@@ -146,6 +162,15 @@ include(CheckNullPtr)
 
   coolfluid_log_file( "+++++  Checking for log2 function -- ${CF3_HAVE_MATH_LOG2}" )
 
+  check_cxx_source_compiles(
+  " #include <cmath>
+    int main (int argc, char* argv[]) { std::tr1::log2 (0.); }
+  "
+  CF3_HAVE_MATH_TR1_LOG2 )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::log2 function -- ${CF3_HAVE_MATH_TR1_LOG2}" )
+
+
 #######################################################################################
 
   check_cxx_source_compiles(
@@ -155,6 +180,14 @@ include(CheckNullPtr)
   CF3_HAVE_MATH_HYPOT )
 
   coolfluid_log_file( "+++++  Checking for hypot function -- ${CF3_HAVE_MATH_HYPOT}" )
+
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::hypot (0., 1.2); }
+  "
+  CF3_HAVE_MATH_TR1_HYPOT )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::hypot function -- ${CF3_HAVE_MATH_TR1_HYPOT}" )
 
 #######################################################################################
 
@@ -166,6 +199,14 @@ include(CheckNullPtr)
 
   coolfluid_log_file( "+++++  Checking for exp2 function -- ${CF3_HAVE_MATH_EXP2}" )
 
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::exp2 (0.); }
+  "
+  CF3_HAVE_MATH_TR1_EXP2 )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::exp2 function -- ${CF3_HAVE_MATH_TR1_EXP2}" )
+
 #######################################################################################
 
   check_cxx_source_compiles(
@@ -175,6 +216,14 @@ include(CheckNullPtr)
   CF3_HAVE_MATH_ASINH )
 
   coolfluid_log_file( "+++++  Checking for asinh function -- ${CF3_HAVE_MATH_ASINH}" )
+
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::asinh (0.); }
+  "
+  CF3_HAVE_MATH_TR1_ASINH )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::asinh function -- ${CF3_HAVE_MATH_TR1_ASINH}" )
 
 #######################################################################################
 
@@ -186,6 +235,14 @@ include(CheckNullPtr)
 
   coolfluid_log_file( "+++++  Checking for acosh function -- ${CF3_HAVE_MATH_ACOSH}" )
 
+  check_cxx_source_compiles(
+  " #include <tr1/cmath>
+    int main (int argc, char* argv[]) { std::tr1::acosh (0.); }
+  "
+  CF3_HAVE_MATH_TR1_ACOSH )
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::acosh function -- ${CF3_HAVE_MATH_TR1_ACOSH}" )
+
 #######################################################################################
 
   check_cxx_source_compiles(
@@ -195,6 +252,14 @@ include(CheckNullPtr)
   CF3_HAVE_MATH_ATANH)
 
   coolfluid_log_file( "+++++  Checking for atanh function -- ${CF3_HAVE_MATH_ATANH}" )
+
+  check_cxx_source_compiles(
+  " #include <cmath>
+    int main (int argc, char* argv[]) { std::tr1::atanh (0.); }
+  "
+  CF3_HAVE_MATH_TR1_ATANH)
+
+  coolfluid_log_file( "+++++  Checking for std::tr1::atanh function -- ${CF3_HAVE_MATH_TR1_ATANH}" )
 
 #######################################################################################
 

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::CField"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::PTScotch"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -369,35 +369,35 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
   // the mesh to store in
   CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
   meshreader->read_mesh_into(fp_in,mesh);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   URI fp_out_1 ("file:quadtriag.msh");
   meshwriter->write_from_to(mesh,fp_out_1);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
 
   CMeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   //p.configure_property("nb_partitions", (Uint) 2);
   BOOST_CHECK(true);
   p.initialize(mesh);
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   BOOST_CHECK(true);
   p.partition_graph();
-  CF_DEBUG_POINT;
+  CF3_DEBUG_POINT;
 
   BOOST_CHECK(true);
   p.show_changes();

@@ -10,6 +10,7 @@ list( APPEND coolfluid_math_files
   FindMinimum.hpp
   FloatingPoint.hpp
   Functions.hpp
+  Integrate.hpp
   MatrixTypes.hpp
   MathExceptions.hpp
   MathExceptions.cpp
