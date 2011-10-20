@@ -4,29 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QDebug>
-
 #include "UI/Core/NTree.hpp"
 
 #include "UI/Graphics/TabBuilder.hpp"
 
 using namespace CF::Common;
 using namespace CF::UI::Core;
-
-
-QDebug operator<<(QDebug debug, std::string str)
-{
-  debug << str.c_str();
-
-  return debug;
-}
-
-QDebug operator<<(QDebug debug, CF::UI::Graphics::TabInfo info)
-{
-  debug << info.tabIndex;
-
-  return debug;
-}
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -85,9 +68,6 @@ void TabBuilder::beginModelReset()
 void TabBuilder::endModelReset()
 {
   QMap<std::string, int>::iterator it = m_lastTabs.begin();
-
-  qDebug() << "last tabs" << m_lastTabs << "in" << __FUNCTION__;
-  qDebug() << "tabs" << m_tabs << "in" << __FUNCTION__;
 
   while( it != m_lastTabs.end() )
   {

@@ -14,8 +14,6 @@
 #include <QValidator>
 #include <QVBoxLayout>
 
-#include <QDebug>
-
 #include "Common/URI.hpp"
 
 #include "UI/Core/TreeThread.hpp"
@@ -248,42 +246,6 @@ void GraphicalUriArray::moveUp()
 void GraphicalUriArray::moveDown()
 {
   moveItems(1);
-//  QModelIndexList selected = m_listView->selectionModel()->selectedIndexes();
-//  QModelIndexList::iterator it = selected.begin();
-//  QStringList items = m_model->stringList();
-//  QList<int> newSelection;
-
-//  QList<int> selection;
-
-//  // move the elements
-//  for( ; it != selected.end() ; ++it )
-//    selection.append( it->row() );
-
-//  qSort(selection);
-
-//  for(int row = 0 ; row < selected.size() ; ++row )
-//  {
-//    int newRow = row + 1;
-
-////      if(  newRow >= 0 && newRow < items.count() )
-//      qDebug() << row << newRow;
-
-//      items.move( row, newRow );    // move the row
-//      newSelection.append( newRow );
-//  }
-
-//  m_model->setStringList(items); // set the new items
-
-//  // select items that were  just moved
-//  QList<int>::iterator itNewSelect = newSelection.begin();
-//  for( ; itNewSelect != newSelection.end(); ++itNewSelect)
-//    m_listView->selectionModel()->select( m_model->index(*(itNewSelect)), QItemSelectionModel::Select );
-
-//  // update buttons enabled states
-//  selectionChanged(QItemSelection(), QItemSelection());
-
-//  qDebug() << "===========================";
-
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <QMutex>
-#include <QDebug>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -597,7 +596,6 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 void NTree::list_tree_reply(SignalArgs & args)
 {
 
-  qDebug() << "begin" << __FUNCTION__;
   //QMutexLocker locker(m_mutex);
   emit beginUpdateTree();
   beginResetModel();
@@ -670,9 +668,7 @@ void NTree::list_tree_reply(SignalArgs & args)
   emit endUpdateTree();
 
   emit currentIndexChanged(m_currentIndex, QModelIndex());
-  qDebug() << "end" << __FUNCTION__;
 
-//  qDebug() << "tree updated !";
 }
 
 ////////////////////////////////////////////////////////////////////////////

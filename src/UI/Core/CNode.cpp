@@ -618,13 +618,6 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
   std::string uuid = node.attribute_value( "uuid" );
 
-//  if( is_null(typeAttr) )
-//  {
-//    std::string str;
-//    to_string(node, str);
-//    qDebug() << "type attribute is null" << str.c_str();
-//  }
-
   cf_assert(typeAttr != nullptr);
   cf_assert(nameAttr != nullptr);
 
