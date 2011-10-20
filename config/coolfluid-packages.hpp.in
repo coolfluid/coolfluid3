@@ -1,13 +1,13 @@
 #ifndef coolfluid_packages_hpp
 #define coolfluid_packages_hpp
 
-#cmakedefine CF_HAVE_SUPERLU        // SuperLU sparse direct solver
-#cmakedefine CF_HAVE_TRILINOS       // Trilinos sparse lib
-#cmakedefine CF_HAVE_PTSCOTCH       // PT-Scotch partitioner
-#cmakedefine CF_HAVE_PARMETIS       // Parmetis partitioner
-#cmakedefine CF_HAVE_ZOLTAN         // Zoltan partitioner / load balancer
-#cmakedefine CF_HAVE_VALGRIND       // valgrind memory check
-#cmakedefine CF_HAVE_CGNS           // CGNS Mesh format
+#cmakedefine CF3_HAVE_SUPERLU        // SuperLU sparse direct solver
+#cmakedefine CF3_HAVE_TRILINOS       // Trilinos sparse lib
+#cmakedefine CF3_HAVE_PTSCOTCH       // PT-Scotch partitioner
+#cmakedefine CF3_HAVE_PARMETIS       // Parmetis partitioner
+#cmakedefine CF3_HAVE_ZOLTAN         // Zoltan partitioner / load balancer
+#cmakedefine CF3_HAVE_VALGRIND       // valgrind memory check
+#cmakedefine CF3_HAVE_CGNS           // CGNS Mesh format
 
 #cmakedefine GNUPLOT_FOUND
 #define GNUPLOT_COMMAND "${GNUPLOT_EXECUTABLE}"

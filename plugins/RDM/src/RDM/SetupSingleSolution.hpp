@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SetupSingleSolution_hpp
-#define CF_RDM_SetupSingleSolution_hpp
+#ifndef cf3_RDM_SetupSingleSolution_hpp
+#define cf3_RDM_SetupSingleSolution_hpp
 
 #include "Solver/Action.hpp"
 
@@ -13,14 +13,14 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class Field; }
 
 namespace RDM {
 
 
-class RDM_API SetupSingleSolution : public CF::Solver::Action {
+class RDM_API SetupSingleSolution : public cf3::Solver::Action {
 
 public: // typedefs
 
@@ -49,6 +49,6 @@ public: // functions
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SetupSingleSolution_hpp
+#endif // cf3_RDM_SetupSingleSolution_hpp

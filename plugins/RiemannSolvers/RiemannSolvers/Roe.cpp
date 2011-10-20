@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
+#include "common/FindComponents.hpp"
 #include "RiemannSolvers/Roe.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/OptionComponent.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-using namespace Common;
+using namespace common;
 using namespace Physics;
 
-Common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
+common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -149,4 +149,4 @@ void Roe::compute_interface_flux_and_wavespeeds(const RealVector& left, const Re
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

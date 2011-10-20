@@ -10,8 +10,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/CTable.hpp"
 #include "Mesh/Integrators/Gauss.hpp"
@@ -20,11 +20,11 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Mesh::LagrangeP1;
-using namespace CF::Tools::Testing;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_ShapeFunction_hpp
-#define CF_SFDM_ShapeFunction_hpp
+#ifndef cf3_SFDM_ShapeFunction_hpp
+#define cf3_SFDM_ShapeFunction_hpp
 
-#include "Common/BoostArray.hpp"
+#include "common/BoostArray.hpp"
 
 #include "Mesh/ShapeFunctionT.hpp"
 #include "Mesh/ShapeFunctionBase.hpp"
@@ -15,7 +15,7 @@
 
 #include "SFDM/LibSFDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 /// @brief Spectral Finite Difference shape function base class
@@ -67,7 +67,7 @@ public:
 
   virtual const RealMatrix& local_coordinates() const
   {
-    throw Common::NotImplemented(FromHere(),"");
+    throw common::NotImplemented(FromHere(),"");
     static const RealMatrix obj(1,1);
     return obj;
   }
@@ -80,7 +80,7 @@ public:
   }
   virtual void compute_value(const RealVector& local_coordinate, RealRowVector& value) const
   {
-    throw Common::NotImplemented(FromHere(),"");
+    throw common::NotImplemented(FromHere(),"");
   }
   virtual RealMatrix gradient(const RealVector& local_coordinate) const
   {
@@ -90,7 +90,7 @@ public:
   }
   virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const
   {
-    throw Common::NotImplemented(FromHere(),"");
+    throw common::NotImplemented(FromHere(),"");
   }
 
 
@@ -117,6 +117,6 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
-#endif // CF_SFDM_ShapeFunction_hpp
+#endif // cf3_SFDM_ShapeFunction_hpp

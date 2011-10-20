@@ -6,23 +6,23 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Math::LSS where testing LSS::System and the dummy EmptyLSS."
+#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing LSS::System and the dummy EmptyLSS."
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/std/vector.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 #include "Math/LSS/System.hpp"
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/CommWrapper.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/CommWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Math::LSS;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::Math::LSS;
 
 using namespace boost::assign;
 
@@ -45,24 +45,24 @@ struct LSSSystem_EmptyLSSFixture
   /// create a dummy commpattern
   void build_input_data()
   {
-    cp = Common::allocate_component<Common::PE::CommPattern>("commpattern");
+    cp = common::allocate_component<common::PE::CommPattern>("commpattern");
     gid += 0,1,2,3,4,5,6,7,8,9;
     rnk += 0,0,0,0,0,0,0,0,0,0;
     conn += 0,2,1,2,2,7,3,8,4,5,5,2,6,0,7,1,8,7,9,8;
     startidx += 0,2,4,6,8,10,12,14,16,18,20;
     cp->insert("gid",gid,1,false);
-    cp->setup(cp->get_child_ptr("gid")->as_ptr<Common::PE::CommWrapper>(),rnk);
+    cp->setup(cp->get_child_ptr("gid")->as_ptr<common::PE::CommWrapper>(),rnk);
   }
   std::vector<Uint> gid;
   std::vector<Uint> conn;
   std::vector<Uint> startidx;
   std::vector<Uint> rnk;
-  Common::PE::CommPattern::Ptr cp;
+  common::PE::CommPattern::Ptr cp;
 
   /// build a system
   void build_system()
   {
-    sys=(LSS::System::Ptr) Common::allocate_component<LSS::System>("system");
+    sys=(LSS::System::Ptr) common::allocate_component<LSS::System>("system");
     std::string solvertype("EmptyLSS");
     sys->options().option("solver").change_value(solvertype);
     BOOST_CHECK_EQUAL(sys->is_created(),false);
@@ -105,8 +105,8 @@ BOOST_FIXTURE_TEST_SUITE( LSSSystem_EmptyLSSSuite, LSSSystem_EmptyLSSFixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  Common::PE::Comm::instance().init(m_argc,m_argv);
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),true);
+  common::PE::Comm::instance().init(m_argc,m_argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),true);
   CFinfo.setFilterRankZero(false);
 }
 
@@ -250,7 +250,7 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
   build_input_data();
   build_system();
 
-  LSS::System::Ptr sys2 = Common::allocate_component<LSS::System>("system2");
+  LSS::System::Ptr sys2 = common::allocate_component<LSS::System>("system2");
   std::string solvertype("EmptyLSS");
   sys2->options().option("solver").change_value(solvertype);
   sys2->create(*cp,4u,conn,startidx);
@@ -279,8 +279,8 @@ BOOST_AUTO_TEST_CASE( swap_matrix_vector )
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   CFinfo.setFilterRankZero(true);
-  Common::PE::Comm::instance().finalize();
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().is_active(),false);
+  common::PE::Comm::instance().finalize();
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().is_active(),false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

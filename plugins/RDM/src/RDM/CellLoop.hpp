@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_CellLoop_hpp
-#define CF_RDM_CellLoop_hpp
+#ifndef cf3_RDM_CellLoop_hpp
+#define cf3_RDM_CellLoop_hpp
 
 #include "Mesh/Field.hpp"
 
@@ -13,7 +13,7 @@
 #include "RDM/SupportedCells.hpp"
 #include "RDM/CellTerm.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ struct CellLoop : public ElementLoop
   /// @return reference to the term
   template < typename TermT > TermT& access_term()
   {
-    Common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
+    common::Component::Ptr cterm = parent().get_child_ptr( TermT::type_name() );
     typename TermT::Ptr term;
     if( is_null( cterm ) )
     {
@@ -80,7 +80,7 @@ struct CellLoopT1 : public CellLoop
   void operator() ( SF& )
   {
     if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -90,7 +90,7 @@ struct CellLoopT1 : public CellLoop
     // loop on the (sub)regions that hold elements of this type
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -134,7 +134,7 @@ struct CellLoopT : public CellLoop
   void operator() ( SF& )
   {
     if( is_null(parent().as_ptr<ACTION>()) )
-      throw Common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
+      throw common::SetupError(FromHere(), type_name() + " was intantiated with wrong action");
 
     // definition of the quadrature type
     typedef typename RDM::DefaultQuadrature<SF>::type QD;
@@ -144,7 +144,7 @@ struct CellLoopT : public CellLoop
     // loop on the (sub)regions that hold elements of this type
 
     boost_foreach(Mesh::CElements& elements,
-                  Common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -166,6 +166,6 @@ struct CellLoopT : public CellLoop
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_CellLoop_hpp
+#endif // cf3_RDM_CellLoop_hpp

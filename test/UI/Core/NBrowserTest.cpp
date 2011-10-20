@@ -11,8 +11,8 @@
 
 #include "test/UI/Core/NBrowserTest.hpp"
 
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 void NBrowserTest::test_generateName()
 {

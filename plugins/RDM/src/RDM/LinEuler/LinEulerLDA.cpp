@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
 #include "RDM/Schemes/RKLDA.hpp"
 
@@ -14,14 +14,14 @@
 
 #include "LibLinEuler.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < CellLoopT<RKLDA,Physics::LinEuler::Cons2D> ,
+common::ComponentBuilder < CellLoopT<RKLDA,Physics::LinEuler::Cons2D> ,
                            RDM::CellLoop,
                            LibLinEuler >
                            LDA_Cons2D_Builder;
@@ -29,4 +29,4 @@ Common::ComponentBuilder < CellLoopT<RKLDA,Physics::LinEuler::Cons2D> ,
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

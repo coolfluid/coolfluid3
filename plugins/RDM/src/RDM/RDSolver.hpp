@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_Solver_hpp
-#define CF_RDM_Solver_hpp
+#ifndef cf3_RDM_Solver_hpp
+#define cf3_RDM_Solver_hpp
 
-#include "Common/CGroup.hpp"
+#include "common/CGroup.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh    { class Field;    class CMesh; }
 namespace Physics { class PhysModel; class Variables; }
@@ -38,7 +38,7 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public CF::Solver::CSolver {
+class RDM_API RDSolver : public cf3::Solver::CSolver {
 
 public: // typedefs
 
@@ -76,9 +76,9 @@ public: // functions
   CActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
-  Common::CGroup& actions();
+  common::CGroup& actions();
   /// @returns the group of shared fields
-  Common::CGroup& fields();
+  common::CGroup& fields();
 
   /// @name SIGNALS
   //@{
@@ -94,13 +94,13 @@ private: // helper functions
   void config_mesh();
 
   /// Triggered when the event mesh_changed
-  void on_mesh_changed_event( Common::SignalArgs& args );
+  void on_mesh_changed_event( common::SignalArgs& args );
 
 private: // data
 
-  Common::CGroup::Ptr m_actions;  ///< the group of shared actions
+  common::CGroup::Ptr m_actions;  ///< the group of shared actions
 
-  Common::CGroup::Ptr m_fields;   ///< the group of fields
+  common::CGroup::Ptr m_fields;   ///< the group of fields
 
   boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
@@ -124,6 +124,6 @@ private: // data
 
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_Solver_hpp
+#endif // cf3_RDM_Solver_hpp

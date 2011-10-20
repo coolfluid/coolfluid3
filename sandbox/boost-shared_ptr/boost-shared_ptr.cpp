@@ -5,12 +5,12 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#include "Common/OptionT.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Log.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Log.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 int main ( int argc, char * argv[])
 {

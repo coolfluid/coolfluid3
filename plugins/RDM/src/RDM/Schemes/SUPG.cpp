@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
+#include "common/CBuilder.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 
 #include "Mesh/CRegion.hpp"
@@ -15,16 +15,16 @@
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/SUPG.hpp"
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Solver;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Solver;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SUPG, RDM::CellTerm, LibSchemes > SUPG_Builder;
+common::ComponentBuilder < SUPG, RDM::CellTerm, LibSchemes > SUPG_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -54,4 +54,4 @@ void SUPG::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3

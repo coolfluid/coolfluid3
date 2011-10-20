@@ -9,12 +9,12 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "Common/CGroup.hpp"
-#include "Common/CLink.hpp"
-#include "Common/OptionT.hpp"
+#include "common/CGroup.hpp"
+#include "common/CLink.hpp"
+#include "common/OptionT.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/XmlDoc.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/XmlDoc.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -32,16 +32,16 @@
 
 #include "test/UI/Core/NTreeTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
 
 ///////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -613,4 +613,4 @@ void NTreeTest::test_indexIsVisible()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3

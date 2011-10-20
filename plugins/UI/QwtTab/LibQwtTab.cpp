@@ -5,25 +5,25 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 //header
-#include "Common/RegistLibrary.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/XML/SignalOptions.hpp"
 #include "UI/Core/CNodeBuilders.hpp"
 #include "UI/Core/NPlugin.hpp"
 #include "UI/Core/NPlugins.hpp"
 #include "UI/QwtTab/NPlotXY.hpp"
 #include "UI/QwtTab/LibQwtTab.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
-CF::Common::RegistLibrary<LibQwtTab> libQwtTab;
+cf3::common::RegistLibrary<LibQwtTab> libQwtTab;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,4 +44,4 @@ void LibQwtTab::terminate_impl()
 
 } // Client
 } // UI
-} // CF
+} // cf3

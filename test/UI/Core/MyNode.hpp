@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_MyNode_hpp
-#define CF_GUI_Client_uTests_MyNode_hpp
+#ifndef cf3_GUI_Client_uTests_MyNode_hpp
+#define cf3_GUI_Client_uTests_MyNode_hpp
 
 #include "UI/Core/CNode.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
-  class MyNode : public CF::UI::Core::CNode
+  class MyNode : public cf3::UI::Core::CNode
   {
   public:
 

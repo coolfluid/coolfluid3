@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Log.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Mesh/BlockMesh/BlockData.hpp"
 
@@ -13,16 +13,16 @@
 #include "LibBlockMeshReader.hpp"
 #include "Parser.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace BlockMeshReader {
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::BlockMesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CF::Common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
+cf3::common::ComponentBuilder < BlockMeshReader, Mesh::CMeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ std::vector< std::string > BlockMeshReader::get_extensions()
   return result;
 }
 
-void BlockMeshReader::do_read_mesh_into(const CF::Common::URI& path_uri, CF::Mesh::CMesh& mesh)
+void BlockMeshReader::do_read_mesh_into(const cf3::common::URI& path_uri, cf3::Mesh::CMesh& mesh)
 {
   boost::filesystem::path path(path_uri.path());
   // if the file is present open it
@@ -60,4 +60,4 @@ void BlockMeshReader::do_read_mesh_into(const CF::Common::URI& path_uri, CF::Mes
 }
 
 } // BlockMeshReader
-} // CF
+} // cf3

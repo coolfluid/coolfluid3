@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::Gmsh::CReader"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::Gmsh::CReader"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -32,9 +32,9 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
   // CFinfo << mesh.tree() << CFendl;
 
   Field& nodal = mesh.geometry().create_field("nodal" , "nodal[vector]");
-  nodal.descriptor().configure_option(Common::Tags::dimension(),mesh.dimension());
+  nodal.descriptor().configure_option(common::Tags::dimension(),mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)

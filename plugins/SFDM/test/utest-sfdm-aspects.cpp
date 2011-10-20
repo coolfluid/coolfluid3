@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::SFDM"
+#define BOOST_TEST_MODULE "Test module for cf3::SFDM"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CField.hpp"
@@ -37,12 +37,12 @@
 #include "Solver/Physics.hpp"
 #include "Physics/src/Euler/Cons1D.hpp"
 
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::SF;
-using namespace CF::Common;
-using namespace CF::SFDM;
-using namespace CF::Solver;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::SF;
+using namespace cf3::common;
+using namespace cf3::SFDM;
+using namespace cf3::Solver;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +101,7 @@ BOOST_AUTO_TEST_CASE( test_SF_lines )
 
 BOOST_AUTO_TEST_CASE( test_Reconstruction_lines )
 {
-  CRoot& root = Common::Core::instance().root();
+  CRoot& root = common::Core::instance().root();
   Reconstruct& reconstruct = root.create_component("reconstruct","CF.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
   from_to[0] = "CF.SFDM.SF.LineSolutionP1";
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( test_SF_quads )
 
 BOOST_AUTO_TEST_CASE( test_Reconstruction_quads )
 {
-  CRoot& root = Common::Core::instance().root();
+  CRoot& root = common::Core::instance().root();
   Reconstruct& reconstruct = root.create_component("reconstruct_quads","CF.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
   from_to[0] = "CF.SFDM.SF.QuadSolutionP0";
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction_quads )
 BOOST_AUTO_TEST_CASE( test_fields_lines )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("mesh");
+  CMesh::Ptr mesh = common::Core::instance().root().create_component_ptr<CMesh>("mesh");
   CSimpleMeshGenerator::create_line(*mesh, 1., 20);
 
 
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function sin(2*pi*x)
-  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
   init_field->configure_option("field",solution.uri());
   init_field->transform(*mesh);
@@ -232,7 +232,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
 BOOST_AUTO_TEST_CASE( test_fields_quads )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh::Ptr mesh = Common::Core::instance().root().create_component_ptr<CMesh>("rectangle");
+  CMesh::Ptr mesh = common::Core::instance().root().create_component_ptr<CMesh>("rectangle");
   CSimpleMeshGenerator::create_rectangle(*mesh, 1., 1., 20, 20);
 
 
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )
-  Actions::CInitFieldFunction::Ptr init_field = Common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
   std::string gaussian="sigma:="+to_str(0.1)+"; mu:="+to_str(0.5)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
   init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
   init_field->configure_option("field",solution.uri());
@@ -276,9 +276,9 @@ BOOST_AUTO_TEST_CASE( test_mesh_transform )
 {
   Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
   /// Create a mesh consisting of a line with length 1. and 20 divisions
-  CMesh& mesh = Common::Core::instance().root().get_child("rectangle").as_type<CMesh>();
+  CMesh& mesh = common::Core::instance().root().get_child("rectangle").as_type<CMesh>();
 
-  CMeshTransformer& build_faces = Common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.CBuildFaces").as_type<CMeshTransformer>();
+  CMeshTransformer& build_faces = common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.CBuildFaces").as_type<CMeshTransformer>();
   build_faces.configure_option("store_cell2face",true);
   build_faces.transform(mesh);
 

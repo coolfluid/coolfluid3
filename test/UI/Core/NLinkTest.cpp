@@ -7,9 +7,9 @@
 #include <QtTest>
 #include <QModelIndex>
 
-#include "Common/URI.hpp"
+#include "common/URI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "UI/Core/ThreadManager.hpp"
 #include "UI/Core/TreeThread.hpp"
@@ -24,17 +24,17 @@
 
 #include "test/UI/Core/NLinkTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::UI::Core;
-using namespace CF::UI::CoreTest;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::UI::Core;
+using namespace cf3::UI::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex);
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -174,4 +174,4 @@ void NLinkTest::test_setTargetNode()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3

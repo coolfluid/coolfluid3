@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_TreeHandler_hpp
-#define CF_GUI_Client_uTests_TreeHandler_hpp
+#ifndef cf3_GUI_Client_uTests_TreeHandler_hpp
+#define cf3_GUI_Client_uTests_TreeHandler_hpp
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@ class QStringList;
 
 ///////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -27,9 +27,9 @@ namespace CoreTest {
 
     ~TreeHandler();
 
-    void add(CF::UI::Core::CNode::Ptr node);
+    void add(cf3::UI::Core::CNode::Ptr node);
 
-    void addChildren(CF::UI::Core::CNode::Ptr node);
+    void addChildren(cf3::UI::Core::CNode::Ptr node);
 
   private:
 
@@ -41,8 +41,8 @@ namespace CoreTest {
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_Client_uTests_TreeHandler_hpp
+#endif // cf3_GUI_Client_uTests_TreeHandler_hpp

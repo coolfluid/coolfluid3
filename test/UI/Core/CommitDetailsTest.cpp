@@ -11,11 +11,11 @@
 
 #include "test/UI/Core/CommitDetailsTest.hpp"
 
-using namespace CF::UI::Core;
+using namespace cf3::UI::Core;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace CoreTest {
 
@@ -129,4 +129,4 @@ void CommitDetailsTest::test_clear()
 
 } // CoreTest
 } // UI
-} // CF
+} // cf3

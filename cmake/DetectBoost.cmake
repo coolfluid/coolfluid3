@@ -1,22 +1,22 @@
 # find boost package (essential)
 #set( Boost_DEBUG 1 )  # to debug boost search
-set( Boost_USE_STATIC_LIBS ${CF_ENABLE_STATIC} )
+set( Boost_USE_STATIC_LIBS ${CF3_ENABLE_STATIC} )
 set( Boost_USE_MULTITHREAD ON  )
 # find based on minimal version defined below
-set( CF_Boost_MINIMAL_VERSION "1.46.1" )
+set( CF3_Boost_MINIMAL_VERSION "1.46.1" )
 set( Boost_ADDITIONAL_VERSIONS "1.47" "1.46" )
 
 #disable looking in system paths
 set(Boost_NO_SYSTEM_PATHS ON)
 
 # components to search for
-list( APPEND CF_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
-list( APPEND CF_Boost_OTHER_COMPONENTS unit_test_framework)
-if(CF_ENABLE_PYTHON)
-  list( APPEND CF_Boost_OPTIONAL_COMPONENTS python )
+list( APPEND CF3_Boost_CORE_COMPONENTS thread iostreams filesystem system regex date_time program_options )
+list( APPEND CF3_Boost_OTHER_COMPONENTS unit_test_framework)
+if(CF3_ENABLE_PYTHON)
+  list( APPEND CF3_Boost_OPTIONAL_COMPONENTS python )
 endif()
 
-find_package( Boost ${CF_Boost_MINIMAL_VERSION} COMPONENTS ${CF_Boost_CORE_COMPONENTS} ${CF_Boost_OTHER_COMPONENTS} ${CF_Boost_OPTIONAL_COMPONENTS} QUIET )
+find_package( Boost ${CF3_Boost_MINIMAL_VERSION} COMPONENTS ${CF3_Boost_CORE_COMPONENTS} ${CF3_Boost_OTHER_COMPONENTS} ${CF3_Boost_OPTIONAL_COMPONENTS} QUIET )
 
 coolfluid_log_file( "Boost version      [${Boost_LIB_VERSION}]" )
 coolfluid_log_file( "Boost include path [${Boost_INCLUDE_DIR}]" )
@@ -25,7 +25,7 @@ coolfluid_log_file( "Boost libraries    [${Boost_LIBRARIES}]"   )
 add_definitions( -DBOOST_ENABLE_ASSERT_HANDLER )
 
 set(Boost_FOUND TRUE)
-foreach( blib IN LISTS CF_Boost_CORE_COMPONENTS CF_Boost_OTHER_COMPONENTS)
+foreach( blib IN LISTS CF3_Boost_CORE_COMPONENTS CF3_Boost_OTHER_COMPONENTS)
   string(TOUPPER ${blib} blib_upper)
   if( NOT Boost_${blib_upper}_FOUND )
     set(Boost_FOUND FALSE)
@@ -42,14 +42,14 @@ endif()
 include_directories( ${Boost_INCLUDE_DIR} )
 
 # add boost libraries to list of third party libraries
-list( APPEND CF_DEPS_LIBRARIES ${Boost_LIBRARIES} )
+list( APPEND CF3_DEPS_LIBRARIES ${Boost_LIBRARIES} )
 
 # filter out the unit test libs from the boost libraries
 # only unit testslink to this
-set(CF_BOOST_LIBRARIES "" )
-foreach( blib IN LISTS CF_Boost_CORE_COMPONENTS )
+set(CF3_BOOST_LIBRARIES "" )
+foreach( blib IN LISTS CF3_Boost_CORE_COMPONENTS )
   string(TOUPPER ${blib} blib_upper)
-  list( APPEND CF_BOOST_LIBRARIES ${Boost_${blib_upper}_LIBRARY} )
+  list( APPEND CF3_BOOST_LIBRARIES ${Boost_${blib_upper}_LIBRARY} )
 endforeach()
 #######################################################################################
 # assume boost minimum version has it
@@ -61,5 +61,5 @@ endforeach()
 # {
 #   boost::math::erfc(0.);
 # }"
-# CF_HAVE_BOOST_ERFC )
+# CF3_HAVE_BOOST_ERFC )
 

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Component.hpp"
-#include "Common/CBuilder.hpp"
+#include "common/Component.hpp"
+#include "common/CBuilder.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"
@@ -14,10 +14,10 @@
 #include "Tags.hpp"
 #include "TimeLoop.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Solver;
 using namespace Solver::Actions::Proto;
 
@@ -122,4 +122,4 @@ void NavierStokes::trigger_u()
 }
 
 } // UFEM
-} // CF
+} // cf3

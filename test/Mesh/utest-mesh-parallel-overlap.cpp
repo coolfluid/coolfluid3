@@ -12,19 +12,19 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/CEnv.hpp"
 
-#include "Common/Foreach.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/Foreach.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
-#include "Common/PE/CommPattern.hpp"
-#include "Common/PE/CommWrapperMArray.hpp"
-#include "Common/PE/Buffer.hpp"
-#include "Common/PE/debug.hpp"
+#include "common/PE/CommPattern.hpp"
+#include "common/PE/CommWrapperMArray.hpp"
+#include "common/PE/Buffer.hpp"
+#include "common/PE/debug.hpp"
 
 #include "Math/Consts.hpp"
 
@@ -45,11 +45,11 @@
 #include "Mesh/CSpace.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Common::PE;
-using namespace CF::Math::Consts;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
+using namespace cf3::Math::Consts;
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)
@@ -535,7 +535,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   {
     for (Uint f=0; f<face2cell.size(); ++f)
     {
-      cf_assert(f < face2cell.is_bdry_face().size());
+      cf3_assert(f < face2cell.is_bdry_face().size());
       if (face2cell.is_bdry_face()[f])
       {
         boost_foreach(const Uint node, face2cell.face_nodes(f))

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Physics_LinEuler_LinEuler2D_hpp
-#define CF_Physics_LinEuler_LinEuler2D_hpp
+#ifndef cf3_Physics_LinEuler_LinEuler2D_hpp
+#define cf3_Physics_LinEuler_LinEuler2D_hpp
 
 #include "Physics/PhysModel.hpp"
 
@@ -14,7 +14,7 @@
 
 #include "LibLinEuler.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace LinEuler {
 
@@ -117,6 +117,6 @@ private :
 
 } // LinEuler
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_LinEuler_LinEuler2D_hpp
+#endif // cf3_Physics_LinEuler_LinEuler2D_hpp

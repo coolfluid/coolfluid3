@@ -1,8 +1,8 @@
 #Sets:
 # RT_LIBRARIES      = the library to link against (RT etc)
-# CF_HAVE_RT        = set to true after finding the library
+# CF3_HAVE_RT        = set to true after finding the library
 
-option( CF_SKIP_RT "Skip search for RT library" OFF )
+option( CF3_SKIP_RT "Skip search for RT library" OFF )
 
   coolfluid_set_trial_library_path("") # clear library search path
   if( DEFINED RT_HOME )

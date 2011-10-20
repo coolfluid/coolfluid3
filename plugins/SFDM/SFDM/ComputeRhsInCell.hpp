@@ -16,7 +16,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Solver { class State; class Physics; }
 namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {

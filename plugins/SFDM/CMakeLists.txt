@@ -8,7 +8,7 @@ project( SFDM CXX )
 
 coolfluid_define_plugin( SFDM ${CMAKE_CURRENT_SOURCE_DIR} )
 
-if( CF_PLUGIN_SFDM )
+if( CF3_PLUGIN_SFDM )
 
   coolfluid_find_orphan_files()
 

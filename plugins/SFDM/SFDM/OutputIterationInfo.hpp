@@ -12,7 +12,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace Mesh   { class CField; }
 namespace Solver { class CTime;  }
 namespace SFDM {

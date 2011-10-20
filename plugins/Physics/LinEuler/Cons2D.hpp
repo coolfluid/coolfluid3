@@ -6,18 +6,18 @@
 
 #include <iostream>
 
-#ifndef CF_Physics_LinEuler_Cons2D_hpp
-#define CF_Physics_LinEuler_Cons2D_hpp
+#ifndef cf3_Physics_LinEuler_Cons2D_hpp
+#define cf3_Physics_LinEuler_Cons2D_hpp
 
-#include "Common/BasicExceptions.hpp"
-#include "Common/StringConversion.hpp"
+#include "common/BasicExceptions.hpp"
+#include "common/StringConversion.hpp"
 #include "Math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 
 #include "LinEuler2D.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace Physics {
 namespace LinEuler {
 
@@ -80,9 +80,9 @@ public: // functions
       std::cout << "v     : " << p.v    << std::endl;
       std::cout << "H     : " << p.H << std::endl;
 
-      throw Common::BadValue( FromHere(), "Pressure is negative at coordinates ["
-                               + Common::to_str(coord[XX]) + ","
-                               + Common::to_str(coord[YY])
+      throw common::BadValue( FromHere(), "Pressure is negative at coordinates ["
+                               + common::to_str(coord[XX]) + ","
+                               + common::to_str(coord[YY])
                                + "]");
     }
 
@@ -223,7 +223,7 @@ public: // functions
                        JM         flux_jacob[],
                        RV&        res)
   {
-//    throw Common::NotImplemented(FromHere(), "Cons2D::residual()");
+//    throw common::NotImplemented(FromHere(), "Cons2D::residual()");
 
 //    const Real gamma_minus_3 = p.gamma - 3.;
 
@@ -283,6 +283,6 @@ public: // functions
 
 } // LinEuler
 } // Physics
-} // CF
+} // cf3
 
-#endif // CF_Physics_LinEuler_Cons2D_hpp
+#endif // cf3_Physics_LinEuler_Cons2D_hpp

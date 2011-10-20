@@ -15,8 +15,8 @@
 #include "Math/MathConsts.hpp"
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
-namespace Common { class CLink; }
+namespace cf3 {
+namespace common { class CLink; }
 namespace Solver { class CModelUnsteady; }
 namespace SFDM {
 
@@ -53,17 +53,17 @@ public: // functions
   /// @name SIGNALS
   //@{
 
-  void signal_create_simulation( Common::SignalArgs& xml );
-  void signature_create_simulation( Common::SignalArgs& xml );
+  void signal_create_simulation( common::SignalArgs& xml );
+  void signature_create_simulation( common::SignalArgs& xml );
 
-  void signal_prepare_simulation( Common::SignalArgs& xml );
-  void signature_prepare_simulation( Common::SignalArgs& xml );
+  void signal_prepare_simulation( common::SignalArgs& xml );
+  void signature_prepare_simulation( common::SignalArgs& xml );
 
-  void signal_initialize_solution( Common::SignalArgs& xml );
-  void signature_initialize_solution( Common::SignalArgs& xml );
+  void signal_initialize_solution( common::SignalArgs& xml );
+  void signature_initialize_solution( common::SignalArgs& xml );
 
-  void signal_start_simulation( Common::SignalArgs& xml );
-  void signature_start_simulation( Common::SignalArgs& xml );
+  void signal_start_simulation( common::SignalArgs& xml );
+  void signature_start_simulation( common::SignalArgs& xml );
 
   //@} END SIGNALS
 
@@ -75,7 +75,7 @@ private: // functions
   void build_setup();
 
 private: // data
-  boost::shared_ptr<Common::CLink> m_model_link;
+  boost::shared_ptr<common::CLink> m_model_link;
 
 }; // end SFDWizard
 

@@ -15,12 +15,12 @@
 
 #include "test/UI/Graphics/GraphicalStringTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -221,4 +221,4 @@ QLineEdit * GraphicalStringTest::findLineEdit(const GraphicalString* value)
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

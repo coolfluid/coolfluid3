@@ -6,7 +6,7 @@
 
 #include <set>
 
-#include "Common/FindComponents.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Mesh/CRegion.hpp"
 #include "Mesh/CCells.hpp"
@@ -15,10 +15,10 @@
 
 #include "UFEM/SparsityBuilder.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -65,4 +65,4 @@ void build_sparsity(const CMesh& mesh, std::vector< Uint >& node_connectivity, s
 ////////////////////////////////////////////////////////////////////////////////
 
 } // UFEM
-} // CF
+} // cf3

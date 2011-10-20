@@ -81,7 +81,7 @@ coolfluid_add_unit_test( utest-mesh-components )
 list( APPEND utest-mesh-cgns_cflibs      coolfluid_mesh_actions coolfluid_mesh_cgns3 coolfluid_mesh_neu coolfluid_mesh_gmsh )
 list( APPEND utest-mesh-cgns_files       utest-mesh-cgns.cpp )
 list( APPEND utest-mesh-cgns_includedirs ${CGNS_INCLUDE_DIR} )
-list( APPEND utest-mesh-cgns_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-mesh-cgns_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 set( utest-mesh-cgns_condition ${coolfluid_mesh_cgns3_builds} )
 
 coolfluid_add_unit_test( utest-mesh-cgns )
@@ -90,7 +90,7 @@ coolfluid_add_unit_test( utest-mesh-cgns )
 
 list( APPEND utest-neu-reader-mpi_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
 list( APPEND utest-neu-reader-mpi_files  utest-neu-reader-mpi.cpp )
-list( APPEND utest-neu-reader_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-neu-reader_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 
 # Add the target
 set( utest-neu-reader-mpi_mpi_test TRUE )
@@ -103,11 +103,11 @@ coolfluid_add_unit_test( utest-neu-reader-mpi 3 )
 list( APPEND utest-gmsh-reader-mpi_cflibs coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
 list( APPEND utest-gmsh-reader-mpi_files  utest-gmsh-reader-mpi.cpp )
 list( APPEND utest-gmsh-reader-mpi_resources
-  ${CF_RESOURCE_DIR}/rectangle-tg-p1.msh
-  ${CF_RESOURCE_DIR}/rectangle-tg-p2.msh
-  ${CF_RESOURCE_DIR}/rectangle-qd-p2.msh
-  ${CF_RESOURCE_DIR}/rectangle-mix-p1.msh
-  ${CF_RESOURCE_DIR}/rectangle-mix-p2.msh
+  ${CF3_RESOURCE_DIR}/rectangle-tg-p1.msh
+  ${CF3_RESOURCE_DIR}/rectangle-tg-p2.msh
+  ${CF3_RESOURCE_DIR}/rectangle-qd-p2.msh
+  ${CF3_RESOURCE_DIR}/rectangle-mix-p1.msh
+  ${CF3_RESOURCE_DIR}/rectangle-mix-p2.msh
 )
 # Add the target
 coolfluid_add_unit_test( utest-gmsh-reader-mpi )
@@ -116,7 +116,7 @@ coolfluid_add_unit_test( utest-gmsh-reader-mpi )
 
 list( APPEND utest-tecplot-writer_cflibs coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_lagrangep1 )
 list( APPEND utest-tecplot-writer_files  utest-tecplot-writer.cpp )
-list( APPEND utest-tecplot-writer_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-tecplot-writer_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 
 coolfluid_add_unit_test( utest-tecplot-writer )
 
@@ -124,7 +124,7 @@ coolfluid_add_unit_test( utest-tecplot-writer )
 
 list( APPEND utest-mesh-writemesh_cflibs coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
 list( APPEND utest-mesh-writemesh_files  utest-mesh-writemesh.cpp )
-list( APPEND utest-mesh-writemesh_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-mesh-writemesh_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 
 coolfluid_add_unit_test( utest-mesh-writemesh )
 
@@ -230,7 +230,7 @@ coolfluid_add_unit_test( utest-matrix-interpolation )
 
 list( APPEND utest-nodes_cflibs coolfluid_mesh_neu coolfluid_mesh_lagrangep1 )
 list( APPEND utest-nodes_files  utest-nodes.cpp )
-list( APPEND utest-nodes_resources ${CF_RESOURCE_DIR}/quadtriag.neu )
+list( APPEND utest-nodes_resources ${CF3_RESOURCE_DIR}/quadtriag.neu )
 coolfluid_add_unit_test( utest-nodes )
 
 ################################################################################
@@ -262,7 +262,7 @@ list( APPEND utest-vector-benchmark_files  utest-vector-benchmark.cpp )
 set( utest-vector-benchmark_profile ON )
 set( utest-vector-benchmark_performance_test TRUE )
 
-set( utest-vector-benchmark_condition ${CF_TMP_HAVE_SIMPLECOMM})
+set( utest-vector-benchmark_condition ${CF3_TMP_HAVE_SIMPLECOMM})
 
 coolfluid_add_unit_test( utest-vector-benchmark )
 
@@ -274,7 +274,7 @@ list( APPEND utest-pt-scotch_cflibs coolfluid_mesh_ptscotch coolfluid_mesh_neu c
 list( APPEND utest-pt-scotch_files  utest-pt-scotch.cpp )
 #list( APPEND utest-pt-scotch_includedirs ${PTSCOTCH_INCLUDE_DIR} )
 
-list( APPEND utest-pt-scotch_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-pt-scotch_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 
 set( utest-pt-scotch_condition ${coolfluid_mesh_ptscotch_builds} )
 set( utest-pt-scotch_mpi_test TRUE )
@@ -289,7 +289,7 @@ list( APPEND utest-zoltan_cflibs coolfluid_mesh_neu coolfluid_mesh_gmsh coolflui
 list( APPEND utest-zoltan_files  utest-zoltan.cpp )
 #list( APPEND utest-zoltan_includedirs ${ZOLTAN_INCLUDE_DIR} ${ZOLTAN_EXTRA_INCLUDE_DIR} )
 
-list( APPEND utest-zoltan_resources ${CF_RESOURCE_DIR}/quadtriag.neu ${CF_RESOURCE_DIR}/hextet.neu)
+list( APPEND utest-zoltan_resources ${CF3_RESOURCE_DIR}/quadtriag.neu ${CF3_RESOURCE_DIR}/hextet.neu)
 
 set( utest-zoltan_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-zoltan_mpi_test TRUE )
@@ -302,11 +302,11 @@ coolfluid_add_unit_test( utest-zoltan )
 # list( APPEND utest-blockmesh-mpi-scale_cflibs coolfluid_mesh_blockmesh coolfluid_mesh_generation coolfluid_mesh_lagrangep1 )
 # list( APPEND utest-blockmesh-mpi-scale_files   utest-blockmesh-mpi.cpp )
 #
-# set( utest-blockmesh-mpi-scale_args "${CF_MPI_TESTS_SIZE} scale" )
+# set( utest-blockmesh-mpi-scale_args "${CF3_MPI_TESTS_SIZE} scale" )
 #
 # set( utest-blockmesh-mpi-scale_scaling ON )
 #
-# set( utest-blockmesh-mpi-scale_condition ${CF_TMP_HAVE_SIMPLECOMM})
+# set( utest-blockmesh-mpi-scale_condition ${CF3_TMP_HAVE_SIMPLECOMM})
 # set( utest-blockmesh-mpi-scale_mpi_test TRUE)
 #
 # coolfluid_add_unit_test( utest-blockmesh-mpi-scale )
@@ -328,7 +328,7 @@ coolfluid_add_test( UTEST utest-parallel-field
 # test load mesh wizard
 list( APPEND utest-loadmesh_cflibs coolfluid_solver )
 list( APPEND utest-loadmesh_files  utest-loadmesh.cpp )
-list( APPEND utest-loadmesh_resources ${CF_RESOURCE_DIR}/rotation-tg-p1.neu ${CF_RESOURCE_DIR}/rotation-qd-p1.neu)
+list( APPEND utest-loadmesh_resources ${CF3_RESOURCE_DIR}/rotation-tg-p1.neu ${CF3_RESOURCE_DIR}/rotation-qd-p1.neu)
 
 coolfluid_add_unit_test( utest-loadmesh )
 
@@ -347,7 +347,7 @@ coolfluid_add_unit_test( utest-mesh-simplemeshgenerator )
 
 list( APPEND utest-mesh-parallel-overlap_cflibs coolfluid_mesh coolfluid_mesh_lagrangep1 coolfluid_mesh_actions coolfluid_mesh_zoltan coolfluid_mesh_gmsh coolfluid_mesh_neu coolfluid_mesh_tecplot )
 list( APPEND utest-mesh-parallel-overlap_files  utest-mesh-parallel-overlap.cpp )
-list( APPEND utest-mesh-parallel-overlap_resources ${CF_RESOURCE_DIR}/sinusbump-tg-p1.msh ${CF_RESOURCE_DIR}/rotation-tg-p1.neu )
+list( APPEND utest-mesh-parallel-overlap_resources ${CF3_RESOURCE_DIR}/sinusbump-tg-p1.msh ${CF3_RESOURCE_DIR}/rotation-tg-p1.neu )
 
 set( utest-mesh-parallel-overlap_condition ${coolfluid_mesh_zoltan_builds} )
 set( utest-mesh-parallel-overlap_mpi_test   TRUE)

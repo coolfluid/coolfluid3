@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_UI_QwtTab_ColorSelector_hpp
-#define CF_UI_QwtTab_ColorSelector_hpp
+#ifndef cf3_UI_QwtTab_ColorSelector_hpp
+#define cf3_UI_QwtTab_ColorSelector_hpp
 
 // Qt header
 #include <QLabel>
@@ -17,7 +17,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace QwtTab {
 
@@ -71,6 +71,6 @@ signals: //signals
 
 } // QwtTab
 } // UI
-} // CF
+} // cf3
 
-#endif // CF_UI_QwtTab_ColorSelector_hpp
+#endif // cf3_UI_QwtTab_ColorSelector_hpp

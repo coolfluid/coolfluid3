@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
-#define CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#ifndef cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#define cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp
 
 // Checks whether a code throws a specified exception.
 // If the exception was not thrown or another was, QFAIL() is called
@@ -16,7 +16,7 @@
 } \
 catch ( the_exception & e ) \
 { } \
-catch ( CF::Common::Exception ex) \
+catch ( cf3::common::Exception ex) \
 { \
   QFAIL(QString(#the_exception " expected but another CF exception was "\
                 "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
@@ -40,7 +40,7 @@ catch ( ... ) \
 { \
   instr; \
 } \
-catch ( CF::Common::Exception ex) \
+catch ( cf3::common::Exception ex) \
 { \
   QFAIL(QString("No exception expected but a CF exception was "\
                 "thrown.\n%1").arg(ex.what()).toStdString().c_str()); \
@@ -58,4 +58,4 @@ catch ( ... ) \
   return;\
 }
 
-#endif // CF_GUI_Client_uTests_ExceptionThrowHandler_hpp
+#endif // cf3_GUI_Client_uTests_ExceptionThrowHandler_hpp

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Mesh/Geometry.hpp"
 
@@ -14,10 +14,10 @@
 #include "LinearSolverUnsteady.hpp"
 
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace Common;
+using namespace common;
 using namespace Mesh;
 using namespace Solver;
 using namespace Solver::Actions;
@@ -66,4 +66,4 @@ Real& LinearSolverUnsteady::invdt()
 
 
 } // UFEM
-} // CF
+} // cf3

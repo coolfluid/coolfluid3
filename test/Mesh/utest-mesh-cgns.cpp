@@ -13,12 +13,12 @@
 #include "rapidxml/rapidxml.hpp"
 
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/LibLoader.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
+#include "common/OSystem.hpp"
+#include "common/LibLoader.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -33,10 +33,10 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::CGNS;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::CGNS;
 
 ////////////////////////////////////////////////////////////////////////////////
 

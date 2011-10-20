@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionURI.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionURI.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionComponent.hpp"
 
 #include "Math/MathConsts.hpp"
 
@@ -31,17 +31,17 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::RiemannSolvers;
-using namespace CF::Math::MathConsts;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::RiemannSolvers;
+using namespace cf3::Math::MathConsts;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < ComputeRhsInCell, Solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
+common::ComponentBuilder < ComputeRhsInCell, Solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -316,7 +316,7 @@ void ComputeRhsInCell::execute()
       for (Uint sol_pt=0; sol_pt<solution_sf.nb_nodes_per_line(); ++sol_pt)
       {
         sol_state.set_state(solution_in_sol_pts.row(solution_sf.points()[orientation][line][sol_pt]),sol_vars);
-        RealVector plane_area_normal = geometry.plane_jacobian_normal(solution_sf.local_coordinates().row(solution_sf.points()[orientation][line][sol_pt]), geometry_coords , (CF::CoordRef) orientation);
+        RealVector plane_area_normal = geometry.plane_jacobian_normal(solution_sf.local_coordinates().row(solution_sf.points()[orientation][line][sol_pt]), geometry_coords , (cf3::CoordRef) orientation);
         for (Uint i=0; i<m_dimensionality-1; ++i)
           plane_area_normal = plane_area_normal * 2.;
         max_wave_speed = std::max(max_wave_speed, sol_state.max_abs_eigen_value(sol_vars, plane_area_normal ) );// / jacobian_determinant[ solution_sf.points()[orientation][line][sol_pt] ] );
@@ -327,7 +327,7 @@ void ComputeRhsInCell::execute()
         //RealMatrix jacobian = geometry.jacobian(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][flux_pt]),geometry_coords);
         sol_state.set_state(solution.row(flux_sf.points()[orientation][line][flux_pt]),sol_vars);
         //sol_state.compute_flux(sol_vars,m_normal[orientation],flux);
-        sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][flux_pt]), geometry_coords , (CF::CoordRef) orientation) ,flux);
+        sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][flux_pt]), geometry_coords , (cf3::CoordRef) orientation) ,flux);
         flux_in_line.row(flux_pt) = flux;
       }
 
@@ -348,13 +348,13 @@ void ComputeRhsInCell::execute()
           if (side == 0)
           {
             sol_state.set_state(solution.row(flux_sf.points()[orientation][line][0]),sol_vars);
-            sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][0]), geometry_coords , (CF::CoordRef) orientation) ,flux);
+            sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][0]), geometry_coords , (cf3::CoordRef) orientation) ,flux);
             flux_in_line.topRows<1>() = flux;
           }
           else
           {
             sol_state.set_state(solution.row(flux_sf.face_points()[orientation][line][1]),sol_vars);
-            sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][1]), geometry_coords , (CF::CoordRef) orientation) ,flux);
+            sol_state.compute_flux(sol_vars, geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][1]), geometry_coords , (cf3::CoordRef) orientation) ,flux);
             flux_in_line.bottomRows<1>() = flux;
           }
         }
@@ -377,15 +377,15 @@ void ComputeRhsInCell::execute()
 
           if (side == 0)
           {
-            riemann_solver().solve(left,right, -geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][0]), geometry_coords, (CF::CoordRef) orientation),   flux,left_wave_speed,right_wave_speed);
+            riemann_solver().solve(left,right, -geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][0]), geometry_coords, (cf3::CoordRef) orientation),   flux,left_wave_speed,right_wave_speed);
             flux_in_line.topRows<1>() = -flux;
           }
           else
           {
-            riemann_solver().solve(left,right,  geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][1]), geometry_coords, (CF::CoordRef) orientation),   flux,left_wave_speed,right_wave_speed);
+            riemann_solver().solve(left,right,  geometry.plane_jacobian_normal(flux_sf.local_coordinates().row(flux_sf.points()[orientation][line][1]), geometry_coords, (cf3::CoordRef) orientation),   flux,left_wave_speed,right_wave_speed);
             flux_in_line.bottomRows<1>() = flux;
           }
-          //CFdebug << "      solve Riemann("<<left<<","<<right<<") with normal ["<< (side==0?-1.:1.)*geometry.plane_jacobian_vector(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][side]), geometry_coords, (CF::CoordRef) orientation).transpose()<<"] = \n" << flux << CFendl;
+          //CFdebug << "      solve Riemann("<<left<<","<<right<<") with normal ["<< (side==0?-1.:1.)*geometry.plane_jacobian_vector(flux_sf.local_coordinates().row(flux_sf.face_points()[orientation][line][side]), geometry_coords, (cf3::CoordRef) orientation).transpose()<<"] = \n" << flux << CFendl;
 
           for (Uint i=0; i<m_dimensionality-1; ++i)
             left_wave_speed = std::abs(left_wave_speed) * 2.;

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_WallWeakBc_hpp
-#define CF_RDM_WallWeakBc_hpp
+#ifndef cf3_RDM_WallWeakBc_hpp
+#define cf3_RDM_WallWeakBc_hpp
 
 #include <iostream>
 
@@ -14,7 +14,7 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; class Field; }
 
@@ -371,8 +371,8 @@ public: // functions
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_WallWeakBc_hpp
+#endif // cf3_RDM_WallWeakBc_hpp

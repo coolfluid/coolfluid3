@@ -10,8 +10,8 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Log.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/ElementType.hpp"
 #include "Mesh/CTable.hpp"
@@ -21,12 +21,12 @@
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Integrators;
-using namespace CF::Mesh::LagrangeP1;
-using namespace CF::Tools::Testing;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Integrators;
+using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -141,12 +141,12 @@ BOOST_AUTO_TEST_CASE( integrateConst )
   ConstFunctor ftor(nodes);
   const Real vol = Line1D::volume(nodes);
 
-  CF::Real result1 = 0.0;
-  CF::Real result2 = 0.0;
-  CF::Real result4 = 0.0;
-  CF::Real result8 = 0.0;
-  CF::Real result16 = 0.0;
-  CF::Real result32 = 0.0;
+  cf3::Real result1 = 0.0;
+  cf3::Real result2 = 0.0;
+  cf3::Real result4 = 0.0;
+  cf3::Real result8 = 0.0;
+  cf3::Real result16 = 0.0;
+  cf3::Real result32 = 0.0;
 
   gauss_integrate<1, GeoShape::LINE>(ftor, ftor.mapped_coords, result1);
   gauss_integrate<2, GeoShape::LINE>(ftor, ftor.mapped_coords, result2);

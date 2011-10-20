@@ -15,9 +15,9 @@
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Math;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Math;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -56,10 +56,10 @@ BOOST_AUTO_TEST_CASE( tt )
 
 BOOST_AUTO_TEST_CASE( function_1 )
 {
-  CF::Math::VectorialFunction f ("[x/y]","x,y");
+  cf3::Math::VectorialFunction f ("[x/y]","x,y");
 
   RealVector r(1);
-  CF::Math::VectorialFunction::VariablesT u = boost::assign::list_of(1.0)(3.0);
+  cf3::Math::VectorialFunction::VariablesT u = boost::assign::list_of(1.0)(3.0);
 
   r = f(u);
 
@@ -69,10 +69,10 @@ BOOST_AUTO_TEST_CASE( function_1 )
 
 BOOST_AUTO_TEST_CASE( function_2 )
 {
-  CF::Math::VectorialFunction f ("[x+y][5*z]","x,y,z");
+  cf3::Math::VectorialFunction f ("[x+y][5*z]","x,y,z");
 
   RealVector r(2);
-  CF::Math::VectorialFunction::VariablesT u = boost::assign::list_of(2.0)(3.0)(7.0);
+  cf3::Math::VectorialFunction::VariablesT u = boost::assign::list_of(2.0)(3.0)(7.0);
 
   r = f(u);
 

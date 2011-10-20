@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/OptionComponent.hpp"
+#include "common/OptionComponent.hpp"
 
 #include "Physics/Variables.hpp"
 
 #include "RiemannSolvers/RiemannSolver.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers {
 
-using namespace Common;
+using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,4 +41,4 @@ RiemannSolver::~RiemannSolver()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
-} // CF
+} // cf3

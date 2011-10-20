@@ -5,18 +5,18 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::AdvectionDiffusion"
+#define BOOST_TEST_MODULE "Test module for cf3::AdvectionDiffusion"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "AdvectionDiffusion/Physics.hpp"
 #include "AdvectionDiffusion/State1D.hpp"
 
-using namespace CF;
-using namespace CF::AdvectionDiffusion;
+using namespace cf3;
+using namespace cf3::AdvectionDiffusion;
 
 //////////////////////////////////////////////////////////////////////////////
 
