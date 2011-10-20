@@ -55,6 +55,7 @@ public: //function
     void send_server_info_to_client( Common::SignalArgs& node );
 
     virtual void aboutToBeRemoved();
+
 protected:
 
   /// Disables the local signals that need to.
@@ -66,6 +67,9 @@ protected:
 
   virtual void setUpFinished();
 
+private :
+
+  void go_to_tab( Common::SignalArgs & args );
 
 };
 
