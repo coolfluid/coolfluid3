@@ -594,10 +594,9 @@ QVariant NTree::headerData(int section, Qt::Orientation orientation,
 
 void NTree::list_tree_reply(SignalArgs & args)
 {
-
-
   //QMutexLocker locker(m_mutex);
-  emit beginResetModel();
+  emit beginUpdateTree();
+  beginResetModel();
 
   try
   {
@@ -610,8 +609,6 @@ void NTree::list_tree_reply(SignalArgs & args)
     {
       currentIndexPath = indexToTreeNode(m_currentIndex)->node()->uri();
     }
-
-
 
     //
     // rename the root
@@ -635,7 +632,10 @@ void NTree::list_tree_reply(SignalArgs & args)
     itList = listToRemove.begin();
 
     for( ; itList != listToRemove.end() ; itList++)
+    {
+      treeRoot->root()->access_component_ptr_checked(*itList)->as_ptr<CNode>()->aboutToBeRemoved();
       treeRoot->root()->remove_component(*itList);
+    }
 
     //
     // add the new nodes
@@ -660,11 +660,12 @@ void NTree::list_tree_reply(SignalArgs & args)
   }
 
   // tell the view to update the whole thing
-  emit endResetModel();
+  endResetModel();
+
+  emit endUpdateTree();
 
   emit currentIndexChanged(m_currentIndex, QModelIndex());
 
-//  qDebug() << "tree updated !";
 }
 
 ////////////////////////////////////////////////////////////////////////////

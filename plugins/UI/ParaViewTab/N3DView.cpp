@@ -41,6 +41,35 @@ N3DView::N3DView(const std::string & name) :
       ->description("Load last dumped file")
       ->pretty_name("Get file info")
       ->connect( boost::bind( &N3DView::send_server_info_to_client, this, _1));
+
+  regist_signal( "go_to_tab" )
+      ->connect( boost::bind( &N3DView::go_to_tab, this, _1 ) )
+      ->description("Activates the tab")
+      ->pretty_name("Switch to tab");
+
+  m_localSignals << "go_to_tab";
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+N3DView::~N3DView()
+{
+
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void N3DView::aboutToBeRemoved()
+{
+  TabBuilder::instance()->queueTab( as_ptr<CNode>() );
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void N3DView::go_to_tab( SignalArgs& node )
+{
+  TabBuilder::instance()->showTab( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////

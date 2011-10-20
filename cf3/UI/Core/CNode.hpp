@@ -345,6 +345,8 @@ namespace Core {
 
     void finishSetUp();
 
+    virtual void aboutToBeRemoved() {}
+
   protected: // data
 
     /// This internal notifier.

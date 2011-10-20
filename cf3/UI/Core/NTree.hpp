@@ -330,6 +330,10 @@ namespace Core {
     /// @see setAdvancedMode
     void advancedModeChanged(bool advanced);
 
+    void beginUpdateTree();
+
+    void endUpdateTree();
+
   protected:
 
     /// Disables the local signals that need to.

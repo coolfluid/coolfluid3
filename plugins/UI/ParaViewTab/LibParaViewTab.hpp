@@ -17,11 +17,11 @@
 /// Define the macro ParaViewTab_API
 /// @note build system defines COOLFLUID_UI_PARAVIEWTAB_EXPORTS when compiling ParaViewTabTools files
 #ifdef COOLFLUID_UI_PARAVIEWTAB_EXPORTS
-#   define ParaViewTab_API      CF_EXPORT_API
+#   define ParaViewTab_API      CF3_EXPORT_API
 #   define ParaViewTab_TEMPLATE
 #else
-#   define ParaViewTab_API      CF_IMPORT_API
-#   define ParaViewTab_TEMPLATE CF_TEMPLATE_EXTERN
+#   define ParaViewTab_API      CF3_IMPORT_API
+#   define ParaViewTab_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 class pqApplicationCore;
