@@ -17,11 +17,11 @@
 /// @note build system defines COOLFLUID_GOOGLEPERFTOOLS_EXPORTS when compiling
 /// GooglePerfTools files
 #ifdef COOLFLUID_GOOGLEPERFTOOLS_EXPORTS
-#   define GooglePerfTools_API      CF_EXPORT_API
+#   define GooglePerfTools_API      CF3_EXPORT_API
 #   define GooglePerfTools_TEMPLATE
 #else
-#   define GooglePerfTools_API      CF_IMPORT_API
-#   define GooglePerfTools_TEMPLATE CF_TEMPLATE_EXTERN
+#   define GooglePerfTools_API      CF3_IMPORT_API
+#   define GooglePerfTools_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

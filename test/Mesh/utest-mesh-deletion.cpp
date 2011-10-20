@@ -9,22 +9,22 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
+#include "common/EventHandler.hpp"
+#include "common/Log.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
+#include "common/XML/SignalFrame.hpp"
 
 #include "Mesh/CDomain.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
 BOOST_AUTO_TEST_SUITE( MeshDeletion )
 
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   const Uint y_segments = 10;
 
   CRoot& root = Core::instance().root();
-  
+
   // Setup a domain
   CDomain& domain = root.create_component<CDomain>("Domain");
 
@@ -52,12 +52,12 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
 
   // Setup a new mesh
   Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh2"), length, height, x_segments, y_segments);
-  
+
   domain.remove_component("Mesh2");
   root.remove_component("Libraries");
   root.remove_component("Factories");
-  
-  
+
+
   XML::SignalFrame frame;
   Core::instance().event_handler().raise_event("ping", frame);
 }

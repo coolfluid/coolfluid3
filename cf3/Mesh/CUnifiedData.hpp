@@ -78,7 +78,7 @@ public:
 
   /// const access to the unified data components
   /// @return vector of data components
-  const std::vector< boost::weak_ptr<Common::component> >& components() const;
+  const std::vector< boost::weak_ptr<common::Component> >& components() const;
 
   Component& component(const Uint idx) { return *m_data_vector[idx].lock(); }
 

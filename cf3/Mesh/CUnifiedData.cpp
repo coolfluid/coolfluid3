@@ -34,7 +34,7 @@ CUnifiedData::CUnifiedData ( const std::string& name ) : common::Component(name)
 
 Uint CUnifiedData::unified_idx(const common::Component& component, const Uint local_idx) const
 {
-  std::map<Common::Component const*,Uint>::const_iterator it = m_start_idx.find(&component);
+  std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(&component);
   return it->second +local_idx;
 }
 
@@ -42,7 +42,7 @@ Uint CUnifiedData::unified_idx(const common::Component& component, const Uint lo
 
 Uint CUnifiedData::unified_idx(const boost::tuple<common::Component::Ptr,Uint>& loc) const
 {
-  std::map<Common::Component const*,Uint>::const_iterator it = m_start_idx.find(boost::get<0>(loc).get());
+  std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(boost::get<0>(loc).get());
   return it->second + boost::get<1>(loc);
 }
 
