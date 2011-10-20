@@ -301,6 +301,9 @@ Noteworthy here is:
  - Following the class name is first the API macro related to this namespace (here Common_API). 
    This macro is usually defined in the library of this namespace. (LibNamespace.hpp)
 
+<hr>
+@li Next: \ref understanding_options
+
 */
 
 
