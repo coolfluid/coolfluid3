@@ -8,7 +8,6 @@
 
 #include <QtNetwork>
 #include <QtCore>
-#include <QDebug>
 
 #include "rapidxml/rapidxml.hpp"
 

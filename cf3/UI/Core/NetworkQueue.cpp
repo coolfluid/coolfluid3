@@ -202,12 +202,12 @@ void NetworkQueue::start()
 
 void NetworkQueue::signal_ack ( common::SignalArgs & args )
 {
-  if( isRunning() )
+//  if( isRunning() )
   {
     SignalOptions & options = args.options();
     std::string frameid = options.value<std::string>( "frameid" );
 
-    if( m_currentFrameID == frameid )
+//    if( m_currentFrameID == frameid )
     {
       bool success = options.value<bool>( "success" );
 
@@ -243,12 +243,12 @@ void NetworkQueue::signal_ack ( common::SignalArgs & args )
           send_next_command();
       }
     }
-    else
-      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
-                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
+//    else
+//      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
+//                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
   }
-  else
-    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
+//  else
+//    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
 
 }
 

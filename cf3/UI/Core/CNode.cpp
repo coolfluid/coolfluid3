@@ -616,12 +616,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
   rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute("mode");
 
-//  if( is_null(typeAttr) )
-//  {
-//    std::string str;
-//    to_string(node, str);
-//    qDebug() << "type attribute is null" << str.c_str();
-//  }
+  std::string uuid = node.attribute_value( "uuid" );
 
   cf3_assert(typeAttr != nullptr);
   cf3_assert(nameAttr != nullptr);
@@ -657,6 +652,11 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
   if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
     rootNode->mark_basic();
+
+  if( !uuid.empty() )
+    rootNode->configure_property( "uuid", uuid );
+  else
+    NLog::globalLog()->addWarning( "Found a Component without no UUID." );
 
   while( child.is_valid() )
   {
