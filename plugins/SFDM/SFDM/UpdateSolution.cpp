@@ -4,9 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Foreach.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/OptionComponent.hpp"
+#include "common/Foreach.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionComponent.hpp"
 #include "Mesh/Field.hpp"
 #include "Mesh/FieldManager.hpp"
 #include "Mesh/CMesh.hpp"
@@ -18,15 +18,15 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < UpdateSolution, CAction, LibSFDM > UpdateSolution_Builder;
+common::ComponentBuilder < UpdateSolution, CAction, LibSFDM > UpdateSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +98,7 @@ void UpdateSolution::link_fields()
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////////
 

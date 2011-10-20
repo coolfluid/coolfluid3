@@ -11,10 +11,10 @@ macro( coolfluid_define_plugin PLUGIN_NAME PLUGIN_DIR )
 
   set( ${PLUGIN_NAME}_DIR ${PLUGIN_DIR} PARENT_SCOPE )
 
-  option( CF_PLUGIN_${PLUGIN_NAME_CAPS}  "Enable the plugin ${PLUGIN_NAME}" ON  )
+  option( CF3_PLUGIN_${PLUGIN_NAME_CAPS}  "Enable the plugin ${PLUGIN_NAME}" ON  )
 
-  if( CF_PLUGIN_${PLUGIN_NAME_CAPS} )
-    set( CF_PLUGIN_LIST ${CF_PLUGIN_LIST} ${PLUGIN_NAME} CACHE INTERNAL "" )
+  if( CF3_PLUGIN_${PLUGIN_NAME_CAPS} )
+    set( CF3_PLUGIN_LIST ${CF3_PLUGIN_LIST} ${PLUGIN_NAME} CACHE INTERNAL "" )
   endif()
 
 endmacro()

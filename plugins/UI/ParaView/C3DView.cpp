@@ -10,14 +10,14 @@
 #include <QFileInfo>
 
 // header
-#include "Common/Log.hpp"
-#include "Common/EventHandler.hpp"
-#include "Common/CBuilder.hpp"
-#include "Common/Signal.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/OptionComponent.hpp"
-#include "Common/OptionT.hpp"
-#include "Common/XML/SignalOptions.hpp"
+#include "common/Log.hpp"
+#include "common/EventHandler.hpp"
+#include "common/CBuilder.hpp"
+#include "common/Signal.hpp"
+#include "common/OptionArray.hpp"
+#include "common/OptionComponent.hpp"
+#include "common/OptionT.hpp"
+#include "common/XML/SignalOptions.hpp"
 
 #include "Mesh/CMeshWriter.hpp"
 #include "Mesh/Field.hpp"
@@ -28,13 +28,13 @@
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::XML;
+using namespace cf3::Mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 

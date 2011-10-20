@@ -5,21 +5,21 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Euler"
+#define BOOST_TEST_MODULE "Test module for cf3::Euler"
 
 #include <boost/test/unit_test.hpp>
 
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
 #include "Euler/Physics.hpp"
 #include "Euler/Cons1D.hpp"
 #include "Euler/Roe1D.hpp"
 
-using namespace CF;
-using namespace CF::Common;
-using namespace CF::Euler;
+using namespace cf3;
+using namespace cf3::common;
+using namespace cf3::Euler;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_SUITE( Euler_Suite )
 
 BOOST_AUTO_TEST_CASE( eulercons1d )
 {
-  Common::Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
+  common::Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   Euler::Cons1D cons_state;
   Euler::Roe1D  roe_state;
   boost::shared_ptr<Solver::Physics> phys = cons_state.create_physics();

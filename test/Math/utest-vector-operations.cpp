@@ -9,14 +9,14 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

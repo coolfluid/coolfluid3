@@ -9,16 +9,16 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/OSystem.hpp"
-#include "Common/OSystemLayer.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
+#include "common/Foreach.hpp"
+#include "common/OSystem.hpp"
+#include "common/OSystemLayer.hpp"
 
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/Geometry.hpp"
@@ -30,10 +30,10 @@
 #include "Mesh/CMeshTransformer.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Common::PE;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 

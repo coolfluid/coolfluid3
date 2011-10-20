@@ -12,7 +12,7 @@
 
 #include "NavierStokes.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
 using namespace Solver::Actions::Proto;

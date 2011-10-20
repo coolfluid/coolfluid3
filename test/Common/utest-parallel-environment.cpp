@@ -9,7 +9,7 @@
 // for example: mpirun -np 4 ./test-parallel-environment --report_level=confirm or --report_level=detailed
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Common 's parallel environment - part of testing the environment."
+#define BOOST_TEST_MODULE "Test module for cf3::common 's parallel environment - part of testing the environment."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,16 +18,16 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Common/Log.hpp"
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
+#include "common/Log.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 

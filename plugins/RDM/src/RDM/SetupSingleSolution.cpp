@@ -4,11 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/CBuilder.hpp"
-#include "Common/OptionArray.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/CLink.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/CBuilder.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Foreach.hpp"
+#include "common/CLink.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -24,19 +24,19 @@
 #include "SetupSingleSolution.hpp"
 
 
-using namespace CF::Common;
-using namespace CF::Mesh;
+using namespace cf3::common;
+using namespace cf3::Mesh;
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Common::ComponentBuilder < SetupSingleSolution, CAction, LibRDM > SetupSingleSolution_Builder;
+common::ComponentBuilder < SetupSingleSolution, CAction, LibRDM > SetupSingleSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : CF::Solver::Action(name)
+SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::Solver::Action(name)
 {
 }
 
@@ -147,4 +147,4 @@ void SetupSingleSolution::execute()
 
 
 } // RDM
-} // CF
+} // cf3

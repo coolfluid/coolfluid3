@@ -10,16 +10,16 @@
 #include "rapidxml/rapidxml.hpp"
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/URI.hpp"
+#include "common/Log.hpp"
+#include "common/URI.hpp"
 
-#include "Common/XML/SignalFrame.hpp"
-#include "Common/XML/Protocol.hpp"
-#include "Common/XML/XmlDoc.hpp"
-#include "Common/XML/FileOperations.hpp"
+#include "common/XML/SignalFrame.hpp"
+#include "common/XML/Protocol.hpp"
+#include "common/XML/XmlDoc.hpp"
+#include "common/XML/FileOperations.hpp"
 
-using namespace CF::Common;
-using namespace CF::Common::XML;
+using namespace cf3::common;
+using namespace cf3::common::XML;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
   // 1. the node does not contain any map
   SignalFrame first_frame ( first_doc );
   rapidxml::xml_node<>* map_node = first_doc.content->first_node( Protocol::Tags::node_map() );
-  BOOST_CHECK ( CF::is_not_null(map_node) );
+  BOOST_CHECK ( cf3::is_not_null(map_node) );
   BOOST_CHECK_EQUAL ( map_node, first_frame.main_map.content.content );
 
 

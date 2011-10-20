@@ -11,14 +11,14 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
-#include "Common/OptionArray.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
+#include "common/OptionArray.hpp"
+#include "common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
 
-#include "Common/FindComponents.hpp"
-#include "Common/CLink.hpp"
-#include "Common/CRoot.hpp"
+#include "common/FindComponents.hpp"
+#include "common/CLink.hpp"
+#include "common/CRoot.hpp"
 
 #include "Mesh/CMesh.hpp"
 #include "Mesh/CRegion.hpp"
@@ -34,10 +34,10 @@
 
 using namespace boost;
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Mesh::Actions;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::Mesh::Actions;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
     for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
     {
       coordinates = space.compute_coordinates( elem_idx );
-      cf_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());
+      cf3_assert(space.indexes_for_element(elem_idx).size() == coordinates.rows());
       boost_foreach(const Uint state, space.indexes_for_element(elem_idx))
       {
         const RealRowVector& coords = coordinates.row(0);

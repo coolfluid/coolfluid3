@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests CF::Mesh::CFaceCellConnectivity"
+#define BOOST_TEST_MODULE "Tests cf3::Mesh::CFaceCellConnectivity"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Log.hpp"
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/FindComponents.hpp"
+#include "common/Log.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/FindComponents.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -28,10 +28,10 @@
 
 using namespace boost;
 using namespace boost::assign;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
-using namespace CF::Tools;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
+using namespace cf3::Tools;
 
 ////////////////////////////////////////////////////////////////////////////////
 

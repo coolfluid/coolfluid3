@@ -6,7 +6,7 @@ cmake_minimum_required( VERSION 2.8 FATAL_ERROR )
 
 project( UI CXX )
 
-if( QT4_FOUND AND CF_ENABLE_GUI )
+if( QT4_FOUND AND CF3_ENABLE_GUI )
 
   coolfluid_find_orphan_files()
 

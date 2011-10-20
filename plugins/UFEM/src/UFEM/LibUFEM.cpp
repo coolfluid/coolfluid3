@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/RegistLibrary.hpp"
-#include "Common/CRoot.hpp"
+#include "common/RegistLibrary.hpp"
+#include "common/CRoot.hpp"
 
 #include "LibUFEM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace UFEM {
 
-using namespace CF::Common;
+using namespace cf3::common;
 
-CF::Common::RegistLibrary<LibUFEM> libUFEM;
+cf3::common::RegistLibrary<LibUFEM> libUFEM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,4 +38,4 @@ void LibUFEM::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // UFEM
-} // CF
+} // cf3

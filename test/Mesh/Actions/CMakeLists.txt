@@ -7,7 +7,7 @@ coolfluid_add_unit_test( utest-mesh-actions-facebuilder )
 
 add_custom_command(TARGET utest-mesh-actions-facebuilder
                    POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF3_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                   )
 
 ################################################################################
@@ -21,7 +21,7 @@ coolfluid_add_unit_test( utest-mesh-actions-global-connectivity )
 
 add_custom_command(TARGET utest-mesh-actions-global-connectivity
                  POST_BUILD
-                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
+                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CF3_RESOURCE_DIR}/quadtriag.neu ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR}
                 )
 
 ################################################################################

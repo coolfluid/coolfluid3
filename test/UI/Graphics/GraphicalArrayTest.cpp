@@ -18,12 +18,12 @@
 
 #include "test/UI/Graphics/GraphicalArrayTest.hpp"
 
-using namespace CF::Common;
-using namespace CF::UI::Graphics;
+using namespace cf3::common;
+using namespace cf3::UI::Graphics;
 
 ////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace GraphicsTest {
 
@@ -390,4 +390,4 @@ QWidget * GraphicalArrayTest::findWidget(const GraphicalArray* value, int row, i
 
 } // GraphicsTest
 } // UI
-} // CF
+} // cf3

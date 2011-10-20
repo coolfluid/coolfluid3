@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_Convection_hpp
-#define CF_SFDM_Convection_hpp
+#ifndef cf3_SFDM_Convection_hpp
+#define cf3_SFDM_Convection_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace RiemannSolvers { class RiemannSolver; }
 namespace Physics        { class Variables; }
 namespace SFDM {
@@ -60,8 +60,8 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_Convection_hpp
+#endif // cf3_SFDM_Convection_hpp

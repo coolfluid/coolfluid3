@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_MySim_hpp
-#define CF_RDM_MySim_hpp
+#ifndef cf3_RDM_MySim_hpp
+#define cf3_RDM_MySim_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 
 #include "RDM/LibRDM.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,9 +45,9 @@ public: // functions
   //@{
 
   /// Signal to create a model
-  void signal_create_model ( Common::SignalArgs& node );
+  void signal_create_model ( common::SignalArgs& node );
 
-  void signature_create_model( Common::SignalArgs& node);
+  void signature_create_model( common::SignalArgs& node);
 
   //@} END SIGNALS
 
@@ -56,8 +56,8 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_RDM_MySim_hpp
+#endif // cf3_RDM_MySim_hpp

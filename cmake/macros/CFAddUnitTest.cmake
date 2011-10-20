@@ -5,8 +5,8 @@
 macro( coolfluid_prepare_test UTESTNAME )
 
   # option to build it or not (option is advanced and does not appear in the cmake gui)
-  option( CF_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
-  mark_as_advanced(CF_BUILD_${UTESTNAME})
+  option( CF3_BUILD_${UTESTNAME} "Build the ${UTESTNAME} testing application" ON )
+  mark_as_advanced(CF3_BUILD_${UTESTNAME})
 
   if( DEFINED ${UTESTNAME}_performance_test )
     set( ${UTESTNAME}_performance_test ${${UTESTNAME}_performance_test} CACHE INTERNAL "" )
@@ -22,10 +22,10 @@ macro( coolfluid_prepare_test UTESTNAME )
   # check if all required modules are present
   set( ${UTESTNAME}_has_all_plugins TRUE )
   foreach( req_plugin ${${UTESTNAME}_requires_plugins} )
-    list( FIND CF_PLUGIN_LIST ${req_plugin} pos )
+    list( FIND CF3_PLUGIN_LIST ${req_plugin} pos )
     if( ${pos} EQUAL -1 )
       set( ${UTESTNAME}_has_all_plugins FALSE )
-      if( CF_BUILD_${UTESTNAME} )
+      if( CF3_BUILD_${UTESTNAME} )
           coolfluid_log_verbose( "     \# UTEST [${UTESTNAME}] requires plugin [${req_plugin}] which is not present")
       endif()
     endif()
@@ -47,7 +47,7 @@ macro( coolfluid_prepare_test UTESTNAME )
     set( ${UTESTNAME}_condition TRUE )
   endif()
 
-  if( CF_ENABLE_UNIT_TESTS AND CF_BUILD_${UTESTNAME} AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
+  if( CF3_ENABLE_UNIT_TESTS AND CF3_BUILD_${UTESTNAME} AND ${UTESTNAME}_has_all_plugins AND ${UTESTNAME}_condition )
     set( ${UTESTNAME}_builds YES CACHE INTERNAL "" )
   else()
     set( ${UTESTNAME}_builds NO  CACHE INTERNAL "" )
@@ -78,16 +78,16 @@ macro( coolfluid_prepare_test UTESTNAME )
       endforeach()
     endif()
 
-    if(CF_INSTALL_TESTS)  # add installation paths
+    if(CF3_INSTALL_TESTS)  # add installation paths
       install( TARGETS ${UTESTNAME}
-        RUNTIME DESTINATION ${CF_INSTALL_BIN_DIR}
-        LIBRARY DESTINATION ${CF_INSTALL_LIB_DIR}
-        ARCHIVE DESTINATION ${CF_INSTALL_LIB_DIR}
+        RUNTIME DESTINATION ${CF3_INSTALL_BIN_DIR}
+        LIBRARY DESTINATION ${CF3_INSTALL_LIB_DIR}
+        ARCHIVE DESTINATION ${CF3_INSTALL_LIB_DIR}
         )
-    endif(CF_INSTALL_TESTS)
+    endif(CF3_INSTALL_TESTS)
 
     # if mpi was found add it to the libraries
-    if(CF_HAVE_MPI AND NOT CF_HAVE_MPI_COMPILER)
+    if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)
 #           message( STATUS "${UTESTNAME} links to ${MPI_LIBRARIES}" )
           TARGET_LINK_LIBRARIES ( ${UTESTNAME} ${MPI_LIBRARIES} )
     endif()
@@ -114,7 +114,7 @@ macro( coolfluid_prepare_test UTESTNAME )
   get_target_property( ${UTESTNAME}_TYPE             ${UTESTNAME} TYPE )
 
   # log some info about the unit test
-  coolfluid_log_file("${UTESTNAME} user option     : [${CF_BUILD_${UTESTNAME}}]")
+  coolfluid_log_file("${UTESTNAME} user option     : [${CF3_BUILD_${UTESTNAME}}]")
   coolfluid_log_file("${UTESTNAME}_builds          : [${${UTESTNAME}_builds}]")
   coolfluid_log_file("${UTESTNAME}_dir             : [${${UTESTNAME}_dir}]")
   coolfluid_log_file("${UTESTNAME}_includedirs     : [${${UTESTNAME}_includedirs}]")
@@ -139,17 +139,17 @@ coolfluid_prepare_test(${UTESTNAME})
 
 if( ${${UTESTNAME}_builds} ) # dont add if it does not build
 
-  if( ${UTESTNAME}_performance_test AND NOT CF_ENABLE_PERFORMANCE_TESTS )
+  if( ${UTESTNAME}_performance_test AND NOT CF3_ENABLE_PERFORMANCE_TESTS )
     set( ${UTESTNAME}_performance_skip TRUE )
   else()
     set( ${UTESTNAME}_performance_skip FALSE )
   endif()
 
-  if( CF_ALL_UTESTS_PARALLEL )
+  if( CF3_ALL_UTESTS_PARALLEL )
     set( ${UTESTNAME}_mpi_test TRUE )
   endif()
 
-  if( ${UTESTNAME}_mpi_test AND NOT CF_MPI_TESTS_RUN )
+  if( ${UTESTNAME}_mpi_test AND NOT CF3_MPI_TESTS_RUN )
     set( ${UTESTNAME}_mpi_skip TRUE )
   else()
     set( ${UTESTNAME}_mpi_skip FALSE )
@@ -170,9 +170,9 @@ if( ${${UTESTNAME}_builds} ) # dont add if it does not build
          set(${UTESTNAME}_mpi_nprocs "1")
       endif()
 
-      add_test( ${UTESTNAME} ${CF_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args} )
-      if(CF_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
-        add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
+      add_test( ${UTESTNAME} ${CF3_MPIRUN_PROGRAM} "-np" ${${UTESTNAME}_mpi_nprocs} ${UTESTNAME} ${${UTESTNAME}_args} )
+      if(CF3_MPI_TESTS_RUN_SCALABILITY AND ${UTESTNAME}_scaling)
+        add_test("${UTESTNAME}-scaling" ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/test-mpi-scalability.py ${CF3_MPIRUN_PROGRAM} ${CMAKE_CURRENT_BINARY_DIR}/${UTESTNAME} ${CF3_MPI_TESTS_MAX_NB_PROCS} ${${UTESTNAME}_args})
       endif()
 
     endif()

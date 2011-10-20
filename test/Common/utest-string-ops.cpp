@@ -11,13 +11,13 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "Common/StringConversion.hpp"
-#include "Common/URI.hpp"
+#include "common/StringConversion.hpp"
+#include "common/URI.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
 BOOST_AUTO_TEST_SUITE( String_TestSuite )
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( test__to_str )
 BOOST_AUTO_TEST_CASE( test__from_str )
 {
   BOOST_CHECK_EQUAL(from_str<int>("42"), 42);
-  BOOST_CHECK_EQUAL(from_str<CF::Real>("3.14"), 3.14);
+  BOOST_CHECK_EQUAL(from_str<cf3::Real>("3.14"), 3.14);
 }
 
 BOOST_AUTO_TEST_CASE( URI_test )

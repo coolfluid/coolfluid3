@@ -10,21 +10,21 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/foreach.hpp>
 
-#include "Common/EigenAssertions.hpp"
+#include "common/EigenAssertions.hpp"
 #include <Eigen/SVD>
 
-#include "Common/Log.hpp"
+#include "common/Log.hpp"
 
 #include "Math/MatrixTypes.hpp"
 #include "Math/Checks.hpp"
 
 using namespace std;
 using namespace boost;
-using namespace CF;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::common;
 
-using namespace CF::Math::Checks;
-using namespace CF::Math::Consts;
+using namespace cf3::Math::Checks;
+using namespace cf3::Math::Consts;
 
 using namespace Eigen;
 

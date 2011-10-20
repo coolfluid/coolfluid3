@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_BcDirichlet_hpp
-#define CF_RDM_BcDirichlet_hpp
+#ifndef cf3_RDM_BcDirichlet_hpp
+#define cf3_RDM_BcDirichlet_hpp
 
 #include "Math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
-namespace CF {
+namespace cf3 {
 
 namespace Mesh { class CMesh; class Field; }
 
@@ -59,6 +59,6 @@ private: // data
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_BcDirichlet_hpp
+#endif // cf3_RDM_BcDirichlet_hpp

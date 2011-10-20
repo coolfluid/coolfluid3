@@ -5,21 +5,21 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 //header
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/RegistLibrary.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/RegistLibrary.hpp"
 #include "UI/ParaView/C3DViewBuilder.hpp"
 #include "UI/ParaView/LibParaView.hpp"
 
-using namespace CF::Common;
+using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace ParaView {
 
-  CF::Common::RegistLibrary<LibParaView> libParaView;
+  cf3::common::RegistLibrary<LibParaView> libParaView;
 
   ////////////////////////////////////////////////////////////////////////////////
 

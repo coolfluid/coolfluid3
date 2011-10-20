@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_RDM_SupportedCells_hpp
-#define CF_RDM_SupportedCells_hpp
+#ifndef cf3_RDM_SupportedCells_hpp
+#define cf3_RDM_SupportedCells_hpp
 
 #include <boost/mpl/vector.hpp>
 #include <boost/mpl/copy.hpp>
@@ -34,7 +34,7 @@
 
 #include "RDM/Quadrature.hpp"
 
-namespace CF {
+namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -140,6 +140,6 @@ struct DefaultQuadrature< Mesh::LagrangeP2B::Triag2D, 2 >
 ///////////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
-} // CF
+} // cf3
 
-#endif // CF_RDM_SupportedCells_hpp
+#endif // cf3_RDM_SupportedCells_hpp

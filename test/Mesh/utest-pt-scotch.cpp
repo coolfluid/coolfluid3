@@ -5,20 +5,20 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CF::Mesh::CField"
+#define BOOST_TEST_MODULE "Test module for cf3::Mesh::CField"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CRoot.hpp"
-#include "Common/Foreach.hpp"
-#include "Common/Log.hpp"
-#include "Common/StreamHelpers.hpp"
+#include "common/Core.hpp"
+#include "common/CRoot.hpp"
+#include "common/Foreach.hpp"
+#include "common/Log.hpp"
+#include "common/StreamHelpers.hpp"
 
-#include "Common/PE/Comm.hpp"
-#include "Common/PE/debug.hpp"
-#include "Common/Foreach.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/debug.hpp"
+#include "common/Foreach.hpp"
 
 #include "Math/MatrixTypes.hpp"
 
@@ -34,9 +34,9 @@
 #include "Mesh/PTScotch/LibPTScotch.hpp"
 
 using namespace boost;
-using namespace CF;
-using namespace CF::Mesh;
-using namespace CF::Common;
+using namespace cf3;
+using namespace cf3::Mesh;
+using namespace cf3::common;
 using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,8 +102,8 @@ struct PTScotchTests_Fixture
                       &edgeglbnbr,
                       &edgelocnbr);
 
-    proccnttab.resize(Common::PE::Comm::instance().size());
-    procvrttab.resize(Common::PE::Comm::instance().size()+1);
+    proccnttab.resize(common::PE::Comm::instance().size());
+    procvrttab.resize(common::PE::Comm::instance().size()+1);
 
     //boost::mpi::communicator world;
     //boost::mpi::all_gather(world, vertlocnbr, proccnttab);
@@ -114,7 +114,7 @@ struct PTScotchTests_Fixture
       procvrttab[p] = cnt;
       cnt += proccnttab[p];
     }
-    procvrttab[Common::PE::Comm::instance().size()] = cnt;
+    procvrttab[common::PE::Comm::instance().size()] = cnt;
 
 
     if (SCOTCH_dgraphGhst(&graph))
@@ -144,7 +144,7 @@ struct PTScotchTests_Fixture
 
   void build_graph()
   {
-    if (SCOTCH_dgraphInit(&graph, Common::PE::Comm::instance().communicator()))
+    if (SCOTCH_dgraphInit(&graph, common::PE::Comm::instance().communicator()))
       throw BadValue(FromHere(),"ptscotch error");
 
     if (SCOTCH_dgraphBuild(&graph,
@@ -169,7 +169,7 @@ struct PTScotchTests_Fixture
 
   void output_graph_info()
   {
-    if (Common::PE::Comm::instance().rank() == 0)
+    if (common::PE::Comm::instance().rank() == 0)
     {
       CFinfo << "\n" << CFendl;
       CFinfo << "global graph info" << CFendl;
@@ -177,11 +177,11 @@ struct PTScotchTests_Fixture
       CFLogVar(vertglbnbr);
       CFLogVar(edgeglbnbr);
       CFinfo << "proccnttab = [ ";
-      for (Uint i=0; i<Common::PE::Comm::instance().size(); ++i)
+      for (Uint i=0; i<common::PE::Comm::instance().size(); ++i)
         CFinfo << proccnttab[i] << " ";
       CFinfo << "]" << CFendl;
       CFinfo << "procvrttab = [ ";
-      for (Uint i=0; i<Common::PE::Comm::instance().size()+1; ++i)
+      for (Uint i=0; i<common::PE::Comm::instance().size()+1; ++i)
         CFinfo << procvrttab[i] << " ";
       CFinfo << "]" << CFendl;
 
@@ -190,9 +190,9 @@ struct PTScotchTests_Fixture
 
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<Common::PE::Comm::instance().size(); ++proc)
+    for (Uint proc=0; proc<common::PE::Comm::instance().size(); ++proc)
     {
-      if (Common::PE::Comm::instance().rank() == proc)
+      if (common::PE::Comm::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
@@ -219,9 +219,9 @@ struct PTScotchTests_Fixture
 
         CFinfo << CFendl;
       }
-      Common::PE::Comm::instance().barrier();
+      common::PE::Comm::instance().barrier();
     }
-    Common::PE::Comm::instance().barrier();
+    common::PE::Comm::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
   }
 
@@ -246,9 +246,9 @@ struct PTScotchTests_Fixture
   {
     bool original_filter = CFinfo.getFilterRankZero(LogStream::SCREEN);
     CFinfo.setFilterRankZero(LogStream::SCREEN,false);
-    for (Uint proc=0; proc<Common::PE::Comm::instance().size(); ++proc)
+    for (Uint proc=0; proc<common::PE::Comm::instance().size(); ++proc)
     {
-      if (Common::PE::Comm::instance().rank() == proc)
+      if (common::PE::Comm::instance().rank() == proc)
       {
         CFinfo << "proc #"<<proc << CFendl;
         CFinfo << "-------" << CFendl;
@@ -261,9 +261,9 @@ struct PTScotchTests_Fixture
 
         CFinfo << CFendl;
       }
-      Common::PE::Comm::instance().barrier();
+      common::PE::Comm::instance().barrier();
     }
-    Common::PE::Comm::instance().barrier();
+    common::PE::Comm::instance().barrier();
     CFinfo.setFilterRankZero(LogStream::SCREEN,original_filter);
     CFinfo << CFendl<< CFendl;
   }
@@ -280,7 +280,7 @@ BOOST_FIXTURE_TEST_SUITE( PTScotchTests_TestSuite, PTScotchTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( init_mpi )
 {
-  Common::PE::Comm::instance().init(m_argc,m_argv);
+  common::PE::Comm::instance().init(m_argc,m_argv);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -288,12 +288,12 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 {
 
-  if (Common::PE::Comm::instance().size() == 3)
+  if (common::PE::Comm::instance().size() == 3)
   {
 
     CFinfo << "+++++++++++++++++++ building graph ++++++++++++++++++++ \n" << CFendl;
 
-    switch (Common::PE::Comm::instance().rank())
+    switch (common::PE::Comm::instance().rank())
     {
       case 0:
       {
@@ -413,7 +413,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
 
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
-  Common::PE::Comm::instance().finalize();
+  common::PE::Comm::instance().finalize();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

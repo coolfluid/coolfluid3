@@ -10,11 +10,11 @@
 #include <boost/assign.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "Common/Core.hpp"
-#include "Common/CEnv.hpp"
-#include "Common/CRoot.hpp"
+#include "common/Core.hpp"
+#include "common/CEnv.hpp"
+#include "common/CRoot.hpp"
 
-#include "Common/PE/CommPattern.hpp"
+#include "common/PE/CommPattern.hpp"
 
 #include "Math/LSS/System.hpp"
 
@@ -32,14 +32,14 @@
 #include "UFEM/SparsityBuilder.hpp"
 #include "UFEM/Tags.hpp"
 
-using namespace CF;
-using namespace CF::Solver;
-using namespace CF::Solver::Actions;
-using namespace CF::Solver::Actions::Proto;
-using namespace CF::Common;
-using namespace CF::Math;
-using namespace CF::Math::Consts;
-using namespace CF::Mesh;
+using namespace cf3;
+using namespace cf3::Solver;
+using namespace cf3::Solver::Actions;
+using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::common;
+using namespace cf3::Math;
+using namespace cf3::Math::Consts;
+using namespace cf3::Mesh;
 
 using namespace boost::assign;
 
@@ -57,8 +57,8 @@ BOOST_FIXTURE_TEST_SUITE( UFEMBuildSparsitySuite, UFEMBuildSparsityFixture )
 
 BOOST_AUTO_TEST_CASE( InitMPI )
 {
-  Common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
-  BOOST_CHECK_EQUAL(Common::PE::Comm::instance().size(), 1);
+  common::PE::Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
+  BOOST_CHECK_EQUAL(common::PE::Comm::instance().size(), 1);
 }
 
 BOOST_AUTO_TEST_CASE( Sparsity1D )
