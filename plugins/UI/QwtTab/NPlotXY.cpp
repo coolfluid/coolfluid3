@@ -51,19 +51,19 @@ NPlotXY::NPlotXY(const std::string & name) :
       ->description("Activates the tab")
       ->pretty_name("Switch to tab");
 
-  m_localSignals << "show_hide_plot" << "go_to_tab";
+  m_local_signals << "show_hide_plot" << "go_to_tab";
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString NPlotXY::toolTip() const
+QString NPlotXY::tool_tip() const
 {
-  return componentType();
+  return component_type();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NPlotXY::disableLocalSignals(QMap<QString, bool> & localSignals) const
+void NPlotXY::disable_local_signals(QMap<QString, bool> & localSignals) const
 {
   localSignals["show_hide_plot"] = false;
 }
@@ -89,7 +89,7 @@ void NPlotXY::go_to_plot( common::SignalArgs& node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NPlotXY::setUpFinished()
+void NPlotXY::setup_finished()
 {
   TabBuilder::instance()->getWidget<Graph>( as_ptr<CNode>() );
 }

@@ -106,7 +106,7 @@ void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
       QString oldValue = value->originalValueString();
       QString newValue = value->valueString();
 
-      commitDetails.setOption(it.key(), oldValue, newValue);
+      commitDetails.set_option(it.key(), oldValue, newValue);
     }
 
     it++;

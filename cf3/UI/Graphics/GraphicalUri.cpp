@@ -139,7 +139,7 @@ void GraphicalUri::btBrowseClicked()
   {
     SelectPathDialog spd;
     QString modified_path = m_editPath->text();
-    URI completePath = NTree::globalTree()->completeRelativePath(modified_path.toStdString());
+    URI completePath = NTree::global()->complete_relativepath(modified_path.toStdString());
 
     URI path = spd.show(completePath);
 

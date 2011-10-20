@@ -23,7 +23,7 @@ namespace Core {
 CommitDetails::CommitDetails(QObject * parent, const QString & nodePath)
 : QAbstractItemModel(parent)
 {
-  m_nodePath = nodePath;
+  m_node_path = nodePath;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,19 +45,19 @@ QVariant CommitDetails::data(const QModelIndex &index, int role) const
       switch (colNumber)
       {
         case 0:
-          returnValue = item->optionName();
+          returnValue = item->option_name();
           break;
 
         case 1:
         {
-          QString oldValue = item->oldValue();
+          QString oldValue = item->old_value();
           returnValue = oldValue.isEmpty() ? "--" : QString("\"%1\"").arg(oldValue);
           break;
         }
 
         case 2:
         {
-          QString value = item->currentValue();
+          QString value = item->current_value();
           returnValue = value.isEmpty() ? "--" : QString("\"%1\"").arg(value);
           break;
         }
@@ -75,10 +75,11 @@ QVariant CommitDetails::data(const QModelIndex &index, int role) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
-                                   int role) const
+QVariant CommitDetails::headerData( int section,
+                                    Qt::Orientation orientation,
+                                    int role ) const
 {
-  QVariant returnValue;
+  QVariant return_value;
 
   if (role == Qt::DisplayRole)
   {
@@ -87,30 +88,31 @@ QVariant CommitDetails::headerData(int section, Qt::Orientation orientation,
       switch (section)
       {
         case 0:
-          returnValue = "Name";
+          return_value = "Name";
           break;
 
         case 1:
-          returnValue = "Old Value";
+          return_value = "Old Value";
           break;
 
         case 2:
-          returnValue = "New Value";
+          return_value = "New Value";
           break;
       }
     }
     else
     {
-      returnValue = QString("Option #%1").arg(section+1);
+      return_value = QString("Option #%1").arg(section+1);
     }
   }
-  return returnValue;
+  return return_value;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-QModelIndex CommitDetails::index(int row, int column,
-                                 const QModelIndex & parent) const
+QModelIndex CommitDetails::index( int row,
+                                  int column,
+                                  const QModelIndex & parent) const
 {
   CommitDetailsItem * item;
   QModelIndex index;
@@ -153,16 +155,16 @@ int CommitDetails::columnCount(const QModelIndex &parent) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommitDetails::setOption(const QString & optionName,
-                              const QString & oldValue,
-                              const QString & currentValue)
+void CommitDetails::set_option( const QString & option_name,
+                                const QString & old_value,
+                                const QString & current_value )
 {
-  m_items << new CommitDetailsItem(optionName, oldValue, currentValue);
+  m_items << new CommitDetailsItem(option_name, old_value, current_value);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CommitDetails::hasOptions() const
+bool CommitDetails::has_options() const
 {
   return !m_items.isEmpty();
 }
@@ -172,21 +174,21 @@ bool CommitDetails::hasOptions() const
 void CommitDetails::clear()
 {
   m_items.clear();
-  m_nodePath.clear();
+  m_node_path.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-QString CommitDetails::nodePath() const
+QString CommitDetails::node_path() const
 {
-  return m_nodePath;
+  return m_node_path;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CommitDetails::setNodePath(const QString & nodePath)
+void CommitDetails::set_node_path(const QString & node_path)
 {
-  m_nodePath = nodePath;
+  m_node_path = node_path;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -56,7 +56,7 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
 
   m_layout->addWidget(m_comboChoices);
 
-  connect(m_comboChoices, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
+  connect(m_comboChoices, SIGNAL(current_index_changed(int)), this, SLOT(current_index_changed(int)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
     if(index > -1)
     {
       m_originalValue = value;
-      m_comboChoices->setCurrentIndex(index); // emits currentIndexChanged() signal
+      m_comboChoices->setCurrentIndex(index); // emits current_index_changed() signal
       valid = true;
     }
   }
@@ -111,7 +111,7 @@ QVariant GraphicalRestrictedList::value() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void GraphicalRestrictedList::currentIndexChanged(int)
+void GraphicalRestrictedList::current_index_changed(int)
 {
   emit valueChanged();
 }

@@ -21,19 +21,19 @@ TreeHandler::~TreeHandler()
   QStringList::iterator it = names.begin();
 
   for( ; it != names.end() ; it++)
-    NTree::globalTree()->treeRoot()->removeNode(*it);
+    NTree::global()->tree_root()->remove_node(*it);
 }
 
 void TreeHandler::add(CNode::Ptr node)
 {
-  NTree::globalTree()->treeRoot()->addNode(node);
+  NTree::global()->tree_root()->add_node(node);
   names << node->name().c_str();
 }
 
 void TreeHandler::addChildren(CNode::Ptr node)
 {
-  ComponentIterator<CNode> it = node->realComponent()->begin<CNode>();
-  ComponentIterator<CNode> itEnd = node->realComponent()->end<CNode>();
+  ComponentIterator<CNode> it = node->real_component()->begin<CNode>();
+  ComponentIterator<CNode> itEnd = node->real_component()->end<CNode>();
 
   for( ; it != itEnd ; it++)
     add(it.get());

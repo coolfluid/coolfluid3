@@ -123,7 +123,7 @@ namespace Graphics {
 
     /// @param parent Parent window of the dialog. May be @c nullptr.
     /// @throw std::invalid_argument If a connection to the server does not exist.
-    NRemoteBrowser(const QString & componentType, QMainWindow * parent = nullptr);
+    NRemoteBrowser(const QString & component_type, QMainWindow * parent = nullptr);
 
     /// @brief Destructor.
 
@@ -221,7 +221,7 @@ namespace Graphics {
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
-    virtual QString toolTip() const = 0;
+    virtual QString tool_tip() const = 0;
 
   protected:
 

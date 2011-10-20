@@ -29,7 +29,7 @@ LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
            this, SLOT(newMessage(QString, UICommon::LogMessage::Type)));
 }
 

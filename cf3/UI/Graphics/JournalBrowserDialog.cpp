@@ -69,7 +69,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
   m_mainLayout = new QVBoxLayout(this);
 
-  NBrowser::globalBrowser()->addNode(m_model);
+  NBrowser::global()->add_node(m_model);
 
   m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_view->horizontalHeader()->setStretchLastSection(true);
@@ -98,7 +98,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
 
 JournalBrowserDialog::~JournalBrowserDialog()
 {
-  NBrowser::globalBrowser()->removeNode(m_model->name().c_str());
+  NBrowser::global()->remove_node(m_model->name().c_str());
   delete m_view;
   delete m_buttons;
   delete m_mainLayout;
@@ -108,8 +108,8 @@ JournalBrowserDialog::~JournalBrowserDialog()
 
 void JournalBrowserDialog::show(const XmlNode * rootNode)
 {
-  m_model->setRootNode(rootNode);
-  m_model->requestJournal();
+  m_model->set_root_node(rootNode);
+  m_model->request_journal();
 
 //  this->exec();
   this->setModal(true);
@@ -136,11 +136,11 @@ void JournalBrowserDialog::btClicked(QAbstractButton *button)
   {
     try
     {
-      m_model->sendExecSignal( m_view->currentIndex() );
+      m_model->send_exec_signal( m_view->currentIndex() );
     }
     catch(Exception & e)
     {
-      NLog::globalLog()->addMessage(e.what());
+      NLog::global()->add_message(e.what());
     }
   }
 }

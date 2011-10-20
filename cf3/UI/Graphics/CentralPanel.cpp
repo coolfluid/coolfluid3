@@ -32,7 +32,7 @@ namespace Graphics {
 CentralPanel::CentralPanel(QWidget * parent)
   : QWidget(parent)
 {
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
 
   // create the components
   m_scrollBasicOptions = new QScrollArea();
@@ -74,7 +74,7 @@ CentralPanel::CentralPanel(QWidget * parent)
 
   m_mainLayout->setRowStretch(1, 10);
 
-  advancedModeChanged(tree->isAdvancedMode());
+  advanced_mode_changed(tree->is_advanced_mode());
 
   this->setButtonsVisible(false);
 
@@ -85,14 +85,14 @@ CentralPanel::CentralPanel(QWidget * parent)
   connect(m_basicOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
   connect(m_advancedOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
 
-  connect(tree.get(), SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
-          this, SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
+  connect(tree.get(), SIGNAL(current_index_changed(QModelIndex, QModelIndex)),
+          this, SLOT(current_index_changed(QModelIndex, QModelIndex)));
 
   connect(tree.get(), SIGNAL(dataChanged(QModelIndex, QModelIndex)),
           this, SLOT(dataChanged(QModelIndex, QModelIndex)));
 
-  connect(tree.get(), SIGNAL(advancedModeChanged(bool)),
-          this, SLOT(advancedModeChanged(bool)));
+  connect(tree.get(), SIGNAL(advanced_mode_changed(bool)),
+          this, SLOT(advanced_mode_changed(bool)));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ CentralPanel::~CentralPanel()
 void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 {
   QList<Option::ConstPtr>::const_iterator it = list.begin();
-  const NTree::Ptr & tree = NTree::globalTree();
+  const NTree::Ptr & tree = NTree::global();
 
   // delete old options
   m_basicOptionLayout->clearOptions();
@@ -135,7 +135,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
   if(!list.isEmpty())
   {
     // get a UNIX-like path for the node
-    QString parentPath = tree->nodePath(tree->currentIndex());
+    QString parentPath = tree->node_path(tree->current_index());
 
     m_gbBasicOptions->setTitle(QString("Basic options of %1").arg(parentPath));
     m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
@@ -157,7 +157,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
     }
     catch(Exception e)
     {
-      NLog::globalLog()->addException(e.what());
+      NLog::global()->add_exception(e.what());
     }
 
     it++;
@@ -165,7 +165,7 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
   } // end of "while()"
 
   // change row stretch and panel visibilities
-  this->advancedModeChanged(tree->isAdvancedMode());
+  this->advanced_mode_changed(tree->is_advanced_mode());
   this->setButtonsVisible(!list.isEmpty());
   this->setButtonsEnabled(false);
 
@@ -186,7 +186,7 @@ bool CentralPanel::isModified() const
 void CentralPanel::modifiedOptions(CommitDetails & commitDetails) const
 {
   commitDetails.clear();
-  commitDetails.setNodePath(m_currentPath);
+  commitDetails.set_node_path(m_currentPath);
 
   m_basicOptionLayout->modifiedOptions(commitDetails);
   m_advancedOptionLayout->modifiedOptions(commitDetails);
@@ -239,39 +239,39 @@ void CentralPanel::btApplyClicked()
   {
     try
     {
-      QModelIndex currentIndex = NTree::globalTree()->currentIndex();
+      QModelIndex currentIndex = NTree::global()->current_index();
 
-      NTree::globalTree()->modifyOptions(currentIndex, options);
+      NTree::global()->modify_options(currentIndex, options);
 
       m_basicOptionLayout->commitOpions();
       m_advancedOptionLayout->commitOpions();
     }
     catch (ValueNotFound & vnf)
     {
-      NLog::globalLog()->addException(vnf.msg().c_str());
+      NLog::global()->add_exception(vnf.msg().c_str());
     }
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex)
+void CentralPanel::current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex)
 {
   QList<Option::ConstPtr> options;
-  NTree::globalTree()->listNodeOptions(newIndex, options);
+  NTree::global()->list_node_options(newIndex, options);
 
   this->setOptions(options);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::advancedModeChanged(bool advanced)
+void CentralPanel::advanced_mode_changed(bool advanced)
 {
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
 
   // if the node went to a hidden state, we clear everything
   /// @todo what if options are modified ???
-  if(!tree->isIndexVisible(tree->currentIndex()))
+  if(!tree->check_index_visible(tree->current_index()))
   {
     m_basicOptionLayout->clearOptions();
     m_advancedOptionLayout->clearOptions();
@@ -293,10 +293,10 @@ void CentralPanel::advancedModeChanged(bool advanced)
 
 void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
 {
-  QModelIndex currIndex = NTree::globalTree()->currentIndex();
+  QModelIndex currIndex = NTree::global()->current_index();
 
   if(first == last && first.row() == currIndex.row() && first.parent() == currIndex.parent())
-    this->currentIndexChanged(first, QModelIndex());
+    this->current_index_changed(first, QModelIndex());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -314,7 +314,7 @@ void CentralPanel::btSeeChangesClicked()
 
 void CentralPanel::btForgetClicked()
 {
-  this->currentIndexChanged(NTree::globalTree()->currentIndex(), QModelIndex());
+  this->current_index_changed(NTree::global()->current_index(), QModelIndex());
 }
 
 //////////////////////////////////////////////////////////////////////////

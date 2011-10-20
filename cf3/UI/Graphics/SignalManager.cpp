@@ -59,7 +59,7 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();
-  bool isLocal = false;
+  bool is_local = false;
 
   cf3_assert( node.get() != nullptr );
 
@@ -76,24 +76,24 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
 
   for( ; it!= sigs.end() ; it++)
   {
-    if(!it->readableName.isEmpty())
+    if(!it->readable_name.isEmpty())
     {
-      if(isLocal != it->isLocal && it != sigs.begin())
+      if(is_local != it->is_local && it != sigs.begin())
         m_menu->addSeparator();
 
-      QAction * action = m_menu->addAction(it->readableName);
+      QAction * action = m_menu->addAction(it->readable_name);
 
       action->setStatusTip(it->description);
-      action->setEnabled(it->isEnabled);
+      action->setEnabled(it->is_enabled);
 
       connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
       connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
 
       m_signals[action] = *it;
-      m_localStatus[action] = it->isLocal;
+      m_localStatus[action] = it->is_local;
     }
 
-    isLocal = it->isLocal;
+    is_local = it->is_local;
   }
 
   if(!m_menu->isEmpty())
@@ -112,11 +112,11 @@ void SignalManager::actionTriggered()
     m_waitingForSignature = true;
 
     if(!m_localStatus[action])
-      m_node->requestSignalSignature( m_signals[action].name );
+      m_node->request_signal_signature( m_signals[action].name );
     else
     {
       SignalFrame frame;
-      m_node->localSignature(m_signals[action].name, frame);
+      m_node->local_signature(m_signals[action].name, frame);
       signalSignature(frame);
     }
   }
@@ -140,7 +140,7 @@ void SignalManager::signalSignature(SignalArgs & args)
 {
   if(m_waitingForSignature)
   {
-    URI path = m_node->realComponent()->uri();
+    URI path = m_node->real_component()->uri();
     ActionInfo & info = m_signals[m_currentAction];
     const char * tag = Protocol::Tags::key_options();
 
@@ -160,11 +160,11 @@ void SignalManager::signalSignature(SignalArgs & args)
     }
     catch( Exception & e)
     {
-      NLog::globalLog()->addException(e.what());
+      NLog::global()->add_exception(e.what());
     }
     catch( ... )
     {
-      NLog::globalLog()->addException("Unknown exception caught");
+      NLog::global()->add_exception("Unknown exception caught");
     }
 
 
@@ -192,11 +192,11 @@ void SignalManager::dialogFinished(int result)
         }
         catch(InvalidURI ip)
         {
-          NLog::globalLog()->addException(ip.what());
+          NLog::global()->add_exception(ip.what());
         }
       }
       else // ...or send the request to the server
-        NetworkQueue::global_queue()->send(m_frame);
+        NetworkQueue::global()->send(m_frame);
 
     }
 

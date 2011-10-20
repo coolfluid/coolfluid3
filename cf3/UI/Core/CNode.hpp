@@ -51,20 +51,19 @@ namespace Core {
     /// @param parent The parent @c CNode. May be null.
     CNodeNotifier(CNode * parent = nullptr);
 
-    /// Emits childCountChanged() signal.
-    void notifyChildCountChanged();
+    /// Emits @c #child_count_changed() signal.
+    void notify_child_count_changed();
 
-    /// @warning fix this link "contentChanged()" [wdeconinck]
-    /// Emits @c #contentChanged() signal.
-    void notifySignalSignature(common::SignalArgs * node);
+    /// Emits @c #signal_signature() signal.
+    void notify_signal_signature(common::SignalArgs * node);
 
   signals:
 
     /// Signal emitted when children have been added or removed.
-    void childCountChanged();
+    void child_count_changed();
 
     /// Signal emitted when a signal signature has been received.
-    void signalSignature(common::SignalArgs * node);
+    void signal_signature(common::SignalArgs * node);
 
   private:
 
@@ -84,7 +83,7 @@ namespace Core {
 
     /// The action readable name. This name is intended to be displayed and
     /// should spaces instead of undescores.
-    QString readableName;
+    QString readable_name;
 
     /// The action description.
     QString description;
@@ -94,10 +93,10 @@ namespace Core {
     /// If @c true, the action is considered as local and has to be executed on the
     /// local component. If @c false, the action has to be executed on the remote
     /// component (on COOLFluiD side)
-    bool isLocal;
+    bool is_local;
 
     /// Indicates wheter the action is enable or not.
-    bool isEnabled;
+    bool is_enabled;
   };
 
   ////////////////////////////////////////////////////////////////////////////
@@ -144,10 +143,10 @@ namespace Core {
 
     /// Constructor.
     /// @param name Component name.
-    /// @param componentType Corresponding component type name
+    /// @param component_type Corresponding component type name
     /// (on the simulator side)
     /// @param type Node type.
-    CNode(const std::string & name, const QString & componentType, Type type);
+    CNode( const std::string & name, const QString & component_type, Type type );
 
     /// Component::derived_type_name implementation
     std::string derived_type_name() const
@@ -157,23 +156,23 @@ namespace Core {
 
     /// Gives the corresponding component type name
     /// @return Returns the corresponding component type name
-    QString componentType() const;
+    QString component_type() const;
 
     /// Gives a child a a certain index.
     /// @param index Index of the wanted child. Should be between 0 (included)
     /// and @c #count_children() (excluded).
     /// @return Returns the found child.
-    CNode::Ptr child(Uint index);
+    CNode::Ptr child( Uint index );
 
     /// Gives the node tooltip.
     /// @return Returns the tooltip text.
-    virtual QString toolTip() const = 0;
+    virtual QString tool_tip() const = 0;
 
     /// Indicates whether this node is a client component or not.
     /// A node is considered as a client one if its type is either
     /// @c CNode::LOCAL_TYPE or @c CNode::DEBUB_NODE.
     /// @return Returns @c true if this node is a client component.
-    bool isLocalComponent() const
+    bool is_local_component() const
     {
       return m_type != STANDARD_NODE;
     }
@@ -187,31 +186,31 @@ namespace Core {
 
     /// Indicates whether this component is the root or not.
     /// @return Returns @c true if this node is a NRoot component.
-    bool isRoot()
+    bool is_root()
     {
-      return m_isRoot;
+      return m_is_root;
     }
 
     /// Gives the real component.
     /// @return Returns this component cast to Component, execpt if this node
     /// is a NRoot, in which case the internal CRoot is returned.
-    Component::Ptr realComponent();
+    Component::Ptr real_component();
 
     /// Gives the real component.
     /// @return Returns this component cast to Component, execpt if this node
     /// is a NRoot, in which case the internal CRoot is returned.
-    Component::ConstPtr realComponent() const;
+    Component::ConstPtr real_component() const;
 
     /// Sets node properties
     /// @param node Node containing the options
-    void setProperties(const common::SignalArgs & node);
+    void set_properties( const common::SignalArgs & node );
 
     /// Sets node signals
     /// Those are considered as non-local ones, meaning that asking the node
     /// to execute them will result to the sendng of a request to the remote
     /// component.
     /// @param node Node containing the signals
-    void setSignals(const common::SignalArgs & node);
+    void set_signals( const common::SignalArgs & node );
 
     /// Modifies options
 
@@ -221,29 +220,29 @@ namespace Core {
     /// The value is the new option value, in string format.
     /// @throw BadValue If an option could not be found or could not be
     /// converted to an option.
-    void modifyOptions(const QMap<QString, QString> & options);
+    void modify_options( const QMap<QString, QString> & options );
 
     /// Gives options
     /// @param options Reference to a list where options will be put. The list
     /// cleared before first use.
-    void listOptions(QList<common::Option::ConstPtr> & list);
+    void list_options( QList<common::Option::ConstPtr> & list );
 
     /// Gives properties
     /// @param props Reference to a map where properties will be put. The map
     /// is cleared before first use.
-    void listProperties(QMap<QString, QString> & props);
+    void list_properties( QMap<QString, QString> & props );
 
     /// Gives actions.
     /// @param acttions Reference to a list where actions will be put. The list
     /// is cleared before first use.
-    void listSignals(QList<ActionInfo> & actions);
+    void list_signals( QList<ActionInfo> & actions );
 
     /// Creates an object tree from a given node
 
     /// @param node Node to convert
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXml(common::XML::XmlNode node);
+    static CNode::Ptr create_from_xml( common::XML::XmlNode node );
 
     /// Casts this node to a constant component of type TYPE.
     /// @return Returns the cast pointer
@@ -269,33 +268,35 @@ namespace Core {
     /// @param signal The signal.
     /// @param slot The slot to connect.
     /// @see CNodeNotifier
-    void connectNotifier(QObject * reciever, const char * signal, const char * slot);
+    void connect_notifier( QObject * reciever,
+                           const char * signal,
+                           const char * slot );
 
     /// Adds a sub-node.
 
     /// This method is a wrapper for @c Component::add_component(). It calls
     /// the parent method, but emits
-    /// @c CNodeNotifier::notifyChildCountChanged() on success.@c
+    /// @c CNodeNotifier::notifyadvancedModeChanged() on success.@c
     /// It is recommended to add child nodes using this method in order to
     /// guarantee the view is correctly updated.
     /// @param node Node to add.
     /// @throw common::ValueExists Forwards to the upper level any
     /// @c common::ValueExists exception thrown by
     /// @c Component::add_component()
-    void addNode(CNode::Ptr node);
+    void add_node( CNode::Ptr node );
 
     /// Removes a sub-node.
 
     /// This method is a wrapper for @c Component::remove_component(). It calls
     /// the parent method, but emits
-    /// @c CNodeNotifier::notifyChildCountChanged() on success.@c
+    /// @c CNodeNotifier::notify_child_count_changed() on success.@c
     /// It is recommended to remove child nodes using this method in order to
     /// guarantee the view is correctly updated.
-    /// @param node Node to remove.
+    /// @param node_name Node to remove.
     /// @throw common::ValueNotFound Forwards to the upper level any
     /// @c common::ValueNotFound exception thrown by
     /// @c Component::remove_component()
-    void removeNode(const QString & nodeName);
+    void remove_node( const QString & node_name );
 
     /// Gives the internal notifier.
     /// @return Returns the internal notifier.
@@ -308,11 +309,13 @@ namespace Core {
     /// cleaned before first use.
     /// @param recursive If @c true, the listing is recursive. Otherwise,
     /// only direct children are listed.
-    /// @param clientNode If @c true, client nodes are included into the the
+    /// @param client_node If @c true, client nodes are included into the the
     /// result. Otherwise, they are ignored.
-    void listChildPaths(QStringList & list, bool recursive, bool clientNode = true) const;
+    void list_child_paths( QStringList & list,
+                           bool recursive,
+                           bool client_node = true ) const;
 
-    void requestSignalSignature(const QString & name);
+    void request_signal_signature(const QString & name);
 
     /// @name Signals
     //@{
@@ -321,19 +324,19 @@ namespace Core {
     /// This methods calls @c NTree::update_tree() method to resquet an update
     /// of the tree.
     /// @param node Signal data. This parameter is not used.
-    void update_tree( common::SignalArgs & node);
+    void reply_update_tree( common::SignalArgs & node);
 
     /// Method called when receiving a reply to a previously sent
     /// "configure" signal.
     /// @param node An XML representation of the modified options.
-    void configure_reply(common::SignalArgs & node);
+    void reply_configure(common::SignalArgs & node);
 
     /// Method called when the server replies to a @c list_content request.
     /// @param node Signal data.
-    void list_content_reply( common::SignalArgs & node );
+    void reply_list_content( common::SignalArgs & node );
 
     /// Method called when the server replies to a signal
-    void signal_signature_reply( common::SignalArgs & node );
+    void reply_signal_signature( common::SignalArgs & node );
 
     //@} END Signals
 
@@ -341,11 +344,11 @@ namespace Core {
 
     /// @param name The signal name.
     /// @param node node @c SignalFrame where the signature will be stored.
-    void localSignature(const QString & name, common::SignalArgs& node );
+    void local_signature( const QString & name, common::SignalArgs& node );
 
-    void finishSetUp();
+    void finish_setup();
 
-    virtual void aboutToBeRemoved() {}
+    virtual void about_to_be_removed() {}
 
   protected: // data
 
@@ -353,43 +356,43 @@ namespace Core {
     CNodeNotifier * m_notifier;
 
     /// Lists the names of the local signals.
-    QStringList m_localSignals;
+    QStringList m_local_signals;
 
     QMutex * m_mutex;
 
     /// @c false until the node content has been retrieved from
     /// the server.
-    bool m_contentListed;
+    bool m_content_listed;
 
     /// Idicates whether this node is already waiting for content
     /// from the server.
     /// This is used to avoid sending multiple requests to the server
     /// in case it is overloaded and takes some time to reply.
-    bool m_listingContent;
+    bool m_listing_content;
 
     /// Indicates whether this component is a NRoot.
     /// If @c true, this component is a NRoot object.
-    bool m_isRoot;
+    bool m_is_root;
 
   private: // data
 
     /// Component type name.
-    QString m_componentType;
+    QString m_component_type;
 
     CNode::Type m_type;
 
   protected:
 
     /// List of signals that can be remotely executed
-    QList<ActionInfo> m_actionSigs;
+    QList<ActionInfo> m_action_sigs;
 
     /// Disables the local signals that need to.
-    /// @param localSignals Map of local signals. The map is pre-initialiazed
+    /// @param local_signals Map of local signals. The map is pre-initialiazed
     /// before calling this function with all local signals and the value set
     /// to @c true.
-    virtual void disableLocalSignals( QMap<QString, bool> & localSignals) const = 0;
+    virtual void disable_local_signals( QMap<QString, bool> & local_signals) const = 0;
 
-    virtual void setUpFinished() {}
+    virtual void setup_finished() {}
 
   private: // helper functions
 
@@ -402,13 +405,13 @@ namespace Core {
     /// target is missing in the XML). It is up to the calling code to make
     /// that check.
     /// @param node Node to convert
-    /// @param linkTargets Map where links
+    /// @param link_targets Map where links
     /// @return Retuns a shared pointer to the created node.
     /// @throw XmlError If the tree could not be built.
-    static CNode::Ptr createFromXmlRec(common::XML::XmlNode & node,
-               QMap<boost::shared_ptr<NLink>, common::URI> & linkTargets);
+    static CNode::Ptr create_from_xml_recursive(common::XML::XmlNode & node,
+                         QMap<boost::shared_ptr<NLink>, common::URI> & link_targets);
 
-    void fetchContent();
+    void fetch_content();
 
   }; // class CNode
 

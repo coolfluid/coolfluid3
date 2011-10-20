@@ -57,7 +57,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   m_btAddFav = new QPushButton("Add");
   m_btRemoveFav = new QPushButton("Remove");
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  m_completer = new QCompleter(m_model->completionModel(), this);
+  m_completer = new QCompleter(m_model->completion_model(), this);
 
   m_pathLayout = new QHBoxLayout();
   m_favButtonsLayout = new QHBoxLayout();
@@ -106,9 +106,9 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   m_mainLayout->setColumnStretch(2, 0);
   m_mainLayout->setColumnStretch(3, 2);
 
-  ThreadManager::instance().tree().root()->addNode(m_model);
+  ThreadManager::instance().tree().root()->add_node(m_model);
 
-  connect(m_comboFilter, SIGNAL(currentIndexChanged(int)),
+  connect(m_comboFilter, SIGNAL(current_index_changed(int)),
           this, SLOT(filterTypeChanged(int)));
 
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
@@ -129,7 +129,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 //  this->resize(QSize(this->width() /** 1.25*/, this->height() /** 1.25*/) );
   m_view->adjustSize();
   this->adjustSize();
-  m_model->openDir("");
+  m_model->open_dir("");
 
 }
 
@@ -146,9 +146,9 @@ void BrowserDialog::doubleClicked(const QModelIndex &index)
 {
   QModelIndex indexInModel = m_filterModel->mapToSource( index );
 
-  if( m_model->isDirectory( indexInModel ) )
+  if( m_model->is_directory( indexInModel ) )
   {
-    m_model->openDir( m_model->retrieveFullPath( indexInModel ) );
+    m_model->open_dir( m_model->retrieve_full_path( indexInModel ) );
   }
 }
 
@@ -171,7 +171,7 @@ void BrowserDialog::currentPathChanged( const QString & path )
 
 void BrowserDialog::completerActivated( const QString & text )
 {
-  m_model->openDir( text );
+  m_model->open_dir( text );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ void BrowserDialog::pathEdited( const QString & text )
   }
 
   if(send)
-    m_model->openDir(path);
+    m_model->open_dir(path);
 
   m_oldPath = text;
 }
@@ -242,7 +242,7 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
   }
 
   else if(pressedKey == Qt::Key_Backspace)
-    m_model->openDir(m_model->currentPath() + ".."); // back to the parent directory
+    m_model->open_dir(m_model->current_path() + ".."); // back to the parent directory
 
   // if user pressed either no modifier key or Shift key *and* another key,
   // the filter line edit takes the focus
@@ -283,11 +283,11 @@ bool BrowserDialog::show( bool multiSelect, QVariant & selected )
   else
     m_view->setSelectionMode(QAbstractItemView::SingleSelection);   // mono-selection
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
   bool okClicked = exec() == Accepted;
-  QString path = m_model->currentPath();
+  QString path = m_model->current_path();
 
   // if user clicked on "OK"
   if(okClicked)
@@ -315,7 +315,7 @@ bool BrowserDialog::show( bool multiSelect, QVariant & selected )
     }
   }
 
-  disconnect(NLog::globalLog().get());
+  disconnect(NLog::global().get());
 
   return okClicked;
 }

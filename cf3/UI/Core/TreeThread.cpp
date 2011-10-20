@@ -62,7 +62,7 @@ TreeThread::~TreeThread()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::setMutex(QMutex * mutex)
+void TreeThread::set_mutex(QMutex * mutex)
 {
   m_mutex = mutex;
 }
@@ -109,10 +109,10 @@ void TreeThread::run()
   plugins->mark_basic();
 
   // set the root as model root
-  tree->setRoot(m_root);
+  tree->set_tree_root(m_root);
 
   ThreadManager::instance().network().newSignal.connect(
-      boost::bind(&TreeThread::newSignal, this, _1) );
+      boost::bind(&TreeThread::new_signal, this, _1) );
 
   m_mutex->unlock();
 //  m_waitCondition.wakeAll();
@@ -123,7 +123,7 @@ void TreeThread::run()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeThread::newSignal(common::XML::XmlDoc::Ptr doc)
+void TreeThread::new_signal(common::XML::XmlDoc::Ptr doc)
 {
   const char * tag = Protocol::Tags::node_frame();
   XmlNode nodedoc = Protocol::goto_doc_node(*doc.get());
@@ -152,11 +152,11 @@ void TreeThread::newSignal(common::XML::XmlDoc::Ptr doc)
     }
     catch(cf3::common::Exception & cfe)
     {
-      NLog::globalLog()->addException(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
+      NLog::global()->add_exception(/*QString("%1 %2").arg(type.c_str()).arg(receiver.c_str()) +  */cfe.what());
     }
     catch(std::exception & stde)
     {
-      NLog::globalLog()->addException(stde.what());
+      NLog::global()->add_exception(stde.what());
     }
     catch(...)
     {

@@ -29,14 +29,14 @@ MyNode::MyNode(const std::string & name)
 
   m_properties.add_property("someProp", Real(3.14));
 
-  m_contentListed = true;
+  m_content_listed = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString MyNode::toolTip() const
+QString MyNode::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////

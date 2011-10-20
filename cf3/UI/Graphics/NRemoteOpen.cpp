@@ -40,16 +40,16 @@ NRemoteOpen::Ptr NRemoteOpen::create(QMainWindow * parent)
 {
   NRemoteOpen::Ptr rop(new NRemoteOpen(parent));
 
-  NBrowser::globalBrowser()->addNode(rop);
+  NBrowser::global()->add_node(rop);
 
   return rop;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-QString NRemoteOpen::toolTip() const
+QString NRemoteOpen::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 //////////////////////////////////////////////////////////////////////////

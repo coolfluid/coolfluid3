@@ -19,27 +19,27 @@ namespace Core {
   TreeNode::TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber)
   : m_node(node),
     m_parent(parent),
-    m_rowNumber(rowNumber)
+    m_row_number(rowNumber)
 {
   cf3_assert(node.get() != nullptr);
   cf3_assert(rowNumber >= 0);
 
-  m_node.lock()->connectNotifier(this, SIGNAL(childCountChanged()), SLOT(updateChildList()));
+  m_node.lock()->connect_notifier(this, SIGNAL(child_count_changed()), SLOT(update_child_list()));
 
-  this->updateChildList();
+  this->update_child_list();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 TreeNode::~TreeNode()
 {
-  while(!m_childNodes.isEmpty())
-    delete m_childNodes.takeFirst();
+  while(!m_child_nodes.isEmpty())
+    delete m_child_nodes.takeFirst();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool TreeNode::hasParent() const
+bool TreeNode::has_parent() const
 {
   return m_parent != nullptr;
 }
@@ -54,18 +54,18 @@ TreeNode * TreeNode::child(int rowNumber)
   {
     // if the TreeNode corresponding to this child has already been created,
     // it is returned...
-    if (rowNumber >= 0 && rowNumber < childCount())
-      child = m_childNodes.at(rowNumber);
+    if (rowNumber >= 0 && rowNumber < child_count())
+      child = m_child_nodes.at(rowNumber);
 
     // ...otherwise, if the index is valid, it is created and returned...
-    if(child == nullptr && rowNumber>= 0 && rowNumber < childCount())
+    if(child == nullptr && rowNumber>= 0 && rowNumber < child_count())
     {
       CNode::Ptr childNode;
 
       childNode = m_node.lock()->child(rowNumber);
 
       child = new TreeNode(childNode, this, rowNumber);
-      m_childNodes.replace(rowNumber, child);
+      m_child_nodes.replace(rowNumber, child);
     }
   }
 
@@ -91,42 +91,42 @@ CNode::ConstPtr TreeNode::node() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-TreeNode * TreeNode::parentNode() const
+TreeNode * TreeNode::parent_node() const
 {
   return m_parent;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-int TreeNode::rowNumber() const
+int TreeNode::row_number() const
 {
-  return m_rowNumber;
+  return m_row_number;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-int TreeNode::childCount() const
+int TreeNode::child_count() const
 {
   if( !m_node.expired() )
-    return m_node.lock()->realComponent()->count_children();
+    return m_node.lock()->real_component()->count_children();
   else
     return 0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-TreeNode * TreeNode::childByName(const QString & name)
+TreeNode * TreeNode::child_by_name(const QString & name)
 {
   TreeNode * treeNode = nullptr;
   bool found = false;
 
   /// @todo find a better algorithm !!!
-  for(int i = 0 ; i < childCount() && !found ; i++)
+  for(int i = 0 ; i < child_count() && !found ; i++)
   {
     treeNode = this->child(i);
 
     if(treeNode != nullptr)
-      found = treeNode->nodeName() == name;
+      found = treeNode->node_name() == name;
   }
 
   if(!found)
@@ -137,15 +137,15 @@ TreeNode * TreeNode::childByName(const QString & name)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void TreeNode::updateChildList()
+void TreeNode::update_child_list()
 {
-  int childCount = this->childCount();
+  int childCount = this->child_count();
 
-  while(!m_childNodes.isEmpty())
-    delete m_childNodes.takeFirst();
+  while(!m_child_nodes.isEmpty())
+    delete m_child_nodes.takeFirst();
 
   for(int i = 0 ; i < childCount ; i++)
-    m_childNodes << nullptr;
+    m_child_nodes << nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////

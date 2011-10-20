@@ -40,7 +40,7 @@ namespace Graphics {
 
   private slots:
 
-    void currentIndexChanged(int);
+    void current_index_changed(int);
 
   private:
 

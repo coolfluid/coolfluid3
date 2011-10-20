@@ -36,15 +36,15 @@ public:
 
   virtual ~NPlugin();
 
-  virtual QString toolTip() const;
+  virtual QString tool_tip() const;
 
-  common::SignalPtr addSignal( const std::string& name,
-                               const std::string& descr = std::string(),
-                               const std::string& readable_name = std::string() );
+  common::SignalPtr add_signal( const std::string& name,
+                                const std::string& descr = std::string(),
+                                const std::string& readable_name = std::string() );
 
 protected:
 
-  virtual void disableLocalSignals( QMap<QString, bool> &localSignals ) const {}
+  virtual void disable_local_signals( QMap<QString, bool> &localSignals ) const {}
 
 }; // NPlugin
 

@@ -276,7 +276,7 @@ void GraphOption::set_data(NPlotXY::PlotDataPtr & fcts,
   draw_action();
 
   //inform user
-  Core::NLog::globalLog()->addMessage("New data set received.");
+  Core::NLog::global()->add_message("New data set received.");
 }
 
 
@@ -315,7 +315,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 
   //ferification of name and formula input
   if(name.isEmpty() || formula.isEmpty()){
-    Core::NLog::globalLog()->addError("Please give function's name and formula.");
+    Core::NLog::global()->add_error("Please give function's name and formula.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -323,7 +323,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   //check if the function name already exist
   for(int i=0; i < m_data_table->rowCount(); ++i){
     if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
-      Core::NLog::globalLog()->addError("The function name already exist.");
+      Core::NLog::global()->add_error("The function name already exist.");
       m_button_generate_function->setEnabled(true);
       return;
     }
@@ -347,7 +347,7 @@ void  GraphOption::generate_function(QString name,QString formula){
                           variable.toStdString().c_str());
 
   if(res > 0){
-    Core::NLog::globalLog()->addError("The function is not recognized.");
+    Core::NLog::global()->add_error("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -358,7 +358,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   {
     max_it = m_fcts->size();
   }else{
-    Core::NLog::globalLog()->addError("The function is not recognized.");
+    Core::NLog::global()->add_error("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -390,7 +390,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 void GraphOption::add_line(){
 
   if(m_data_table->rowCount() <= 0){
-    Core::NLog::globalLog()->addError("There are no data to set, you cannot add line");
+    Core::NLog::global()->add_error("There are no data to set, you cannot add line");
     return;
   }
 
@@ -426,17 +426,17 @@ void GraphOption::add_line(){
 
 
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
-          SIGNAL(currentIndexChanged(int)), this,
+          SIGNAL(current_index_changed(int)), this,
           SLOT (draw_action()));
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
-          SIGNAL(currentIndexChanged(int)), this,
+          SIGNAL(current_index_changed(int)), this,
           SLOT (draw_action()));
   connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
           SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
   connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
           SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
-          SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+          SIGNAL(current_index_changed(int)), this, SLOT (line_type_changed(int)));
 }
 
 void GraphOption::remove_line()
@@ -529,7 +529,7 @@ void GraphOption::line_type_changed(int current_index)
     //disconect checkbox to avoid looping
     disconnect(((QComboBox *)m_line_table->cellWidget(
         m_line_table->selectionModel()->selectedRows().at(i).row(),4)),
-               SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+               SIGNAL(current_index_changed(int)), this, SLOT (line_type_changed(int)));
 
     //change state
     ((QComboBox *)m_line_table->cellWidget(
@@ -539,7 +539,7 @@ void GraphOption::line_type_changed(int current_index)
     //re-connect after changing state
     connect(((QComboBox *)m_line_table->cellWidget(
         m_line_table->selectionModel()->selectedRows().at(i).row(),4)),
-            SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
+            SIGNAL(current_index_changed(int)), this, SLOT (line_type_changed(int)));
 
     //if one of the changed line is checked, then redraw, otherwise not.
     if(((QCheckBox *)m_line_table->cellWidget(
@@ -610,7 +610,7 @@ void GraphOption::save_functions(){
     popup_save_to_text->setModal(true);
     popup_save_to_text->show();
   }else{
-    Core::NLog::globalLog()->addError("There are no data to save.");
+    Core::NLog::global()->add_error("There are no data to save.");
   }
   return;
 }
@@ -663,7 +663,7 @@ void GraphOption::save_functions_to_file(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      Core::NLog::globalLog()->addError("Unable to open file.");
+      Core::NLog::global()->add_error("Unable to open file.");
       return;
     }
 
@@ -671,7 +671,7 @@ void GraphOption::save_functions_to_file(){
     out << output;
     file.close();
 
-    Core::NLog::globalLog()->addMessage("Data saved ...");
+    Core::NLog::global()->add_message("Data saved ...");
     /***********************************************************/
   }
 }
@@ -696,7 +696,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      Core::NLog::globalLog()->addError("Unable to open file.");
+      Core::NLog::global()->add_error("Unable to open file.");
       return;
     }
 
@@ -728,7 +728,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     /***********************************************************/
     file.close();
 
-    Core::NLog::globalLog()->addMessage("Data saved ...");
+    Core::NLog::global()->add_message("Data saved ...");
     /***********************************************************/
   }
 }

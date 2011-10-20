@@ -55,7 +55,7 @@ namespace Graphics {
 
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
-    CNode(NBrowser::globalBrowser()->generateName().toStdString(), componentType, CNode::DEBUG_NODE)
+    CNode(NBrowser::global()->generate_name().toStdString(), componentType, CNode::DEBUG_NODE)
 {
 
   regist_signal( "read_dir" )
@@ -197,14 +197,14 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
   m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
   this->reinitValues();
 
   this->exec();
 
-  this->disconnect(NLog::globalLog().get());
+  this->disconnect(NLog::global().get());
 
   if(canceled != nullptr)
     *canceled = !m_okClicked;
@@ -243,14 +243,14 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
   m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
   m_listView->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
   this->reinitValues();
 
   this->exec();
 
-  this->disconnect(NLog::globalLog().get());
+  this->disconnect(NLog::global().get());
 
   if(m_okClicked)
     selectedFileList(list);
@@ -478,7 +478,7 @@ void NRemoteBrowser::btOkClicked()
 
     if(validation == POLICY_VALID)
     {
-      disconnect(NLog::globalLog().get());
+      disconnect(NLog::global().get());
 
       m_okClicked = true;
       this->setVisible(false);
@@ -491,7 +491,7 @@ void NRemoteBrowser::btOkClicked()
 
 void NRemoteBrowser::btCancelClicked()
 {
-  disconnect(NLog::globalLog().get());
+  disconnect(NLog::global().get());
 
   m_okClicked = false;
   this->setVisible(false);
@@ -746,7 +746,7 @@ void NRemoteBrowser::openDir(const QString & path)
 
   options.flush();
 
-  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////

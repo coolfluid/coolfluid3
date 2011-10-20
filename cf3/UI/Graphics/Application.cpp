@@ -32,15 +32,15 @@ bool Application::notify(QObject * obj, QEvent * ev)
   }
   catch(common::Exception & cfe)
   {
-    Core::NLog::globalLog()->addException( cfe.what() );
+    Core::NLog::global()->add_exception( cfe.what() );
   }
   catch(std::exception & stde)
   {
-    Core::NLog::globalLog()->addException( stde.what() );
+    Core::NLog::global()->add_exception( stde.what() );
   }
   catch(...)
   {
-    Core::NLog::globalLog()->addError( "Unknown exception was caught by the event handler." );
+    Core::NLog::global()->add_error( "Unknown exception was caught by the event handler." );
   }
 
   return false;
