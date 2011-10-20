@@ -15,11 +15,11 @@ cf3::common::RegistLibrary<LibCommon> libCommon;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Libcommon::initiate_impl()
+void LibCommon::initiate_impl()
 {
 }
 
-void Libcommon::terminate_impl()
+void LibCommon::terminate_impl()
 {
 }
 
