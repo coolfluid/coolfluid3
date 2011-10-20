@@ -131,10 +131,12 @@ BOOST_AUTO_TEST_CASE( SetupModel )
 BOOST_AUTO_TEST_CASE( ExpressionOptions )
 {
   Real result = 0;
-  ConfigurableConstant<Real> a("a", "Multiplication factor");
+  RealVector default_a(3);
+  default_a.setZero();;
+  ConfigurableConstant<RealVector> a("a", "Multiplication factor", default_a);
 
   // Create an expression that sums the volume of a mesh, multiplied with a configurable factor
-  boost::shared_ptr<Expression> expression = elements_expression(lit(result) += a*volume);
+  boost::shared_ptr<Expression> expression = elements_expression(lit(result) += boost::proto::lit(a)[0]*volume);
 
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
 
@@ -146,7 +148,7 @@ BOOST_AUTO_TEST_CASE( ExpressionOptions )
   BOOST_CHECK_EQUAL(result, 0.);
 
   // reconfigure a as 1, and check result
-  model.options().option("a").change_value(1.);
+  model.options().option("a").change_value(std::vector<Real>(1, 1.));
   expression->loop(model.domain().get_child("mesh").as_type<CMesh>().topology());
   BOOST_CHECK_EQUAL(result, 1.);
 }

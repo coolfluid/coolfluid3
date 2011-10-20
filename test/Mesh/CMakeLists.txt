@@ -363,6 +363,12 @@ list( APPEND utest-mesh-shapefunctions_files  utest-mesh-shapefunctions.cpp )
 coolfluid_add_unit_test( utest-mesh-shapefunctions )
 
 ##########################################################################
+
+coolfluid_add_test( UTEST utest-mesh-deletion
+                    CPP   utest-mesh-deletion.cpp
+                    LIBS  coolfluid_mesh coolfluid_mesh_generation )
+
+##########################################################################
 # test Actions
 add_subdirectory( Actions )
 
