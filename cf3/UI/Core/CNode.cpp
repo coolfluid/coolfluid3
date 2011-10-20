@@ -655,6 +655,8 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
 
   if( !uuid.empty() )
     rootNode->configure_property( "uuid", uuid );
+  else
+    NLog::globalLog()->addWarning( "Found a Component without no UUID." );
 
   while( child.is_valid() )
   {

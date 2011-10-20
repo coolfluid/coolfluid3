@@ -633,8 +633,7 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     for( ; itList != listToRemove.end() ; itList++)
     {
-      CNode::Ptr node = treeRoot->root()->access_component_ptr_checked(*itList)->as_ptr<CNode>();
-      node->aboutToBeRemoved();
+      treeRoot->root()->access_component_ptr_checked(*itList)->as_ptr<CNode>()->aboutToBeRemoved();
       treeRoot->root()->remove_component(*itList);
     }
 

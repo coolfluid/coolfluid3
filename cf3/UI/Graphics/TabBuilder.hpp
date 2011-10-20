@@ -9,6 +9,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
+#include <QList>
 #include <QMap>
 #include <QTabWidget>
 
@@ -60,7 +61,7 @@ public:
     else
     {
       setTabText( m_tabs[key].tabIndex, node->uri().path().c_str() );
-      m_lastTabs.remove( key );
+      m_newTabs.append( key );
     }
 
     widget = static_cast<TYPE*>(m_tabs[key].widget);
@@ -92,6 +93,8 @@ private : // data
   QMap<std::string, TabInfo> m_tabs;
 
   QMap<std::string, int> m_lastTabs;
+
+  QList<std::string> m_newTabs;
 
 }; // TabManager
 

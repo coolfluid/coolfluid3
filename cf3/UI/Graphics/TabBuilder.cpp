@@ -71,12 +71,16 @@ void TabBuilder::endModelReset()
 
   while( it != m_lastTabs.end() )
   {
-    m_tabs.remove( it.key() );
-    removeTab( it.value() );
+    if( !m_newTabs.contains(it.key()) )
+    {
+      m_tabs.remove( it.key() );
+      removeTab( it.value() );
+    }
     it++;
   }
 
   m_lastTabs.clear();
+  m_newTabs.clear();
 
   QMap<std::string, TabInfo>::iterator itTabs = m_tabs.begin();
 
@@ -85,8 +89,6 @@ void TabBuilder::endModelReset()
     itTabs.value().tabIndex = indexOf( itTabs.value().widget );
     itTabs++;
   }
-
-
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -109,9 +111,7 @@ void TabBuilder::queueTab(Core::CNode::ConstPtr node)
   std::string uuid = node->properties().value_str("uuid");
 
   if( m_tabs.contains( uuid ) )
-  {
-    m_lastTabs[uuid] = m_tabs[uuid].tabIndex;
-  }
+     m_lastTabs[uuid] = m_tabs[uuid].tabIndex;
 }
 
 ///////////////////////////////////////////////////////////////////////////
