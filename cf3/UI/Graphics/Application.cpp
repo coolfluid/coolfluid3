@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Common/Exception.hpp"
+#include "common/Exception.hpp"
 
 #include "UI/Core/NLog.hpp"
 #include "UI/Graphics/Application.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
 
-namespace CF {
+namespace cf3 {
 namespace UI {
 namespace Graphics {
 
@@ -32,15 +32,15 @@ bool Application::notify(QObject * obj, QEvent * ev)
   }
   catch(CF::Common::Exception & cfe)
   {
-    CF::UI::Core::NLog::globalLog()->addException( cfe.what() );
+    Core::NLog::globalLog()->addException( cfe.what() );
   }
   catch(std::exception & stde)
   {
-    CF::UI::Core::NLog::globalLog()->addException( stde.what() );
+    Core::NLog::globalLog()->addException( stde.what() );
   }
   catch(...)
   {
-    CF::UI::Core::NLog::globalLog()->addError( "Unknown exception was caught by the event handler." );
+    Core::NLog::globalLog()->addError( "Unknown exception was caught by the event handler." );
   }
 
   return false;
@@ -50,4 +50,4 @@ bool Application::notify(QObject * obj, QEvent * ev)
 
 } // Graphics
 } // UI
-} // CF
+} // cf3
