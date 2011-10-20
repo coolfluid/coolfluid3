@@ -12,6 +12,10 @@
 #include "Common/Core.hpp"
 #include "Common/CEnv.hpp"
 #include "Common/CRoot.hpp"
+#include "Common/EventHandler.hpp"
+#include "Common/Log.hpp"
+
+#include "Common/XML/SignalFrame.hpp"
 
 #include "Mesh/CDomain.hpp"
 
@@ -40,12 +44,15 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
 
   // Setup mesh
   Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh"), length, height, x_segments, y_segments);
-  
+
   // Remove mesh
   domain.remove_component("Mesh");
-  
+
+  XML::SignalFrame frame;
+  Core::instance().event_handler().raise_event("ping", frame);
+
   // Setup a new mesh
-  Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh2"), length, height, x_segments, y_segments);
+  //Tools::MeshGeneration::create_rectangle(domain.create_component<CMesh>("Mesh2"), length, height, x_segments, y_segments);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

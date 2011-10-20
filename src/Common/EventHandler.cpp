@@ -13,6 +13,13 @@ namespace Common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
+EventHandler& EventHandler::instance()
+{
+  static EventHandler event_handler;
+  return event_handler;
+}
+
+
 EventHandler::EventHandler ()
 {}
 

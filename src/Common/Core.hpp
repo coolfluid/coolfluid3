@@ -110,8 +110,6 @@ private: // methods
 
 private: // data
 
-  /// the EventHandler unique object
-  boost::shared_ptr< Common::EventHandler > m_event_handler;
   /// the BuildInfo unique object
   boost::shared_ptr< Common::BuildInfo >    m_build_info;
   /// the CEnv unique object

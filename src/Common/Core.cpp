@@ -55,9 +55,9 @@ Core::Core()
   AssertionManager::instance();
   OSystem::instance().layer()->platform_name();
   PE::Comm::instance();
+  EventHandler::instance();
 
   // create singleton objects inside core
-  m_event_handler.reset ( new EventHandler() );
   m_build_info.reset    ( new BuildInfo()    );
   m_network_info.reset  ( new NetworkInfo()  );
 
@@ -147,8 +147,7 @@ CRoot& Core::root() const
 
 Common::EventHandler& Core::event_handler() const
 {
-  cf_assert(m_event_handler != nullptr);
-  return *m_event_handler;
+  return EventHandler::instance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
