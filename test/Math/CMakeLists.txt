@@ -34,6 +34,9 @@ coolfluid_add_test( UTEST utest-math-variablemanager
                     CPP   utest-math-variablemanager.cpp
                     LIBS  coolfluid_math )
 
+coolfluid_add_test( UTEST utest-math-integrate
+                    CPP   utest-math-integrate.cpp
+                    LIBS  coolfluid_math )
 
 ################################################################################
 
