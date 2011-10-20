@@ -67,7 +67,7 @@ void N3DView::aboutToBeRemoved()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void N3DView::go_to_tab( Common::SignalArgs& node )
+void N3DView::go_to_tab( SignalArgs& node )
 {
   TabBuilder::instance()->showTab( as_ptr<CNode>() );
 }

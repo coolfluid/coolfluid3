@@ -69,7 +69,7 @@ protected:
 
 private :
 
-  void go_to_tab( Common::SignalArgs & args );
+  void go_to_tab( common::SignalArgs & args );
 
 };
 
