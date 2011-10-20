@@ -30,7 +30,7 @@ bool Application::notify(QObject * obj, QEvent * ev)
   {
     return QApplication::notify( obj, ev );
   }
-  catch(CF::Common::Exception & cfe)
+  catch(common::Exception & cfe)
   {
     Core::NLog::globalLog()->addException( cfe.what() );
   }
