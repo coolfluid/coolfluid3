@@ -452,7 +452,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   /// @todo debug
-  const std::vector<Component::Ptr>& mesh_elements = mesh.elements().components();
+  const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
 
   std::vector<std::set<Uint> > debug_elems(mesh_elements.size());
 
@@ -858,7 +858,7 @@ BOOST_CHECK(true);
 
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
-    CEntities& elements = mesh_elements[comp_idx]->as_type<CEntities>();
+    CEntities& elements = mesh_elements[comp_idx].lock()->as_type<CEntities>();
     CSpace& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
