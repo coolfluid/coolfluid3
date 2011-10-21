@@ -27,7 +27,7 @@ namespace Actions {
 using namespace common;
 using namespace math::Consts;
 
-common::ComponentBuilder < CIterate, Action, LibActions > CIterate_Builder;
+common::ComponentBuilder < CIterate, common::Action, LibActions > CIterate_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

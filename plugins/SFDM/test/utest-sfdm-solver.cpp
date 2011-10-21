@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   Field& solution_field = solver.field_manager().get_child(SFDM::Tags::solution()).follow()->as_type<Field>();
   Field& solution_geom = mesh.geometry().create_field("solution_geom",solution_field.descriptor());
 
-  Action& interpolate = mesh.create_component("interpolate","CF.Mesh.Actions.Interpolate").as_type<Action>();
+  common::Action& interpolate = mesh.create_component("interpolate","CF.Mesh.Actions.Interpolate").as_type<common::Action>();
   interpolate.configure_option("source",solution_field.uri());
   interpolate.configure_option("target",solution_geom.uri());
   interpolate.execute();

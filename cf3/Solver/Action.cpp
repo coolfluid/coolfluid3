@@ -18,7 +18,6 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Tags.hpp"
 
-using namespace cf3::common;
 using namespace cf3::mesh;
 
 namespace cf3 {
@@ -33,23 +32,23 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
+  m_options.add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
+  m_options.add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  m_options.add_option( common::OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
-  std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT<URI> > (Tags::regions(), dummy)
+  std::vector< common::URI > dummy;
+  m_options.add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
       ->description("Regions this action is applied to")
       ->pretty_name("Regions")
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
@@ -91,26 +90,26 @@ Solver::CSolver& Action::solver()
 }
 
 
-ComponentIteratorRange<CRegion> Action::regions()
+common::ComponentIteratorRange<CRegion> Action::regions()
 {
-  return ComponentIteratorRange<CRegion>(m_loop_regions);
+  return common::ComponentIteratorRange<CRegion>(m_loop_regions);
 }
 
 
 void Action::config_regions()
 {
-  std::vector<URI> vec; option(Tags::regions()).put_value(vec);
-  
+  std::vector<common::URI> vec; option(Tags::regions()).put_value(vec);
+
   m_loop_regions.clear();
 
-  boost_foreach(const URI region_path, vec)
+  boost_foreach(const common::URI region_path, vec)
   {
     Component& comp = access_component(region_path);
 
     if ( CRegion::Ptr region = comp.as_ptr<CRegion>() )
       m_loop_regions.push_back( region );
     else
-      throw ValueNotFound ( FromHere(),
+      throw common::ValueNotFound ( FromHere(),
                            "Could not find region with path [" + region_path.path() +"]" );
   }
 }

@@ -73,7 +73,7 @@ public: // functions
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping();
   /// @return subcomponent to prepare mesh for solving
-  ActionDirector&      prepare_mesh();
+  common::ActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
   common::Group& actions();

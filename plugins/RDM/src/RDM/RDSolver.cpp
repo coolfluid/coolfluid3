@@ -93,7 +93,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
   m_time_stepping->append( *m_iterative_solver );
 
   m_prepare_mesh =
-      create_static_component_ptr< ActionDirector >( "SetupMesh" );
+      create_static_component_ptr< common::ActionDirector >( "SetupMesh" );
 
   // for storing links to fields
 
@@ -124,7 +124,7 @@ IterativeSolver&      RDSolver::iterative_solver()       { return *m_iterative_s
 
 TimeStepping&         RDSolver::time_stepping()          { return *m_time_stepping; }
 
-ActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
+common::ActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
 common::Group& RDSolver::actions() { return *m_actions; }
 

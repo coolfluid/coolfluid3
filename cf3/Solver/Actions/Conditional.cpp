@@ -19,7 +19,7 @@ namespace Actions {
 
 using namespace common;
 
-common::ComponentBuilder < Conditional, Action, LibActions > Conditional_Builder;
+common::ComponentBuilder < Conditional, common::Action, LibActions > Conditional_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

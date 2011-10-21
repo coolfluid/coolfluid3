@@ -33,7 +33,7 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeUpdateCoefficient, Action, LibSFDM > ComputeUpdateCoefficient_Builder;
+common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSFDM > ComputeUpdateCoefficient_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

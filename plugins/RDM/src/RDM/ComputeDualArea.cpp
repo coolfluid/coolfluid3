@@ -28,7 +28,7 @@ namespace RDM {
 
 common::ComponentBuilder < CellLoopT1< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
 
-common::ComponentBuilder < ComputeDualArea, Solver::Action, LibRDM > ComputeDualArea_Builder;
+common::ComponentBuilder < ComputeDualArea, common::Action, LibRDM > ComputeDualArea_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

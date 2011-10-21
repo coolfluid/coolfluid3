@@ -48,7 +48,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CreateSFDFields, Solver::Action, LibSFDM> CreateSFDFields_builder;
+common::ComponentBuilder < CreateSFDFields, common::Action, LibSFDM> CreateSFDFields_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 

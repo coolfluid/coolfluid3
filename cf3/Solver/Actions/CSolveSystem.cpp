@@ -18,7 +18,7 @@ namespace Actions {
 using namespace common;
 using namespace math;
 
-common::ComponentBuilder < CSolveSystem, Action, LibActions > CSolveSystem_Builder;
+common::ComponentBuilder < CSolveSystem, common::Action, LibActions > CSolveSystem_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

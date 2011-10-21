@@ -21,7 +21,7 @@ namespace cf3 {
 namespace Solver {
 namespace Actions {
 
-ComponentBuilder < CForAllFaces, Action, LibActions > CForAllFaces_builder;
+ComponentBuilder < CForAllFaces, common::Action, LibActions > CForAllFaces_builder;
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -35,7 +35,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < SetupMultipleSolutions, Action, LibRDM > SetupMultipleSolutions_Builder;
+common::ComponentBuilder < SetupMultipleSolutions, common::Action, LibRDM > SetupMultipleSolutions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 

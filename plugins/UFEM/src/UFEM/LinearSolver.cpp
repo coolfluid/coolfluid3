@@ -46,7 +46,7 @@ public:
   typedef boost::shared_ptr<ZeroAction> Ptr;
   typedef boost::shared_ptr<ZeroAction const> ConstPtr;
 
-  ZeroAction(const std::string& name) : Action(name)
+  ZeroAction(const std::string& name) : common::Action(name)
   {
   }
 
@@ -65,7 +65,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ZeroAction, Action, LibUFEM > ZeroAction_Builder;
+common::ComponentBuilder < ZeroAction, common::Action, LibUFEM > ZeroAction_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -181,12 +181,12 @@ void LinearSolver::mesh_changed(Mesh& mesh)
 }
 
 
-Action& LinearSolver::zero_action()
+common::Action& LinearSolver::zero_action()
 {
   return m_implementation->m_zero_action;
 }
 
-Action& LinearSolver::solve_action()
+common::Action& LinearSolver::solve_action()
 {
   return m_implementation->m_solver;
 }
