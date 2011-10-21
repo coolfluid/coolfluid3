@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CLibraries_hpp
-#define cf3_common_CLibraries_hpp
+#ifndef cf3_common_Libraries_hpp
+#define cf3_common_Libraries_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,24 +20,24 @@ class Library;
 
   /// Component that defines global environment
   /// @author Quentin Gasper
-  class Common_API CLibraries : public Component {
+  class Common_API Libraries : public Component {
 
   public: //typedefs
 
-    typedef boost::shared_ptr<CLibraries> Ptr;
-    typedef boost::shared_ptr<CLibraries const> ConstPtr;
+    typedef boost::shared_ptr<Libraries> Ptr;
+    typedef boost::shared_ptr<Libraries const> ConstPtr;
 
   public: // functions
 
     /// Contructor
     /// @param name of the component
-    CLibraries ( const std::string& name );
+    Libraries ( const std::string& name );
 
     /// Virtual destructor
-    virtual ~CLibraries();
+    virtual ~Libraries();
 
     /// Get the class name
-    static std::string type_name () { return "CLibraries"; }
+    static std::string type_name () { return "Libraries"; }
 
     /// Converts a CF3 library namespace to the library name.
     /// For example: CF.Common to coolfluid_common
@@ -65,7 +65,7 @@ class Library;
 
       if( is_null(lib) ) // conversion failed
         throw CastingFailed( FromHere(),
-                            "Found component in CLibraries with name "
+                            "Found component in Libraries with name "
                             + lname
                             + " but is not the actual library "
                             + LIB::type_name() );
@@ -105,7 +105,7 @@ class Library;
 
     //@} END SIGNALS
 
-}; // CLibraries
+}; // Libraries
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -114,4 +114,4 @@ class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CLibraries_hpp
+#endif // cf3_common_Libraries_hpp

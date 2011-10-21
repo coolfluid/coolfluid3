@@ -45,8 +45,8 @@ list( APPEND coolfluid_common_files
     Group.cpp
     CJournal.cpp
     CJournal.hpp
-    CLibraries.cpp
-    CLibraries.hpp
+    Libraries.cpp
+    Libraries.hpp
     Library.cpp
     Library.hpp
     Link.hpp

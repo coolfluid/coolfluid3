@@ -12,7 +12,7 @@
 #include "common/Signal.hpp"
 #include "common/Library.hpp"
 #include "common/Builder.hpp"
-#include "common/CLibraries.hpp"
+#include "common/Libraries.hpp"
 #include "common/OSystem.hpp"
 #include "common/OptionArray.hpp"
 #include "common/LibLoader.hpp"
@@ -31,16 +31,16 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLibraries::CLibraries ( const std::string& name) : Component ( name )
+Libraries::Libraries ( const std::string& name) : Component ( name )
 {
-  TypeInfo::instance().regist<CLibraries>(CLibraries::type_name());
+  TypeInfo::instance().regist<Libraries>(Libraries::type_name());
 
   m_properties["brief"] = std::string("Library loader");
   m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
   regist_signal( "load_libraries" )
-    ->connect( boost::bind( &CLibraries::signal_load_libraries, this, _1 ) )
+    ->connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
     ->description("loads libraries")
     ->pretty_name("Load Libraries");
 
@@ -49,18 +49,18 @@ CLibraries::CLibraries ( const std::string& name) : Component ( name )
   signal("move_component")->hidden(true);
   signal("delete_component")->hidden(true);
 
-  signal("load_libraries")->signature( boost::bind(&CLibraries::signature_load_libraries, this, _1) );
+  signal("load_libraries")->signature( boost::bind(&Libraries::signature_load_libraries, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLibraries::~CLibraries()
+Libraries::~Libraries()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CLibraries::namespace_to_libname( const std::string& libnamespace )
+std::string Libraries::namespace_to_libname( const std::string& libnamespace )
 {
   // Copy holding the result
   std::string result = libnamespace;
@@ -76,14 +76,14 @@ std::string CLibraries::namespace_to_libname( const std::string& libnamespace )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool CLibraries::is_loaded( const std::string& name )
+bool Libraries::is_loaded( const std::string& name )
 {
   return is_not_null( get_child_ptr( name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::load_library( const URI& file )
+void Libraries::load_library( const URI& file )
 {
   if( file.empty() || file.scheme() != URI::Scheme::FILE )
     throw InvalidURI( FromHere(), "Expected a file:// got \'" + file.string() + "\'" );
@@ -95,7 +95,7 @@ void CLibraries::load_library( const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr CLibraries::autoload_library_with_namespace( const std::string& libnamespace )
+Library::Ptr Libraries::autoload_library_with_namespace( const std::string& libnamespace )
 {
   if( libnamespace.empty() )
     throw BadValue( FromHere(), "Library namespace is empty - cannot guess library name" );
@@ -123,7 +123,7 @@ Library::Ptr CLibraries::autoload_library_with_namespace( const std::string& lib
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr CLibraries::autoload_library_with_builder( const std::string& builder_name )
+Library::Ptr Libraries::autoload_library_with_builder( const std::string& builder_name )
 {
   if( builder_name.empty() )
     throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
@@ -152,7 +152,7 @@ Library::Ptr CLibraries::autoload_library_with_builder( const std::string& build
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::initiate_all_libraries()
+void Libraries::initiate_all_libraries()
 {
   boost_foreach( Library& lib, find_components<Library>(*this) )
   {
@@ -162,7 +162,7 @@ void CLibraries::initiate_all_libraries()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::terminate_all_libraries()
+void Libraries::terminate_all_libraries()
 {
   boost_foreach( Library& lib, find_components<Library>(*this) )
   {
@@ -172,7 +172,7 @@ void CLibraries::terminate_all_libraries()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signal_load_libraries ( SignalArgs& args )
+void Libraries::signal_load_libraries ( SignalArgs& args )
 {
   SignalOptions opts (args);
 
@@ -192,7 +192,7 @@ void CLibraries::signal_load_libraries ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLibraries::signature_load_libraries ( SignalArgs& args )
+void Libraries::signature_load_libraries ( SignalArgs& args )
 {
   SignalOptions options( args );
 

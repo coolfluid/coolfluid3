@@ -25,7 +25,7 @@ namespace common {
   class Root;
   class Environment;
   class Group;
-  class CLibraries;
+  class Libraries;
   class Factories;
   class NetworkInfo;
 
@@ -68,9 +68,9 @@ public: // methods
   /// @pre Core does not need to be initialized before
   common::Environment& environment() const;
 
-  /// Gets the CLibraries
+  /// Gets the Libraries
   /// @pre Core does not need to be initialized before
-  common::CLibraries& libraries() const;
+  common::Libraries& libraries() const;
 
   /// Gets the Factories
   /// @pre Core does not need to be initialized before
@@ -115,8 +115,8 @@ private: // data
   boost::shared_ptr< common::BuildInfo >    m_build_info;
   /// the Environment unique object
   boost::shared_ptr< common::Environment >         m_environment;
-  /// the CLibraries unique object
-  boost::weak_ptr< common::CLibraries >   m_libraries;
+  /// the Libraries unique object
+  boost::weak_ptr< common::Libraries >   m_libraries;
   /// the Factories unique object
   boost::weak_ptr< common::Factories >   m_factories;
   /// @brief The component tree root

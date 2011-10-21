@@ -17,7 +17,7 @@
 #include "common/EventHandler.hpp"
 #include "common/OSystem.hpp"
 #include "common/Group.hpp"
-#include "common/CLibraries.hpp"
+#include "common/Libraries.hpp"
 #include "common/Factories.hpp"
 #include "common/Root.hpp"
 #include "common/Environment.hpp"
@@ -69,14 +69,14 @@ Core::Core()
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
   RegistTypeInfo<Environment,LibCommon>();
-  RegistTypeInfo<CLibraries,LibCommon>();
+  RegistTypeInfo<Libraries,LibCommon>();
   RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
   m_root = Root::create("Root");
   m_root->mark_basic();
   
-  m_libraries = m_root->create_component_ptr<CLibraries>("Libraries");
+  m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
   m_factories = m_root->create_component_ptr<Factories>("Factories");
   libraries().mark_basic();
   factories().mark_basic();
@@ -169,7 +169,7 @@ common::Environment& Core::environment() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CLibraries&  Core::libraries() const
+common::Libraries&  Core::libraries() const
 {
   cf3_assert(!m_libraries.expired());
   return *m_libraries.lock();

@@ -76,7 +76,7 @@ std::string Builder::extract_reduced_name (const std::string& builder_name)
 
 std::string Builder::extract_library_name (const std::string& builder_name)
 {
-  return CLibraries::namespace_to_libname( extract_namespace( builder_name ) );
+  return Libraries::namespace_to_libname( extract_namespace( builder_name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

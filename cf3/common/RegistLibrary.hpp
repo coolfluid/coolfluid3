@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Core.hpp"
-#include "common/CLibraries.hpp"
+#include "common/Libraries.hpp"
 
 namespace cf3 {
 namespace common {
