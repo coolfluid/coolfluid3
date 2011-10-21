@@ -8,7 +8,7 @@
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/Core.hpp"
 
 #include "mesh/MeshWriter.hpp"

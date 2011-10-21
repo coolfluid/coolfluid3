@@ -33,8 +33,8 @@ list( APPEND coolfluid_common_files
     Component.hpp
     Component.cpp
     FindComponents.hpp
-    CEnv.cpp
-    CEnv.hpp
+    Environment.cpp
+    Environment.hpp
     CFactory.hpp
     CFactory.cpp
     CFactories.hpp

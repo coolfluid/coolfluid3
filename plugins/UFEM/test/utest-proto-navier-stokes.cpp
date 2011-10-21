@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/CRoot.hpp"
 
 #include "mesh/CDomain.hpp"

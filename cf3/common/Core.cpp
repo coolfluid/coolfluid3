@@ -20,7 +20,7 @@
 #include "common/CLibraries.hpp"
 #include "common/CFactories.hpp"
 #include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 
 #include "common/BuildInfo.hpp"
 #include "common/CodeProfiler.hpp"
@@ -64,11 +64,11 @@ Core::Core()
   // create singleton components inside core
   // these are critical to library object registration
 
-  m_environment   = allocate_component<CEnv>( "Environment" );
+  m_environment   = allocate_component<Environment>( "Environment" );
 
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
-  RegistTypeInfo<CEnv,LibCommon>();
+  RegistTypeInfo<Environment,LibCommon>();
   RegistTypeInfo<CLibraries,LibCommon>();
   RegistTypeInfo<CFactories,LibCommon>();
 
@@ -161,7 +161,7 @@ common::BuildInfo& Core::build_info() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CEnv& Core::environment() const
+common::Environment& Core::environment() const
 {
   cf3_assert(m_environment != nullptr);
   return *m_environment;

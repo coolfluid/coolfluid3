@@ -18,7 +18,7 @@
 #include "common/OSystem.hpp"
 #include "common/LibLoader.hpp"
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 
 #include "mesh/CMesh.hpp"
 #include "mesh/CRegion.hpp"

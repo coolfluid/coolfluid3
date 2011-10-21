@@ -8,7 +8,7 @@
 #include <boost/weak_ptr.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/CRoot.hpp"
 #include "common/PE/Comm.hpp"
 

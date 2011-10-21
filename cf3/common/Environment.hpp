@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CEnv_hpp
-#define cf3_common_CEnv_hpp
+#ifndef cf3_common_Environment_hpp
+#define cf3_common_Environment_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,24 +18,24 @@ namespace common {
 
 /// Component that defines global environment
 /// @author Quentin Gasper
-class Common_API CEnv : public Component {
+class Common_API Environment : public Component {
 
 public: //typedefs
 
-  typedef boost::shared_ptr<CEnv> Ptr;
-  typedef boost::shared_ptr<CEnv const> ConstPtr;
+  typedef boost::shared_ptr<Environment> Ptr;
+  typedef boost::shared_ptr<Environment const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CEnv ( const std::string& name );
+  Environment ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CEnv();
+  virtual ~Environment();
 
   /// Get the class name
-  static std::string type_name () { return "CEnv"; }
+  static std::string type_name () { return "Environment"; }
 
 private: // functions
 
@@ -55,7 +55,7 @@ private: // functions
 
   void trigger_log_level();
 
-}; // CEnv
+}; // Environment
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -64,4 +64,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CEnv_hpp
+#endif // cf3_common_Environment_hpp

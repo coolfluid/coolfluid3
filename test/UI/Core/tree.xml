@@ -25,7 +25,7 @@
 			</value>
 		</map>
 	</node>
-	<node name="Environment" atype="CEnv" mode="basic">
+	<node name="Environment" atype="Environment" mode="basic">
 		<map>
 			<value key="properties">
 				<map>

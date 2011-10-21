@@ -12,7 +12,7 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 
 #include "NavierStokes/Cons2D.hpp"
 

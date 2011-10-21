@@ -12,7 +12,7 @@
 #include <boost/foreach.hpp>
 
 #include "common/Log.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 

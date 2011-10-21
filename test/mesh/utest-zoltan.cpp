@@ -11,7 +11,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/CRoot.hpp"
 #include "common/Foreach.hpp"
 #include "common/OSystem.hpp"

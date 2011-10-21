@@ -20,7 +20,7 @@
 #include <coolfluid-paths.hpp>
 
 #include "common/CGroup.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/NetworkInfo.hpp"
 
 #include "common/PE/Comm.hpp"

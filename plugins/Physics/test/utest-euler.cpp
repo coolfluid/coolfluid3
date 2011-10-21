@@ -12,7 +12,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "Euler/Physics.hpp"
 #include "Euler/Cons1D.hpp"
 #include "Euler/Roe1D.hpp"

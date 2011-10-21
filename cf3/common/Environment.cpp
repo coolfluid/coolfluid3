@@ -10,18 +10,18 @@
 #include "common/LibCommon.hpp"
 #include "common/LogLevel.hpp"
 #include "common/Log.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 
 namespace cf3 {
 namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CEnv, Component, LibCommon > CEnv_Builder;
+common::ComponentBuilder < Environment, Component, LibCommon > Environment_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CEnv::CEnv ( const std::string& name) : Component ( name )
+Environment::Environment ( const std::string& name) : Component ( name )
 {
   // properties
   m_properties["brief"] = std::string("Environment");
@@ -32,43 +32,43 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
       ->pretty_name("Only CP0 Writes")
       ->description("If true, only processor P0 writes the log info to files. If false, all processors write.")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_only_cpu0_writes,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_only_cpu0_writes,this));
 
   m_options.add_option< OptionT<bool> >("assertion_throws", AssertionManager::instance().AssertionThrows)
       ->pretty_name("Assertion Throws")
       ->description("If true, failed assertions throw exceptions instead of aborting. (Only for Debug builds)")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_assertion_throws,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_assertion_throws,this));
 
   m_options.add_option< OptionT<bool> >("assertion_backtrace", AssertionManager::instance().AssertionDumps)
       ->pretty_name("Assertion Backtrace")
       ->description("If true, failed assertions dump the backtrace. (Only for Debug builds)")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_assertion_backtrace,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_assertion_backtrace,this));
 
   m_options.add_option< OptionT<bool> >("disable_assertions", ! AssertionManager::instance().DoAssertions)
       ->pretty_name("Disable Assertions")
       ->description("If true, assertions will be ignored. (Only for Debug builds)")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_disable_assertions,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_disable_assertions,this));
 
   m_options.add_option< OptionT<bool> >("exception_outputs", ExceptionManager::instance().ExceptionOutputs)
       ->pretty_name("Exception Outputs")
       ->description("If true, raised exceptions output immediately, before being handled.")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_exception_outputs,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_exception_outputs,this));
 
   m_options.add_option< OptionT<bool> >("exception_backtrace", ExceptionManager::instance().ExceptionDumps)
       ->pretty_name("Exception Backtrace")
       ->description("If true, raised exceptions dump immediately the backtrace, before being handled.")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_exception_backtrace,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_exception_backtrace,this));
 
   m_options.add_option< OptionT<bool> >("exception_aborts", ExceptionManager::instance().ExceptionAborts)
       ->pretty_name("Exception Aborts")
       ->description("If true, raised exceptions abort program immediately, before being handled.")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_exception_aborts,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_exception_aborts,this));
 
   m_options.add_option< OptionT<bool> >("regist_signal_handlers", false)
       ->pretty_name("Regist Signal Handlers")
@@ -99,7 +99,7 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
       ->pretty_name("Log Level")
       ->description("The log level [SILENT=0, ERROR=1, WARNING=2, INFO=3, DEBUG=4, TRACE=5, VERBOSE=10")
       ->mark_basic()
-      ->attach_trigger(boost::bind(&CEnv::trigger_log_level,this));
+      ->attach_trigger(boost::bind(&Environment::trigger_log_level,this));
 
   trigger_log_level();
 
@@ -112,13 +112,13 @@ CEnv::CEnv ( const std::string& name) : Component ( name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CEnv::~CEnv()
+Environment::~Environment()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_only_cpu0_writes()
+void Environment::trigger_only_cpu0_writes()
 {
   bool opt = option("only_cpu0_writes").value<bool>();
 
@@ -130,49 +130,49 @@ void CEnv::trigger_only_cpu0_writes()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_assertion_throws()
+void Environment::trigger_assertion_throws()
 {
   AssertionManager::instance().AssertionThrows = option("assertion_throws").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_assertion_backtrace()
+void Environment::trigger_assertion_backtrace()
 {
   AssertionManager::instance().AssertionDumps = option("assertion_backtrace").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_disable_assertions()
+void Environment::trigger_disable_assertions()
 {
   AssertionManager::instance().DoAssertions = ! option("disable_assertions").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_exception_outputs()
+void Environment::trigger_exception_outputs()
 {
   ExceptionManager::instance().ExceptionOutputs = option("exception_outputs").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_exception_backtrace()
+void Environment::trigger_exception_backtrace()
 {
   ExceptionManager::instance().ExceptionDumps = option("exception_backtrace").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_exception_aborts()
+void Environment::trigger_exception_aborts()
 {
   ExceptionManager::instance().ExceptionAborts = option("exception_aborts").value<bool>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CEnv::trigger_log_level()
+void Environment::trigger_log_level()
 {
   Logger::instance().set_log_level(option("log_level").value<Uint>());
 }

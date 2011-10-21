@@ -23,7 +23,7 @@ namespace common {
   class BuildInfo;
   class CodeProfiler;
   class CRoot;
-  class CEnv;
+  class Environment;
   class CGroup;
   class CLibraries;
   class CFactories;
@@ -64,9 +64,9 @@ public: // methods
   /// @pre Core does not need to be initialized before
   common::BuildInfo& build_info() const;
 
-  /// Gets the CEnv
+  /// Gets the Environment
   /// @pre Core does not need to be initialized before
-  common::CEnv& environment() const;
+  common::Environment& environment() const;
 
   /// Gets the CLibraries
   /// @pre Core does not need to be initialized before
@@ -113,8 +113,8 @@ private: // data
 
   /// the BuildInfo unique object
   boost::shared_ptr< common::BuildInfo >    m_build_info;
-  /// the CEnv unique object
-  boost::shared_ptr< common::CEnv >         m_environment;
+  /// the Environment unique object
+  boost::shared_ptr< common::Environment >         m_environment;
   /// the CLibraries unique object
   boost::weak_ptr< common::CLibraries >   m_libraries;
   /// the CFactories unique object
