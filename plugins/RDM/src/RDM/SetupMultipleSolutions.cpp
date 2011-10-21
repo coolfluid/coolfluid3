@@ -56,8 +56,8 @@ void SetupMultipleSolutions::execute()
 
   const Uint nb_levels = option("nb_levels").value<Uint>();
 
-  CMesh&  mesh = *m_mesh.lock();
-  CGroup& fields = mysolver.fields();
+  Mesh&  mesh = *m_mesh.lock();
+  Group& fields = mysolver.fields();
 
   // get the geometry field group
 

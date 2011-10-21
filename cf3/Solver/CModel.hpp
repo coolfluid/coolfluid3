@@ -15,7 +15,7 @@
 
 namespace cf3 {
 
-  namespace common  { class CGroup; }
+  namespace common  { class Group; }
   namespace mesh    { class CDomain; }
   namespace Physics { class PhysModel; }
 
@@ -71,7 +71,7 @@ public: // functions
   virtual CSolver& solver();
 
   /// gets the solver from this model
-  virtual common::CGroup& tools();
+  virtual common::Group& tools();
 
   /// Simulates this model
   virtual void simulate();

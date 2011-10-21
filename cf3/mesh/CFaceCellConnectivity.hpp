@@ -95,7 +95,7 @@ private: // data
   Uint m_nb_faces;
 
   /// unified view of the elements
-  boost::shared_ptr<common::CGroup> m_used_components;
+  boost::shared_ptr<common::Group> m_used_components;
 
   /// Actual connectivity table
   CTable<Uint>::Ptr m_connectivity;

@@ -13,7 +13,7 @@
 #include <boost/type_traits/is_base_of.hpp>
 
 #include "common/BasicExceptions.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 #include "common/OptionArray.hpp"
@@ -110,9 +110,9 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
   BOOST_CHECK(referred.uri() == root.option("test_component_option").value<URI>());
   BOOST_CHECK(referred.name() == opt.component().name());
 
-  const CGroup& group = root.create_component<CGroup>("TestGroup");
-  //OptionComponent<CGroup>::Ptr group_opt = boost::dynamic_pointer_cast< OptionComponent<CGroup> >(root.options().add_option< OptionComponent<CGroup> >("test_group_option", "Test group option", URI()));
-  OptionComponent<CGroup>& group_opt = add_option<CGroup>(root.options(), "test_group_option");
+  const Group& group = root.create_component<Group>("TestGroup");
+  //OptionComponent<Group>::Ptr group_opt = boost::dynamic_pointer_cast< OptionComponent<Group> >(root.options().add_option< OptionComponent<Group> >("test_group_option", "Test group option", URI()));
+  OptionComponent<Group>& group_opt = add_option<Group>(root.options(), "test_group_option");
   try
   {
     root.option("test_group_option").change_value(referred.uri());

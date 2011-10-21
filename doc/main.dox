@@ -57,7 +57,7 @@ namespace cf3 {
  The cf3::common namespace contains apart from the Component base class, some specialized components:
  CRoot: This component is the root of the component tree, similar to the "/" or root directory in a unix type file system. It also holds the Environment or Environment component for interaction with the Operating System.
  CLink: This component contains a reference to another component in the tree, and accessing it, accesses this reference. It serves as an analogy to the symbolic link on the computer file system.
- CGroup: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
+ Group: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
  The cf3::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
  
  <hr>
@@ -76,9 +76,9 @@ namespace cf3 {
 
  @subsection _add_using_code Using c++ code
  Say you have a component "myComp" of type Component.
- To create a subcomponent of type CGroup with name "group1" inside myComp , use @b Component::create_component<T>() function:
+ To create a subcomponent of type Group with name "group1" inside myComp , use @b Component::create_component<T>() function:
  @code
- common::CGroup& myGroup = myComp->create_component<common::CGroup>("group1");
+ common::Group& myGroup = myComp->create_component<common::Group>("group1");
  @endcode
  @anchor using_build_component
  Say you want to create a component of the abstract type mesh::CMeshReader, but with concrete implementation from a Gmsh reader,
@@ -172,10 +172,10 @@ namespace cf3 {
  Say we have a component tree as follows with names:
  @verbatim
  root                      ( type = CRoot               ,  tags = )
-     component1            ( type = CGroup              ,  tags = )
+     component1            ( type = Group              ,  tags = )
          subcomponent1     ( type = CMyType             ,  tags = )
          subcomponent2     ( type = CMyType             ,  tags = )
-     component2            ( type = CGroup              ,  tags = special_tag )
+     component2            ( type = Group              ,  tags = special_tag )
          subcomponent1     ( type = CMySpecializedType  ,  tags = )
          subcomponent2     ( type = CMyType             ,  tags = special_tag )
  @endverbatim
@@ -261,32 +261,32 @@ namespace cf3 {
 /*! \page coding_components Coding your own Components
 
 A new component always has to inherit from a parent class which is also a component.
-A simple example is the class common::CGroup, which adds actually no extra functionality.
+A simple example is the class common::Group, which adds actually no extra functionality.
 
 @code
 namespace cf3 {
 namespace common {
 
-class Common_API CGroup : public Component 
+class Common_API Group : public Component 
 {
 
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<CGroup> Ptr;
-  typedef boost::shared_ptr<CGroup const> ConstPtr;
+  typedef boost::shared_ptr<Group> Ptr;
+  typedef boost::shared_ptr<Group const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CGroup ( const std::string& name ) : Component(name) {}
+  Group ( const std::string& name ) : Component(name) {}
 
   /// Virtual destructor
-  virtual ~CGroup() {}
+  virtual ~Group() {}
 
   /// Get the class name
-  static std::string type_name () { return "CGroup"; }
+  static std::string type_name () { return "Group"; }
 };
 
 } //namespace common
@@ -294,9 +294,9 @@ public: // functions
 @endcode
 
 Noteworthy here is:
- - CGroup inherits from Component
+ - Group inherits from Component
  - The constructor of a Component takes only 1 std::string, i.e. the name the component gets
- - The component must have a @b static function CGroup::type_name() defined, returning the class name
+ - The component must have a @b static function Group::type_name() defined, returning the class name
  - The component must have the Ptr and ConstPtr typedefs defined as boost::shared_ptr
  - Following the class name is first the API macro related to this namespace (here Common_API). 
    This macro is usually defined in the library of this namespace. (LibNamespace.hpp)

@@ -12,7 +12,7 @@
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
 #include "common/CBuilder.hpp"
@@ -59,8 +59,8 @@ void Commands::compare(const std::vector<std::string>& params)
 {
   Component::Ptr meshes_ptr = Core::instance().root().get_child_ptr("Meshes");
   if (is_null(meshes_ptr))
-    meshes_ptr = Core::instance().root().create_component_ptr<CGroup>("Meshes");
-  CGroup& meshes = meshes_ptr->as_type<CGroup>();
+    meshes_ptr = Core::instance().root().create_component_ptr<Group>("Meshes");
+  Group& meshes = meshes_ptr->as_type<Group>();
 
   Component::Ptr mesh_loader_ptr = Core::instance().root().get_child_ptr("mesh_loader");
   if (is_null(mesh_loader_ptr))

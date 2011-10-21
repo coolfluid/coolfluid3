@@ -1065,7 +1065,7 @@ void Component::signature_create_component( SignalArgs& args )
 
   options.add_option< OptionT<std::string> >("name", std::string("untitled") )
       ->description("Name for created component.");
-  options.add_option< OptionT<std::string> >("type", std::string("CF.Common.CGroup") )
+  options.add_option< OptionT<std::string> >("type", std::string("CF.Common.Group") )
       ->description("Concrete type of the component.");
   options.add_option< OptionT<bool> >("basic_mode", true )
       ->description("Component will be visible in basic mode.");

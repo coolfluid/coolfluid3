@@ -12,7 +12,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
-#include "common/CGroupActions.hpp"
+#include "common/GroupActions.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/SignalOptions.hpp"
@@ -356,7 +356,7 @@ void SFDWizard::build_solve()
   Component& iterate = solver.create_solve("iterate","CF.Solver.Actions.CIterate");
   Component& RK = iterate.create_component("1_RK_stages","CF.RungeKutta.RK");
   RK.configure_option("stages",option("RK_stages").value<Uint>());
-  Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<CGroupActions>("1_compute_rhs").mark_basic();
+  Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
   compute_rhs.create_component <CInitFieldConstant>("1.1_init_residual")
     .mark_basic()

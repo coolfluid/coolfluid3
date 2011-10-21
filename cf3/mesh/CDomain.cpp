@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/CBuilder.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
@@ -113,7 +113,7 @@ CDomain::~CDomain() {}
 
 CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
 {
-  CGroup& tools = Core::instance().tools();
+  Group& tools = Core::instance().tools();
 
   LoadMesh& mesh_loader =
       find_component<LoadMesh>( tools );

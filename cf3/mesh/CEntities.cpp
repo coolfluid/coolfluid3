@@ -46,7 +46,7 @@ CEntities::CEntities ( const std::string& name ) :
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
-  m_spaces_group = create_static_component_ptr<CGroup>("spaces");
+  m_spaces_group = create_static_component_ptr<Group>("spaces");
   m_spaces_group->mark_basic();
 
   m_rank = create_static_component_ptr< CList<Uint> >("rank");

@@ -16,7 +16,7 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "common/CRoot.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CLink.hpp"
 
 #include "common/XML/Protocol.hpp"
@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK_EQUAL ( root->properties().check("description") , true );
 
   // constructor with empty path
-  CGroup::Ptr dir1 = allocate_component<CGroup>( "dir1" );
+  Group::Ptr dir1 = allocate_component<Group>( "dir1" );
 
   BOOST_CHECK_EQUAL ( dir1->name() , "dir1" );
   BOOST_CHECK_EQUAL ( dir1->uri().base_path().string() , "cpath:./" );
@@ -67,8 +67,8 @@ BOOST_AUTO_TEST_CASE( add_component )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
-  Component::Ptr dir2 = allocate_component<CGroup>( "dir2" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
+  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
 
   root->add_component( dir1 );
   dir1->add_component( dir2 );
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( is_link )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
 
   root->add_component( dir1 );
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( get )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr lnk1 = allocate_component<CLink>( "lnk1" );
 
   // add child components to root
@@ -137,9 +137,9 @@ BOOST_AUTO_TEST_CASE( complete_path )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
-  Component::Ptr dir2 = allocate_component<CGroup>( "dir2" );
-  Component::Ptr dir3 = allocate_component<CGroup>( "dir3" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
+  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
+  Component::Ptr dir3 = allocate_component<Group>( "dir3" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -189,10 +189,10 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
-  Component::Ptr dir2 = allocate_component<CGroup>( "dir2" );
-  Component::Ptr dir21 = allocate_component<CGroup>( "dir21" );
-  Component::Ptr dir22 = allocate_component<CGroup>( "dir22" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
+  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
+  Component::Ptr dir21 = allocate_component<Group>( "dir21" );
+  Component::Ptr dir22 = allocate_component<Group>( "dir22" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -217,8 +217,8 @@ BOOST_AUTO_TEST_CASE( move_to )
 {
   CRoot::Ptr root = CRoot::create ( "root" );
 
-  Component::Ptr dir1 = allocate_component<CGroup>( "dir1" );
-  Component::Ptr dir2 = allocate_component<CGroup>( "dir2" );
+  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
+  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
 
   // add child components to root
   root->add_component( dir1 );

@@ -7,7 +7,7 @@
 #include "common/CBuilder.hpp"
 #include "common/Foreach.hpp"
 #include "common/CLink.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/CUnifiedData.hpp"
@@ -24,7 +24,7 @@ cf3::common::ComponentBuilder < CUnifiedData, cf3::common::Component, LibMesh > 
 CUnifiedData::CUnifiedData ( const std::string& name ) : common::Component(name)
 {
   m_data_indices = create_static_component_ptr<CList<Uint> >  ("data_indices");
-  m_data_links   = create_static_component_ptr<common::CGroup>("data_links");
+  m_data_links   = create_static_component_ptr<common::Group>("data_links");
   m_data_indices->resize(1);
   m_data_indices->array()[0]=0;
   m_size=0;

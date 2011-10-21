@@ -21,8 +21,8 @@ list( APPEND coolfluid_common_files
     Action.cpp
     ActionDirector.hpp
     ActionDirector.cpp
-    CGroupActions.hpp
-    CGroupActions.cpp
+    GroupActions.hpp
+    GroupActions.cpp
     CBuilder.hpp
     CBuilder.cpp
     CodeLocation.cpp
@@ -41,8 +41,8 @@ list( APPEND coolfluid_common_files
     CFactories.cpp
     CRoot.hpp
     CRoot.cpp
-    CGroup.hpp
-    CGroup.cpp
+    Group.hpp
+    Group.cpp
     CJournal.cpp
     CJournal.hpp
     CLibraries.cpp

@@ -18,7 +18,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -49,13 +49,13 @@ struct CModel::Implementation
 {
   Implementation(Component& component) :
     m_component(component),
-    m_tools(m_component.create_static_component<CGroup>("tools"))
+    m_tools(m_component.create_static_component<Group>("tools"))
   {
     m_tools.mark_basic();
   }
 
   Component& m_component;
-  CGroup& m_tools;
+  Group& m_tools;
   boost::weak_ptr<CDomain> m_domain;
   boost::weak_ptr<Physics::PhysModel> m_physics;
 };
@@ -163,7 +163,7 @@ CSolver& CModel::solver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CGroup& CModel::tools()
+Group& CModel::tools()
 {
   return m_implementation->m_tools;
 }

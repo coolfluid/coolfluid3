@@ -4,36 +4,31 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CGroupActions.hpp"
-#include "common/Foreach.hpp"
-#include "common/FindComponents.hpp"
+#include "common/Group.hpp"
 #include "common/CBuilder.hpp"
 #include "common/LibCommon.hpp"
+#include "common/OptionT.hpp"
 
 namespace cf3 {
 namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < CGroupActions, Action, LibCommon > CGroupActions_Builder;
+common::ComponentBuilder < Group, Component, LibCommon > Group_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CGroupActions::CGroupActions ( const std::string& name ) :  Action(name) {}
-
-
-void CGroupActions::execute()
+Group::Group ( const std::string& name ) : Component ( name )
 {
-  // call all actions and action links inside this component
 
-  boost_foreach(Component& child, children())
-  {
-    if (Action::Ptr action = child.follow()->as_ptr<Action>())
-      action->execute();
-  }
+}
+
+
+Group::~Group()
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // common
 } // cf3

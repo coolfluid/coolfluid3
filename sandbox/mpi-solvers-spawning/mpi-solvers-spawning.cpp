@@ -6,7 +6,7 @@
 
 #include "common/CF.hpp"
 #include "common/Core.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Log.hpp"
 #include "common/CRoot.hpp"
 #include "common/PE/Comm.hpp"

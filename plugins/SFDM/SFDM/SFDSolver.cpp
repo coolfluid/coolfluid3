@@ -9,7 +9,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/EventHandler.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Core.hpp"
 
 #include "mesh/CMesh.hpp"
@@ -69,10 +69,10 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
   // for storing links to fields
-  m_fields  = create_static_component_ptr< CGroup >( SFDM::Tags::fields()  );
+  m_fields  = create_static_component_ptr< Group >( SFDM::Tags::fields()  );
 
   // Shared actions by the solver
-  m_actions = create_static_component_ptr< CGroup >( SFDM::Tags::actions() );
+  m_actions = create_static_component_ptr< Group >( SFDM::Tags::actions() );
 
   // create the parallel synchronization action
   CSynchronizeFields& synchronize = m_actions->create_component<CSynchronizeFields>("Synchronize");

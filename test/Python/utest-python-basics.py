@@ -14,7 +14,7 @@ env.configure_option('exception_outputs', False)
 journal = root.create_component("journal", "CF.Common.CJournal")
 print journal.option_value_str("RecordReplies")
 
-group = root.create_component("group", "CF.Common.CGroup")
+group = root.create_component("group", "CF.Common.Group")
 print "Before move",journal.uri()
 journal.move_component(group.uri())
 print "After move",journal.uri()

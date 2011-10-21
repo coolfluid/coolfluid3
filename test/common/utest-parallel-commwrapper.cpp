@@ -25,7 +25,7 @@
 #include "common/PE/CommWrapperMArray.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/debug.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 
 #include "common/Signal.hpp"
 #include "common/Log.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 #include "common/NotificationQueue.hpp"

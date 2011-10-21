@@ -24,7 +24,7 @@ namespace common {
   class CodeProfiler;
   class CRoot;
   class Environment;
-  class CGroup;
+  class Group;
   class CLibraries;
   class CFactories;
   class NetworkInfo;
@@ -78,7 +78,7 @@ public: // methods
 
   /// Gets the tools
   /// @pre Core does not need to be initialized before
-  common::CGroup& tools() const;
+  common::Group& tools() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name

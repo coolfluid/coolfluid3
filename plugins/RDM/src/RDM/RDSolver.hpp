@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Solver_hpp
 #define cf3_RDM_Solver_hpp
 
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Action.hpp"
@@ -76,9 +76,9 @@ public: // functions
   ActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
-  common::CGroup& actions();
+  common::Group& actions();
   /// @returns the group of shared fields
-  common::CGroup& fields();
+  common::Group& fields();
 
   /// @name SIGNALS
   //@{
@@ -98,9 +98,9 @@ private: // helper functions
 
 private: // data
 
-  common::CGroup::Ptr m_actions;  ///< the group of shared actions
+  common::Group::Ptr m_actions;  ///< the group of shared actions
 
-  common::CGroup::Ptr m_fields;   ///< the group of fields
+  common::Group::Ptr m_fields;   ///< the group of fields
 
   boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 

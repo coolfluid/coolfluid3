@@ -97,9 +97,9 @@ RDSolver::RDSolver ( const std::string& name  ) :
 
   // for storing links to fields
 
-  m_fields  = create_static_component_ptr< CGroup >( RDM::Tags::fields()  );
+  m_fields  = create_static_component_ptr< Group >( RDM::Tags::fields()  );
 
-  m_actions = create_static_component_ptr< CGroup >( RDM::Tags::actions() );
+  m_actions = create_static_component_ptr< Group >( RDM::Tags::actions() );
 
   // create the parallel synchronization action
 
@@ -126,9 +126,9 @@ TimeStepping&         RDSolver::time_stepping()          { return *m_time_steppi
 
 ActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
-common::CGroup& RDSolver::actions() { return *m_actions; }
+common::Group& RDSolver::actions() { return *m_actions; }
 
-common::CGroup& RDSolver::fields()  { return *m_fields; }
+common::Group& RDSolver::fields()  { return *m_fields; }
 
 
 

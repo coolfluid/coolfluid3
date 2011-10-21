@@ -16,7 +16,7 @@
 #include "mesh/CTable.hpp"
 
 namespace cf3 {
-namespace common { class CLink; class CGroup;}
+namespace common { class CLink; class Group;}
 namespace mesh {
 
   template <typename T> class CList;
@@ -116,7 +116,7 @@ protected: // data
 
   boost::shared_ptr<CList<Uint> > m_global_numbering;
 
-  boost::shared_ptr<common::CGroup> m_spaces_group;
+  boost::shared_ptr<common::Group> m_spaces_group;
 
   boost::shared_ptr<CList<Uint> > m_rank;
 

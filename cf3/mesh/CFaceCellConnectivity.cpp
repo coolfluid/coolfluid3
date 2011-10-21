@@ -44,7 +44,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
       ->link_to(&m_face_building_algorithm)
       ->description("Improves efficiency for face building algorithm");
 
-  m_used_components = create_static_component_ptr<CGroup>("used_components");
+  m_used_components = create_static_component_ptr<Group>("used_components");
   m_connectivity = create_static_component_ptr<CTable<Uint> >(mesh::Tags::connectivity_table());
   m_face_nb_in_elem = create_static_component_ptr<CTable<Uint> >("face_number");
   m_is_bdry_face = create_static_component_ptr<CList<bool> >("is_bdry_face");

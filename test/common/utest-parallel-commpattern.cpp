@@ -25,7 +25,7 @@
 #include "common/PE/CommWrapperMArray.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/debug.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -116,8 +116,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
   // these are just dummies to see the selective iteration
-  Component::Ptr dir1  ( allocate_component<CGroup> ( "dir1" ) );
-  Component::Ptr dir2  ( allocate_component<CGroup> ( "dir2" ) );
+  Component::Ptr dir1  ( allocate_component<Group> ( "dir1" ) );
+  Component::Ptr dir2  ( allocate_component<Group> ( "dir2" ) );
   pecp.add_component( dir1 );
   pecp.add_component( dir2 );
 

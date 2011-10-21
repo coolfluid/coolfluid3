@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CGroup_hpp
-#define cf3_common_CGroup_hpp
+#ifndef cf3_common_Group_hpp
+#define cf3_common_Group_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,27 +22,27 @@ namespace common {
 /// to the user this component only groups other components.
 /// A GUI could use this information to give this component a "folder" icon.
 /// @author Tiago Quintino
-class Common_API CGroup : public Component {
+class Common_API Group : public Component {
 
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<CGroup> Ptr;
-  typedef boost::shared_ptr<CGroup const> ConstPtr;
+  typedef boost::shared_ptr<Group> Ptr;
+  typedef boost::shared_ptr<Group const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CGroup ( const std::string& name );
+  Group ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CGroup();
+  virtual ~Group();
 
   /// Get the class name
-  static std::string type_name () { return "CGroup"; }
+  static std::string type_name () { return "Group"; }
 
-}; // CGroup
+}; // Group
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -51,4 +51,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CGroup_hpp
+#endif // cf3_common_Group_hpp

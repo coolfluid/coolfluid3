@@ -64,7 +64,7 @@ void ComputeDualArea::create_dual_area_field()
   cdual_area = field;
 
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
-  CGroup& fields = mysolver.fields();
+  Group& fields = mysolver.fields();
 
   if( ! fields.get_child_ptr( Tags::dual_area() ) )
     fields.create_component<CLink>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );

@@ -10,14 +10,14 @@
 //#include "mesh/CElements.hpp"
 #include "mesh/CUnifiedData.hpp"
 #include "mesh/CTable.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace common {
   class CLink;
-  class CGroup;
+  class Group;
 }
 namespace mesh {
 

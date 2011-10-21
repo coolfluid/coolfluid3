@@ -16,7 +16,7 @@
 #include "common/NetworkInfo.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OSystem.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CLibraries.hpp"
 #include "common/CFactories.hpp"
 #include "common/CRoot.hpp"
@@ -86,7 +86,7 @@ Core::Core()
   /// @todo should these be static components?
   m_root->add_component( m_environment ).mark_basic();
 
-  CGroup::Ptr tools = m_root->create_component_ptr<CGroup>("Tools");
+  Group::Ptr tools = m_root->create_component_ptr<Group>("Tools");
   tools->mark_basic();
   tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");
@@ -185,9 +185,9 @@ common::CFactories& Core::factories() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CGroup& Core::tools() const
+common::Group& Core::tools() const
 {
-  return root().get_child("Tools").as_type<CGroup>();
+  return root().get_child("Tools").as_type<Group>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

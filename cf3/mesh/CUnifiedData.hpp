@@ -10,7 +10,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "common/Component.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CLink.hpp"
 #include "common/StringConversion.hpp"
 
@@ -101,7 +101,7 @@ private: // data
   boost::shared_ptr<CList<Uint> > m_data_indices;
 
   /// group with links to data components (links to elements of m_data_vector)
-  boost::shared_ptr<common::CGroup> m_data_links;
+  boost::shared_ptr<common::Group> m_data_links;
 
   /// total number of indices spanning all components
   Uint m_size;

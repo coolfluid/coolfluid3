@@ -7,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "common/Foreach.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CLink.hpp"
 #include "common/CBuilder.hpp"
 

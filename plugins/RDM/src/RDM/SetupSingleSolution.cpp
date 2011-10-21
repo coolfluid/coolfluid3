@@ -49,7 +49,7 @@ void SetupSingleSolution::execute()
 
   CMesh& mesh = *m_mesh.lock();
 
-  CGroup& fields = mysolver.fields();
+  Group& fields = mysolver.fields();
 
   const Uint nbdofs = physical_model().neqs();
 

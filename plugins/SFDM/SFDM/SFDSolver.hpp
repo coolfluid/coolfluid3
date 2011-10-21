@@ -19,7 +19,7 @@
 
 namespace cf3 {
 
-namespace common    { class CGroup; }
+namespace common    { class Group; }
 namespace Solver    { namespace Actions { class CSynchronizeFields; } }
 
 namespace SFDM {
@@ -80,9 +80,9 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  common::CGroup&       actions()                { return *m_actions; }
+  common::Group&       actions()                { return *m_actions; }
   /// @returns the group of shared fields
-  common::CGroup&       fields()                 { return *m_fields; }
+  common::Group&       fields()                 { return *m_fields; }
 
   mesh::CMesh& mesh() { return *m_mesh.lock(); }
 
@@ -101,8 +101,8 @@ private: // data
 
   bool m_mesh_configured;
 
-  boost::shared_ptr<common::CGroup>          m_actions;               ///< the group of shared actions
-  boost::shared_ptr<common::CGroup>          m_fields;                ///< the group of fields
+  boost::shared_ptr<common::Group>          m_actions;               ///< the group of shared actions
+  boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
 
   boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
   boost::weak_ptr<mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates

@@ -6,7 +6,7 @@
 
 #include "common/RegistLibrary.hpp"
 #include "common/CRoot.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
 #include "mesh/Actions/LibActions.hpp"
 #include "mesh/Actions/LoadBalance.hpp"

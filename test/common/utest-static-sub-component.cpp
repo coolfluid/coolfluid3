@@ -16,7 +16,7 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "common/CRoot.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CLink.hpp"
 
 using namespace std;

@@ -8,7 +8,7 @@
 
 #include "common/Log.hpp"
 #include "common/CLink.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/CBuilder.hpp"
 
 #include "mesh/CElements.hpp"

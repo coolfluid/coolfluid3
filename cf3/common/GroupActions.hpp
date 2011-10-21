@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CGroupActions_hpp
-#define cf3_common_CGroupActions_hpp
+#ifndef cf3_common_GroupActions_hpp
+#define cf3_common_GroupActions_hpp
 
 #include "common/Action.hpp"
 
@@ -22,22 +22,22 @@ namespace common {
 /// points to a derived Action type.
 ///
 /// @author Willem Deconinck
-class Common_API CGroupActions : public Action {
+class Common_API GroupActions : public Action {
 
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CGroupActions> Ptr;
-  typedef boost::shared_ptr<CGroupActions const> ConstPtr;
+  typedef boost::shared_ptr<GroupActions> Ptr;
+  typedef boost::shared_ptr<GroupActions const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CGroupActions ( const std::string& name );
+  GroupActions ( const std::string& name );
 
   /// Get the class name
-  static std::string type_name () { return "CGroupActions"; }
+  static std::string type_name () { return "GroupActions"; }
 
   /// execute the action
   virtual void execute ();
@@ -51,4 +51,4 @@ public: // functions
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CGroupActions_hpp
+#endif // cf3_common_GroupActions_hpp

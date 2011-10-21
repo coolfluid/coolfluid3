@@ -19,7 +19,7 @@
 
 #include <coolfluid-paths.hpp>
 
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Environment.hpp"
 #include "common/NetworkInfo.hpp"
 
