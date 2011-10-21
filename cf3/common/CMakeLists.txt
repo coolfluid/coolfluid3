@@ -43,8 +43,8 @@ list( APPEND coolfluid_common_files
     Root.cpp
     Group.hpp
     Group.cpp
-    CJournal.cpp
-    CJournal.hpp
+    Journal.cpp
+    Journal.hpp
     Libraries.cpp
     Libraries.hpp
     Library.cpp

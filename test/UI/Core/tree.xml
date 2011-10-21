@@ -97,7 +97,7 @@
 				</map>
 			</value>
 		</map>
-		<node name="Journal" atype="CJournal" mode="basic">
+		<node name="Journal" atype="Journal" mode="basic">
 			<map>
 				<value key="properties">
 					<map>

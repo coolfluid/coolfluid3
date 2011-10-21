@@ -50,7 +50,7 @@ ServerRoot::ServerRoot()
     m_thread(nullptr),
     m_root( Core::instance().root().as_ptr<Root>() ),
     m_core( new CCore() ),
-    m_journal( common::allocate_component<CJournal>("Journal") ),
+    m_journal( common::allocate_component<Journal>("Journal") ),
     m_manager( common::allocate_component<CPEManager>("PEManager") ),
     m_plotter( common::allocate_component<CPlotter>("Plotter") )
 {

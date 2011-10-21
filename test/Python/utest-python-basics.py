@@ -11,7 +11,7 @@ env.configure_option('exception_log_level', 0)
 env.configure_option('log_level', 4)
 env.configure_option('exception_outputs', False)
 
-journal = root.create_component("journal", "CF.Common.CJournal")
+journal = root.create_component("journal", "CF.Common.Journal")
 print journal.option_value_str("RecordReplies")
 
 group = root.create_component("group", "CF.Common.Group")

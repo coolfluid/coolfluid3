@@ -12,7 +12,7 @@
 #include <QMutex>
 
 #include "common/Root.hpp"
-#include "common/CJournal.hpp"
+#include "common/Journal.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
 
@@ -53,9 +53,9 @@ namespace Server {
 
     CCore::ConstPtr core() const { return m_core; }
 
-    common::CJournal::Ptr journal() { return m_journal; }
+    common::Journal::Ptr journal() { return m_journal; }
 
-    common::CJournal::ConstPtr journal() const { return m_journal; }
+    common::Journal::ConstPtr journal() const { return m_journal; }
 
     boost::shared_ptr<common::PE::CPEManager> manager() { return m_manager; }
 
@@ -93,7 +93,7 @@ namespace Server {
 
     CCore::Ptr m_core;
 
-    common::CJournal::Ptr m_journal;
+    common::Journal::Ptr m_journal;
 
     QMutex m_mutex;
 

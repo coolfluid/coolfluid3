@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CJournal_hpp
-#define cf3_common_CJournal_hpp
+#ifndef cf3_common_Journal_hpp
+#define cf3_common_Journal_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,25 +25,25 @@ namespace XML { class XmlDoc; }
 
   /// Component that maintains a journal of signals.
   /// @author Quentin Gasper
-  class Common_API CJournal : public Component
+  class Common_API Journal : public Component
   {
 
   public: // typedefs
 
-    typedef boost::shared_ptr<CJournal> Ptr;
-    typedef boost::shared_ptr<CJournal const> ConstPtr;
+    typedef boost::shared_ptr<Journal> Ptr;
+    typedef boost::shared_ptr<Journal const> ConstPtr;
 
   public: // methods
 
     /// Contructor
     /// @param name of the journal
     /// @throw InvalidPath if @c name is not a valid component name.
-    CJournal (const std::string & name);
+    Journal (const std::string & name);
 
     /// Virtual destructor.
-    virtual ~CJournal();
+    virtual ~Journal();
 
-    /// Creates a CJournal and loads its contents from a file.
+    /// Creates a Journal and loads its contents from a file.
     /// @param name Journal name.
     /// @param file_path File with the journal contents.
     /// @return Returns the built journal.
@@ -53,7 +53,7 @@ namespace XML { class XmlDoc; }
                                   const boost::filesystem::path & file_path );
 
     /// Get the class name
-    static std::string type_name() { return "CJournal"; }
+    static std::string type_name() { return "Journal"; }
 
     /// Loads journal contents from a file.
     /// The journal is cleared before loading.
@@ -103,7 +103,7 @@ namespace XML { class XmlDoc; }
     /// @todo This method should be removed when the new Xml layer is in place.
     XML::XmlNode copy_node(const XML::XmlNode & in, XML::XmlNode & out) const;
 
-  }; // CJournal
+  }; // Journal
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -112,4 +112,4 @@ namespace XML { class XmlDoc; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CJournal_hpp
+#endif // cf3_common_Journal_hpp

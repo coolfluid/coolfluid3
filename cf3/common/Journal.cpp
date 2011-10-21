@@ -20,7 +20,7 @@
 #include "common/XML/XmlDoc.hpp"
 #include "common/XML/FileOperations.hpp"
 
-#include "common/CJournal.hpp"
+#include "common/Journal.hpp"
 
 using namespace cf3::common::XML;
 
@@ -31,25 +31,25 @@ namespace common {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CJournal, Component, LibCommon > CJournal_Builder;
+common::ComponentBuilder < Journal, Component, LibCommon > Journal_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CJournal::CJournal (const std::string & name)
+Journal::Journal (const std::string & name)
   : Component(name),
     m_xmldoc(Protocol::create_doc())
 {
   regist_signal( "list_journal" )
     ->description("Lists all journal entries")
-    ->pretty_name("List journal")->connect( boost::bind( &CJournal::list_journal, this, _1) );
+    ->pretty_name("List journal")->connect( boost::bind( &Journal::list_journal, this, _1) );
 
   regist_signal( "load_journal" )
     ->description("Loads the journal entries from file")
-    ->pretty_name("Load journal")->connect( boost::bind( &CJournal::load_journal, this, _1) );
+    ->pretty_name("Load journal")->connect( boost::bind( &Journal::load_journal, this, _1) );
 
   regist_signal( "save_journal" )
     ->description("Saves all journal entries")
-    ->pretty_name("Save journal")->connect( boost::bind( &CJournal::save_journal, this, _1) );
+    ->pretty_name("Save journal")->connect( boost::bind( &Journal::save_journal, this, _1) );
 
   signal("list_journal")->hidden(true);
 
@@ -76,17 +76,17 @@ CJournal::CJournal (const std::string & name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CJournal::~CJournal()
+Journal::~Journal()
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CJournal::Ptr CJournal::create_from_file ( const std::string & name,
+Journal::Ptr Journal::create_from_file ( const std::string & name,
                                            const boost::filesystem::path & file_path )
 {
-  CJournal::Ptr journal( allocate_component<CJournal>(name) );
+  Journal::Ptr journal( allocate_component<Journal>(name) );
 
   journal->load_journal_file(file_path);
 
@@ -95,7 +95,7 @@ CJournal::Ptr CJournal::create_from_file ( const std::string & name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::load_journal_file ( const boost::filesystem::path & file_path )
+void Journal::load_journal_file ( const boost::filesystem::path & file_path )
 {
   /// @todo handle m_info_node and m_signals_map
 
@@ -105,7 +105,7 @@ void CJournal::load_journal_file ( const boost::filesystem::path & file_path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) const
+void Journal::dump_journal_to ( const boost::filesystem::path & file_path ) const
 {
   XML::to_file( *m_xmldoc, file_path );
 
@@ -114,7 +114,7 @@ void CJournal::dump_journal_to ( const boost::filesystem::path & file_path ) con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::add_signal ( const SignalArgs & signal_node )
+void Journal::add_signal ( const SignalArgs & signal_node )
 {
   rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
@@ -130,7 +130,7 @@ void CJournal::add_signal ( const SignalArgs & signal_node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::execute_signals (const boost::filesystem::path & filename)
+void Journal::execute_signals (const boost::filesystem::path & filename)
 {
 
 
@@ -200,7 +200,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::list_journal ( SignalArgs & args )
+void Journal::list_journal ( SignalArgs & args )
 {
   SignalFrame reply = args.create_reply( uri() );
 
@@ -209,14 +209,14 @@ void CJournal::list_journal ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::load_journal ( SignalArgs & args )
+void Journal::load_journal ( SignalArgs & args )
 {
-  throw NotImplemented(FromHere(), "CJournal::load_journal()");
+  throw NotImplemented(FromHere(), "Journal::load_journal()");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CJournal::save_journal ( SignalArgs & args )
+void Journal::save_journal ( SignalArgs & args )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
   boost::filesystem::path path(file_path.path());
@@ -228,7 +228,7 @@ void CJournal::save_journal ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-XmlNode CJournal::copy_node(const XmlNode & in, XmlNode & out) const
+XmlNode Journal::copy_node(const XmlNode & in, XmlNode & out) const
 {
   rapidxml::xml_node<>* content = in.content;
 
