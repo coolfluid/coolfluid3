@@ -10,7 +10,7 @@
 
 #include "common/XML/FileOperations.hpp"
 
-#include "common/PE/CWorkerGroup.hpp"
+#include "common/PE/WorkerGroup.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -23,29 +23,29 @@ namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder< CWorkerGroup, Component, LibCommon > CWorkerGroup_Builder;
+ComponentBuilder< WorkerGroup, Component, LibCommon > WorkerGroup_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CWorkerGroup::CWorkerGroup( const std::string & name )
+WorkerGroup::WorkerGroup( const std::string & name )
   : Component(name),
     m_comm(MPI_COMM_NULL)
 {
   regist_signal( "solve" )
     ->description("Runs a fake simulation")
-    ->pretty_name("Solve")->connect( boost::bind(&CWorkerGroup::signal_solve, this, _1));
+    ->pretty_name("Solve")->connect( boost::bind(&WorkerGroup::signal_solve, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CWorkerGroup::~CWorkerGroup()
+WorkerGroup::~WorkerGroup()
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CWorkerGroup::set_communicator( Communicator comm )
+void WorkerGroup::set_communicator( Communicator comm )
 {
   cf3_assert( comm != MPI_COMM_NULL );
 
@@ -54,7 +54,7 @@ void CWorkerGroup::set_communicator( Communicator comm )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Communicator CWorkerGroup::communicator() const
+Communicator WorkerGroup::communicator() const
 {
   cf3_assert( m_comm != MPI_COMM_NULL );
 
@@ -63,7 +63,7 @@ Communicator CWorkerGroup::communicator() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CWorkerGroup::signal_solve( common::SignalArgs & args)
+void WorkerGroup::signal_solve( common::SignalArgs & args)
 {
   std::string str;
   char * buffer;
@@ -83,7 +83,7 @@ void CWorkerGroup::signal_solve( common::SignalArgs & args)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-int CWorkerGroup::nbworkers () const
+int WorkerGroup::nbworkers () const
 {
   int size;
 

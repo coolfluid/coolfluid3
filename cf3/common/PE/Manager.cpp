@@ -25,8 +25,8 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/ListeningThread.hpp"
 
-#include "common/PE/CPEManager.hpp"
-#include "common/PE/CWorkerGroup.hpp"
+#include "common/PE/Manager.hpp"
+#include "common/PE/WorkerGroup.hpp"
 
 #include "common/Log.hpp"
 
@@ -41,11 +41,11 @@ namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CPEManager, Component, LibCommon > CPEManager_Builder;
+common::ComponentBuilder < Manager, Component, LibCommon > Manager_Builder;
 
 ////////////////////////////////////////////////////////////////////////////
 
-CPEManager::CPEManager ( const std::string & name )
+Manager::Manager ( const std::string & name )
   : Component(name)
 {
   m_listener = new ListeningThread();
@@ -61,21 +61,21 @@ CPEManager::CPEManager ( const std::string & name )
   regist_signal( "spawn_group" )
       ->description("Creates a new group of workers")
       ->pretty_name("Spawn new group")
-      ->connect( boost::bind(&CPEManager::signal_spawn_group, this, _1) );
+      ->connect( boost::bind(&Manager::signal_spawn_group, this, _1) );
 
   regist_signal( "kill_group" )
       ->description("Kills a group of workers")
       ->pretty_name("Kill group")
-      ->connect( boost::bind(&CPEManager::signal_kill_group, this, _1) );
+      ->connect( boost::bind(&Manager::signal_kill_group, this, _1) );
 
   regist_signal( "kill_all" )
       ->description("Kills all groups of workers")
       ->hidden(true)
       ->pretty_name("Kill all groups")
-      ->connect( boost::bind(&CPEManager::signal_kill_all, this, _1) );
+      ->connect( boost::bind(&Manager::signal_kill_all, this, _1) );
 
   regist_signal("exit")
-      ->connect( boost::bind(&CPEManager::signal_exit, this, _1) )
+      ->connect( boost::bind(&Manager::signal_exit, this, _1) )
       ->hidden(true)
       ->description( "Stops the listening thread" );
 
@@ -86,14 +86,14 @@ CPEManager::CPEManager ( const std::string & name )
   regist_signal( "message" )
       ->description("New message has arrived from a worker")
       ->pretty_name("")
-      ->connect( boost::bind(&CPEManager::signal_message, this, _1) );
+      ->connect( boost::bind(&Manager::signal_message, this, _1) );
 
   regist_signal( "signal_to_forward" )
       ->description("Signal called by this object when to forward a signal "
                     "called from a worker.");
 
-  signal("spawn_group")->signature( boost::bind(&CPEManager::signature_spawn_group, this, _1) );
-  signal("kill_group")->signature( boost::bind(&CPEManager::signature_kill_group, this, _1) );
+  signal("spawn_group")->signature( boost::bind(&Manager::signature_spawn_group, this, _1) );
+  signal("kill_group")->signature( boost::bind(&Manager::signature_kill_group, this, _1) );
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -102,19 +102,19 @@ CPEManager::CPEManager ( const std::string & name )
   signal("message")->hidden(true);
   signal("signal_to_forward")->hidden(true);
 
-  m_listener->new_signal.connect( boost::bind(&CPEManager::new_signal, this, _1, _2) );
+  m_listener->new_signal.connect( boost::bind(&Manager::new_signal, this, _1, _2) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CPEManager::~CPEManager ()
+Manager::~Manager ()
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
+void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 {
   if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {
@@ -196,7 +196,7 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::new_event ( const std::string & name, const URI & raiser_path )
+void Manager::new_event ( const std::string & name, const URI & raiser_path )
 {
   SignalFrame frame ( name, raiser_path, raiser_path );
 
@@ -205,7 +205,7 @@ void CPEManager::new_event ( const std::string & name, const URI & raiser_path )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::spawn_group ( const std::string & name,
+void Manager::spawn_group ( const std::string & name,
                                Uint nb_workers,
                                const char * command,
                                const std::string & forward,
@@ -231,7 +231,7 @@ void CPEManager::spawn_group ( const std::string & name,
   m_groups[name] = comm;
   m_listener->add_communicator( comm );
 
-  CWorkerGroup & wg = create_component<CWorkerGroup>(name);
+  WorkerGroup & wg = create_component<WorkerGroup>(name);
   wg.set_communicator(comm);
   wg.mark_basic();
 
@@ -247,7 +247,7 @@ void CPEManager::spawn_group ( const std::string & name,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::kill_group ( const std::string & name )
+void Manager::kill_group ( const std::string & name )
 {
   SignalFrame frame("exit", uri(), uri());
   std::map<std::string, Communicator>::iterator it = m_groups.find(name);
@@ -274,7 +274,7 @@ void CPEManager::kill_group ( const std::string & name )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::kill_all ()
+void Manager::kill_all ()
 {
   // stop the thread and wait() first
   /// @todo implement
@@ -282,21 +282,21 @@ void CPEManager::kill_all ()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::wait ()
+void Manager::wait ()
 {
   /// @todo implement
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to_parent ( const SignalArgs & args )
+void Manager::send_to_parent ( const SignalArgs & args )
 {
   send_to("MPI_Parent", args);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to ( const std::string & group, const SignalArgs & args )
+void Manager::send_to ( const std::string & group, const SignalArgs & args )
 {
   std::map<std::string, Communicator>::iterator it = m_groups.find(group);
 
@@ -308,7 +308,7 @@ void CPEManager::send_to ( const std::string & group, const SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::broadcast ( const SignalArgs & args )
+void Manager::broadcast ( const SignalArgs & args )
 {
   std::map<std::string, Communicator>::iterator it = m_groups.begin();
 
@@ -318,7 +318,7 @@ void CPEManager::broadcast ( const SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::send_to ( Communicator comm, const SignalArgs &args )
+void Manager::send_to ( Communicator comm, const SignalArgs &args )
 {
   std::string str;
   char * buffer;
@@ -343,14 +343,14 @@ void CPEManager::send_to ( Communicator comm, const SignalArgs &args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-boost::thread & CPEManager::listening_thread ()
+boost::thread & Manager::listening_thread ()
 {
   return m_listener->thread();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_spawn_group ( SignalArgs & args )
+void Manager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
   const std::string cmd = std::string(CF3_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
@@ -373,7 +373,7 @@ void CPEManager::signal_spawn_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_kill_group ( SignalArgs & args )
+void Manager::signal_kill_group ( SignalArgs & args )
 {
   SignalOptions options(args);
   std::string group_name = options.value<std::string>("group");
@@ -383,14 +383,14 @@ void CPEManager::signal_kill_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_kill_all ( SignalArgs & args )
+void Manager::signal_kill_all ( SignalArgs & args )
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_message ( SignalArgs & args )
+void Manager::signal_message ( SignalArgs & args )
 {
   SignalOptions options(args);
 
@@ -401,7 +401,7 @@ void CPEManager::signal_message ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::mpi_forward ( SignalArgs & args )
+void Manager::mpi_forward ( SignalArgs & args )
 {
   XmlDoc::Ptr doc = Protocol::create_doc();
   XmlNode node = Protocol::goto_doc_node( *doc.get() );
@@ -412,14 +412,14 @@ void CPEManager::mpi_forward ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signal_exit ( SignalArgs & args )
+void Manager::signal_exit ( SignalArgs & args )
 {
   m_listener->stop_listening();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signature_spawn_group ( SignalArgs & args )
+void Manager::signature_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
 
@@ -440,7 +440,7 @@ void CPEManager::signature_spawn_group ( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CPEManager::signature_kill_group ( SignalArgs & args )
+void Manager::signature_kill_group ( SignalArgs & args )
 {
   SignalOptions options( args );
   std::vector<boost::any> groups( m_groups.size() - 1 );

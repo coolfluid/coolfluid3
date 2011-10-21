@@ -7,7 +7,7 @@
 #ifndef cf3_Tools_Solver_LogForwarder_hpp
 #define cf3_Tools_Solver_LogForwarder_hpp
 
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 #include "common/LogStringForwarder.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
@@ -33,7 +33,7 @@ namespace Solver {
 
   private:
 
-    common::PE::CPEManager::Ptr m_manager;
+    common::PE::Manager::Ptr m_manager;
 
   };
 

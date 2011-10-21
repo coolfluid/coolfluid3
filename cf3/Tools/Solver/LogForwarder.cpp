@@ -31,7 +31,7 @@ namespace Solver {
 
 LogForwarder::LogForwarder()
 {
-  m_manager = Core::instance().root().access_component_ptr_checked("//Root/Tools/PEManager")->as_ptr<CPEManager>();
+  m_manager = Core::instance().root().access_component_ptr_checked("//Root/Tools/PEManager")->as_ptr<Manager>();
 }
 
 ////////////////////////////////////////////////////////////////////////////

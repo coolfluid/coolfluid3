@@ -15,7 +15,7 @@
 #include "common/Core.hpp"
 #include "common/Root.hpp"
 #include "common/NotificationQueue.hpp"
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 //#include "common/XML/SignalFrame.hpp"
 #include "common/XML/Protocol.hpp"
 
@@ -51,7 +51,7 @@ ServerRoot::ServerRoot()
     m_root( Core::instance().root().as_ptr<Root>() ),
     m_core( new CCore() ),
     m_journal( common::allocate_component<Journal>("Journal") ),
-    m_manager( common::allocate_component<CPEManager>("PEManager") ),
+    m_manager( common::allocate_component<Manager>("PEManager") ),
     m_plotter( common::allocate_component<CPlotter>("Plotter") )
 {
   m_root->add_component(m_core);

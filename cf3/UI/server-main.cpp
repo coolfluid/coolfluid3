@@ -24,7 +24,7 @@
 #include "common/NetworkInfo.hpp"
 
 #include "common/PE/Comm.hpp"
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 
 
 #include "UI/Server/ServerExceptions.hpp"
@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
       errorString = "At least 1 worker must be spawn.";
 
     // spawn the
-    CPEManager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<CPEManager>();
+    Manager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<Manager>();
     mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/cf3/Tools/Solver/coolfluid-solver").c_str());
 
     // check if the port number is valid and launch the network connection if so

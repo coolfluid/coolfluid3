@@ -155,10 +155,10 @@ list( APPEND coolfluid_common_files
 if(CF3_HAVE_MPI)
 list( APPEND coolfluid_common_files
       PE/Buffer.hpp
-      PE/CPEManager.cpp
-      PE/CPEManager.hpp
-      PE/CWorkerGroup.cpp
-      PE/CWorkerGroup.hpp
+      PE/Manager.cpp
+      PE/Manager.hpp
+      PE/WorkerGroup.cpp
+      PE/WorkerGroup.hpp
       PE/ListeningInfo.cpp
       PE/ListeningInfo.hpp
       PE/ListeningThread.cpp

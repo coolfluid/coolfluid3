@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_PE_CWorkerGroup_hpp
-#define cf3_common_PE_CWorkerGroup_hpp
+#ifndef cf3_common_PE_WorkerGroup_hpp
+#define cf3_common_PE_WorkerGroup_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,22 +22,22 @@ namespace PE {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API CWorkerGroup : public Component
+class Common_API WorkerGroup : public Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CWorkerGroup> Ptr;
-  typedef boost::shared_ptr<const CWorkerGroup> ConstPtr;
+  typedef boost::shared_ptr<WorkerGroup> Ptr;
+  typedef boost::shared_ptr<const WorkerGroup> ConstPtr;
 
 public:
 
-  CWorkerGroup( const std::string & name );
+  WorkerGroup( const std::string & name );
 
   /// Destructor.
-  virtual ~CWorkerGroup();
+  virtual ~WorkerGroup();
 
   /// Returns the class name.
-  static std::string type_name() { return "CWorkerGroup"; }
+  static std::string type_name() { return "WorkerGroup"; }
 
   void set_communicator( Communicator comm );
 
@@ -66,4 +66,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_PE_CWorkerGroup_hpp
+#endif // cf3_common_PE_WorkerGroup_hpp

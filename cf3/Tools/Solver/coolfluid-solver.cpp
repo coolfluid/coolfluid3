@@ -13,7 +13,7 @@
 #include "common/Root.hpp"
 #include "common/Log.hpp"
 
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/ListeningThread.hpp"
 
@@ -48,8 +48,8 @@ int main(int argc, char ** argv)
   }
 
   // create the PE manager
-  CPEManager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->
-      create_component_ptr<CPEManager>("PEManager");
+  Manager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->
+      create_component_ptr<Manager>("PEManager");
 
   Core::instance().root().create_component_ptr<CWorker>("Worker");
   

@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_PE_CPEManager_hpp
-#define cf3_common_PE_CPEManager_hpp
+#ifndef cf3_common_PE_Manager_hpp
+#define cf3_common_PE_Manager_hpp
 
 #include <boost/thread/thread.hpp>
 
 #include "common/Signal.hpp"
 
 #include "common/PE/types.hpp"
-#include "common/PE/CWorkerGroup.hpp"
+#include "common/PE/WorkerGroup.hpp"
 
 #include "common/Component.hpp"
 
@@ -28,22 +28,22 @@ namespace PE {
 
 class ListeningThread;
 
-class CPEManager : public Component
+class Manager : public Component
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<CPEManager> Ptr;
-  typedef boost::shared_ptr<const CPEManager> ConstPtr;
+  typedef boost::shared_ptr<Manager> Ptr;
+  typedef boost::shared_ptr<const Manager> ConstPtr;
 
 public: // functions
 
-  CPEManager( const std::string & name );
+  Manager( const std::string & name );
 
   /// Destructor.
-  virtual ~CPEManager();
+  virtual ~Manager();
 
   /// Returns the class name.
-  static std::string type_name() { return "CPEManager"; }
+  static std::string type_name() { return "Manager"; }
 
   void spawn_group(const std::string & name, Uint nb_workers,
                    const char * command, const std::string & forward = std::string(),
@@ -111,7 +111,7 @@ private:
 
   common::NotificationQueue * m_queue;
 
-}; // CPEManager
+}; // Manager
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -119,4 +119,4 @@ private:
 } // common
 } // cf3
 
-#endif // cf3_common_PE_CPEManager_hpp
+#endif // cf3_common_PE_Manager_hpp
