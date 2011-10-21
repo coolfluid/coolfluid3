@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   std::vector<URI> regions = list_of(mesh->topology().uri());
 
   // Create inner_faces
-  MeshTransformer::Ptr facebuilder = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
+  MeshTransformer::Ptr facebuilder = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.BuildFaces","facebuilder");
   //facebuilder->transform(mesh);
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
   BOOST_CHECK_NO_THROW( face_loop->execute() );
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
   info->transform(mesh);
 
   //root.remove_component(*mesh);

@@ -688,7 +688,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("grid_str_2zones");
   meshreader->read_mesh_into("grid_str_2zones.cgns",mesh);
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info", "info");
   info->transform(mesh);
   // Write to Gmsh
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
@@ -718,7 +718,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 {
 
   MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info", "info");
 
 
   // the mesh to store in
@@ -753,7 +753,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   Mesh& mesh2 = Core::instance().root().create_component<Mesh>("grid_c2cgns");
   meshreader->read_mesh_into("grid_c2cgns.cgns",mesh2);
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info", "info");
   //info->transform(mesh2);
 
   // Write to Gmsh
@@ -782,7 +782,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   Mesh& mesh2 = Core::instance().root().create_component<Mesh>("quadtriag2cgns");
   cgns_reader->read_mesh_into("quadtriag2cgns.cgns",mesh2);
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info", "info");
   //info->transform(mesh2);
 
   // Write to Gmsh

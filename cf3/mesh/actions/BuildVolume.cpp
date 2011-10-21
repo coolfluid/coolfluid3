@@ -10,7 +10,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/actions/CBuildArea.hpp"
+#include "mesh/actions/BuildVolume.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -27,11 +27,11 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildArea, MeshTransformer, mesh::actions::LibActions> CBuildArea_Builder;
+common::ComponentBuilder < BuildVolume, MeshTransformer, mesh::actions::LibActions> BuildVolume_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CBuildArea::CBuildArea( const std::string& name )
+BuildVolume::BuildVolume( const std::string& name )
 : MeshTransformer(name)
 {
 
@@ -46,7 +46,7 @@ CBuildArea::CBuildArea( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CBuildArea::brief_description() const
+std::string BuildVolume::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -54,7 +54,7 @@ std::string CBuildArea::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CBuildArea::help() const
+std::string BuildVolume::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
@@ -62,23 +62,23 @@ std::string CBuildArea::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildArea::execute()
+void BuildVolume::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();
 
-  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
-  Field& area = faces_P0.create_field(mesh::Tags::area());
-  area.add_tag(mesh::Tags::area());
+  FieldGroup& cells_P0 = mesh.create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
+  Field& volume = cells_P0.create_field(mesh::Tags::volume());
+  volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach(Entities& elements, area.entities_range() )
+  boost_foreach( Elements& elements, volume.elements_range() )
   {
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)
     {
       elements.put_coordinates( coordinates, cell_idx );
-      area[area.indexes_for_element(elements,cell_idx)[0]][0] = elements.element_type().area( coordinates );
+      volume[cell_idx][0] = elements.element_type().volume( coordinates );
     }
   }
 }

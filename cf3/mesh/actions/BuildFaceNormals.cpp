@@ -13,7 +13,7 @@
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/actions/CBuildFaceNormals.hpp"
+#include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -40,11 +40,11 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaceNormals, MeshTransformer, mesh::actions::LibActions> CBuildFaceNormals_Builder;
+common::ComponentBuilder < BuildFaceNormals, MeshTransformer, mesh::actions::LibActions> BuildFaceNormals_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CBuildFaceNormals::CBuildFaceNormals( const std::string& name )
+BuildFaceNormals::BuildFaceNormals( const std::string& name )
 : MeshTransformer(name)
 {
 
@@ -59,7 +59,7 @@ CBuildFaceNormals::CBuildFaceNormals( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CBuildFaceNormals::brief_description() const
+std::string BuildFaceNormals::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -67,7 +67,7 @@ std::string CBuildFaceNormals::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CBuildFaceNormals::help() const
+std::string BuildFaceNormals::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
@@ -75,7 +75,7 @@ std::string CBuildFaceNormals::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaceNormals::execute()
+void BuildFaceNormals::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();

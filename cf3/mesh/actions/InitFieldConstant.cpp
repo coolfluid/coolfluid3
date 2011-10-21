@@ -12,7 +12,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/actions/CInitFieldConstant.hpp"
+#include "mesh/actions/InitFieldConstant.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
@@ -28,18 +28,18 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInitFieldConstant, MeshTransformer, mesh::actions::LibActions> CInitFieldConstant_Builder;
+common::ComponentBuilder < InitFieldConstant, MeshTransformer, mesh::actions::LibActions> InitFieldConstant_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CInitFieldConstant::CInitFieldConstant( const std::string& name )
+InitFieldConstant::InitFieldConstant( const std::string& name )
 : MeshTransformer(name),
   m_constant(0.)
 {
 
   m_properties["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
-  desc = "  Usage: CInitFieldConstant constant \n";
+  desc = "  Usage: InitFieldConstant constant \n";
   m_properties["description"] = desc;
 
   m_options.add_option(OptionComponent<Field>::create("field", &m_field))
@@ -56,7 +56,7 @@ CInitFieldConstant::CInitFieldConstant( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CInitFieldConstant::brief_description() const
+std::string InitFieldConstant::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -64,14 +64,14 @@ std::string CInitFieldConstant::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CInitFieldConstant::help() const
+std::string InitFieldConstant::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CInitFieldConstant::execute()
+void InitFieldConstant::execute()
 {
   if (m_field.expired())
     throw SetupError(FromHere(), "option [field] was not set in ["+uri().path()+"]");

@@ -25,7 +25,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/actions/CGlobalNumberingNodes.hpp"
+#include "mesh/actions/GlobalNumberingNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -53,11 +53,11 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalNumberingNodes, MeshTransformer, mesh::actions::LibActions> CGlobalNumberingNodes_Builder;
+common::ComponentBuilder < GlobalNumberingNodes, MeshTransformer, mesh::actions::LibActions> GlobalNumberingNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CGlobalNumberingNodes::CGlobalNumberingNodes( const std::string& name )
+GlobalNumberingNodes::GlobalNumberingNodes( const std::string& name )
 : MeshTransformer(name),
   m_debug(false)
 {
@@ -65,7 +65,7 @@ CGlobalNumberingNodes::CGlobalNumberingNodes( const std::string& name )
   m_properties["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
-    "  Usage: CGlobalNumberingNodes Regions:array[uri]=region1,region2\n\n";
+    "  Usage: GlobalNumberingNodes Regions:array[uri]=region1,region2\n\n";
   m_properties["description"] = desc;
 
   m_options.add_option<OptionT<bool> >("debug", m_debug)
@@ -80,7 +80,7 @@ CGlobalNumberingNodes::CGlobalNumberingNodes( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CGlobalNumberingNodes::brief_description() const
+std::string GlobalNumberingNodes::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -88,14 +88,14 @@ std::string CGlobalNumberingNodes::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CGlobalNumberingNodes::help() const
+std::string GlobalNumberingNodes::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CGlobalNumberingNodes::execute()
+void GlobalNumberingNodes::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
@@ -245,7 +245,7 @@ void CGlobalNumberingNodes::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t CGlobalNumberingNodes::hash_value(const RealVector& coords)
+std::size_t GlobalNumberingNodes::hash_value(const RealVector& coords)
 {
   std::size_t seed=0;
   for (Uint i=0; i<coords.size(); ++i)

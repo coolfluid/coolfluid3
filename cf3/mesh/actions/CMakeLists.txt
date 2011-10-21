@@ -1,32 +1,32 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_mesh_actions_files
-  CInfo.hpp
-  CInfo.cpp
-  CExtract.hpp
-  CExtract.cpp
-  CBuildArea.hpp
-  CBuildArea.cpp
-  CBuildFaces.hpp
-  CBuildFaces.cpp
-  CBuildFaceNormals.hpp
-  CBuildFaceNormals.cpp
-  CBuildVolume.hpp
-  CBuildVolume.cpp
-  CGlobalNumbering.hpp
-  CGlobalNumbering.cpp
-  CGlobalNumberingElements.hpp
-  CGlobalNumberingElements.cpp
-  CGlobalNumberingNodes.hpp
-  CGlobalNumberingNodes.cpp
-  CGlobalConnectivity.hpp
-  CGlobalConnectivity.cpp
-  CInitFieldConstant.hpp
-  CInitFieldConstant.cpp
-  CInitFieldFunction.hpp
-  CInitFieldFunction.cpp
-  CMatchNodes.hpp
-  CMatchNodes.cpp
+  Info.hpp
+  Info.cpp
+  Extract.hpp
+  Extract.cpp
+  BuildArea.hpp
+  BuildArea.cpp
+  BuildFaces.hpp
+  BuildFaces.cpp
+  BuildFaceNormals.hpp
+  BuildFaceNormals.cpp
+  BuildVolume.hpp
+  BuildVolume.cpp
+  GlobalNumbering.hpp
+  GlobalNumbering.cpp
+  GlobalNumberingElements.hpp
+  GlobalNumberingElements.cpp
+  GlobalNumberingNodes.hpp
+  GlobalNumberingNodes.cpp
+  GlobalConnectivity.hpp
+  GlobalConnectivity.cpp
+  InitFieldConstant.hpp
+  InitFieldConstant.cpp
+  InitFieldFunction.hpp
+  InitFieldFunction.cpp
+  MatchNodes.hpp
+  MatchNodes.cpp
   CreateSpaceP0.hpp
   CreateSpaceP0.cpp
   GrowOverlap.hpp

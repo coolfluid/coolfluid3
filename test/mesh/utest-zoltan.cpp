@@ -90,9 +90,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
   Mesh& mesh = *mesh_ptr;
 
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh_ptr);
-  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh_ptr);
 
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   p.migrate();
   BOOST_CHECK(true);
 
-  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingNodes","glb_node_numbering");
   glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 
@@ -192,9 +192,9 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Mesh& mesh = meshgenerator->generate();
 
 
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
-  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
 
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   p.migrate();
   BOOST_CHECK(true);
 
-  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingNodes","glb_node_numbering");
   glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 

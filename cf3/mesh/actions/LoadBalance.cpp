@@ -65,11 +65,11 @@ void LoadBalance::execute()
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
     // build global numbering and connectivity of nodes and elements (necessary for partitioning)
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GlobalNumbering","glb_numbering")->transform(mesh);
 
     CFinfo << "  + building global node-element connectivity" << CFendl;
 
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GlobalConnectivity","glb_connectivity")->transform(mesh);
 
 
     CFinfo << "  + partitioning and migrating" << CFendl;
@@ -89,7 +89,7 @@ void LoadBalance::execute()
   {
     /// @todo disable this when below is re-enabled
     CFinfo << "  + building joint node & element global numbering" << CFendl;
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GlobalNumbering","glb_numbering")->transform(mesh);
   }
 
 
@@ -100,11 +100,11 @@ void LoadBalance::execute()
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GlobalNumberingNodes","glb_node_numbering")->transform(mesh);
 
   CFinfo << "creating continuous global element numbering" << CFendl;
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 #endif
 }
 

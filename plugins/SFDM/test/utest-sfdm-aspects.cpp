@@ -23,7 +23,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Domain.hpp"
-#include "mesh/actions/CInitFieldFunction.hpp"
+#include "mesh/actions/InitFieldFunction.hpp"
 #include "mesh/actions/CreateSpaceP0.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/FlowSolver.hpp"
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function sin(2*pi*x)
-  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
   init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
   init_field->configure_option("field",solution.uri());
   init_field->transform(*mesh);
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )
-  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
   std::string gaussian="sigma:="+to_str(0.1)+"; mu:="+to_str(0.5)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
   init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
   init_field->configure_option("field",solution.uri());
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( test_mesh_transform )
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   Mesh& mesh = common::Core::instance().root().get_child("rectangle").as_type<Mesh>();
 
-  MeshTransformer& build_faces = common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.CBuildFaces").as_type<MeshTransformer>();
+  MeshTransformer& build_faces = common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.BuildFaces").as_type<MeshTransformer>();
   build_faces.configure_option("store_cell2face",true);
   build_faces.transform(mesh);
 

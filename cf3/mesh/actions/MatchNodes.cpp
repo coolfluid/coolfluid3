@@ -16,7 +16,7 @@
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
 
-#include "mesh/actions/CMatchNodes.hpp"
+#include "mesh/actions/MatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -41,18 +41,18 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CMatchNodes, MeshTransformer, mesh::actions::LibActions> CMatchNodes_Builder;
+common::ComponentBuilder < MatchNodes, MeshTransformer, mesh::actions::LibActions> MatchNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMatchNodes::CMatchNodes( const std::string& name )
+MatchNodes::MatchNodes( const std::string& name )
 : MeshTransformer(name)
 {
 
   m_properties["brief"] = std::string("Match nodes in given regions");
   std::string desc;
   desc =
-    "  Usage: CMatchNodes Regions:array[uri]=region1,region2\n\n";
+    "  Usage: MatchNodes Regions:array[uri]=region1,region2\n\n";
   m_properties["description"] = desc;
 
 
@@ -62,7 +62,7 @@ CMatchNodes::CMatchNodes( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CMatchNodes::brief_description() const
+std::string MatchNodes::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -70,14 +70,14 @@ std::string CMatchNodes::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CMatchNodes::help() const
+std::string MatchNodes::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CMatchNodes::execute()
+void MatchNodes::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
@@ -171,7 +171,7 @@ void CMatchNodes::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::size_t CMatchNodes::hash_value(const RealVector3& coords)
+std::size_t MatchNodes::hash_value(const RealVector3& coords)
 {
   std::size_t seed=0;
   // cast to float to round off numerical error leading to different hash values

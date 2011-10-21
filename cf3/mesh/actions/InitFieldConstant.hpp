@@ -4,10 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CBuildFaces_hpp
-#define cf3_mesh_actions_CBuildFaces_hpp
+#ifndef cf3_mesh_InitFieldConstant_hpp
+#define cf3_mesh_InitFieldConstant_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
+
+#include "math/VectorialFunction.hpp"
 
 #include "mesh/MeshTransformer.hpp"
 
@@ -16,32 +18,29 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
-  
-  class Region;
-  class FaceCellConnectivity;
-
+namespace mesh { 
+  class Field;
 namespace actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CBuildFaces : public MeshTransformer
+class mesh_actions_API InitFieldConstant : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CBuildFaces> Ptr;
-    typedef boost::shared_ptr<CBuildFaces const> ConstPtr;
+    typedef boost::shared_ptr<InitFieldConstant> Ptr;
+    typedef boost::shared_ptr<InitFieldConstant const> ConstPtr;
 
 public: // functions
   
   /// constructor
-  CBuildFaces( const std::string& name );
+  InitFieldConstant( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CBuildFaces"; }
+  static std::string type_name() { return "InitFieldConstant"; }
 
   virtual void execute();
   
@@ -50,26 +49,14 @@ public: // functions
   
   /// extended help that user can query
   virtual std::string help() const;
-  
-private: // functions
- 
-  void make_interfaces(Component& parent);
-
-  void build_face_cell_connectivity_bottom_up(Component& parent);
-  void build_faces_bottom_up(Component& parent);
-
-  void build_face_elements(Region& in_region, FaceCellConnectivity& from_face_to_cell, const bool inner);
-    
-  boost::shared_ptr<FaceCellConnectivity> match_faces(Region& region1, Region& region2);
-  void match_boundary(Region& bdry_region, Region& region2);
-
-  void build_cell_face_connectivity(Component& parent);
 
 private: // data
 
-  bool m_store_cell2face;
+  Real m_constant;
 
-}; // end CBuildFaces
+  boost::weak_ptr<Field> m_field;
+  
+}; // end InitFieldConstant
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,4 +67,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CBuildFaces_hpp
+#endif // cf3_mesh_InitFieldConstant_hpp

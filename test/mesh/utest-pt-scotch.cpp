@@ -371,11 +371,11 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   meshreader->read_mesh_into(fp_in,mesh);
   CF3_DEBUG_POINT;
 
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
   CF3_DEBUG_POINT;
 
-  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
   CF3_DEBUG_POINT;
 

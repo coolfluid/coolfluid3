@@ -12,7 +12,7 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/actions/CInitFieldFunction.hpp"
+#include "mesh/actions/InitFieldFunction.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
@@ -28,18 +28,18 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInitFieldFunction, MeshTransformer, mesh::actions::LibActions> CInitFieldFunction_Builder;
+common::ComponentBuilder < InitFieldFunction, MeshTransformer, mesh::actions::LibActions> InitFieldFunction_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CInitFieldFunction::CInitFieldFunction( const std::string& name )
+InitFieldFunction::InitFieldFunction( const std::string& name )
 : MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Initialize a field");
   std::string desc;
   desc =
-    "  Usage: CInitFieldFunction vectorial function \n";
+    "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
   m_options.add_option(OptionComponent<Field>::create("field", &m_field))
@@ -50,7 +50,7 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as initial field (vars x,y,z)")
       ->pretty_name("Functions definition")
-      ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )
+      ->attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
       ->mark_basic();
 
   m_function.variables("x,y,z");
@@ -59,13 +59,13 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CInitFieldFunction::~CInitFieldFunction()
+InitFieldFunction::~InitFieldFunction()
 {
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CInitFieldFunction::config_function()
+void InitFieldFunction::config_function()
 {
   m_function.functions( m_options["functions"].value<std::vector<std::string> >() );
   m_function.parse();
@@ -73,7 +73,7 @@ void CInitFieldFunction::config_function()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CInitFieldFunction::execute()
+void InitFieldFunction::execute()
 {
   if (m_field.expired())
     throw SetupError(FromHere(), "Option [field] was not set in ["+uri().path()+"]");

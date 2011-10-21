@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests mesh::actions::CGlobalConnectivity"
+#define BOOST_TEST_MODULE "Tests mesh::actions::GlobalConnectivity"
 
 #include <boost/test/unit_test.hpp>
 
@@ -15,8 +15,8 @@
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "mesh/actions/CGlobalConnectivity.hpp"
-#include "mesh/actions/CGlobalNumbering.hpp"
+#include "mesh/actions/GlobalConnectivity.hpp"
+#include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
@@ -32,17 +32,17 @@ using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct TestCGlobalConnectivity_Fixture
+struct TestGlobalConnectivity_Fixture
 {
   /// common setup for each test case
-  TestCGlobalConnectivity_Fixture()
+  TestGlobalConnectivity_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~TestCGlobalConnectivity_Fixture()
+  ~TestGlobalConnectivity_Fixture()
   {
   }
 
@@ -55,11 +55,11 @@ struct TestCGlobalConnectivity_Fixture
   static Mesh::Ptr mesh;
 };
 
-Mesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Mesh::Ptr TestGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnectivity_Fixture )
+BOOST_FIXTURE_TEST_SUITE( TestGlobalConnectivity_TestSuite, TestGlobalConnectivity_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,12 +80,12 @@ BOOST_AUTO_TEST_CASE( build )
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
 
-  CGlobalNumbering::Ptr build_glb_numbering = allocate_component<CGlobalNumbering>("build_glb_numbering");
+  GlobalNumbering::Ptr build_glb_numbering = allocate_component<GlobalNumbering>("build_glb_numbering");
   build_glb_numbering->set_mesh(mesh);
   build_glb_numbering->configure_option("debug",true);
   build_glb_numbering->execute();
 
-  CGlobalConnectivity::Ptr build_connectivity = allocate_component<CGlobalConnectivity>("build_glb_connectivity");
+  GlobalConnectivity::Ptr build_connectivity = allocate_component<GlobalConnectivity>("build_glb_connectivity");
   build_connectivity->set_mesh(mesh);
   build_connectivity->execute();
 
@@ -103,8 +103,8 @@ BOOST_AUTO_TEST_CASE( build )
       RealVector coord1(2); coord1 << 2 , 8;
       RealVector coord2(2); coord2 << 3 , 11;
 
-      std::size_t hash1 = CGlobalNumbering::hash_value(coord1);
-      std::size_t hash2 = CGlobalNumbering::hash_value(coord2);
+      std::size_t hash1 = GlobalNumbering::hash_value(coord1);
+      std::size_t hash2 = GlobalNumbering::hash_value(coord2);
       BOOST_CHECK(hash1 != hash2);
 }
 

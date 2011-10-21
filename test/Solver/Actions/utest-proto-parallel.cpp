@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE( BuildGlobalConn, ProtoParallelFixture )
   CModel& model = root.get_child("Overlap").as_type<CModel>();
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  MeshTransformer& global_conn = model.domain().create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<MeshTransformer>();
+  MeshTransformer& global_conn = model.domain().create_component("GlobalConnectivity", "CF.Mesh.Actions.GlobalConnectivity").as_type<MeshTransformer>();
   global_conn.transform(mesh);
 }
 

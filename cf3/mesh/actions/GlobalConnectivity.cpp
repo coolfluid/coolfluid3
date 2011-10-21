@@ -20,7 +20,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/actions/CGlobalConnectivity.hpp"
+#include "mesh/actions/GlobalConnectivity.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -49,30 +49,30 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalConnectivity, MeshTransformer, mesh::actions::LibActions> CGlobalConnectivity_Builder;
+common::ComponentBuilder < GlobalConnectivity, MeshTransformer, mesh::actions::LibActions> GlobalConnectivity_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CGlobalConnectivity::CGlobalConnectivity( const std::string& name )
+GlobalConnectivity::GlobalConnectivity( const std::string& name )
 : MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
-    "  Usage: CGlobalConnectivity Regions:array[uri]=region1,region2\n\n";
+    "  Usage: GlobalConnectivity Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 }
 
 /// common tear-down for each test case
-CGlobalConnectivity::~CGlobalConnectivity()
+GlobalConnectivity::~GlobalConnectivity()
 {
 }
 
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CGlobalConnectivity::brief_description() const
+std::string GlobalConnectivity::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -80,14 +80,14 @@ std::string CGlobalConnectivity::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CGlobalConnectivity::help() const
+std::string GlobalConnectivity::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" + properties().value<std::string>("description");
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CGlobalConnectivity::execute()
+void GlobalConnectivity::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 

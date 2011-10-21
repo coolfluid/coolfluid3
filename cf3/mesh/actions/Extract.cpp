@@ -20,7 +20,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "mesh/actions/CExtract.hpp"
+#include "mesh/actions/Extract.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,11 +44,11 @@ namespace actions{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < mesh::actions::CExtract, mesh::MeshTransformer, mesh::actions::LibActions > CExtract_Builder;
+common::ComponentBuilder < mesh::actions::Extract, mesh::MeshTransformer, mesh::actions::LibActions > Extract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CExtract::CExtract( const std::string& name )
+Extract::Extract( const std::string& name )
 : MeshTransformer(name)
 {
   m_options.add_option<OptionArrayT<std::string> >("Regions", std::vector<std::string>())
@@ -58,14 +58,14 @@ CExtract::CExtract( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CExtract::brief_description() const
+std::string Extract::brief_description() const
 {
   return "Extract given regions from the mesh";
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CExtract::help() const
+std::string Extract::help() const
 {
   std::stringstream out;
   out << "  " << brief_description() << "\n";
@@ -94,7 +94,7 @@ std::string CExtract::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CExtract::execute()
+void Extract::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();

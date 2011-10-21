@@ -33,10 +33,10 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 
-#include "mesh/actions/CInitFieldConstant.hpp"
-#include "mesh/actions/CInitFieldFunction.hpp"
-#include "mesh/actions/CBuildFaces.hpp"
-#include "mesh/actions/CBuildVolume.hpp"
+#include "mesh/actions/InitFieldConstant.hpp"
+#include "mesh/actions/InitFieldFunction.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/BuildVolume.hpp"
 #include "mesh/actions/CreateSpaceP0.hpp"
 
 #include "SFDM/SFDWizard.hpp"
@@ -182,7 +182,7 @@ void SFDWizard::create_simulation()
   solver.configure_option(FlowSolver::Tags::physical_model(),physical_model.uri());
   solver.configure_option(FlowSolver::Tags::time(),time.uri());
 
-  model.tools().create_component_ptr<CInitFieldFunction>("initialize_solution");
+  model.tools().create_component_ptr<InitFieldFunction>("initialize_solution");
 
   CFinfo << "\nCreate the mesh in ["<<domain.uri().path()<<"] and call \""<<uri().path()<<"/prepare\"" << CFendl;
 }
@@ -358,12 +358,12 @@ void SFDWizard::build_solve()
   RK.configure_option("stages",option("RK_stages").value<Uint>());
   Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
-  compute_rhs.create_component <CInitFieldConstant>("1.1_init_residual")
+  compute_rhs.create_component <InitFieldConstant>("1.1_init_residual")
     .mark_basic()
     .configure_option("constant",0.)
     .option("field").add_tag(FlowSolver::Tags::residual());
 
-  compute_rhs.create_static_component<CInitFieldConstant>("1.2_init_wave_speed")
+  compute_rhs.create_static_component<InitFieldConstant>("1.2_init_wave_speed")
     .mark_basic()
     .configure_option("constant",0.)
     .option("field").add_tag(FlowSolver::Tags::wave_speed());
@@ -398,10 +398,10 @@ void SFDWizard::build_setup()
 
   /// Create a mesh transformer to adapt the mesh for SFDM
   MeshTransformer& transform_mesh = setup.create_component<MeshTransformer>("1_transform_mesh").mark_basic().as_type<MeshTransformer>();
-  transform_mesh.create_component<CBuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
+  transform_mesh.create_component<BuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
   transform_mesh.create_component<CreateSpaceP0>     ("2_create_space_P0").mark_basic();
   transform_mesh.create_component<SFDM::CreateSpace> ("3_create_sfd_spaces").mark_basic().configure_option("P",option("P").value<Uint>());
-  transform_mesh.create_component<CBuildVolume>      ("4_build_volume_field").mark_basic();
+  transform_mesh.create_component<BuildVolume>      ("4_build_volume_field").mark_basic();
 
   /// Create an action that creates all fields used for SFDM
   setup.create_component<CreateSFDFields>("2_create_sfd_fields");

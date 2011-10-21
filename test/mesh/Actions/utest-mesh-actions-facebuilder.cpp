@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests mesh::actions::CBuildFaces"
+#define BOOST_TEST_MODULE "Tests mesh::actions::BuildFaces"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -17,8 +17,8 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/actions/CreateSpaceP0.hpp"
-#include "mesh/actions/CBuildFaces.hpp"
-#include "mesh/actions/CBuildFaceNormals.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
@@ -39,17 +39,17 @@ using namespace cf3::mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct TestCBuildFaces_Fixture
+struct TestBuildFaces_Fixture
 {
   /// common setup for each test case
-  TestCBuildFaces_Fixture()
+  TestBuildFaces_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~TestCBuildFaces_Fixture()
+  ~TestBuildFaces_Fixture()
   {
   }
 
@@ -62,17 +62,17 @@ struct TestCBuildFaces_Fixture
   static Mesh::Ptr mesh;
 };
 
-Mesh::Ptr TestCBuildFaces_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Mesh::Ptr TestBuildFaces_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( TestCBuildFaces_TestSuite, TestCBuildFaces_Fixture )
+BOOST_FIXTURE_TEST_SUITE( TestBuildFaces_TestSuite, TestBuildFaces_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
   BOOST_CHECK_EQUAL(facebuilder->name(),"facebuilder");
 }
 
@@ -83,14 +83,14 @@ BOOST_AUTO_TEST_CASE( build_faces )
   MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
-  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
 
   facebuilder->set_mesh(mesh);
   facebuilder->execute();
 
   //CFinfo << mesh->tree() << CFendl;
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
   //info->transform(mesh);
 
   Region& wall_region = find_component_recursively_with_name<Region>(mesh->topology(),"wall");
@@ -129,14 +129,14 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 {
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(mesh);
   BOOST_CHECK(true);
-  CBuildFaceNormals::Ptr face_normal_builder = allocate_component<CBuildFaceNormals>("facenormalsbuilder");
+  BuildFaceNormals::Ptr face_normal_builder = allocate_component<BuildFaceNormals>("facenormalsbuilder");
 
   face_normal_builder->set_mesh(mesh);
   face_normal_builder->execute();
 
   //CFinfo << mesh->tree() << CFendl;
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
   //info->transform(mesh);
 
   MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","writer");
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
       .configure_option("nb_cells",nb_cells);
   Mesh& rmesh = mesh_gen->generate();
   BOOST_CHECK(true);
-  CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
+  BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
   BOOST_CHECK(true);
 
   facebuilder->set_mesh(rmesh);

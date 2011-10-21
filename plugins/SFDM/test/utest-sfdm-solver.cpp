@@ -44,13 +44,13 @@
 //#include "mesh/ElementType.hpp"
 //#include "mesh/MeshWriter.hpp"
 //#include "mesh/Domain.hpp"
-//#include "mesh/actions/CInitFieldFunction.hpp"
+//#include "mesh/actions/InitFieldFunction.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
 //#include "Solver/CModelUnsteady.hpp"
 //#include "Solver/CSolver.hpp"
 //#include "Solver/CPhysicalModel.hpp"
-//#include "mesh/actions/CBuildFaces.hpp"
-//#include "mesh/actions/CBuildVolume.hpp"
+//#include "mesh/actions/BuildFaces.hpp"
+//#include "mesh/actions/BuildVolume.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
 //#include "SFDM/CreateSpace.hpp"
 
@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  model.time().configure_option("time_step",5.);
 
 //  /// Initialize solution field with the function sin(2*pi*x)
-//  Actions::CInitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::CInitFieldFunction>("init_field");
+//  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
 //  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
 //  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";

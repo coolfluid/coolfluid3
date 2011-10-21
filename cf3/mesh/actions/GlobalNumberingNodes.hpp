@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CGlobalNumbering_hpp
-#define cf3_mesh_actions_CGlobalNumbering_hpp
+#ifndef cf3_mesh_actions_GlobalNumberingNodes_hpp
+#define cf3_mesh_actions_GlobalNumberingNodes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,28 +27,28 @@ namespace actions {
 /// of the nodes, and all vertex coordinates of the elements.
 /// After numbering the nodes and elements will share the global numbering
 /// table given an example with 30 nodes and 30 elements on 3 processes
-/// proc 1:   nodes [ 0 -> 10]   elems [11 -> 20]
-/// proc 2:   nodes [21 -> 30]   elems [31 -> 40]
-/// proc 3:   nodes [41 -> 50]   elems [51 -> 60]
+/// proc 1:   nodes [ 0 ->  9]
+/// proc 2:   nodes [10 -> 19]
+/// proc 3:   nodes [20 -> 29]
 /// Through the numbering the process it belongs to can be identified:
-/// - id 57 must belong to process 3
-/// - id 25 must belong to process 2
+/// - id 25 must belong to process 3
+/// - id 11 must belong to process 2
 /// - ...
 /// @author Willem Deconinck
-class mesh_actions_API CGlobalNumbering : public MeshTransformer
+class mesh_actions_API GlobalNumberingNodes : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CGlobalNumbering> Ptr;
-    typedef boost::shared_ptr<CGlobalNumbering const> ConstPtr;
+    typedef boost::shared_ptr<GlobalNumberingNodes> Ptr;
+    typedef boost::shared_ptr<GlobalNumberingNodes const> ConstPtr;
 
 public: // functions
 
   /// constructor
-  CGlobalNumbering( const std::string& name );
+  GlobalNumberingNodes( const std::string& name );
 
   /// Gets the Class name
-  static std::string type_name() { return "CGlobalNumbering"; }
+  static std::string type_name() { return "GlobalNumberingNodes"; }
 
   virtual void execute();
 
@@ -58,14 +58,12 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-public: // functions
+private: // functions
 
-  static std::size_t hash_value(const RealMatrix& coords);
-
-private: // data
+  std::size_t hash_value(const RealVector& coords);
 
   bool m_debug;
-}; // end CGlobalNumbering
+}; // end GlobalNumberingNodes
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -76,4 +74,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CGlobalNumbering_hpp
+#endif // cf3_mesh_actions_GlobalNumberingNodes_hpp

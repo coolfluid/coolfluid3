@@ -16,7 +16,7 @@
 
 #include "RDM/Tags.hpp"
 
-//#include "mesh/actions/CInitFieldFunction.hpp"
+//#include "mesh/actions/InitFieldFunction.hpp"
 
 #include "Physics/PhysModel.hpp"
 

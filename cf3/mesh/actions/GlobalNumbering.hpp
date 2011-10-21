@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CGlobalNumberingElementsElements_hpp
-#define cf3_mesh_actions_CGlobalNumberingElementsElements_hpp
+#ifndef cf3_mesh_actions_GlobalNumbering_hpp
+#define cf3_mesh_actions_GlobalNumbering_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,29 +26,29 @@ namespace actions {
 /// Global numbers are created using a hash based on the coordinates
 /// of the nodes, and all vertex coordinates of the elements.
 /// After numbering the nodes and elements will share the global numbering
-/// table given an example for 30 elements on 3 processes
-/// proc 1:   elems [ 0 -> 9]
-/// proc 2:   elems [10 -> 19]
-/// proc 3:   nodes [20 -> 29]
+/// table given an example with 30 nodes and 30 elements on 3 processes
+/// proc 1:   nodes [ 0 -> 10]   elems [11 -> 20]
+/// proc 2:   nodes [21 -> 30]   elems [31 -> 40]
+/// proc 3:   nodes [41 -> 50]   elems [51 -> 60]
 /// Through the numbering the process it belongs to can be identified:
-/// - id 25 must belong to process 3
-/// - id 12 must belong to process 2
+/// - id 57 must belong to process 3
+/// - id 25 must belong to process 2
 /// - ...
 /// @author Willem Deconinck
-class mesh_actions_API CGlobalNumberingElements : public MeshTransformer
+class mesh_actions_API GlobalNumbering : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CGlobalNumberingElements> Ptr;
-    typedef boost::shared_ptr<CGlobalNumberingElements const> ConstPtr;
+    typedef boost::shared_ptr<GlobalNumbering> Ptr;
+    typedef boost::shared_ptr<GlobalNumbering const> ConstPtr;
 
 public: // functions
 
   /// constructor
-  CGlobalNumberingElements( const std::string& name );
+  GlobalNumbering( const std::string& name );
 
   /// Gets the Class name
-  static std::string type_name() { return "CGlobalNumberingElements"; }
+  static std::string type_name() { return "GlobalNumbering"; }
 
   virtual void execute();
 
@@ -58,12 +58,14 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-private: // functions
+public: // functions
 
-  std::size_t hash_value(const RealMatrix& coords);
+  static std::size_t hash_value(const RealMatrix& coords);
+
+private: // data
 
   bool m_debug;
-}; // end CGlobalNumberingElements
+}; // end GlobalNumbering
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,4 +76,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CGlobalNumberingElements_hpp
+#endif // cf3_mesh_actions_GlobalNumbering_hpp

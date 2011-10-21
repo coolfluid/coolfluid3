@@ -4,12 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CInfo_hpp
-#define cf3_mesh_actions_CInfo_hpp
+#ifndef cf3_mesh_actions_BuildFaceNormals_hpp
+#define cf3_mesh_actions_BuildFaceNormals_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshTransformer.hpp"
+
 #include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -17,28 +18,26 @@
 namespace cf3 {
 namespace mesh {
 namespace actions {
-
+  
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CInfo : public MeshTransformer
+class mesh_actions_API BuildFaceNormals : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CInfo> Ptr;
-    typedef boost::shared_ptr<CInfo const> ConstPtr;
+    typedef boost::shared_ptr<BuildFaceNormals> Ptr;
+    typedef boost::shared_ptr<BuildFaceNormals const> ConstPtr;
 
-private: // typedefs
-  
 public: // functions
   
   /// constructor
-  CInfo( const std::string& name );
+  BuildFaceNormals( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CInfo"; }
+  static std::string type_name() { return "BuildFaceNormals"; }
 
   virtual void execute();
   
@@ -48,12 +47,8 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
   
-private: // functions
- 
-  std::string print_region_tree(const Region& region, Uint level=0);
-  std::string print_elements(const Component& region, Uint level=0);
-  
-}; // end CInfo
+  enum {FIRST=0};
+}; // end BuildFaceNormals
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,4 +59,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CInfo_hpp
+#endif // cf3_mesh_actions_BuildFaceNormals_hpp

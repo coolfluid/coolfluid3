@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 BOOST_AUTO_TEST_CASE( test_arguments )
 {
-  MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
   
   std::vector<std::string> args;
   args.push_back("variable:bool=true");

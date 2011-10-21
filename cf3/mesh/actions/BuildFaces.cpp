@@ -13,7 +13,7 @@
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/OptionT.hpp"
-#include "mesh/actions/CBuildFaces.hpp"
+#include "mesh/actions/BuildFaces.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshElements.hpp"
@@ -35,11 +35,11 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaces, MeshTransformer, mesh::actions::LibActions> CBuildFaces_Builder;
+common::ComponentBuilder < BuildFaces, MeshTransformer, mesh::actions::LibActions> BuildFaces_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CBuildFaces::CBuildFaces( const std::string& name )
+BuildFaces::BuildFaces( const std::string& name )
 : MeshTransformer(name),
   m_store_cell2face(false)
 {
@@ -61,7 +61,7 @@ CBuildFaces::CBuildFaces( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CBuildFaces::brief_description() const
+std::string BuildFaces::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -69,7 +69,7 @@ std::string CBuildFaces::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CBuildFaces::help() const
+std::string BuildFaces::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
@@ -77,7 +77,7 @@ std::string CBuildFaces::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::execute()
+void BuildFaces::execute()
 {
   // traverse regions and make interface region between connected regions recursively
   //make_interfaces(m_mesh);
@@ -96,7 +96,7 @@ void CBuildFaces::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::make_interfaces(Component& parent)
+void BuildFaces::make_interfaces(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
     is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<Region>() ) );
@@ -150,7 +150,7 @@ void CBuildFaces::make_interfaces(Component& parent)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
+void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
     is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<Region>() ) );
@@ -178,7 +178,7 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::build_faces_bottom_up(Component& parent)
+void BuildFaces::build_faces_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
     is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<Region>() ) );
@@ -232,7 +232,7 @@ void CBuildFaces::build_faces_bottom_up(Component& parent)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_to_cell, bool is_inner)
+void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_to_cell, bool is_inner)
 {
   Mesh& mesh = *m_mesh.lock();
   std::set<std::string> face_types;
@@ -325,7 +325,7 @@ void CBuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FaceCellConnectivity::Ptr CBuildFaces::match_faces(Region& region1, Region& region2)
+FaceCellConnectivity::Ptr BuildFaces::match_faces(Region& region1, Region& region2)
 {
   Mesh& mesh = *m_mesh.lock();
   // interface connectivity
@@ -462,7 +462,7 @@ FaceCellConnectivity::Ptr CBuildFaces::match_faces(Region& region1, Region& regi
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
+void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 {
   Mesh& mesh = *m_mesh.lock();
   // unified face-cell-connectivity
@@ -639,7 +639,7 @@ void CBuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CBuildFaces::build_cell_face_connectivity(Component& parent)
+void BuildFaces::build_cell_face_connectivity(Component& parent)
 {
   Component::Ptr cells;
   Uint cell_idx;

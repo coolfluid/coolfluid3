@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CInitFieldConstant_hpp
-#define cf3_mesh_CInitFieldConstant_hpp
+#ifndef cf3_mesh_InitFieldFunction_hpp
+#define cf3_mesh_InitFieldFunction_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,36 +27,37 @@ namespace actions {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CInitFieldConstant : public MeshTransformer
+class mesh_actions_API InitFieldFunction : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CInitFieldConstant> Ptr;
-    typedef boost::shared_ptr<CInitFieldConstant const> ConstPtr;
+    typedef boost::shared_ptr<InitFieldFunction> Ptr;
+    typedef boost::shared_ptr<InitFieldFunction const> ConstPtr;
 
 public: // functions
   
   /// constructor
-  CInitFieldConstant( const std::string& name );
+  InitFieldFunction( const std::string& name );
+  
+  /// destructor
+  virtual ~InitFieldFunction();
   
   /// Gets the Class name
-  static std::string type_name() { return "CInitFieldConstant"; }
+  static std::string type_name() { return "InitFieldFunction"; }
 
   virtual void execute();
-  
-  /// brief description, typically one line
-  virtual std::string brief_description() const;
-  
-  /// extended help that user can query
-  virtual std::string help() const;
+
+private: // functions
+
+  void config_function();
 
 private: // data
-
-  Real m_constant;
-
+  
+  math::VectorialFunction  m_function;
+  
   boost::weak_ptr<Field> m_field;
   
-}; // end CInitFieldConstant
+}; // end InitFieldFunction
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -67,4 +68,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CInitFieldConstant_hpp
+#endif // cf3_mesh_InitFieldFunction_hpp

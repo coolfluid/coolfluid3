@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests mesh::actions::CGlobalConnectivity"
+#define BOOST_TEST_MODULE "Tests mesh::actions::GlobalConnectivity"
 
 #include <boost/test/unit_test.hpp>
 
@@ -31,17 +31,17 @@ using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct TestCGlobalConnectivity_Fixture
+struct TestGlobalConnectivity_Fixture
 {
   /// common setup for each test case
-  TestCGlobalConnectivity_Fixture()
+  TestGlobalConnectivity_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~TestCGlobalConnectivity_Fixture()
+  ~TestGlobalConnectivity_Fixture()
   {
   }
 
@@ -54,11 +54,11 @@ struct TestCGlobalConnectivity_Fixture
   static Mesh::Ptr mesh;
 };
 
-Mesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Mesh::Ptr TestGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( TestCGlobalConnectivity_TestSuite, TestCGlobalConnectivity_Fixture )
+BOOST_FIXTURE_TEST_SUITE( TestGlobalConnectivity_TestSuite, TestGlobalConnectivity_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CMatchNodes_hpp
-#define cf3_mesh_actions_CMatchNodes_hpp
+#ifndef cf3_mesh_actions_BuildVolume_hpp
+#define cf3_mesh_actions_BuildVolume_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/MatrixTypes.hpp"
 #include "mesh/MeshTransformer.hpp"
+
 #include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -22,22 +22,22 @@ namespace actions {
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
-/// that finds matching nodes in given regions of the mesh
+/// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CMatchNodes : public MeshTransformer
+class mesh_actions_API BuildVolume : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CMatchNodes> Ptr;
-    typedef boost::shared_ptr<CMatchNodes const> ConstPtr;
+    typedef boost::shared_ptr<BuildVolume> Ptr;
+    typedef boost::shared_ptr<BuildVolume const> ConstPtr;
 
 public: // functions
   
   /// constructor
-  CMatchNodes( const std::string& name );
+  BuildVolume( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CMatchNodes"; }
+  static std::string type_name() { return "BuildVolume"; }
 
   virtual void execute();
   
@@ -47,11 +47,7 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
   
-private: // functions
-  
-  std::size_t hash_value(const RealVector3& coords);
-
-}; // end CMatchNodes
+}; // end BuildVolume
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,4 +58,4 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMatchNodes_hpp
+#endif // cf3_mesh_BuildVolume_hpp

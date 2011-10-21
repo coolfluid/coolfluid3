@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CGlobalConnectivity_hpp
-#define cf3_mesh_actions_CGlobalConnectivity_hpp
+#ifndef cf3_mesh_actions_Extract_hpp
+#define cf3_mesh_actions_Extract_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/MatrixTypes.hpp"
 #include "mesh/MeshTransformer.hpp"
+
 #include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -18,28 +18,28 @@
 namespace cf3 {
 namespace mesh {
 namespace actions {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
-/// that finds matching nodes in given regions of the mesh
+/// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CGlobalConnectivity : public MeshTransformer
+class mesh_actions_API Extract : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CGlobalConnectivity> Ptr;
-    typedef boost::shared_ptr<CGlobalConnectivity const> ConstPtr;
+    typedef boost::shared_ptr<Extract> Ptr;
+    typedef boost::shared_ptr<Extract const> ConstPtr;
 
+private: // typedefs
+  
 public: // functions
   
   /// constructor
-  CGlobalConnectivity( const std::string& name );
-  
-  virtual ~CGlobalConnectivity();
+  Extract( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CGlobalConnectivity"; }
+  static std::string type_name() { return "Extract"; }
 
   virtual void execute();
   
@@ -49,8 +49,7 @@ public: // functions
   /// extended help that user can query
   virtual std::string help() const;
 
-
-}; // end CGlobalConnectivity
+}; // end Extract
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,4 +60,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CGlobalConnectivity_hpp
+#endif // cf3_mesh_actions_Extract_hpp

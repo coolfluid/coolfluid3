@@ -15,7 +15,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "mesh/actions/CInfo.hpp"
+#include "mesh/actions/Info.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -53,11 +53,11 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInfo, MeshTransformer, mesh::actions::LibActions> CInfo_Builder;
+common::ComponentBuilder < Info, MeshTransformer, mesh::actions::LibActions> Info_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-CInfo::CInfo( const std::string& name )
+Info::Info( const std::string& name )
 : MeshTransformer(name)
 {
 
@@ -72,7 +72,7 @@ CInfo::CInfo( const std::string& name )
 
 /////////////////////////////////////////////////////////////////////////////
 
-std::string CInfo::brief_description() const
+std::string Info::brief_description() const
 {
   return properties().value<std::string>("brief");
 }
@@ -80,7 +80,7 @@ std::string CInfo::brief_description() const
 /////////////////////////////////////////////////////////////////////////////
 
 
-std::string CInfo::help() const
+std::string Info::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
@@ -88,7 +88,7 @@ std::string CInfo::help() const
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CInfo::execute()
+void Info::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();
@@ -112,7 +112,7 @@ void CInfo::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CInfo::print_region_tree(const Region& region, Uint level)
+std::string Info::print_region_tree(const Region& region, Uint level)
 {
   std::string tree;
 
@@ -131,7 +131,7 @@ std::string CInfo::print_region_tree(const Region& region, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CInfo::print_elements(const Component& region, Uint level)
+std::string Info::print_elements(const Component& region, Uint level)
 {
   std::string tree;
   boost_foreach( const Entities& elements_region, find_components<Entities>(region))

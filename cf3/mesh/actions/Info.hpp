@@ -4,22 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CInitFieldFunction_hpp
-#define cf3_mesh_CInitFieldFunction_hpp
+#ifndef cf3_mesh_actions_Info_hpp
+#define cf3_mesh_actions_Info_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/VectorialFunction.hpp"
-
 #include "mesh/MeshTransformer.hpp"
-
 #include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh { 
-  class Field;
+namespace mesh {
 namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,37 +23,37 @@ namespace actions {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CInitFieldFunction : public MeshTransformer
+class mesh_actions_API Info : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CInitFieldFunction> Ptr;
-    typedef boost::shared_ptr<CInitFieldFunction const> ConstPtr;
+    typedef boost::shared_ptr<Info> Ptr;
+    typedef boost::shared_ptr<Info const> ConstPtr;
 
+private: // typedefs
+  
 public: // functions
   
   /// constructor
-  CInitFieldFunction( const std::string& name );
-  
-  /// destructor
-  virtual ~CInitFieldFunction();
+  Info( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CInitFieldFunction"; }
+  static std::string type_name() { return "Info"; }
 
   virtual void execute();
-
+  
+  /// brief description, typically one line
+  virtual std::string brief_description() const;
+  
+  /// extended help that user can query
+  virtual std::string help() const;
+  
 private: // functions
-
-  void config_function();
-
-private: // data
+ 
+  std::string print_region_tree(const Region& region, Uint level=0);
+  std::string print_elements(const Component& region, Uint level=0);
   
-  math::VectorialFunction  m_function;
-  
-  boost::weak_ptr<Field> m_field;
-  
-}; // end CInitFieldFunction
+}; // end Info
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,4 +64,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CInitFieldFunction_hpp
+#endif // cf3_mesh_actions_Info_hpp

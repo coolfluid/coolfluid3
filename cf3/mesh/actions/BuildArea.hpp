@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_actions_CExtract_hpp
-#define cf3_mesh_actions_CExtract_hpp
+#ifndef cf3_mesh_actions_BuildArea_hpp
+#define cf3_mesh_actions_BuildArea_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,28 +18,26 @@
 namespace cf3 {
 namespace mesh {
 namespace actions {
-
+  
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class mesh_actions_API CExtract : public MeshTransformer
+class mesh_actions_API BuildArea : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CExtract> Ptr;
-    typedef boost::shared_ptr<CExtract const> ConstPtr;
+    typedef boost::shared_ptr<BuildArea> Ptr;
+    typedef boost::shared_ptr<BuildArea const> ConstPtr;
 
-private: // typedefs
-  
 public: // functions
   
   /// constructor
-  CExtract( const std::string& name );
+  BuildArea( const std::string& name );
   
   /// Gets the Class name
-  static std::string type_name() { return "CExtract"; }
+  static std::string type_name() { return "BuildArea"; }
 
   virtual void execute();
   
@@ -48,8 +46,8 @@ public: // functions
   
   /// extended help that user can query
   virtual std::string help() const;
-
-}; // end CExtract
+  
+}; // end BuildArea
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -60,4 +58,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_actions_CExtract_hpp
+#endif // cf3_mesh_actions_BuildArea_hpp

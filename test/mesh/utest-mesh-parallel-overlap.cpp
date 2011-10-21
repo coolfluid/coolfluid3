@@ -312,9 +312,9 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   Core::instance().root().add_component(mesh);
 
   //build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingElements","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
   Geometry& nodes = mesh.geometry();
@@ -397,13 +397,13 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   CFinfo << "Global Numbering..." << CFendl;
 //  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering");
 //  glb_numbering->configure_option("debug",true);
   glb_numbering->transform(mesh);
   CFinfo << "Global Numbering... done" << CFendl;
 
   CFinfo << "Global Connectivity..." << CFendl;
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
   CFinfo << "Global Connectivity... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
@@ -422,8 +422,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // RENUMBER NODES AND ELEMENTS SEPARATELY
 
- // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
- // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+ // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+ // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 
   // -----------------------------------------------------------------------------
   // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
@@ -440,12 +440,12 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 //  CFinfo << "Global Numbering..." << CFendl;
 //  glb_numbering->transform(mesh);
-//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
-//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 //  CFinfo << "Global Numbering... done" << CFendl;
 //  CFinfo << "Global Connectivity..." << CFendl;
-//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
 //  CFinfo << "Global Connectivity... done" << CFendl;
 
   std::set<Uint> debug_nodes;

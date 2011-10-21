@@ -14,8 +14,8 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/actions/CBuildFaces.hpp"
-#include "mesh/actions/CGlobalNumbering.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/GlobalNumbering.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -45,13 +45,13 @@ PrepareMesh::PrepareMesh ( const std::string& name ) :
 {
   mark_basic();
 
-  CBuildFaces::Ptr build_faces ( allocate_component<CBuildFaces>("build_inner_faces") );
+  BuildFaces::Ptr build_faces ( allocate_component<BuildFaces>("build_inner_faces") );
   build_faces->configure_option("store_cell2face",true);
 
   append( build_faces );
 
   // renumber elements because of the faces (not strictly necessary)
-  // append( allocate_component<CGlobalNumbering>("glb_numbering") );
+  // append( allocate_component<GlobalNumbering>("glb_numbering") );
 
   append( allocate_component<CreateSFDFields>("create_sfd_fields") );
 }
