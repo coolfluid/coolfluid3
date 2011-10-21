@@ -12,7 +12,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/Foreach.hpp"

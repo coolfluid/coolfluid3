@@ -126,7 +126,7 @@ void compare_ranges(const RangeT& a, const RangeT& b, Accumulator& accumulator)
   range_test(a.begin(), a.end(), b.begin(), b.end(), accumulator);
 }
 
-bool diff(const mesh::CMesh& a, const mesh::CMesh& b, const Uint max_ulps)
+bool diff(const mesh::Mesh& a, const mesh::Mesh& b, const Uint max_ulps)
 {
   Accumulator accumulator;
   accumulator.max_ulps = max_ulps;

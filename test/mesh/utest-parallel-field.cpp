@@ -14,7 +14,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/Foreach.hpp"
@@ -25,15 +25,15 @@
 #include "common/PE/CommWrapperMArray.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshGenerator.hpp"
-#include "mesh/CMeshPartitioner.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshGenerator.hpp"
+#include "mesh/MeshPartitioner.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/CSpace.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -105,29 +105,29 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_option("nb_cells",nb_cells);
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",false);
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 #endif
 
 #ifdef NEU
-  CMeshReader::Ptr meshreader =
-      build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
-  CMesh& mesh = *mesh_ptr;
+  MeshReader::Ptr meshreader =
+      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
+  Mesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
-  CMeshReader::Ptr meshreader =
-      build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
-  CMesh& mesh = *mesh_ptr;
+  MeshReader::Ptr meshreader =
+      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  Mesh& mesh = *mesh_ptr;
 #endif
 
 
   Core::instance().root().add_component(mesh);
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
 
- // Core::instance().tools().get_child("LoadBalancer").as_type<CMeshTransformer>().transform(mesh);
+ // Core::instance().tools().get_child("LoadBalancer").as_type<MeshTransformer>().transform(mesh);
 
   // create a field and assign it to the comm pattern
 
@@ -197,8 +197,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   fields.push_back(elem_rank.as_ptr<Field>());
   fields.push_back(glb_node_idx.as_ptr<Field>());
 
-  CMeshWriter::Ptr tec_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+  MeshWriter::Ptr tec_writer =
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
 
   tec_writer->set_fields(fields);
   tec_writer->configure_option("cell_centred",true);
@@ -206,8 +206,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
 
-  CMeshWriter::Ptr msh_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","msh_writer");
+  MeshWriter::Ptr msh_writer =
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","msh_writer");
 
   msh_writer->set_fields(fields);
   msh_writer->write_from_to(mesh,"parallel_fields.msh");
@@ -224,14 +224,14 @@ BOOST_AUTO_TEST_CASE( minitest )
   CFinfo << "ParallelFields_test" << CFendl;
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   meshgenerator->configure_option("bdry",false);
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
 
   // create a field and assign it to the comm pattern
 

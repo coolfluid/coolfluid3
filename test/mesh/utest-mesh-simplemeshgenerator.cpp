@@ -11,13 +11,13 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshGenerator.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshGenerator.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/CDynTable.hpp"
 #include "mesh/CList.hpp"
@@ -70,12 +70,12 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 {
 
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 
 
   CFinfo << "elements count = " << mesh.topology().recursive_elements_count() << CFendl;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   Uint nb_ghosts=0;
 
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,"line.msh");
 
   BOOST_CHECK(true);
@@ -107,12 +107,12 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 {
 
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
   meshgenerator->configure_option("lengths",std::vector<Real>(2,2.));
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 
 
   CFinfo << "elements count = " << mesh.topology().recursive_elements_count() << CFendl;
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   Uint nb_ghosts=0;
 
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,"rect.msh");
 
   BOOST_CHECK(true);

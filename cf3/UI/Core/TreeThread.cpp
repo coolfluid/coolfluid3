@@ -73,7 +73,7 @@ void TreeThread::run()
 {
   m_root = NRoot::Ptr(new NRoot(CLIENT_ROOT));
 
-  CRoot::Ptr realRoot = m_root->root();
+  Root::Ptr realRoot = m_root->root();
 
   NLog::Ptr log(new NLog());
   NBrowser::Ptr browser(new NBrowser());
@@ -142,7 +142,7 @@ void TreeThread::newSignal(common::XML::XmlDoc::Ptr doc)
 
     try
     {
-      CRoot::Ptr realRoot = root()->root();
+      Root::Ptr realRoot = root()->root();
       SignalFrame frame(nodeToProcess);
 
       if(realRoot->uri().path() == URI(receiver).path())

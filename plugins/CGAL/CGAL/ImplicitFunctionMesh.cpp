@@ -43,7 +43,7 @@ CGReal SphereFunction::operator()(const Point& p) const {
 
 /// Converts a CGAL mesh to a coolfluid mesh
 template<typename TriangulationComplexT>
-void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
+void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   // Map CGAL vertex handles to coolfluid point indices
   typedef ::CGAL::Unique_hash_map<typename TriangulationComplexT::Vertex_handle,Uint,::CGAL::Handle_hash_function> VertexMapT;
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
@@ -88,7 +88,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, CMesh& mesh) {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Implementation is heavily based on the CGAL example
-void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters) {
+void create_mesh(const ImplicitFunction& function, Mesh& mesh, const MeshParameters parameters) {
   // Domain type
   typedef ::CGAL::Implicit_mesh_domain_3<ImplicitFunction const,KernelT> MeshDomainT;
 

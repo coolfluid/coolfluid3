@@ -16,7 +16,7 @@
 
 namespace cf3 {
 
-namespace mesh { class CDomain; class CMesh; class FieldManager; }
+namespace mesh { class CDomain; class Mesh; class FieldManager; }
 namespace Physics { class PhysModel; }
 
 namespace Solver {
@@ -52,9 +52,9 @@ public: // functions
   static std::string type_name () { return "CSolver"; }
 
   /// Called when a mesh is loaded into the domain that is associated with this solver
-  virtual void mesh_loaded(mesh::CMesh& mesh);
+  virtual void mesh_loaded(mesh::Mesh& mesh);
   /// Called when a mesh is changed into the domain that is associated with this solver
-  virtual void mesh_changed(mesh::CMesh& mesh);
+  virtual void mesh_changed(mesh::Mesh& mesh);
 
   /// Access to the FieldManager, which is a static subcomponent of CSolver
   mesh::FieldManager& field_manager();

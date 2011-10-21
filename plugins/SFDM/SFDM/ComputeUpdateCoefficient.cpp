@@ -11,7 +11,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/CModel.hpp"

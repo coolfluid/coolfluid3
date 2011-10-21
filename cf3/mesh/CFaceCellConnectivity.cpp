@@ -20,8 +20,8 @@
 #include "mesh/CNodeElementConnectivity.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CCells.hpp"
 
@@ -91,7 +91,7 @@ void CFaceCellConnectivity::add_used (const Component& used_comp)
   if (found == false)
     m_used_components->create_component_ptr<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
 
-  m_mesh_elements = find_parent_component<CMesh>(used_comp).elements().as_non_const()->as_ptr<CMeshElements>();
+  m_mesh_elements = find_parent_component<Mesh>(used_comp).elements().as_non_const()->as_ptr<MeshElements>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -111,7 +111,7 @@ void CFaceCellConnectivity::build_connectivity()
   boost_foreach(Component::Ptr cells, used() )
   {
     //CFinfo << "  " << cells->uri().path() << CFendl;
-    cf3_assert_desc("Must call CMesh::elements().update() to add the elements ["+cells->uri().path()+"] in the elements registry",
+    cf3_assert_desc("Must call Mesh::elements().update() to add the elements ["+cells->uri().path()+"] in the elements registry",
       m_mesh_elements->contains(*cells));
   }
 
@@ -120,7 +120,7 @@ void CFaceCellConnectivity::build_connectivity()
   CTable<Uint>::Buffer f2c = m_connectivity->create_buffer();
   CTable<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
   CList<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
-  Geometry& nodes = find_parent_component<CMesh>(*used()[0]).geometry();
+  Geometry& nodes = find_parent_component<Mesh>(*used()[0]).geometry();
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
   std::vector<Uint> face_nodes;  face_nodes.reserve(100);

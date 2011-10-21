@@ -12,7 +12,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "common/PE/all_reduce.hpp"
@@ -22,11 +22,11 @@
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
@@ -92,8 +92,8 @@ struct ProtoParallelFixture :
     CDomain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
-    CMesh& mesh = dom.create_component<CMesh>("mesh");
-    CMesh& serial_block_mesh = dom.create_component<CMesh>("serial_block_mesh"); // temporary mesh used for paralellization
+    Mesh& mesh = dom.create_component<Mesh>("mesh");
+    Mesh& serial_block_mesh = dom.create_component<Mesh>("serial_block_mesh"); // temporary mesh used for paralellization
 
     const Real ratio = 0.1;
 
@@ -117,7 +117,7 @@ struct ProtoParallelFixture :
     return model;
   }
 
-  CRoot& root;
+  Root& root;
   const Real length;
   const Real half_height;
   const Real width;
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
   const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
   CModel& model = setup("NoOverlap");
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
 
@@ -183,7 +183,7 @@ BOOST_FIXTURE_TEST_CASE( SimulateNoOverlap, ProtoParallelFixture )
 BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
 {
   CModel& model = setup("Overlap");
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
   const Real rank = static_cast<Real>(PE::Comm::instance().rank());
 
@@ -213,25 +213,25 @@ BOOST_FIXTURE_TEST_CASE( SetupOverlap, ProtoParallelFixture )
 BOOST_FIXTURE_TEST_CASE( BuildGlobalConn, ProtoParallelFixture )
 {
   CModel& model = root.get_child("Overlap").as_type<CModel>();
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  CMeshTransformer& global_conn = model.domain().create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+  MeshTransformer& global_conn = model.domain().create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<MeshTransformer>();
   global_conn.transform(mesh);
 }
 
 BOOST_FIXTURE_TEST_CASE( GrowOverlap, ProtoParallelFixture )
 {
   CModel& model = root.get_child("Overlap").as_type<CModel>();
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  CMeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+  MeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<MeshTransformer>();
   grow_overlap.transform(mesh);
 }
 
 BOOST_FIXTURE_TEST_CASE( CreateOverlapFields, ProtoParallelFixture )
 {
   CModel& model = root.get_child("Overlap").as_type<CModel>();
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
   FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
@@ -253,7 +253,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
 
   const Real wanted_volume = width*length*half_height*2.;
 
-  CMesh& mesh = find_component_recursively_with_name<CMesh>(root.get_child("NoOverlap"), "mesh");
+  Mesh& mesh = find_component_recursively_with_name<Mesh>(root.get_child("NoOverlap"), "mesh");
   std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
   Real vol_check = 0;
   for_each_element< ElementsT >(mesh.topology(), vol_check += V);
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
   }
 
-  CMeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<CMeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);
@@ -282,7 +282,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
   std::cout << "wanted_volume: " << wanted_volume << ", nb_procs: " << nb_procs << ", x_segs: " << x_segs << std::endl;
   const Real wanted_volume_overlap = wanted_volume + (nb_procs-1)*2.*wanted_volume/x_segs;
 
-  CMesh& mesh = find_component_recursively_with_name<CMesh>(root.get_child("Overlap"), "mesh");
+  Mesh& mesh = find_component_recursively_with_name<Mesh>(root.get_child("Overlap"), "mesh");
   Real vol_check = 0;
   for_each_element< ElementsT >(mesh.topology(), vol_check += V);
 
@@ -293,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume_overlap, 1e-6);
   }
 
-  CMeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<CMeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);

@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/MatrixTypes.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace Actions {
 ///
 /// @post After this, the mesh is ready to be parallellized
 /// @author Willem Deconinck
-class Mesh_Actions_API LoadBalance : public CMeshTransformer
+class Mesh_Actions_API LoadBalance : public MeshTransformer
 {
 public: // typedefs
 
@@ -44,7 +44,7 @@ public: // functions
 
 private:
 
-  boost::shared_ptr<CMeshTransformer> m_partitioner;
+  boost::shared_ptr<MeshTransformer> m_partitioner;
 
 }; // end LoadBalance
 

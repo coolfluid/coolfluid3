@@ -17,14 +17,14 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/CLibraries.hpp"
 #include "common/Environment.hpp"
 
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/CCells.hpp"
@@ -80,8 +80,8 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
+  Root& root = Core::instance().root();
+  Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
   Core::instance().tools().get_child("LoadMesh").as_type<LoadMesh>().load_mesh_into("rotation-tg-p1.neu", *mesh);
@@ -110,8 +110,8 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
-  CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
+  Root& root = Core::instance().root();
+  Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
   Core::instance().tools().get_child("LoadMesh").as_type<LoadMesh>().load_mesh_into("rotation-tg-p1.neu", *mesh);
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   std::vector<URI> regions = list_of(mesh->topology().uri());
 
   // Create inner_faces
-  CMeshTransformer::Ptr facebuilder = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
+  MeshTransformer::Ptr facebuilder = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CBuildFaces","facebuilder");
   //facebuilder->transform(mesh);
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
   BOOST_CHECK_NO_THROW( face_loop->execute() );
 
-  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
   info->transform(mesh);
 
   //root.remove_component(*mesh);
@@ -142,8 +142,8 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
-  CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh2");
+  Root& root = Core::instance().root();
+  Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh2");
 
   // read mesh from file
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   fields.push_back(volumes.as_ptr<Field>());
   fields.push_back(field.as_ptr<Field>());
   fields.push_back(areas.as_ptr<Field>());
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
 
@@ -222,8 +222,8 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
-  CRoot& root = Core::instance().root();
-  CMesh::Ptr mesh = root.get_child_ptr("mesh2")->as_ptr<CMesh>();
+  Root& root = Core::instance().root();
+  Mesh::Ptr mesh = root.get_child_ptr("mesh2")->as_ptr<Mesh>();
 
 
   BOOST_CHECK(true);
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   std::vector<Field::Ptr> fields;
   fields.push_back(field.as_ptr<Field>());
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
 

@@ -11,7 +11,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/CGNS/CWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
@@ -27,12 +27,12 @@ namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGNS::CWriter, CMeshWriter, LibCGNS > aCGNSWriter_Builder;
+common::ComponentBuilder < CGNS::CWriter, MeshWriter, LibCGNS > aCGNSWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CWriter::CWriter( const std::string& name )
-: CMeshWriter(name),
+: MeshWriter(name),
   Shared()
 {
 
@@ -49,9 +49,9 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh& mesh, const URI& path)
+void CWriter::write_from_to(const Mesh& mesh, const URI& path)
 {
-  m_mesh = mesh.as_ptr_checked<CMesh>().get();
+  m_mesh = mesh.as_ptr_checked<Mesh>().get();
 
   m_fileBasename = path.base_name(); // filename without extension
 

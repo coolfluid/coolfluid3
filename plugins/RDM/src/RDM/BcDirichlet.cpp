@@ -13,7 +13,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CList.hpp"
 

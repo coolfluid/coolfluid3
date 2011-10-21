@@ -9,7 +9,7 @@
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
 
@@ -38,9 +38,9 @@ CSimpleSolver::~CSimpleSolver()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CSimpleSolver::mesh_loaded(CMesh& mesh)
+void CSimpleSolver::mesh_loaded(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
 
   // Update the dimensions on the physics
   physics().configure_option(common::Tags::dimension(), mesh.topology().geometry().dim());
@@ -48,7 +48,7 @@ void CSimpleSolver::mesh_loaded(CMesh& mesh)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh& CSimpleSolver::mesh()
+Mesh& CSimpleSolver::mesh()
 {
   if(m_mesh.expired())
     throw SetupError(FromHere(), "No mesh configured for " + uri().string());

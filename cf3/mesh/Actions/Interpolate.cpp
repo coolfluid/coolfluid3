@@ -11,7 +11,7 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Actions/Interpolate.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/Field.hpp"
@@ -31,12 +31,12 @@ using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Interpolate, CMeshTransformer, LibActions> Interpolate_Builder;
+common::ComponentBuilder < Interpolate, MeshTransformer, LibActions> Interpolate_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 Interpolate::Interpolate( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Interpolate Fields with matching support");
@@ -81,7 +81,7 @@ void Interpolate::execute()
                               "Field "+target.uri().string()+" has "+to_str(target.row_size())+" variables.");
   const Uint nb_vars(source.row_size());
 
-  if(find_parent_component_ptr<CMesh>(source) == find_parent_component_ptr<CMesh>(target))
+  if(find_parent_component_ptr<Mesh>(source) == find_parent_component_ptr<Mesh>(target))
   {
     /// Loop over Regions
     boost_foreach(CEntities& elements, target.entities_range())
@@ -149,7 +149,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
     target.resize(coordinates.size());
   }
 
-  const CMesh& source_mesh = find_parent_component<CMesh>(source);
+  const Mesh& source_mesh = find_parent_component<Mesh>(source);
 
   if ( is_null(m_octtree) )
     m_octtree = create_component_ptr<COcttree>("octtree");

@@ -15,7 +15,7 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/CLink.hpp"
 
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_SUITE( StaticSubComponent_TestSuite )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr cp = root->create_component_ptr< HolderT<Part> >( "myHolderT_Part" );
 

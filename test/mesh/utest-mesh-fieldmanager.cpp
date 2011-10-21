@@ -14,12 +14,12 @@
 #include "common/Log.hpp"
 #include "common/Environment.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/FieldManager.hpp"
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   Core::instance().environment().configure_option("exception_aborts",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
   Core::instance().environment().configure_option("exception_outputs",false);
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
   const std::string tag = "solution";
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 2u);
 
   // Test mesh
-  CMesh& mesh = root.create_component<CMesh>("mesh");
+  Mesh& mesh = root.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 10, 10);
 
   // FieldManager

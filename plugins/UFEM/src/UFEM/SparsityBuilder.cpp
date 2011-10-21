@@ -10,7 +10,7 @@
 
 #include "mesh/CRegion.hpp"
 #include "mesh/CCells.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
@@ -23,7 +23,7 @@ using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void build_sparsity(const CMesh& mesh, std::vector< Uint >& node_connectivity, std::vector< Uint >& start_indices)
+void build_sparsity(const Mesh& mesh, std::vector< Uint >& node_connectivity, std::vector< Uint >& start_indices)
 {
   const Uint nb_nodes = mesh.geometry().coordinates().size();
   std::vector< std::set<Uint> > connectivity_sets(nb_nodes);

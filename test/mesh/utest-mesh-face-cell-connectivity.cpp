@@ -12,16 +12,16 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/CSimpleMeshGenerator.hpp"
 #include "mesh/CFaceCellConnectivity.hpp"
 #include "mesh/ConnectivityData.hpp"
@@ -55,10 +55,10 @@ struct FaceCellConnectivity_Fixture //: public Testing::TimedTestFixture
 
 
   /// common values accessed by all tests goes here
-  static CMesh::Ptr m_mesh;
+  static Mesh::Ptr m_mesh;
 };
 
-CMesh::Ptr FaceCellConnectivity_Fixture::m_mesh;
+Mesh::Ptr FaceCellConnectivity_Fixture::m_mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_FIXTURE_TEST_SUITE( FaceCellConnectivity_TestSuite, FaceCellConnectivity_Fixture )
@@ -78,11 +78,11 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 {
 
  // create meshreader
- // CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+ // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
  // boost::filesystem::path fp_source ("quadtriag.neu");
  // m_mesh = meshreader->create_mesh_from(fp_source);
 
-  m_mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
+  m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
   Uint scale = 2;
   std::vector<Real> lengths  = list_of(4.)(2.);
   std::vector<Uint> nb_cells = list_of(scale*2u)(scale*2u);

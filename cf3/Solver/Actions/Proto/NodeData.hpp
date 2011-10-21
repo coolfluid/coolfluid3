@@ -17,7 +17,7 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CElements.hpp"
@@ -83,7 +83,7 @@ private:
 /// Helper function to find a field starting from a region
 inline mesh::Field& find_field(mesh::CRegion& region, const std::string& tag)
 {
-  mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(region);
+  mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
   mesh::FieldGroup& field_group =  mesh.geometry();
   return common::find_component_with_tag<mesh::Field>(field_group, tag);
 }

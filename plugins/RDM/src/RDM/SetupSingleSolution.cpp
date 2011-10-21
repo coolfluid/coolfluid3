@@ -15,7 +15,7 @@
 #include "mesh/CRegion.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -47,7 +47,7 @@ void SetupSingleSolution::execute()
   if(m_mesh.expired())
     throw SetupError(FromHere(), "SetupSingleSolution has no configured mesh in [" + uri().string() + "]" );
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   Group& fields = mysolver.fields();
 

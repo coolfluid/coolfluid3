@@ -8,7 +8,7 @@
 #define cf3_Tools_MeshGeneration_Tools_hpp
 
 #include "math/Consts.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
@@ -22,16 +22,16 @@ namespace MeshGeneration {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Create a 1D line mesh
-void MeshGeneration_API create_line(mesh::CMesh& mesh, const Real x_len, const Uint x_segments);
+void MeshGeneration_API create_line(mesh::Mesh& mesh, const Real x_len, const Uint x_segments);
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void MeshGeneration_API create_rectangle(mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle(mesh::Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Create a triangulated version of a 2D rectangular grid.
-void MeshGeneration_API create_rectangle_tris(mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle_tris(mesh::Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Creates a 2D circular arc
-void MeshGeneration_API create_circle_2d(mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*math::Consts::pi());
+void MeshGeneration_API create_circle_2d(mesh::Mesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*math::Consts::pi());
 
 /// Create block data for a 3D periodic channel (flow between infinite flat plates)
 /// @param length: Total distance between the streamwise periodic boundaries (X-direction)
@@ -57,11 +57,11 @@ struct MeshSourceGlobalFixture {
   }
 
   /// Returns a 2D square grid, with side MeshSize
-  static const mesh::CMesh& grid2()
+  static const mesh::Mesh& grid2()
   {
-    static mesh::CMesh::Ptr grid2D;
+    static mesh::Mesh::Ptr grid2D;
     if(!grid2D) {
-      grid2D = common::allocate_component<mesh::CMesh>("grid2D");
+      grid2D = common::allocate_component<mesh::Mesh>("grid2D");
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);
     }
     return *grid2D;

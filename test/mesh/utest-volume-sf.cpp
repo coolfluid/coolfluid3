@@ -20,7 +20,7 @@
 #include <boost/fusion/sequence/intrinsic/at_key.hpp>
 
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"

@@ -9,7 +9,7 @@
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "CGAL/LibCGAL.hpp"
 
@@ -83,7 +83,7 @@ MeshParameters() : facet_angle(30),
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Using the given implicit function delimiting a domain,
-CGAL_API void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParameters parameters=MeshParameters());
+CGAL_API void create_mesh(const ImplicitFunction& function, Mesh& mesh, const MeshParameters parameters=MeshParameters());
 
 ////////////////////////////////////////////////////////////////////////////////
 

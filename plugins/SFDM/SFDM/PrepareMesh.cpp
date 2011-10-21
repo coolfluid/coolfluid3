@@ -12,7 +12,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Actions/CBuildFaces.hpp"
 #include "mesh/Actions/CGlobalNumbering.hpp"

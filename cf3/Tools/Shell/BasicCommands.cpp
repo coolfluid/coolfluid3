@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
 #include "common/CBuilder.hpp"
@@ -51,7 +51,7 @@ BasicCommands::BasicCommands()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRoot::Ptr BasicCommands::tree_root = Core::instance().root().as_ptr<CRoot>();
+Root::Ptr BasicCommands::tree_root = Core::instance().root().as_ptr<Root>();
 
 Component::Ptr BasicCommands::current_component = BasicCommands::tree_root;
 

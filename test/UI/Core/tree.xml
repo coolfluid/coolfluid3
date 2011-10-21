@@ -1,4 +1,4 @@
-<node name="Root" atype="CRoot" mode="basic">
+<node name="Root" atype="Root" mode="basic">
 	<map>
 		<value key="properties">
 			<map>

@@ -39,8 +39,8 @@ list( APPEND coolfluid_common_files
     CFactory.cpp
     CFactories.hpp
     CFactories.cpp
-    CRoot.hpp
-    CRoot.cpp
+    Root.hpp
+    Root.cpp
     Group.hpp
     Group.cpp
     CJournal.cpp

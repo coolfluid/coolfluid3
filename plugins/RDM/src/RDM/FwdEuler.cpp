@@ -13,7 +13,7 @@
 #include "math/Checks.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/FwdEuler.hpp"

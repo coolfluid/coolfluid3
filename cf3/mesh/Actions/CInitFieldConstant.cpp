@@ -28,12 +28,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInitFieldConstant, CMeshTransformer, LibActions> CInitFieldConstant_Builder;
+common::ComponentBuilder < CInitFieldConstant, MeshTransformer, LibActions> CInitFieldConstant_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CInitFieldConstant::CInitFieldConstant( const std::string& name )
-: CMeshTransformer(name),
+: MeshTransformer(name),
   m_constant(0.)
 {
 

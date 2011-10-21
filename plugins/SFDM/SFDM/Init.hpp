@@ -16,7 +16,7 @@
 namespace cf3 {
 
 namespace Physics { class Variables; }
-namespace mesh    { class CMesh; class Field; }
+namespace mesh    { class Mesh; class Field; }
 
 namespace SFDM {
 

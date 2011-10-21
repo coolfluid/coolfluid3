@@ -6,7 +6,7 @@
 
 #include <QModelIndex>
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/Protocol.hpp"
@@ -70,7 +70,7 @@ void NLink::setTargetPath(const URI & path)
 
   if(!path.empty())
   {
-    CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->retrieve_component<CNode>(path);
+    CNode::Ptr target = boost::dynamic_pointer_cast<Root>(m_root.lock())->retrieve_component<CNode>(path);
     cf3_assert( is_not_null(target.get()) );
     this->setTargetNode(target);
   }

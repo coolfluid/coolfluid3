@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/CTable.hpp"
 
 #include "mesh/Neu/LibNeu.hpp"
@@ -28,7 +28,7 @@ namespace Neu {
 
 /// This class defines Neu mesh format writer
 /// @author Willem Deconinck
-class Neu_API CWriter : public CMeshWriter, public Shared
+class Neu_API CWriter : public MeshWriter, public Shared
 {
 
 public: // typedefs
@@ -47,7 +47,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh& mesh, const common::URI& path);
+  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
 
   virtual std::string get_format() { return "Neu"; }
 

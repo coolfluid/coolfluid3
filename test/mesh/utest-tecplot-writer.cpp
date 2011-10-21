@@ -11,15 +11,15 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/CList.hpp"
@@ -67,12 +67,12 @@ BOOST_FIXTURE_TEST_SUITE( TecWriterTests_TestSuite, TecWriterTests_Fixture )
 BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   meshreader->configure_option("read_groups",true);
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>( "mesh" );
+  Mesh& mesh = Core::instance().root().create_component<Mesh>( "mesh" );
 
   meshreader->read_mesh_into("quadtriag.neu",mesh);
 
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   fields.push_back(nodal.as_ptr<Field>());
   fields.push_back(cell_centred.as_ptr<Field>());
   fields.push_back(nodesP2.as_ptr<Field>());
-  CMeshWriter::Ptr tec_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
+  MeshWriter::Ptr tec_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
   tec_writer->configure_option("cell_centred",true);
   tec_writer->set_fields(fields);
   tec_writer->write_from_to(mesh,"quadtriag.plt");
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
   meshreader->configure_option("rank",(Uint) Comm::instance().rank());
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   boost::filesystem::path fp_in ("hextet.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   CFinfo.setFilterRankZero(true);
 
   boost::filesystem::path fp_out ("hextet.msh");
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK(true);
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
 
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   meshreader->configure_option("Repartition",true);
   meshreader->configure_option("OutputRank",(Uint) 0);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -184,12 +184,12 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   CFinfo.setFilterRankZero(true);
   CFinfo << mesh->tree() << CFendl;
   CFinfo << meshreader->tree() << CFendl;
-  CMeshTransformer::Ptr info  = build_component_abstract_type<CMeshTransformer>("Info","info");
+  MeshTransformer::Ptr info  = build_component_abstract_type<MeshTransformer>("Info","info");
   info->transform(mesh);
 
 
   boost::filesystem::path fp_out ("quadtriag_mult.msh");
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK_EQUAL(1,1);

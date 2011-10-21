@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 
 #include "mesh/CGNS/LibCGNS.hpp"
 #include "mesh/CGNS/Shared.hpp"
@@ -28,7 +28,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format writer
 /// @author Willem Deconinck
-class Mesh_CGNS_API CWriter : public CMeshWriter, public Shared
+class Mesh_CGNS_API CWriter : public MeshWriter, public Shared
 {
 
 public: // typedefs
@@ -49,7 +49,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh& mesh, const common::URI& path);
+  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
 
   virtual std::string get_format() { return "CGNS"; }
 

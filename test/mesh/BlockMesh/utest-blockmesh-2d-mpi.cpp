@@ -12,14 +12,14 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/Field.hpp"
@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
 
-  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
   
   CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
   domain.add_component(writer);
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::partition_blocks(blocks, nb_procs, XX, parallel_blocks);
 
   // Build the mesh
-  CMesh& mesh = domain.create_component<CMesh>("mesh");
+  Mesh& mesh = domain.create_component<Mesh>("mesh");
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks

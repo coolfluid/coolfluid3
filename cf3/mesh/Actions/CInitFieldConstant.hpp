@@ -11,7 +11,7 @@
 
 #include "math/VectorialFunction.hpp"
 
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/Actions/LibActions.hpp"
 
@@ -27,7 +27,7 @@ namespace Actions {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CInitFieldConstant : public CMeshTransformer
+class Mesh_Actions_API CInitFieldConstant : public MeshTransformer
 {
 public: // typedefs
 

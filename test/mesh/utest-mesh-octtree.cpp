@@ -16,20 +16,20 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 #include "common/CLink.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshGenerator.hpp"
+#include "mesh/MeshGenerator.hpp"
 #include "mesh/COcttree.hpp"
 #include "mesh/CStencilComputerOcttree.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
   // create meshreader
-  CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
+  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   mesh_generator->configure_option("part",0u);
   mesh_generator->configure_option("nb_parts",1u);
 
-  CMesh& mesh = mesh_generator->generate();
+  Mesh& mesh = mesh_generator->generate();
 
   COcttree& octtree = mesh.create_component<COcttree>("octtree");
 
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 
   CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerOcttree>("stencilcomputer");
-  stencil_computer->configure_option("mesh", find_component<CMesh>(Core::instance().root()).uri() );
+  stencil_computer->configure_option("mesh", find_component<Mesh>(Core::instance().root()).uri() );
 
   std::vector<Uint> stencil;
   stencil_computer->configure_option("stencil_size", 1u );
@@ -148,13 +148,13 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 BOOST_AUTO_TEST_CASE( Octtree_parallel )
 {
-  CMeshGenerator::Ptr mesh_generator = Core::instance().root().get_child("mesh_generator").as_ptr<CMeshGenerator>();
+  MeshGenerator::Ptr mesh_generator = Core::instance().root().get_child("mesh_generator").as_ptr<MeshGenerator>();
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"parallel_mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
   mesh_generator->configure_option("part",PE::Comm::instance().rank());
   mesh_generator->configure_option("nb_parts",PE::Comm::instance().size());
-  CMesh& mesh = mesh_generator->generate();
+  Mesh& mesh = mesh_generator->generate();
 
   COcttree& octtree = mesh.create_component<COcttree>("octtree");
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( Octtree_parallel )
   BOOST_CHECK_EQUAL(ranks[1] , 1u);
 
 
-//  CMeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+//  MeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
 //  gmsh_writer.write_from_to(mesh,"octtree.msh");
 }
 

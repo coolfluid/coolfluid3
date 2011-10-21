@@ -20,13 +20,13 @@
 #include "mesh/CFaces.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CList.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 
 #include "mesh/Actions/GrowOverlap.hpp"
 
@@ -41,7 +41,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < GrowOverlap, CMeshTransformer, LibActions> GrowOverlap_Builder;
+common::ComponentBuilder < GrowOverlap, MeshTransformer, LibActions> GrowOverlap_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -169,7 +169,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 ////////////////////////////////////////////////////////////////////////////////
 
 GrowOverlap::GrowOverlap( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Grows the overlap layer of the mesh");
@@ -187,7 +187,7 @@ GrowOverlap::GrowOverlap( const std::string& name )
 void GrowOverlap::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   Geometry& nodes = mesh.geometry();
 
   const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();

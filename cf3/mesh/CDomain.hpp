@@ -17,7 +17,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ public: // functions
 
   /// loads the mesh
   /// @post mesh will be (automatically) load balanced in case of parallel run
-  CMesh& load_mesh ( const common::URI& file, const std::string& name );
+  Mesh& load_mesh ( const common::URI& file, const std::string& name );
   
   /// write the active mesh
   void write_mesh(const common::URI& file);

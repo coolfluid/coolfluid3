@@ -18,7 +18,7 @@
 #include "mesh/CList.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -131,7 +131,7 @@ CElements& CRegion::elements(const std::string& name)
 
 Geometry& CRegion::geometry() const
 {
-  return find_parent_component<CMesh>(*this).geometry();
+  return find_parent_component<Mesh>(*this).geometry();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

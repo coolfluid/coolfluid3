@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/MeshPartitioner.hpp"
 #include "mesh/Zoltan/LibZoltan.hpp"
 
 namespace cf3 {
@@ -19,10 +19,10 @@ namespace Zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshPartitioner component class
+/// MeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class Zoltan_API CPartitioner : public CMeshPartitioner {
+class Zoltan_API CPartitioner : public MeshPartitioner {
 
 public: // typedefs
 

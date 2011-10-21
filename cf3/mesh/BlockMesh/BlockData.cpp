@@ -24,9 +24,9 @@
 #include "mesh/CCells.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshElements.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshElements.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/CRegion.hpp"
@@ -85,7 +85,7 @@ void BlockData::copy_to(BlockData& other) const
 namespace detail {
 
 /// Creates a mesh containing only the blocks
-void create_block_mesh_3d(const BlockData& block_data, CMesh& mesh, std::map<std::string, std::string>& patch_types)
+void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std::string, std::string>& patch_types)
 {
   const Uint nb_nodes = block_data.points.size();
 
@@ -143,7 +143,7 @@ void create_block_mesh_3d(const BlockData& block_data, CMesh& mesh, std::map<std
 }
 
 /// Creates a mesh containing only the blocks
-void create_block_mesh_2d(const BlockData& block_data, CMesh& mesh, std::map<std::string, std::string>& patch_types)
+void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std::string, std::string>& patch_types)
 {
   cf3_assert(block_data.dimension == 2);
 
@@ -791,7 +791,7 @@ void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterat
   }
 }
 
-void build_mesh_3d(BlockData& block_data, CMesh& mesh)
+void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 {
   common::Timer timer;
   const Uint nb_procs = PE::Comm::instance().size();
@@ -799,9 +799,9 @@ void build_mesh_3d(BlockData& block_data, CMesh& mesh)
   cf3_assert(block_data.block_distribution.size() == nb_procs+1);
 
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
-  // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
+  // The final mesh will in fact be a refinement of this mesh. Using a Mesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
+  Mesh& block_mesh = block_data.create_component<Mesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
@@ -1060,16 +1060,16 @@ void build_mesh_3d(BlockData& block_data, CMesh& mesh)
   }
 }
 
-void build_mesh_2d(BlockData& block_data, CMesh& mesh)
+void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 {
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
   cf3_assert(block_data.block_distribution.size() == nb_procs+1);
 
   // This is a "dummy" mesh, in which each element corresponds to a block in the blockMeshDict file.
-  // The final mesh will in fact be a refinement of this mesh. Using a CMesh allows us to use the
+  // The final mesh will in fact be a refinement of this mesh. Using a Mesh allows us to use the
   // coolfluid connectivity functions to determine inter-block connectivity and the relation to boundary patches.
-  CMesh& block_mesh = block_data.create_component<CMesh>("block_mesh");
+  Mesh& block_mesh = block_data.create_component<Mesh>("block_mesh");
   std::map<std::string, std::string> patch_types;
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
@@ -1283,7 +1283,7 @@ void build_mesh_2d(BlockData& block_data, CMesh& mesh)
 
 } // detail
 
-void build_mesh(BlockData& block_data, CMesh& mesh, const Uint overlap)
+void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 {
   if(block_data.dimension == 3)
     detail::build_mesh_3d(block_data, mesh);
@@ -1341,10 +1341,10 @@ void build_mesh(BlockData& block_data, CMesh& mesh, const Uint overlap)
 
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    CMeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<CMeshTransformer>();
+    MeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<MeshTransformer>();
     global_conn.transform(mesh);
 
-    CMeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<CMeshTransformer>();
+    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<MeshTransformer>();
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
@@ -1360,7 +1360,7 @@ void build_mesh(BlockData& block_data, CMesh& mesh, const Uint overlap)
 }
 
 
-void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
+void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
 {
   // Create a mesh for the serial blocks
   std::map<std::string, std::string> patch_types;
@@ -1667,7 +1667,7 @@ void partition_blocks_3d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   cf3_assert(blocks_out.dimension == 3);
 }
 
-void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
+void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out)
 {
   // Create a mesh for the serial blocks
   std::map<std::string, std::string> patch_types;
@@ -1962,7 +1962,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
 
 void partition_blocks(const cf3::mesh::BlockMesh::BlockData& blocks_in, const cf3::Uint nb_partitions, const cf3::CoordXYZ direction, cf3::mesh::BlockMesh::BlockData& blocks_out)
 {
-  CMesh& block_mesh = blocks_out.create_component<CMesh>("serial_block_mesh");
+  Mesh& block_mesh = blocks_out.create_component<Mesh>("serial_block_mesh");
 
   if(blocks_in.dimension == 3)
   {
@@ -1980,7 +1980,7 @@ void partition_blocks(const cf3::mesh::BlockMesh::BlockData& blocks_in, const cf
 
 
 
-void create_block_mesh(const BlockData& block_data, CMesh& mesh)
+void create_block_mesh(const BlockData& block_data, Mesh& mesh)
 {
   std::map<std::string, std::string> unused;
   if(block_data.dimension == 3)

@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Signal.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/LibCommon.hpp"
 #include "common/CBuilder.hpp"
 #include "common/Log.hpp"
@@ -113,7 +113,7 @@ BOOST_FIXTURE_TEST_SUITE( TestSignals_TestSuite, TestSignals_Fixture )
 
 BOOST_AUTO_TEST_CASE( simple_signal )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   CSmall::Ptr small_1  ( allocate_component<CSmall> ( "small-1" ) );
   CSmall::Ptr small_2  ( allocate_component<CSmall> ( "small-2" ) );

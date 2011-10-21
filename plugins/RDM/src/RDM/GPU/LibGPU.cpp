@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Group.hpp"
 
 #include "RDM/GPU/LibGPU.hpp"

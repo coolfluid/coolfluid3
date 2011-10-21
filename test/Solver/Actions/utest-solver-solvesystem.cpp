@@ -14,7 +14,7 @@
 #include "Solver/Actions/CSolveSystem.hpp"
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/CommWrapper.hpp"
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( TestSolveSystem )
 {
   Comm::instance().init(boost::unit_test::framework::master_test_suite().argc, boost::unit_test::framework::master_test_suite().argv);
   
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
   CSolveSystem& solve_action = root.create_component<CSolveSystem>("solve_action");
   LSS::System& lss = root.create_component<LSS::System>("LSS");
   CommPattern& cp = root.create_component<CommPattern>("commpattern");

@@ -17,7 +17,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Neu/CWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CRegion.hpp"
@@ -37,14 +37,14 @@ using namespace cf3::common;
 ////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < mesh::Neu::CWriter,
-                           mesh::CMeshWriter,
+                           mesh::MeshWriter,
                            mesh::Neu::LibNeu>
 aNeuWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CWriter::CWriter( const std::string& name )
-: CMeshWriter(name),
+: MeshWriter(name),
   Shared()
 {
 
@@ -61,9 +61,9 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
+void CWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<CMesh>().get();
+  m_mesh = mesh.as_ptr<Mesh>().get();
 
   // if the file is present open it
   boost::filesystem::fstream file;

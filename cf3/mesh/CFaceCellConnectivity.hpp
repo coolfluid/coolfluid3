@@ -10,7 +10,7 @@
 //#include "mesh/CElements.hpp"
 #include "mesh/CUnifiedData.hpp"
 #include "mesh/CTable.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -81,9 +81,9 @@ public:
 
   std::vector<Uint> face_nodes(const Uint face) const;
 
-  CMeshElements& lookup() { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
+  MeshElements& lookup() { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
-  const CMeshElements& lookup() const { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
+  const MeshElements& lookup() const { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
   std::vector<Component::Ptr> used();
 
@@ -105,7 +105,7 @@ private: // data
   // @todo make a CList<bool> (some bug prevents using CList<bool>::Buffer with CList<bool> )
   CList<bool>::Ptr m_is_bdry_face;
 
-  CMeshElements::Ptr m_mesh_elements;
+  MeshElements::Ptr m_mesh_elements;
 
   bool m_face_building_algorithm;
 

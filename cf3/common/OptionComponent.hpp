@@ -17,7 +17,7 @@
 #include "common/OptionURI.hpp"
 #include "common/Component.hpp"
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 
 #include "common/XML/Protocol.hpp"

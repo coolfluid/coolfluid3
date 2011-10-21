@@ -17,14 +17,14 @@
 
 #include "common/FindComponents.hpp"
 #include "common/CLink.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshGenerator.hpp"
+#include "mesh/MeshGenerator.hpp"
 #include "mesh/CStencilComputerRings.hpp"
 
 using namespace boost;
@@ -67,12 +67,12 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
 {
 
   // create meshreader
-  CMeshGenerator::Ptr mesh_generator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
+  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
-  CMesh& mesh = mesh_generator->generate();
+  Mesh& mesh = mesh_generator->generate();
 
   CStencilComputerRings::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerRings>("stencilcomputer");
   stencil_computer->configure_option("mesh", mesh.uri() );

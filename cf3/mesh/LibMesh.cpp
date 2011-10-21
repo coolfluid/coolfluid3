@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "common/RegistLibrary.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/LoadMesh.hpp"

@@ -13,7 +13,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "common/PE/debug.hpp"
 
@@ -63,7 +63,7 @@ struct ProtoHeatFixture
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
-  CRoot& root;
+  Root& root;
   std::string solver_config;
 
 };
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   model.create_physics("CF.Physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   blocks.block_distribution += 0, 1;
 
   BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
-  CMesh& serial_block_mesh = model.create_component<CMesh>("serial_block_mesh");
+  Mesh& serial_block_mesh = model.create_component<Mesh>("serial_block_mesh");
   BlockMesh::partition_blocks(blocks, PE::Comm::instance().size(), XX, parallel_blocks);
   BlockMesh::build_mesh(parallel_blocks, mesh, 1);
 

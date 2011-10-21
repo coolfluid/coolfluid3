@@ -11,13 +11,13 @@
 
 #include "common/Action.hpp"
 #include "common/URI.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 
 #include "mesh/LibMesh.hpp"
 
 namespace cf3 {
 namespace mesh {
-  class CMesh;
+  class Mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
@@ -54,11 +54,11 @@ public: // functions
 
   /// function to write the mesh
   /// @param fields selection of the fields of data to write
-  void write_mesh( const CMesh&, const common::URI& file, const std::vector<common::URI>& fields);
+  void write_mesh( const Mesh&, const common::URI& file, const std::vector<common::URI>& fields);
 
   /// function to write the mesh
   /// writes all the fields on the mesh
-  void write_mesh( const CMesh&, const common::URI& file);
+  void write_mesh( const Mesh&, const common::URI& file);
 
   virtual void execute();
 
@@ -69,9 +69,9 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<mesh::CMeshWriter::Ptr> > m_extensions_to_writers;
+  std::map<std::string,std::vector<mesh::MeshWriter::Ptr> > m_extensions_to_writers;
 
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
   common::URI m_file;
   std::vector<common::URI> m_fields;
 

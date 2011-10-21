@@ -27,7 +27,7 @@
 
 #include "mesh/CElements.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/Geometry.hpp"
@@ -243,7 +243,7 @@ private:
 /// Helper function to find a field starting from a region
 inline mesh::Field& find_field(mesh::CElements& elements, const std::string& tag)
 {
-  mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+  mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
   return common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
 }
 

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/CGNS/LibCGNS.hpp"
 #include "mesh/CGNS/Shared.hpp"
 
@@ -25,7 +25,7 @@ namespace CGNS {
 
 /// This class defines CGNS mesh format reader
 /// @author Willem Deconinck
-  class Mesh_CGNS_API CReader : public CMeshReader, public CGNS::Shared
+  class Mesh_CGNS_API CReader : public MeshReader, public CGNS::Shared
 {
 public: // typedefs
 
@@ -51,9 +51,9 @@ public: // functions
 
 private: // functions
 
-  virtual void do_read_mesh_into(const common::URI& fp, CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
-  void read_base(CMesh& parent_region);
+  void read_base(Mesh& parent_region);
   void read_zone(CRegion& parent_region);
   void read_coordinates_unstructured(CRegion& parent_region);
   void read_coordinates_structured(CRegion& parent_region);
@@ -75,7 +75,7 @@ private: // functions
 private: // data
 
   std::vector<Region_TableIndex_pair> m_global_to_region;
-  boost::shared_ptr<CMesh> m_mesh;
+  boost::shared_ptr<Mesh> m_mesh;
   Uint m_coord_start_idx;
 
 }; // end CReader

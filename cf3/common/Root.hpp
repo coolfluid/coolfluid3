@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CRoot_hpp
-#define cf3_common_CRoot_hpp
+#ifndef cf3_common_Root_hpp
+#define cf3_common_Root_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,25 +20,25 @@ namespace common {
 
   /// Component class for tree root
   /// @author Tiago Quintino
-  class Common_API CRoot : public Component {
+  class Common_API Root : public Component {
 
   public: // typedefs
 
-    typedef boost::shared_ptr<CRoot> Ptr;
-    typedef boost::shared_ptr<CRoot const> ConstPtr;
+    typedef boost::shared_ptr<Root> Ptr;
+    typedef boost::shared_ptr<Root const> ConstPtr;
 
   public: // functions
 
     /// Get the class name
-    static CRoot::Ptr create ( const std::string& name );
+    static Root::Ptr create ( const std::string& name );
 
     /// Virtual destructor
-    virtual ~CRoot();
+    virtual ~Root();
 
     /// Get the class name
-    static std::string type_name () { return "CRoot"; }
+    static std::string type_name () { return "Root"; }
 
-    // functions specific to the CRoot component
+    // functions specific to the Root component
 
     /// Access the component described by the path
     /// The path should be absolute
@@ -106,7 +106,7 @@ namespace common {
   protected:
     /// Protected constructor forces creation via the create() funtion while still allowing wrapping by AllocatedComponent
     /// @param name of the component
-    CRoot ( const std::string& name );
+    Root ( const std::string& name );
 
   private: // data
 
@@ -115,12 +115,12 @@ namespace common {
 
     std::vector<NotificationQueue*> m_notif_queues;
 
-  }; // CRoot
+  }; // Root
 
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-  inline typename TYPE::Ptr CRoot::retrieve_component ( const URI& path )
+  inline typename TYPE::Ptr Root::retrieve_component ( const URI& path )
   {
     return boost::dynamic_pointer_cast<TYPE>( this->retrieve_component (path) );
   }
@@ -128,7 +128,7 @@ namespace common {
 ////////////////////////////////////////////////////////////////////////////////
 
   template < typename TYPE >
-  inline typename TYPE::Ptr CRoot::retrieve_component_checked ( const URI& path )
+  inline typename TYPE::Ptr Root::retrieve_component_checked ( const URI& path )
   {
     typename TYPE::Ptr comp = boost::dynamic_pointer_cast<TYPE>( this->retrieve_component (path) );
     if( is_null(comp) )
@@ -143,4 +143,4 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CRoot_hpp
+#endif // cf3_common_Root_hpp

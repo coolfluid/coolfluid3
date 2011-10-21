@@ -12,7 +12,7 @@
 #include "common/Group.hpp"
 #include "common/Core.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -60,7 +60,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
       ->description("Setting this will create the appropriate spaces in the mesh")
       ->mark_basic();
 
-  options().add_option(OptionComponent<CMesh>::create( SFDM::Tags::mesh(), &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create( SFDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) )
@@ -168,7 +168,7 @@ void SFDSolver::config_mesh()
   if( is_null(m_mesh.lock()) ) return;
 
   Physics::PhysModel& pm = physics(); // physcial model must have already been configured
-  mesh::CMesh& mesh = *m_mesh.lock();
+  mesh::Mesh& mesh = *m_mesh.lock();
 
   if( physics().ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );

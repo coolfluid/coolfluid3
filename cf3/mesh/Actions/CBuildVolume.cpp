@@ -14,7 +14,7 @@
 #include "mesh/CCells.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildVolume, CMeshTransformer, LibActions> CBuildVolume_Builder;
+common::ComponentBuilder < CBuildVolume, MeshTransformer, LibActions> CBuildVolume_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CBuildVolume::CBuildVolume( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Print information of the mesh");
@@ -65,7 +65,7 @@ std::string CBuildVolume::help() const
 void CBuildVolume::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   FieldGroup& cells_P0 = mesh.create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
   Field& volume = cells_P0.create_field(mesh::Tags::volume());

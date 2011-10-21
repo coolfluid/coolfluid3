@@ -11,7 +11,7 @@
 #include <boost/assign/list_of.hpp>
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/StreamHelpers.hpp"
@@ -22,14 +22,14 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/ConnectivityData.hpp"
-#include "mesh/CMeshTransformer.hpp"
-#include "mesh/CMeshPartitioner.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshTransformer.hpp"
+#include "mesh/MeshPartitioner.hpp"
+#include "mesh/MeshWriter.hpp"
 
 #include "mesh/PTScotch/LibPTScotch.hpp"
 
@@ -357,36 +357,36 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 
 }
 
-BOOST_AUTO_TEST_CASE( CMeshPartitioner_test )
+BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
 {
-  CFinfo << "CMeshPartitioner_test" << CFendl;
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CFinfo << "MeshPartitioner_test" << CFendl;
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
   URI fp_in ("file:quadtriag.neu");
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>("mesh");
+  Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh");
   meshreader->read_mesh_into(fp_in,mesh);
   CF3_DEBUG_POINT;
 
-  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
   CF3_DEBUG_POINT;
 
-  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
   CF3_DEBUG_POINT;
 
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   URI fp_out_1 ("file:quadtriag.msh");
   meshwriter->write_from_to(mesh,fp_out_1);
   CF3_DEBUG_POINT;
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
 
-  CMeshPartitioner& p = *partitioner_ptr;
+  MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
   CF3_DEBUG_POINT;
 

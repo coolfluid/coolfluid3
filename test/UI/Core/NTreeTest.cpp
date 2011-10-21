@@ -459,7 +459,7 @@ void NTreeTest::test_signal_list_tree()
   XmlDoc::Ptr doc;
   SignalFrame frame;
   NRoot::Ptr root = t->treeRoot();
-  CRoot::Ptr newRoot = CRoot::create("Root");
+  Root::Ptr newRoot = Root::create("Root");
 
   newRoot->create_component_ptr<CLink>("Environment");
   newRoot->create_component_ptr<Group>("Tools");

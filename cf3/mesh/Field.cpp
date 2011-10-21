@@ -21,7 +21,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 

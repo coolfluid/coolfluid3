@@ -13,7 +13,7 @@
 #include "mesh/CElements.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "mesh/Actions/CInfo.hpp"
 
@@ -53,12 +53,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInfo, CMeshTransformer, LibActions> CInfo_Builder;
+common::ComponentBuilder < CInfo, MeshTransformer, LibActions> CInfo_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CInfo::CInfo( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
 	properties()["brief"] = std::string("Print information of the mesh");
@@ -91,7 +91,7 @@ std::string CInfo::help() const
 void CInfo::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   CFinfo << "Element distribution:" << CFendl;
   boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(mesh,IsComponentTrue()))

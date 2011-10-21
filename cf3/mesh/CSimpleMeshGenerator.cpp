@@ -12,7 +12,7 @@
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 
 #include "mesh/CMixedHash.hpp"
@@ -20,7 +20,7 @@
 #include "mesh/CSimpleMeshGenerator.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CFaces.hpp"
 #include "mesh/CElements.hpp"
@@ -33,12 +33,12 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder < CSimpleMeshGenerator, CMeshGenerator, LibMesh > CSimpleMeshGenerator_Builder;
+ComponentBuilder < CSimpleMeshGenerator, MeshGenerator, LibMesh > CSimpleMeshGenerator_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CSimpleMeshGenerator::CSimpleMeshGenerator ( const std::string& name  ) :
-  CMeshGenerator ( name )
+  MeshGenerator ( name )
 {
   mark_basic();
 
@@ -106,7 +106,7 @@ void CSimpleMeshGenerator::execute()
 
 void CSimpleMeshGenerator::create_line()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   const Uint x_segments = m_nb_cells[XX];
   const Real x_len = m_lengths[XX];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
@@ -211,7 +211,7 @@ void CSimpleMeshGenerator::create_line()
 
 void CSimpleMeshGenerator::create_rectangle()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   const Uint x_segments = m_nb_cells[XX];
   const Uint y_segments = m_nb_cells[YY];
   const Real x_len = m_lengths[XX];

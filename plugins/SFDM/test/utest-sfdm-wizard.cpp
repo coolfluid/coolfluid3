@@ -12,16 +12,16 @@
 #include <boost/algorithm/string.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CField.hpp"
 #include "mesh/CSimpleMeshGenerator.hpp"
 #include "mesh/CEntities.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/WriteMesh.hpp"
 #include "mesh/CDomain.hpp"
 #include "SFDM/SFDWizard.hpp"
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  CMesh& mesh = model.domain().create_component<CMesh>("mesh");
+  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
   CSimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  CMesh& mesh = model.domain().create_component<CMesh>("mesh");
+  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
   CSimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");

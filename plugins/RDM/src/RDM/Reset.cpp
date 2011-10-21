@@ -9,7 +9,7 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 

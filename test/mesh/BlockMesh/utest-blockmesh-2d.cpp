@@ -12,12 +12,12 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshWriter.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  CMeshWriter::Ptr writer =  build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
   CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
   domain.add_component(writer);
 
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   blocks.block_distribution += 0, 2;
 
   domain.add_component(writer);
-  CMesh& mesh = domain.create_component<CMesh>("mesh");
+  Mesh& mesh = domain.create_component<Mesh>("mesh");
 
   BlockMesh::build_mesh(blocks, mesh);
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   BlockMesh::partition_blocks(blocks, 4, XX, parallel_blocks);
   
-  CMesh& parallel_block_mesh = domain.create_component<CMesh>("parallel_blocks");
+  Mesh& parallel_block_mesh = domain.create_component<Mesh>("parallel_blocks");
   BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
   writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));
 }

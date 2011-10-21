@@ -12,7 +12,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/CStencilComputerOcttree.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/ElementType.hpp"

@@ -17,7 +17,7 @@
 #include "math/VariableManager.hpp"
 
 #include "mesh/FieldManager.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
 

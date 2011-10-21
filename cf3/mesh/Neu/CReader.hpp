@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -29,7 +29,7 @@ namespace Neu {
 
 /// This class defines Neutral mesh format reader
 /// @author Willem Deconinck
-class Neu_API CReader : public CMeshReader, public Shared
+class Neu_API CReader : public MeshReader, public Shared
 {
 public: // typedefs
 
@@ -73,7 +73,7 @@ private: // functions
 
 private: // data
 
-  virtual void do_read_mesh_into(const common::URI& fp, CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;
@@ -82,7 +82,7 @@ private: // data
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
   boost::filesystem::fstream m_file;
-  CMesh::Ptr m_mesh;
+  Mesh::Ptr m_mesh;
   CRegion::Ptr m_region;
   CRegion::Ptr m_tmp;
 

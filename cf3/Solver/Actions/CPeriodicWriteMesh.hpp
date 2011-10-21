@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh   { class Field; class CMesh; class WriteMesh; }
+namespace mesh   { class Field; class Mesh; class WriteMesh; }
 namespace Solver {
 namespace Actions {
 

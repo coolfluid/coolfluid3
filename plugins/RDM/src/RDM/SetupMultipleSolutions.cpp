@@ -16,7 +16,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "Physics/PhysModel.hpp"

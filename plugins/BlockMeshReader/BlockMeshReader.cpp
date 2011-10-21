@@ -22,11 +22,11 @@ using namespace cf3::mesh::BlockMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < BlockMeshReader, mesh::CMeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
+cf3::common::ComponentBuilder < BlockMeshReader, mesh::MeshReader, LibBlockMeshReader > aBlockMeshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
-BlockMeshReader::BlockMeshReader(const std::string& name): CMeshReader(name)
+BlockMeshReader::BlockMeshReader(const std::string& name): MeshReader(name)
 {
 
 }
@@ -37,7 +37,7 @@ std::vector< std::string > BlockMeshReader::get_extensions()
   return result;
 }
 
-void BlockMeshReader::do_read_mesh_into(const cf3::common::URI& path_uri, cf3::mesh::CMesh& mesh)
+void BlockMeshReader::do_read_mesh_into(const cf3::common::URI& path_uri, cf3::mesh::Mesh& mesh)
 {
   boost::filesystem::path path(path_uri.path());
   // if the file is present open it

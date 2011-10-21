@@ -12,7 +12,7 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -20,14 +20,14 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshGenerator.hpp"
-#include "mesh/CMeshPartitioner.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshGenerator.hpp"
+#include "mesh/MeshPartitioner.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -76,32 +76,32 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 /*
-BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
+BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  CFinfo << "CMeshPartitioner_test" << CFendl;
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  CFinfo << "MeshPartitioner_test" << CFendl;
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
   URI fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
-  CMesh& mesh = *mesh_ptr;
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);
+  Mesh& mesh = *mesh_ptr;
 
-  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh_ptr);
-  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh_ptr);
 
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   URI fp_out_1 ("quadtriag.msh");
   meshwriter->write_from_to(*mesh_ptr,fp_out_1);
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
 
-  CMeshPartitioner& p = *partitioner_ptr;
+  MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
 
   Core::instance().initiate(m_argc,m_argv);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   p.migrate();
   BOOST_CHECK(true);
 
-  CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
   glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 
@@ -178,10 +178,10 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   meshwriter->write_from_to(*mesh_ptr,fp_out_2);
 }
 */
-BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
+BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
@@ -189,20 +189,20 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   meshgenerator->configure_option("nb_cells",nb_cells);
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",false);
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 
 
-  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
-  CMeshTransformer::Ptr glb_connectivity = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
 
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   meshwriter->write_from_to(mesh,"rect.msh");
 
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
 
-  CMeshPartitioner& p = *partitioner_ptr;
+  MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");
 
   Core::instance().initiate(m_argc,m_argv);
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   p.migrate();
   BOOST_CHECK(true);
 
-  CMeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
+  MeshTransformer::Ptr glb_node_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering");
   glb_node_numbering->configure_option("debug",true);
   glb_node_numbering->transform(mesh);
 
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( CMeshPartitioner_test_quadtriag )
   )
 
 
-  CMeshWriter::Ptr tecwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
+  MeshWriter::Ptr tecwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","meshwriter");
   tecwriter->write_from_to(mesh,"rect_repartitioned.plt");
   meshwriter->write_from_to(mesh,"rect_repartitioned.msh");
 }

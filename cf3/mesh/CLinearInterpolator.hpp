@@ -48,7 +48,7 @@ private: // functions
 
 	/// Construct internal storage for fast searching algorithm
 	/// @param source [in] the mesh from which interpolation will occur
-	virtual void construct_internal_storage(const CMesh& source);
+	virtual void construct_internal_storage(const Mesh& source);
 
 	/// Interpolate from one source field to target field
 	/// @param source [in] the source field
@@ -95,7 +95,7 @@ private: // functions
 
 private: // data
 
-  CMesh::ConstPtr m_source_mesh;
+  Mesh::ConstPtr m_source_mesh;
 
   Pointcloud m_pointcloud;
   Honeycomb m_honeycomb;

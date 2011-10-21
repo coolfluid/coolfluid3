@@ -13,8 +13,8 @@
 
 
 #include "mesh/CConnectivity.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshElements.hpp"
 
 namespace cf3 {
 namespace mesh {

@@ -32,7 +32,7 @@ using namespace boost::assign;
 
 ComponentBuilder < ChannelGenerator, Component, LibBlockMesh > ChannelGenerator_Builder;
 
-ChannelGenerator::ChannelGenerator(const std::string& name): CMeshGenerator(name)
+ChannelGenerator::ChannelGenerator(const std::string& name): MeshGenerator(name)
 {
   m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
     ->description("Total number of partitions (e.g. number of processors)")
@@ -125,7 +125,7 @@ void ChannelGenerator::execute()
 
   const Uint nb_parts = option("nb_parts").value<Uint>();
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   if(PE::Comm::instance().is_active() && nb_parts > 1)
   {

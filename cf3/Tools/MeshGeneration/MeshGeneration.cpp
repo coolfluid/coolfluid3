@@ -38,7 +38,7 @@ namespace MeshGeneration {
 
 /// Helper function to raise the mesh_loaded event and update mesh statustics
 /// This must be called at the end of every mesh generation method
-void mesh_loaded(CMesh& mesh)
+void mesh_loaded(Mesh& mesh)
 {
   mesh.update_statistics();
   // Raise an event to indicate that a mesh was loaded happened
@@ -52,7 +52,7 @@ void mesh_loaded(CMesh& mesh)
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Helper function to build the GIDS in a serial mesh
-void build_serial_gids(CMesh& mesh)
+void build_serial_gids(Mesh& mesh)
 {
   const Uint nb_nodes = mesh.geometry().size();
 
@@ -67,7 +67,7 @@ void build_serial_gids(CMesh& mesh)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
+void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 {
   CRegion& region = mesh.topology().create_region("fluid");
   Geometry& nodes = mesh.geometry();
@@ -108,7 +108,7 @@ void create_line(CMesh& mesh, const Real x_len, const Uint x_segments)
 }
 
 
-void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
+void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
@@ -215,7 +215,7 @@ void create_rectangle(CMesh& mesh, const Real x_len, const Real y_len, const Uin
   mesh_loaded(mesh);
 }
 
-void create_rectangle_tris(CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
+void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   CRegion& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
@@ -372,7 +372,7 @@ void create_circle_2d(CTable<Real>& coordinates, CTable<Uint>& connectivity, con
   }
 }*/
 
-void create_circle_2d ( CMesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
+void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   CRegion& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();

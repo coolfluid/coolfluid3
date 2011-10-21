@@ -19,7 +19,7 @@
 #include "common/OptionT.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/Field.hpp"
 
 //#include "UI/Server/ServerRoot.hpp"
@@ -52,7 +52,7 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  m_options.add_option( OptionComponent<mesh::CMesh>::create("mesh", &m_mesh))
+  m_options.add_option( OptionComponent<mesh::Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to visualize with given refresh rate")
       ->pretty_name("Mesh")
       ->mark_basic();
@@ -105,8 +105,8 @@ C3DView::C3DView(const std::string& name) :
                                                      this,
                                                      &C3DView::signal_iteration_done );
 
-  mesh::CMeshWriter::Ptr meshwriter =
-      build_component_abstract_type<mesh::CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
+  mesh::MeshWriter::Ptr meshwriter =
+      build_component_abstract_type<mesh::MeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
   add_component(meshwriter);
 
 }
@@ -170,7 +170,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     if (m_mesh.expired())
     {
 
-      mesh::CMesh& mesh = find_component_recursively<mesh::CMesh>( Core::instance().root() );
+      mesh::Mesh& mesh = find_component_recursively<mesh::Mesh>( Core::instance().root() );
       URI mesh_path = mesh.uri();
       configure_option("mesh", mesh_path );
     }
@@ -181,7 +181,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     if( curr_iteration == 1 || ( curr_iteration % m_options["refresh_rate"].value<Uint>() ) == 0 )
     {
-      mesh::CMeshWriter& writer = get_child("writer").as_type<mesh::CMeshWriter>();
+      mesh::MeshWriter& writer = get_child("writer").as_type<mesh::MeshWriter>();
 
 
       std::vector<URI> fields;

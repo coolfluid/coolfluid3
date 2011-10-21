@@ -14,7 +14,7 @@
 #include "common/PE/debug.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/CRegion.hpp"

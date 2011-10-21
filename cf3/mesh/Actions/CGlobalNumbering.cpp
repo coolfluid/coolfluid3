@@ -34,7 +34,7 @@
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
@@ -53,12 +53,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalNumbering, CMeshTransformer, LibActions> CGlobalNumbering_Builder;
+common::ComponentBuilder < CGlobalNumbering, MeshTransformer, LibActions> CGlobalNumbering_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CGlobalNumbering::CGlobalNumbering( const std::string& name )
-: CMeshTransformer(name),
+: MeshTransformer(name),
   m_debug(false)
 {
 
@@ -97,7 +97,7 @@ std::string CGlobalNumbering::help() const
 
 void CGlobalNumbering::execute()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   CTable<Real>& coordinates = mesh.geometry().coordinates();
 

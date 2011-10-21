@@ -11,7 +11,7 @@
 
 #include <QMutex>
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/CJournal.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
@@ -45,9 +45,9 @@ namespace Server {
 
     static ServerRoot & instance();
 
-    common::CRoot::Ptr root() { return m_root; }
+    common::Root::Ptr root() { return m_root; }
 
-    common::CRoot::ConstPtr root() const { return m_root; }
+    common::Root::ConstPtr root() const { return m_root; }
 
     CCore::Ptr core() { return m_core; }
 
@@ -89,7 +89,7 @@ namespace Server {
 
     ProcessingThread * m_thread;
 
-    common::CRoot::Ptr m_root;
+    common::Root::Ptr m_root;
 
     CCore::Ptr m_core;
 

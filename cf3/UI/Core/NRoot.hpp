@@ -11,7 +11,7 @@
 
 #include <boost/uuid/uuid.hpp>
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "UI/Core/CNode.hpp"
 
@@ -27,9 +27,9 @@ namespace Core {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Client root.
-  /// This class is wrapper for @c cf3::common::CRoot class on the client side.
+  /// This class is wrapper for @c cf3::common::Root class on the client side.
   /// A NRoot object may never have any child. Add them to the
-  /// internal @c CRoot componenent instead. It can be obtained by calling
+  /// internal @c Root componenent instead. It can be obtained by calling
   /// @c root() method.
   /// @author Quentin Gasper.
 
@@ -53,14 +53,14 @@ namespace Core {
     /// @return The name of the class.
     virtual QString toolTip() const;
 
-    /// @brief Gives the CRoot internal shared pointer
-    /// @return Returns the CRoot internal shared pointer
-    inline cf3::common::CRoot::Ptr root() const
+    /// @brief Gives the Root internal shared pointer
+    /// @return Returns the Root internal shared pointer
+    inline cf3::common::Root::Ptr root() const
     {
       return m_root;
     }
 
-    /// @brief Gets a child node from the internal CRoot component
+    /// @brief Gets a child node from the internal Root component
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
@@ -105,8 +105,8 @@ namespace Core {
 
   private :
 
-    /// @brief The internal CRoot component
-    cf3::common::CRoot::Ptr m_root;
+    /// @brief The internal Root component
+    cf3::common::Root::Ptr m_root;
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;

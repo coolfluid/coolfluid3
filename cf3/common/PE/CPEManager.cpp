@@ -49,7 +49,7 @@ CPEManager::CPEManager ( const std::string & name )
   : Component(name)
 {
   m_listener = new ListeningThread();
-  m_queue = new NotificationQueue( Core::instance().root().as_ptr<CRoot>() );
+  m_queue = new NotificationQueue( Core::instance().root().as_ptr<Root>() );
 
   if( Comm::instance().get_parent() != MPI_COMM_NULL )
   {
@@ -123,7 +123,7 @@ void CPEManager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
   }
   else if( !m_root.expired() )
   {
-    CRoot::Ptr root = m_root.lock();
+    Root::Ptr root = m_root.lock();
     SignalFrame signal_frame( sig );
     bool success = false;
     std::string message;

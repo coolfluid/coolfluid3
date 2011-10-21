@@ -16,7 +16,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -66,7 +66,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
       ->pretty_name("Solution Space")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
@@ -184,7 +184,7 @@ void RDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
-  CMesh& mesh = *(m_mesh.lock());
+  Mesh& mesh = *(m_mesh.lock());
 
   Physics::PhysModel& pm = physics(); // physcial model must have already been configured
 

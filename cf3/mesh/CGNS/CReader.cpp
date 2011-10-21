@@ -17,10 +17,10 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/CGNS/CReader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -33,12 +33,12 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder< CReader, CMeshReader, LibCGNS > aCGNSReader_Builder;
+common::ComponentBuilder< CReader, MeshReader, LibCGNS > aCGNSReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader(const std::string& name)
-: CMeshReader(name), Shared()
+: MeshReader(name), Shared()
 {
   m_options.add_option< OptionT<bool> >( "SectionsAreBCs", false )
       ->description("Treat Sections of lower dimensionality as BC. "
@@ -57,10 +57,10 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
+void CReader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
   // Set the internal mesh pointer
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
 
   // open file in read mode
   CALL_CGNS(cg_open(file.path().c_str(),CG_MODE_READ,&m_file.idx));
@@ -84,7 +84,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::read_base(CMesh& parent_region)
+void CReader::read_base(Mesh& parent_region)
 {
 
   // get the name, dimension and physical dimension from the base

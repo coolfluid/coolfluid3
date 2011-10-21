@@ -22,7 +22,7 @@ namespace common {
   class EventHandler;
   class BuildInfo;
   class CodeProfiler;
-  class CRoot;
+  class Root;
   class Environment;
   class Group;
   class CLibraries;
@@ -54,7 +54,7 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  common::CRoot& root() const;
+  common::Root& root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
@@ -120,7 +120,7 @@ private: // data
   /// the CFactories unique object
   boost::weak_ptr< common::CFactories >   m_factories;
   /// @brief The component tree root
-  boost::shared_ptr< common::CRoot >        m_root;
+  boost::shared_ptr< common::Root >        m_root;
   /// The network information
   boost::shared_ptr< common::NetworkInfo >   m_network_info;
 

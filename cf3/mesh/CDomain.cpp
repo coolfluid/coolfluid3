@@ -15,7 +15,7 @@
 #include "common/EventHandler.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
 
@@ -111,14 +111,14 @@ CDomain::~CDomain() {}
 
 
 
-CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
+Mesh& CDomain::load_mesh( const URI& file, const std::string& name )
 {
   Group& tools = Core::instance().tools();
 
   LoadMesh& mesh_loader =
       find_component<LoadMesh>( tools );
 
-  CMesh::Ptr mesh = create_component_ptr<CMesh>(name);
+  Mesh::Ptr mesh = create_component_ptr<Mesh>(name);
 
   mesh_loader.load_mesh_into(file, *mesh);
   
@@ -126,7 +126,7 @@ CMesh& CDomain::load_mesh( const URI& file, const std::string& name )
 
   // rebalance the mesh if necessary and create global idx and ranks
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
       ->transform(mesh);
 
   // raise an event to indicate that a mesh was rebalanced (changed)
@@ -153,7 +153,7 @@ void CDomain::write_mesh(const URI& file)
     m_implementation->m_write_mesh = create_static_component_ptr<WriteMesh>("MeshWriter");
 
   std::vector<URI> state_fields;
-  CMesh& mesh = find_component<CMesh>(*this);
+  Mesh& mesh = find_component<Mesh>(*this);
   boost_foreach(const Field& field, find_components_recursively<Field>(mesh))
   {
     state_fields.push_back(field.uri());

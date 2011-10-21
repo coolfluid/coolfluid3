@@ -13,14 +13,14 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/Field.hpp"
@@ -53,7 +53,7 @@ struct BockMesh3DFixture :
     if(!PE::Comm::instance().is_active())
       PE::Comm::instance().init(argc, argv);
 
-    CRoot& root = Core::instance().root();
+    Root& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
     {
       m_domain = root.create_component_ptr<CDomain>("domain");
@@ -65,29 +65,29 @@ struct BockMesh3DFixture :
 
     if(!domain().get_child_ptr("writer"))
     {
-      m_writer = domain().add_component(build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_ptr<CMeshWriter>();
+      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_ptr<MeshWriter>();
     }
     else
     {
-      m_writer = domain().get_child("writer").as_ptr<CMeshWriter>();
+      m_writer = domain().get_child("writer").as_ptr<MeshWriter>();
     }
 
     if(!domain().get_child_ptr("block_mesh"))
     {
-      m_block_mesh = domain().create_component_ptr<CMesh>("block_mesh");
+      m_block_mesh = domain().create_component_ptr<Mesh>("block_mesh");
     }
     else
     {
-      m_block_mesh = domain().get_child("block_mesh").as_ptr<CMesh>();
+      m_block_mesh = domain().get_child("block_mesh").as_ptr<Mesh>();
     }
 
     if(!domain().get_child_ptr("mesh"))
     {
-      m_mesh = domain().create_component_ptr<CMesh>("mesh");
+      m_mesh = domain().create_component_ptr<Mesh>("mesh");
     }
     else
     {
-      m_mesh = domain().get_child("mesh").as_ptr<CMesh>();
+      m_mesh = domain().get_child("mesh").as_ptr<Mesh>();
     }
 
     if(argc == 5)
@@ -103,17 +103,17 @@ struct BockMesh3DFixture :
     return *m_domain.lock();
   }
 
-  CMeshWriter& writer()
+  MeshWriter& writer()
   {
     return *m_writer.lock();
   }
 
-  CMesh& block_mesh()
+  Mesh& block_mesh()
   {
     return *m_block_mesh.lock();
   }
 
-  CMesh& mesh()
+  Mesh& mesh()
   {
     return *m_mesh.lock();
   }
@@ -121,9 +121,9 @@ struct BockMesh3DFixture :
   Uint x_segs, y_segs, z_segs;
 
   boost::weak_ptr<CDomain> m_domain;
-  boost::weak_ptr<CMesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
-  boost::weak_ptr<CMesh> m_mesh; // Actual generated mesh
-  boost::weak_ptr<CMeshWriter> m_writer;
+  boost::weak_ptr<Mesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
+  boost::weak_ptr<Mesh> m_mesh; // Actual generated mesh
+  boost::weak_ptr<MeshWriter> m_writer;
 
   std::string base_dir;
 };

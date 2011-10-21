@@ -13,10 +13,10 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
@@ -59,7 +59,7 @@ struct MeshComponent_Fixture
     return coordVec;
   }
   /// common values accessed by all tests goes here
-  CRoot& root;
+  Root& root;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,9 +73,9 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // CFinfo << "testing MeshComponents \n" << CFflush;
 
   // Create root and mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  boost::shared_ptr<Root> root = Root::create ( "root" );
 
-  CMesh& mesh = root->create_component<CMesh>( "mesh" ) ;
+  Mesh& mesh = root->create_component<Mesh>( "mesh" ) ;
 
   BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
   BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath://root" );
@@ -238,9 +238,9 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   // CFinfo << "testing CTable<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  boost::shared_ptr<Root> root = Root::create ( "root" );
 
-  CMesh& mesh = root->create_component<CMesh>  ( "mesh" ) ;
+  Mesh& mesh = root->create_component<Mesh>  ( "mesh" ) ;
 
   // Create one region inside mesh
   CRegion& region = mesh.topology().create_region("region");
@@ -339,8 +339,8 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
 
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
-  CMesh& mesh = root->create_component<CMesh>("mesh");
+  Root::Ptr root = Root::create ( "root" );
+  Mesh& mesh = root->create_component<Mesh>("mesh");
   CRegion& regions = mesh.topology().create_region("regions");
 
   CRegion& subregion1 = regions.create_region("subregion1");
@@ -689,8 +689,8 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
-  CRoot::Ptr root = CRoot::create("root");
-  CMesh& mesh = root->create_component<CMesh>("mesh");
+  Root::Ptr root = Root::create("root");
+  Mesh& mesh = root->create_component<Mesh>("mesh");
   CRegion& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(2,DIM_3D);
@@ -705,9 +705,9 @@ BOOST_AUTO_TEST_CASE( CList_Uint_Test )
   // CFinfo << "testing CTable<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  boost::shared_ptr<Root> root = Root::create ( "root" );
 
-  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
   root->add_component( mesh );
 
@@ -782,9 +782,9 @@ BOOST_AUTO_TEST_CASE( CList_Uint_rm_Test )
   // CFinfo << "testing CTable<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  boost::shared_ptr<Root> root = Root::create ( "root" );
 
-  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
   root->add_component( mesh );
 
@@ -833,9 +833,9 @@ BOOST_AUTO_TEST_CASE( CList_bool_Test )
   // CFinfo << "testing CTable<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<CRoot> root = CRoot::create ( "root" );
+  boost::shared_ptr<Root> root = Root::create ( "root" );
 
-  boost::shared_ptr<CMesh> mesh = allocate_component<CMesh>  ( "mesh" ) ;
+  boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
   root->add_component( mesh );
 

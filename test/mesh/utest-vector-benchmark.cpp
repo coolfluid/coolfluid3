@@ -13,7 +13,7 @@
 #include "common/EigenAssertions.hpp"
 #include <Eigen/Dense>
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CElements.hpp"
@@ -31,12 +31,12 @@ using namespace cf3::mesh::BlockMesh;
 
 struct VectorBenchmarkFixture : Tools::Testing::TimedTestFixture
 {
-  static CMesh::Ptr grid_2d;
-  static CMesh::Ptr channel_3d;
+  static Mesh::Ptr grid_2d;
+  static Mesh::Ptr channel_3d;
 };
 
-CMesh::Ptr VectorBenchmarkFixture::grid_2d;
-CMesh::Ptr VectorBenchmarkFixture::channel_3d;
+Mesh::Ptr VectorBenchmarkFixture::grid_2d;
+Mesh::Ptr VectorBenchmarkFixture::channel_3d;
 
 /// Calculates the centroid of all centroids over a set of quads
 template<typename VectorType>
@@ -127,10 +127,10 @@ BOOST_AUTO_TEST_SUITE( VectorBenchmarkSuite )
 // Must be run  before the next tests
 BOOST_FIXTURE_TEST_CASE( CreateMesh, VectorBenchmarkFixture )
 {
-  grid_2d = allocate_component<CMesh>("grid_2d");
+  grid_2d = allocate_component<Mesh>("grid_2d");
   Tools::MeshGeneration::create_rectangle(*grid_2d, 1., 1., 2000, 2000);
-  channel_3d = allocate_component<CMesh>("channel_3d");
-  CRoot::Ptr root = CRoot::create("root");
+  channel_3d = allocate_component<Mesh>("channel_3d");
+  Root::Ptr root = Root::create("root");
   BlockData& block_data = root->create_component<BlockData>("block_data");
   Tools::MeshGeneration::create_channel_3d(block_data, 10., 0.5, 5., 160, 80, 120, 0.1);
   build_mesh(block_data, *channel_3d);

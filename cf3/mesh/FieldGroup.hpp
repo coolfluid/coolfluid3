@@ -25,7 +25,7 @@ namespace common {
 namespace math { class VariablesDescriptor; }
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
   class Field;
   class CRegion;
   class CElements;

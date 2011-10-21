@@ -13,7 +13,7 @@
 #include "common/BasicExceptions.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CTable.hpp"
 

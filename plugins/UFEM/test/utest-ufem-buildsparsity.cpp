@@ -12,7 +12,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "common/PE/CommPattern.hpp"
 
@@ -50,7 +50,7 @@ struct UFEMBuildSparsityFixture
   {
   }
 
-  CRoot& root;
+  Root& root;
 };
 
 BOOST_FIXTURE_TEST_SUITE( UFEMBuildSparsitySuite, UFEMBuildSparsityFixture )
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
   lss.option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   // Setup sparsity
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   lss.option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, length, nb_segments, nb_segments);
 
   // Setup sparsity
@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   lss.option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle_tris(mesh, length, length, nb_segments, nb_segments);
 
   // Setup sparsity
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
   lss.option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   blocks.scaling_factor = 1.;
   blocks.dimension = 3;
@@ -237,7 +237,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   lss.option("solver").change_value(std::string("Trilinos"));
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
   BlockMesh::build_mesh(blocks, mesh);
@@ -300,7 +300,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   model.create_physics("CF.Physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");

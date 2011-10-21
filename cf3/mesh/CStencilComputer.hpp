@@ -19,7 +19,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
   class CElements;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public: // functions
 
   virtual void compute_stencil(const Uint unified_elem_idx, std::vector<Uint>& stencil) = 0;
 
-  void set_mesh(CMesh& mesh);
+  void set_mesh(Mesh& mesh);
 
 private: // functions
 
@@ -52,7 +52,7 @@ private: // functions
 
 protected: // data
   
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
     
   CUnifiedData::Ptr m_elements;
   

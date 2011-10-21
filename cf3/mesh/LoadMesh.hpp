@@ -11,13 +11,13 @@
 
 #include "common/Component.hpp"
 #include "common/URI.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 
 #include "mesh/LibMesh.hpp"
 
 namespace cf3 {
 namespace mesh {
-  class CMesh;
+  class Mesh;
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
@@ -53,10 +53,10 @@ public: // functions
   //@} END SIGNALS
 
   /// Read the file into an existing mesh
-  void load_mesh_into(const common::URI& file, CMesh& mesh);
+  void load_mesh_into(const common::URI& file, Mesh& mesh);
   
   /// function load the mesh
-  boost::shared_ptr<CMesh> load_mesh(const common::URI& file);
+  boost::shared_ptr<Mesh> load_mesh(const common::URI& file);
 
 protected: // helper functions
 
@@ -65,7 +65,7 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<mesh::CMeshReader::Ptr> > m_extensions_to_readers;
+  std::map<std::string,std::vector<mesh::MeshReader::Ptr> > m_extensions_to_readers;
 
 };
 

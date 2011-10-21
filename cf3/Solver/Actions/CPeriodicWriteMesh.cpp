@@ -11,7 +11,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/WriteMesh.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
 #include "CPeriodicWriteMesh.hpp"

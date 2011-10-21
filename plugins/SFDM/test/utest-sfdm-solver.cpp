@@ -11,7 +11,7 @@
 #include <boost/assign/list_of.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Environment.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -29,7 +29,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/CSimpleMeshGenerator.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/CLinearInterpolator.hpp"
 
@@ -38,11 +38,11 @@
 #include "SFDM/Tags.hpp"
 
 #include "mesh/CRegion.hpp"
-//#include "mesh/CMesh.hpp"
+//#include "mesh/Mesh.hpp"
 //#include "mesh/CField.hpp"
 //#include "mesh/CEntities.hpp"
 //#include "mesh/ElementType.hpp"
-//#include "mesh/CMeshWriter.hpp"
+//#include "mesh/MeshWriter.hpp"
 //#include "mesh/CDomain.hpp"
 //#include "mesh/Actions/CInitFieldFunction.hpp"
 //#include "mesh/Actions/CreateSpaceP0.hpp"
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   // create and configure mesh
 
   // Create a 2D rectangular mesh
-  CMesh& mesh = domain.create_component<CMesh>("mesh");
+  Mesh& mesh = domain.create_component<Mesh>("mesh");
 
   Uint res = 20;
   Uint order = 3;
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   generate_mesh.configure_option("lengths",lengths);
   generate_mesh.configure_option("offsets",offsets);
   generate_mesh.execute();
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balance")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balance")->transform(mesh);
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
 
 //  // Create a 1D line mesh
-//  CMesh& probe = domain.create_component<CMesh>("probe");
+//  Mesh& probe = domain.create_component<Mesh>("probe");
 
 //  std::vector<Uint> nb_cells_probe = list_of( res*order*2 );
 //  std::vector<Real> lengths_probe  = list_of( 0.5 );
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
 //  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
-//  CMeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+//  MeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
 //  gmsh_writer.configure_option("mesh",mesh.uri());
 //  gmsh_writer.configure_option("file",URI("line_${iter}.msh"));
 //  gmsh_writer.set_fields(fields);

@@ -9,7 +9,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/MeshMetadata.hpp"
 
 #include "Solver/Tags.hpp"

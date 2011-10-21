@@ -28,12 +28,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInitFieldFunction, CMeshTransformer, LibActions> CInitFieldFunction_Builder;
+common::ComponentBuilder < CInitFieldFunction, MeshTransformer, LibActions> CInitFieldFunction_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CInitFieldFunction::CInitFieldFunction( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Initialize a field");

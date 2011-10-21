@@ -14,7 +14,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/Foreach.hpp"
@@ -28,18 +28,18 @@
 
 #include "math/Consts.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CFaces.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshElements.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshGenerator.hpp"
-#include "mesh/CMeshPartitioner.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshElements.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshGenerator.hpp"
+#include "mesh/MeshPartitioner.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Manipulations.hpp"
 #include "mesh/CCellFaces.hpp"
 #include "mesh/CSpace.hpp"
@@ -204,7 +204,7 @@ bool check_nodes_sanity(Geometry& nodes)
   return sane;
 }
 
-bool check_element_nodes_sanity(CMesh& mesh)
+bool check_element_nodes_sanity(Mesh& mesh)
 {
   bool sane = true;
 
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   Core::instance().environment().configure_option("log_level",(Uint)INFO);
 
   // Create or read the mesh
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("parent",URI("//Root"));
   meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
   std::vector<Uint> nb_cells(2);
@@ -307,14 +307,14 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",false);
   meshgenerator->execute();
-  CMesh& mesh = Core::instance().root().get_child("test_mpinode_mesh").as_type<CMesh>();
+  Mesh& mesh = Core::instance().root().get_child("test_mpinode_mesh").as_type<Mesh>();
 
   Core::instance().root().add_component(mesh);
 
-  //build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_node_numbering")->transform(mesh);
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
+  //build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
   Geometry& nodes = mesh.geometry();
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  CMeshGenerator::Ptr meshgenerator = build_component_abstract_type<CMeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -357,36 +357,36 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   meshgenerator->configure_option("nb_cells",nb_cells);
   meshgenerator->configure_option("lengths",lengths);
   meshgenerator->configure_option("bdry",true);
-  CMesh& mesh = meshgenerator->generate();
+  Mesh& mesh = meshgenerator->generate();
 #endif
 
 #ifdef NEU
-  CMeshReader::Ptr meshreader =
-      build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader =
+      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 //  meshreader->configure_option("read_boundaries",false);
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
-//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.neu");
-  CMesh& mesh = *mesh_ptr;
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.neu");
+  Mesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
-  CMeshReader::Ptr meshreader =
-      build_component_abstract_type<CMeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
-//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
-  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
-//  CMesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
-  CMesh& mesh = *mesh_ptr;
+  MeshReader::Ptr meshreader =
+      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  Mesh& mesh = *mesh_ptr;
 #endif
 
 
   Core::instance().root().add_component(mesh);
   Geometry& nodes = mesh.geometry();
 
-  CMeshWriter::Ptr tec_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+  MeshWriter::Ptr tec_writer =
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
 
-  CMeshWriter::Ptr gmsh_writer =
-      build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","gmsh_writer");
+  MeshWriter::Ptr gmsh_writer =
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","gmsh_writer");
 
 
   tec_writer->write_from_to(mesh,"parallel_overlap_before"+tec_writer->get_extensions()[0]);
@@ -396,19 +396,19 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "parallel_overlap_before_P*"+gmsh_writer->get_extensions()[0]+" written" << CFendl;
 
   CFinfo << "Global Numbering..." << CFendl;
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
-  CMeshTransformer::Ptr glb_numbering = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering");
 //  glb_numbering->configure_option("debug",true);
   glb_numbering->transform(mesh);
   CFinfo << "Global Numbering... done" << CFendl;
 
   CFinfo << "Global Connectivity..." << CFendl;
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
   CFinfo << "Global Connectivity... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
-  CMeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<CMeshPartitioner>();
-  CMeshPartitioner& p = *partitioner_ptr;
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner& p = *partitioner_ptr;
   p.configure_option("graph_package", std::string("PHG"));
   p.initialize(mesh);
   p.partition_graph();
@@ -422,8 +422,8 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // -----------------------------------------------------------------------------
   // RENUMBER NODES AND ELEMENTS SEPARATELY
 
- // build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
- // build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+ // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+ // build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 
   // -----------------------------------------------------------------------------
   // MESH IS NOW COMPLETELY LOAD BALANCED WITHOUT OVERLAP
@@ -440,12 +440,12 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 //  CFinfo << "Global Numbering..." << CFendl;
 //  glb_numbering->transform(mesh);
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 //  CFinfo << "Global Numbering... done" << CFendl;
 //  CFinfo << "Global Connectivity..." << CFendl;
-//  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
+//  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_node_elem_connectivity")->transform(mesh);
 //  CFinfo << "Global Connectivity... done" << CFendl;
 
   std::set<Uint> debug_nodes;
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   for (Uint o=0; o<nb_overlap; ++o)
   {
     CFinfo << "Growing overlap..." << CFendl;
-    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
     CFinfo << "Growing overlap... done" << CFendl;
   }
 

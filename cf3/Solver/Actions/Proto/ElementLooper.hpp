@@ -20,7 +20,7 @@
 #include "ElementExpressionWrapper.hpp"
 #include "ElementGrammar.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementTypePredicates.hpp"
 
@@ -39,7 +39,7 @@ struct CheckSameEtype
   void operator() ( const VarT& var ) const
   {
     // Find the field group for the variable
-    mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
     const mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
     mesh::CSpace& space = var_field_group.space(elements);
 
@@ -105,7 +105,7 @@ struct ExpressionRunner
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
 
     // Find the field group for the variable
-    mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+    mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
     const mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
     mesh::CSpace& space = var_field_group.space(elements);
 

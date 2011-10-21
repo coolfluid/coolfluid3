@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/GeoShape.hpp"
 
 #include "mesh/VTKXML/LibVTKXML.hpp"
@@ -25,7 +25,7 @@ namespace VTKXML {
 
 /// This class defines VTKXML mesh format writer
 /// @author Bart Janssens
-class VTKXML_API CWriter : public CMeshWriter
+class VTKXML_API CWriter : public MeshWriter
 {
 public: // typedefs
 
@@ -40,7 +40,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh& mesh, const common::URI& file);
+  virtual void write_from_to(const Mesh& mesh, const common::URI& file);
 
   virtual std::string get_format() { return "VTKXML"; }
 

@@ -12,17 +12,17 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/Consts.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   CDomain& dom = model.create_domain("Domain");
   CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
-  CMesh& mesh = dom.create_component<CMesh>("mesh");
+  Mesh& mesh = dom.create_component<Mesh>("mesh");
 
   // Simple graded mesh (to get non-constant volume)
   const Real length = 20.;
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   BOOST_CHECK_SMALL(total_error, 1e-12);
 
   // Write mesh
-  CMeshWriter& writer = model.domain().add_component(build_component_abstract_type<CMeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_type<CMeshWriter>();
+  MeshWriter& writer = model.domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(elems_P0.get_child("volumes").as_ptr<Field>());
   writer.set_fields(fields);

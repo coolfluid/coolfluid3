@@ -12,12 +12,12 @@
 #include <boost/foreach.hpp>
 
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
@@ -25,7 +25,7 @@
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 
 using namespace std;
 using namespace boost;
@@ -114,9 +114,9 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   const Uint dim=2;
 
   // Create root and mesh component
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
 
-  CMesh& mesh = root.create_component<CMesh>( "mesh" ) ;
+  Mesh& mesh = root.create_component<Mesh>( "mesh" ) ;
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 }
@@ -228,9 +228,9 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 	const Uint dim=2;
 
   // Create root and mesh component
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
-  CMesh& mesh = root->create_component<CMesh>( "mesh" );
+  Mesh& mesh = root->create_component<Mesh>( "mesh" );
 
   // create regions
   CRegion& superRegion = mesh.topology().create_region("superRegion");
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-	CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 	meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }

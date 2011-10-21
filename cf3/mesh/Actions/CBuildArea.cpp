@@ -14,7 +14,7 @@
 #include "mesh/CCells.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,12 +27,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildArea, CMeshTransformer, LibActions> CBuildArea_Builder;
+common::ComponentBuilder < CBuildArea, MeshTransformer, LibActions> CBuildArea_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CBuildArea::CBuildArea( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Print information of the mesh");
@@ -65,7 +65,7 @@ std::string CBuildArea::help() const
 void CBuildArea::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
   Field& area = faces_P0.create_field(mesh::Tags::area());

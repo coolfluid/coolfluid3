@@ -11,7 +11,7 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/CStencilComputer.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Geometry.hpp"
@@ -29,7 +29,7 @@ CStencilComputer::CStencilComputer( const std::string& name )
   : Component(name)
 {
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to create octtree from")
       ->pretty_name("Mesh")
       ->attach_trigger(boost::bind(&CStencilComputer::configure_mesh,this))
@@ -58,9 +58,9 @@ void CStencilComputer::configure_mesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CStencilComputer::set_mesh(CMesh& mesh)
+void CStencilComputer::set_mesh(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
   configure_mesh();
 }
 

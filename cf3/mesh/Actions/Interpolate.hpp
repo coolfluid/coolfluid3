@@ -11,7 +11,7 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"
 #include "mesh/Field.hpp"
 
@@ -32,7 +32,7 @@ namespace Actions {
 ///
 /// @post After this, the mesh is ready to be parallellized
 /// @author Willem Deconinck
-class Mesh_Actions_API Interpolate : public CMeshTransformer
+class Mesh_Actions_API Interpolate : public MeshTransformer
 {
 public: // typedefs
 

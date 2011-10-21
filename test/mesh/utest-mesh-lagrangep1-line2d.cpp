@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   //const Uint segments = 100;
 
   // complete circle
-  CMesh& mesh = Core::instance().root().create_component<CMesh>("surface_integral");
+  Mesh& mesh = Core::instance().root().create_component<Mesh>("surface_integral");
   create_circle_2d(mesh, 1., 100);
   CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
-  CMesh& mesh = Core::instance().root().create_component<CMesh>("arc_integral");
+  Mesh& mesh = Core::instance().root().create_component<Mesh>("arc_integral");
   create_circle_2d(mesh, 1., 100, 0., Consts::pi());
   CTable<Real>& arc_coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Uint segments = 10000;
 
   // complete circle
-  CMesh& mesh = Core::instance().root().create_component<CMesh>("rotating_cylinder");
+  Mesh& mesh = Core::instance().root().create_component<Mesh>("rotating_cylinder");
   create_circle_2d(mesh, 1., segments);
   CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
   CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();

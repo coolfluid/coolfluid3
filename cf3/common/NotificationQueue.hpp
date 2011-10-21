@@ -13,7 +13,7 @@
 
 #include "common/CF.hpp"
 #include "common/CommonAPI.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ namespace common {
     /// @brief Constructor
     /// @param root The root component this class has to listen to. Cannot be
     /// null.
-    NotificationQueue(CRoot::Ptr root);
+    NotificationQueue(Root::Ptr root);
 
     /// @brief Desctructor
     ~NotificationQueue();

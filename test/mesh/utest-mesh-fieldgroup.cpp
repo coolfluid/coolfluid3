@@ -13,12 +13,12 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/FieldGroup.hpp"
@@ -52,10 +52,10 @@ struct FieldGroupTests_Fixture
   }
 
   /// common mesh accessed by all tests
-  static CMesh::Ptr m_mesh;
+  static Mesh::Ptr m_mesh;
 };
 
-CMesh::Ptr FieldGroupTests_Fixture::m_mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
+Mesh::Ptr FieldGroupTests_Fixture::m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( test_MeshCreation )
 
 BOOST_AUTO_TEST_CASE( test_FieldGroup )
 {
-  CMesh& mesh = *m_mesh;
+  Mesh& mesh = *m_mesh;
 
   // Check if nodes field_group is sane
   BOOST_CHECK_NO_THROW(mesh.geometry().check_sanity());

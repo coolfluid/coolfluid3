@@ -11,7 +11,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "mesh/CDomain.hpp"
 
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.create_physics("CF.Physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

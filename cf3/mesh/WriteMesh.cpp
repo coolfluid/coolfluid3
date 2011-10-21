@@ -17,14 +17,14 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/MeshMetadata.hpp"
 
@@ -50,7 +50,7 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   mark_basic();
 
 
-  m_options.add_option( OptionComponent<CMesh>::create("mesh", &m_mesh) )
+  m_options.add_option( OptionComponent<Mesh>::create("mesh", &m_mesh) )
       ->description("Mesh to write")
       ->pretty_name("Mesh")
       ->mark_basic();
@@ -93,16 +93,16 @@ WriteMesh::~WriteMesh()
 
 void WriteMesh::update_list_of_available_writers()
 {
-  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<CMeshWriter>();
+  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
 
   if ( is_null(meshwriter_factory) )
-    throw ValueNotFound ( FromHere() , "Could not find factory for CMeshWriter" );
+    throw ValueNotFound ( FromHere() , "Could not find factory for MeshWriter" );
 
   m_extensions_to_writers.clear();
 
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshwriter_factory ) )
   {
-    CMeshWriter::Ptr writer;
+    MeshWriter::Ptr writer;
 
     Component::Ptr comp = get_child_ptr(bdr.name());
     if( is_null(comp) )
@@ -110,7 +110,7 @@ void WriteMesh::update_list_of_available_writers()
 
     if( is_not_null(comp) ) // convert to writer
     {
-      writer = comp->as_ptr_checked<CMeshWriter>();
+      writer = comp->as_ptr_checked<MeshWriter>();
     }
     else
       throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh writer" );
@@ -143,7 +143,7 @@ void WriteMesh::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::write_mesh( const CMesh& mesh, const URI& file )
+void WriteMesh::write_mesh( const Mesh& mesh, const URI& file )
 {
   std::vector<URI> fields;
 
@@ -155,7 +155,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vector<URI>& fields)
+void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector<URI>& fields)
 {
   update_list_of_available_writers();
 
@@ -179,7 +179,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
      std::string msg;
      msg = filepath.string() + " has ambiguous extension " + extension + "\n"
        +  "Possible writers for this extension are: \n";
-     boost_foreach(const CMeshWriter::Ptr writer , m_extensions_to_writers[extension])
+     boost_foreach(const MeshWriter::Ptr writer , m_extensions_to_writers[extension])
        msg += " - " + writer->name() + "\n";
      throw FileFormatError( FromHere(), msg);
    }
@@ -229,7 +229,7 @@ void WriteMesh::write_mesh( const CMesh& mesh, const URI& file, const std::vecto
 
   // get the correct writer based on the extension
 
-  CMeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
+  MeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
   writer->configure_option("fields",fields);
 
   // write the mesh and notify output
@@ -251,7 +251,7 @@ void WriteMesh::signal_write_mesh ( common::SignalArgs& node )
   URI mesh_uri = options.value<URI>("mesh");
 
   // get the mesh
-  const CMesh& mesh = access_component( mesh_uri ).as_type<CMesh>();
+  const Mesh& mesh = access_component( mesh_uri ).as_type<Mesh>();
 
   const URI file = options.value<URI>("file");
 
@@ -266,7 +266,7 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<CMeshWriter>();
+  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
   std::vector<boost::any> writers;
 
   // build the restricted list

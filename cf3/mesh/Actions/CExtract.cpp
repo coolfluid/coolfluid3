@@ -18,7 +18,7 @@
 
 #include "mesh/CElements.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "mesh/Actions/CExtract.hpp"
 
@@ -44,12 +44,12 @@ namespace Actions{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < mesh::Actions::CExtract, mesh::CMeshTransformer, mesh::Actions::LibActions > CExtract_Builder;
+common::ComponentBuilder < mesh::Actions::CExtract, mesh::MeshTransformer, mesh::Actions::LibActions > CExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CExtract::CExtract( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
   m_options.add_option<OptionArrayT<std::string> >("Regions", std::vector<std::string>())
       ->description("Regions to extract, can be regular expression matched with the full path")
@@ -97,7 +97,7 @@ std::string CExtract::help() const
 void CExtract::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
 
   // Storage of regions to keep

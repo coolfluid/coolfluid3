@@ -25,7 +25,7 @@ FilteringModel::FilteringModel(QObject *parent) :
     QSortFilterProxyModel(parent)
 {
   QFileIconProvider prov;
-  m_icons["CRoot"] = prov.icon(QFileIconProvider::Computer);
+  m_icons["Root"] = prov.icon(QFileIconProvider::Computer);
   m_icons["CF.Common.Group"] = prov.icon(QFileIconProvider::Folder);
   m_icons["CF.Mesh.Mesh"] = prov.icon(QFileIconProvider::Drive);
   m_icons["CF.Mesh.MeshReader"] = prov.icon(QFileIconProvider::Trashcan);

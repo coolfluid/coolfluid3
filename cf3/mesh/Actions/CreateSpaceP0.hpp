@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/Actions/LibActions.hpp"
 
@@ -24,7 +24,7 @@ namespace Actions {
 /// This class defines a mesh transformer
 /// that creates a P0 space for every element in the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CreateSpaceP0 : public CMeshTransformer
+class Mesh_Actions_API CreateSpaceP0 : public MeshTransformer
 {
 public: // typedefs
 

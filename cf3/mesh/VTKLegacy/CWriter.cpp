@@ -18,7 +18,7 @@
 
 #include "mesh/VTKLegacy/CWriter.hpp"
 #include "mesh/GeoShape.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Field.hpp"
@@ -33,12 +33,12 @@ namespace VTKLegacy {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < VTKLegacy::CWriter, CMeshWriter, LibVTKLegacy> aVTKLegacyWriter_Builder;
+common::ComponentBuilder < VTKLegacy::CWriter, MeshWriter, LibVTKLegacy> aVTKLegacyWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CWriter::CWriter( const std::string& name )
-: CMeshWriter(name)
+: MeshWriter(name)
 {
 
 }
@@ -54,9 +54,9 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
+void CWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<CMesh>().get();
+  m_mesh = mesh.as_ptr<Mesh>().get();
 
   // if the file is present open it
   boost::filesystem::fstream file;

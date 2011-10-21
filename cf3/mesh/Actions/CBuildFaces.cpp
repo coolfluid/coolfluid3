@@ -16,12 +16,12 @@
 #include "mesh/Actions/CBuildFaces.hpp"
 #include "mesh/CCellFaces.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/CFaceCellConnectivity.hpp"
 #include "mesh/CNodeElementConnectivity.hpp"
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -35,12 +35,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaces, CMeshTransformer, LibActions> CBuildFaces_Builder;
+common::ComponentBuilder < CBuildFaces, MeshTransformer, LibActions> CBuildFaces_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CBuildFaces::CBuildFaces( const std::string& name )
-: CMeshTransformer(name),
+: MeshTransformer(name),
   m_store_cell2face(false)
 {
 
@@ -81,7 +81,7 @@ void CBuildFaces::execute()
 {
   // traverse regions and make interface region between connected regions recursively
   //make_interfaces(m_mesh);
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   build_face_cell_connectivity_bottom_up(mesh);
   build_faces_bottom_up(mesh);
 
@@ -98,8 +98,8 @@ void CBuildFaces::execute()
 
 void CBuildFaces::make_interfaces(Component& parent)
 {
-  cf3_assert_desc("parent must be a CRegion or CMesh",
-    is_not_null( parent.as_ptr<CMesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
+  cf3_assert_desc("parent must be a CRegion or Mesh",
+    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
 
   CElements::Ptr comp;
   //std::cout << PERank << "make interfaces for " << parent.name() << std::endl;
@@ -152,8 +152,8 @@ void CBuildFaces::make_interfaces(Component& parent)
 
 void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 {
-  cf3_assert_desc("parent must be a CRegion or CMesh",
-    is_not_null( parent.as_ptr<CMesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
+  cf3_assert_desc("parent must be a CRegion or Mesh",
+    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
 
   CCells::Ptr comp;
 
@@ -180,8 +180,8 @@ void CBuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 
 void CBuildFaces::build_faces_bottom_up(Component& parent)
 {
-  cf3_assert_desc("parent must be a CRegion or CMesh",
-    is_not_null( parent.as_ptr<CMesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
+  cf3_assert_desc("parent must be a CRegion or Mesh",
+    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<CRegion>() ) );
 
   CElements::Ptr comp;
 
@@ -234,7 +234,7 @@ void CBuildFaces::build_faces_bottom_up(Component& parent)
 
 void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& face_to_cell, bool is_inner)
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   std::set<std::string> face_types;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > f2c_buffer_map;
   std::map<std::string,CTable<Uint>::Buffer::Ptr > fnb_buffer_map;
@@ -327,7 +327,7 @@ void CBuildFaces::build_face_elements(CRegion& region, CFaceCellConnectivity& fa
 
 CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& region2)
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   // interface connectivity
   CFaceCellConnectivity::Ptr interface = allocate_component<CFaceCellConnectivity>("interface_connectivity");
   interface->configure_option("face_building_algorithm",true);
@@ -464,7 +464,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
 
 void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   // unified face-cell-connectivity
   CUnifiedData::Ptr unified_inner_faces_to_cells = allocate_component<CUnifiedData>("unified_inner_faces");
   boost_foreach(CFaceCellConnectivity& f2c, find_components_recursively_with_tag<CFaceCellConnectivity>(inner_region,mesh::Tags::inner_faces()))

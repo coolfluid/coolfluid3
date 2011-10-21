@@ -29,7 +29,7 @@
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
@@ -49,12 +49,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalConnectivity, CMeshTransformer, LibActions> CGlobalConnectivity_Builder;
+common::ComponentBuilder < CGlobalConnectivity, MeshTransformer, LibActions> CGlobalConnectivity_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CGlobalConnectivity::CGlobalConnectivity( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
@@ -89,7 +89,7 @@ std::string CGlobalConnectivity::help() const
 
 void CGlobalConnectivity::execute()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   Geometry& nodes = mesh.geometry();
   CList<Uint>& nodes_glb_idx = nodes.glb_idx();

@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/MatrixTypes.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ namespace Actions {
 /// - id 12 must belong to process 2
 /// - ...
 /// @author Willem Deconinck
-class Mesh_Actions_API CGlobalNumberingElements : public CMeshTransformer
+class Mesh_Actions_API CGlobalNumberingElements : public MeshTransformer
 {
 public: // typedefs
 

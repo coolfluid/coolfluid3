@@ -28,7 +28,7 @@
 
 #include "mesh/VTKXML/CWriter.hpp"
 #include "mesh/GeoShape.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/Geometry.hpp"
@@ -194,12 +194,12 @@ namespace detail
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < VTKXML::CWriter, CMeshWriter, LibVTKXML> aVTKXMLWriter_Builder;
+common::ComponentBuilder < VTKXML::CWriter, MeshWriter, LibVTKXML> aVTKXMLWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CWriter::CWriter( const std::string& name )
-: CMeshWriter(name)
+: MeshWriter(name)
 {
     m_options.add_option< OptionT<bool> >("distributed_files", false)
     ->pretty_name("Distributed Files")
@@ -218,7 +218,7 @@ std::vector<std::string> CWriter::get_extensions()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
+void CWriter::write_from_to(const Mesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
   boost::filesystem::path my_path(file_path.path());

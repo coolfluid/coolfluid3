@@ -9,7 +9,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
 #include "common/CBuilder.hpp"

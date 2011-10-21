@@ -10,7 +10,7 @@
 #include "common/CF.hpp"
 #include "common/Component.hpp"
 
-#include "mesh/CMeshGenerator.hpp"
+#include "mesh/MeshGenerator.hpp"
 
 #include "mesh/BlockMesh/LibBlockMesh.hpp"
 #include "mesh/BlockMesh/BlockData.hpp"
@@ -18,7 +18,7 @@
 namespace cf3 {
 namespace mesh {
 
-class CMesh;
+class Mesh;
 
 namespace BlockMesh {
 
@@ -26,7 +26,7 @@ namespace BlockMesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Generate parallel 3D channels with grading towards the wall
-class BlockMesh_API ChannelGenerator : public CMeshGenerator
+class BlockMesh_API ChannelGenerator : public MeshGenerator
 {
 public:
   typedef boost::shared_ptr<ChannelGenerator> Ptr;

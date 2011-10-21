@@ -84,7 +84,7 @@ public: // functions
   /// @returns the group of shared fields
   common::Group&       fields()                 { return *m_fields; }
 
-  mesh::CMesh& mesh() { return *m_mesh.lock(); }
+  mesh::Mesh& mesh() { return *m_mesh.lock(); }
 
 private: // functions
 
@@ -105,7 +105,7 @@ private: // data
   boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
 
   boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
-  boost::weak_ptr<mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates
+  boost::weak_ptr<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 
   boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
   boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping

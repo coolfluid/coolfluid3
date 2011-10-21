@@ -381,7 +381,7 @@ void CNodeTest::test_addNode()
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(childCountChanged()));
 
   GUI_CHECK_NO_THROW( root->addNode(node));
-  // the component should have been added to the *real* root (CRoot)
+  // the component should have been added to the *real* root (Root)
   GUI_CHECK_NO_THROW( root->root()->access_component_ptr("cpath://Root/Node")->as_ptr<NGeneric>() );
 
   QCOMPARE(rootSpy.count(), 1);
@@ -408,7 +408,7 @@ void CNodeTest::test_removeNode()
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(childCountChanged()));
 
   GUI_CHECK_NO_THROW( root->removeNode("Node"));
-  // the component should have been removed from the REAL root (CRoot)
+  // the component should have been removed from the REAL root (Root)
   QCOMPARE( root->root()->access_component_ptr("cpath://Root/Node").get(), nullComp);
 
   QCOMPARE(rootSpy.count(), 1);

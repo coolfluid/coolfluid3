@@ -17,7 +17,7 @@
 #include "common/StringConversion.hpp"
 #include "common/Tags.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CList.hpp"
 #include "mesh/CRegion.hpp"
@@ -25,7 +25,7 @@
 #include "mesh/CMixedHash.hpp"
 #include "mesh/CHash.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 
 #include "mesh/Neu/CReader.hpp"
 
@@ -40,12 +40,12 @@ namespace Neu {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < Neu::CReader, CMeshReader, LibNeu > aNeuReader_Builder;
+cf3::common::ComponentBuilder < Neu::CReader, MeshReader, LibNeu > aNeuReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader( const std::string& name )
-: CMeshReader(name),
+: MeshReader(name),
   Shared()
 {
   // options
@@ -85,7 +85,7 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
+void CReader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
 
   // if the file is present open it
@@ -101,7 +101,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   }
 
   // set the internal mesh pointer
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
 
   // Read file once and store positions
   get_file_positions();

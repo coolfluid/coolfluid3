@@ -15,7 +15,7 @@
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
 
@@ -27,13 +27,13 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 using namespace std;
 using namespace boost;
@@ -52,8 +52,8 @@ struct MeshReading_Fixture
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
-    root = CRoot::create("Root");
-    reader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","MyReader");
+    root = Root::create("Root");
+    reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","MyReader");
     domain = root->create_component_ptr<CDomain>("MyDom");
 
     root->add_component( reader );
@@ -68,8 +68,8 @@ struct MeshReading_Fixture
   }
 
   /// possibly common functions used on the tests below
-  CRoot::Ptr root;
-  CMeshReader::Ptr reader;
+  Root::Ptr root;
+  MeshReader::Ptr reader;
   CDomain::Ptr domain;
 
   /// common values accessed by all tests goes here
@@ -86,15 +86,15 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
 
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
-  CMeshWriter::Ptr neu_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->get_format(),"Neu");
 
@@ -104,19 +104,19 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>  ( "quadtriag" );
+  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag" );
 
   meshreader->read_mesh_into("quadtriag.neu",mesh);
 
   BOOST_CHECK(true);
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,"quadtriag.msh");
   BOOST_CHECK(true);
 
-  CMeshWriter::Ptr neu_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,"quadtriag_write.neu");
   BOOST_CHECK(true);
 
@@ -128,11 +128,11 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
 BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>  ( "quadtriag_write" );
+  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag_write" );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_mesh_into("quadtriag_write.neu",mesh);
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 28);
 
-//  CMeshTransformer::Ptr meshinfo = build_component_abstract_type<CMeshTransformer>("Info","meshinfo");
+//  MeshTransformer::Ptr meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
 }
 
@@ -150,16 +150,16 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
 BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>  ( "hextet" );
+  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextet" );
 
   meshreader->read_mesh_into("hextet.neu",mesh);
 
-  CMeshWriter::Ptr gmsh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   gmsh_writer->write_from_to(mesh,"hextet.msh");
-  CMeshWriter::Ptr neu_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
   neu_writer->write_from_to(mesh,"hextet_write.neu");
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
@@ -169,11 +169,11 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 
 BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
   // the mesh to store in
-  CMesh& mesh = Core::instance().root().create_component<CMesh>  ( "hextest_write" );
+  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextest_write" );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_mesh_into("hextet_write.neu",mesh);
@@ -183,20 +183,20 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
 
-//  CMeshTransformer::Ptr meshinfo = build_component_abstract_type<CMeshTransformer>("Info","meshinfo");
+//  MeshTransformer::Ptr meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
 
 }
 /*
 BOOST_AUTO_TEST_CASE( read_multiple )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  CMesh::Ptr mesh ( allocate_component<CMesh>  ( "mesh" ) );
+  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
   for (Uint count=1; count<=4; ++count)
   {
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
     BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), count*28);
   }
 
-  CMeshTransformer::Ptr info  = build_component_abstract_type<CMeshTransformer>("Info","info");
+  MeshTransformer::Ptr info  = build_component_abstract_type<MeshTransformer>("Info","info");
   info->transform(mesh);
 }*/
 

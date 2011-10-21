@@ -22,7 +22,7 @@
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CFaces.hpp"
 #include "mesh/CCellFaces.hpp"
 #include "mesh/Field.hpp"
@@ -40,12 +40,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaceNormals, CMeshTransformer, LibActions> CBuildFaceNormals_Builder;
+common::ComponentBuilder < CBuildFaceNormals, MeshTransformer, LibActions> CBuildFaceNormals_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CBuildFaceNormals::CBuildFaceNormals( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Print information of the mesh");
@@ -78,7 +78,7 @@ std::string CBuildFaceNormals::help() const
 void CBuildFaceNormals::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   const Uint dimension = mesh.geometry().coordinates().row_size();
 

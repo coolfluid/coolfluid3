@@ -12,20 +12,20 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "common/FindComponents.hpp"
 
 #include "mesh/Actions/CreateSpaceP0.hpp"
 #include "mesh/Actions/CBuildFaces.hpp"
 #include "mesh/Actions/CBuildFaceNormals.hpp"
-#include "mesh/CMeshTransformer.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshTransformer.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CFaces.hpp"
 #include "mesh/CCellFaces.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/CFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
@@ -59,10 +59,10 @@ struct TestCBuildFaces_Fixture
 
 
   /// common values accessed by all tests goes here
-  static CMesh::Ptr mesh;
+  static Mesh::Ptr mesh;
 };
 
-CMesh::Ptr TestCBuildFaces_Fixture::mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
+Mesh::Ptr TestCBuildFaces_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
   CRegion& wall_region = find_component_recursively_with_name<CRegion>(mesh->topology(),"wall");
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  CMeshTransformer::Ptr info = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CInfo","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
-  CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
+  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 
   mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   mesh_gen->configure_option("mesh",URI("//Root/rectangle_mesh"))
       .configure_option("lengths",lengths)
       .configure_option("nb_cells",nb_cells);
-  CMesh& rmesh = mesh_gen->generate();
+  Mesh& rmesh = mesh_gen->generate();
   BOOST_CHECK(true);
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
   BOOST_CHECK(true);

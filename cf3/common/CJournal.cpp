@@ -143,7 +143,7 @@ void CJournal::execute_signals (const boost::filesystem::path & filename)
 //  bool found_map = false;
   rapidxml::xml_node<>* node = nullptr;
 //  rapidxml::xml_attribute<>* key_attr = nullptr;
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
   const char * frame_tag = Protocol::Tags::node_frame();
 
   XmlNode signal_map = Map(doc_node).find_value( Protocol::Tags::key_signals() );

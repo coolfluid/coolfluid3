@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/MeshPartitioner.hpp"
 #include "mesh/PTScotch/LibPTScotch.hpp"
 
 namespace cf3 {
@@ -18,10 +18,10 @@ namespace PTScotch {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshPartitioner component class
+/// MeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class PTScotch_API CPartitioner : public CMeshPartitioner {
+class PTScotch_API CPartitioner : public MeshPartitioner {
 
 public: // typedefs
 

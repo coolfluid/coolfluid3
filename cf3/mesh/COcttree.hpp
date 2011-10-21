@@ -20,7 +20,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +91,7 @@ private: //functions
 
 private: // data
 
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
 
   ArrayT m_octtree;
 

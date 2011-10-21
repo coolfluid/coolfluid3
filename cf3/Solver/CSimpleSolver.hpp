@@ -14,7 +14,7 @@
 
 namespace cf3 {
 
-namespace mesh { class CMesh; }
+namespace mesh { class Mesh; }
 
 namespace Solver {
 
@@ -46,14 +46,14 @@ public: // functions
 
   /// When a mesh is loaded into the domain, set this as the mesh returned by mesh() and
   /// create the fields, based on registered fields in the physical model (if any)
-  virtual void mesh_loaded(mesh::CMesh& mesh);
+  virtual void mesh_loaded(mesh::Mesh& mesh);
 
 protected:
   /// Checked access to the mesh
-  mesh::CMesh& mesh();
+  mesh::Mesh& mesh();
 
   /// Weak pointer to the mesh that was last loaded, or expired otherwise
-  boost::weak_ptr<mesh::CMesh> m_mesh;
+  boost::weak_ptr<mesh::Mesh> m_mesh;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

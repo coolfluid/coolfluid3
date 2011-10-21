@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/MatrixTypes.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace Actions {
 /// This class defines a mesh transformer
 /// that finds matching nodes in given regions of the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CMatchNodes : public CMeshTransformer
+class Mesh_Actions_API CMatchNodes : public MeshTransformer
 {
 public: // typedefs
 

@@ -12,12 +12,12 @@
 #include "common/Component.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
   class Field;
   class CStencilComputer;
   
@@ -55,7 +55,7 @@ public: // functions
 
   void interpolate();
 
-  virtual void construct_internal_storage(const CMesh& source) = 0;
+  virtual void construct_internal_storage(const Mesh& source) = 0;
   
   virtual void interpolate_field_from_to(const Field& source, Field& target) = 0;
 

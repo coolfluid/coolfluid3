@@ -21,16 +21,16 @@
 #include "Solver/Actions/Proto/Terminals.hpp"
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 
 BOOST_AUTO_TEST_CASE( ProtoBasics )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("rect");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("rect");
   Tools::MeshGeneration::create_rectangle(*mesh, 5, 5, 5, 5);
 
   RealVector center_coords(2);
@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( ProtoBasics )
 
 BOOST_AUTO_TEST_CASE( MatrixProducts )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry().create_field( "solution", "Temperature" ).add_tag("solution");
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real circulation = 975.;
   const Real rho = 1.225;
 
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
   typedef boost::mpl::vector1< LagrangeP1::Line2D> SurfaceTypes;
@@ -186,7 +186,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   const Real circulation = 975.;
   const Real rho = 1.225;
 
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("circle");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
   mesh->geometry().create_field( "Pressure", "Pressure" ).add_tag("solution");
@@ -250,7 +250,7 @@ MakeSFOp<CustomLaplacian>::type laplacian_cust = {};
 
 BOOST_AUTO_TEST_CASE( CustomOp )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry().create_field( "Temperature", "Temperature" ).add_tag("solution");
@@ -287,7 +287,7 @@ MakeSFOp<Counter>::type counter = {};
 /// Test a custom operator that modifies its arguments
 BOOST_AUTO_TEST_CASE( VoidOp )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("line2");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line2");
   Tools::MeshGeneration::create_line(*mesh, 1., 10);
 
   // Check if the counter really counts
@@ -303,7 +303,7 @@ BOOST_AUTO_TEST_CASE( VoidOp )
 
 BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
@@ -349,7 +349,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
 
 BOOST_AUTO_TEST_CASE(GroupArity)
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("GaussQuadratureLine");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
   mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
@@ -405,7 +405,7 @@ static MakeSFOp<IndexPrinter>::type const print_indices = {};
 
 BOOST_AUTO_TEST_CASE(IndexLooper)
 {
-  CMesh::Ptr mesh = Core::instance().root().create_component_ptr<CMesh>("QuadGrid");
+  Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("QuadGrid");
   Tools::MeshGeneration::create_rectangle(*mesh, 1., 1., 1, 1);
 
   const RealVector2 idx(1.,2.);
@@ -431,7 +431,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   BOOST_CHECK_EQUAL(result_j, 3);
   BOOST_CHECK_EQUAL(result_ij, 12);
 
-  CMesh& line = Core::instance().root().create_component<CMesh>("Line");
+  Mesh& line = Core::instance().root().create_component<Mesh>("Line");
   Tools::MeshGeneration::create_line(line, 1., 1);
 
   MeshTerm<0, VectorField> u("Velocity", "solution");
@@ -464,7 +464,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   CDomain& dom = model.create_domain("Domain");
-  CMesh& mesh = dom.create_component<CMesh>("QuadGrid2");
+  Mesh& mesh = dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
   Physics::PhysModel& physics = model.create_physics("CF.Physics.DynamicModel");

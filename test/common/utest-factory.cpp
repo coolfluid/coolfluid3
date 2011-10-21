@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "test/common/DummyComponents.hpp"
 

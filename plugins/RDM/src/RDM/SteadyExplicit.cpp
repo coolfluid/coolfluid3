@@ -12,7 +12,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/WriteMesh.hpp"
 

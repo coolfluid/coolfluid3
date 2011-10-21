@@ -15,7 +15,7 @@
 #include "math/LSS/System.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -122,13 +122,13 @@ void LinearSolver::execute()
   CSimpleSolver::execute();
 }
 
-void LinearSolver::mesh_loaded(CMesh& mesh)
+void LinearSolver::mesh_loaded(Mesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
   mesh_changed(mesh);
 }
 
-void LinearSolver::mesh_changed(CMesh& mesh)
+void LinearSolver::mesh_changed(Mesh& mesh)
 {
   CFdebug << "UFEM::LinearSolver: Reacting to mesh_changed signal" << CFendl;
 

@@ -12,7 +12,7 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Actions/LoadBalance.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -26,12 +26,12 @@ using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < LoadBalance, CMeshTransformer, LibActions> LoadBalance_Builder;
+common::ComponentBuilder < LoadBalance, MeshTransformer, LibActions> LoadBalance_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 LoadBalance::LoadBalance( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
@@ -41,9 +41,9 @@ LoadBalance::LoadBalance( const std::string& name )
   properties()["description"] = desc;
 
 #if defined (CF3_HAVE_PTSCOTCH)
-  m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner");
+  m_partitioner = build_component_abstract_type<MeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner");
 #elif defined (CF3_HAVE_ZOLTAN)
-  m_partitioner = build_component_abstract_type<CMeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner");
+  m_partitioner = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner");
   m_partitioner->configure_option("graph_package", std::string("PHG"));
 #endif
   add_static_component(*m_partitioner);
@@ -54,7 +54,7 @@ LoadBalance::LoadBalance( const std::string& name )
 void LoadBalance::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   // balance if parallel run with multiple processors
   if( Comm::instance().is_active() && Comm::instance().size() > 1 )
@@ -65,18 +65,18 @@ void LoadBalance::execute()
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
     // build global numbering and connectivity of nodes and elements (necessary for partitioning)
-    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
 
     CFinfo << "  + building global node-element connectivity" << CFendl;
 
-    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
 
 
     CFinfo << "  + partitioning and migrating" << CFendl;
     m_partitioner->transform(mesh);
 
     CFinfo << "  + growing overlap layer" << CFendl;
-    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
 
 
     CFinfo << "  + deallocating unused connectivity" << CFendl;
@@ -89,7 +89,7 @@ void LoadBalance::execute()
   {
     /// @todo disable this when below is re-enabled
     CFinfo << "  + building joint node & element global numbering" << CFendl;
-    build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
   }
 
 
@@ -100,11 +100,11 @@ void LoadBalance::execute()
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
 
   CFinfo << "creating continuous global element numbering" << CFendl;
 
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 #endif
 }
 

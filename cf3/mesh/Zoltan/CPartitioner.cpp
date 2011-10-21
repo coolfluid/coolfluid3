@@ -29,12 +29,12 @@ namespace Zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < CPartitioner, CMeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
+cf3::common::ComponentBuilder < CPartitioner, MeshTransformer, LibZoltan > zoltan_partitioner_transformer_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CPartitioner::CPartitioner ( const std::string& name ) :
-  CMeshPartitioner(name),
+  MeshPartitioner(name),
   m_partitioned(false)
 {
 
@@ -227,7 +227,7 @@ void CPartitioner::set_partitioning_params()
 
 int CPartitioner::query_nb_of_objects(void *data, int *ierr)
 {
-  CMeshPartitioner& p = *(CMeshPartitioner *)data;
+  MeshPartitioner& p = *(MeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
   return p.nb_objects_owned_by_part(PE::Comm::instance().rank());
@@ -239,7 +239,7 @@ void CPartitioner::query_list_of_objects(void *data, int sizeGID, int sizeLID,
                                          ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
                                          int wgt_dim, float *obj_wgts, int *ierr)
 {
-  CMeshPartitioner& p = *(CMeshPartitioner *)data;
+  MeshPartitioner& p = *(MeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
   p.list_of_objects_owned_by_part(PE::Comm::instance().rank(),globalID);
@@ -264,7 +264,7 @@ void CPartitioner::query_nb_connected_objects(void *data, int sizeGID, int sizeL
                                               ZOLTAN_ID_PTR globalID, ZOLTAN_ID_PTR localID,
                                               int *numEdges, int *ierr)
 {
-  CMeshPartitioner& p = *(CMeshPartitioner *)data;
+  MeshPartitioner& p = *(MeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
   p.nb_connected_objects_in_part(PE::Comm::instance().rank(),numEdges);
@@ -278,7 +278,7 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
                                                    ZOLTAN_ID_PTR nborGID, int *nborProc,
                                                    int wgt_dim, float *ewgts, int *ierr)
 {
-  CMeshPartitioner& p = *(CMeshPartitioner *)data;
+  MeshPartitioner& p = *(MeshPartitioner *)data;
   *ierr = ZOLTAN_OK;
 
   p.list_of_connected_objects_in_part(PE::Comm::instance().rank(),nborGID);

@@ -12,18 +12,18 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CDynTable.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -43,13 +43,13 @@ struct Nodes_Fixture
   /// common setup for each test case
   Nodes_Fixture()
   {
-     mesh2d = Core::instance().root().create_component_ptr<CMesh>  ( "mesh2d" );
+     mesh2d = Core::instance().root().create_component_ptr<Mesh>  ( "mesh2d" );
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
     // Read the a .neu mesh as 2D mixed mesh
-    CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
     // Read the mesh
     meshreader->read_mesh_into("quadtriag.neu",*mesh2d);
@@ -60,7 +60,7 @@ struct Nodes_Fixture
   {
   }
   /// common values accessed by all tests goes here
-  boost::shared_ptr<CMesh> mesh2d;
+  boost::shared_ptr<Mesh> mesh2d;
 
   CElements& get_first_region()
   {

@@ -16,7 +16,7 @@
 #include "math/Consts.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"

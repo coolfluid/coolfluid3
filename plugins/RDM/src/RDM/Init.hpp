@@ -15,7 +15,7 @@
 
 namespace cf3 {
 
-namespace mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 

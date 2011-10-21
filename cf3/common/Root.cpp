@@ -13,17 +13,17 @@
 #include "common/CF.hpp"
 #include "common/NotificationQueue.hpp"
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 namespace cf3 {
 namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  CRoot::Ptr CRoot::create ( const std::string& name )
+  Root::Ptr Root::create ( const std::string& name )
   {
-    boost::shared_ptr<CRoot> root(new AllocatedComponent<CRoot>(name), Deleter< AllocatedComponent<CRoot> >());
-    CRoot* raw_root = root.get();
+    boost::shared_ptr<Root> root(new AllocatedComponent<Root>(name), Deleter< AllocatedComponent<Root> >());
+    Root* raw_root = root.get();
 
     // point root's parent and root to himself
     root->m_root = root;
@@ -37,11 +37,11 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  CRoot::CRoot ( const std::string& name ) : Component ( name )
+  Root::Root ( const std::string& name ) : Component ( name )
   {
-    // we need to manually register the type name since CRoot cannot be
+    // we need to manually register the type name since Root cannot be
     // put into ComponentBuilder because the constructor is private
-    TypeInfo::instance().regist<CRoot>( type_name() );
+    TypeInfo::instance().regist<Root>( type_name() );
 
     regist_signal("new_event")
         ->description( "Notifies new events." );
@@ -49,14 +49,14 @@ namespace common {
     m_path = "/";
   }
 
-  CRoot::~CRoot()
+  Root::~Root()
   {
     std::cout << "goodbye " << FromHere().str() << std::endl;
   }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  Component::Ptr CRoot::retrieve_component( const URI& path )
+  Component::Ptr Root::retrieve_component( const URI& path )
   {
     cf3_assert ( path.is_complete() );
 
@@ -72,7 +72,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  Component::Ptr CRoot::retrieve_component_checked( const URI& path )
+  Component::Ptr Root::retrieve_component_checked( const URI& path )
   {
     cf3_assert ( path.is_complete() );
 
@@ -88,7 +88,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
+  void Root::change_component_path( const URI& path , boost::shared_ptr<Component> comp )
   {
     remove_component_path( comp->uri().path() );
 
@@ -102,7 +102,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::remove_component_path( const URI& path )
+  void Root::remove_component_path( const URI& path )
   {
     cf3_assert ( path.is_complete() );
     cf3_assert ( path.scheme() == URI::Scheme::CPATH );
@@ -115,7 +115,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  bool CRoot::exists_component_path( const URI& path ) const
+  bool Root::exists_component_path( const URI& path ) const
   {
     cf3_assert ( path.is_complete() );
     cf3_assert ( path.scheme() == URI::Scheme::CPATH );
@@ -125,7 +125,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  std::string CRoot::list_toc() const
+  std::string Root::list_toc() const
   {
     std::ostringstream out;
 
@@ -140,7 +140,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::raise_new_event ( const std::string & event_name,
+  void Root::raise_new_event ( const std::string & event_name,
                                 const URI & raiser_path )
   {
     cf3_assert( exists_component_path(raiser_path) );
@@ -154,7 +154,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void CRoot::add_notification_queue ( NotificationQueue * queue )
+  void Root::add_notification_queue ( NotificationQueue * queue )
   {
     cf3_assert( queue != nullptr );
 

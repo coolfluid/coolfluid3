@@ -12,7 +12,7 @@
 #include "common/CBuilder.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/OptionComponent.hpp"
 
 #include "RiemannSolvers/RiemannSolver.hpp"

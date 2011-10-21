@@ -16,7 +16,7 @@
 
 namespace cf3 {
 
-namespace mesh    { class Field;    class CMesh; }
+namespace mesh    { class Field;    class Mesh; }
 namespace Physics { class PhysModel; class Variables; }
 namespace Solver  { namespace Actions { class CSynchronizeFields; } }
 
@@ -116,7 +116,7 @@ private: // data
 
   boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
 
-  boost::weak_ptr<mesh::CMesh> m_mesh; ///< mesh which this solver operates
+  boost::weak_ptr<mesh::Mesh> m_mesh; ///< mesh which this solver operates
 
 };
 

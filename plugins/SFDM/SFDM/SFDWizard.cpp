@@ -27,7 +27,7 @@
 #include "Solver/Actions/CForAllCells.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementType.hpp"
@@ -194,7 +194,7 @@ void SFDWizard::prepare_simulation()
 
   CModel& model = m_model_link->follow()->as_type<CModel>();
 
-  std::vector<CMesh::Ptr> meshes = find_components<CMesh>(model.domain()).as_vector();
+  std::vector<Mesh::Ptr> meshes = find_components<Mesh>(model.domain()).as_vector();
   if (meshes.size() == 0)
     throw SetupError(FromHere(),"Mesh was not added to the domain");
 
@@ -397,7 +397,7 @@ void SFDWizard::build_setup()
   Action& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"CF.SFDM.SFDSetup");
 
   /// Create a mesh transformer to adapt the mesh for SFDM
-  CMeshTransformer& transform_mesh = setup.create_component<CMeshTransformer>("1_transform_mesh").mark_basic().as_type<CMeshTransformer>();
+  MeshTransformer& transform_mesh = setup.create_component<MeshTransformer>("1_transform_mesh").mark_basic().as_type<MeshTransformer>();
   transform_mesh.create_component<CBuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
   transform_mesh.create_component<CreateSpaceP0>     ("2_create_space_P0").mark_basic();
   transform_mesh.create_component<SFDM::CreateSpace> ("3_create_sfd_spaces").mark_basic().configure_option("P",option("P").value<Uint>());

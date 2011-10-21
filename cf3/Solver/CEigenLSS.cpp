@@ -306,7 +306,7 @@ void CEigenLSS::print_matrix()
 }
 
 
-void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, CMesh& solution_mesh)
+void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, Mesh& solution_mesh)
 {
   const Uint nb_vars = var_names.size();
 

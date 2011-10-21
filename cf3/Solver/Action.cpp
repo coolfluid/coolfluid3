@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -38,7 +38,7 @@ Action::Action ( const std::string& name ) :
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CMesh>::create(Tags::mesh(), &m_mesh))
+  m_options.add_option( OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
@@ -71,9 +71,9 @@ Physics::PhysModel& Action::physical_model()
 
 
 
-CMesh& Action::mesh()
+Mesh& Action::mesh()
 {
-  CMesh::Ptr m = m_mesh.lock();
+  Mesh::Ptr m = m_mesh.lock();
   if( is_null(m) )
     throw common::SetupError( FromHere(),
                              "Mesh not yet set for component " + uri().string() );

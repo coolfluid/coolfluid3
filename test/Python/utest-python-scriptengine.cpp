@@ -10,7 +10,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/BoostFilesystem.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Core.hpp"
 
 #include "Python/ScriptEngine.hpp"
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE( ExecuteScript )
 {
   BOOST_CHECK(boost::unit_test::framework::master_test_suite().argc == 2);
 
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
 
   Python::ScriptEngine& engine = root.create_component<Python::ScriptEngine>("PythonEngine");
 

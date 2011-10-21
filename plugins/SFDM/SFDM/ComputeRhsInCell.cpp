@@ -14,7 +14,7 @@
 #include "math/MathConsts.hpp"
 
 #include "mesh/CField.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/CEntities.hpp"
@@ -108,7 +108,7 @@ void ComputeRhsInCell::config_solution()
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_solution->set_field(comp);
 
-  m_mesh_elements = m_solution->field().parent().as_type<CMesh>().elements().as_ptr<CMeshElements>();
+  m_mesh_elements = m_solution->field().parent().as_type<Mesh>().elements().as_ptr<MeshElements>();
   m_nb_vars = m_solution->field().data().row_size();
 
 }

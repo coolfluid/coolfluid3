@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/GeoShape.hpp"
 
 #include "mesh/Tecplot/LibTecplot.hpp"
@@ -25,7 +25,7 @@ namespace Tecplot {
 
 /// This class defines Tecplot mesh format writer
 /// @author Willem Deconinck
-class Tecplot_API CWriter : public CMeshWriter
+class Tecplot_API CWriter : public MeshWriter
 {
 public: // typedefs
 
@@ -40,7 +40,7 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "CWriter"; }
 
-  virtual void write_from_to(const CMesh& mesh, const common::URI& path);
+  virtual void write_from_to(const Mesh& mesh, const common::URI& path);
 
   virtual std::string get_format() { return "Tecplot"; }
 

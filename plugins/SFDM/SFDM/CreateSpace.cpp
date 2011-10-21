@@ -12,7 +12,7 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionT.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementType.hpp"
@@ -29,12 +29,12 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CreateSpace, CMeshTransformer, LibSFDM> CreateSpace_Builder;
+common::ComponentBuilder < CreateSpace, MeshTransformer, LibSFDM> CreateSpace_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CreateSpace::CreateSpace( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   m_properties["brief"] = std::string("Create space for SFDM shape function");
@@ -50,7 +50,7 @@ CreateSpace::CreateSpace( const std::string& name )
 void CreateSpace::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   Uint p = option("P").value<Uint>();
   boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))

@@ -20,12 +20,12 @@ namespace PTScotch {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < CPartitioner, CMeshTransformer, LibPTScotch > ptscotch_partitioner_builder;
+cf3::common::ComponentBuilder < CPartitioner, MeshTransformer, LibPTScotch > ptscotch_partitioner_builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CPartitioner::CPartitioner ( const std::string& name ) :
-    CMeshPartitioner(name)
+    MeshPartitioner(name)
 {
   // initialize the graph
   if (SCOTCH_dgraphInit(&graph, Comm::instance().communicator()))

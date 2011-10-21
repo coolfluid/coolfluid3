@@ -12,11 +12,11 @@
 
 #include "common/Core.hpp"
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/LibLoader.hpp"
 #include "common/OSystem.hpp"
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -38,12 +38,12 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   loader.load_library("coolfluid_mesh_gmsh");
 
   // Setup document structure and mesh
-  CRoot& root = Core::instance().root();
+  Root& root = Core::instance().root();
 
-  CMesh& mesh = root.create_component<CMesh>("mesh");
+  Mesh& mesh = root.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(mesh, 10., 5., 5, 5);
 
-  CMeshWriter::Ptr writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
   root.add_component(writer);
   writer->write_from_to(mesh, "grid_2d.msh");
 }

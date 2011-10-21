@@ -24,7 +24,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
 
@@ -343,7 +343,7 @@ void CModel::on_mesh_loaded_event(SignalArgs& args)
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
-    CMesh& mesh = access_component(mesh_uri).as_type<CMesh>();
+    Mesh& mesh = access_component(mesh_uri).as_type<Mesh>();
 
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))
@@ -366,7 +366,7 @@ void CModel::on_mesh_changed_event(SignalArgs& args)
   if(mesh_uri.base_path() == domain().uri()) // Only handle events coming from our own domain
   {
     // Get a reference to the mesh that changed
-    CMesh& mesh = access_component(mesh_uri).as_type<CMesh>();
+    Mesh& mesh = access_component(mesh_uri).as_type<Mesh>();
 
     // Inform the solvers of the change
     boost_foreach(CSolver& solver, find_components<CSolver>(*this))

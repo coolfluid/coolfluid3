@@ -11,7 +11,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "mesh/ElementType.hpp"
 #include "mesh/CTable.hpp"

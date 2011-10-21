@@ -23,7 +23,7 @@
 
 #include "math/Consts.hpp"
 #include "mesh/COcttree.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
@@ -52,7 +52,7 @@ COcttree::COcttree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to create octtree from")
       ->pretty_name("Mesh")
       ->mark_basic();

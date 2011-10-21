@@ -16,7 +16,7 @@
 namespace cf3 {
 namespace mesh {
 
-class CMesh;
+class Mesh;
 
 namespace BlockMesh {
 
@@ -78,7 +78,7 @@ struct BlockMesh_API BlockData : common::Component
 /// @param block_data Description of the structured blocks that make up the grid. A mesh containing only the blocks will be created here.
 /// @param mesh Stores the generated mesh
 /// @param overlap Amount of cell overlap to generate
-void BlockMesh_API build_mesh(cf3::mesh::BlockMesh::BlockData& block_data, cf3::mesh::CMesh& mesh, const Uint overlap = 0);
+void BlockMesh_API build_mesh(cf3::mesh::BlockMesh::BlockData& block_data, cf3::mesh::Mesh& mesh, const Uint overlap = 0);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks
@@ -89,7 +89,7 @@ void BlockMesh_API build_mesh(cf3::mesh::BlockMesh::BlockData& block_data, cf3::
 void BlockMesh_API partition_blocks(const BlockData& blocks_in, const Uint nb_partitions, const CoordXYZ direction, BlockData& blocks_out);
 
 /// Creates a mesh containing only the blocks as elements
-void BlockMesh_API create_block_mesh(const BlockData& block_data, CMesh& mesh);
+void BlockMesh_API create_block_mesh(const BlockData& block_data, Mesh& mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 

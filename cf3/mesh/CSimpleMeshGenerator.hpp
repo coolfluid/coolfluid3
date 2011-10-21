@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "CMeshGenerator.hpp"
+#include "MeshGenerator.hpp"
 #include "common/PE/Comm.hpp"
 namespace cf3 {
 namespace mesh {
@@ -20,7 +20,7 @@ namespace mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CSimpleMeshGenerator : public CMeshGenerator {
+class Mesh_API CSimpleMeshGenerator : public MeshGenerator {
 
 public: // typedefs
 

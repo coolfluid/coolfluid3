@@ -15,7 +15,7 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/CLink.hpp"
 
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_SUITE( Component_TestSuite )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   // constructor with passed path
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   BOOST_CHECK_EQUAL ( root->name() , "root" );
   BOOST_CHECK_EQUAL ( root->uri().base_path().string() , "cpath:/" );
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( constructors )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 BOOST_AUTO_TEST_CASE( is_link )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( is_link )
 
 BOOST_AUTO_TEST_CASE( get )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr lnk1 = allocate_component<CLink>( "lnk1" );
@@ -127,15 +127,15 @@ BOOST_AUTO_TEST_CASE( get )
 
 BOOST_AUTO_TEST_CASE( as_const )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
-  CRoot::ConstPtr const_root = root->as_const()->as_ptr<CRoot>();
+  Root::Ptr root = Root::create ( "root" );
+  Root::ConstPtr const_root = root->as_const()->as_ptr<Root>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( complete_path )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 BOOST_AUTO_TEST_CASE( access_component_ptr )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
 
 BOOST_AUTO_TEST_CASE( move_to )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( move_to )
 
 BOOST_AUTO_TEST_CASE( problem )
 {
-  CRoot::Ptr root = CRoot::create ( "Simulator" );
+  Root::Ptr root = Root::create ( "Simulator" );
 
   Component::Ptr proot = root->access_component_ptr("cpath://Simulator");
 
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( problem )
 
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
-  CRoot::Ptr root = CRoot::create ( "root" );
+  Root::Ptr root = Root::create ( "root" );
   Component::Ptr comp1 = root->create_component_ptr<Component>("comp1");
   comp1->create_component_ptr<Component>("comp1_1");
   comp1->create_component_ptr<Component>("comp1_2");
@@ -261,12 +261,12 @@ BOOST_AUTO_TEST_CASE( create_subcomponents )
 
 BOOST_AUTO_TEST_CASE( create_component_signal )
 {
-  CRoot::Ptr root = CRoot::create ( "croot" );
+  Root::Ptr root = Root::create ( "croot" );
 
   SignalFrame sf("Signal", "//Root", "//Root");
 
   sf.set_option<std::string>( "name",  "MyMesh" );
-  sf.set_option<std::string>( "atype", "CMeshReader" );
+  sf.set_option<std::string>( "atype", "MeshReader" );
   sf.set_option<std::string>( "ctype", "CGNS" );
 
 //  XmlOps::print_xml_node( *doc.get() );
@@ -278,7 +278,7 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
 BOOST_AUTO_TEST_CASE( rename )
 {
-  CRoot::Ptr root = CRoot::create ( "Simulator" );
+  Root::Ptr root = Root::create ( "Simulator" );
 
   Component::Ptr c1 = root->create_component_ptr<Component>("c1");
 

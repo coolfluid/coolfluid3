@@ -11,14 +11,14 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Actions/Interpolate.hpp"
 
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CSimpleMeshGenerator.hpp"
@@ -51,10 +51,10 @@ struct TestCGlobalConnectivity_Fixture
   char** m_argv;
 
   /// common values accessed by all tests goes here
-  static CMesh::Ptr mesh;
+  static Mesh::Ptr mesh;
 };
 
-CMesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
+Mesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  CMeshGenerator::Ptr mesh_generator = Core::instance().root().create_component_ptr<CSimpleMeshGenerator>("mesh_generator");
+  MeshGenerator::Ptr mesh_generator = Core::instance().root().create_component_ptr<CSimpleMeshGenerator>("mesh_generator");
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"rect");
 
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
@@ -86,14 +86,14 @@ BOOST_AUTO_TEST_CASE( build )
   nb_cells[XX] = 10u;
   nb_cells[YY] = 1u;
   mesh_generator->configure_option("nb_cells",nb_cells);
-  CMesh& rect = mesh_generator->generate();
+  Mesh& rect = mesh_generator->generate();
 
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"line");
   mesh_generator->configure_option("nb_cells",std::vector<Uint>(1,20));
   mesh_generator->configure_option("lengths",std::vector<Real>(1,20.));
 //  mesh_generator->configure_option("offsets",std::vector<Real>(1,-5));
 
-  CMesh& line = mesh_generator->generate();
+  Mesh& line = mesh_generator->generate();
 
   Field& source = rect.geometry().create_field("solution");
   Field& target = line.geometry().create_field("solution");
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( build )
   interpolator.execute();
 
 
-  CMeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  MeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
   gmsh_writer.configure_option("fields",std::vector<URI>(1,target.uri()) );
   gmsh_writer.write_from_to(line,"line-interpolated.msh");
 }

@@ -19,7 +19,7 @@
 
 #include "math/Consts.hpp"
 #include "mesh/CLinearInterpolator.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
@@ -62,11 +62,11 @@ CLinearInterpolator::CLinearInterpolator( const std::string& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CLinearInterpolator::construct_internal_storage(const CMesh& source)
+void CLinearInterpolator::construct_internal_storage(const Mesh& source)
 {
-  if (m_source_mesh != source.as_ptr<CMesh>())
+  if (m_source_mesh != source.as_ptr<Mesh>())
   {
-    m_source_mesh = source.as_ptr<CMesh>();
+    m_source_mesh = source.as_ptr<Mesh>();
     create_bounding_box();
     create_octtree();
   }

@@ -25,7 +25,7 @@
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CSpace.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 
@@ -41,12 +41,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CMatchNodes, CMeshTransformer, LibActions> CMatchNodes_Builder;
+common::ComponentBuilder < CMatchNodes, MeshTransformer, LibActions> CMatchNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CMatchNodes::CMatchNodes( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   m_properties["brief"] = std::string("Match nodes in given regions");
@@ -79,7 +79,7 @@ std::string CMatchNodes::help() const
 
 void CMatchNodes::execute()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   std::map<std::size_t,Uint> hash_to_node_idx;
 

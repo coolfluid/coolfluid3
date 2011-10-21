@@ -12,16 +12,16 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
@@ -88,7 +88,7 @@ struct ProtoBenchmarkFixture :
     CDomain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
-    CMesh& mesh = dom.create_component<CMesh>("mesh");
+    Mesh& mesh = dom.create_component<Mesh>("mesh");
 
     const Real ratio = 0.1;
 
@@ -128,7 +128,7 @@ struct ProtoBenchmarkFixture :
     const Uint offset;
   };
 
-  CRoot& root;
+  Root& root;
   const Real length;
   const Real half_height;
   const Real width;
@@ -154,7 +154,7 @@ BOOST_AUTO_TEST_CASE( SetupProto )
   model.solver() << create_proto_action("ComputeVolume", elements_expression(ElementsT(), V = volume));
 
   std::vector<URI> root_regions;
-  root_regions.push_back(model.domain().get_child("mesh").as_type<CMesh>().topology().uri());
+  root_regions.push_back(model.domain().get_child("mesh").as_type<Mesh>().topology().uri());
   model.solver().configure_option_recursively(Solver::Tags::regions(), root_regions);
 }
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( SetupProto )
 BOOST_AUTO_TEST_CASE( SetupDirect )
 {
   CModel& model = setup("Direct");
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
   CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
   Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
 
@@ -186,10 +186,10 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
   model.solver() << elem_loop;
 
   std::vector<URI> root_regions;
-  root_regions.push_back(model.domain().get_child("mesh").as_type<CMesh>().topology().uri());
+  root_regions.push_back(model.domain().get_child("mesh").as_type<Mesh>().topology().uri());
   model.solver().configure_option_recursively(Solver::Tags::regions(), root_regions);
 
-  CMesh& mesh = model.domain().get_child("mesh").as_type<CMesh>();
+  Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
   Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
   CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
 
@@ -240,7 +240,7 @@ BOOST_AUTO_TEST_CASE( CheckResult )
 
   const Real wanted_volume = width*length*half_height*2.;
 
-  BOOST_FOREACH(CMesh& mesh, find_components_recursively_with_name<CMesh>(root, "mesh"))
+  BOOST_FOREACH(Mesh& mesh, find_components_recursively_with_name<Mesh>(root, "mesh"))
   {
     std::cout << "Checking volume for mesh " << mesh.uri().path() << std::endl;
     Real vol_check = 0;

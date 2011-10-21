@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 #include "mesh/Actions/LibActions.hpp"
 
@@ -29,7 +29,7 @@ namespace Actions {
 /// Missing nodes are then also communicated to complete the elements
 ///
 /// @author Willem Deconinck
-class Mesh_Actions_API GrowOverlap : public CMeshTransformer
+class Mesh_Actions_API GrowOverlap : public MeshTransformer
 {
 public: // typedefs
 

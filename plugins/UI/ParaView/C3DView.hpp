@@ -11,7 +11,7 @@
 
 #include "common/Signal.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "UI/ParaView/LibParaView.hpp"
 
@@ -88,7 +88,7 @@ private : //data
 
     std::string m_filename;                ///< filename to dump VTK file
 
-    boost::weak_ptr< mesh::CMesh > m_mesh; ///< mesh component to visualize
+    boost::weak_ptr< mesh::Mesh > m_mesh; ///< mesh component to visualize
 };
 
 //////////////////////////////////////////////////////////////////////////////

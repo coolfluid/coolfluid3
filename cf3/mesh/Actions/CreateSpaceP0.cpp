@@ -12,7 +12,7 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionT.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CSpace.hpp"
 #include "mesh/ElementType.hpp"
@@ -29,12 +29,12 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CreateSpaceP0, CMeshTransformer, LibActions> CreateSpaceP0_Builder;
+common::ComponentBuilder < CreateSpaceP0, MeshTransformer, LibActions> CreateSpaceP0_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CreateSpaceP0::CreateSpaceP0( const std::string& name )
-: CMeshTransformer(name)
+: MeshTransformer(name)
 {
 
   properties()["brief"] = std::string("Create space for FVM shape function");
@@ -46,7 +46,7 @@ CreateSpaceP0::CreateSpaceP0( const std::string& name )
 void CreateSpaceP0::execute()
 {
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   boost_foreach(CEntities& entities, find_components_recursively<CEntities>(mesh))
   {

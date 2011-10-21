@@ -11,7 +11,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
@@ -67,17 +67,17 @@ void Commands::compare(const std::vector<std::string>& params)
     mesh_loader_ptr = Core::instance().root().create_component_ptr<LoadMesh>("mesh_loader");
   LoadMesh& mesh_loader = mesh_loader_ptr->as_type<LoadMesh>();
 
-  std::vector<CMesh::Ptr> mesh_vector;
+  std::vector<Mesh::Ptr> mesh_vector;
   boost_foreach(const std::string& file_str, params)
   {
     URI file(file_str);
-    CMesh::Ptr mesh = mesh_loader.load_mesh(file);
+    Mesh::Ptr mesh = mesh_loader.load_mesh(file);
     mesh->rename(file.name());
     meshes.add_component(mesh);
     mesh_vector.push_back(mesh);
   }
 
-  CMesh& reference_mesh = *mesh_vector[0];
+  Mesh& reference_mesh = *mesh_vector[0];
   for (Uint i=1; i<mesh_vector.size(); ++i)
   {
     CFinfo << "Comparing " << reference_mesh.name() << " to " << mesh_vector[i]->name() << CFendl;

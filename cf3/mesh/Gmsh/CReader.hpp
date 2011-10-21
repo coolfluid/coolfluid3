@@ -12,7 +12,7 @@
 #include <set>
 #include <boost/tuple/tuple.hpp>
 
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 
 #include "mesh/Gmsh/LibGmsh.hpp"
 #include "mesh/Gmsh/Shared.hpp"
@@ -26,7 +26,7 @@ class CElements;
 class CRegion;
 class CMixedHash;
 class Geometry;
-class CMesh;
+class Mesh;
 
 namespace Gmsh {
 
@@ -35,7 +35,7 @@ namespace Gmsh {
 /// This class defines Gmsh mesh format reader
 /// @author Willem Deconinck
 /// @author Martin Vymazal
-class Gmsh_API CReader : public CMeshReader, public Shared
+class Gmsh_API CReader : public MeshReader, public Shared
 {
 public: // typedefs
 
@@ -73,7 +73,7 @@ private: // functions
 
 private: // data
 
-  virtual void do_read_mesh_into(const common::URI& fp, CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& fp, Mesh& mesh);
 
   enum HashType { NODES=0, ELEMS=1 };
   boost::shared_ptr<CMixedHash> m_hash;
@@ -83,7 +83,7 @@ private: // data
   std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
 
   boost::filesystem::fstream m_file;
-  boost::shared_ptr<CMesh> m_mesh;
+  boost::shared_ptr<Mesh> m_mesh;
   boost::shared_ptr<CRegion> m_region;
   boost::shared_ptr<CRegion> m_tmp;
 

@@ -11,7 +11,7 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
 #include "math/LSS/System.hpp"
 
@@ -59,7 +59,7 @@ struct ProtoHeatFixture
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
-  CRoot& root;
+  Root& root;
   std::string solver_config;
 
 };
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   model.create_physics("CF.Physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

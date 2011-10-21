@@ -11,18 +11,18 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Actions/CGlobalConnectivity.hpp"
 #include "mesh/Actions/CGlobalNumbering.hpp"
-#include "mesh/CMeshTransformer.hpp"
-#include "mesh/CMeshWriter.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshTransformer.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -52,10 +52,10 @@ struct TestCGlobalConnectivity_Fixture
   char** m_argv;
 
   /// common values accessed by all tests goes here
-  static CMesh::Ptr mesh;
+  static Mesh::Ptr mesh;
 };
 
-CMesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<CMesh>("mesh");
+Mesh::Ptr TestCGlobalConnectivity_Fixture::mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
   meshreader->configure_option("read_boundaries",false);
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 

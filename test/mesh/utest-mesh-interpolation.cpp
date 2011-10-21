@@ -18,15 +18,15 @@
 
 #include "common/FindComponents.hpp"
 #include "common/CLink.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/CInterpolator.hpp"
 #include "mesh/CSpace.hpp"
 
@@ -82,25 +82,25 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  CMeshReader::Ptr meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
 
   BOOST_CHECK( true );
 
-  CMesh& source = Core::instance().root().create_component<CMesh>("hextet");
+  Mesh& source = Core::instance().root().create_component<Mesh>("hextet");
   meshreader->read_mesh_into("hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
   BOOST_CHECK_EQUAL( source.geometry().coordinates().row_size() , (Uint)DIM_3D );
 
-  CMesh& target = Core::instance().root().create_component<CMesh>("quadtriag");
+  Mesh& target = Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
   BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
-//	CMeshReader::Ptr cgns_meshreader = build_component_abstract_type<CMeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
-//  CMesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
+//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
+//  Mesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
 
 
   // Create and configure interpolator.
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Write the fields to file.
-  CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
 
   BOOST_CHECK(true);
 

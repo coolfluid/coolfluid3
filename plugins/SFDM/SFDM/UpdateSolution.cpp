@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Solver/CSolver.hpp"
 

@@ -16,7 +16,7 @@
 
 #include "mesh/CStencilComputerRings.hpp"
 #include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/ElementType.hpp"
@@ -54,7 +54,7 @@ void CStencilComputerRings::configure_mesh()
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   CNodeElementConnectivity::Ptr node2cell_ptr = find_component_ptr<CNodeElementConnectivity>(mesh);
   if (is_null(node2cell_ptr))
   {

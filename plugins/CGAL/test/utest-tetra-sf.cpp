@@ -16,11 +16,11 @@
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
@@ -41,19 +41,19 @@ struct GlobalFixture {
 
   GlobalFixture() {
     if(!sphere) {
-      sphere = allocate_component<CMesh>("sphere");
+      sphere = allocate_component<Mesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      CMeshWriter::Ptr meshwriter = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+      MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
       URI file_out("sphere.msh");
       meshwriter->write_from_to(*sphere,file_out);
     }
   }
 
-  static CMesh::Ptr sphere;
+  static Mesh::Ptr sphere;
 };
 
-CMesh::Ptr GlobalFixture::sphere = CMesh::Ptr();
+Mesh::Ptr GlobalFixture::sphere = Mesh::Ptr();
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -61,7 +61,7 @@ CMesh::Ptr GlobalFixture::sphere = CMesh::Ptr();
 struct TetraSFFixture
 {
   TetraSFFixture() : sphere(*GlobalFixture::sphere) {}
-  const CMesh& sphere;
+  const Mesh& sphere;
 };
 
 //////////////////////////////////////////////////////////////////////////////

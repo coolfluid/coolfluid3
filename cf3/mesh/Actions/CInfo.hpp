@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ namespace Actions {
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CInfo : public CMeshTransformer
+class Mesh_Actions_API CInfo : public MeshTransformer
 {
 public: // typedefs
 

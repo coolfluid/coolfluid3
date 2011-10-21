@@ -35,7 +35,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CList.hpp"
 #include "mesh/CUnifiedData.hpp"
 #include "mesh/CCells.hpp"
@@ -239,9 +239,9 @@ Field& FieldGroup::create_field(const std::string &name, const std::string& vari
   field.set_basis(m_basis);
 
   if (variables_description == "scalar_same_name")
-    field.create_descriptor(name+"[scalar]",parent().as_type<CMesh>().dimension());
+    field.create_descriptor(name+"[scalar]",parent().as_type<Mesh>().dimension());
   else
-    field.create_descriptor(variables_description,parent().as_type<CMesh>().dimension());
+    field.create_descriptor(variables_description,parent().as_type<Mesh>().dimension());
 
   field.resize(m_size);
   return field;
@@ -257,7 +257,7 @@ Field& FieldGroup::create_field(const std::string &name, math::VariablesDescript
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
   if (variables_descriptor.option(common::Tags::dimension()).value<Uint>() == 0)
-    field.descriptor().configure_option(common::Tags::dimension(),parent().as_type<CMesh>().dimension());
+    field.descriptor().configure_option(common::Tags::dimension(),parent().as_type<Mesh>().dimension());
   field.resize(m_size);
   return field;
 }
@@ -331,9 +331,9 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
   {
     throw InvalidURI(FromHere(),"URI "+to_str(mesh_uri)+" should be absolute");
   }
-  CMesh& mesh_arg = access_component(mesh_uri).as_type<CMesh>();
+  Mesh& mesh_arg = access_component(mesh_uri).as_type<Mesh>();
 
-  CMesh& this_mesh = find_parent_component<CMesh>(*this);
+  Mesh& this_mesh = find_parent_component<Mesh>(*this);
 
   if (&this_mesh == &mesh_arg)
   {
@@ -424,7 +424,7 @@ std::size_t hash_value(const RealMatrix& coords)
   return seed;
 }
 
-// copy of CMeshPartitioner.cpp::flex_all_gather
+// copy of MeshPartitioner.cpp::flex_all_gather
 template <typename T>
 void hash_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
 {
@@ -458,7 +458,7 @@ void hash_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& r
   }
 }
 
-// copy of CMeshPartitioner.cpp::flex_all_to_all
+// copy of MeshPartitioner.cpp::flex_all_to_all
 template <typename T>
 void hash_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
 {

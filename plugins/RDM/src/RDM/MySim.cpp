@@ -19,8 +19,8 @@
 
 #include "mesh/LoadMesh.hpp"
 #include "mesh/CCells.hpp"
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CRegion.hpp"
 
@@ -169,7 +169,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     cf3_assert( domain_terms.count_children() == 0 );
 
-    CMesh& mesh = find_component<CMesh>(domain);
+    Mesh& mesh = find_component<Mesh>(domain);
 
     SignalFrame frame;
     SignalOptions options( frame );

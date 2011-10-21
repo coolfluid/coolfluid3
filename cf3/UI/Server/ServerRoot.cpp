@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Group.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/NotificationQueue.hpp"
 #include "common/PE/CPEManager.hpp"
 //#include "common/XML/SignalFrame.hpp"
@@ -48,7 +48,7 @@ ServerRoot::ServerRoot()
   : m_queue(nullptr),
     m_notifier(nullptr),
     m_thread(nullptr),
-    m_root( Core::instance().root().as_ptr<CRoot>() ),
+    m_root( Core::instance().root().as_ptr<Root>() ),
     m_core( new CCore() ),
     m_journal( common::allocate_component<CJournal>("Journal") ),
     m_manager( common::allocate_component<CPEManager>("PEManager") ),

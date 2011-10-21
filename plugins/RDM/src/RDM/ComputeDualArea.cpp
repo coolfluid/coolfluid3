@@ -10,7 +10,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -42,7 +42,7 @@ ComputeDualArea::~ComputeDualArea() {}
 void ComputeDualArea::create_dual_area_field()
 {
   RDM::RDSolver& rdsolver = solver().as_type< RDM::RDSolver >();
-  CMesh& mymesh = mesh();
+  Mesh& mymesh = mesh();
 
   const std::string solution_space = rdsolver.option("solution_space").value<std::string>();
 

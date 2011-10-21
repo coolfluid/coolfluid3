@@ -8,7 +8,7 @@
 #include "common/FindComponents.hpp"
 #include "common/CBuilder.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
@@ -16,8 +16,8 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshReader.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CDomain.hpp"
 
 #include "mesh/LoadMesh.hpp"
@@ -62,23 +62,23 @@ LoadMesh::~LoadMesh() {}
 
 void LoadMesh::update_list_of_available_readers()
 {
-  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<CMeshReader>();
+  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
 
   if ( is_null(meshreader_factory) )
-    throw ValueNotFound ( FromHere() , "Could not find factory for CMeshReader" );
+    throw ValueNotFound ( FromHere() , "Could not find factory for MeshReader" );
 
   m_extensions_to_readers.clear();
 
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
   {
-    CMeshReader::Ptr reader;
+    MeshReader::Ptr reader;
 
     Component::Ptr comp = get_child_ptr(bdr.name());
     if( is_null(comp) )
       comp = bdr.build(bdr.name());
 
     if( is_not_null(comp) ) // convert to reader
-      reader = comp->as_ptr<CMeshReader>();
+      reader = comp->as_ptr<MeshReader>();
     else
       throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh reader" );
 
@@ -95,7 +95,7 @@ void LoadMesh::update_list_of_available_readers()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LoadMesh::load_mesh_into(const URI& file, CMesh& mesh)
+void LoadMesh::load_mesh_into(const URI& file, Mesh& mesh)
 {
   update_list_of_available_readers();
 
@@ -112,21 +112,21 @@ void LoadMesh::load_mesh_into(const URI& file, CMesh& mesh)
       std::string msg;
       msg = file.string() + " has ambiguous extension " + extension + "\n"
         +  "Possible readers for this extension are: \n";
-      boost_foreach(const CMeshReader::Ptr reader , m_extensions_to_readers[extension])
+      boost_foreach(const MeshReader::Ptr reader , m_extensions_to_readers[extension])
         msg += " - " + reader->name() + "\n";
       throw FileFormatError( FromHere(), msg);
     }
     else
     {
-      CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
+      MeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
       meshreader->read_mesh_into(file, mesh);
     }
   }
 }
 
-boost::shared_ptr< CMesh > LoadMesh::load_mesh(const URI& file)
+boost::shared_ptr< Mesh > LoadMesh::load_mesh(const URI& file)
 {
-  CMesh::Ptr mesh = allocate_component<CMesh>("mesh");
+  Mesh::Ptr mesh = allocate_component<Mesh>("mesh");
   load_mesh_into(file, *mesh);
   return mesh;
 }
@@ -162,7 +162,7 @@ void LoadMesh::signal_load_mesh ( common::SignalArgs& node )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh::Ptr mesh = parent_component.create_component_ptr<CMesh>(options["name"].value<std::string>());
+    Mesh::Ptr mesh = parent_component.create_component_ptr<Mesh>(options["name"].value<std::string>());
 
     // Get the file paths
     boost_foreach(URI file, files)
@@ -181,14 +181,14 @@ void LoadMesh::signal_load_mesh ( common::SignalArgs& node )
           std::string msg;
           msg = file.string() + " has ambiguous extension " + extension + "\n"
             +  "Possible readers for this extension are: \n";
-          boost_foreach(const CMeshReader::Ptr reader , m_extensions_to_readers[extension])
+          boost_foreach(const MeshReader::Ptr reader , m_extensions_to_readers[extension])
             msg += " - " + reader->name() + "\n";
           throw BadValue( FromHere(), msg);
           parent_component.remove_component(mesh->name());
         }
         else
         {
-          CMeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
+          MeshReader::Ptr meshreader = m_extensions_to_readers[extension][0];
           meshreader->read_mesh_into(file, *mesh);
         }
       }
@@ -207,7 +207,7 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
   SignalOptions options( node );
 
   std::vector<URI> dummy;
-  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<CMeshReader>();
+  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
   std::vector<boost::any> readers;
 
   // build the restricted list

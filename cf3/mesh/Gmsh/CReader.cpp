@@ -15,12 +15,12 @@
 #include "common/StringConversion.hpp"
 
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 #include "mesh/CList.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/CMixedHash.hpp"
@@ -41,12 +41,12 @@ namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < Gmsh::CReader, CMeshReader, LibGmsh> aGmshReader_Builder;
+cf3::common::ComponentBuilder < Gmsh::CReader, MeshReader, LibGmsh> aGmshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
 CReader::CReader( const std::string& name )
-: CMeshReader(name),
+: MeshReader(name),
   Shared()
 {
 
@@ -89,7 +89,7 @@ std::vector<std::string> CReader::get_extensions()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
+void CReader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
 
   // if the file is present open it
@@ -107,7 +107,7 @@ void CReader::do_read_mesh_into(const URI& file, CMesh& mesh)
   m_file_basename = boost::filesystem::basename(fp);
 
   // set the internal mesh pointer
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity

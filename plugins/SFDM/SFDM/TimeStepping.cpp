@@ -14,7 +14,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/MeshMetadata.hpp"
 
 #include "Solver/CTime.hpp"

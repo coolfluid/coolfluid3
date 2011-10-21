@@ -485,7 +485,7 @@ void Component::change_parent ( Component* new_parent )
 {
   if( !m_root.expired() )   // get the root and remove the current path
   {
-   CRoot::Ptr root = m_root.lock();
+   Root::Ptr root = m_root.lock();
     root->remove_component_path(uri());
   }
 
@@ -1043,7 +1043,7 @@ void Component::raise_event ( const std::string & name )
 {
   if( !m_root.expired() )
   {
-   CRoot::Ptr root = m_root.lock();
+   Root::Ptr root = m_root.lock();
 
     root->raise_new_event(name, uri());
   }

@@ -120,9 +120,9 @@ CSolver::~CSolver()
 }
 
 
-void CSolver::mesh_loaded(CMesh& mesh) {}
+void CSolver::mesh_loaded(Mesh& mesh) {}
 
-void CSolver::mesh_changed(CMesh& mesh) {}
+void CSolver::mesh_changed(Mesh& mesh) {}
 
 FieldManager& CSolver::field_manager()
 {
