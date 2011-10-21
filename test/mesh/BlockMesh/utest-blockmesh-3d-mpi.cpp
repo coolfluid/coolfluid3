@@ -16,7 +16,7 @@
 #include "common/CRoot.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CMesh.hpp"

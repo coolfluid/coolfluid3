@@ -7,7 +7,7 @@
 #include "common/Log.hpp"
 #include "common/CBuilder.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "BlockMeshReader.hpp"
 #include "LibBlockMeshReader.hpp"

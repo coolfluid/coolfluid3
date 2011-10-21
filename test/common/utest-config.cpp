@@ -30,7 +30,7 @@
 #include "common/XML/XmlDoc.hpp"
 #include "common/XML/FileOperations.hpp"
 
-#include "test/Common/DummyComponents.hpp"
+#include "test/common/DummyComponents.hpp"
 
 using namespace std;
 using namespace boost;

@@ -8,8 +8,8 @@
 #define cf3_mesh_BlockMesh_WriteDict_hpp
 
 #include "common/CF.hpp"
-#include "mesh/Blockmesh/BlockData.hpp"
-#include "mesh/Blockmesh/LibBlockMesh.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
+#include "mesh/BlockMesh/LibBlockMesh.hpp"
 
 namespace cf3 {
 namespace mesh {  

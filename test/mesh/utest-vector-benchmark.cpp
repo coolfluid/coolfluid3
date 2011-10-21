@@ -15,7 +15,7 @@
 
 #include "common/CRoot.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"

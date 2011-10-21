@@ -18,8 +18,8 @@
 #include "mesh/CMeshReader.hpp"
 #include "mesh/CMeshWriter.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
-#include "mesh/Blockmesh/WriteDict.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
+#include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"

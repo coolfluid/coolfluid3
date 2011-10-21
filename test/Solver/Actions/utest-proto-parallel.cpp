@@ -35,7 +35,7 @@
 #include "mesh/LagrangeP0/Hexa.hpp"
 #include "mesh/LagrangeP1/Hexa3D.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Physics/PhysModel.hpp"
 

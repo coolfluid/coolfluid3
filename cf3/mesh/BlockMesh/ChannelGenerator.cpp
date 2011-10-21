@@ -19,7 +19,7 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "mesh/Blockmesh/ChannelGenerator.hpp"
+#include "mesh/BlockMesh/ChannelGenerator.hpp"
 
 namespace cf3 {
 namespace mesh {

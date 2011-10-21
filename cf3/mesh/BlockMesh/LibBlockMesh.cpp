@@ -6,7 +6,7 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "mesh/Blockmesh/LibBlockMesh.hpp"
+#include "mesh/BlockMesh/LibBlockMesh.hpp"
 
 namespace cf3 {
 namespace mesh {

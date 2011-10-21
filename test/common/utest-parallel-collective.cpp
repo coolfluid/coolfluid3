@@ -74,13 +74,13 @@ BOOST_FIXTURE_TEST_CASE( init, PECollectiveFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "test/Common/utest-parallel-collective-all_to_all.hpp"
-#include "test/Common/utest-parallel-collective-all_reduce.hpp"
-#include "test/Common/utest-parallel-collective-reduce.hpp"
-#include "test/Common/utest-parallel-collective-scatter.hpp"
-#include "test/Common/utest-parallel-collective-broadcast.hpp"
-#include "test/Common/utest-parallel-collective-all_gather.hpp"
-#include "test/Common/utest-parallel-collective-gather.hpp"
+#include "test/common/utest-parallel-collective-all_to_all.hpp"
+#include "test/common/utest-parallel-collective-all_reduce.hpp"
+#include "test/common/utest-parallel-collective-reduce.hpp"
+#include "test/common/utest-parallel-collective-scatter.hpp"
+#include "test/common/utest-parallel-collective-broadcast.hpp"
+#include "test/common/utest-parallel-collective-all_gather.hpp"
+#include "test/common/utest-parallel-collective-gather.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

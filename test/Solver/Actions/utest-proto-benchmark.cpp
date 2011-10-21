@@ -29,7 +29,7 @@
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Physics/PhysModel.hpp"
 

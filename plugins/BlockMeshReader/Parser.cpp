@@ -21,7 +21,7 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 
 #include "common/BasicExceptions.hpp"
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Parser.hpp"
 

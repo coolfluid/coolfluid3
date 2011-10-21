@@ -9,7 +9,7 @@
 
 #include "math/Consts.hpp"
 #include "mesh/CMesh.hpp"
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 

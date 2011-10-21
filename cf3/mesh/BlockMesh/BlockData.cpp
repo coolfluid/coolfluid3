@@ -18,8 +18,8 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
-#include "mesh/Blockmesh/WriteDict.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
+#include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "mesh/CCells.hpp"
 #include "mesh/CTable.hpp"

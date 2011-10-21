@@ -31,7 +31,7 @@
 #include "mesh/ElementTypes.hpp"
 #include "mesh/LagrangeP0/Quad.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 #include "Physics/PhysModel.hpp"
 

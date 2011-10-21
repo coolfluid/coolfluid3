@@ -12,8 +12,8 @@
 
 #include "mesh/CMeshGenerator.hpp"
 
-#include "mesh/Blockmesh/LibBlockMesh.hpp"
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/LibBlockMesh.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 
 namespace cf3 {
 namespace mesh {

@@ -14,7 +14,7 @@
 #include "common/Log.hpp"
 #include "common/CRoot.hpp"
 
-#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"
 #include "mesh/CMeshWriter.hpp"
