@@ -10,7 +10,7 @@
 
 namespace cf3 {
 namespace Tools {
-namespace meshDiff {
+namespace MeshDiff {
 
 cf3::common::RegistLibrary<LibMeshDiff> libMeshDiff;
 

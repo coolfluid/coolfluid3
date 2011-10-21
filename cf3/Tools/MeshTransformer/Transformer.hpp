@@ -13,7 +13,7 @@ namespace cf3 {
     class CMeshTransformer;
   }
 namespace Tools {
-namespace meshTransformer {
+namespace MeshTransformer {
   
 ////////////////////////////////////////////////////////////////////////////////
 

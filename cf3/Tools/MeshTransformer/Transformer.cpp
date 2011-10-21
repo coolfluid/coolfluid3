@@ -26,7 +26,7 @@
 
 namespace cf3 {
 namespace Tools {
-namespace meshTransformer {
+namespace MeshTransformer {
 
   using namespace boost;
   using namespace boost::program_options;

@@ -115,7 +115,7 @@ void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
 
 }
 
-namespace meshDiff {
+namespace MeshDiff {
 
 ////////////////////////////////////////////////////////////////////////////////
 

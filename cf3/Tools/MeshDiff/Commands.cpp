@@ -28,7 +28,7 @@
 
 namespace cf3 {
 namespace Tools {
-namespace meshDiff {
+namespace MeshDiff {
 
   using namespace boost;
   using namespace boost::program_options;

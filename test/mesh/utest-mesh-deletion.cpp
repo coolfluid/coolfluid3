@@ -17,14 +17,14 @@
 
 #include "common/XML/SignalFrame.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/CDomain.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 BOOST_AUTO_TEST_SUITE( MeshDeletion )
 
