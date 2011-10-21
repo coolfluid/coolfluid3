@@ -18,7 +18,7 @@
 #include "common/OSystem.hpp"
 #include "common/Group.hpp"
 #include "common/CLibraries.hpp"
-#include "common/CFactories.hpp"
+#include "common/Factories.hpp"
 #include "common/Root.hpp"
 #include "common/Environment.hpp"
 
@@ -70,14 +70,14 @@ Core::Core()
   // registration could be defered to after the Core has been inialized.
   RegistTypeInfo<Environment,LibCommon>();
   RegistTypeInfo<CLibraries,LibCommon>();
-  RegistTypeInfo<CFactories,LibCommon>();
+  RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
   m_root = Root::create("Root");
   m_root->mark_basic();
   
   m_libraries = m_root->create_component_ptr<CLibraries>("Libraries");
-  m_factories = m_root->create_component_ptr<CFactories>("Factories");
+  m_factories = m_root->create_component_ptr<Factories>("Factories");
   libraries().mark_basic();
   factories().mark_basic();
 
@@ -177,7 +177,7 @@ common::CLibraries&  Core::libraries() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CFactories& Core::factories() const
+common::Factories& Core::factories() const
 {
   cf3_assert(!m_factories.expired());
   return *m_factories.lock();

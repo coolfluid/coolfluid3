@@ -26,7 +26,7 @@ namespace common {
   class Environment;
   class Group;
   class CLibraries;
-  class CFactories;
+  class Factories;
   class NetworkInfo;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -72,9 +72,9 @@ public: // methods
   /// @pre Core does not need to be initialized before
   common::CLibraries& libraries() const;
 
-  /// Gets the CFactories
+  /// Gets the Factories
   /// @pre Core does not need to be initialized before
-  common::CFactories& factories() const;
+  common::Factories& factories() const;
 
   /// Gets the tools
   /// @pre Core does not need to be initialized before
@@ -117,8 +117,8 @@ private: // data
   boost::shared_ptr< common::Environment >         m_environment;
   /// the CLibraries unique object
   boost::weak_ptr< common::CLibraries >   m_libraries;
-  /// the CFactories unique object
-  boost::weak_ptr< common::CFactories >   m_factories;
+  /// the Factories unique object
+  boost::weak_ptr< common::Factories >   m_factories;
   /// @brief The component tree root
   boost::shared_ptr< common::Root >        m_root;
   /// The network information

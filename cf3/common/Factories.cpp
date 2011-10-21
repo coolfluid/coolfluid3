@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CFactories.hpp"
+#include "common/Factories.hpp"
 #include "common/Signal.hpp"
 
 namespace cf3 {
@@ -12,7 +12,7 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFactories::CFactories ( const std::string& name) : Component ( name )
+Factories::Factories ( const std::string& name) : Component ( name )
 {
   m_properties["brief"] = std::string("Factories");
   std::string description =
@@ -28,7 +28,7 @@ CFactories::CFactories ( const std::string& name) : Component ( name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CFactories::~CFactories()
+Factories::~Factories()
 {
 }
 

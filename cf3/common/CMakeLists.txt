@@ -37,8 +37,8 @@ list( APPEND coolfluid_common_files
     Environment.hpp
     Factory.hpp
     Factory.cpp
-    CFactories.hpp
-    CFactories.cpp
+    Factories.hpp
+    Factories.cpp
     Root.hpp
     Root.cpp
     Group.hpp

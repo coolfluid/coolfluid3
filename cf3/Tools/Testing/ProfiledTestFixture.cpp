@@ -18,7 +18,7 @@
 #include "common/Environment.hpp"
 #include "common/Core.hpp"
 #include "common/Builder.hpp"
-#include "common/CFactories.hpp"
+#include "common/Factories.hpp"
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"
 

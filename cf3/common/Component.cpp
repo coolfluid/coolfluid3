@@ -1392,7 +1392,7 @@ Component::Ptr build_component(const std::string& builder_name,
 
   Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
   if ( is_null(factories) )
-    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+    throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
@@ -1446,7 +1446,7 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 
   Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
   if ( is_null(factories) )
-    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+    throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder

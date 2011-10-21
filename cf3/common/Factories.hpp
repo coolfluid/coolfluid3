@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CFactories_hpp
-#define cf3_common_CFactories_hpp
+#ifndef cf3_common_Factories_hpp
+#define cf3_common_Factories_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,24 +18,24 @@ namespace common {
 
   /// Component that defines global environment
   /// @author Quentin Gasper
-  class Common_API CFactories : public Component {
+  class Common_API Factories : public Component {
 
   public: //typedefs
 
-    typedef boost::shared_ptr<CFactories> Ptr;
-    typedef boost::shared_ptr<CFactories const> ConstPtr;
+    typedef boost::shared_ptr<Factories> Ptr;
+    typedef boost::shared_ptr<Factories const> ConstPtr;
 
   public: // functions
 
     /// Contructor
     /// @param name of the component
-    CFactories ( const std::string& name );
+    Factories ( const std::string& name );
 
     /// Virtual destructor
-    virtual ~CFactories();
+    virtual ~Factories();
 
     /// Get the class name
-    static std::string type_name () { return "CFactories"; }
+    static std::string type_name () { return "Factories"; }
 
     /// gives access to the factory of supplied type,
     /// insuring that in case it does not exist it gets built.
@@ -53,7 +53,7 @@ namespace common {
       }
     }
 
-}; // CFactories
+}; // Factories
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,4 +62,4 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CFactories_hpp
+#endif // cf3_common_Factories_hpp
