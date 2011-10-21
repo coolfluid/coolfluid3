@@ -13,7 +13,7 @@
 #include "mesh/Zoltan/LibZoltan.hpp"
 
 namespace cf3 {
-namespace common { template <typename KEY, typename DATA> class CMap;}
+namespace common { template <typename KEY, typename DATA> class Map;}
 namespace mesh {
 namespace Zoltan {
 

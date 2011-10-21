@@ -12,7 +12,7 @@
 #include <boost/tuple/tuple.hpp>
 
 #include "common/FindComponents.hpp"
-#include "common/CMap.hpp"
+#include "common/Map.hpp"
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -151,7 +151,7 @@ private: // data
   Uint m_nb_owned_obj;
 
 
-  common::CMap<Uint,Uint>::Ptr m_global_to_local;
+  common::Map<Uint,Uint>::Ptr m_global_to_local;
 
   std::vector<Uint> m_start_id_per_part;
   std::vector<Uint> m_end_id_per_part;

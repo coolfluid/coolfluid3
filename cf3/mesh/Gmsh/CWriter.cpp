@@ -12,7 +12,7 @@
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
-#include "common/CMap.hpp"
+#include "common/Map.hpp"
 
 #include "mesh/Gmsh/CWriter.hpp"
 
@@ -75,7 +75,7 @@ CWriter::CWriter( const std::string& name )
   m_elementTypes["CF.Mesh.LagrangeP3.Quad2D"] = 36;
   m_elementTypes["CF.Mesh.LagrangeP3.Quad3D"] = 36;
 
-  m_cf_2_gmsh_node = create_static_component_ptr<CMap<Uint,Uint> >("to_gmsh_node");
+  m_cf_2_gmsh_node = create_static_component_ptr<Map<Uint,Uint> >("to_gmsh_node");
 
 }
 
@@ -175,7 +175,7 @@ void CWriter::write_coordinates(std::fstream& file)
 
   const CList<Uint>& used_nodes = CElements::used_nodes(*m_mesh->topology().as_non_const(),true);
   const Uint nb_nodes = used_nodes.size();
-  CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
+  Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
@@ -213,7 +213,7 @@ void CWriter::write_connectivity(std::fstream& file)
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
   Uint nbElems = m_mesh->topology().recursive_elements_count();
-  CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
+  Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Elements\n";
   file << nbElems << "\n";
@@ -472,7 +472,7 @@ void CWriter::write_nodal_data(std::fstream& file)
 
 
         Uint local_node_idx=0;
-        const CMap<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
+        const Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
         boost_foreach(Field::ConstRow field_per_node, field.array())
         {

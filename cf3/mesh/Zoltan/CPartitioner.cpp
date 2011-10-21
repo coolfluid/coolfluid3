@@ -13,7 +13,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 #include "common/Log.hpp"
-#include "common/CMap.hpp"
+#include "common/Map.hpp"
 
 #include "mesh/Geometry.hpp"
 #include "mesh/Zoltan/CPartitioner.hpp"

@@ -5,12 +5,12 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for CMap component"
+#define BOOST_TEST_MODULE "Test module for Map component"
 
 #include <boost/test/unit_test.hpp>
 
 #include "common/CF.hpp"
-#include "common/CMap.hpp"
+#include "common/Map.hpp"
 #include "common/Log.hpp"
 #include "common/Foreach.hpp"
 
@@ -19,15 +19,15 @@
 using namespace cf3;
 using namespace cf3::common;
 
-struct CMapFixture
+struct MapFixture
 {
   /// common setup for each test case
-  CMapFixture()
+  MapFixture()
   {    
   }
 
   /// common tear-down for each test case
-  ~CMapFixture()
+  ~MapFixture()
   {
   }
 
@@ -37,18 +37,18 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( CMapTests, CMapFixture )
+BOOST_FIXTURE_TEST_SUITE( MapTests, MapFixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE ( test_CMap )
+BOOST_AUTO_TEST_CASE ( test_Map )
 {
 
-  CMap<std::string,Uint>::Ptr map_ptr ( allocate_component< CMap<std::string,Uint> > ("map"));
-  CMap<std::string,Uint>& map = *map_ptr;
+  Map<std::string,Uint>::Ptr map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
+  Map<std::string,Uint>& map = *map_ptr;
 	
 	
-	BOOST_CHECK_EQUAL(map.type_name() , "CMap<string,unsigned>");
+	BOOST_CHECK_EQUAL(map.type_name() , "Map<string,unsigned>");
   
   BOOST_CHECK(map.find("first") == map.end());
   
@@ -70,11 +70,11 @@ BOOST_AUTO_TEST_CASE ( test_CMap )
 
 }
 
-BOOST_AUTO_TEST_CASE ( test_CMap_looping )
+BOOST_AUTO_TEST_CASE ( test_Map_looping )
 {
 
-  CMap<std::string,Uint>::Ptr map_ptr ( allocate_component< CMap<std::string,Uint> > ("map"));
-  CMap<std::string,Uint>& map = *map_ptr;
+  Map<std::string,Uint>::Ptr map_ptr ( allocate_component< Map<std::string,Uint> > ("map"));
+  Map<std::string,Uint>& map = *map_ptr;
   
   
   map.insert_blindly(std::string("first"), (Uint) 1);
@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE ( test_CMap_looping )
   foreach_container((const std::string& key)(Uint data),map)
     BOOST_CHECK_EQUAL( map[key] , data );
   
-  std::pair<CMap<std::string,Uint>::iterator,bool> ret;
+  std::pair<Map<std::string,Uint>::iterator,bool> ret;
   ret = map.insert(std::make_pair("fifth",5u));
   BOOST_CHECK_EQUAL(ret.second, true);  // --> new element
   BOOST_CHECK_EQUAL(ret.first->first, "fifth");
@@ -105,25 +105,25 @@ BOOST_AUTO_TEST_CASE ( test_CMap_looping )
   map.erase( map.find("fourth") );
   BOOST_CHECK(map.find("fourth") == map.end());
   
-  const CMap<std::string,Uint>& const_map = *map_ptr;
+  const Map<std::string,Uint>& const_map = *map_ptr;
   BOOST_CHECK(const_map.find("second") != const_map.end());
   
 }
 
-BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
+BOOST_AUTO_TEST_CASE ( test_Map_exceptions )
 {
 
-  CMap<int,int>::Ptr map_ptr ( allocate_component< CMap<int,int> > ("map"));
-  CMap<int,int>& map = *map_ptr;
+  Map<int,int>::Ptr map_ptr ( allocate_component< Map<int,int> > ("map"));
+  Map<int,int>& map = *map_ptr;
 	
-	BOOST_CHECK_EQUAL(map.type_name() , "CMap<integer,integer>");
+	BOOST_CHECK_EQUAL(map.type_name() , "Map<integer,integer>");
   
   map.insert_blindly(1,1);
   map.insert_blindly(2,2);
   map.insert_blindly(3,3);
   map.insert_blindly(4,4);
   
-  // const CMap<int,int>& const_map = *map_ptr;
+  // const Map<int,int>& const_map = *map_ptr;
   // BOOST_CHECK_THROW(const_map.find(2),IllegalCall);
   // BOOST_CHECK_THROW(const_map[2],IllegalCall);
   
@@ -135,13 +135,13 @@ BOOST_AUTO_TEST_CASE ( test_CMap_exceptions )
     
 }
 
-BOOST_AUTO_TEST_CASE ( test_CMap_copy_std_map )
+BOOST_AUTO_TEST_CASE ( test_Map_copy_std_map )
 {
 
-  CMap<std::string,int>::Ptr map_ptr ( allocate_component< CMap<std::string,int> > ("map"));
-  CMap<std::string,int>& map = *map_ptr;
+  Map<std::string,int>::Ptr map_ptr ( allocate_component< Map<std::string,int> > ("map"));
+  Map<std::string,int>& map = *map_ptr;
 	
-	BOOST_CHECK_EQUAL(map.type_name() , "CMap<string,integer>");
+	BOOST_CHECK_EQUAL(map.type_name() , "Map<string,integer>");
 
   
   std::map<std::string,int> stl_map;

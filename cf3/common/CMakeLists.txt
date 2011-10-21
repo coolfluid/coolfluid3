@@ -51,7 +51,7 @@ list( APPEND coolfluid_common_files
     Library.hpp
     Link.hpp
     Link.cpp
-    CMap.hpp
+    Map.hpp
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CMap_hpp
-#define cf3_common_CMap_hpp
+#ifndef cf3_common_Map_hpp
+#define cf3_common_Map_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,13 +24,13 @@ namespace common {
 /// alternative to it.
 /// Consider that once that you allocate a map, you can't get rid of the
 /// allocated memory till the end of your run! This doesn't apply to the current
-/// CMap that is just an Adapter of std::vector<std::pair<KEY,DATA> >.
+/// Map that is just an Adapter of std::vector<std::pair<KEY,DATA> >.
 /// THIS IS REALLY AN IMPORTANT ADVANTAGE OF THIS MAP: since it is basically
 /// a std::vector, YOU CAN RELEASE THE MEMORY when you go out of scope or you explicitly
 /// delete a pointer to this object.
 /// The class is parameterized with the types of the key and the type of the value
 /// @pre this map can handle KEYs for which the operators "<" and ">" are available
-/// @pre before using find() the CMap has to be sorted. This will happen automatically
+/// @pre before using find() the Map has to be sorted. This will happen automatically
 /// @pre the situation in which this map must be used is a situation in which you first
 ///      insert ALL the pairs, then you sort (sort_keys() is a demanding operation
 ///      that must be applied only once!!) and then you start searching with find().
@@ -41,7 +41,7 @@ namespace common {
 /// @author Tiago Quintino  
 /// @author Willem Deconinck
 template <typename KEY, typename DATA>  
-class CMap : public Component {
+class Map : public Component {
 
 public: // typedefs
 
@@ -58,23 +58,23 @@ public: // typedefs
   typedef typename std::vector<value_type>::const_iterator   const_iterator;
 
   /// shared pointer to this type
-  typedef boost::shared_ptr<CMap> Ptr;
-  typedef boost::shared_ptr<CMap const> ConstPtr;
+  typedef boost::shared_ptr<Map> Ptr;
+  typedef boost::shared_ptr<Map const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param[in] name of the component
-  CMap ( const std::string& name ) : Component(name)
+  Map ( const std::string& name ) : Component(name)
   {
 		regist_typeinfo(this);
   }
 
   /// Virtual destructor
-  virtual ~CMap() {}
+  virtual ~Map() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMap<"+common::class_name<KEY>()+","+common::class_name<DATA>()+">"; }
+  static std::string type_name () { return "Map<"+common::class_name<KEY>()+","+common::class_name<DATA>()+">"; }
 
   /// Reserve memory
   /// @param[in] max_size of the map to be set before starting inserting pairs in the  map
@@ -82,7 +82,7 @@ public: // functions
   ///        the future insertions
   void reserve (size_t max_size);
 
-  /// Copy a std::map into the CMap
+  /// Copy a std::map into the Map
   /// @param[in] map The map to copy
   void copy_std_map (std::map<key_type,data_type>& map);
   
@@ -110,7 +110,7 @@ public: // functions
 
   /// Find the iterator matching with the given KEY
   /// @param[in] key  key to be looked-up
-  /// @pre Before using find() the CMap has to be sorted with sort_keys()
+  /// @pre Before using find() the Map has to be sorted with sort_keys()
   ///      This happens automatically
   /// @post If the key is not in the map, the end() iterator is returned.
   /// @return the iterator with key and value, the end() iterator is returned
@@ -119,7 +119,7 @@ public: // functions
   
   /// Find the iterator matching with the given KEY
   /// @param[in] key  key to be looked-up
-  /// @pre Before using find() the CMap has to be sorted with sort_keys()
+  /// @pre Before using find() the Map has to be sorted with sort_keys()
   ///      This cannot happen automatically in this const version
   /// @post If the key is not in the map, the end() iterator is returned.
   /// @return the iterator with key and value, the end() iterator is returned
@@ -151,14 +151,14 @@ public: // functions
     return true;
   }
   
-  /// Check if the given KEY is existing in the CMap
+  /// Check if the given KEY is existing in the Map
   /// @param[in] key  key to be looked-up
   /// @pre Before using exists() the CFMap has to be sorted with sort_keys().
   ///      This happens automatically
   /// @return flag to know if key exists
   bool exists(const key_type& key);
   
-  /// Check if the given KEY is existing in the CMap
+  /// Check if the given KEY is existing in the Map
   /// @param[in] key  key to be looked-up
   /// @pre before using exists() the CFMap has to be sorted with sort_keys()
   /// @return flag to know if key exists
@@ -281,7 +281,7 @@ private: //data
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline void CMap<KEY,DATA>::reserve (size_t max_size)
+inline void Map<KEY,DATA>::reserve (size_t max_size)
 {
   m_vectorMap.reserve(max_size);
 }
@@ -289,7 +289,7 @@ inline void CMap<KEY,DATA>::reserve (size_t max_size)
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-void CMap<KEY,DATA>::copy_std_map (std::map<key_type,data_type>& map)
+void Map<KEY,DATA>::copy_std_map (std::map<key_type,data_type>& map)
 {
   reserve(map.size());
   
@@ -302,7 +302,7 @@ void CMap<KEY,DATA>::copy_std_map (std::map<key_type,data_type>& map)
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline Uint CMap<KEY,DATA>::insert_blindly(const key_type& key, const data_type& data)
+inline Uint Map<KEY,DATA>::insert_blindly(const key_type& key, const data_type& data)
 {
   m_sorted = false;
   m_vectorMap.push_back(value_type(key,data));
@@ -312,7 +312,7 @@ inline Uint CMap<KEY,DATA>::insert_blindly(const key_type& key, const data_type&
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline std::pair<typename CMap<KEY,DATA>::iterator,bool> CMap<KEY,DATA>::insert(const value_type& v)
+inline std::pair<typename Map<KEY,DATA>::iterator,bool> Map<KEY,DATA>::insert(const value_type& v)
 {
   m_sorted = false;
   iterator itr = find(v.first);
@@ -330,7 +330,7 @@ inline std::pair<typename CMap<KEY,DATA>::iterator,bool> CMap<KEY,DATA>::insert(
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::find(const key_type& key)
+inline typename Map<KEY,DATA>::iterator Map<KEY,DATA>::find(const key_type& key)
 {
   if (m_vectorMap.empty())
     return end();
@@ -350,12 +350,12 @@ inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::find(const key_type& ke
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::find(const key_type& key) const
+inline typename Map<KEY,DATA>::const_iterator Map<KEY,DATA>::find(const key_type& key) const
 {
   if(m_vectorMap.empty())
     return end();
    
-  cf3_assert_desc ("Trying to sort CMap is not allowed in find() \"const\". use sort_keys() apriori", m_sorted );
+  cf3_assert_desc ("Trying to sort Map is not allowed in find() \"const\". use sort_keys() apriori", m_sorted );
    
   const_iterator itr = std::lower_bound(begin(),end(),key,Compare());
 
@@ -369,7 +369,7 @@ inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::find(const key_ty
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA> 
-inline bool CMap<KEY,DATA>::exists(const key_type& key)
+inline bool Map<KEY,DATA>::exists(const key_type& key)
 {
   return (find(key) != end());
 }
@@ -377,7 +377,7 @@ inline bool CMap<KEY,DATA>::exists(const key_type& key)
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-bool CMap<KEY,DATA>::exists(const key_type& key) const
+bool Map<KEY,DATA>::exists(const key_type& key) const
 {
   return (find(key) != end());
 }
@@ -385,7 +385,7 @@ bool CMap<KEY,DATA>::exists(const key_type& key) const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline void CMap<KEY,DATA>::clear()
+inline void Map<KEY,DATA>::clear()
 {
   std::vector<value_type>().swap(m_vectorMap);
 }
@@ -393,7 +393,7 @@ inline void CMap<KEY,DATA>::clear()
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-size_t CMap<KEY,DATA>::size() const
+size_t Map<KEY,DATA>::size() const
 {
   return m_vectorMap.size();
 }
@@ -401,7 +401,7 @@ size_t CMap<KEY,DATA>::size() const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::data_type& CMap<KEY,DATA>::operator[] (const key_type& key)
+inline typename Map<KEY,DATA>::data_type& Map<KEY,DATA>::operator[] (const key_type& key)
 {
   iterator itr = find(key);
   if (itr != end())
@@ -415,17 +415,17 @@ inline typename CMap<KEY,DATA>::data_type& CMap<KEY,DATA>::operator[] (const key
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline const typename CMap<KEY,DATA>::data_type& CMap<KEY,DATA>::operator[] (const key_type& key) const
+inline const typename Map<KEY,DATA>::data_type& Map<KEY,DATA>::operator[] (const key_type& key) const
 {
   const_iterator itr = find(key);
-  cf3_assert_desc( "The key is not found in the CMap, and can not be inserted in const version." , itr != end())
+  cf3_assert_desc( "The key is not found in the Map, and can not be inserted in const version." , itr != end())
   return itr->second;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-void CMap<KEY,DATA>::sort_keys()
+void Map<KEY,DATA>::sort_keys()
 {
   if (!m_sorted)
   {
@@ -440,7 +440,7 @@ void CMap<KEY,DATA>::sort_keys()
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::begin()
+inline typename Map<KEY,DATA>::iterator Map<KEY,DATA>::begin()
 {
   return m_vectorMap.begin();
 }
@@ -448,7 +448,7 @@ inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::begin()
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::begin() const
+inline typename Map<KEY,DATA>::const_iterator Map<KEY,DATA>::begin() const
 {
   return m_vectorMap.begin();
 }
@@ -456,7 +456,7 @@ inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::begin() const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::end()
+inline typename Map<KEY,DATA>::iterator Map<KEY,DATA>::end()
 {
   return m_vectorMap.end();
 }
@@ -464,7 +464,7 @@ inline typename CMap<KEY,DATA>::iterator CMap<KEY,DATA>::end()
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::end() const
+inline typename Map<KEY,DATA>::const_iterator Map<KEY,DATA>::end() const
 {
   return m_vectorMap.end();
 }
@@ -472,7 +472,7 @@ inline typename CMap<KEY,DATA>::const_iterator CMap<KEY,DATA>::end() const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename KEY, typename DATA>
-inline bool CMap<KEY,DATA>::unique_key(const value_type& val1, const value_type& val2)
+inline bool Map<KEY,DATA>::unique_key(const value_type& val1, const value_type& val2)
 {
   return (val1.first==val2.first);
 }
@@ -484,4 +484,4 @@ inline bool CMap<KEY,DATA>::unique_key(const value_type& val1, const value_type&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CMap_hpp
+#endif // cf3_common_Map_hpp

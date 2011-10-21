@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common { template <typename KEY, typename DATA> class CMap; }
+namespace common { template <typename KEY, typename DATA> class Map; }
 namespace mesh {
 namespace Gmsh {
 
@@ -68,7 +68,7 @@ private: // data
 
   std::map<CEntities const*,Uint> m_element_start_idx;
 
-  boost::shared_ptr< common::CMap<Uint,Uint> > m_cf_2_gmsh_node;
+  boost::shared_ptr< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
 }; // end CWriter
 
 

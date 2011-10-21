@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
-#include "common/CMap.hpp"
+#include "common/Map.hpp"
 
 #include "mesh/LibMesh.hpp"
 
