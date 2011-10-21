@@ -44,10 +44,10 @@ namespace Core {
 
 NetworkQueue::NetworkQueue()
   : CNode( CLIENT_NETWORK_QUEUE, "NetworkQueue", CNode::DEBUG_NODE ),
-    m_currentIndex(-1)
+    m_current_index(-1)
 {
-  m_scriptFile = new QFile();
-  m_scriptStream = new QTextStream();
+  m_script_file = new QFile();
+  m_script_stream = new QTextStream();
 
   boost::program_options::options_description desc;
 
@@ -66,16 +66,16 @@ NetworkQueue::NetworkQueue()
 
 NetworkQueue::~NetworkQueue()
 {
-  delete m_scriptStream;
-  delete m_scriptFile;
+  delete m_script_stream;
+  delete m_script_file;
   delete m_interpreter;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString NetworkQueue::toolTip() const
+QString NetworkQueue::tool_tip() const
 {
-  return componentType();
+  return component_type();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ Transaction * NetworkQueue::send ( SignalArgs & args, Priority priority )
   else
   {
     QString uuid = start_transaction();
-    transaction = m_newTransactions[uuid];
+    transaction = m_new_transactions[uuid];
     add_to_transaction( uuid, args );
     insert_transaction( uuid, priority );
   }
@@ -103,7 +103,7 @@ QString NetworkQueue::start_transaction()
 {
   QString uuid( QUuid::createUuid().toString() );
 
-  m_newTransactions[uuid] = new Transaction( uuid );
+  m_new_transactions[uuid] = new Transaction( uuid );
 
   return uuid;
 }
@@ -112,8 +112,8 @@ QString NetworkQueue::start_transaction()
 
 void NetworkQueue::add_to_transaction( const QString & uuid, SignalArgs & args )
 {
-  if ( m_newTransactions.contains(uuid) )
-    m_newTransactions[uuid]->actions.append(args);
+  if ( m_new_transactions.contains(uuid) )
+    m_new_transactions[uuid]->actions.append(args);
   else
     throw ValueNotFound( FromHere(), "No transaction found with UUID [" +
                          uuid.toStdString() + "].");
@@ -124,28 +124,28 @@ void NetworkQueue::add_to_transaction( const QString & uuid, SignalArgs & args )
 void NetworkQueue::insert_transaction( const QString & uuid,
                                        NetworkQueue::Priority priority )
 {
-  if ( !m_newTransactions.contains(uuid) )
+  if ( !m_new_transactions.contains(uuid) )
     throw ValueNotFound( FromHere(), "No transaction found with UUID [" +
                          uuid.toStdString() + "].");
   else
   {
-    Transaction * transaction = m_newTransactions[uuid];
+    Transaction * transaction = m_new_transactions[uuid];
 
     switch ( priority )
     {
     case HIGH:
       m_transactions.prepend( transaction );
-      m_currentIndex++;
+      m_current_index++;
       break;
 
     case MEDIUM:
 
-      if( m_currentIndex == -1 )
+      if( m_current_index == -1 )
         m_transactions.append( transaction );
       else
       {
-        m_transactions.insert( m_currentIndex, transaction );
-        m_currentIndex++;
+        m_transactions.insert( m_current_index, transaction );
+        m_current_index++;
       }
       break;
 
@@ -161,15 +161,15 @@ void NetworkQueue::insert_transaction( const QString & uuid,
 
     SignalFrame args = transaction->actions[0];
 
-    m_newTransactions.remove( uuid );
+    m_new_transactions.remove( uuid );
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-NetworkQueue::Ptr NetworkQueue::global_queue()
+NetworkQueue::Ptr NetworkQueue::global()
 {
-  static NetworkQueue::Ptr queue = ThreadManager::instance().tree().rootChild<NetworkQueue>(CLIENT_NETWORK_QUEUE);
+  static NetworkQueue::Ptr queue = ThreadManager::instance().tree().root_child<NetworkQueue>(CLIENT_NETWORK_QUEUE);
   cf3_assert( is_not_null(queue.get()) );
   return queue;
 }
@@ -191,9 +191,9 @@ void NetworkQueue::dispatch_signal( const std::string & target,
 
 void NetworkQueue::start()
 {
-  if( !isRunning() && !m_transactions.isEmpty() )
+  if( !is_running() && !m_transactions.isEmpty() )
   {
-    m_currentIndex = 0;
+    m_current_index = 0;
     send_next_frame();
   }
 }
@@ -217,29 +217,29 @@ void NetworkQueue::signal_ack ( common::SignalArgs & args )
         QString msg("Error while running the script.\n\nThe following error occured:\n %1"
                     "\n\nWhen executing the signal:\n\n%2");
 
-        XML::SignalFrame f = m_transactions[m_currentIndex]->actions[0].node;
+        XML::SignalFrame f = m_transactions[m_current_index]->actions[0].node;
 
-        NLog::globalLog()->addException( msg.arg(message.c_str()).arg(f.to_script().c_str()) );
+        NLog::global()->add_exception( msg.arg(message.c_str()).arg(f.to_script().c_str()) );
 
         // if the signal was comming from a script, we close the script file
-        if ( m_transactions[m_currentIndex]->from_script )
-          m_scriptFile->close();
+        if ( m_transactions[m_current_index]->from_script )
+          m_script_file->close();
 
-        m_transactions.removeAt( m_currentIndex );
+        m_transactions.removeAt( m_current_index );
 
         if( m_transactions.isEmpty() )
-          m_currentIndex = -1;
+          m_current_index = -1;
       }
       else
       {
-        m_transactions.removeAt( m_currentIndex );
+        m_transactions.removeAt( m_current_index );
 
         if( m_transactions.isEmpty() )
-          m_currentIndex = -1;
+          m_current_index = -1;
 
         if( !m_transactions.isEmpty() )
           send_next_frame();
-        else if( m_scriptFile->isOpen() )
+        else if( m_script_file->isOpen() )
           send_next_command();
       }
     }
@@ -256,16 +256,16 @@ void NetworkQueue::signal_ack ( common::SignalArgs & args )
 
 void NetworkQueue::send_next_frame()
 {
-  if( isRunning() )
+  if( is_running() )
   {
     if( m_transactions.count() == 0 )
-      m_currentIndex = -1;
+      m_current_index = -1;
     else
     {
 
       SignalFrame frame = m_transactions[0]->actions[0];
-      m_currentIndex = 0;
-      m_currentFrameID = frame.node.attribute_value("frameid");
+      m_current_index = 0;
+      m_current_frame_id = frame.node.attribute_value("frameid");
       ThreadManager::instance().network().send( frame );
     }
   }
@@ -275,12 +275,12 @@ void NetworkQueue::send_next_frame()
 
 void NetworkQueue::execute_script ( const QString & filename )
 {
-  if( m_scriptFile->isOpen() )
+  if( m_script_file->isOpen() )
     throw IllegalCall( FromHere(), "Another script is already in execution." );
 
-  m_scriptFile->setFileName( filename );
+  m_script_file->setFileName( filename );
 
-  if( !m_scriptFile->exists() )
+  if( !m_script_file->exists() )
     throw FileSystemError( FromHere(), "The file [" + filename.toStdString() +
                            "] does not exist." );
 
@@ -288,12 +288,12 @@ void NetworkQueue::execute_script ( const QString & filename )
   BasicCommands::tree_root = ThreadManager::instance().tree().root()->root();
   BasicCommands::current_component = ThreadManager::instance().tree().root()->root();
 
-  if( !m_scriptFile->open( QIODevice::ReadOnly ) )
-    NLog::globalLog()->addError( m_scriptFile->errorString() );
+  if( !m_script_file->open( QIODevice::ReadOnly ) )
+    NLog::global()->add_error( m_script_file->errorString() );
   else
   {
-    NLog::globalLog()->addMessage("Running script: " + filename);
-    m_scriptStream->setDevice( m_scriptFile );
+    NLog::global()->add_message("Running script: " + filename);
+    m_script_stream->setDevice( m_script_file );
     if(!filename.endsWith(".py")) // non-python, assume CFscript
     {
       send_next_command();
@@ -303,7 +303,7 @@ void NetworkQueue::execute_script ( const QString & filename )
       const URI script_engine_path("//Root/Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
-      options.add_option< OptionT<std::string> >("script", m_scriptStream->readAll().toStdString());
+      options.add_option< OptionT<std::string> >("script", m_script_stream->readAll().toStdString());
       SignalFrame frame = options.create_frame("execute_script", script_engine_path, script_engine_path);
       
       dispatch_signal("execute_script", script_engine_path, frame);
@@ -315,15 +315,15 @@ void NetworkQueue::execute_script ( const QString & filename )
 
 void NetworkQueue::send_next_command()
 {
-  if( m_scriptStream->atEnd() )
-    m_scriptFile->close();
+  if( m_script_stream->atEnd() )
+    m_script_file->close();
   else
   {
-    QString command = m_scriptStream->readLine();
+    QString command = m_script_stream->readLine();
 
     while( command.endsWith( "\\" ) )
     {
-      QString newLine( m_scriptStream->readLine() );
+      QString newLine( m_script_stream->readLine() );
       command.remove( command.length() - 1, 1 );     // remove the trailing \
       command.append( newLine.trimmed() );  // read and append the next line
       command = QString::fromStdString( command.trimmed().toStdString() + " " + newLine.trimmed().toStdString() );
@@ -337,7 +337,7 @@ void NetworkQueue::send_next_command()
 
     if( !command.isEmpty() )
     {
-      NLog::globalLog()->addMessage( "Executing command: " + command );
+      NLog::global()->add_message( "Executing command: " + command );
       m_interpreter->handle_read_line( command.toStdString() );
 
       if( m_transactions.isEmpty() )

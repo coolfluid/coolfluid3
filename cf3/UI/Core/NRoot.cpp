@@ -40,7 +40,7 @@ namespace Core {
 NRoot::NRoot(const std::string & name)
   : CNode(name, "CRoot", CNode::STANDARD_NODE)
 {
-  m_isRoot = true;
+  m_is_root = true;
   m_uuid = boost::uuids::random_generator()();
 
   regist_signal( "shutdown" )
@@ -65,7 +65,7 @@ NRoot::NRoot(const std::string & name)
     ->description("Disconnects from the server")
     ->pretty_name("Disconnect from server");
 
-  m_localSignals << "connect_server" << "disconnect_server";
+  m_local_signals << "connect_server" << "disconnect_server";
 
   // signatures
   signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
@@ -74,21 +74,21 @@ NRoot::NRoot(const std::string & name)
   m_root = CRoot::create(name);
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
-          this, SLOT(connectedToServer()));
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer(bool)),
+          this, SLOT(connected_to_server()));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
           this, SLOT(disconnected(bool)));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-QString NRoot::toolTip() const
+QString NRoot::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NRoot::childFromRoot(cf3::Uint number) const
+CNode::Ptr NRoot::child_from_root(cf3::Uint number) const
 {
   ComponentIterator<CNode> it = m_root->begin<CNode>();
   cf3::Uint i;
@@ -113,34 +113,34 @@ std::string NRoot::uuid() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::connectedToServer()
+void NRoot::connected_to_server()
 {
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
 //  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
-  NLog::globalLog()->addMessage(msg2.arg(uuid().c_str()));
+  NLog::global()->add_message(msg2.arg(uuid().c_str()));
 
   // build and send signal
   SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
-  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void NRoot::disconnected( bool requested)
 {
-  m_contentListed = false;
-  m_actionSigs.clear();
+  m_content_listed = false;
+  m_action_sigs.clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void NRoot::shutdown(SignalArgs & node)
 {
-  NLog::globalLog()->addMessage("The server is shutting down. Disconnecting...");
-  ThreadManager::instance().network().disconnectFromServer(false);
+  NLog::global()->add_message("The server is shutting down. Disconnecting...");
+  ThreadManager::instance().network().disconnect_from_server(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -149,14 +149,14 @@ void NRoot::client_registration(SignalArgs & node)
 {
   if( SignalOptions(node).value<bool>("accepted") )
   {
-    NLog::globalLog()->addMessage("Registration was successful.");
+    NLog::global()->add_message("Registration was successful.");
     emit connected();
-    NTree::globalTree()->updateTree();
+    NTree::global()->update_tree();
   }
   else
   {
-    NLog::globalLog()->addError("Registration failed. Disconnecting...");
-    ThreadManager::instance().network().disconnectFromServer(false);
+    NLog::global()->add_error("Registration failed. Disconnecting...");
+    ThreadManager::instance().network().disconnect_from_server(false);
   }
 }
 
@@ -171,14 +171,14 @@ void NRoot::frame_rejected(SignalArgs & args)
 
   QString msg("Action %1 has been rejected by the server: %2");
 
-  NLog::globalLog()->addError(msg.arg(frameid.c_str()).arg(reason.c_str()));
+  NLog::global()->add_error(msg.arg(frameid.c_str()).arg(reason.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NRoot::disableLocalSignals(QMap<QString, bool> & localSignals) const
+void NRoot::disable_local_signals(QMap<QString, bool> & localSignals) const
 {
-  bool connected = ThreadManager::instance().network().isConnected();
+  bool connected = ThreadManager::instance().network().is_connected();
 
   localSignals["connect_server"] = !connected;
   localSignals["disconnect_server"] = connected;
@@ -216,7 +216,7 @@ void NRoot::signal_connect_server( SignalArgs & frame )
   std::string hostname = options.value<std::string>("Hostname");
   Uint port = options.value<Uint>("Port number");
 
-  ThreadManager::instance().network().connectToHost(hostname.c_str(), port);
+  ThreadManager::instance().network().connect_to_host(hostname.c_str(), port);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ void NRoot::signal_disconnect_server( SignalArgs & frame )
 {
   bool shutdown = SignalOptions(frame).value<bool>("Shutdown the server");
 
-  ThreadManager::instance().network().disconnectFromServer(shutdown);
+  ThreadManager::instance().network().disconnect_from_server(shutdown);
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -47,21 +47,21 @@ public:
 
   /// @brief Gives the root UUID.
   /// @return Returns the root UUID.
-  inline std::string getUUID() { return m_root->uuid(); }
+  inline std::string get_uuid() { return m_root->uuid(); }
 
   template<typename TYPE>
-  typename TYPE::Ptr rootChild(const std::string & name) const
+  typename TYPE::Ptr root_child(const std::string & name) const
   {
     return m_root->root()->get_child_ptr("UI")->get_child_ptr(name)->as_ptr<TYPE>();
   }
 
-  void setMutex(QMutex * mutex);
+  void set_mutex(QMutex * mutex);
 
   NRoot::ConstPtr root() const { return m_root; }
 
   NRoot::Ptr root() { return m_root; }
 
-  void newSignal( boost::shared_ptr<common::XML::XmlDoc> doc);
+  void new_signal( boost::shared_ptr<common::XML::XmlDoc> doc);
 
 private:
 

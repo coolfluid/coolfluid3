@@ -25,9 +25,9 @@ void CommitDetailsTest::test_data()
 {
   CommitDetails cd;
 
-  cd.setOption("Option1", "OldVal1", "NewVal1");
-  cd.setOption("Option2", "OldVal2", "");
-  cd.setOption("Option3", "", "NewVal3");
+  cd.set_option("Option1", "OldVal1", "NewVal1");
+  cd.set_option("Option2", "OldVal2", "");
+  cd.set_option("Option3", "", "NewVal3");
 
   // 1. invalid index
   QVERIFY( !cd.data(QModelIndex(), Qt::DecorationRole).isValid() );
@@ -82,15 +82,15 @@ void CommitDetailsTest::test_index()
 
   QVERIFY( !cd.index(0, 0).isValid() );
 
-  cd.setOption("Option1", "OldVal", "NewVal");
+  cd.set_option("Option1", "OldVal", "NewVal");
 
   QModelIndex index = cd.index(0, 0);
   CommitDetailsItem * item = static_cast<CommitDetailsItem*>(index.internalPointer());
   QVERIFY( is_not_null(item) );
 
-  QCOMPARE( item->optionName(), QString("Option1") );
-  QCOMPARE( item->oldValue(), QString("OldVal") );
-  QCOMPARE( item->currentValue(), QString("NewVal") );
+  QCOMPARE( item->option_name(), QString("Option1") );
+  QCOMPARE( item->old_value(), QString("OldVal") );
+  QCOMPARE( item->current_value(), QString("NewVal") );
 
   QVERIFY( !cd.index(0, 0, index).isValid() );
 }
@@ -101,9 +101,9 @@ void CommitDetailsTest::test_setOption()
 {
   CommitDetails cd;
 
-  QVERIFY( !cd.hasOptions() );
-  cd.setOption("Option1", "OldVal", "NewVal");
-  QVERIFY( cd.hasOptions() );
+  QVERIFY( !cd.has_options() );
+  cd.set_option("Option1", "OldVal", "NewVal");
+  QVERIFY( cd.has_options() );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -112,17 +112,17 @@ void CommitDetailsTest::test_clear()
 {
   CommitDetails cd(nullptr, "//Root/Path/To/Node");
 
-  QVERIFY( !cd.hasOptions() );
+  QVERIFY( !cd.has_options() );
 
-  QCOMPARE( cd.nodePath(), QString("//Root/Path/To/Node") );
-  cd.setOption("Option1", "OldVal", "NewVal");
+  QCOMPARE( cd.node_path(), QString("//Root/Path/To/Node") );
+  cd.set_option("Option1", "OldVal", "NewVal");
 
-  QVERIFY( cd.hasOptions() );
+  QVERIFY( cd.has_options() );
 
   cd.clear();
 
-  QVERIFY( !cd.hasOptions() );
-  QVERIFY( cd.nodePath().isEmpty() );
+  QVERIFY( !cd.has_options() );
+  QVERIFY( cd.node_path().isEmpty() );
 }
 
 //////////////////////////////////////////////////////////////////////////

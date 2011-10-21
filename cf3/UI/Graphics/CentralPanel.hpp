@@ -96,7 +96,7 @@ namespace Graphics {
     /// Options are replaced by the new ones.
     /// @param newIndex The new current index.
     /// @param oldIndex The old current index. This parameter is not used.
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     /// Slot called when the model advanced status has changed.
 
@@ -105,7 +105,7 @@ namespace Graphics {
     /// the current option has no advanced option, the advanced option
     /// layout remains hidden.
     /// @param advanced If @c true, advanced options are showed up.
-    void advancedModeChanged(bool advanced);
+    void advanced_mode_changed(bool advanced);
 
     /// Slot called when data changed in the underlying model.
 

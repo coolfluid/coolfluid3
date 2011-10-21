@@ -106,7 +106,7 @@ namespace Graphics {
 
   private slots:
 
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
   signals:
 

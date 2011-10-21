@@ -40,7 +40,7 @@ namespace Core {
     /// @param parent Pointer to the parent TreeNode. May be @c nullptr.
     /// @param rowNumber Row number of the node under the parent. Must be
     /// greater or equal to 0.
-    TreeNode(CNode::Ptr node, TreeNode * parent, int rowNumber);
+    TreeNode(CNode::Ptr node, TreeNode * parent, int row_number);
 
     ~TreeNode();
 
@@ -50,7 +50,7 @@ namespace Core {
     /// @c parent.
     /// @return Returns @c true if the node has parent. Otherwise, returns
     /// @c false.
-    bool hasParent() const;
+    bool has_parent() const;
 
     /// @brief Returns the @e ith child of this node.
 
@@ -60,7 +60,7 @@ namespace Core {
     /// @return Returns the wanted child, or a @c nullptr pointer if the row
     /// number is not valid (less than 0, or bigger than the number of
     /// child this this node has).
-    TreeNode * child(int rowNumber);
+    TreeNode * child(int row_number);
 
     /// @brief Gives the node handled by this object
     /// @returns Returns the node handled by this object.
@@ -72,23 +72,23 @@ namespace Core {
 
     /// @brief Gives the parent.
     /// @return Returns the parent. May return a @c nullptr pointer if the
-    /// node has no object.
-    TreeNode * parentNode() const;
+    /// node has no porent.
+    TreeNode * parent_node() const;
 
     /// @brief Gives the row number.
     /// @return Returns the row number.
-    int rowNumber() const;
+    int row_number() const;
 
     /// @brief Gives the child count.
     /// @return Returns the child count.
-    int childCount() const;
+    int child_count() const;
 
     /// @brief Gives the node name.
 
     /// Calling the method is equivalent to
     /// @code node->getNode()->name().str(); @endcode
     /// @return Return the node name.
-    inline QString nodeName() const
+    inline QString node_name() const
     {
       if( !m_node.expired() )
         return m_node.lock()->name().c_str();
@@ -100,7 +100,7 @@ namespace Core {
 
     /// @return Returns the child, or a @c nullptr pointer if no child
     /// as such name.
-    TreeNode * childByName(const QString & name);
+    TreeNode * child_by_name(const QString & name);
 
   public slots:
 
@@ -112,7 +112,7 @@ namespace Core {
     /// of existing elements may have changed. This means that all items
     /// created by @c getChild will have to be recreated again. Thus,
     /// calling this method too often may lead to performance problems.
-    void updateChildList();
+    void update_child_list();
 
   private:
 
@@ -123,14 +123,14 @@ namespace Core {
     TreeNode * m_parent;
 
     /// @brief The row number.
-    int m_rowNumber;
+    int m_row_number;
 
     /// @brief List of children.
 
     /// This list is initialized at the right size in the constructor with
     /// @c nullptr pointers (one pointer for each child). Each pointer is
     /// replaced when the corresponding child is built by @c getChild method.
-    QList<TreeNode *> m_childNodes;
+    QList<TreeNode *> m_child_nodes;
 
   }; // class MyTreeItem
 

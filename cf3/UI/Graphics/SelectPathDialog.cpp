@@ -118,7 +118,7 @@ void SelectPathDialog::pathChanged(const QString & path)
     m_nodeClicked = false;
   else
   {
-    CRoot::Ptr root = NTree::globalTree()->treeRoot()->root();
+    CRoot::Ptr root = NTree::global()->tree_root()->root();
     try
     {
       if(root->retrieve_component<CNode>(path.toStdString()) != nullptr)
@@ -133,7 +133,7 @@ void SelectPathDialog::pathChanged(const QString & path)
 
       if(node.get() != nullptr)
       {
-        node->listChildPaths(list, false);
+        node->list_child_paths(list, false);
 
         m_model->setStringList(list);
 

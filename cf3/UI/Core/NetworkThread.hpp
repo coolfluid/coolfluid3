@@ -56,14 +56,14 @@ public:
   /// after.
   /// @param hostAddress Address of the host to connect to.
   /// @param port The port number to use.
-  bool connectToHost(const QString& hostAddress, quint16 port);
+  bool connect_to_host(const QString& hostAddress, quint16 port);
 
   /// @brief Disconnects from the server, then closes.
 
   /// @param shutServer If @c true, a request to shut down the server is sent.
-  void disconnectFromServer(bool shutServer);
+  void disconnect_from_server(bool shutServer);
 
-  bool isConnected() const;
+  bool is_connected() const;
 
   /// @brief Sends a signal frame to the server.
   /// The client UUID is added to the frame.
@@ -82,7 +82,7 @@ public: // boost signals
 private slots :
 
   /// @brief Slot called when there is an error on the socket.
-  void newData();
+  void new_data();
 
   /// @brief Slot called when the connection has been broken or closed.
   /// If the thread is running, it is exited with error code 0 if
@@ -93,13 +93,13 @@ private slots :
   /// @brief Slot called when there is an error on the m_socket.
 
   /// @param err Error that occured.
-  void socketError(QAbstractSocket::SocketError err);
+  void socket_error(QAbstractSocket::SocketError err);
 
 signals:
 
   /// The signal is not emitted if the user resquested a disconnection (if
   /// @c #m_requestDisc is @c true ).
-  void disconnectedFromServer(bool requested);
+  void disconnected_from_server(bool requested);
 
   /// @brief Signal emitted when a connection has been successfully
   /// established between the client and the server.
@@ -112,9 +112,9 @@ private: // data
 
   QTcpSocket * m_socket;
 
-  quint32 m_blockSize;
+  quint32 m_block_size;
 
-  bool m_requestDisc;
+  bool m_request_disc;
 
   QString m_hostname;
 

@@ -18,12 +18,12 @@ void NBrowserTest::test_generateName()
 {
   NBrowser b;
 
-  QCOMPARE(b.generateName(), QString("Browser_0"));
-  QCOMPARE(b.generateName(), QString("Browser_1"));
-  QCOMPARE(b.generateName(), QString("Browser_2"));
+  QCOMPARE(b.generate_name(), QString("Browser_0"));
+  QCOMPARE(b.generate_name(), QString("Browser_1"));
+  QCOMPARE(b.generate_name(), QString("Browser_2"));
 
   for(int i = 0 ; i < 15 ; i++)
-    b.generateName();
+    b.generate_name();
 
-  QCOMPARE(b.generateName(), QString("Browser_18"));
+  QCOMPARE(b.generate_name(), QString("Browser_18"));
 }

@@ -48,16 +48,16 @@ void NLinkTest::test_tootip()
   NLink::Ptr l1(new NLink("Link1"));
   NLink::Ptr l2(new NLink("Link2"));
 
-  root->addNode(target);
-  root->addNode(l1);
+  root->add_node(target);
+  root->add_node(l1);
 
-  l1->setTargetPath("cpath://Root/Target");
+  l1->set_target_path("cpath://Root/Target");
 
-  QCOMPARE(l1->toolTip(), QString("Target: //Root/Target"));
-  QCOMPARE(l2->toolTip(), QString("Target: <No target>"));
+  QCOMPARE(l1->tool_tip(), QString("Target: //Root/Target"));
+  QCOMPARE(l2->tool_tip(), QString("Target: <No target>"));
 
-  root->removeNode( "Link1" );
-  root->removeNode( "Target" );
+  root->remove_node( "Link1" );
+  root->remove_node( "Target" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -70,16 +70,16 @@ void NLinkTest::test_targetPath()
   NLink::Ptr l1(new NLink("Link1"));
   NLink::Ptr l2(new NLink("Link2"));
 
-  root->addNode(target);
-  root->addNode(l1);
+  root->add_node(target);
+  root->add_node(l1);
 
-  l1->setTargetPath("cpath://Root/Target");
+  l1->set_target_path("cpath://Root/Target");
 
-  QCOMPARE(QString(l1->targetPath().string().c_str()), QString("cpath://Root/Target"));
-  QCOMPARE(QString(l2->targetPath().string().c_str()), QString(""));
+  QCOMPARE(QString(l1->target_path().string().c_str()), QString("cpath://Root/Target"));
+  QCOMPARE(QString(l2->target_path().string().c_str()), QString(""));
 
-  root->removeNode( "Link1" );
-  root->removeNode( "Target" );
+  root->remove_node( "Link1" );
+  root->remove_node( "Target" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,80 +94,80 @@ void NLinkTest::test_goToTarget()
  NRoot::Ptr root = ThreadManager::instance().tree().root();
  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
  NGeneric::Ptr wrongTarget(new NGeneric("WrongTarget", "MyType")); // not part of the tree
- NTree::Ptr tree = NTree::globalTree();
+ NTree::Ptr tree = NTree::global();
  NLink::Ptr link(new NLink("link"));
- QSignalSpy spy(tree.get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)));
+ QSignalSpy spy(tree.get(), SIGNAL(current_index_changed(QModelIndex,QModelIndex)));
 
- root->addNode(target);
- root->addNode(link);
+ root->add_node(target);
+ root->add_node(link);
 
- tree->setCurrentIndex(tree->index(0, 0));
+ tree->set_current_index(tree->index(0, 0));
 
  // 1. The link has no target
- GUI_CHECK_THROW( link->goToTarget(frame) , ValueNotFound );
+ GUI_CHECK_THROW( link->go_to_target(frame) , ValueNotFound );
 
  // 2. target does not belong to the tree
- link->setTargetNode(wrongTarget);
- GUI_CHECK_THROW( link->goToTarget(frame) , ValueNotFound );
+ link->set_target_node(wrongTarget);
+ GUI_CHECK_THROW( link->go_to_target(frame) , ValueNotFound );
 
  // 3. everything is OK
  spy.clear();
- link->setTargetNode(target);
- index = tree->indexFromPath("cpath://Root/Target");
- GUI_CHECK_NO_THROW(link->goToTarget(frame));
+ link->set_target_node(target);
+ index = tree->index_from_path("cpath://Root/Target");
+ GUI_CHECK_NO_THROW(link->go_to_target(frame));
 
  QCOMPARE(spy.count(), 1);
 
  // check that the correct index was selected
  QCOMPARE(qvariant_cast<QModelIndex>(spy.at(0).at(0)), index);
 
- root->removeNode( "link" );
- root->removeNode( "Target" );
+ root->remove_node( "link" );
+ root->remove_node( "Target" );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void NLinkTest::test_setTargetPath()
 {
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
   NLink::Ptr link(new NLink("link"));
 
   // 1. link has no root, assertion should fail
-  GUI_CHECK_THROW( link->setTargetPath(""), FailedAssertion );
+  GUI_CHECK_THROW( link->set_target_path(""), FailedAssertion );
 
-  tree->treeRoot()->addNode(link);
+  tree->tree_root()->add_node(link);
 
   // 2. path does not exist, assertion should fail
-  GUI_CHECK_THROW( link->setTargetPath("cpath://Root/Unexisting/Component"), FailedAssertion );
+  GUI_CHECK_THROW( link->set_target_path("cpath://Root/Unexisting/Component"), FailedAssertion );
 
   // 3. everything is ok
-  GUI_CHECK_NO_THROW( link->setTargetPath("cpath://Root/UI/Log") );
-  QCOMPARE( QString(link->targetPath().string().c_str()), QString("cpath://Root/UI/Log") );
+  GUI_CHECK_NO_THROW( link->set_target_path("cpath://Root/UI/Log") );
+  QCOMPARE( QString(link->target_path().string().c_str()), QString("cpath://Root/UI/Log") );
 
-  tree->treeRoot()->removeNode("link");
+  tree->tree_root()->remove_node("link");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 void NLinkTest::test_setTargetNode()
 {
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
   NLink::Ptr link(new NLink("link"));
   NGeneric::Ptr target(new NGeneric("Target", "MyType"));
   NGeneric::Ptr emptyTarget;
 
-  tree->treeRoot()->addNode(link);
-  tree->treeRoot()->addNode(target);
+  tree->tree_root()->add_node(link);
+  tree->tree_root()->add_node(target);
 
   // 1. give an empty target
-  GUI_CHECK_THROW( link->setTargetNode( emptyTarget ), FailedAssertion );
+  GUI_CHECK_THROW( link->set_target_node( emptyTarget ), FailedAssertion );
 
   // 2. everything is ok
-  GUI_CHECK_NO_THROW( link->setTargetNode( target ) );
-  QCOMPARE( QString(link->targetPath().string().c_str()), QString("cpath://Root/Target") );
+  GUI_CHECK_NO_THROW( link->set_target_node( target ) );
+  QCOMPARE( QString(link->target_path().string().c_str()), QString("cpath://Root/Target") );
 
-  tree->treeRoot()->removeNode("link");
-  tree->treeRoot()->removeNode("Target");
+  tree->tree_root()->remove_node("link");
+  tree->tree_root()->remove_node("Target");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

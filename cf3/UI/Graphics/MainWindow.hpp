@@ -142,7 +142,7 @@ namespace Graphics {
 
     void connectedToServer();
 
-    void disconnectedFromServer(bool requested);
+    void disconnected_from_server(bool requested);
 
     void saveFileLocally();
 
@@ -158,7 +158,7 @@ namespace Graphics {
 
     void tabClicked(int num);
 
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     void scriptFinished();
 

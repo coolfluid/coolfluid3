@@ -33,21 +33,21 @@ void NRootTest::test_childFromRoot()
   CNode::Ptr node;
 
   // 1. root has no child
-  GUI_CHECK_THROW( root->childFromRoot(0), FailedAssertion );
-  GUI_CHECK_THROW( root->childFromRoot(1), FailedAssertion );
+  GUI_CHECK_THROW( root->child_from_root(0), FailedAssertion );
+  GUI_CHECK_THROW( root->child_from_root(1), FailedAssertion );
 
-  root->addNode(node1);
-  root->addNode(node2);
+  root->add_node(node1);
+  root->add_node(node2);
 
   // 2. get the first child (node1)
-  GUI_CHECK_NO_THROW( node = root->childFromRoot(0) );
+  GUI_CHECK_NO_THROW( node = root->child_from_root(0) );
   QCOMPARE( QString(node->name().c_str()), QString("Node1") );
-  QCOMPARE( node->componentType(), QString("MyFirstType") );
+  QCOMPARE( node->component_type(), QString("MyFirstType") );
 
   // 3. get the second child (node2)
-  GUI_CHECK_NO_THROW( node = root->childFromRoot(1) );
+  GUI_CHECK_NO_THROW( node = root->child_from_root(1) );
   QCOMPARE( QString(node->name().c_str()), QString("Node2") );
-  QCOMPARE( node->componentType(), QString("MySecondType") );
+  QCOMPARE( node->component_type(), QString("MySecondType") );
 }
 
 ///////////////////////////////////////////////////////////////////////////////

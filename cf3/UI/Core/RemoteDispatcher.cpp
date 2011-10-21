@@ -54,7 +54,7 @@ void RemoteDispatcher::run ()
 {
   if( !m_running && !m_pendingSignals.isEmpty() )
   {
-    NLog::globalLog()->addMessage( QString("Executing %1 frame(s)")
+    NLog::global()->add_message( QString("Executing %1 frame(s)")
                                        .arg(m_pendingSignals.count()) );
     m_nextIndex = 1;
     m_running = true;
@@ -86,14 +86,14 @@ void RemoteDispatcher::send_next_signal( SignalArgs & args )
           std::string str;
           to_string( m_pendingSignals[m_nextIndex-1].node, str );
 
-          NLog::globalLog()->addException( msg.arg(message.c_str()).arg(str.c_str()) );
+          NLog::global()->add_exception( msg.arg(message.c_str()).arg(str.c_str()) );
 
           m_running = false;
           emit finished();
         }
         else
         {
-          NLog::globalLog()->addMessage( QString("Frame %1 was ack'ed").arg(frameid.c_str()) );
+          NLog::global()->add_message( QString("Frame %1 was ack'ed").arg(frameid.c_str()) );
           send_signal( m_nextIndex );
           m_nextIndex++;
         }
@@ -102,7 +102,7 @@ void RemoteDispatcher::send_next_signal( SignalArgs & args )
       {
         m_running = false;
         //      m_connectionManager->manage_connection("ack")->disconnect();
-        NLog::globalLog()->addMessage("Script is finished");
+        NLog::global()->add_message("Script is finished");
         emit finished();
       }
     }
@@ -115,11 +115,11 @@ void RemoteDispatcher::send_signal ( Uint index )
 {
   NetworkThread & thread = ThreadManager::instance().network();
 
-  if( thread.isConnected() && index < m_pendingSignals.size() )
+  if( thread.is_connected() && index < m_pendingSignals.size() )
   {
     SignalFrame & frame = m_pendingSignals[index];
     m_currentFrameId = frame.node.attribute_value("frameid");
-    NetworkQueue::global_queue()->send( frame );
+    NetworkQueue::global()->send( frame );
   }
 }
 

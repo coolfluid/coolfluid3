@@ -27,23 +27,23 @@ NBrowser::NBrowser()
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NBrowser::generateName()
+QString NBrowser::generate_name()
 {
  return QString("Browser_%1").arg(m_counter++);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NBrowser::toolTip() const
+QString NBrowser::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-NBrowser::Ptr NBrowser::globalBrowser()
+NBrowser::Ptr NBrowser::global()
 {
-  static NBrowser::Ptr browser = ThreadManager::instance().tree().rootChild<NBrowser>(CLIENT_BROWSERS);
+  static NBrowser::Ptr browser = ThreadManager::instance().tree().root_child<NBrowser>(CLIENT_BROWSERS);
   cf3_assert( is_not_null(browser.get()) );
   return browser;
 }

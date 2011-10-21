@@ -29,8 +29,8 @@ cf3::common::RegistLibrary<LibQwtTab> libQwtTab;
 
 void LibQwtTab::initiate_impl()
 {
-  NPlugins::globalPlugins()->registerPlugin<LibQwtTab>();
-  CNodeBuilders::instance().registerBuilder<NPlotXY>("CF.Solver.CPlotXY");
+  NPlugins::global()->register_plugin<LibQwtTab>();
+  CNodeBuilders::instance().register_builder<NPlotXY>("CF.Solver.CPlotXY");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

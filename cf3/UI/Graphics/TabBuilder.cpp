@@ -32,10 +32,10 @@ TabBuilder::TabBuilder(QWidget * parent)
 {
   connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
-  connect( NTree::globalTree().get(), SIGNAL(beginUpdateTree()),
+  connect( NTree::global().get(), SIGNAL(beginUpdateTree()),
            this, SLOT(beginModelReset()) );
 
-  connect( NTree::globalTree().get(), SIGNAL(endUpdateTree()),
+  connect( NTree::global().get(), SIGNAL(endUpdateTree()),
            this, SLOT(endModelReset()) );
 
 }
@@ -120,10 +120,10 @@ void TabBuilder::tabClicked(int index)
 {
   if(index > 0)
   {
-    QModelIndex newIndex = NTree::globalTree()->indexFromPath(tabText(index).toStdString());
+    QModelIndex newIndex = NTree::global()->index_from_path(tabText(index).toStdString());
 
     if( newIndex.isValid() )
-      NTree::globalTree()->setCurrentIndex( newIndex );
+      NTree::global()->set_current_index( newIndex );
   }
 }
 

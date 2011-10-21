@@ -49,10 +49,10 @@ void TreeNodeTest::test_hasParent()
   TreeNode withParent(node, &parentLess, 0);
 
   // 1. does not have a parent
-  QVERIFY( !parentLess.hasParent() );
+  QVERIFY( !parentLess.has_parent() );
 
   // 2. has a parent
-  QVERIFY( withParent.hasParent() );
+  QVERIFY( withParent.has_parent() );
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,16 +98,16 @@ void TreeNodeTest::test_child()
   TreeNode * treeNode23 = nullptr;
   TreeNode * treeNode3 = nullptr;
 
-  node->addNode(node1);
-  node->addNode(node2);
-  node->addNode(node3);
+  node->add_node(node1);
+  node->add_node(node2);
+  node->add_node(node3);
 
-  node1->addNode(node11);
-  node1->addNode(node12);
+  node1->add_node(node11);
+  node1->add_node(node12);
 
-  node2->addNode(node21);
-  node2->addNode(node22);
-  node2->addNode(node23);
+  node2->add_node(node21);
+  node2->add_node(node22);
+  node2->add_node(node23);
 
   treeNode = new TreeNode(node, nullptr, 0);
 
@@ -124,14 +124,14 @@ void TreeNodeTest::test_child()
   QVERIFY( treeNode3 != (TreeNode*) nullptr );
 
   // their parent should be the root
-  QCOMPARE( treeNode1->parentNode(), treeNode );
-  QCOMPARE( treeNode2->parentNode(), treeNode );
-  QCOMPARE( treeNode3->parentNode(), treeNode );
+  QCOMPARE( treeNode1->parent_node(), treeNode );
+  QCOMPARE( treeNode2->parent_node(), treeNode );
+  QCOMPARE( treeNode3->parent_node(), treeNode );
 
   // check their name
-  QCOMPARE( treeNode1->nodeName(), QString("Node1") );
-  QCOMPARE( treeNode2->nodeName(), QString("Node2") );
-  QCOMPARE( treeNode3->nodeName(), QString("Node3") );
+  QCOMPARE( treeNode1->node_name(), QString("Node1") );
+  QCOMPARE( treeNode2->node_name(), QString("Node2") );
+  QCOMPARE( treeNode3->node_name(), QString("Node3") );
 
   //
   // 2. children of Node1
@@ -144,12 +144,12 @@ void TreeNodeTest::test_child()
   QVERIFY( treeNode12 != (TreeNode*) nullptr );
 
   // their parent should be the root
-  QCOMPARE( treeNode11->parentNode(), treeNode1 );
-  QCOMPARE( treeNode12->parentNode(), treeNode1 );
+  QCOMPARE( treeNode11->parent_node(), treeNode1 );
+  QCOMPARE( treeNode12->parent_node(), treeNode1 );
 
   // check their name
-  QCOMPARE( treeNode11->nodeName(), QString("Node11") );
-  QCOMPARE( treeNode12->nodeName(), QString("Node12") );
+  QCOMPARE( treeNode11->node_name(), QString("Node11") );
+  QCOMPARE( treeNode12->node_name(), QString("Node12") );
 
   //
   // 3. children of Node2
@@ -164,14 +164,14 @@ void TreeNodeTest::test_child()
   QVERIFY( treeNode23 != (TreeNode*) nullptr );
 
   // their parent should be the root
-  QCOMPARE( treeNode21->parentNode(), treeNode2 );
-  QCOMPARE( treeNode22->parentNode(), treeNode2 );
-  QCOMPARE( treeNode23->parentNode(), treeNode2 );
+  QCOMPARE( treeNode21->parent_node(), treeNode2 );
+  QCOMPARE( treeNode22->parent_node(), treeNode2 );
+  QCOMPARE( treeNode23->parent_node(), treeNode2 );
 
   // check their name
-  QCOMPARE( treeNode21->nodeName(), QString("Node21") );
-  QCOMPARE( treeNode22->nodeName(), QString("Node22") );
-  QCOMPARE( treeNode23->nodeName(), QString("Node23") );
+  QCOMPARE( treeNode21->node_name(), QString("Node21") );
+  QCOMPARE( treeNode22->node_name(), QString("Node22") );
+  QCOMPARE( treeNode23->node_name(), QString("Node23") );
 
   //
   // 4. no child for Node3 (should return nullptr)
@@ -207,16 +207,16 @@ void TreeNodeTest::test_childByName()
   TreeNode * treeNode23 = nullptr;
   TreeNode * treeNode3 = nullptr;
 
-  node->addNode(node1);
-  node->addNode(node2);
-  node->addNode(node3);
+  node->add_node(node1);
+  node->add_node(node2);
+  node->add_node(node3);
 
-  node1->addNode(node11);
-  node1->addNode(node12);
+  node1->add_node(node11);
+  node1->add_node(node12);
 
-  node2->addNode(node21);
-  node2->addNode(node22);
-  node2->addNode(node23);
+  node2->add_node(node21);
+  node2->add_node(node22);
+  node2->add_node(node23);
 
   treeNode = new TreeNode(node, nullptr, 0);
   treeNode1 = treeNode->child(0);
@@ -231,9 +231,9 @@ void TreeNodeTest::test_childByName()
   //
   // 1. check the direct children
   //
-  treeNode1 = treeNode->childByName("Node1");
-  treeNode2 = treeNode->childByName("Node2");
-  treeNode3 = treeNode->childByName("Node3");
+  treeNode1 = treeNode->child_by_name("Node1");
+  treeNode2 = treeNode->child_by_name("Node2");
+  treeNode3 = treeNode->child_by_name("Node3");
 
   // check that pointer are not null
   QVERIFY( treeNode1 != (TreeNode*) nullptr );
@@ -241,37 +241,37 @@ void TreeNodeTest::test_childByName()
   QVERIFY( treeNode3 != (TreeNode*) nullptr );
 
   // their parent should be the root
-  QCOMPARE( treeNode1->parentNode(), treeNode );
-  QCOMPARE( treeNode2->parentNode(), treeNode );
-  QCOMPARE( treeNode3->parentNode(), treeNode );
+  QCOMPARE( treeNode1->parent_node(), treeNode );
+  QCOMPARE( treeNode2->parent_node(), treeNode );
+  QCOMPARE( treeNode3->parent_node(), treeNode );
 
   // check their row number
-  QCOMPARE( treeNode1->rowNumber(), 0 );
-  QCOMPARE( treeNode2->rowNumber(), 1 );
-  QCOMPARE( treeNode3->rowNumber(), 2 );
+  QCOMPARE( treeNode1->row_number(), 0 );
+  QCOMPARE( treeNode2->row_number(), 1 );
+  QCOMPARE( treeNode3->row_number(), 2 );
 
   //
   // 2. children of Node1
   //
-  treeNode11 = treeNode1->childByName("Node11");
-  treeNode12 = treeNode1->childByName("Node12");
+  treeNode11 = treeNode1->child_by_name("Node11");
+  treeNode12 = treeNode1->child_by_name("Node12");
 
   // check that pointer are not null
   QVERIFY( treeNode11 != (TreeNode*) nullptr );
   QVERIFY( treeNode12 != (TreeNode*) nullptr );
 
   // their parent should be the root
-  QCOMPARE( treeNode11->parentNode(), treeNode1 );
-  QCOMPARE( treeNode12->parentNode(), treeNode1 );
+  QCOMPARE( treeNode11->parent_node(), treeNode1 );
+  QCOMPARE( treeNode12->parent_node(), treeNode1 );
 
   // check their row number
-  QCOMPARE( treeNode11->rowNumber(), 0 );
-  QCOMPARE( treeNode12->rowNumber(), 1 );
+  QCOMPARE( treeNode11->row_number(), 0 );
+  QCOMPARE( treeNode12->row_number(), 1 );
 
   //
   // 3. wrong name
   //
-  QCOMPARE ( treeNode2->childByName("Node"), (TreeNode*) nullptr );
+  QCOMPARE ( treeNode2->child_by_name("Node"), (TreeNode*) nullptr );
 
 
   delete treeNode; // deletes the children as well
@@ -287,20 +287,20 @@ void TreeNodeTest::test_updateChildList()
   TreeNode * treeNode;
   TreeNode * child;
 
-  node->addNode(node1);
+  node->add_node(node1);
 
   treeNode = new TreeNode(node, nullptr, 0);
 
-  QCOMPARE( treeNode->childCount(), 1);
+  QCOMPARE( treeNode->child_count(), 1);
 
-  node->addNode(node2);
+  node->add_node(node2);
 
-  QCOMPARE( treeNode->childCount(), 2);
+  QCOMPARE( treeNode->child_count(), 2);
 
   child = treeNode->child(1);
   QVERIFY( child != nullptr );
 
-  QCOMPARE( child->nodeName(), QString("Node2"));
+  QCOMPARE( child->node_name(), QString("Node2"));
 
   delete treeNode;
 }
