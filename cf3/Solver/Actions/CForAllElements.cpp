@@ -8,8 +8,8 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 
 #include "Solver/Actions/CForAllElements.hpp"
 
@@ -34,8 +34,8 @@ CForAllElements::CForAllElements ( const std::string& name ) :
 
 void CForAllElements::execute()
 {
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
-    boost_foreach(CElements& elements, find_components_recursively<CElements>(*region))
+  boost_foreach(Region::Ptr& region, m_loop_regions)
+    boost_foreach(Elements& elements, find_components_recursively<Elements>(*region))
   {
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

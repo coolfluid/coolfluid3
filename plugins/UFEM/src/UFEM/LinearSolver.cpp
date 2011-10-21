@@ -14,7 +14,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"

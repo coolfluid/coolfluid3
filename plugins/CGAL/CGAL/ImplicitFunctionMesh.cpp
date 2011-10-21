@@ -15,9 +15,9 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
@@ -49,18 +49,18 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   VertexMapT vertex_map(0, complex.number_of_cells()); // estimate the number of vertices equal to the cell count
 
 
-  CRegion& region = mesh.topology().create_region("region");
+  Region& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,DIM_3D);
 
   // coordinate storage
-  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
+  Table<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer(complex.number_of_cells());
   std::vector<Real> coords_row(3);
   Uint coord_row_count = 0;
 
   // connectivity storage
-  CElements& elements = region.create_elements("CF.Mesh.LagrangeP1.Tetra3D",nodes);
-  CTable<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
+  Elements& elements = region.create_elements("CF.Mesh.LagrangeP1.Tetra3D",nodes);
+  Table<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 
   CFinfo << "iterating over the cells" << CFendl;

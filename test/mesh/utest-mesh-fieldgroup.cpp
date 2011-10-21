@@ -19,14 +19,14 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/FieldGroup.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CSpace.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/Cells.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -65,7 +65,7 @@ BOOST_FIXTURE_TEST_SUITE( FieldGroupTests_TestSuite, FieldGroupTests_Fixture )
 
 BOOST_AUTO_TEST_CASE( test_MeshCreation )
 {
-  CSimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<CSimpleMeshGenerator>("mesh_gen");
+  SimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
   mesh_gen.configure_option("mesh",m_mesh->uri());
   mesh_gen.configure_option("lengths",std::vector<Real>(2,5.));
   mesh_gen.configure_option("nb_cells",std::vector<Uint>(2,5u));
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   BOOST_CHECK_NO_THROW(mesh.geometry().check_sanity());
 
   // Check if indexes_for_element function returns expected results
-  boost_foreach(CElements& elements, mesh.geometry().elements_range())
+  boost_foreach(Elements& elements, mesh.geometry().elements_range())
   {
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
   // CHECK indexes_for_element access for nodes
   Uint cell_idx=0;
-  boost_foreach(CEntities& elements, cell_fields.elements_range())
+  boost_foreach(Entities& elements, cell_fields.elements_range())
   {
     for (Uint e=0; e<elements.size(); ++e)
     {
@@ -180,9 +180,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
 {
   FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
   Field& volume = cells_P0.field("volume");
-  boost_foreach(CElements& elements, volume.elements_range())
+  boost_foreach(Elements& elements, volume.elements_range())
   {
-    CSpace& space = volume.space(elements);
+    Space& space = volume.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
       boost_foreach( const Uint state, space.indexes_for_element(e))
@@ -198,9 +198,9 @@ BOOST_AUTO_TEST_CASE( test_Field )
   Field& point_field = points_P2.create_field("point_field");
 
 
-  boost_foreach(const CElements& elements, point_field.elements_range())
+  boost_foreach(const Elements& elements, point_field.elements_range())
   {
-    const CSpace& space = point_field.space(elements);
+    const Space& space = point_field.space(elements);
     for (Uint e=0; e<elements.size(); ++e)
     {
       boost_foreach( const Uint point, space.indexes_for_element(e) )

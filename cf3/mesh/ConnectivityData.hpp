@@ -11,7 +11,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,7 +31,7 @@ public:
   typedef boost::shared_ptr<CNodeConnectivity const> ConstPtr;
 
   /// Storage for a list of elements
-  typedef std::vector<CElements::ConstPtr> ElementsT;
+  typedef std::vector<Elements::ConstPtr> ElementsT;
 
   /// Storage for counted numbers
   typedef std::vector<Uint> CountsT;
@@ -39,8 +39,8 @@ public:
   /// Storage for indices into other arrays
   typedef std::vector<Uint> IndicesT;
 
-  /// Uniquely refer an element by its CElements and local element index
-  typedef std::pair<CElements const*, Uint> ElementReferenceT;
+  /// Uniquely refer an element by its Elements and local element index
+  typedef std::pair<Elements const*, Uint> ElementReferenceT;
 
   /// Contructor
   /// @param name of the component
@@ -54,7 +54,7 @@ public:
 
   // functions specific to the CNodeConnectivity component
 
-  /// Initialize the connectivity arrays, based on a range of CElements to consider
+  /// Initialize the connectivity arrays, based on a range of Elements to consider
   /// Parameters use the convention from the low level interface
   /// @note RangeT is a template argument to allow maximum flexibility with regard to the ranges defined in FindComponents
   /// @see create_celements_vector
@@ -69,7 +69,7 @@ public:
   /// Range of global element indices that use the node with index node_idx.
   boost::iterator_range<IndicesT::const_iterator> node_element_range(const Uint node_idx) const;
 
-  /// Convert a global element index to its CElements and local element index
+  /// Convert a global element index to its Elements and local element index
   ElementReferenceT element(const Uint global_element_idx) const;
 
   /// Access to the raw data
@@ -110,7 +110,7 @@ public:
   /// Storage for a list of boolean values
   typedef std::vector<bool> BoolsT;
 
-  /// Uniquely refer an element by its CElements and local element index
+  /// Uniquely refer an element by its Elements and local element index
   typedef CNodeConnectivity::ElementReferenceT ElementReferenceT;
 
   /// Contructor
@@ -131,7 +131,7 @@ public:
   /// @see create_node_element_connectivity
   /// @see create_face_element_connectivity
   /// @see create_face_face_connectivity
-  void initialize(const CElements& own_celements, const CNodeConnectivity& node_connectivity);
+  void initialize(const Elements& own_celements, const CNodeConnectivity& node_connectivity);
 
   /// Shortcut assuming the parent is the own_celements
   void initialize(const CNodeConnectivity& node_connectivity);
@@ -158,7 +158,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Create a vector containing all the CElements in the given range
+/// Create a vector containing all the Elements in the given range
 template <typename RangeT>
 void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& celements_vector, CFaceConnectivity::IndicesT& celements_first_elements)
 {
@@ -173,7 +173,7 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
   /// Construct global index starts
   celements_first_elements.clear();
   Uint sum = 0;
-  BOOST_FOREACH(const CElements& elements, range)
+  BOOST_FOREACH(const Elements& elements, range)
   {
     celements_first_elements.push_back(sum);
     sum += elements.node_connectivity().array().size();
@@ -182,16 +182,16 @@ void create_celements_vector(const RangeT& range, CFaceConnectivity::ElementsT& 
 
 /// Store connectivity from a node to the elements that use it
 /// @param [in] nb_nodes The total number of nodes to consider. This should be equal to the size of the coordinate table.
-/// @param [in] elements The vector with the CElements to consider. The index of this vector is used to uniquely identify an element
+/// @param [in] elements The vector with the Elements to consider. The index of this vector is used to uniquely identify an element
 /// @param [out] node_first_elements For each node, the indices of the first element in node_elements. Size equal to nb_nodes.
 /// @param [out] node_element_counts For each node, the number of elements that use it. Size equal to nb_nodes
 /// @param [out] node_elements The link between a node and the elements that use it. The columns contain the index into the elements
-/// vector and then the index into that CElements connectivity table. Size is the sum of the elements in node_element_counts.
+/// vector and then the index into that Elements connectivity table. Size is the sum of the elements in node_element_counts.
 /// The elements using node i are located from node_elements[node_first_elements[i]] to node_elements[node_first_elements[i] + node_element_counts[i]].
 void Mesh_API create_node_element_connectivity( const Uint nb_nodes, const CFaceConnectivity::ElementsT& elements, const CFaceConnectivity::IndicesT& celements_first_elements, CFaceConnectivity::IndicesT& node_first_elements, CFaceConnectivity::CountsT& node_element_counts, CFaceConnectivity::IndicesT& node_elements);
 
 /// Calculate the face connectivity data, based on inputs as calculated by create_node_element_connectivity.
-/// @param [in] own_celements The CElements for which the connectivity data is needed
+/// @param [in] own_celements The Elements for which the connectivity data is needed
 /// @param [in] celements_vector
 /// @param [in] celements_first_elements
 /// @param [in] node_first_elements
@@ -201,10 +201,10 @@ void Mesh_API create_node_element_connectivity( const Uint nb_nodes, const CFace
 /// @param [out] face_element_connectivity For each face of element in own_celements, store the element it is connected to. The length of this vector is the total number of elements from
 /// own_celements, multiplied with the number of faces for each element. To get the connectivity of face 3 of element i of own_celements, use:
 /// face_element_connectivity[nb_faces*i + 3]
-void Mesh_API create_face_element_connectivity( const CElements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::IndicesT& node_first_elements, const CFaceConnectivity::CountsT& node_element_counts, const CFaceConnectivity::IndicesT& node_elements, CFaceConnectivity::BoolsT& face_has_neighbour, CFaceConnectivity::IndicesT& face_element_connectivity);
+void Mesh_API create_face_element_connectivity( const Elements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::IndicesT& node_first_elements, const CFaceConnectivity::CountsT& node_element_counts, const CFaceConnectivity::IndicesT& node_elements, CFaceConnectivity::BoolsT& face_has_neighbour, CFaceConnectivity::IndicesT& face_element_connectivity);
 
 /// Calculate the local face index in adjacent elements
-/// @param [in]  own_celements               The CElements for which the connectivity data is needed
+/// @param [in]  own_celements               The Elements for which the connectivity data is needed
 /// @param [in]  celements_vector
 /// @param [in]  celements_first_elements
 /// @param [in]  face_has_neighbour          For each face of each global element, true if the face has a neighbour element
@@ -213,13 +213,13 @@ void Mesh_API create_face_element_connectivity( const CElements& own_celements, 
 /// face_element_connectivity[nb_faces*i + 3]
 /// @param [out] face_face_connectivity Stores to local face index for each global face index
 /// For other parameters: @see create_face_element_connectivity
-void Mesh_API create_face_face_connectivity( const CElements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::BoolsT& face_has_neighbour, const CFaceConnectivity::IndicesT& face_element_connectivity, CFaceConnectivity::IndicesT& face_face_connectivity);
+void Mesh_API create_face_face_connectivity( const Elements& own_celements, const CFaceConnectivity::ElementsT& celements_vector, const CFaceConnectivity::IndicesT& celements_first_elements, const CFaceConnectivity::BoolsT& face_has_neighbour, const CFaceConnectivity::IndicesT& face_element_connectivity, CFaceConnectivity::IndicesT& face_face_connectivity);
 
 template<typename RangeT>
 void CNodeConnectivity::initialize (const RangeT& celements_range )
 {
   std::set<const Geometry*> nodes_set;
-  BOOST_FOREACH(const CElements& elements, celements_range)
+  BOOST_FOREACH(const Elements& elements, celements_range)
     nodes_set.insert(&elements.geometry());
 
   // Total number of nodes in the mesh

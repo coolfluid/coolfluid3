@@ -58,7 +58,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
+        elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
         elements().geometry().coordinates().as_ptr< mesh::Field >();
 
@@ -102,15 +102,15 @@ protected: // data
   boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::CConnectivity::Ptr connectivity;
+  mesh::Connectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  mesh::CTable<Real>::Ptr coordinates;
+  mesh::Table<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::CTable<Real>::Ptr solution;
+  mesh::Table<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::CTable<Real>::Ptr residual;
+  mesh::Table<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::CTable<Real>::Ptr wave_speed;
+  mesh::Table<Real>::Ptr wave_speed;
 
   typename PHYS::MODEL::Properties phys_props; ///< physical properties
 

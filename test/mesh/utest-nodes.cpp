@@ -18,10 +18,10 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CDynTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/DynTable.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
@@ -49,7 +49,7 @@ struct Nodes_Fixture
      //char*** argv = &boost::unit_test::framework::master_test_suite().argv;
 
     // Read the a .neu mesh as 2D mixed mesh
-    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
     // Read the mesh
     meshreader->read_mesh_into("quadtriag.neu",*mesh2d);
@@ -62,9 +62,9 @@ struct Nodes_Fixture
   /// common values accessed by all tests goes here
   boost::shared_ptr<Mesh> mesh2d;
 
-  CElements& get_first_region()
+  Elements& get_first_region()
   {
-    BOOST_FOREACH(CElements& region, find_components_recursively<CElements>(*mesh2d))
+    BOOST_FOREACH(Elements& region, find_components_recursively<Elements>(*mesh2d))
     {
         return (region);
     }
@@ -81,9 +81,9 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 
 BOOST_AUTO_TEST_CASE( FillVector )
 {
-  const CElements& firstRegion = get_first_region();
-  const CTable<Real>& coords = firstRegion.geometry().coordinates();
-  const CTable<Uint>& conn = firstRegion.node_connectivity();
+  const Elements& firstRegion = get_first_region();
+  const Table<Real>& coords = firstRegion.geometry().coordinates();
+  const Table<Uint>& conn = firstRegion.node_connectivity();
   const Uint element_count = conn.size();
   std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
   for(Uint element = 0; element != element_count; ++element)
@@ -101,9 +101,9 @@ BOOST_AUTO_TEST_CASE( FillVector )
 
 BOOST_AUTO_TEST_CASE( FillMatrix )
 {
-  const CElements& firstRegion = get_first_region();
-  const CTable<Real>& coords = firstRegion.geometry().coordinates();
-  const CTable<Uint>& conn = firstRegion.node_connectivity();
+  const Elements& firstRegion = get_first_region();
+  const Table<Real>& coords = firstRegion.geometry().coordinates();
+  const Table<Uint>& conn = firstRegion.node_connectivity();
   const Uint element_count = conn.size();
   RealMatrix node_matrix(conn.row_size(), coords.row_size());
   for(Uint element = 0; element != element_count; ++element)

@@ -30,15 +30,15 @@
 #include "mesh/LibMesh.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/WriteMesh.hpp"
 #include "mesh/MeshMetadata.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CFaces.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -65,7 +65,7 @@ Mesh::Mesh ( const std::string& name  ) :
   m_properties.add_property(common::Tags::dimension(),Uint(0));
 
   m_elements   = create_static_component_ptr<MeshElements>("elements");
-  m_topology   = create_static_component_ptr<CRegion>("topology");
+  m_topology   = create_static_component_ptr<Region>("topology");
   m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
 
   regist_signal ( "write_mesh" )
@@ -113,15 +113,15 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 void Mesh::update_statistics()
 {
   cf3_assert(m_dimension == geometry().coordinates().row_size() );
-  boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
+  boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 
   Uint nb_cells = 0;
-  boost_foreach ( CCells& elements, find_components_recursively<CCells>(topology()) )
+  boost_foreach ( Cells& elements, find_components_recursively<Cells>(topology()) )
     nb_cells += elements.size();
 
   Uint nb_faces = 0;
-  boost_foreach ( CFaces& elements, find_components_recursively<CFaces>(topology()) )
+  boost_foreach ( Faces& elements, find_components_recursively<Faces>(topology()) )
     nb_faces += elements.size();
 
   property(common::Tags::dimension()) = m_dimension;
@@ -153,7 +153,7 @@ FieldGroup& Mesh::create_field_group( const std::string& name,
 FieldGroup& Mesh::create_field_group( const std::string& name,
                                        const FieldGroup::Basis::Type base,
                                        const std::string& space,
-                                       const CRegion& topology )
+                                       const Region& topology )
 {
   FieldGroup& field_group = create_component<FieldGroup>(name);
   field_group.configure_option("type",FieldGroup::Basis::to_str(base));
@@ -171,21 +171,21 @@ void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology)
+void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, Region& topology)
 {
   switch (base)
   {
   case FieldGroup::Basis::POINT_BASED:
   case FieldGroup::Basis::ELEMENT_BASED:
-    boost_foreach(CEntities& elements, find_components_recursively<CEntities>(topology))
+    boost_foreach(Entities& elements, find_components_recursively<Entities>(topology))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
   case FieldGroup::Basis::CELL_BASED:
-    boost_foreach(CCells& elements, find_components_recursively<CCells>(topology))
+    boost_foreach(Cells& elements, find_components_recursively<Cells>(topology))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
   case FieldGroup::Basis::FACE_BASED:
-    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(topology,mesh::Tags::face_entity()))
+    boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(topology,mesh::Tags::face_entity()))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
   case FieldGroup::Basis::INVALID:
@@ -208,7 +208,7 @@ FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
 FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
                                                  const FieldGroup::Basis::Type base,
                                                  const std::string& space_lib_name,
-                                                 CRegion& topology )
+                                                 Region& topology )
 {
   create_space(name,base,space_lib_name);
   return create_field_group(name,base,name,topology);
@@ -333,7 +333,7 @@ void Mesh::check_sanity() const
   }
 
   std::set<Uint> unique_elem_gids;
-  boost_foreach(const CEntities& entities, find_components_recursively<CEntities>(*this))
+  boost_foreach(const Entities& entities, find_components_recursively<Entities>(*this))
   {
     if (entities.rank().size() != entities.size())
       message << "- " << entities.uri().string() << ": size() ["<<entities.size()<<"] != rank().size() ["<<entities.rank().size()<<"]"<<std::endl;

@@ -10,7 +10,7 @@
 
 #include "mesh/Manipulations.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -54,7 +54,7 @@ void RemoveNodes::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RemoveElements::RemoveElements(CElements& elements) :
+RemoveElements::RemoveElements(Elements& elements) :
     glb_idx (elements.glb_idx().create_buffer()),
     rank (elements.rank().create_buffer()),
     connected_nodes (elements.node_connectivity().create_buffer())
@@ -84,7 +84,7 @@ void RemoveElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackElements::PackUnpackElements(CElements& elements) :
+PackUnpackElements::PackUnpackElements(Elements& elements) :
     m_elements(elements),
     m_remove_after_pack(false),
     m_idx(uint_max()),

@@ -8,9 +8,9 @@
 #include "common/OptionURI.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/Entities.hpp"
 
 #include "Solver/Actions/CComputeVolume.hpp"
 
@@ -61,7 +61,7 @@ void CComputeVolume::trigger_elements()
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);
-    m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<CSpace>();
+    m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<Space>();
   }
 }
 
@@ -69,7 +69,7 @@ void CComputeVolume::trigger_elements()
 
 void CComputeVolume::execute()
 {
-  CSpace& space = *m_volume_field_space.lock();
+  Space& space = *m_volume_field_space.lock();
   Field& volume = *m_volume.lock();
 
   elements().put_coordinates(m_coordinates,idx());

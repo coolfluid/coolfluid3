@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::CWriter"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::Writer"
 
 #include <boost/test/unit_test.hpp>
 
@@ -17,8 +17,8 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "mesh/CList.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 using namespace cf3;
@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
-  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.CWriter","meshwriter");
+  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.Writer","meshwriter");
   vtk_writer->write_from_to(*mesh,"grid.vtk");
 
   BOOST_CHECK(true);

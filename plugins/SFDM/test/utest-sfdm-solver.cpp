@@ -24,26 +24,26 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 
-#include "mesh/CLinearInterpolator.hpp"
+#include "mesh/LinearInterpolator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/Tags.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 //#include "mesh/Mesh.hpp"
 //#include "mesh/CField.hpp"
-//#include "mesh/CEntities.hpp"
+//#include "mesh/Entities.hpp"
 //#include "mesh/ElementType.hpp"
 //#include "mesh/MeshWriter.hpp"
-//#include "mesh/CDomain.hpp"
+//#include "mesh/Domain.hpp"
 //#include "mesh/Actions/CInitFieldFunction.hpp"
 //#include "mesh/Actions/CreateSpaceP0.hpp"
 //#include "Solver/CModelUnsteady.hpp"
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   model.setup("CF.SFDM.SFDSolver","CF.Physics.LinEuler.LinEuler2D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
-  CDomain&   domain  = model.domain();
+  Domain&   domain  = model.domain();
 
   physics.configure_option("gamma",1.4);
   physics.configure_option("rho0",1.);
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   std::vector<Real> lengths  = list_of(  1.  )(  1. );
   std::vector<Real> offsets  = list_of( -0.5 )( -0.5 );
 
-  CSimpleMeshGenerator& generate_mesh = domain.create_component<CSimpleMeshGenerator>("generate_mesh");
+  SimpleMeshGenerator& generate_mesh = domain.create_component<SimpleMeshGenerator>("generate_mesh");
   generate_mesh.configure_option("mesh",mesh.uri());
   generate_mesh.configure_option("nb_cells",nb_cells);
   generate_mesh.configure_option("lengths",lengths);
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  std::vector<Real> lengths_probe  = list_of( 0.5 );
 //  std::vector<Real> offsets_probe  = list_of( 0. );
 
-//  CSimpleMeshGenerator& generate_probe = domain.create_component<CSimpleMeshGenerator>("generate_probe");
+//  SimpleMeshGenerator& generate_probe = domain.create_component<SimpleMeshGenerator>("generate_probe");
 //  generate_probe.configure_option("mesh",probe.uri());
 //  generate_probe.configure_option("nb_cells",nb_cells_probe);
 //  generate_probe.configure_option("lengths",lengths_probe);
@@ -272,7 +272,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
 
 
-//  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+//  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("CF.Mesh.LinearInterpolator","interpolator");
 ////  interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
 ////  // Following configuration option has priority over the the previous one.
 ////  std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 //  fields.push_back(find_component_with_tag<CField>(mesh,"residual").as_ptr<CField>());
 //  fields.push_back(find_component_with_tag<CField>(mesh,"wave_speed").as_ptr<CField>());
 
-//  MeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+//  MeshWriter& gmsh_writer = solver.get_child("iterate").create_component("7_gmsh_writer","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
 //  gmsh_writer.configure_option("mesh",mesh.uri());
 //  gmsh_writer.configure_option("file",URI("line_${iter}.msh"));
 //  gmsh_writer.set_fields(fields);

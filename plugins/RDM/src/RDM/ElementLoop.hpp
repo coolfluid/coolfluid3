@@ -11,7 +11,7 @@
 
 #include "common/FindComponents.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/Tags.hpp"
@@ -47,12 +47,12 @@ public: // functions
   virtual void execute () = 0;
 
   /// selects the region where to loop on
-  void select_region( mesh::CRegion::Ptr region ) { current_region = region; }
+  void select_region( mesh::Region::Ptr region ) { current_region = region; }
 
 protected: // data
 
   /// region to loop on
-  mesh::CRegion::Ptr current_region;
+  mesh::Region::Ptr current_region;
 
 }; // ElementLoop
 

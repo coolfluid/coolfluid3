@@ -26,14 +26,14 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Actions/CGlobalNumbering.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
@@ -99,14 +99,14 @@ void CGlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.geometry().coordinates();
+  Table<Real>& coordinates = mesh.geometry().coordinates();
 
   if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
     mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
   CVector_size_t& glb_node_hash = mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
-  boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
+  boost_foreach(Table<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
@@ -114,7 +114,7 @@ void CGlobalNumbering::execute()
     ++i;
   }
 
-  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
@@ -145,7 +145,7 @@ void CGlobalNumbering::execute()
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
 
-    boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+    boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
       CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
@@ -177,7 +177,7 @@ void CGlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  CList<Uint>& nodes_rank = mesh.geometry().rank();
+  List<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -189,9 +189,9 @@ void CGlobalNumbering::execute()
   }
 
   Uint nb_owned_elems(0);
-  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
-    CList<Uint>& elem_rank = elements.rank();
+    List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
     for (Uint e=0; e<elements.size(); ++e)
@@ -222,7 +222,7 @@ void CGlobalNumbering::execute()
   std::vector<size_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
-  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
@@ -290,10 +290,10 @@ void CGlobalNumbering::execute()
   //------------------------------------------------------------------------------
   // give glb idx to elements
 
-  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
-    CList<Uint>& elem_rank = elements.rank();
+    List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
     //------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ void CGlobalNumbering::execute()
     std::vector<size_t> send_hash(nb_owned_elems);
     std::vector<Uint>   send_id(nb_owned_elems);
 
-    CList<Uint>& elements_glb_idx = elements.glb_idx();
+    List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
     cf3_assert(glb_elem_hash.size() == elements.size());
 
@@ -385,9 +385,9 @@ void CGlobalNumbering::execute()
         throw ValueExists(FromHere(), "node "+to_str(i)+" is duplicated");
     }
 
-    boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+    boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
-      CList<Uint>& elements_glb_idx = elements.glb_idx();
+      List<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
       {
         if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set
@@ -399,7 +399,7 @@ void CGlobalNumbering::execute()
 
   mesh.geometry().remove_component(glb_node_hash);
 
-  boost_foreach( CEntities& elements, find_components_recursively<CEntities>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
     elements.remove_component("glb_elem_hash");
   }

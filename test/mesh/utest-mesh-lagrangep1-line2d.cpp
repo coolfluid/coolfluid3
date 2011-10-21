@@ -17,10 +17,10 @@
 
 #include "math/Consts.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Line2D.hpp"
 
@@ -156,7 +156,7 @@ const Real LagrangeP1Line2DFixture::RotatingCylinderPressure::m_rho = 1.225;
 
 /// Integral over a region
 template<typename ResultT, typename FunctorT>
-void integrate_region(ResultT& result, FunctorT functor, const CTable<Real>& coordinates, const CTable<Uint>& connectivity)
+void integrate_region(ResultT& result, FunctorT functor, const Table<Real>& coordinates, const Table<Uint>& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
@@ -264,8 +264,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   // complete circle
   Mesh& mesh = Core::instance().root().create_component<Mesh>("surface_integral");
   create_circle_2d(mesh, 1., 100);
-  CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
-  CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
+  Table<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
+  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
 
 
   // Check the length, using the line integral of one times the norm of the tangent vector
@@ -285,8 +285,8 @@ BOOST_AUTO_TEST_CASE( ArcIntegral )
   // half circle arc, so the flux of a uniform field of unit vectors should equal the diameter
   Mesh& mesh = Core::instance().root().create_component<Mesh>("arc_integral");
   create_circle_2d(mesh, 1., 100, 0., Consts::pi());
-  CTable<Real>& arc_coordinates = find_component_recursively<Geometry>(mesh).coordinates();
-  CTable<Uint>& arc_connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
+  Table<Real>& arc_coordinates = find_component_recursively<Geometry>(mesh).coordinates();
+  Table<Uint>& arc_connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
   Real arc_flux = 0.;
   const ETYPE::CoordsT y_vector(0., 1.);
   integrate_region(arc_flux, ConstVectorField(y_vector), arc_coordinates, arc_connectivity);
@@ -303,8 +303,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   // complete circle
   Mesh& mesh = Core::instance().root().create_component<Mesh>("rotating_cylinder");
   create_circle_2d(mesh, 1., segments);
-  CTable<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
-  CTable<Uint>& connectivity = find_component_recursively<CElements>(mesh).node_connectivity();
+  Table<Real>& coordinates = find_component_recursively<Geometry>(mesh).coordinates();
+  Table<Uint>& connectivity = find_component_recursively<Elements>(mesh).node_connectivity();
 
   // Rotating cylinder in uniform flow
   const Real u = 300.;

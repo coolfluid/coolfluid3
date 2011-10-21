@@ -19,9 +19,9 @@
 
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  MeshGenerator::Ptr mesh_generator = Core::instance().root().create_component_ptr<CSimpleMeshGenerator>("mesh_generator");
+  MeshGenerator::Ptr mesh_generator = Core::instance().root().create_component_ptr<SimpleMeshGenerator>("mesh_generator");
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"rect");
 
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( build )
   interpolator.execute();
 
 
-  MeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   gmsh_writer.configure_option("fields",std::vector<URI>(1,target.uri()) );
   gmsh_writer.write_from_to(line,"line-interpolated.msh");
 }

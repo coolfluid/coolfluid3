@@ -19,7 +19,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "Solver/CModel.hpp"
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
   math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   }
 
   // Save
-  model.domain().create_component("writer", "CF.Mesh.VTKXML.CWriter");
+  model.domain().create_component("writer", "CF.Mesh.VTKXML.Writer");
   model.domain().write_mesh(URI("utest-proto-heat-parallel_output.pvtu", cf3::common::URI::Scheme::FILE));
 //   lss.matrix()->print("utest-proto-heat-parallel_matrix-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");
 //   lss.rhs()->print("utest-proto-heat-parallel_rhs-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");

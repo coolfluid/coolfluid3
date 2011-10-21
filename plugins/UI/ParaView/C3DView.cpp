@@ -106,7 +106,7 @@ C3DView::C3DView(const std::string& name) :
                                                      &C3DView::signal_iteration_done );
 
   mesh::MeshWriter::Ptr meshwriter =
-      build_component_abstract_type<mesh::MeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
+      build_component_abstract_type<mesh::MeshWriter>("CF.Mesh.VTKLegacy.Writer","writer");
   add_component(meshwriter);
 
 }

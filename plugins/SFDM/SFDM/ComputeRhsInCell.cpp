@@ -15,11 +15,11 @@
 
 #include "mesh/CField.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CEntities.hpp"
-#include "mesh/CConnectivity.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/Entities.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
 #include "Solver/State.hpp"
 
@@ -278,7 +278,7 @@ void ComputeRhsInCell::execute()
 
   Real& wave_speed = (*m_wave_speed)[idx()];
 
-  CConnectivity& c2f = elements().get_child("face_connectivity").as_type<CConnectivity>();
+  Connectivity& c2f = elements().get_child("face_connectivity").as_type<Connectivity>();
   Component::Ptr faces;
   Uint face_idx;
   Component::Ptr neighbor_cells;
@@ -340,7 +340,7 @@ void ComputeRhsInCell::execute()
         boost::tie(faces,face_idx) = c2f.lookup().location( c2f[idx()][flux_sf.face_number()[orientation][side]] );
 
         // Find neighbor cell
-        CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
+        FaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<FaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
           //CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
@@ -360,7 +360,7 @@ void ComputeRhsInCell::execute()
         }
         else
         {
-          CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+          Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
@@ -427,7 +427,7 @@ void ComputeRhsInCell::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealRowVector ComputeRhsInCell::to_row_vector(mesh::CTable<Real>::ConstRow row) const
+RealRowVector ComputeRhsInCell::to_row_vector(mesh::Table<Real>::ConstRow row) const
 {
   RealRowVector rowvec (row.size());
   for (Uint i=0; i<row.size(); ++i)

@@ -26,15 +26,15 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshGenerator.hpp"
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -110,14 +110,14 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef NEU
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
   Mesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
   Mesh& mesh = *mesh_ptr;
 #endif
@@ -160,9 +160,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
     nodes_P1_node_rank[n][0] = nodes_P1.rank()[n];
 
-  boost_foreach(CElements& elements , elems_P0.elements_range())
+  boost_foreach(Elements& elements , elems_P0.elements_range())
   {
-    CSpace& space = elems_P0.space(elements);
+    Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
       Uint field_idx = space.indexes_for_element(elem)[0];
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // Create a field with glb node numbers
   Field& glb_node_idx = mesh.geometry().create_field("glb_node_idx");
 
-  CList<Uint>& glb_idx = mesh.geometry().glb_idx();
+  List<Uint>& glb_idx = mesh.geometry().glb_idx();
   {
     for (Uint n=0; n<glb_node_idx.size(); ++n)
       glb_node_idx[n][0] = glb_idx[n];
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   fields.push_back(glb_node_idx.as_ptr<Field>());
 
   MeshWriter::Ptr tec_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.Writer","tec_writer");
 
   tec_writer->set_fields(fields);
   tec_writer->configure_option("cell_centred",true);
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
 
   MeshWriter::Ptr msh_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","msh_writer");
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","msh_writer");
 
   msh_writer->set_fields(fields);
   msh_writer->write_from_to(mesh,"parallel_fields.msh");
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   CFinfo << "ParallelFields_test" << CFendl;
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));

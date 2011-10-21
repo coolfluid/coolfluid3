@@ -22,14 +22,14 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CCellFaces.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/CellFaces.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;
 using namespace boost::assign;
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
   CBuildFaces::Ptr facebuilder = allocate_component<CBuildFaces>("facebuilder");
@@ -93,9 +93,9 @@ BOOST_AUTO_TEST_CASE( build_faces )
   MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
-  CRegion& wall_region = find_component_recursively_with_name<CRegion>(mesh->topology(),"wall");
-  CFaces& wall_faces = find_component<CFaces>(wall_region);
-  CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(wall_faces);
+  Region& wall_region = find_component_recursively_with_name<Region>(mesh->topology(),"wall");
+  Faces& wall_faces = find_component<Faces>(wall_region);
+  FaceCellConnectivity& f2c = find_component<FaceCellConnectivity>(wall_faces);
   Component::Ptr cells;
   Uint cell_idx(0);
 
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
     CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
+    RealMatrix cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
     RealVector face_coordinates = wall_faces.get_coordinates(face).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
   MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo","info");
   //info->transform(mesh);
 
-  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
+  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","writer");
 
   mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 {
   BOOST_CHECK(true);
 
-  CSimpleMeshGenerator::Ptr mesh_gen = allocate_component<CSimpleMeshGenerator>("mesh_gen");
+  SimpleMeshGenerator::Ptr mesh_gen = allocate_component<SimpleMeshGenerator>("mesh_gen");
   std::vector<Real> lengths  = list_of(10.)(10.);
   std::vector<Uint> nb_cells = list_of(5u)(5u);
   mesh_gen->configure_option("mesh",URI("//Root/rectangle_mesh"))
@@ -170,9 +170,9 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   facebuilder->execute();
 
   BOOST_CHECK(true);
-  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh.topology(),mesh::Tags::inner_faces());
-  CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
-  CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
+  Region& inner_faces_region = find_component_recursively_with_name<Region>(rmesh.topology(),mesh::Tags::inner_faces());
+  CellFaces& inner_faces = find_component<CellFaces>(inner_faces_region);
+  FaceCellConnectivity& f2c = find_component<FaceCellConnectivity>(inner_faces);
   Component::Ptr cells;
   Uint cell_idx(0);
   BOOST_CHECK(true);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
     CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
-    RealMatrix cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
+    RealMatrix cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
     RealVector face_coordinates = inner_faces.get_coordinates(face).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
@@ -200,7 +200,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     match_found = false;
     boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][1]);
     CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    cell_coordinates = cells->as_type<CElements>().get_coordinates(cell_idx);
+    cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
     face_coordinates = inner_faces.get_coordinates(face).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {

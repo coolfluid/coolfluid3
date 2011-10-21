@@ -8,7 +8,7 @@
 #include "common/Builder.hpp"
 
 #include "mesh/Geometry.hpp"
-#include "mesh/CDynTable.hpp"
+#include "mesh/DynTable.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -25,7 +25,7 @@ Geometry::Geometry ( const std::string& name ) :
   m_coordinates = create_static_component_ptr< Field >(mesh::Tags::coordinates());
   m_coordinates->add_tag(mesh::Tags::coordinates());
   m_coordinates->create_descriptor("coord[vector]");
-  m_glb_elem_connectivity = create_static_component_ptr< CDynTable<Uint> >("glb_elem_connectivity");
+  m_glb_elem_connectivity = create_static_component_ptr< DynTable<Uint> >("glb_elem_connectivity");
   m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
 
   add_tag(mesh::Tags::nodes());

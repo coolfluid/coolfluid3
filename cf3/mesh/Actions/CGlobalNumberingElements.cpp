@@ -26,14 +26,14 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Actions/CGlobalNumberingElements.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
@@ -99,10 +99,10 @@ void CGlobalNumberingElements::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.geometry().coordinates();
+  Table<Real>& coordinates = mesh.geometry().coordinates();
 
 
-  boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
   {
     RealMatrix element_coordinates(elements.element_type().nb_nodes(),coordinates.row_size());
 
@@ -128,7 +128,7 @@ void CGlobalNumberingElements::execute()
   {
     std::set<std::size_t> glb_set;
 
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+    boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
     {
       CVector_size_t& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>();
       for (Uint i=0; i<glb_elem_hash.data().size(); ++i)
@@ -147,7 +147,7 @@ void CGlobalNumberingElements::execute()
   // get tot nb of owned indexes and communicate
 
   Uint tot_nb_owned_ids=0;
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Elements>(mesh) )
     tot_nb_owned_ids += elements.size();
 
   std::vector<Uint> nb_ids_per_proc(PE::Comm::instance().size());
@@ -167,9 +167,9 @@ void CGlobalNumberingElements::execute()
   //------------------------------------------------------------------------------
   // give glb idx to elements
   Uint glb_id=start_id_per_proc[PE::Comm::instance().rank()];
-  boost_foreach( CEntities& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( Entities& elements, find_components_recursively<Elements>(mesh) )
   {
-    CList<Uint>& elements_glb_idx = elements.glb_idx();
+    List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
     cf3_assert(glb_elem_hash.size() == elements.size());
@@ -188,9 +188,9 @@ void CGlobalNumberingElements::execute()
   {
     std::set<Uint> glb_set;
 
-    boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+    boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
     {
-      CList<Uint>& elements_glb_idx = elements.glb_idx();
+      List<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
       {
         if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set

@@ -17,8 +17,8 @@
 #include "common/Log.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Geometry.hpp"
@@ -44,7 +44,7 @@ struct GlobalFixture {
       sphere = allocate_component<Mesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+      MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
       URI file_out("sphere.msh");
       meshwriter->write_from_to(*sphere,file_out);
     }
@@ -72,7 +72,7 @@ template<typename FunctorT>
 struct LoopElems
 {
 
-  LoopElems( const CElements& aregion, FunctorT afunctor )
+  LoopElems( const Elements& aregion, FunctorT afunctor )
     : region(aregion),
       functor(afunctor)
   {}
@@ -85,10 +85,10 @@ struct LoopElems
     if( !IsElementType<EType>()(region.element_type()) )
       return;
 
-    typename CTable<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
-    const CTable<Real>& coords = region.geometry().coordinates();
+    typename Table<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
+    const Table<Real>& coords = region.geometry().coordinates();
     // loop on elements
-    BOOST_FOREACH(const CTable<Uint>::ConstRow& elem, conn_table)
+    BOOST_FOREACH(const Table<Uint>::ConstRow& elem, conn_table)
     {
       typename EType::NodesT nodes;
       fill(nodes, coords, elem );
@@ -96,14 +96,14 @@ struct LoopElems
     }
   }
 
-  const CElements& region;
+  const Elements& region;
   FunctorT functor;
 };
 
 /// Looping over all elements in a range of regions
 template<typename RangeT, typename FunctorT>
 void loop_over_regions(const RangeT& range, FunctorT functor) {
-  BOOST_FOREACH(const CElements& region, range) {
+  BOOST_FOREACH(const Elements& region, range) {
     boost::mpl::for_each<LagrangeP1::CellTypes>( LoopElems<FunctorT> ( region, functor ) );
   }
 }
@@ -132,7 +132,7 @@ BOOST_FIXTURE_TEST_SUITE( TetraSF, TetraSFFixture )
 BOOST_AUTO_TEST_CASE( MeshStats )
 {
   Real volume = 0.;
-  loop_over_regions(find_components_recursively<CElements>(sphere), VolumeFunctor(volume));
+  loop_over_regions(find_components_recursively<Elements>(sphere), VolumeFunctor(volume));
   CFinfo << "calculated volume: " << volume << CFendl;
 }
 

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::CWriter"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::Writer"
 
 #include <boost/test/unit_test.hpp>
 
@@ -15,16 +15,16 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CDynTable.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/DynTable.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/WriteMesh.hpp"
 
@@ -69,11 +69,11 @@ BOOST_FIXTURE_TEST_SUITE( TecWriterTests_TestSuite, TecWriterTests_Fixture )
 BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   meshreader->configure_option("read_groups",true);
 
-  CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
+  Domain& domain = Core::instance().root().create_component<Domain>("domain");
   // the mesh to store in
   Mesh& mesh = domain.create_component<Mesh>( "mesh" );
 
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
   meshreader->configure_option("rank",(Uint) Comm::instance().rank());
@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   CFinfo.setFilterRankZero(true);
 
   boost::filesystem::path fp_out ("hextet.msh");
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK(true);
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   meshreader->configure_option("Repartition",true);
   meshreader->configure_option("OutputRank",(Uint) 0);
@@ -180,7 +180,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
 
 
   boost::filesystem::path fp_out ("quadtriag_mult.msh");
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,fp_out);
 
   BOOST_CHECK_EQUAL(1,1);

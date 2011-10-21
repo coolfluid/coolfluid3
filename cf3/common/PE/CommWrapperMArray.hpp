@@ -31,7 +31,7 @@ namespace PE  {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Wrapper class for CTable components
+/// Wrapper class for Table components
 template <typename T, std::size_t NumDims>
 class CommWrapperMArray: public CommWrapper
 {

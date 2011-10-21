@@ -1,6 +1,6 @@
 list( APPEND coolfluid_mesh_ptscotch_files
-      CPartitioner.hpp
-      CPartitioner.cpp
+      Partitioner.hpp
+      Partitioner.cpp
       LibPTScotch.cpp
       LibPTScotch.hpp
     )

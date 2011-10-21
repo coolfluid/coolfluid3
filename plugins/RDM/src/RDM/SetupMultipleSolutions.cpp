@@ -15,7 +15,7 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 

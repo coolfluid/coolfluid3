@@ -17,12 +17,12 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CDynTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/DynTable.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -82,31 +82,31 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath://root/mesh" );
 
   // Create one region inside mesh
-  CRegion& region1 = mesh.topology().create_region("region1");
+  Region& region1 = mesh.topology().create_region("region1");
   BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath://root/mesh/topology/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
-  CRegion& region2 = mesh.topology().create_region("region2");
+  Region& region2 = mesh.topology().create_region("region2");
 
   CFinfo << mesh.tree() << CFendl;
   region2.create_region("subregion1");
-  CRegion& subregion = region2.create_region("subregion2");
+  Region& subregion = region2.create_region("subregion2");
   BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath://root/mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
-  subregion.create_component_ptr<CTable<Uint> >("connTable");
+  subregion.create_component_ptr<Table<Uint> >("connTable");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath://root/mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
-  subregion.create_component_ptr<CElements>("elementType");
+  subregion.create_component_ptr<Elements>("elementType");
   BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
-  mesh.create_component_ptr<CTable<Real> >("coordinates");
+  mesh.create_component_ptr<Table<Real> >("coordinates");
   BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath://root/mesh/coordinates" );
 
-  find_component_with_name<CRegion>(region2, "subregion1").create_region("subsubregion1");
-  find_component_with_name<CRegion>(region2, "subregion1").create_region("subsubregion2");
+  find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion1");
+  find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion2");
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -114,12 +114,12 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
+  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
   // create a buffer to interact with the table
-  CTable<Uint>::Buffer buffer = table->create_buffer();
+  Table<Uint>::Buffer buffer = table->create_buffer();
 
   // make a row
   std::vector<Uint> row(nbCols);
@@ -170,12 +170,12 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
+  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
   // create a buffer to interact with the table with buffersize 3 (if no argument, use default buffersize)
-  CTable<Uint>::Buffer buffer = table->create_buffer(3);
+  Table<Uint>::Buffer buffer = table->create_buffer(3);
 
   // make a row
   std::vector<Uint> row(nbCols);
@@ -233,9 +233,9 @@ BOOST_AUTO_TEST_CASE( FlushTest )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
+BOOST_AUTO_TEST_CASE( Table_Uint_Test )
 {
-  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
   boost::shared_ptr<Root> root = Root::create ( "root" );
@@ -243,10 +243,10 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   Mesh& mesh = root->create_component<Mesh>  ( "mesh" ) ;
 
   // Create one region inside mesh
-  CRegion& region = mesh.topology().create_region("region");
+  Region& region = mesh.topology().create_region("region");
 
   // Create connectivity table inside the region
-  CTable<Uint>& connTable = region.create_component<CTable<Uint> >("connTable");
+  Table<Uint>& connTable = region.create_component<Table<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   // check initalization
   Uint nbCols = 5;
   connTable.set_row_size(nbCols);
-  CTable<Uint>::Buffer tableBuffer = connTable.create_buffer();
+  Table<Uint>::Buffer tableBuffer = connTable.create_buffer();
 
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.row_size(),(Uint) 5);
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
   BOOST_CHECK_EQUAL(connTable[2][2], (Uint) 2);
 
   // check if a row can be accessed
-  CTable<Uint>::Row rowRef = connTable[35];
+  Table<Uint>::Row rowRef = connTable[35];
   for (Uint i=0; i<nbCols; ++i)
     BOOST_CHECK_EQUAL(rowRef[i], i);
 
@@ -301,16 +301,16 @@ BOOST_AUTO_TEST_CASE( CTable_Uint_Test )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( CTable_Real_Test )
+BOOST_AUTO_TEST_CASE( Table_Real_Test )
 {
-  // Create a CElements component
-  CTable<Real>::Ptr coordinates (allocate_component< CTable<Real> >("coords")) ;
+  // Create a Elements component
+  Table<Real>::Ptr coordinates (allocate_component< Table<Real> >("coords")) ;
 
   // initialize the array
   Uint dim = 2;
   coordinates->set_row_size(dim);
   BOOST_CHECK_EQUAL(coordinates->row_size(),dim);
-  CTable<Real>::Buffer coordinatesBuffer = coordinates->create_buffer();
+  Table<Real>::Buffer coordinatesBuffer = coordinates->create_buffer();
 
   // Add coordinates to the array
   coordinatesBuffer.add_row(create_coord( 0.0 , 0.0 ));
@@ -326,13 +326,13 @@ BOOST_AUTO_TEST_CASE( CTable_Real_Test )
 
 
 
-BOOST_AUTO_TEST_CASE( CTable_Real_Templates )
+BOOST_AUTO_TEST_CASE( Table_Real_Templates )
 {
-  CTable<Real>& vectorArray = root.create_component< CTable<Real> >("vector");
+  Table<Real>& vectorArray = root.create_component< Table<Real> >("vector");
   vectorArray.set_row_size(3);
-  //CFinfo << "numdim = " << CTable<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
+  //CFinfo << "numdim = " << Table<Real><VECTOR>::Array::NumDims() << "\n" << CFflush;
 
-  // CTable<Real><SCALAR> scalarArray("scalar");
+  // Table<Real><SCALAR> scalarArray("scalar");
   // scalarArray.initialize(3);
 
 }
@@ -341,45 +341,45 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
   Root::Ptr root = Root::create ( "root" );
   Mesh& mesh = root->create_component<Mesh>("mesh");
-  CRegion& regions = mesh.topology().create_region("regions");
+  Region& regions = mesh.topology().create_region("regions");
 
-  CRegion& subregion1 = regions.create_region("subregion1");
-  BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
+  Region& subregion1 = regions.create_region("subregion1");
+  BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
 
-  subregion1.create_component_ptr<CTable<Uint> >("table");
-  BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
+  subregion1.create_component_ptr<Table<Uint> >("table");
+  BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
 
   // create subregion2 in the wrong place
-  CRegion& subregion2 = subregion1.create_region("subregion2");
-  BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),false);
-  BOOST_CHECK_EQUAL(count(find_components<CRegion>(regions)), (Uint) 1);
+  Region& subregion2 = subregion1.create_region("subregion2");
+  BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),false);
+  BOOST_CHECK_EQUAL(count(find_components<Region>(regions)), (Uint) 1);
 
 
   // move subregion 2 to the right place
   Component::Ptr subregion2_ptr = subregion1.remove_component(subregion2.name());
   regions.add_component(subregion2_ptr);
-  BOOST_CHECK_EQUAL(find_components<CRegion>(subregion1).empty(),true);
-  BOOST_CHECK_EQUAL(count(find_components<CRegion>(regions)), (Uint) 2);
+  BOOST_CHECK_EQUAL(find_components<Region>(subregion1).empty(),true);
+  BOOST_CHECK_EQUAL(count(find_components<Region>(regions)), (Uint) 2);
 
 
 }
 
-BOOST_AUTO_TEST_CASE( CList_tests )
+BOOST_AUTO_TEST_CASE( List_tests )
 {
-  CList<bool>& bool_list = root.create_component< CList<bool> >("bool_list");
-	BOOST_CHECK_EQUAL(bool_list.type_name(),"CList<bool>");
+  List<bool>& bool_list = root.create_component< List<bool> >("bool_list");
+	BOOST_CHECK_EQUAL(bool_list.type_name(),"List<bool>");
 
-	CList<int>::Ptr integer_list (allocate_component< CList<int> >("integer_list"));
-	BOOST_CHECK_EQUAL(integer_list->type_name(),"CList<integer>");
+	List<int>::Ptr integer_list (allocate_component< List<int> >("integer_list"));
+	BOOST_CHECK_EQUAL(integer_list->type_name(),"List<integer>");
 
-	CList<Uint>::Ptr unsigned_list (allocate_component< CList<Uint> >("unsigned_list"));
-	BOOST_CHECK_EQUAL(unsigned_list->type_name(),"CList<unsigned>");
+	List<Uint>::Ptr unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
+	BOOST_CHECK_EQUAL(unsigned_list->type_name(),"List<unsigned>");
 
-	CList<Real>::Ptr real_list (allocate_component< CList<Real> >("real_list"));
-	BOOST_CHECK_EQUAL(real_list->type_name(),"CList<real>");
+	List<Real>::Ptr real_list (allocate_component< List<Real> >("real_list"));
+	BOOST_CHECK_EQUAL(real_list->type_name(),"List<real>");
 
-	CList<std::string>::Ptr string_list (allocate_component< CList<std::string> >("string_list"));
-	BOOST_CHECK_EQUAL(string_list->type_name(),"CList<string>");
+	List<std::string>::Ptr string_list (allocate_component< List<std::string> >("string_list"));
+	BOOST_CHECK_EQUAL(string_list->type_name(),"List<string>");
 
 	bool_list.resize(10);
 	BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 10);
@@ -421,12 +421,12 @@ BOOST_AUTO_TEST_CASE( CList_tests )
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 {
   // create table
-  CTable<Uint>::Ptr table (allocate_component< CTable<Uint> >("table"));
+  Table<Uint>::Ptr table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
   // create a buffer to interact with the table
-  CTable<Uint>::Buffer buffer = table->create_buffer();
+  Table<Uint>::Buffer buffer = table->create_buffer();
 
   // make a row
   std::vector<Uint> row(nbCols);
@@ -477,9 +477,9 @@ BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 BOOST_AUTO_TEST_CASE( ListFlushTest )
 {
   // create table
-  CList<Uint>& list = root.create_component< CList<Uint> >("list");
+  List<Uint>& list = root.create_component< List<Uint> >("list");
   // create a buffer to interact with the list with buffersize 3 (if no argument, use default buffersize)
-  CList<Uint>::Buffer buffer = list.create_buffer(3);
+  List<Uint>::Buffer buffer = list.create_buffer(3);
 
   // make a row
   Uint row;
@@ -538,10 +538,10 @@ BOOST_AUTO_TEST_CASE( ListFlushTest )
 
 }
 
-BOOST_AUTO_TEST_CASE ( CDynTable_test )
+BOOST_AUTO_TEST_CASE ( DynTable_test )
 {
-  CDynTable<Uint>& table = root.create_component< CDynTable<Uint> >("table");
-  CDynTable<Uint>::Buffer buffer = table.create_buffer();
+  DynTable<Uint>& table = root.create_component< DynTable<Uint> >("table");
+  DynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;
 
@@ -631,7 +631,7 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test )
 }
 
 
-BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
+BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 {
 
 //	0:  0
@@ -643,8 +643,8 @@ BOOST_AUTO_TEST_CASE ( CDynTable_test_hard )
 //  6:  ~
 //  7:  4294967295
 //  8:  ~
-  CDynTable<Uint>& table = root.create_component< CDynTable<Uint> >("table");
-  CDynTable<Uint>::Buffer buffer = table.create_buffer();
+  DynTable<Uint>& table = root.create_component< DynTable<Uint> >("table");
+  DynTable<Uint>::Buffer buffer = table.create_buffer();
 
   std::vector<Uint> row;
 
@@ -691,7 +691,7 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
   Root::Ptr root = Root::create("root");
   Mesh& mesh = root->create_component<Mesh>("mesh");
-  CRegion& region = mesh.topology().create_region("region");
+  Region& region = mesh.topology().create_region("region");
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(2,DIM_3D);
   BOOST_CHECK_EQUAL(mesh.geometry().coordinates().row_size() , (Uint) DIM_3D);
@@ -700,9 +700,9 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
 
 }
 
-BOOST_AUTO_TEST_CASE( CList_Uint_Test )
+BOOST_AUTO_TEST_CASE( List_Uint_Test )
 {
-  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
   boost::shared_ptr<Root> root = Root::create ( "root" );
@@ -712,17 +712,17 @@ BOOST_AUTO_TEST_CASE( CList_Uint_Test )
   root->add_component( mesh );
 
   // Create one region inside mesh
-  CRegion& region = mesh->topology().create_region("region");
+  Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  CList<Uint>& connTable = *region.create_component_ptr<CList<Uint> >("connTable");
+  List<Uint>& connTable = *region.create_component_ptr<List<Uint> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
 
   // check initalization
-  CList<Uint>::Buffer tableBuffer = connTable.create_buffer(10);
+  List<Uint>::Buffer tableBuffer = connTable.create_buffer(10);
 
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
@@ -751,7 +751,7 @@ BOOST_AUTO_TEST_CASE( CList_Uint_Test )
   BOOST_CHECK_EQUAL(connTable[2], (Uint) 1);
 
   // check if a row can be accessed
-  CList<Uint>::value_type rowRef = connTable[6];
+  List<Uint>::value_type rowRef = connTable[6];
 
   tableBuffer.rm_row(0);
   tableBuffer.add_row(2);
@@ -777,9 +777,9 @@ BOOST_AUTO_TEST_CASE( CList_Uint_Test )
 }
 
 
-BOOST_AUTO_TEST_CASE( CList_Uint_rm_Test )
+BOOST_AUTO_TEST_CASE( List_Uint_rm_Test )
 {
-  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
   boost::shared_ptr<Root> root = Root::create ( "root" );
@@ -789,14 +789,14 @@ BOOST_AUTO_TEST_CASE( CList_Uint_rm_Test )
   root->add_component( mesh );
 
   // Create one region inside mesh
-  CRegion& region = mesh->topology().create_region("region");
+  Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  CList<Uint>& list = *region.create_component_ptr<CList<Uint> >("connTable");
+  List<Uint>& list = *region.create_component_ptr<List<Uint> >("connTable");
 
 
   // check initalization
-  CList<Uint>::Buffer buffer = list.create_buffer();
+  List<Uint>::Buffer buffer = list.create_buffer();
 
   // add rows to table
 
@@ -828,9 +828,9 @@ BOOST_AUTO_TEST_CASE( CList_Uint_rm_Test )
   BOOST_CHECK_EQUAL( list[3] , 8u);
 }
 
-BOOST_AUTO_TEST_CASE( CList_bool_Test )
+BOOST_AUTO_TEST_CASE( List_bool_Test )
 {
-  // CFinfo << "testing CTable<Uint> \n" << CFflush;
+  // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
   boost::shared_ptr<Root> root = Root::create ( "root" );
@@ -840,17 +840,17 @@ BOOST_AUTO_TEST_CASE( CList_bool_Test )
   root->add_component( mesh );
 
   // Create one region inside mesh
-  CRegion& region = mesh->topology().create_region("region");
+  Region& region = mesh->topology().create_region("region");
 
   // Create connectivity table inside the region
-  CList<bool>& connTable = *region.create_component_ptr<CList<bool> >("connTable");
+  List<bool>& connTable = *region.create_component_ptr<List<bool> >("connTable");
 
   // check constructor
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
 
   // check initalization
-  CList<bool>::Buffer tableBuffer = connTable.create_buffer(10);
+  List<bool>::Buffer tableBuffer = connTable.create_buffer(10);
 
   BOOST_CHECK_EQUAL(connTable.size(),(Uint) 0);
   BOOST_CHECK_EQUAL(connTable.array().num_elements(),(Uint) 0);
@@ -879,7 +879,7 @@ BOOST_AUTO_TEST_CASE( CList_bool_Test )
   BOOST_CHECK_EQUAL(connTable[2], true);
 
   // check if a row can be accessed
-  CList<bool>::value_type rowRef = connTable[6];
+  List<bool>::value_type rowRef = connTable[6];
 
   tableBuffer.rm_row(0);
   tableBuffer.flush();

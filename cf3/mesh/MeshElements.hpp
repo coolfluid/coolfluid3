@@ -7,7 +7,7 @@
 #ifndef cf3_mesh_MeshElements_hpp
 #define cf3_mesh_MeshElements_hpp
 
-#include "mesh/CUnifiedData.hpp"
+#include "mesh/UnifiedData.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace mesh {
 /// with a continuous index
 /// @pre the data components must be of the same type and must have
 ///      a member function "Uint size() const" defined.
-class Mesh_API MeshElements : public CUnifiedData
+class Mesh_API MeshElements : public UnifiedData
 {
 public: //typedefs
 

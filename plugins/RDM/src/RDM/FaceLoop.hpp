@@ -87,8 +87,8 @@ struct FaceLoopT1 : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(mesh::CElements& elements,
-                  common::find_components_recursively_with_filter<mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -141,8 +141,8 @@ struct FaceLoopT : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(mesh::CElements& elements,
-                  common::find_components_recursively_with_filter<mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::Elements& elements,
+                  common::find_components_recursively_with_filter<mesh::Elements>(*current_region,IsElementType<SF>()))
     {
       TermT& term = this->access_term<TermT>();
 

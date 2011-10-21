@@ -10,8 +10,8 @@
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 
@@ -32,7 +32,7 @@ namespace Actions {
 
     bool operator()(const Component& component)
     {
-      return !find_components<CTable<Uint> >(component).empty() && !find_components<CEntities>(component).empty();
+      return !find_components<Table<Uint> >(component).empty() && !find_components<Entities>(component).empty();
     }
 
   }; // IsElementRegion
@@ -44,7 +44,7 @@ namespace Actions {
 
     bool operator()(const Component& component)
     {
-      return count(find_components_with_filter<CRegion>(component,m_isElement));
+      return count(find_components_with_filter<Region>(component,m_isElement));
     }
 
   private:
@@ -94,7 +94,7 @@ void CInfo::execute()
   Mesh& mesh = *m_mesh.lock();
 
   CFinfo << "Element distribution:" << CFendl;
-  boost_foreach( const CRegion& region, find_components_with_filter<CRegion>(mesh,IsComponentTrue()))
+  boost_foreach( const Region& region, find_components_with_filter<Region>(mesh,IsComponentTrue()))
   {
     CFinfo << print_region_tree(region) << CFflush;
   }
@@ -112,7 +112,7 @@ void CInfo::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::string CInfo::print_region_tree(const CRegion& region, Uint level)
+std::string CInfo::print_region_tree(const Region& region, Uint level)
 {
   std::string tree;
 
@@ -122,7 +122,7 @@ std::string CInfo::print_region_tree(const CRegion& region, Uint level)
 
   tree += print_elements(region,level+1);
 
-  boost_foreach( const CRegion& subregion, find_components_with_filter<CRegion>(region,IsComponentTrue()))
+  boost_foreach( const Region& subregion, find_components_with_filter<Region>(region,IsComponentTrue()))
   {
     tree += print_region_tree(subregion,level+1);
   }
@@ -134,7 +134,7 @@ std::string CInfo::print_region_tree(const CRegion& region, Uint level)
 std::string CInfo::print_elements(const Component& region, Uint level)
 {
   std::string tree;
-  boost_foreach( const CEntities& elements_region, find_components<CEntities>(region))
+  boost_foreach( const Entities& elements_region, find_components<Entities>(region))
   {
     for (Uint i=0; i<level; i++)
       tree += "    ";

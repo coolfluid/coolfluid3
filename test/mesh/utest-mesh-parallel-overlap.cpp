@@ -29,10 +29,10 @@
 #include "math/Consts.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
@@ -41,8 +41,8 @@
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Space.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -208,7 +208,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 {
   bool sane = true;
 
-  boost_foreach( CEntities& entities, mesh.topology().elements_range())
+  boost_foreach( Entities& entities, mesh.topology().elements_range())
   {
     Uint max_node_idx = entities.geometry().size();
 
@@ -229,7 +229,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 }
 
 
-bool check_elements_sanity(CEntities& entities)
+bool check_elements_sanity(Entities& entities)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_elem_2_loc_elem;
@@ -294,7 +294,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   Core::instance().environment().configure_option("log_level",(Uint)INFO);
 
   // Create or read the mesh
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("parent",URI("//Root"));
   meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
   std::vector<Uint> nb_cells(2);
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -362,7 +362,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef NEU
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 //  meshreader->configure_option("read_boundaries",false);
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
 //  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.neu");
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GMSH
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.CReader","meshreader");
+      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
 //  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
 //  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
@@ -383,10 +383,10 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Geometry& nodes = mesh.geometry();
 
   MeshWriter::Ptr tec_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.CWriter","tec_writer");
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.Writer","tec_writer");
 
   MeshWriter::Ptr gmsh_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","gmsh_writer");
+      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","gmsh_writer");
 
 
   tec_writer->write_from_to(mesh,"parallel_overlap_before"+tec_writer->get_extensions()[0]);
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "Global Connectivity... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.Zoltan.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
   MeshPartitioner& p = *partitioner_ptr;
   p.configure_option("graph_package", std::string("PHG"));
   p.initialize(mesh);
@@ -477,7 +477,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       elems.clear();
 
 
-  CFaceCellConnectivity& face2cell = mesh.create_component<CFaceCellConnectivity>("face2cell");
+  FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
 //  std::cout << PERank << "nb_faces = " << face2cell.size() << std::endl;
@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     Uint idx;
 
     boost::tie(comp,idx) = mesh.elements().location(e);
-    if ( CElements::Ptr elements = comp->as_ptr<CElements>() )
+    if ( Elements::Ptr elements = comp->as_ptr<Elements>() )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
       {
@@ -518,9 +518,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   std::set<Uint> bdry_nodes;
-  if ( find_components_recursively_with_tag<CCellFaces>(mesh.topology(),"outer_faces").size() > 0 )
+  if ( find_components_recursively_with_tag<CellFaces>(mesh.topology(),"outer_faces").size() > 0 )
   {
-    boost_foreach(CCellFaces& bdry_faces, find_components_recursively_with_tag<CCellFaces>(mesh.topology(),"outer_faces"))
+    boost_foreach(CellFaces& bdry_faces, find_components_recursively_with_tag<CellFaces>(mesh.topology(),"outer_faces"))
     {
       for (Uint e=0; e<bdry_faces.size(); ++e)
       {
@@ -542,9 +542,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
           bdry_nodes.insert(nodes.glb_idx()[node]);
       }
     }
-    boost_foreach (CFaces& faces, find_components_recursively<CFaces>(mesh.topology()))
+    boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
     {
-      boost_foreach (CConnectivity::Row face_nodes, faces.node_connectivity().array())
+      boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
       {
         boost_foreach(const Uint node, face_nodes)
         {
@@ -600,7 +600,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
         if ( glb_node_2_loc_node.find(find_glb_node_idx) != glb_node_not_found)
         {
           Uint loc_idx = glb_node_2_loc_node[find_glb_node_idx];
-          CDynTable<Uint>::ConstRow connected_elements = nodes.glb_elem_connectivity()[loc_idx];
+          DynTable<Uint>::ConstRow connected_elements = nodes.glb_elem_connectivity()[loc_idx];
           boost_foreach ( const Uint glb_elem_idx, nodes.glb_elem_connectivity()[loc_idx] )
           {
 
@@ -612,7 +612,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
               Uint elem_idx;
               boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
 
-              if (mesh_elements[elem_comp_idx]->as_type<CElements>().is_ghost(elem_idx) == false)
+              if (mesh_elements[elem_comp_idx]->as_type<Elements>().is_ghost(elem_idx) == false)
               {
                 elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
                 debug_elems[elem_comp_idx].insert(elem_idx);
@@ -639,9 +639,9 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (CElements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<CElements>())
+    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
     {
-      CElements& elements = *elements_ptr;
+      Elements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
 
       std::vector<PE::Buffer> elements_to_send(Comm::instance().size());
@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     }
     else
     {
-      /// @todo case of non-CElements
+      /// @todo case of non-Elements
     }
   }
 
@@ -802,13 +802,13 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
     BOOST_CHECK(true);
     for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
     {
-      if (CElements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<CElements>())
+      if (Elements::Ptr elements_ptr = mesh_elements[comp_idx]->as_ptr<Elements>())
       {
-        CElements& elements = *elements_ptr;
+        Elements& elements = *elements_ptr;
 
         for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
         {
-          CConnectivity::Row connected_nodes = elements.node_connectivity()[e];
+          Connectivity::Row connected_nodes = elements.node_connectivity()[e];
 
           boost_foreach ( Uint& node, connected_nodes )
           {
@@ -858,8 +858,8 @@ BOOST_CHECK(true);
 
   for(Uint comp_idx=0; comp_idx < mesh_elements.size(); ++comp_idx)
   {
-    CEntities& elements = mesh_elements[comp_idx].lock()->as_type<CEntities>();
-    CSpace& space = glb_elem.space(elements);
+    Entities& elements = mesh_elements[comp_idx].lock()->as_type<Entities>();
+    Space& space = glb_elem.space(elements);
     boost_foreach (const Uint elem, debug_elems[comp_idx])
     {
       Uint field_idx = space.indexes_for_element(elem)[0];

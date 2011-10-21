@@ -26,12 +26,12 @@
 #include "Solver/Actions/CCriterionTime.hpp"
 #include "Solver/Actions/CForAllCells.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "mesh/Actions/CInitFieldConstant.hpp"
 #include "mesh/Actions/CInitFieldFunction.hpp"
@@ -169,7 +169,7 @@ void SFDWizard::create_simulation()
   /// @todo should be setup differently
   physical_model.configure_option("solution_state",option("solution_state").value_str());
 
-  CDomain& domain                = model.create_domain("Domain");
+  Domain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
   CSolver& solver                = model.create_solver("CF.Solver.FlowSolver");
 

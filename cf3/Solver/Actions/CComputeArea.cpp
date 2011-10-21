@@ -8,7 +8,7 @@
 #include "common/OptionURI.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "Solver/Actions/CComputeArea.hpp"
@@ -60,7 +60,7 @@ void CComputeArea::trigger_elements()
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);
-    m_area_field_space = m_area.lock()->space(elements()).as_ptr<CSpace>();
+    m_area_field_space = m_area.lock()->space(elements()).as_ptr<Space>();
   }
 }
 
@@ -68,7 +68,7 @@ void CComputeArea::trigger_elements()
 
 void CComputeArea::execute()
 {
-  CSpace& space = *m_area_field_space.lock();
+  Space& space = *m_area_field_space.lock();
   Field& area = *m_area.lock();
 
   elements().put_coordinates(m_coordinates,idx());

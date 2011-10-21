@@ -13,7 +13,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/ElementTypes.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 
@@ -33,7 +33,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
   template < typename TYPE >
   struct IsShapeFunction
   {
-    bool operator()(const mesh::CElements& component)
+    bool operator()(const mesh::Elements& component)
     {
       return mesh::IsElementType<TYPE>()( component.element_type() );
     }
@@ -46,7 +46,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
     private: // data
 
       /// Region to loop on
-      mesh::CRegion& region;
+      mesh::Region& region;
 
       /// Operation to perform
       ActionT& op;
@@ -54,7 +54,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
     public: // functions
 
       /// Constructor
-      ElementLooper(ActionT& operation, mesh::CRegion& region_in )
+      ElementLooper(ActionT& operation, mesh::Region& region_in )
         : region(region_in) , op(operation)
       {}
 
@@ -62,7 +62,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
       template < typename SFType >
       void operator() ( SFType& T )
       {
-        boost_foreach(mesh::CElements& elements, common::find_components_recursively_with_filter<mesh::CElements>(region,IsShapeFunction<SFType>()))
+        boost_foreach(mesh::Elements& elements, common::find_components_recursively_with_filter<mesh::Elements>(region,IsShapeFunction<SFType>()))
         {
           op.set_elements(elements);
           if (op.can_start_loop())
@@ -117,7 +117,7 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute()
   {
-    boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
+    boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
     {
       CFinfo << region->uri().string() << CFendl;
 

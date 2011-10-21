@@ -17,14 +17,14 @@
 #include "common/PE/debug.hpp"
 
 
-#include "mesh/CFaces.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/CDynTable.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CList.hpp"
+#include "mesh/DynTable.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/List.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshElements.hpp"
 
@@ -192,7 +192,7 @@ void GrowOverlap::execute()
 
   const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
 
-  CFaceCellConnectivity& face2cell = mesh.create_component<CFaceCellConnectivity>("face2cell");
+  FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
 
@@ -218,7 +218,7 @@ void GrowOverlap::execute()
     Uint idx;
 
     boost::tie(comp,idx) = mesh.elements().location(e);
-    if ( CElements::Ptr elements = comp->as_ptr<CElements>() )
+    if ( Elements::Ptr elements = comp->as_ptr<Elements>() )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
       {
@@ -241,9 +241,9 @@ void GrowOverlap::execute()
           bdry_nodes.insert(nodes.glb_idx()[node]);
     }
   }
-  boost_foreach (CFaces& faces, find_components_recursively<CFaces>(mesh.topology()))
+  boost_foreach (Faces& faces, find_components_recursively<Faces>(mesh.topology()))
   {
-    boost_foreach (CConnectivity::Row face_nodes, faces.node_connectivity().array())
+    boost_foreach (Connectivity::Row face_nodes, faces.node_connectivity().array())
     {
       boost_foreach(const Uint node, face_nodes)
       {
@@ -289,7 +289,7 @@ void GrowOverlap::execute()
         if ( glb_node_2_loc_node.find(find_glb_node_idx) != glb_node_not_found)
         {
           Uint loc_idx = glb_node_2_loc_node[find_glb_node_idx];
-          CDynTable<Uint>::ConstRow connected_elements = nodes.glb_elem_connectivity()[loc_idx];
+          DynTable<Uint>::ConstRow connected_elements = nodes.glb_elem_connectivity()[loc_idx];
           boost_foreach ( const Uint glb_elem_idx, nodes.glb_elem_connectivity()[loc_idx] )
           {
 
@@ -301,7 +301,7 @@ void GrowOverlap::execute()
               Uint elem_idx;
               boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
 
-              if (mesh_elements[elem_comp_idx].lock()->as_type<CElements>().is_ghost(elem_idx) == false)
+              if (mesh_elements[elem_comp_idx].lock()->as_type<Elements>().is_ghost(elem_idx) == false)
               {
                 elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
               }
@@ -321,9 +321,9 @@ void GrowOverlap::execute()
 
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (CElements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<CElements>())
+    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
     {
-      CElements& elements = *elements_ptr;
+      Elements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
 
       std::vector<PE::Buffer> elements_to_send(Comm::instance().size());
@@ -386,7 +386,7 @@ void GrowOverlap::execute()
     }
     else
     {
-      /// @todo case of non-CElements
+      /// @todo case of non-Elements
     }
   }
 
@@ -463,13 +463,13 @@ void GrowOverlap::execute()
   }
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (CElements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<CElements>())
+    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
     {
-      CElements& elements = *elements_ptr;
+      Elements& elements = *elements_ptr;
 
       for (Uint e=old_elem_size[comp_idx]; e < new_elem_size[comp_idx]; ++e)
       {
-        CConnectivity::Row connected_nodes = elements.node_connectivity()[e];
+        Connectivity::Row connected_nodes = elements.node_connectivity()[e];
 
         boost_foreach ( Uint& node, connected_nodes )
         {

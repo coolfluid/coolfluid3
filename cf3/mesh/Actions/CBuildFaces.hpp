@@ -18,8 +18,8 @@
 namespace cf3 {
 namespace mesh {
   
-  class CRegion;
-  class CFaceCellConnectivity;
+  class Region;
+  class FaceCellConnectivity;
 
 namespace Actions {
   
@@ -58,10 +58,10 @@ private: // functions
   void build_face_cell_connectivity_bottom_up(Component& parent);
   void build_faces_bottom_up(Component& parent);
 
-  void build_face_elements(CRegion& in_region, CFaceCellConnectivity& from_face_to_cell, const bool inner);
+  void build_face_elements(Region& in_region, FaceCellConnectivity& from_face_to_cell, const bool inner);
     
-  boost::shared_ptr<CFaceCellConnectivity> match_faces(CRegion& region1, CRegion& region2);
-  void match_boundary(CRegion& bdry_region, CRegion& region2);
+  boost::shared_ptr<FaceCellConnectivity> match_faces(Region& region1, Region& region2);
+  void match_boundary(Region& bdry_region, Region& region2);
 
   void build_cell_face_connectivity(Component& parent);
 

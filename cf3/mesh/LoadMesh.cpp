@@ -18,7 +18,7 @@
 
 #include "mesh/MeshReader.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "mesh/LoadMesh.hpp"
 

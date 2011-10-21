@@ -17,7 +17,7 @@
 #include "mesh/LagrangeP1/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
@@ -40,15 +40,15 @@ struct MatrixInterpolationFixture
   /// common setup for each test case
     MatrixInterpolationFixture()
     {
-        CTable<Real>::Ptr      V (common::allocate_component< CTable<Real> >("V"));
+        Table<Real>::Ptr      V (common::allocate_component< Table<Real> >("V"));
         V->set_row_size(NDOF);
         V->resize(nbQdPts);
 
-        CTable<Real>::Ptr  dVdxi (common::allocate_component< CTable<Real> >("dVdxi"));
+        Table<Real>::Ptr  dVdxi (common::allocate_component< Table<Real> >("dVdxi"));
         dVdxi->set_row_size(NDOF);
         dVdxi->resize(nbQdPts);
 
-        CTable<Real>::Ptr dVdeta (common::allocate_component< CTable<Real> >("dVdeta"));
+        Table<Real>::Ptr dVdeta (common::allocate_component< Table<Real> >("dVdeta"));
         dVdeta->set_row_size(NDOF);
         dVdeta->resize(nbQdPts);
 
@@ -84,7 +84,7 @@ struct MatrixInterpolationFixture
   //Some printouts:
         //CFinfo << "Finished setting up the Vandermonde matrix" << CFendl;
         for(Uint i=0; i<nbQdPts; ++i) {
-    CTable<Real>::ConstRow row = (*V)[i];
+    Table<Real>::ConstRow row = (*V)[i];
           for(Uint j=0; j<NDOF; ++j) {
             CFinfo << row[j] << " ";
     }
@@ -94,7 +94,7 @@ struct MatrixInterpolationFixture
 
   //Print the derivatives with respect to xi:
         for(Uint i=0; i<nbQdPts; ++i) {
-    CTable<Real>::ConstRow row = (*dVdxi)[i];
+    Table<Real>::ConstRow row = (*dVdxi)[i];
           for(Uint j=0; j<NDOF; ++j) {
             CFinfo << row[j] << " ";
     }
@@ -104,7 +104,7 @@ struct MatrixInterpolationFixture
 
   //Print the derivatives with respect to eta:
         for(Uint i=0; i<nbQdPts; ++i) {
-    CTable<Real>::ConstRow row = (*dVdeta)[i];
+    Table<Real>::ConstRow row = (*dVdeta)[i];
           for(Uint j=0; j<NDOF; ++j) {
             CFinfo << row[j] << " ";
     }

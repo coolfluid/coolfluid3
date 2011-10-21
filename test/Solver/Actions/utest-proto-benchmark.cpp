@@ -17,10 +17,10 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
@@ -85,7 +85,7 @@ struct ProtoBenchmarkFixture :
 
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
     Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
-    CDomain& dom = model.create_domain("Domain");
+    Domain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
     Mesh& mesh = dom.create_component<Mesh>("mesh");
@@ -102,7 +102,7 @@ struct ProtoBenchmarkFixture :
     phys_model.variable_manager().create_descriptor("volume", "CellVolume");
 
     // Create field
-    boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    boost_foreach(Entities& elements, mesh.topology().elements_range())
     {
       elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
     }
@@ -114,7 +114,7 @@ struct ProtoBenchmarkFixture :
 
   struct DirectArrays
   {
-    DirectArrays(const CTable<Real>& p_coords, const CTable<Uint>::ArrayT& p_conn, Field& p_vol_field, const Uint p_offset) :
+    DirectArrays(const Table<Real>& p_coords, const Table<Uint>::ArrayT& p_conn, Field& p_vol_field, const Uint p_offset) :
       coords(p_coords),
       conn(p_conn),
       vol_field(p_vol_field),
@@ -122,8 +122,8 @@ struct ProtoBenchmarkFixture :
     {
     }
 
-    const CTable<Real>& coords;
-    const CTable<Uint>::ArrayT& conn;
+    const Table<Real>& coords;
+    const Table<Uint>::ArrayT& conn;
     Field& vol_field;
     const Uint offset;
   };
@@ -164,7 +164,7 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
 {
   CModel& model = setup("Direct");
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
-  CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
+  Elements& elements = find_component_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume());
   Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
 
   direct_arrays.reset(new DirectArrays
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
 
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
   Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
-  CElements& elements = find_component_recursively_with_filter<CElements>(mesh.topology(), IsElementsVolume());
+  Elements& elements = find_component_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume());
 
   CLoopOperation& volume_computer = elem_loop.create_loop_operation("CF.Solver.Actions.CComputeVolume");
   volume_computer.configure_option("volume",vol_field.uri());
@@ -209,8 +209,8 @@ BOOST_AUTO_TEST_CASE( SimulateProto )
 
 BOOST_AUTO_TEST_CASE( SimulateDirect )
 {
-  const CTable<Uint>::ArrayT& conn = direct_arrays->conn;
-  const CTable<Real>& coords = direct_arrays->coords;
+  const Table<Uint>::ArrayT& conn = direct_arrays->conn;
+  const Table<Real>& coords = direct_arrays->coords;
   Field& vol_field = direct_arrays->vol_field;
 
   LagrangeP1::Hexa3D::NodesT nodes;

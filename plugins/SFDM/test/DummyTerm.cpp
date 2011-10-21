@@ -8,8 +8,8 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/CRegion.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
 #include "mesh/FieldGroup.hpp"
 
 #include "DummyTerm.hpp"
@@ -37,9 +37,9 @@ DummyTerm::~DummyTerm() {}
 
 void DummyTerm::execute()
 {
-  boost_foreach(CRegion::Ptr region, m_loop_regions)
+  boost_foreach(Region::Ptr region, m_loop_regions)
   {
-    boost_foreach(CCells& cells, find_components_recursively<CCells>(*region))
+    boost_foreach(Cells& cells, find_components_recursively<Cells>(*region))
     {
       CFinfo << "      " << name() << " for cells [" << cells.uri().path() << "]" << CFendl;
     }

@@ -16,8 +16,8 @@
 #include "common/Root.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -40,7 +40,7 @@ Mesh::Ptr VectorBenchmarkFixture::channel_3d;
 
 /// Calculates the centroid of all centroids over a set of quads
 template<typename VectorType>
-void centroid_2d(const CTable<Uint>::ArrayT& connectivity, const CTable<Real>::ArrayT& coords, VectorType c0, VectorType c1, VectorType c2, VectorType c3, VectorType& result)
+void centroid_2d(const Table<Uint>::ArrayT& connectivity, const Table<Real>::ArrayT& coords, VectorType c0, VectorType c1, VectorType c2, VectorType c3, VectorType& result)
 {
   const Uint nb_elem = connectivity.size();
 
@@ -49,18 +49,18 @@ void centroid_2d(const CTable<Uint>::ArrayT& connectivity, const CTable<Real>::A
 
   for(Uint elem = 0; elem != nb_elem; ++elem)
   {
-    const CTable<Uint>::ConstRow row = connectivity[elem];
+    const Table<Uint>::ConstRow row = connectivity[elem];
 
-    const CTable<Real>::ConstRow crow0 = coords[row[0]];
+    const Table<Real>::ConstRow crow0 = coords[row[0]];
     c0[XX] = crow0[XX]; c0[YY] = crow0[YY];
 
-    const CTable<Real>::ConstRow crow1 = coords[row[1]];
+    const Table<Real>::ConstRow crow1 = coords[row[1]];
     c1[XX] = crow1[XX]; c1[YY] = crow1[YY];
 
-    const CTable<Real>::ConstRow crow2 = coords[row[2]];
+    const Table<Real>::ConstRow crow2 = coords[row[2]];
     c2[XX] = crow2[XX]; c2[YY] = crow2[YY];
 
-    const CTable<Real>::ConstRow crow3 = coords[row[3]];
+    const Table<Real>::ConstRow crow3 = coords[row[3]];
     c3[XX] = crow3[XX]; c3[YY] = crow3[YY];
 
     result += 0.25*(c0 + c1 + c2 + c3);
@@ -71,7 +71,7 @@ void centroid_2d(const CTable<Uint>::ArrayT& connectivity, const CTable<Real>::A
 
 /// Calculates the centroid of all centroids over a set of hexahedra
 template<typename VectorType>
-void centroid_3d(const CTable<Uint>::ArrayT& connectivity, const CTable<Real>::ArrayT& coords
+void centroid_3d(const Table<Uint>::ArrayT& connectivity, const Table<Real>::ArrayT& coords
     , VectorType c0
     , VectorType c1
     , VectorType c2
@@ -90,30 +90,30 @@ void centroid_3d(const CTable<Uint>::ArrayT& connectivity, const CTable<Real>::A
 
   for(Uint elem = 0; elem != nb_elem; ++elem)
   {
-    const CTable<Uint>::ConstRow row = connectivity[elem];
+    const Table<Uint>::ConstRow row = connectivity[elem];
 
-    const CTable<Real>::ConstRow crow0 = coords[row[0]];
+    const Table<Real>::ConstRow crow0 = coords[row[0]];
     c0[XX] = crow0[XX]; c0[YY] = crow0[YY]; c0[ZZ] = crow0[ZZ];
 
-    const CTable<Real>::ConstRow crow1 = coords[row[1]];
+    const Table<Real>::ConstRow crow1 = coords[row[1]];
     c1[XX] = crow1[XX]; c1[YY] = crow1[YY]; c1[ZZ] = crow1[ZZ];
 
-    const CTable<Real>::ConstRow crow2 = coords[row[2]];
+    const Table<Real>::ConstRow crow2 = coords[row[2]];
     c2[XX] = crow2[XX]; c2[YY] = crow2[YY]; c2[ZZ] = crow2[ZZ];
 
-    const CTable<Real>::ConstRow crow3 = coords[row[3]];
+    const Table<Real>::ConstRow crow3 = coords[row[3]];
     c3[XX] = crow3[XX]; c3[YY] = crow3[YY]; c3[ZZ] = crow3[ZZ];
 
-    const CTable<Real>::ConstRow crow4 = coords[row[4]];
+    const Table<Real>::ConstRow crow4 = coords[row[4]];
     c4[XX] = crow4[XX]; c4[YY] = crow4[YY]; c4[ZZ] = crow4[ZZ];
 
-    const CTable<Real>::ConstRow crow5 = coords[row[5]];
+    const Table<Real>::ConstRow crow5 = coords[row[5]];
     c5[XX] = crow5[XX]; c5[YY] = crow5[YY]; c5[ZZ] = crow5[ZZ];
 
-    const CTable<Real>::ConstRow crow6 = coords[row[6]];
+    const Table<Real>::ConstRow crow6 = coords[row[6]];
     c6[XX] = crow6[XX]; c6[YY] = crow6[YY]; c6[ZZ] = crow6[ZZ];
 
-    const CTable<Real>::ConstRow crow7 = coords[row[7]];
+    const Table<Real>::ConstRow crow7 = coords[row[7]];
     c7[XX] = crow7[XX]; c7[YY] = crow7[YY]; c7[ZZ] = crow7[ZZ];
 
     result += 0.125*(c0 + c1 + c2 + c3 + c4 + c5 + c6 + c7);
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
   RealVector c3(2);
   RealVector result(2);
 
-  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 2> c3(2);
   boost::numeric::ublas::c_vector<Real, 2> result(2);
 
-  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -172,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c3(2);
   boost::numeric::ublas::vector<Real> result(2);
 
-  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -190,8 +190,8 @@ BOOST_FIXTURE_TEST_CASE( RealVector3D, VectorBenchmarkFixture )
   RealVector c7(3);
   RealVector result(3);
 
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "CF.Mesh.SF.LagrangeP1.Hexa3D");
-  const CTable<Real>& coords = elems.geometry().coordinates();
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.SF.LagrangeP1.Hexa3D");
+  const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -212,8 +212,8 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 3> c7(3);
   boost::numeric::ublas::c_vector<Real, 3> result(3);
 
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
-  const CTable<Real>& coords = elems.geometry().coordinates();
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -234,8 +234,8 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c7(3);
   boost::numeric::ublas::vector<Real> result(3);
 
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
-  const CTable<Real>& coords = elems.geometry().coordinates();
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DStatic, VectorBenchmarkFixture )
   Eigen::Vector2d c3(2);
   Eigen::Vector2d result(2);
 
-  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -266,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c3(2);
   Eigen::VectorXd result(2);
 
-  centroid_2d( find_component_recursively_with_filter<CElements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -284,8 +284,8 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
   Eigen::Vector3d c7(3);
   Eigen::Vector3d result(3);
 
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
-  const CTable<Real>& coords = elems.geometry().coordinates();
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -306,8 +306,8 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c7(3);
   Eigen::VectorXd result(3);
 
-  const CElements& elems = find_component_recursively_with_name<CElements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
-  const CTable<Real>& coords = elems.geometry().coordinates();
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 

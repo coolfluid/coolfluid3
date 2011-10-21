@@ -1,8 +1,8 @@
 list( APPEND coolfluid_mesh_neu_files
-  CReader.hpp
-  CReader.cpp
-  CWriter.hpp
-  CWriter.cpp
+  Reader.hpp
+  Reader.cpp
+  Writer.hpp
+  Writer.cpp
   LibNeu.cpp
   LibNeu.hpp
   Shared.hpp

@@ -8,8 +8,8 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/CRegion.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
 
 #include "Solver/Actions/CForAllCells.hpp"
 
@@ -34,8 +34,8 @@ CForAllCells::CForAllCells ( const std::string& name ) :
 
 void CForAllCells::execute()
 {
-  boost_foreach(CRegion& region, regions())
-    boost_foreach(CCells& elements, find_components_recursively<CCells>(region))
+  boost_foreach(Region& region, regions())
+    boost_foreach(Cells& elements, find_components_recursively<Cells>(region))
   {
     // Setup all child operations
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

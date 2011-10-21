@@ -22,8 +22,8 @@
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/LagrangeP1/ElementTypes.hpp"
 #include "Physics/PhysModel.hpp"
 
@@ -48,7 +48,7 @@ public:
   typedef boost::shared_ptr<Expression const> ConstPtr;
 
   /// Run the stored expression in a loop over the region
-  virtual void loop(mesh::CRegion& region) = 0;
+  virtual void loop(mesh::Region& region) = 0;
 
   /// Generate the required options for configurable items in the expression
   /// If an option already existed, only a link will be created
@@ -224,10 +224,10 @@ public:
   {
   }
 
-  void loop(mesh::CRegion& region)
+  void loop(mesh::Region& region)
   {
-    // Traverse all CElements under the region and evaluate the expression
-    BOOST_FOREACH(mesh::CElements& elements, common::find_components_recursively<mesh::CElements>(region) )
+    // Traverse all Elements under the region and evaluate the expression
+    BOOST_FOREACH(mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region) )
     {
       boost::mpl::for_each<boost::mpl::filter_view< ElementTypes, mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypes, typename BaseT::CopiedExprT>(elements, BaseT::m_expr, BaseT::m_variables) );
     }
@@ -245,7 +245,7 @@ public:
   {
   }
 
-  void loop(mesh::CRegion& region)
+  void loop(mesh::Region& region)
   {
     // IF COMPILATION FAILS HERE: the espression passed is invalid
     BOOST_MPL_ASSERT_MSG(
@@ -263,7 +263,7 @@ private:
   /// Fusion functor to synchronize fields if needed
   struct SynchronizeFields
   {
-    SynchronizeFields(const typename BaseT::VariablesT& vars, mesh::CRegion& region) :
+    SynchronizeFields(const typename BaseT::VariablesT& vars, mesh::Region& region) :
       m_variables(vars),
       m_region(region)
     {
@@ -293,7 +293,7 @@ private:
     }
 
     const typename BaseT::VariablesT& m_variables;
-    mesh::CRegion& m_region;
+    mesh::Region& m_region;
   };
 };
 

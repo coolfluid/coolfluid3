@@ -8,7 +8,7 @@
 
 #include "Python/Component.hpp"
 #include "Python/Core.hpp"
-#include "Python/CTable.hpp"
+#include "Python/Table.hpp"
 #include "Python/MatrixTypes.hpp"
 #include "Python/PythonModule.hpp"
 #include "Python/URI.hpp"

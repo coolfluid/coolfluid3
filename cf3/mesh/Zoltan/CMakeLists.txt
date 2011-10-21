@@ -1,6 +1,6 @@
 list( APPEND coolfluid_mesh_zoltan_files
-      CPartitioner.hpp
-      CPartitioner.cpp
+      Partitioner.hpp
+      Partitioner.cpp
       LibZoltan.cpp
       LibZoltan.hpp
     )

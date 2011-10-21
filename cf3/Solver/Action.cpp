@@ -8,7 +8,7 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -90,9 +90,9 @@ Solver::CSolver& Action::solver()
 }
 
 
-common::ComponentIteratorRange<CRegion> Action::regions()
+common::ComponentIteratorRange<Region> Action::regions()
 {
-  return common::ComponentIteratorRange<CRegion>(m_loop_regions);
+  return common::ComponentIteratorRange<Region>(m_loop_regions);
 }
 
 
@@ -106,7 +106,7 @@ void Action::config_regions()
   {
     Component& comp = access_component(region_path);
 
-    if ( CRegion::Ptr region = comp.as_ptr<CRegion>() )
+    if ( Region::Ptr region = comp.as_ptr<Region>() )
       m_loop_regions.push_back( region );
     else
       throw common::ValueNotFound ( FromHere(),

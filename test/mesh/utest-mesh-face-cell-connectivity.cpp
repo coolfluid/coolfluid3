@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests cf3::mesh::CFaceCellConnectivity"
+#define BOOST_TEST_MODULE "Tests cf3::mesh::FaceCellConnectivity"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -18,12 +18,12 @@
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/ConnectivityData.hpp"
 
 using namespace boost;
@@ -67,9 +67,9 @@ BOOST_FIXTURE_TEST_SUITE( FaceCellConnectivity_TestSuite, FaceCellConnectivity_F
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  CFaceCellConnectivity::Ptr c = allocate_component<CFaceCellConnectivity>("faces_to_cells");
+  FaceCellConnectivity::Ptr c = allocate_component<FaceCellConnectivity>("faces_to_cells");
   BOOST_CHECK_EQUAL(c->name(),"faces_to_cells");
-  BOOST_CHECK_EQUAL(CFaceCellConnectivity::type_name(), "CFaceCellConnectivity");
+  BOOST_CHECK_EQUAL(FaceCellConnectivity::type_name(), "FaceCellConnectivity");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
 {
 
  // create meshreader
- // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+ // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
  // boost::filesystem::path fp_source ("quadtriag.neu");
  // m_mesh = meshreader->create_mesh_from(fp_source);
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( create_mesh )
   Uint scale = 2;
   std::vector<Real> lengths  = list_of(4.)(2.);
   std::vector<Uint> nb_cells = list_of(scale*2u)(scale*2u);
-  CSimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<CSimpleMeshGenerator>("mesh_gen");
+  SimpleMeshGenerator& mesh_gen = Core::instance().root().create_component<SimpleMeshGenerator>("mesh_gen");
   mesh_gen.configure_option("mesh",m_mesh->uri());
   mesh_gen.configure_option("lengths",lengths);
   mesh_gen.configure_option("nb_cells",nb_cells);
@@ -99,8 +99,8 @@ BOOST_AUTO_TEST_CASE( face_elem_connectivity )
 {
 
   // create and setup node to elements connectivity
-  CFaceCellConnectivity::Ptr c = m_mesh->create_component_ptr<CFaceCellConnectivity>("face_cell_connectivity");
-  c->setup( find_component<CRegion>(*m_mesh) );
+  FaceCellConnectivity::Ptr c = m_mesh->create_component_ptr<FaceCellConnectivity>("face_cell_connectivity");
+  c->setup( find_component<Region>(*m_mesh) );
 
   BOOST_CHECK_EQUAL(c->connectivity().size() , 40u);
 

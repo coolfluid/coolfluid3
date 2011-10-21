@@ -17,7 +17,7 @@ model = root.create_component('NavierStokes', 'CF.Solver.CModelUnsteady')
 model.setup(solver_builder = 'CF.UFEM.NavierStokes', physics_builder = 'CF.Physics.DynamicModel')
 solver = model.get_child('NavierStokes')
 domain = model.get_child('Domain')
-domain.create_component('NeuReader', 'CF.Mesh.Neu.CReader')
+domain.create_component('NeuReader', 'CF.Mesh.Neu.Reader')
 
 # Generate a channel mesh
 domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
@@ -52,7 +52,7 @@ time = model.get_child('Time')
 time.configure_option('time_step', 0.1)
 
 # dummy writer (to load the library)
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter')
+domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.Writer')
 
 # Setup a time series write
 final_end_time = 10.

@@ -15,9 +15,9 @@
 
 namespace cf3 {
 namespace mesh {
-  class CElements;
-  class CEntities;
-  template <typename T> class CList;
+  class Elements;
+  class Entities;
+  template <typename T> class List;
 }
 namespace Solver {
 namespace Actions {
@@ -48,9 +48,9 @@ public: // functions
   /// Called before looping to prepare a helper object that caches entries
   /// needed by this operation to perform the loop efficiently.
   /// Typically accesses components and stores their address, since they are not expected to change over looping.
-  virtual void create_loop_helper ( mesh::CElements& geometry_elements ) {}
+  virtual void create_loop_helper ( mesh::Elements& geometry_elements ) {}
   
-  void set_elements(mesh::CEntities& elements);
+  void set_elements(mesh::Entities& elements);
   
   bool can_start_loop() { return m_can_start_loop; }
   
@@ -58,8 +58,8 @@ protected: // functions
 
   Uint idx() const { return m_idx; }  
   
-  mesh::CEntities const& elements() const { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
-  mesh::CEntities& elements() { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+  mesh::Entities const& elements() const { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
+  mesh::Entities& elements() { cf3_assert( is_not_null(m_elements.lock()) ); return *m_elements.lock(); }
 
   bool m_can_start_loop;
   
@@ -72,7 +72,7 @@ private: // data
   
   Uint m_idx;
 
-  boost::weak_ptr<mesh::CEntities>  m_elements;
+  boost::weak_ptr<mesh::Entities>  m_elements;
 
 };
 

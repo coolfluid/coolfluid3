@@ -22,11 +22,11 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
 #include "mesh/FieldManager.hpp"
 
 #include "Physics/Variables.hpp"
@@ -94,9 +94,9 @@ void CreateSFDFields::execute()
     Field& jacob_det = sfdm_fields.create_field(SFDM::Tags::jacob_det(), "jacob_det[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::jacob_det()).link_to(jacob_det);
 
-    boost_foreach(CCells& elements, find_components_recursively<CCells>(sfdm_fields.topology()))
+    boost_foreach(Cells& elements, find_components_recursively<Cells>(sfdm_fields.topology()))
     {
-      CSpace& space = jacob_det.space(elements);
+      Space& space = jacob_det.space(elements);
 
       const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -107,7 +107,7 @@ void CreateSFDFields::execute()
       {
         elements.put_coordinates(geometry_coords,elem);
 
-        CConnectivity::ConstRow field_idx = space.indexes_for_element(elem);
+        Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
 
         for (Uint node=0; node<local_coords.rows();++node)
         {

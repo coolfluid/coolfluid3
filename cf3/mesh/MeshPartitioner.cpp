@@ -21,11 +21,11 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CList.hpp"
+#include "mesh/List.hpp"
 #include "mesh/MeshPartitioner.hpp"
-#include "mesh/CDynTable.hpp"
+#include "mesh/DynTable.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Manipulations.hpp"
 #include "mesh/MeshElements.hpp"
 
@@ -51,7 +51,7 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
       ->mark_basic();
 
   m_global_to_local = create_static_component_ptr<common::Map<Uint,Uint> >("global_to_local");
-  m_lookup = create_static_component_ptr<CUnifiedData >("lookup");
+  m_lookup = create_static_component_ptr<UnifiedData >("lookup");
 
   regist_signal( "load_balance" )
     ->description("Partitions and migrates elements between processors")
@@ -118,7 +118,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
   }
 
   Uint tot_nb_owned_elems(0);
-  boost_foreach( CElements& elements, find_components_recursively<CElements>(mesh) )
+  boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
   {
     tot_nb_owned_elems += elements.size();
   }
@@ -152,7 +152,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
   }
 
   m_nodes_to_export.resize(m_nb_parts);
-  m_elements_to_export.resize(find_components_recursively<CElements>(mesh.topology()).size());
+  m_elements_to_export.resize(find_components_recursively<Elements>(mesh.topology()).size());
   for (Uint c=0; c<m_elements_to_export.size(); ++c)
     m_elements_to_export[c].resize(m_nb_parts);
 
@@ -169,11 +169,11 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
   Geometry& nodes = mesh.geometry();
 
   m_lookup->add(nodes);
-  boost_foreach ( CEntities& elements, mesh.topology().elements_range() )
+  boost_foreach ( Entities& elements, mesh.topology().elements_range() )
     m_lookup->add(elements);
 
   m_nb_owned_obj = 0;
-  CList<Uint>& node_glb_idx = nodes.glb_idx();
+  List<Uint>& node_glb_idx = nodes.glb_idx();
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if (!nodes.is_ghost(i))
@@ -183,7 +183,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
     }
   }
 
-  boost_foreach ( CEntities& elements, mesh.topology().elements_range() )
+  boost_foreach ( Entities& elements, mesh.topology().elements_range() )
   {
     m_nb_owned_obj += elements.size();
   }
@@ -215,7 +215,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
   }
 
   //CFinfo << "adding elements " << CFendl;
-  boost_foreach ( CElements& elements, find_components_recursively<CElements>(mesh))
+  boost_foreach ( Elements& elements, find_components_recursively<Elements>(mesh))
   {
     boost_foreach (Uint glb_idx, elements.glb_idx().array())
     {
@@ -461,7 +461,7 @@ void MeshPartitioner::migrate()
 
   // DONT FLUSH YET!!! node_manipulation.flush()
 
-  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh.topology()) )
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
   {
     PackUnpackElements element_manipulation(elements);
 
@@ -479,10 +479,10 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
-  const CList<Uint>& global_node_indices = mesh.geometry().glb_idx();
-  boost_foreach (CEntities& elements, mesh.topology().elements_range())
+  const List<Uint>& global_node_indices = mesh.geometry().glb_idx();
+  boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
+    boost_foreach ( Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -503,7 +503,7 @@ void MeshPartitioner::migrate()
   // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
   {
-    CElements& elements = mesh_element_comps[i].lock()->as_type<CElements>();
+    Elements& elements = mesh_element_comps[i].lock()->as_type<Elements>();
 
     send_to_proc.reset();
     recv_from_all.reset();
@@ -562,7 +562,7 @@ void MeshPartitioner::migrate()
    for (Uint n=0; n<nodes.size(); ++n)
      nodes.rank()[n] = PE::Comm::instance().rank();
 
-   boost_foreach(CEntities& elements, mesh.topology().elements_range())
+   boost_foreach(Entities& elements, mesh.topology().elements_range())
    {
      for (Uint e=0; e<elements.size(); ++e)
        elements.rank()[e] = PE::Comm::instance().rank();
@@ -582,9 +582,9 @@ void MeshPartitioner::migrate()
     owned_nodes.insert(nodes.glb_idx()[n]);
 
   std::set<Uint> ghost_nodes;
-  boost_foreach(const CElements& elements, find_components_recursively<CElements>(mesh.topology()))
+  boost_foreach(const Elements& elements, find_components_recursively<Elements>(mesh.topology()))
   {
-    boost_foreach(CConnectivity::ConstRow connected_nodes, elements.node_connectivity().array())
+    boost_foreach(Connectivity::ConstRow connected_nodes, elements.node_connectivity().array())
     {
       boost_foreach(const Uint node, connected_nodes)
       {
@@ -674,9 +674,9 @@ void MeshPartitioner::migrate()
     if (! inserted)
       throw ValueExists(FromHere(), std::string(nodes.is_ghost(n)? "ghost " : "" ) + "node["+to_str(n)+"] with glb_idx "+to_str(nodes.glb_idx()[n])+" already exists as "+to_str(glb_to_loc[n]));
   }
-  boost_foreach (CEntities& elements, mesh.topology().elements_range())
+  boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( CTable<Uint>::Row nodes, elements.as_type<CElements>().node_connectivity().array() )
+    boost_foreach ( Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {

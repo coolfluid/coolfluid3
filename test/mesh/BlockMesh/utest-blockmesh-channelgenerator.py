@@ -20,5 +20,5 @@ generator.configure_option('mesh', cf.URI('//Root/model/Domain/mesh'))
 generator.configure_option('x_segments', 64)
 generator.execute()
 
-domain.create_component('writer', 'CF.Mesh.VTKXML.CWriter')
+domain.create_component('writer', 'CF.Mesh.VTKXML.Writer')
 domain.write_mesh(cf.URI('utest-blockmesh-channelgenerator_output.pvtu'))

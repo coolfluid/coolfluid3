@@ -16,13 +16,13 @@
 #include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/CField.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+#include "mesh/Entities.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Actions/CInitFieldFunction.hpp"
 #include "mesh/Actions/CreateSpaceP0.hpp"
 #include "Solver/CModel.hpp"
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   Mesh::Ptr mesh = common::Core::instance().root().create_component_ptr<Mesh>("mesh");
-  CSimpleMeshGenerator::create_line(*mesh, 1., 20);
+  SimpleMeshGenerator::create_line(*mesh, 1., 20);
 
 
   /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(*mesh,URI("line.msh"));
 
@@ -233,7 +233,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
 {
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   Mesh::Ptr mesh = common::Core::instance().root().create_component_ptr<Mesh>("rectangle");
-  CSimpleMeshGenerator::create_rectangle(*mesh, 1., 1., 20, 20);
+  SimpleMeshGenerator::create_rectangle(*mesh, 1., 1., 20, 20);
 
 
   /// Create a "space" for SFDM solution of order P2, and for flux a space of order P3
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(*mesh,URI("rectangle.msh"));
 
@@ -283,7 +283,7 @@ BOOST_AUTO_TEST_CASE( test_mesh_transform )
   build_faces.transform(mesh);
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
 //  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(mesh,URI("rectangle.msh"));
 
@@ -310,7 +310,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
 
   CModel& model = wizard.model();
   Mesh& mesh = model.domain().create_component<Mesh>("2quads");
-  CSimpleMeshGenerator::create_rectangle(mesh, 4., 2. , 2, 1);
+  SimpleMeshGenerator::create_rectangle(mesh, 4., 2. , 2, 1);
 
   Component& iterate = model.solver().access_component("iterate");
   iterate.configure_option("max_iter",1u);
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -376,7 +376,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
 
   CModel& model = wizard.model();
   Mesh& mesh = model.domain().create_component<Mesh>("2quads");
-  CSimpleMeshGenerator::create_rectangle(mesh, 2., 4. , 1, 2);
+  SimpleMeshGenerator::create_rectangle(mesh, 2., 4. , 1, 2);
 
   Component& iterate = model.solver().access_component("iterate");
   iterate.configure_option("max_iter",1u);
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -441,7 +441,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
 
   CModel& model = wizard.model();
   Mesh& mesh = model.domain().create_component<Mesh>("2quads");
-  CSimpleMeshGenerator::create_rectangle(mesh, 4., 4. , 2, 2);
+  SimpleMeshGenerator::create_rectangle(mesh, 4., 4. , 2, 2);
 
   Component& iterate = model.solver().access_component("iterate");
   iterate.configure_option("max_iter",1u);
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -527,7 +527,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler1D )
   Mesh& mesh = model.domain().create_component<Mesh>("2lines");
   const Real length = 4.;
   const Uint nb_cells = 4;
-  CSimpleMeshGenerator::create_line(mesh, length , nb_cells);
+  SimpleMeshGenerator::create_line(mesh, length , nb_cells);
 
   Component& iterate = model.solver().access_component("iterate");
   iterate.configure_option("max_iter",2u);
@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler1D )
       CFinfo << "     " << f << CFendl;
   wizard.initialize_solution(function);
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -595,7 +595,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler2D )
   Mesh& mesh = model.domain().create_component<Mesh>("2quads_euler");
   const Real length = 2.;
   const Uint nb_cells = 2;
-  CSimpleMeshGenerator::create_rectangle(mesh, length,length , nb_cells,nb_cells);
+  SimpleMeshGenerator::create_rectangle(mesh, length,length , nb_cells,nb_cells);
 
   Component& iterate = model.solver().access_component("iterate");
   iterate.configure_option("max_iter",1u);
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler2D )
       CFinfo << "     " << f << CFendl;
   wizard.initialize_solution(function);
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());

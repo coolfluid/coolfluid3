@@ -19,11 +19,11 @@
 #include "common/FindComponents.hpp"
 
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -45,8 +45,8 @@ struct MeshTransformer_Fixture
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
     root = Root::create("Root");
-    reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","MyReader");
-    domain = root->create_component_ptr<CDomain>("MyDom");
+    reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","MyReader");
+    domain = root->create_component_ptr<Domain>("MyDom");
 
     root->add_component( reader );
     
@@ -62,7 +62,7 @@ struct MeshTransformer_Fixture
   /// possibly common functions used on the tests below
   Root::Ptr root;
   MeshReader::Ptr reader;
-  CDomain::Ptr domain;
+  Domain::Ptr domain;
 
   static Mesh::Ptr mesh;
   /// common values accessed by all tests goes here
@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshTransformer_TestSuite, MeshTransformer_Fixture )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   // 
   // // the file to read from
   // boost::filesystem::path fp_in ("quadtriag.neu");

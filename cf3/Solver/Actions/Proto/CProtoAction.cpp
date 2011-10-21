@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/URI.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -65,7 +65,7 @@ void CProtoAction::execute()
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
 
-  boost_foreach(const CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(const Region::Ptr& region, m_loop_regions)
   {
     m_implementation->m_expression->loop(*region);
   }

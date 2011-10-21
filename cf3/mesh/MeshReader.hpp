@@ -15,16 +15,16 @@
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 namespace cf3 {
 namespace mesh {
 
   class Mesh;
-  class CRegion;
-  class CCells;
-  class CFaces;
-  class CElements;
+  class Region;
+  class Cells;
+  class Faces;
+  class Elements;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -84,8 +84,8 @@ public: // functions
 
 protected: // functions
 
-  /// Map type from string to a CTable<Uint>::Buffer
-  typedef std::map<std::string,CTable<Uint>::Buffer::Ptr> BufferMap;
+  /// Map type from string to a Table<Uint>::Buffer
+  typedef std::map<std::string,Table<Uint>::Buffer::Ptr> BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
@@ -93,18 +93,18 @@ protected: // functions
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  std::map<std::string,boost::shared_ptr<CElements> > create_cells_in_region(CRegion& parent_region, Geometry& nodes,
+  std::map<std::string,boost::shared_ptr<Elements> > create_cells_in_region(Region& parent_region, Geometry& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,boost::shared_ptr<CElements> > create_faces_in_region(CRegion& parent_region, Geometry& nodes,
+  std::map<std::string,boost::shared_ptr<Elements> > create_faces_in_region(Region& parent_region, Geometry& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,CTable<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<CElements> >& elems_map);
+  std::map<std::string,Table<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<Elements> >& elems_map);
 
 
   /// remove all regions with empty connectivity tables inside a given region
   /// @param [in] parent_region  Region in which the removal will take place
-  void remove_empty_element_regions(CRegion& parent_region);
+  void remove_empty_element_regions(Region& parent_region);
 
 protected: // data
 

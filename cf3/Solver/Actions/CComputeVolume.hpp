@@ -13,11 +13,11 @@
 
 namespace cf3 {
 namespace mesh {
-  template <typename T> class CTable;
-  class CElements;
+  template <typename T> class Table;
+  class Elements;
   class Field;
   class CScalarFieldView;
-  class CSpace;
+  class Space;
 }
 namespace Solver {
 namespace Actions {
@@ -55,7 +55,7 @@ private: // helper functions
 private: // data
 
   boost::weak_ptr<mesh::Field> m_volume;
-  boost::weak_ptr<mesh::CSpace> m_volume_field_space;
+  boost::weak_ptr<mesh::Space> m_volume_field_space;
 
   RealMatrix m_coordinates;
 

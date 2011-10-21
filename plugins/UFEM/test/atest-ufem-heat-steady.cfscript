@@ -29,5 +29,5 @@ configure HotModel/HeatConductionSteady/BoundaryConditions/BCouterTemperature va
 ### Run simulation and write the result
 call HotModel/simulate
 
-create HotModel/Domain CF.Mesh.VTKXML.CWriter
+create HotModel/Domain CF.Mesh.VTKXML.Writer
 call HotModel/Domain/write_mesh file:uri=file:atest-ufem-heat-steady-output.pvtu

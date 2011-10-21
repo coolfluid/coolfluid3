@@ -20,7 +20,7 @@ configure wizard \
 
 call wizard/create_simulation
 
-create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+create SFD_simulation/tools/meshgen CF.Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=10 \
   nb_cells:array[unsigned]=100 \

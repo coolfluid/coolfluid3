@@ -13,7 +13,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "Physics/PhysModel.hpp"
 

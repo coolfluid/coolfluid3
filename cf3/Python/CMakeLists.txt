@@ -5,8 +5,8 @@ list( APPEND coolfluid_python_files
   Component.cpp
   Core.hpp
   Core.cpp
-  CTable.hpp
-  CTable.cpp
+  Table.hpp
+  Table.cpp
   LibPython.hpp
   LibPython.cpp
   MatrixTypes.hpp

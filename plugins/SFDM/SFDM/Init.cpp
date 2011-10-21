@@ -13,13 +13,13 @@
 #include "Physics/Variables.hpp"
 
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Cells.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Space.hpp"
 
 #include "Solver/CSolver.hpp"
 
@@ -93,9 +93,9 @@ void Init::execute()
 
   std::auto_ptr<Physics::Properties> props = physical_model().create_properties();
 
-  boost_foreach(CCells& elements, find_components_recursively<CCells>(solution.topology()))
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(solution.topology()))
   {
-    CSpace& space = solution.space(elements);
+    Space& space = solution.space(elements);
 
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -112,7 +112,7 @@ void Init::execute()
     {
       elements.put_coordinates(geometry_coords,elem);
 
-      CConnectivity::ConstRow field_idx = space.indexes_for_element(elem);
+      Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
 
       for (Uint node=0; node<space.nb_states();++node)
       {

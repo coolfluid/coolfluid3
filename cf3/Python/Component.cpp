@@ -26,7 +26,7 @@
 #include "common/XML/FileOperations.hpp"
 
 #include "Python/Component.hpp"
-#include "Python/CTable.hpp"
+#include "Python/Table.hpp"
 
 namespace cf3 {
 namespace Python {

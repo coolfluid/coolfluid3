@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests cf3::mesh::CNodeElementConnectivity"
+#define BOOST_TEST_MODULE "Tests cf3::mesh::NodeElementConnectivity"
 
 #include <boost/test/unit_test.hpp>
 
@@ -15,12 +15,12 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Connectivity.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -59,9 +59,9 @@ BOOST_FIXTURE_TEST_SUITE( NodeElementConnectivity_TestSuite, NodeElementConnecti
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CNodeElementConnectivity::Ptr c = allocate_component<CNodeElementConnectivity>("nodes_to_elements");
+  NodeElementConnectivity::Ptr c = allocate_component<NodeElementConnectivity>("nodes_to_elements");
   BOOST_CHECK_EQUAL(c->name(),"nodes_to_elements");
-  BOOST_CHECK_EQUAL(CNodeElementConnectivity::type_name(), "CNodeElementConnectivity");
+  BOOST_CHECK_EQUAL(NodeElementConnectivity::type_name(), "NodeElementConnectivity");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("quadtriag.neu",mesh);
@@ -77,8 +77,8 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
   BOOST_CHECK( true );
 
   // create and setup node to elements connectivity
-  CNodeElementConnectivity::Ptr c = mesh.create_component_ptr<CNodeElementConnectivity>("node_elem_connectivity");
-  c->setup( find_component<CRegion>(mesh) );
+  NodeElementConnectivity::Ptr c = mesh.create_component_ptr<NodeElementConnectivity>("node_elem_connectivity");
+  c->setup( find_component<Region>(mesh) );
 
   BOOST_CHECK( true );
 
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
   CFinfo << c->connectivity() << CFendl;
 
   // Output connectivity of node 10
-  CDynTable<Uint>::ConstRow elements = c->connectivity()[10];
+  DynTable<Uint>::ConstRow elements = c->connectivity()[10];
   CFinfo << CFendl << "node 10 is connected to elements: \n";
   boost_foreach(const Uint elem, elements)
   {

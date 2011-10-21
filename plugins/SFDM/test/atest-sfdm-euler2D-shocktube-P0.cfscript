@@ -23,7 +23,7 @@ call wizard/create_simulation
 export length:real=10
 export nb_cells:unsigned=40
 
-create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+create SFD_simulation/tools/meshgen CF.Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=${length},${length} \
   nb_cells:array[unsigned]=${nb_cells},${nb_cells} \

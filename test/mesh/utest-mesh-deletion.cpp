@@ -17,7 +17,7 @@
 
 #include "common/XML/SignalFrame.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   Root& root = Core::instance().root();
 
   // Setup a domain
-  CDomain& domain = root.create_component<CDomain>("Domain");
+  Domain& domain = root.create_component<Domain>("Domain");
 
   // Setup mesh
   Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh"), length, height, x_segments, y_segments);

@@ -17,14 +17,14 @@
 #include "common/OptionArray.hpp"
 
 #include "mesh/Actions/CMatchNodes.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
@@ -88,17 +88,17 @@ void CMatchNodes::execute()
 
   std::vector<URI> region_paths = option("Regions").value<std::vector<URI> >();
 
-  CRegion& region_1 = *mesh.access_component_ptr(region_paths[0])->as_ptr<CRegion>();
-  CRegion& region_2 = *mesh.access_component_ptr(region_paths[1])->as_ptr<CRegion>();
-  CList<Uint>& used_nodes_region_1 = CEntities::used_nodes(region_1);
-  CList<Uint>& used_nodes_region_2 = CEntities::used_nodes(region_2);
+  Region& region_1 = *mesh.access_component_ptr(region_paths[0])->as_ptr<Region>();
+  Region& region_2 = *mesh.access_component_ptr(region_paths[1])->as_ptr<Region>();
+  List<Uint>& used_nodes_region_1 = Entities::used_nodes(region_1);
+  List<Uint>& used_nodes_region_2 = Entities::used_nodes(region_2);
 
   // Check if regions have same number of used nodes
   if ( used_nodes_region_1.size() != used_nodes_region_2.size() )
     throw SetupError(FromHere(), "Number of used nodes in ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] are different.\n"
       "Nodes cannot be matched." );
 
-  CTable<Real>& coordinates = mesh.geometry().coordinates();
+  Table<Real>& coordinates = mesh.geometry().coordinates();
 
 
   // find bounding box coordinates for region 1 and region 2
@@ -110,7 +110,7 @@ void CMatchNodes::execute()
 
   boost_foreach(const Uint coord_idx , used_nodes_region_1.array() )
   {
-    CTable<Real>::ConstRow coords = coordinates[coord_idx];
+    Table<Real>::ConstRow coords = coordinates[coord_idx];
     for (Uint d=0; d<m_dim; ++d)
     {
       bounding_1[MIN][d] = std::min(bounding_1[MIN][d],  coords[d]);
@@ -121,7 +121,7 @@ void CMatchNodes::execute()
 
   boost_foreach(const Uint coord_idx , used_nodes_region_2.array() )
   {
-    CTable<Real>::ConstRow coords = coordinates[coord_idx];
+    Table<Real>::ConstRow coords = coordinates[coord_idx];
     for (Uint d=0; d<m_dim; ++d)
     {
       bounding_2[MIN][d] = std::min(bounding_2[MIN][d],  coords[d]);
@@ -139,7 +139,7 @@ void CMatchNodes::execute()
   // and as value the index of the node in the coordinates table
   boost_foreach(const Uint coords_idx , used_nodes_region_1.array() )
   {
-    CTable<Real>::ConstRow row = coordinates[coords_idx];
+    Table<Real>::ConstRow row = coordinates[coords_idx];
     RealVector3 coords; coords.setZero();
     for (Uint d=0; d<row.size(); ++d)
       coords[d] = row[d] - bounding_1[MIN][d];
@@ -150,7 +150,7 @@ void CMatchNodes::execute()
   std::map<std::size_t,Uint>::const_iterator not_found = hash_to_node_idx.end();
   boost_foreach(const Uint coords_idx , used_nodes_region_2.array() )
   {
-    CTable<Real>::ConstRow row = coordinates[coords_idx];
+    Table<Real>::ConstRow row = coordinates[coords_idx];
     RealVector3 coords; coords.setZero();
     for (Uint d=0; d<row.size(); ++d)
       coords[d] = row[d] - bounding_2[MIN][d];

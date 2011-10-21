@@ -16,7 +16,7 @@
 #include "math/Consts.hpp"
 
 #include "mesh/ElementType.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Line3D.hpp"
@@ -52,7 +52,7 @@ struct LagrangeP1Line3DFixture
   }
 
   /// Fills the given coordinate and connectivity data to create a helix along the Z-axis, consisting of ETYPE elements
-  void create_helix(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Real height, const Real tours, const Uint segments)
+  void create_helix(Table<Real>& coordinates, Table<Uint>& connectivity, const Real radius, const Real height, const Real tours, const Uint segments)
   {
     const Uint dim = ETYPE::dimension;
     const Uint nb_nodes = ETYPE::nb_nodes;
@@ -60,27 +60,27 @@ struct LagrangeP1Line3DFixture
     const Real end_angle = tours*2.*Consts::pi();
 
     coordinates.set_row_size(dim);
-    CTable<Real>::ArrayT& coord_array = coordinates.array();
+    Table<Real>::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[segments + 1][dim]);
 
     connectivity.set_row_size(nb_nodes);
-    CTable<Uint>::ArrayT& conn_array = connectivity.array();
+    Table<Uint>::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[segments][nb_nodes]);
     const Real height_step = height / segments;
     for(Uint u = 0; u != segments; ++u)
     {
       const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(segments));
-      CTable<Real>::Row coord_row = coord_array[u];
+      Table<Real>::Row coord_row = coord_array[u];
 
       coord_row[XX] = radius * cos(theta);
       coord_row[YY] = radius * sin(theta);
       coord_row[ZZ] = u*height_step;
 
-      CTable<Uint>::Row nodes = conn_array[u];
+      Table<Uint>::Row nodes = conn_array[u];
       nodes[0] = u;
       nodes[1] = u+1;
     }
-    CTable<Real>::Row coord_row = coord_array[segments];
+    Table<Real>::Row coord_row = coord_array[segments];
     coord_row[XX] = radius * cos(end_angle);
     coord_row[YY] = radius * sin(end_angle);
     coord_row[ZZ] = segments * height_step;
@@ -129,7 +129,7 @@ struct LagrangeP1Line3DFixture
 
 /// Integral over a region
 template<typename ResultT, typename FunctorT>
-void integrate_region(ResultT& result, FunctorT functor, const CTable<Real>& coordinates, const CTable<Uint>& connectivity)
+void integrate_region(ResultT& result, FunctorT functor, const Table<Real>& coordinates, const Table<Uint>& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
@@ -231,8 +231,8 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   const Uint segments = 10000;
 
   // complete circle
-  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
-  CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
+  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_helix(*coordinates, *connectivity, radius, height, tours, segments);
 
   // Check the length, using the line integral of one times the norm of the tangent vector

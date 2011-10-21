@@ -7,7 +7,7 @@
 #ifndef cf3_Solver_Actions_CDummyLoopOperation_hpp
 #define cf3_Solver_Actions_CDummyLoopOperation_hpp
 
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -16,7 +16,7 @@
 namespace cf3 {
 namespace mesh {
   class FieldElements;
-  template <typename T> class CList;
+  template <typename T> class List;
 }
 namespace TestActions {
 

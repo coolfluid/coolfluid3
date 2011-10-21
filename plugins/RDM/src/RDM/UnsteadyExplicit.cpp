@@ -13,7 +13,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshReader.hpp"
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/WriteMesh.hpp"
 
 // supported physical models
@@ -95,7 +95,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (2) create the domain
 
-  CDomain& domain = model.create_domain( "Domain" );
+  Domain& domain = model.create_domain( "Domain" );
 
   // (3) create the Physical Model
 

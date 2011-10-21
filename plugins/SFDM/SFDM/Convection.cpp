@@ -15,12 +15,12 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CCellFaces.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/CellFaces.hpp"
 
 #include "Physics/Variables.hpp"
 #include "Physics/PhysModel.hpp"
@@ -90,8 +90,8 @@ void Convection::execute()
   link_fields();
 
   // Set residual and wave_speeds to zero
-  residual().  as_type< CTable<Real> >() = 0.;
-  wave_speed().as_type< CTable<Real> >() = 0.;
+  residual().  as_type< Table<Real> >() = 0.;
+  wave_speed().as_type< Table<Real> >() = 0.;
 
 //  compute_one_cell_at_a_time();
   compute_cell_interior_flux_points_contribution();
@@ -118,13 +118,13 @@ void Convection::compute_one_cell_at_a_time()
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
   RealVector dummy_ev(nb_vars);
 
-  /// CCells loop
-  boost_foreach(CRegion::Ptr region, m_loop_regions)
-  boost_foreach(CCells& elements, find_components_recursively<CCells>(*region))
+  /// Cells loop
+  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
   if( field_group().elements_lookup().contains(elements))
   {
     //std::cout << "      ConvectionTerm() for cells " << elements.uri().string() << std::endl;
-    const CSpace& space = field_group().space(elements);
+    const Space& space = field_group().space(elements);
     const SFDM::ShapeFunction& shape_func = space.shape_function().as_type<SFDM::ShapeFunction>();
 
     const Uint nb_sol_pts = shape_func.line().nb_nodes();
@@ -188,12 +188,12 @@ void Convection::compute_one_cell_at_a_time()
     Component::Ptr dummy_component;
     Uint dummy_idx;
 
-    CConnectivity& c2f = elements.get_child("face_connectivity").as_type<CConnectivity>();
+    Connectivity& c2f = elements.get_child("face_connectivity").as_type<Connectivity>();
 
     /// element loop
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
-      CConnectivity::ConstRow field_idx_proxy = space.indexes_for_element(elem);
+      Connectivity::ConstRow field_idx_proxy = space.indexes_for_element(elem);
       std::vector<Uint> field_idx(field_idx_proxy.size());
       for (Uint i=0; i<field_idx.size(); ++i)
         field_idx[i] = field_idx_proxy[i];
@@ -202,28 +202,28 @@ void Convection::compute_one_cell_at_a_time()
 
       ElementType& geometry = elements.element_type();
       const Uint nb_faces = geometry.nb_faces();
-      std::vector<CEntities::Ptr> connected_faces(nb_faces);
+      std::vector<Entities::Ptr> connected_faces(nb_faces);
       std::vector<Uint> connected_face_idx(nb_faces);
 
-      std::vector<CEntities::Ptr> connected_cells(nb_faces);
+      std::vector<Entities::Ptr> connected_cells(nb_faces);
       std::vector<Uint> connected_cell_idx(nb_faces);
       std::vector<bool> connected_cell_is_bdry(nb_faces);
 
       for (Uint f=0; f<nb_faces; ++f)
       {
         boost::tie(dummy_component,dummy_idx) = c2f.lookup().location( c2f[elem][f] );
-        connected_faces[f] = dummy_component->as_ptr<CEntities>();
+        connected_faces[f] = dummy_component->as_ptr<Entities>();
         connected_face_idx[f] = dummy_idx;
 
-        if (CCellFaces::Ptr inner_face = connected_faces[f]->as_ptr<CCellFaces>())
+        if (CellFaces::Ptr inner_face = connected_faces[f]->as_ptr<CellFaces>())
         {
-          CFaceCellConnectivity& f2c = inner_face->cell_connectivity();
+          FaceCellConnectivity& f2c = inner_face->cell_connectivity();
           for (Uint c=0; c<2; ++c)
           {
             boost::tie(dummy_component,dummy_idx) = f2c.lookup().location( f2c.connectivity()[connected_face_idx[f]][c] );
             if (dummy_component.get() != &elements || dummy_idx != elem)  // this not the current cell
             {
-              connected_cells[f] = dummy_component->as_ptr<CEntities>();
+              connected_cells[f] = dummy_component->as_ptr<Entities>();
               connected_cell_idx[f] = dummy_idx;
               connected_cell_is_bdry[f] = false;
               break;
@@ -283,7 +283,7 @@ void Convection::compute_one_cell_at_a_time()
               else // Cell interface --> solve Riemann problem
               {
                 Uint other_flx_pt = flx_pt==0 ? nb_flx_pts-1 : 0 ;
-                CConnectivity::ConstRow other_field_idx = space.indexes_for_element( connected_cell_idx[face_nb] );
+                Connectivity::ConstRow other_field_idx = space.indexes_for_element( connected_cell_idx[face_nb] );
                 for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
                 {
                   const Uint pt_idx = other_field_idx[ shape_func.points()[orientation][line][sol_pt] ];
@@ -359,7 +359,7 @@ void Convection::compute_one_cell_at_a_time()
     }
     // end element loop
   }
-  // end CCells loop
+  // end Cells loop
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -380,12 +380,12 @@ void Convection::compute_cell_interior_flux_points_contribution()
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_ev(nb_vars);
 
-  /// CCells loop
-  boost_foreach(CRegion::Ptr region, m_loop_regions)
-  boost_foreach(CCells& elements, find_components_recursively<CCells>(*region))
+  /// Cells loop
+  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
   if( field_group().elements_lookup().contains(elements))
   {
-    const CSpace& space = field_group().space(elements);
+    const Space& space = field_group().space(elements);
     const SFDM::ShapeFunction& shape_func = space.shape_function().as_type<SFDM::ShapeFunction>();
 
     const Uint nb_sol_pts = shape_func.line().nb_nodes();
@@ -442,7 +442,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
 //      if (elements.is_ghost(elem))
 //        continue;
 
-      CConnectivity::ConstRow field_idx = space.indexes_for_element(elem);
+      Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
 
       elements.put_coordinates(geometry_nodes, elem);
 
@@ -537,7 +537,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
     }
     // end element loop
   }
-  // end CCells loop
+  // end Cells loop
 }
 
 void Convection::compute_inner_face_flux_points_contribution()
@@ -561,8 +561,8 @@ void Convection::compute_inner_face_flux_points_contribution()
   Uint dummy_idx;
 
   std::vector<bool> ghost(2);
-  std::vector<CCells*> cells(2);
-  std::vector<CSpace*> spaces(2);
+  std::vector<Cells*> cells(2);
+  std::vector<Space*> spaces(2);
   std::vector<SFDM::ShapeFunction const*> sf(2);
   std::vector<Uint> cell_idx(2);
   std::vector<Uint> nb_sol_pts(2);
@@ -573,23 +573,23 @@ void Convection::compute_inner_face_flux_points_contribution()
 
 
   /// inner-faces loop
-  boost_foreach(CRegion::Ptr region, m_loop_regions)
-  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(*region,mesh::Tags::inner_faces()))
+  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::inner_faces()))
   {
-    CFaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
+    FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
 
     /// face loop
     for (Uint face=0; face<faces.size(); ++face)
     {
 //      std::cout << "f="<<face<<" "<<std::flush;
-      CConnectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
-      CConnectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
+      Connectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
+      Connectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
 
       // Set data for left and right cells
       for (Uint side=0; side<2; ++side)
       {
         boost::tie(dummy_component,dummy_idx) = cell_connectivity.lookup().location(connected_cells[side]);
-        cells[side] = &dummy_component->as_type<CCells>();
+        cells[side] = &dummy_component->as_type<Cells>();
         cell_idx[side] = dummy_idx;
         spaces[side] = &field_group().space(*cells[side]);
         sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
@@ -597,8 +597,8 @@ void Convection::compute_inner_face_flux_points_contribution()
         nb_flx_pts[side] = sf[side]->flux_line().nb_nodes();
         flx_pt_line_coord[side].resize(1);
         ghost[side] = cells[side]->is_ghost(cell_idx[side]);
-        CConnectivity::ConstRow face_nodes = faces.get_nodes(face);
-        CConnectivity::ConstRow cell_nodes = cells[side]->get_nodes(cell_idx[side]);
+        Connectivity::ConstRow face_nodes = faces.get_nodes(face);
+        Connectivity::ConstRow cell_nodes = cells[side]->get_nodes(cell_idx[side]);
         Uint nb_match = 0;
         boost_foreach(const Uint face_node, face_nodes)
         {
@@ -625,7 +625,7 @@ void Convection::compute_inner_face_flux_points_contribution()
         /// 1) Compute solution at left and right side
         for (Uint side=0; side<2; ++side)
         {
-          CConnectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
+          Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
 
           RealMatrix solution_in_sol_pts(nb_sol_pts[side],nb_vars);
           for (Uint sol_pt=0; sol_pt<nb_sol_pts[side]; ++sol_pt)
@@ -671,7 +671,7 @@ void Convection::compute_inner_face_flux_points_contribution()
 //          if (ghost[side])
 //            continue;
 
-          CConnectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
+          Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
 
           RealMatrix flux_grad_in_sol_pts(nb_sol_pts[side], nb_vars);
           flux_grad_in_sol_pts.setZero();
@@ -719,22 +719,22 @@ void Convection::compute_inner_face_flux_points_contribution()
 
   /// outer-faces loop
   /// These faces should be moved to the boundary condition
-  boost_foreach(CRegion::Ptr region, m_loop_regions)
-  boost_foreach(CEntities& faces, find_components_recursively<CEntities>(*region))
+  boost_foreach(Region::Ptr region, m_loop_regions)
+  boost_foreach(Entities& faces, find_components_recursively<Entities>(*region))
   {
-    if (faces.as_ptr<CFaces>())
+    if (faces.as_ptr<Faces>())
     {
-      CFaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
+      FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
 
       /// face loop
       for (Uint face=0; face<faces.size(); ++face)
       {
-        CConnectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
-        CConnectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
+        Connectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
+        Connectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
         for (Uint side=0; side<1; ++side)
         {
           boost::tie(dummy_component,dummy_idx) = cell_connectivity.lookup().location(connected_cells[side]);
-          cells[side] = &dummy_component->as_type<CCells>();
+          cells[side] = &dummy_component->as_type<Cells>();
           cell_idx[side] = dummy_idx;
           spaces[side] = &field_group().space(*cells[side]);
           sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
@@ -742,8 +742,8 @@ void Convection::compute_inner_face_flux_points_contribution()
           nb_flx_pts[side] = sf[side]->flux_line().nb_nodes();
           flx_pt_line_coord[side].resize(1);
 
-          CConnectivity::ConstRow face_nodes = faces.get_nodes(face);
-          CConnectivity::ConstRow cell_nodes = cells[side]->get_nodes(cell_idx[side]);
+          Connectivity::ConstRow face_nodes = faces.get_nodes(face);
+          Connectivity::ConstRow cell_nodes = cells[side]->get_nodes(cell_idx[side]);
           Uint nb_match = 0;
           boost_foreach(const Uint face_node, face_nodes)
           {
@@ -764,7 +764,7 @@ void Convection::compute_inner_face_flux_points_contribution()
         {
           for (Uint side=0; side<1; ++side)
           {
-            CConnectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
+            Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
 
             RealMatrix solution_in_sol_pts(nb_sol_pts[side],nb_vars);
             for (Uint sol_pt=0; sol_pt<nb_sol_pts[side]; ++sol_pt)
@@ -809,7 +809,7 @@ void Convection::compute_inner_face_flux_points_contribution()
           for (Uint side=0; side<1; ++side)
           {
 
-            CConnectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
+            Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
 
 
             /// 4) compute derivative of flux to orientation in solution points

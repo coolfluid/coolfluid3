@@ -1,6 +1,6 @@
 list( APPEND coolfluid_mesh_tecplot_files
-  CWriter.hpp
-  CWriter.cpp
+  Writer.hpp
+  Writer.cpp
   LibTecplot.cpp
   LibTecplot.hpp
   Shared.cpp

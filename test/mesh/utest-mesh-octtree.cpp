@@ -22,13 +22,13 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshGenerator.hpp"
-#include "mesh/COcttree.hpp"
-#include "mesh/CStencilComputerOcttree.hpp"
+#include "mesh/Octtree.hpp"
+#include "mesh/StencilComputerOcttree.hpp"
 #include "mesh/MeshWriter.hpp"
 
 using namespace boost;
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
   // create meshreader
-  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","mesh_generator");
+  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
   Mesh& mesh = mesh_generator->generate();
 
-  COcttree& octtree = mesh.create_component<COcttree>("octtree");
+  Octtree& octtree = mesh.create_component<Octtree>("octtree");
 
   // Create and configure interpolator.
   octtree.configure_option("nb_elems_per_cell", 1u );
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
   BOOST_CHECK(true);
 
-  CElements::ConstPtr elements;
+  Elements::ConstPtr elements;
   Uint idx(0);
   RealVector2 coord;
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   BOOST_CHECK_EQUAL(idx,5u);
 
 
-  CStencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<CStencilComputerOcttree>("stencilcomputer");
+  StencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<StencilComputerOcttree>("stencilcomputer");
   stencil_computer->configure_option("mesh", find_component<Mesh>(Core::instance().root()).uri() );
 
   std::vector<Uint> stencil;
@@ -156,7 +156,7 @@ BOOST_AUTO_TEST_CASE( Octtree_parallel )
   mesh_generator->configure_option("nb_parts",PE::Comm::instance().size());
   Mesh& mesh = mesh_generator->generate();
 
-  COcttree& octtree = mesh.create_component<COcttree>("octtree");
+  Octtree& octtree = mesh.create_component<Octtree>("octtree");
 
   // Create and configure interpolator.
   octtree.configure_option("nb_elems_per_cell", 1u );
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( Octtree_parallel )
   BOOST_CHECK_EQUAL(ranks[1] , 1u);
 
 
-//  MeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","CF.Mesh.Gmsh.CWriter").as_type<MeshWriter>();
+//  MeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
 //  gmsh_writer.write_from_to(mesh,"octtree.msh");
 }
 

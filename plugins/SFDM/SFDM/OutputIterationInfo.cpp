@@ -11,7 +11,7 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/CField.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
@@ -55,7 +55,7 @@ void OutputIterationInfo::execute()
 
   // compute norm
   Real rhs_L2=0;
-  boost_foreach(CTable<Real>::ConstRow rhs , m_residual.lock()->data().array())
+  boost_foreach(Table<Real>::ConstRow rhs , m_residual.lock()->data().array())
     rhs_L2 += rhs[0]*rhs[0];
   rhs_L2 = sqrt(rhs_L2) / m_residual.lock()->data().size();
 

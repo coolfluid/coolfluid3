@@ -23,10 +23,10 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -56,7 +56,7 @@ struct CModel::Implementation
 
   Component& m_component;
   Group& m_tools;
-  boost::weak_ptr<CDomain> m_domain;
+  boost::weak_ptr<Domain> m_domain;
   boost::weak_ptr<Physics::PhysModel> m_physics;
 };
 
@@ -149,9 +149,9 @@ Physics::PhysModel& CModel::physics()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain& CModel::domain()
+Domain& CModel::domain()
 {
-  return find_component<CDomain>(*this);
+  return find_component<Domain>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -188,9 +188,9 @@ Physics::PhysModel& CModel::create_physics( const std::string& builder )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CDomain& CModel::create_domain( const std::string& name )
+Domain& CModel::create_domain( const std::string& name )
 {
-  CDomain::Ptr dom = create_component_ptr<CDomain>( name );
+  Domain::Ptr dom = create_component_ptr<Domain>( name );
   m_implementation->m_domain = dom;
 
   return *dom;
@@ -257,7 +257,7 @@ void CModel::signal_create_domain ( common::SignalArgs& node )
 {
   SignalFrame& options = node.map( Protocol::Tags::key_options() );
 
-  CDomain& domain = create_domain("Domain"); // dispatch to virtual function
+  Domain& domain = create_domain("Domain"); // dispatch to virtual function
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,9 +11,9 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Actions/CBuildArea.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
@@ -71,7 +71,7 @@ void CBuildArea::execute()
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 
-  boost_foreach(CEntities& elements, area.entities_range() )
+  boost_foreach(Entities& elements, area.entities_range() )
   {
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 

@@ -22,11 +22,11 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshReader.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CDomain.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/Elements.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -128,19 +128,19 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,CElements::Ptr>
-  MeshReader::create_cells_in_region (CRegion& parent_region, Geometry& nodes,
+std::map<std::string,Elements::Ptr>
+  MeshReader::create_cells_in_region (Region& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
-  std::map<std::string,CElements::Ptr> cells_map;
+  std::map<std::string,Elements::Ptr> cells_map;
   boost_foreach(const std::string& etype, etypes)
   {
     ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension())
     {
-      CCells& etype_cells = *parent_region.create_component_ptr<CCells>(element_type->shape_name());
+      Cells& etype_cells = *parent_region.create_component_ptr<Cells>(element_type->shape_name());
       etype_cells.initialize(etype,nodes);
-      cells_map[etype] = etype_cells.as_ptr<CElements>();
+      cells_map[etype] = etype_cells.as_ptr<Elements>();
     }
   }
   return cells_map;
@@ -148,19 +148,19 @@ std::map<std::string,CElements::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,CElements::Ptr>
-  MeshReader::create_faces_in_region (CRegion& parent_region, Geometry& nodes,
+std::map<std::string,Elements::Ptr>
+  MeshReader::create_faces_in_region (Region& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
-  std::map<std::string,CElements::Ptr> faces_map;
+  std::map<std::string,Elements::Ptr> faces_map;
   boost_foreach(const std::string& etype, etypes)
   {
     ElementType::Ptr element_type = build_component_abstract_type<ElementType>(etype,etype);
     if (element_type->dimensionality() == element_type->dimension() - 1)
     {
-      CFaces& etype_faces = *parent_region.create_component_ptr<CFaces>(element_type->shape_name());
+      Faces& etype_faces = *parent_region.create_component_ptr<Faces>(element_type->shape_name());
       etype_faces.initialize(etype,nodes);
-      faces_map[etype] = etype_faces.as_ptr<CElements>();
+      faces_map[etype] = etype_faces.as_ptr<Elements>();
     }
   }
   return faces_map;
@@ -168,12 +168,12 @@ std::map<std::string,CElements::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,CTable<Uint>::Buffer::Ptr>
-  MeshReader::create_connectivity_buffermap (std::map<std::string,CElements::Ptr>& elems_map)
+std::map<std::string,Table<Uint>::Buffer::Ptr>
+  MeshReader::create_connectivity_buffermap (std::map<std::string,Elements::Ptr>& elems_map)
 {
   // Create regions for each element type
-  std::map<std::string,CTable<Uint>::Buffer::Ptr> buffermap;
-  foreach_container((const std::string& etype)(CElements::Ptr elements), elems_map)
+  std::map<std::string,Table<Uint>::Buffer::Ptr> buffermap;
+  foreach_container((const std::string& etype)(Elements::Ptr elements), elems_map)
   {
     buffermap[etype] = elements->node_connectivity().create_buffer_ptr();
   }
@@ -182,9 +182,9 @@ std::map<std::string,CTable<Uint>::Buffer::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void MeshReader::remove_empty_element_regions(CRegion& parent_region)
+void MeshReader::remove_empty_element_regions(Region& parent_region)
 {
-  boost_foreach(CElements& region, find_components_recursively<CElements>(parent_region))
+  boost_foreach(Elements& region, find_components_recursively<Elements>(parent_region))
   {
     // find the empty regions
     Uint empty_on_this_rank = region.node_connectivity().array().empty();
@@ -196,18 +196,18 @@ void MeshReader::remove_empty_element_regions(CRegion& parent_region)
 
     if ( empty_on_all_ranks )
     {
-      CElements::Ptr removed = boost::dynamic_pointer_cast<CElements>(region.parent().remove_component(region.name()));
+      Elements::Ptr removed = boost::dynamic_pointer_cast<Elements>(region.parent().remove_component(region.name()));
       removed.reset();
     }
   }
 
   // loop over regions
-  boost_foreach(CRegion& region, find_components_recursively<CRegion>(parent_region))
+  boost_foreach(Region& region, find_components_recursively<Region>(parent_region))
   {
     // find the empty regions
-    if ( find_components<CRegion>(region).empty() && find_components<CElements>(region).empty() )
+    if ( find_components<Region>(region).empty() && find_components<Elements>(region).empty() )
       {
-        CRegion::Ptr removed = boost::dynamic_pointer_cast<CRegion>(region.parent().remove_component(region.name()));
+        Region::Ptr removed = boost::dynamic_pointer_cast<Region>(region.parent().remove_component(region.name()));
         removed.reset();
       }
   }

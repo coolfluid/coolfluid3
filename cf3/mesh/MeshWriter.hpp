@@ -14,7 +14,7 @@
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
 
 namespace cf3 {
@@ -79,7 +79,7 @@ protected: // classes
 
      bool operator()(const Component& component)
      {
-       return count(common::find_components<CEntities>(component));
+       return count(common::find_components<Entities>(component));
      }
 
   }; // IsGroup

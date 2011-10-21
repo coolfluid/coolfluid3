@@ -9,7 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/LF.hpp"
@@ -40,7 +40,7 @@ void LF::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     loop.select_region( region );
 

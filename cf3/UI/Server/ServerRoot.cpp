@@ -19,7 +19,7 @@
 //#include "common/XML/SignalFrame.hpp"
 #include "common/XML/Protocol.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 #include "Solver/CPlotter.hpp"
 
@@ -67,9 +67,9 @@ ServerRoot::ServerRoot()
   m_manager->mark_basic();
   m_plotter->mark_basic();
 
-  CTable<Real>::Ptr table = tools->create_component_ptr< CTable<Real> >("MyTable");
+  Table<Real>::Ptr table = tools->create_component_ptr< Table<Real> >("MyTable");
   table->set_row_size(8); // reserve 8 columns
-  CTable<Real>::Buffer buffer = table->create_buffer(8000);
+  Table<Real>::Buffer buffer = table->create_buffer(8000);
 
   table->mark_basic();
   m_plotter->set_data_set( table->uri() );

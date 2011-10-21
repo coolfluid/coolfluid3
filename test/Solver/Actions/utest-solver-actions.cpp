@@ -27,9 +27,9 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Cells.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  BOOST_CHECK(find_components_recursively<CCells>(mesh->topology()).size() > 0);
+  BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
   FieldGroup& cells_P0 = mesh->create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   CComputeVolume::Ptr compute_volume = root.create_component_ptr<CComputeVolume>("compute_volume");
   BOOST_CHECK(true);
-  CElements& elems = root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag")).as_type<CElements>();
+  Elements& elems = root.access_component(mesh->topology().uri()/URI("rotation/fluid/Triag")).as_type<Elements>();
   BOOST_CHECK(true);
   compute_volume->configure_option("volume",volumes.uri());
   BOOST_CHECK(true);
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   compute_volume->execute();
   BOOST_CHECK(true);
 
-  CSpace& P0_space = volumes.space(elems);
+  Space& P0_space = volumes.space(elems);
   BOOST_CHECK_EQUAL( volumes[P0_space.indexes_for_element(12)[0]][0] , 0.0035918050864676932);
 
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   fields.push_back(volumes.as_ptr<Field>());
   fields.push_back(field.as_ptr<Field>());
   fields.push_back(areas.as_ptr<Field>());
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
 
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   std::vector<Field::Ptr> fields;
   fields.push_back(field.as_ptr<Field>());
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
 

@@ -19,7 +19,7 @@
 #include "common/PE/CommPattern.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"
 
@@ -40,7 +40,7 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Field::Field ( const std::string& name  ) :
-  CTable<Real> ( name ),
+  Table<Real> ( name ),
   m_basis(FieldGroup::Basis::INVALID)
 {
   mark_basic();
@@ -82,9 +82,9 @@ void Field::config_var_names()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_topology(CRegion& region)
+void Field::set_topology(Region& region)
 {
-  m_topology = region.as_ptr<CRegion>();
+  m_topology = region.as_ptr<Region>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +145,7 @@ Field::VarType Field::var_length ( const std::string& vname ) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& Field::topology() const
+Region& Field::topology() const
 {
   cf3_assert(m_topology.expired() == false);
   return *m_topology.lock();
@@ -171,18 +171,18 @@ FieldGroup& Field::field_group() const
 void Field::resize(const Uint size)
 {
   set_row_size(descriptor().size());
-  CTable<Real>::resize(size);
+  Table<Real>::resize(size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow Field::indexes_for_element(const CEntities& elements, const Uint idx) const
+Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   return field_group().indexes_for_element(elements,idx);
 }
 
 
-CTable<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
+Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 {
   return field_group().indexes_for_element(unified_idx);
 }

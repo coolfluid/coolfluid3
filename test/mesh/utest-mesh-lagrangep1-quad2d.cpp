@@ -13,11 +13,11 @@
 #include "common/Log.hpp"
 #include "common/Root.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Quad2D.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -86,8 +86,8 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  // Create a CElements component
-  CElements::Ptr comp = allocate_component<CElements>("comp");
+  // Create a Elements component
+  Elements::Ptr comp = allocate_component<Elements>("comp");
   Geometry::Ptr nodes = allocate_component<Geometry>("nodes");
   comp->initialize("CF.Mesh.LagrangeP1.Quad2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);

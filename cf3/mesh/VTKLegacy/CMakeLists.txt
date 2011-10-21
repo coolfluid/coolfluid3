@@ -1,6 +1,6 @@
 list( APPEND coolfluid_mesh_vtklegacy_files
-  CWriter.hpp
-  CWriter.cpp
+  Writer.hpp
+  Writer.cpp
   LibVTKLegacy.cpp
   LibVTKLegacy.hpp
 )

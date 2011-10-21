@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests cf3::mesh::CUnifiedData<T>"
+#define BOOST_TEST_MODULE "Tests cf3::mesh::UnifiedData<T>"
 
 #include <boost/test/unit_test.hpp>
 
@@ -15,11 +15,11 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
-#include "mesh/CUnifiedData.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/UnifiedData.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -58,9 +58,9 @@ BOOST_FIXTURE_TEST_SUITE( UnifiedData_TestSuite, UnifiedData_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CUnifiedData::Ptr unified_elems = allocate_component<CUnifiedData>("unified_elems");
+  UnifiedData::Ptr unified_elems = allocate_component<UnifiedData>("unified_elems");
   BOOST_CHECK_EQUAL(unified_elems->name(),"unified_elems");
-  BOOST_CHECK_EQUAL(CUnifiedData::type_name(), "CUnifiedData");
+  BOOST_CHECK_EQUAL(UnifiedData::type_name(), "UnifiedData");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( data_location )
 {
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 
@@ -77,10 +77,10 @@ BOOST_AUTO_TEST_CASE( data_location )
 
   BOOST_CHECK( true );
 
-  CUnifiedData::Ptr unified_elems = allocate_component<CUnifiedData>("unified_elems");
+  UnifiedData::Ptr unified_elems = allocate_component<UnifiedData>("unified_elems");
 
 
-  boost_foreach(CElements& elements, find_components_recursively<CElements>(mesh))
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(mesh))
     unified_elems->add(elements);
 
 
@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( data_location )
     CFinfo << i << ": " << elements->uri().path() << "    ["<<elem_idx<<"]" << CFendl;
   }
 
-  CUnifiedData::Ptr unified_nodes = allocate_component<CUnifiedData>("unified_nodes");
+  UnifiedData::Ptr unified_nodes = allocate_component<UnifiedData>("unified_nodes");
   boost_foreach(Geometry& nodes, find_components_recursively<Geometry>(mesh))
     unified_nodes->add(nodes);
 

@@ -16,12 +16,12 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
-#include "mesh/CDomain.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
 
@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
 
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer", "writer");
   
-  CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
+  Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 
   const Real length = 1.;
@@ -95,9 +95,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
-  boost_foreach(CElements& elements , elems_P0.elements_range())
+  boost_foreach(Elements& elements , elems_P0.elements_range())
   {
-    CSpace& space = elems_P0.space(elements);
+    Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
       Uint field_idx = space.indexes_for_element(elem)[0];

@@ -18,7 +18,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
 
 #include "Solver/CModel.hpp"
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
@@ -174,7 +174,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
 
   LSS::System& lss = model.create_component<LSS::System>("LSS");
   lss.option("solver").change_value(std::string("Trilinos"));
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
   // Proto placeholders

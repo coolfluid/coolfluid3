@@ -12,8 +12,8 @@
 
 #include <boost/proto/core.hpp>
 
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/ElementType.hpp"
 
 /// @file

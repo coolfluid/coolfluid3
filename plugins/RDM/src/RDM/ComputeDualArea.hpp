@@ -11,7 +11,7 @@
 
 #include "math/Checks.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
@@ -99,7 +99,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
+        elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
         elements().geometry().coordinates().as_ptr< mesh::Field >();
 
@@ -130,7 +130,7 @@ protected: // data
   /// pointer to nodes coordinates, may reset when iterating over element types
   mesh::Field::Ptr coordinates;
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::CConnectivity::Ptr connectivity;
+  mesh::Connectivity::Ptr connectivity;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -215,7 +215,7 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
 

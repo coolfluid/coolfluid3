@@ -14,17 +14,17 @@
 #include "common/StringConversion.hpp"
 
 #include "mesh/Actions/CBuildFaceNormals.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CCellFaces.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/CellFaces.hpp"
 #include "mesh/Field.hpp"
 
 #include "math/Functions.hpp"
@@ -88,21 +88,21 @@ void CBuildFaceNormals::execute()
 
   Component::Ptr component;
   Uint cell_idx(0);
-  boost_foreach( CEntities& faces, face_normals.entities_range() )
+  boost_foreach( Entities& faces, face_normals.entities_range() )
   {
-    CFaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<CFaceCellConnectivity>(faces);
+    FaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
     {
-      CFaceCellConnectivity& face2cell = *face2cell_ptr;
-      CTable<Uint>& face_nb = face2cell.face_number();
+      FaceCellConnectivity& face2cell = *face2cell_ptr;
+      Table<Uint>& face_nb = face2cell.face_number();
       RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
       for (Uint face=0; face<face2cell.size(); ++face)
       {
         // The normal will be outward to the first connected element
         boost::tie(component,cell_idx) = face2cell.lookup().location(face2cell.connectivity()[face][FIRST]);
-        CCells& cells = component->as_type<CCells>();
-        CConnectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
+        Cells& cells = component->as_type<Cells>();
+        Connectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
         Uint i(0);
         boost_foreach(Uint node_id, cells.element_type().faces().nodes_range(face_nb[face][0]) )
         {

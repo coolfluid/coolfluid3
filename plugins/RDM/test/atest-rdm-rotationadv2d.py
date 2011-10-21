@@ -72,7 +72,7 @@ solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTER
 
 iconds.execute()
 
-domain.create_component('tecwriter', 'CF.Mesh.Tecplot.CWriter')
+domain.create_component('tecwriter', 'CF.Mesh.Tecplot.Writer')
 
 domain.write_mesh(cf.URI('initial.msh'))
 domain.write_mesh(cf.URI('initial.plt'))

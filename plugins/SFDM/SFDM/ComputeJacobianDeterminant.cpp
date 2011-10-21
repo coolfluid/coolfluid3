@@ -7,9 +7,9 @@
 #include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "mesh/CField.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/Entities.hpp"
 
 #include "SFDM/ComputeJacobianDeterminant.hpp"
 #include "SFDM/ShapeFunction.hpp"

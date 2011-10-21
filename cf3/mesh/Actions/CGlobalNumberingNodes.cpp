@@ -26,14 +26,14 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Actions/CGlobalNumberingNodes.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
@@ -99,7 +99,7 @@ void CGlobalNumberingNodes::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  CTable<Real>& coordinates = mesh.geometry().coordinates();
+  Table<Real>& coordinates = mesh.geometry().coordinates();
 
   if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
     mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
@@ -111,7 +111,7 @@ void CGlobalNumberingNodes::execute()
 
 
   Uint i(0);
-  boost_foreach(CTable<Real>::ConstRow coords, coordinates.array() )
+  boost_foreach(Table<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
@@ -149,7 +149,7 @@ void CGlobalNumberingNodes::execute()
 
   Uint nb_ghost(0);
   Geometry& nodes = mesh.geometry();
-  CList<Uint>& nodes_rank = mesh.geometry().rank();
+  List<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -189,7 +189,7 @@ void CGlobalNumberingNodes::execute()
   std::vector<size_t> node_from(nodes.size()-nb_ghost);
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
 
-  CList<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;

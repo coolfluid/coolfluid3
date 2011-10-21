@@ -17,7 +17,7 @@ namespace cf3 {
 
   namespace mesh
   {
-    class CRegion;
+    class Region;
   }
 
 namespace Solver {

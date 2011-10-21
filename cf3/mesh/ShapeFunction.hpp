@@ -23,8 +23,8 @@ namespace mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// This class represents the API to a ShapeFunction.
-/// An object of this class is typically owned by a CSpace object,
-/// which in turn is owned by a CEntities object describing the element.
+/// An object of this class is typically owned by a Space object,
+/// which in turn is owned by a Entities object describing the element.
 /// A shape function only exists in local coordinates. It has only a
 /// dimensionality, and not a dimension.
 /// @author Willem Deconinck

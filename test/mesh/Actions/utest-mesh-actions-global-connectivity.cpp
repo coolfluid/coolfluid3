@@ -20,7 +20,7 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
 
@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   meshreader->configure_option("read_boundaries",false);
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( build )
       std::cout << "rank = " << Comm::instance().rank() << std::endl;
       std::cout << "nodes = " << mesh->geometry().glb_idx() << std::endl;
       std::cout << "ranks = " << mesh->geometry().rank() << std::endl;
-      boost_foreach(const CEntities& entities, mesh->topology().elements_range())
+      boost_foreach(const Entities& entities, mesh->topology().elements_range())
       {
         std::cout << "elems = " << entities.glb_idx() << std::endl;
       }

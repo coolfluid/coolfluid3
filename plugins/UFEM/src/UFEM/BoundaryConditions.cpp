@@ -141,11 +141,11 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
     Component::Ptr region_comp = access_component_ptr(region_uri);
     if(!region_comp)
       throw SetupError(FromHere(), "No component found at " + region_uri.string() + " when reading regions from " + uri().string());
-    CRegion::Ptr root_region = boost::dynamic_pointer_cast<CRegion>(region_comp);
+    Region::Ptr root_region = boost::dynamic_pointer_cast<Region>(region_comp);
     if(!root_region)
       throw SetupError(FromHere(), "Component at " + region_uri.string() + " is not a region when reading regions from " + uri().string());
 
-    CRegion::Ptr region = find_component_ptr_recursively_with_name<CRegion>(*root_region, region_name);
+    Region::Ptr region = find_component_ptr_recursively_with_name<Region>(*root_region, region_name);
     if(region)
       bc_regions.push_back(region->uri());
   }

@@ -14,7 +14,7 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
 
@@ -28,14 +28,14 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void compute_L2( CTable<Real>::ArrayT& array, Real& norm )
+void compute_L2( Table<Real>::ArrayT& array, Real& norm )
 {
   const int size = 1; // sum 1 value in each processor
 
   Real loc_norm = 0.; // norm on local processor
   Real glb_norm = 0.; // norm summed over all processors
 
-  boost_foreach(CTable<Real>::ConstRow row, array )
+  boost_foreach(Table<Real>::ConstRow row, array )
       loc_norm += row[0]*row[0];
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm, size, &glb_norm );
@@ -43,27 +43,27 @@ void compute_L2( CTable<Real>::ArrayT& array, Real& norm )
   norm = std::sqrt(glb_norm);
 }
 
-void compute_L1( CTable<Real>::ArrayT& array, Real& norm )
+void compute_L1( Table<Real>::ArrayT& array, Real& norm )
 {
   const int size = 1; // sum 1 value in each processor
 
   Real loc_norm = 0.; // norm on local processor
   Real glb_norm = 0.; // norm summed over all processors
 
-  boost_foreach(CTable<Real>::ConstRow row, array )
+  boost_foreach(Table<Real>::ConstRow row, array )
       loc_norm += std::abs( row[0] );
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm, size, &glb_norm );
 }
 
-void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
+void compute_Linf( Table<Real>::ArrayT& array, Real& norm )
 {
   const int size = 1; // sum 1 value in each processor
 
   Real loc_norm = 0.; // norm on local processor
   Real glb_norm = 0.; // norm summed over all processors
 
-  boost_foreach(CTable<Real>::ConstRow row, array )
+  boost_foreach(Table<Real>::ConstRow row, array )
       loc_norm = std::max( std::abs(row[0]), loc_norm );
 
   PE::Comm::instance().all_reduce( PE::max(), &loc_norm, size, &glb_norm );
@@ -71,14 +71,14 @@ void compute_Linf( CTable<Real>::ArrayT& array, Real& norm )
   norm = glb_norm;
 }
 
-void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
+void compute_Lp( Table<Real>::ArrayT& array, Real& norm, Uint order )
 {
   const int size = 1; // sum 1 value in each processor
 
   Real loc_norm = 0.; // norm on local processor
   Real glb_norm = 0.; // norm summed over all processors
 
-  boost_foreach(CTable<Real>::ConstRow row, array )
+  boost_foreach(Table<Real>::ConstRow row, array )
     loc_norm += std::pow( std::abs(row[0]), (int)order ) ;
 
   PE::Comm::instance().all_reduce( PE::plus(), &loc_norm, size, &glb_norm );
@@ -117,8 +117,8 @@ void CComputeLNorm::execute()
 {
   if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
 
-  CTable<Real>& table = *m_field.lock();
-  CTable<Real>::ArrayT& array =  m_field.lock()->array();
+  Table<Real>& table = *m_field.lock();
+  Table<Real>::ArrayT& array =  m_field.lock()->array();
 
   const Uint nbrows = table.size();
 

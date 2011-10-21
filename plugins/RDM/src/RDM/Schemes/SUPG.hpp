@@ -100,7 +100,7 @@ void SUPG::Term<SF,QD,PHYS>::execute()
 
   /// @todo NOT FINISHED!!!
 
-  const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   B::interpolate( nodes_idx );
 

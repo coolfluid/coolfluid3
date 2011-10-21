@@ -15,7 +15,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "Solver/CModel.hpp"
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
   math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");

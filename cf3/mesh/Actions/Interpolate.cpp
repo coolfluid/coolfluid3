@@ -12,11 +12,11 @@
 
 #include "mesh/Actions/Interpolate.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ShapeFunction.hpp"
-#include "mesh/COcttree.hpp"
+#include "mesh/Octtree.hpp"
 
 #include "math/Consts.hpp"
 
@@ -84,14 +84,14 @@ void Interpolate::execute()
   if(find_parent_component_ptr<Mesh>(source) == find_parent_component_ptr<Mesh>(target))
   {
     /// Loop over Regions
-    boost_foreach(CEntities& elements, target.entities_range())
+    boost_foreach(Entities& elements, target.entities_range())
     {
       if (source.elements_lookup().contains(elements) == false)
         continue;
       //      throw BadValue(FromHere(),"Source field "+source.uri().string()+" is not defined in elements "+elements.uri().string());
 
-      const CSpace& s_space = source.space(elements);
-      const CSpace& t_space = target.space(elements);
+      const Space& s_space = source.space(elements);
+      const Space& t_space = target.space(elements);
       const ShapeFunction& s_sf = s_space.shape_function();
       const ShapeFunction& t_sf = t_space.shape_function();
 
@@ -103,8 +103,8 @@ void Interpolate::execute()
       /// Element loop
       for (Uint e=0; e<elements.size(); ++e)
       {
-        CConnectivity::ConstRow s_field_indexes = s_space.indexes_for_element(e);
-        CConnectivity::ConstRow t_field_indexes = t_space.indexes_for_element(e);
+        Connectivity::ConstRow s_field_indexes = s_space.indexes_for_element(e);
+        Connectivity::ConstRow t_field_indexes = t_space.indexes_for_element(e);
 
         /// Interpolate: target[element] = interpolate * source[element]
         /// Split in loops since we cannot work with Matrix-products
@@ -132,7 +132,7 @@ void Interpolate::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinates, CTable<Real>& target)
+void Interpolate::interpolate(const Field& source, const Table<Real>& coordinates, Table<Real>& target)
 {
 
   if (Field::Ptr target_field = target.as_ptr<Field>())
@@ -152,7 +152,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
   const Mesh& source_mesh = find_parent_component<Mesh>(source);
 
   if ( is_null(m_octtree) )
-    m_octtree = create_component_ptr<COcttree>("octtree");
+    m_octtree = create_component_ptr<Octtree>("octtree");
 
   if ( m_octtree->option("mesh").value<URI>().string() != source_mesh.uri().string() )
   {
@@ -164,7 +164,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
   m_source_space = source.field_group().space();
   m_source = source.as_ptr<Field>();
 
-  CElements::ConstPtr element_component;
+  Elements::ConstPtr element_component;
   Uint element_idx;
   std::deque<Uint> missing_cells;
 
@@ -309,11 +309,11 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::interpolate_coordinate(const RealVector& target_coord, const CElements& element_component, const Uint element_idx, Field::Row target_row)
+void Interpolate::interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row)
 {
   cf3_assert(m_source.expired() == false);
   const Field& source = *m_source.lock();
-  const CSpace& source_space = element_component.space(m_source_space);
+  const Space& source_space = element_component.space(m_source_space);
   const ShapeFunction& sf = source_space.shape_function();
 
   RealMatrix source_nodes(element_component.element_type().nb_nodes(),element_component.element_type().dimension());
@@ -323,7 +323,7 @@ void Interpolate::interpolate_coordinate(const RealVector& target_coord, const C
   RealRowVector sf_value(sf.nb_nodes());
   sf.compute_value(local_coord,sf_value);
 
-  CConnectivity::ConstRow source_indexes = source_space.indexes_for_element(element_idx);
+  Connectivity::ConstRow source_indexes = source_space.indexes_for_element(element_idx);
   for(Uint v=0; v<target_row.size(); ++v)
   {
     target_row[v]=0.;
@@ -345,16 +345,16 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   URI coordinates_uri = options.value<URI>("coordinates");
 
   Field& source = access_component(source_uri).as_type<Field>();
-  CTable<Real>& target = access_component(target_uri).as_type< CTable<Real> >();
+  Table<Real>& target = access_component(target_uri).as_type< Table<Real> >();
 
-  CTable<Real>::Ptr coordinates;
+  Table<Real>::Ptr coordinates;
   if (coordinates_uri.string() == URI().string())
   {
     if ( Field::Ptr target_field = target.as_ptr<Field>() )
     {
       if (target_field->field_group().has_coordinates() == false)
         target_field->field_group().create_coordinates();
-      coordinates = target_field->field_group().coordinates().as_ptr< CTable<Real> >();
+      coordinates = target_field->field_group().coordinates().as_ptr< Table<Real> >();
     }
     else
     {
@@ -363,7 +363,7 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   }
   else
   {
-    coordinates = access_component(coordinates_uri).as_ptr< CTable<Real> >();
+    coordinates = access_component(coordinates_uri).as_ptr< Table<Real> >();
   }
 
   interpolate(source,*coordinates,target);

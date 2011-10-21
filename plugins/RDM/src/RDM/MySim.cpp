@@ -18,11 +18,11 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/LoadMesh.hpp"
-#include "mesh/CCells.hpp"
+#include "mesh/Cells.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/CDomain.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Region.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -86,7 +86,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
   CModel& model = wizard.create_model(name, "Scalar2D");
 
-  CDomain&     domain = model.get_child("Domain").as_type<CDomain>();
+  Domain&     domain = model.get_child("Domain").as_type<Domain>();
   RDM::RDSolver& solver = model.get_child("Solver").as_type<RDM::RDSolver>();
 
   // load the mesh
@@ -119,9 +119,9 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"bottom"))
       regions.push_back( region.uri() );
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"left"))
       regions.push_back( region.uri() );
 
     cf3_assert( regions.size() == 2u);
@@ -175,7 +175,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(mesh,"topology"))
       regions.push_back( region.uri() );
 
     cf3_assert( regions.size() == 1u);

@@ -1,6 +1,6 @@
 list( APPEND coolfluid_mesh_vtkxml_files
-  CWriter.hpp
-  CWriter.cpp
+  Writer.hpp
+  Writer.cpp
   LibVTKXML.cpp
   LibVTKXML.hpp
 )

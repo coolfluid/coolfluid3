@@ -17,12 +17,12 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/CHash.hpp"
-#include "mesh/CMixedHash.hpp"
-#include "mesh/CDynTable.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/ParallelDistribution.hpp"
+#include "mesh/MergedParallelDistribution.hpp"
+#include "mesh/DynTable.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -160,7 +160,7 @@ private: // data
   std::vector<Uint> m_start_elem_per_part;
   std::vector<Uint> m_end_elem_per_part;
 
-  CUnifiedData::Ptr m_lookup;
+  UnifiedData::Ptr m_lookup;
 
 };
 
@@ -202,12 +202,12 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
 
       if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+        const DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
       }
-      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
+      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
-        const CTable<Uint>& connectivity_table = elements->node_connectivity();
+        const Table<Uint>& connectivity_table = elements->node_connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];
@@ -235,14 +235,14 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
       if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+        const DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_objects[idx++] = glb_elm;
       }
-      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
+      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
-        const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
+        const Connectivity& connectivity_table = elements->node_connectivity();
+        const List<Uint>& glb_node_indices    = elements->geometry().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = glb_node_indices[ loc_node ];
@@ -271,14 +271,14 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
       if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
       {
-        const CDynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
+        const DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
           connected_procs[idx++] = part_of_obj(glb_elm); /// @todo should be proc of obj, not part!!!
       }
-      else if (CElements::Ptr elements = comp->as_ptr<CElements>())
+      else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
-        const CConnectivity& connectivity_table = elements->node_connectivity();
-        const CList<Uint>& glb_node_indices    = elements->geometry().glb_idx();
+        const Connectivity& connectivity_table = elements->node_connectivity();
+        const List<Uint>& glb_node_indices    = elements->geometry().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
       }

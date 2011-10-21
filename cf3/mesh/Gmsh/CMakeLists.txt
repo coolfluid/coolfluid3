@@ -1,8 +1,8 @@
 list( APPEND coolfluid_mesh_gmsh_files
-  CWriter.hpp
-  CWriter.cpp
-  CReader.hpp
-  CReader.cpp
+  Writer.hpp
+  Writer.cpp
+  Reader.hpp
+  Reader.cpp
   LibGmsh.cpp
   LibGmsh.hpp
   Shared.cpp

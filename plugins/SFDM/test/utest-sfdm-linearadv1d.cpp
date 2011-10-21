@@ -26,14 +26,14 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CLinearInterpolator.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/LinearInterpolator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
@@ -43,10 +43,10 @@
 
 //#include "mesh/Mesh.hpp"
 //#include "mesh/CField.hpp"
-//#include "mesh/CEntities.hpp"
+//#include "mesh/Entities.hpp"
 //#include "mesh/ElementType.hpp"
 //#include "mesh/MeshWriter.hpp"
-//#include "mesh/CDomain.hpp"
+//#include "mesh/Domain.hpp"
 //#include "mesh/Actions/CInitFieldFunction.hpp"
 //#include "mesh/Actions/CreateSpaceP0.hpp"
 //#include "Solver/CModelUnsteady.hpp"
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   model.setup("CF.SFDM.SFDSolver","CF.Physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
-  CDomain&   domain  = model.domain();
+  Domain&   domain  = model.domain();
 
   physics.configure_option("v",1.);
 
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   std::vector<Real> lengths  = list_of(  10.  );
   std::vector<Real> offsets  = list_of(  0.  );
 
-  CSimpleMeshGenerator& generate_mesh = domain.create_component<CSimpleMeshGenerator>("generate_mesh");
+  SimpleMeshGenerator& generate_mesh = domain.create_component<SimpleMeshGenerator>("generate_mesh");
   generate_mesh.configure_option("mesh",mesh.uri());
   generate_mesh.configure_option("nb_cells",nb_cells);
   generate_mesh.configure_option("lengths",lengths);

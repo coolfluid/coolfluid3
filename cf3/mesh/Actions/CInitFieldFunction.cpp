@@ -13,10 +13,10 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/Actions/CInitFieldFunction.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -103,16 +103,16 @@ void CInitFieldFunction::execute()
   }
   else
   {
-    boost_foreach( CEntities& elements, field.entities_range() )
+    boost_foreach( Entities& elements, field.entities_range() )
     {
-      CSpace& space = field.space(elements);
+      Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);
 
       for (Uint elem_idx = 0; elem_idx<elements.size(); ++elem_idx)
       {
         coordinates = space.compute_coordinates(elem_idx);
-        CConnectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
+        Connectivity::ConstRow field_idx = field.indexes_for_element(elements,elem_idx);
         /// for each state of the field shape function
         for (Uint iState=0; iState<space.nb_states(); ++iState)
         {

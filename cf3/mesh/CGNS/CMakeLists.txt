@@ -3,10 +3,10 @@
     LibCGNS.hpp
     Shared.hpp
     Shared.cpp
-    CReader.hpp
-    CReader.cpp
-    CWriter.hpp
-    CWriter.cpp
+    Reader.hpp
+    Reader.cpp
+    Writer.hpp
+    Writer.cpp
     CGNSExceptions.hpp
   )
 

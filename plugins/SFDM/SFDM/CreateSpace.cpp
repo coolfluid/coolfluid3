@@ -13,8 +13,8 @@
 #include "common/OptionT.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "SFDM/CreateSpace.hpp"
@@ -53,7 +53,7 @@ void CreateSpace::execute()
   Mesh& mesh = *m_mesh.lock();
 
   Uint p = option("P").value<Uint>();
-  boost_foreach(CEntities& entities, find_components_recursively_with_filter<CEntities>(mesh,IsElementsVolume()))
+  boost_foreach(Entities& entities, find_components_recursively_with_filter<Entities>(mesh,IsElementsVolume()))
   {
     entities.create_space("solution","CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+to_str(p));
     entities.create_space("flux",    "CF.SFDM.SF."+entities.element_type().shape_name()+"FluxP"    +to_str(p+1));

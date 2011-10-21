@@ -9,7 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
@@ -82,7 +82,7 @@ void ComputeDualArea::execute()
   create_dual_area_field();
 
   if( m_loop_regions.empty() )
-    m_loop_regions.push_back( mesh().topology().as_ptr<CRegion>() );
+    m_loop_regions.push_back( mesh().topology().as_ptr<Region>() );
 
   // get the element loop or create it if does not exist
 
@@ -98,7 +98,7 @@ void ComputeDualArea::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
 

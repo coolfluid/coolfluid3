@@ -13,7 +13,7 @@
 #include "common/Environment.hpp"
 #include "common/Root.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     std::cout << "\n################################## Running test for model " << names[i] << "##################################\n" << std::endl;
     // Setup a model
     CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>(names[i]);
-    CDomain& domain = model.create_domain("Domain");
+    Domain& domain = model.create_domain("Domain");
     LinearSolverUnsteady& solver = model.create_component<LinearSolverUnsteady>("Solver");
 
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
@@ -152,8 +152,8 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     solver.boundary_conditions() << create_proto_action("ParabolicBC", parabolic_dirichlet(solver, u_max, height));
 
     // Set the region of the parabolic inlet and outlet
-    const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<CRegion>(mesh.topology(), "left").uri())
-                                                          (find_component_recursively_with_name<CRegion>(mesh.topology(), "right").uri());
+    const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<Region>(mesh.topology(), "left").uri())
+                                                          (find_component_recursively_with_name<Region>(mesh.topology(), "right").uri());
 
     solver.boundary_conditions().get_child("ParabolicBC").configure_option(Solver::Tags::regions(), in_out);
 

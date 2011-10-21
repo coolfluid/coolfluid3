@@ -111,7 +111,7 @@ void N::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+  const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   B::interpolate( nodes_idx );
 

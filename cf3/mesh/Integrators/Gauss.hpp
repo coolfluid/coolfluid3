@@ -14,8 +14,8 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Table.hpp"
 
 #include "mesh/Integrators/GaussImplementation.hpp"
 

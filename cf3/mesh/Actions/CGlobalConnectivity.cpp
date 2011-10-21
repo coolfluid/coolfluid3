@@ -21,19 +21,19 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Actions/CGlobalConnectivity.hpp"
-#include "mesh/CCellFaces.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/CellFaces.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
-#include "mesh/CNodeFaceCellConnectivity.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
+#include "mesh/Node2FaceCellConnectivity.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/NodeElementConnectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -92,7 +92,7 @@ void CGlobalConnectivity::execute()
   Mesh& mesh = *m_mesh.lock();
 
   Geometry& nodes = mesh.geometry();
-  CList<Uint>& nodes_glb_idx = nodes.glb_idx();
+  List<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time
   //BOOST_STATIC_ASSERT(sizeof(std::size_t) == sizeof(Uint));
@@ -111,7 +111,7 @@ void CGlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  CNodeElementConnectivity& node2elem = *mesh.geometry().create_component_ptr<CNodeElementConnectivity>("node2elem");
+  NodeElementConnectivity& node2elem = *mesh.geometry().create_component_ptr<NodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
 
   // 3)
@@ -134,11 +134,11 @@ void CGlobalConnectivity::execute()
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
 
-      CDynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
+      DynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
       boost_foreach(const Uint e, elems)
       {
         boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-        ghostnode_glb_elem_connectivity.push_back(elem_comp->as_type<CElements>().glb_idx()[elem_idx]);
+        ghostnode_glb_elem_connectivity.push_back(elem_comp->as_type<Elements>().glb_idx()[elem_idx]);
       }
       ghostnode_glb_elem_connectivity_start[cnt+1] = ghostnode_glb_elem_connectivity_start[cnt] + elems.size();
 
@@ -184,17 +184,17 @@ void CGlobalConnectivity::execute()
   }
 
 
-  CDynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry().glb_elem_connectivity();
+  DynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry().glb_elem_connectivity();
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {
-    CDynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
+    DynTable<Uint>::ConstRow elems = node2elem.connectivity()[i];
     nodes_glb_elem_connectivity[i].resize(glb_elem_connectivity[i].size() + elems.size());
     cnt = 0;
     boost_foreach(const Uint e, elems)
     {
       boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<CElements>().glb_idx()[elem_idx];
+      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<Elements>().glb_idx()[elem_idx];
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)
     {

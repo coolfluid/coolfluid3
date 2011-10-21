@@ -7,9 +7,9 @@
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CList.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/List.hpp"
 
 #include "Solver/Actions/CForAllNodes2.hpp"
 
@@ -33,11 +33,11 @@ CForAllNodes2::CForAllNodes2 ( const std::string& name ) :
   
 void CForAllNodes2::execute()
 {
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Region::Ptr& region, m_loop_regions)
   {
     boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))
     {
-     boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
       {
         op.select_loop_idx(node);
         op.execute();

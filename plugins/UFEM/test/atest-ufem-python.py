@@ -38,5 +38,5 @@ bc.get_child('BCouterTemperature').configure_option('value', 35)
 model.simulate()
 
 # Write result
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
+domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.Writer');
 domain.write_mesh(cf.URI('atest-ufem-heat-steady-output-py.pvtu'))

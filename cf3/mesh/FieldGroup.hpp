@@ -13,9 +13,9 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/LibMesh.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CUnifiedData.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/UnifiedData.hpp"
+#include "mesh/Entities.hpp"
 
 namespace cf3 {
 namespace common {
@@ -27,10 +27,10 @@ namespace mesh {
 
   class Mesh;
   class Field;
-  class CRegion;
-  class CElements;
+  class Region;
+  class Elements;
 
-  template <typename T> class CList;
+  template <typename T> class List;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -91,7 +91,7 @@ public: // functions
   Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
   /// Return the topology
-  CRegion& topology() const;
+  Region& topology() const;
 
   /// Number of rows of contained fields
   virtual Uint size() const { return m_size; }
@@ -103,13 +103,13 @@ public: // functions
   const std::string& space() const { return m_space; }
 
   /// Return the space of given entities
-  CSpace& space(const CEntities& entities) const { return entities.space(m_space); }
+  Space& space(const Entities& entities) const { return entities.space(m_space); }
 
   /// Return the global index of every field row
-  CList<Uint>& glb_idx() const { return *m_glb_idx; }
+  List<Uint>& glb_idx() const { return *m_glb_idx; }
 
   /// Return the rank of every field row
-  CList<Uint>& rank() const { return *m_rank; }
+  List<Uint>& rank() const { return *m_rank; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
   common::PE::CommPattern& comm_pattern();
@@ -121,21 +121,21 @@ public: // functions
   /// @throws common::InvalidStructure
   void check_sanity();
 
-  boost::iterator_range< common::ComponentIterator<CEntities> > entities_range();
-  boost::iterator_range< common::ComponentIterator<CElements> > elements_range();
+  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
+  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
 
   common::ComponentIteratorRange<Field> fields();
 
   Field& field(const std::string& name) const;
 
-  CUnifiedData& elements_lookup() const { return *m_elements_lookup; }
+  UnifiedData& elements_lookup() const { return *m_elements_lookup; }
 
   void create_connectivity_in_space();
   void bind_space();
 
-  CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
+  Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
 
-  CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
   Field& create_coordinates();
 
@@ -171,9 +171,9 @@ protected:
   Uint m_size;
 
   boost::shared_ptr<common::Link> m_topology;
-  boost::shared_ptr<CList<Uint> > m_glb_idx;
-  boost::shared_ptr<CList<Uint> > m_rank;
-  boost::shared_ptr<CUnifiedData> m_elements_lookup;
+  boost::shared_ptr<List<Uint> > m_glb_idx;
+  boost::shared_ptr<List<Uint> > m_rank;
+  boost::shared_ptr<UnifiedData> m_elements_lookup;
   boost::shared_ptr<Field> m_coordinates;
   boost::weak_ptr<common::PE::CommPattern> m_comm_pattern;
 };

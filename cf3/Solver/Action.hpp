@@ -14,7 +14,7 @@
 
 namespace cf3 {
 
-namespace mesh { class CRegion; class Mesh; }
+namespace mesh { class Region; class Mesh; }
 namespace Physics { class PhysModel; }
 namespace Solver {
 
@@ -56,7 +56,7 @@ public: // functions
   Physics::PhysModel& physical_model();
 
   /// @returns the regions this action is operating on
-  common::ComponentIteratorRange<mesh::CRegion> regions();
+  common::ComponentIteratorRange<mesh::Region> regions();
 
   //@} END ACCESSORS
 
@@ -74,7 +74,7 @@ protected: // data
   boost::weak_ptr< Physics::PhysModel > m_physical_model;
 
   /// regions of the mesh to loop over
-  std::vector< boost::shared_ptr< mesh::CRegion > > m_loop_regions;
+  std::vector< boost::shared_ptr< mesh::Region > > m_loop_regions;
 
 };
 

@@ -20,7 +20,7 @@ namespace cf3 {
 namespace mesh {
 
   class Geometry;
-  class CRegion;
+  class Region;
 
 namespace CGNS {
 
@@ -139,11 +139,11 @@ protected:
   } m_boco;
 
 
-  std::map<int,CRegion*> m_base_map;
-  std::map<int,CRegion*> m_zone_map;
-  std::map<int,CRegion*> m_section_map;
+  std::map<int,Region*> m_base_map;
+  std::map<int,Region*> m_zone_map;
+  std::map<int,Region*> m_section_map;
   std::map<int,Geometry*>  m_nodes_map;
-  std::map<int,CRegion*> m_boco_map;
+  std::map<int,Region*> m_boco_map;
 
 private:
   std::vector<std::string> m_supported_element_types;

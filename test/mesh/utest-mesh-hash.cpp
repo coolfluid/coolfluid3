@@ -11,8 +11,8 @@
 #include "common/Log.hpp"
 
 
-#include "mesh/CHash.hpp"
-#include "mesh/CMixedHash.hpp"
+#include "mesh/ParallelDistribution.hpp"
+#include "mesh/MergedParallelDistribution.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -20,10 +20,10 @@ using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct TestCHash_Fixture
+struct TestParallelDistribution_Fixture
 {
   /// common setup for each test case
-  TestCHash_Fixture()
+  TestParallelDistribution_Fixture()
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -31,7 +31,7 @@ struct TestCHash_Fixture
   }
 
   /// common tear-down for each test case
-  ~TestCHash_Fixture()
+  ~TestParallelDistribution_Fixture()
   {
   }
 
@@ -44,13 +44,13 @@ struct TestCHash_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( TestCHash_TestSuite, TestCHash_Fixture )
+BOOST_FIXTURE_TEST_SUITE( TestParallelDistribution_TestSuite, TestParallelDistribution_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CHash::Ptr hash = allocate_component<CHash>("hash");
+  ParallelDistribution::Ptr hash = allocate_component<ParallelDistribution>("hash");
   BOOST_CHECK_EQUAL(hash->name(),"hash");
 }
 
@@ -58,7 +58,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( SingleHash )
 {
-  CHash::Ptr hash = allocate_component<CHash>("hash");
+  ParallelDistribution::Ptr hash = allocate_component<ParallelDistribution>("hash");
   hash->configure_option("nb_obj", (Uint) 11);
   hash->configure_option("nb_parts", (Uint) 3);
 
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( SingleHash )
 
 BOOST_AUTO_TEST_CASE( MixedHash )
 {
-  CMixedHash::Ptr hash = allocate_component<CMixedHash>("hash");
+  MergedParallelDistribution::Ptr hash = allocate_component<MergedParallelDistribution>("hash");
   std::vector<Uint> num_obj(2);
   num_obj[0] = 10;
   num_obj[1] = 8;

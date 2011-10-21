@@ -18,10 +18,10 @@
 #include "math/MatrixTypes.hpp"
 #include "math/Consts.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   // Setup a model
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
-  CDomain& dom = model.create_domain("Domain");
+  Domain& dom = model.create_domain("Domain");
   CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
   Mesh& mesh = dom.create_component<Mesh>("mesh");
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
     << create_proto_action("Output", elements_expression(allowed_elements, total_error += V - volume)); // error calculation
 
   // Create the fields
-  boost_foreach(CEntities& elements, mesh.topology().elements_range())
+  boost_foreach(Entities& elements, mesh.topology().elements_range())
   {
     elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
   }
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   BOOST_CHECK_SMALL(total_error, 1e-12);
 
   // Write mesh
-  MeshWriter& writer = model.domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_type<MeshWriter>();
+  MeshWriter& writer = model.domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer", "writer")).as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(elems_P0.get_child("volumes").as_ptr<Field>());
   writer.set_fields(fields);

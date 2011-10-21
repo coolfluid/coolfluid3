@@ -17,12 +17,12 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
-#include "mesh/CDomain.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
 
@@ -56,16 +56,16 @@ struct BockMesh3DFixture :
     Root& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
     {
-      m_domain = root.create_component_ptr<CDomain>("domain");
+      m_domain = root.create_component_ptr<Domain>("domain");
     }
     else
     {
-      m_domain = root.get_child("domain").as_ptr<CDomain>();
+      m_domain = root.get_child("domain").as_ptr<Domain>();
     }
 
     if(!domain().get_child_ptr("writer"))
     {
-      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.CWriter", "writer")).as_ptr<MeshWriter>();
+      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer", "writer")).as_ptr<MeshWriter>();
     }
     else
     {
@@ -98,7 +98,7 @@ struct BockMesh3DFixture :
 
   }
 
-  CDomain& domain()
+  Domain& domain()
   {
     return *m_domain.lock();
   }
@@ -120,7 +120,7 @@ struct BockMesh3DFixture :
 
   Uint x_segs, y_segs, z_segs;
 
-  boost::weak_ptr<CDomain> m_domain;
+  boost::weak_ptr<Domain> m_domain;
   boost::weak_ptr<Mesh> m_block_mesh; // Mesh containing the blocks (helper for parallelization)
   boost::weak_ptr<Mesh> m_mesh; // Actual generated mesh
   boost::weak_ptr<MeshWriter> m_writer;
@@ -215,9 +215,9 @@ BOOST_AUTO_TEST_CASE( RankField )
   FieldGroup& elems_P0 = mesh().create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
-  boost_foreach(CElements& elements , elems_P0.elements_range())
+  boost_foreach(Elements& elements , elems_P0.elements_range())
   {
-    CSpace& space = elems_P0.space(elements);
+    Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
       Uint field_idx = space.indexes_for_element(elem)[0];

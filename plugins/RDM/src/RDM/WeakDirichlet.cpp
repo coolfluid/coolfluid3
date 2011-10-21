@@ -10,10 +10,10 @@
 #include "common/FindComponents.hpp"
 
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/WeakDirichlet.hpp"
 
@@ -74,7 +74,7 @@ void WeakDirichlet::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;

@@ -16,14 +16,14 @@
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/CField.hpp"
-#include "mesh/CSimpleMeshGenerator.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+#include "mesh/Entities.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/WriteMesh.hpp"
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "SFDM/SFDWizard.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CSolver.hpp"
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
   CModel& model = wizard.model();
   Mesh& mesh = model.domain().create_component<Mesh>("mesh");
-  CSimpleMeshGenerator::create_line(mesh, 10., 100);
+  SimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
   Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
 
   CModel& model = wizard.model();
   Mesh& mesh = model.domain().create_component<Mesh>("mesh");
-  CSimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
+  SimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
   //Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");

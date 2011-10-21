@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/Root.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 

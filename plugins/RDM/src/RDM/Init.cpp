@@ -10,11 +10,11 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CList.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/List.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
@@ -76,24 +76,24 @@ void Init::execute()
 
   RealVector return_val( field.row_size() );
 
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Region::Ptr& region, m_loop_regions)
   {
     /// @warning assumes that field maps one to one with mesh.geometry()
 
     Geometry& nodes = mesh().geometry();
 
-    boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {
       cf3_assert(node < field.size());
 
-      CTable<Real>::ConstRow coords = nodes.coordinates()[node];
+      Table<Real>::ConstRow coords = nodes.coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
 
       m_function.evaluate(vars,return_val);
 
-      CTable<Real>::Row data_row = field[node];
+      Table<Real>::Row data_row = field[node];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }

@@ -9,8 +9,8 @@
 
 #include "math/VectorialFunction.hpp"
 
-#include "mesh/CElements.hpp"
-#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
@@ -194,15 +194,15 @@ public: // functions
 
     Uint face_idx = B::idx();
 
-    mesh::CFaceCellConnectivity& f2c =
-        B::elements().get_child("cell_connectivity").as_type<mesh::CFaceCellConnectivity>();
+    mesh::FaceCellConnectivity& f2c =
+        B::elements().get_child("cell_connectivity").as_type<mesh::FaceCellConnectivity>();
 
     // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
     Component::Ptr neighbor_cells;
     Uint neighbor_cell_idx;
 
-    mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+    mesh::Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
     Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
 
     // lookup the neighbor_cell elements and the index in its connectivity
@@ -211,10 +211,10 @@ public: // functions
 
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    mesh::CTable<Uint>& connectivity =
-        neighbor_cells->as_type<mesh::CElements>().node_connectivity();
+    mesh::Table<Uint>& connectivity =
+        neighbor_cells->as_type<mesh::Elements>().node_connectivity();
 
-    const mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
+    const mesh::Table<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 
@@ -229,7 +229,7 @@ public: // functions
 
     // get face connectivity
 
-     const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+     const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
 //   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];

@@ -20,7 +20,7 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( SetupModel )
 {
   CModel& model = Core::instance().root().create_component<CModel>("Model");
   model.create_physics("CF.Physics.DynamicModel");
-  CDomain& dom = model.create_domain("Domain");
+  Domain& dom = model.create_domain("Domain");
   Mesh& mesh = dom.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_line(mesh, 1., 5);
 }

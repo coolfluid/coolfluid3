@@ -11,9 +11,9 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Actions/CBuildVolume.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
 
@@ -71,7 +71,7 @@ void CBuildVolume::execute()
   Field& volume = cells_P0.create_field(mesh::Tags::volume());
   volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach( CElements& elements, volume.elements_range() )
+  boost_foreach( Elements& elements, volume.elements_range() )
   {
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 

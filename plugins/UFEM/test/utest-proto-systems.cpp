@@ -13,7 +13,7 @@
 #include "common/Environment.hpp"
 #include "common/Root.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
 
   // Setup a model
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.simulate();
 
   // Write result
-  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.CWriter");
+  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.Writer");
   domain.write_mesh(URI("systems.pvtu"));
 };
 

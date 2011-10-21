@@ -45,5 +45,5 @@ model.simulate()
 model.print_timing_tree()
 
 # Write result
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
+domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.Writer');
 domain.write_mesh(cf.URI('atest-ufem-heat3d-channel_output.pvtu'))

@@ -21,11 +21,11 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
@@ -89,7 +89,7 @@ struct ProtoParallelFixture :
   {
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
     Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
-    CDomain& dom = model.create_domain("Domain");
+    Domain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
 
     Mesh& mesh = dom.create_component<Mesh>("mesh");
@@ -109,7 +109,7 @@ struct ProtoParallelFixture :
     phys_model.variable_manager().create_descriptor("variables", "CellVolume, CellRank");
 
     // Create field
-    boost_foreach(CEntities& elements, mesh.topology().elements_range())
+    boost_foreach(Entities& elements, mesh.topology().elements_range())
     {
       elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
     }
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
   }
 
-  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<MeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.Writer").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);
@@ -293,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume_overlap, 1e-6);
   }
 
-  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.CWriter").as_type<MeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.Writer").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);

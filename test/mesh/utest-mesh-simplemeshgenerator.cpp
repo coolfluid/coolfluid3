@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Neu::CReader"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::Neu::Reader"
 
 #include <boost/test/unit_test.hpp>
 
@@ -14,14 +14,14 @@
 #include "common/Root.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshGenerator.hpp"
 #include "mesh/MeshTransformer.hpp"
 
-#include "mesh/CDynTable.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/DynTable.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 using namespace std;
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 {
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   Uint nb_ghosts=0;
 
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"line.msh");
 
   BOOST_CHECK(true);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 {
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.CSimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   Uint nb_ghosts=0;
 
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"rect.msh");
 
   BOOST_CHECK(true);

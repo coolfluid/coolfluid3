@@ -12,7 +12,7 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"

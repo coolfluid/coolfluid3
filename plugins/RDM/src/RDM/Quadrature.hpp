@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Quadrature_hpp
 #define cf3_RDM_Quadrature_hpp
 
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 #include "mesh/Integrators/GaussImplementation.hpp"
 
@@ -33,7 +33,7 @@ inline Real minus ( Real x )
 template < typename TYPE >
 struct IsElementType
 {
-  bool operator()(const mesh::CElements& component)
+  bool operator()(const mesh::Elements& component)
   {
     return mesh::IsElementType<TYPE>()( component.element_type() );
   }

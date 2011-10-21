@@ -23,8 +23,8 @@
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
 {
   CFinfo << "MeshPartitioner_test" << CFendl;
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
@@ -379,12 +379,12 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   glb_connectivity->transform(mesh);
   CF3_DEBUG_POINT;
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   URI fp_out_1 ("file:quadtriag.msh");
   meshwriter->write_from_to(mesh,fp_out_1);
   CF3_DEBUG_POINT;
 
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.PTScotch.CPartitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.PTScotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
 
   MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

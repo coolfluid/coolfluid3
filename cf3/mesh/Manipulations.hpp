@@ -11,15 +11,15 @@
 
 #include "common/PE/Buffer.hpp"
 
-#include "mesh/CList.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CDynTable.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/DynTable.hpp"
 
 namespace cf3 {
 namespace mesh {
 
   class Geometry;
-  class CElements;
+  class Elements;
 
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,23 +31,23 @@ struct RemoveNodes
 
   void flush();
 
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Real>::Buffer      coordinates;
-  CDynTable<Uint>::Buffer   connected_elements;
+  List<Uint>::Buffer       glb_idx;
+  List<Uint>::Buffer       rank;
+  Table<Real>::Buffer      coordinates;
+  DynTable<Uint>::Buffer   connected_elements;
 };
 
 struct RemoveElements
 {
-  RemoveElements(CElements& elements);
+  RemoveElements(Elements& elements);
 
   void operator() (const Uint idx);
 
   void flush();
 
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Uint>::Buffer      connected_nodes;
+  List<Uint>::Buffer       glb_idx;
+  List<Uint>::Buffer       rank;
+  Table<Uint>::Buffer      connected_nodes;
 };
 
 
@@ -55,7 +55,7 @@ struct PackUnpackElements: common::PE::PackedObject
 {
   enum CommunicationType {COPY=0, MIGRATE=1};
 
-  PackUnpackElements(CElements& elements);
+  PackUnpackElements(Elements& elements);
 
   PackUnpackElements& operator() (const Uint idx,const bool remove_after_pack = false);
 
@@ -67,12 +67,12 @@ struct PackUnpackElements: common::PE::PackedObject
 
   void flush();
 
-  CElements& m_elements;
+  Elements& m_elements;
   Uint m_idx;
   bool m_remove_after_pack;
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Uint>::Buffer      connected_nodes;
+  List<Uint>::Buffer       glb_idx;
+  List<Uint>::Buffer       rank;
+  Table<Uint>::Buffer      connected_nodes;
 };
 
 
@@ -95,10 +95,10 @@ struct PackUnpackNodes: common::PE::PackedObject
   Geometry& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
-  CList<Uint>::Buffer       glb_idx;
-  CList<Uint>::Buffer       rank;
-  CTable<Real>::Buffer      coordinates;
-  CDynTable<Uint>::Buffer   connected_elements;
+  List<Uint>::Buffer       glb_idx;
+  List<Uint>::Buffer       rank;
+  Table<Real>::Buffer      coordinates;
+  DynTable<Uint>::Buffer   connected_elements;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

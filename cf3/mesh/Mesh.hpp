@@ -20,7 +20,7 @@ namespace cf3 {
 namespace mesh {
 
   class Geometry;
-  class CRegion;
+  class Region;
   class MeshElements;
   class MeshMetadata;
 
@@ -53,14 +53,14 @@ public: // functions
   // functions specific to the Mesh component
 
   /// @return the geometry topology
-  CRegion& topology() const { return *m_topology; }
+  Region& topology() const { return *m_topology; }
 
   void create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name);
-  void create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology);
+  void create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, Region& topology);
 
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base);
   FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space);
-  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const CRegion& topology);
+  FieldGroup& create_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space, const Region& topology);
 
   /// @brief Create new space and field-group matching the space
   /// @param [in] name            Name to be given to the space, and the field group
@@ -76,7 +76,7 @@ public: // functions
   /// @param [in] space_lib_name  Library name where all the shapefunctions can be found (e.g. CF.Mesh.LagrangeP1)
   /// @param [in] topology        The topology of the mesh this field group applies to.
   /// @return newly created field group
-  FieldGroup& create_space_and_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology);
+  FieldGroup& create_space_and_field_group( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, Region& topology);
 
   void update_statistics();
 
@@ -117,7 +117,7 @@ private: // data
 
   boost::shared_ptr<MeshMetadata> m_metadata;
 
-  boost::shared_ptr<CRegion> m_topology;
+  boost::shared_ptr<Region> m_topology;
 
   boost::shared_ptr<Geometry> m_nodes;
 

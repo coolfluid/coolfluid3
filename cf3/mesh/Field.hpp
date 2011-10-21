@@ -8,9 +8,9 @@
 #define cf3_mesh_Field_hpp
 
 #include "mesh/FieldGroup.hpp"
-#include "mesh/CTable.hpp"
-#include "mesh/CEntities.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Table.hpp"
+#include "mesh/Entities.hpp"
+#include "mesh/Elements.hpp"
 
 namespace cf3 {
 
@@ -24,7 +24,7 @@ namespace math { class VariablesDescriptor; }
 
 namespace mesh {
 
-  class CRegion;
+  class Region;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ namespace mesh {
 /// This class stores fields which can be applied
 /// to fields (Field)
 /// @author Willem Deconinck, Tiago Quintino
-class Mesh_API Field : public CTable<Real> {
+class Mesh_API Field : public Table<Real> {
 
 public: // typedefs
 
@@ -79,9 +79,9 @@ public: // functions
   /// Return the length (in number of Real values occupied in the data row) of the variable of the given var number
   VarType var_length(const Uint i=0) const;
 
-  void set_topology(CRegion& topology);
+  void set_topology(Region& topology);
 
-  CRegion& topology() const;
+  Region& topology() const;
 
   void set_field_group(FieldGroup& field_group);
 
@@ -89,23 +89,23 @@ public: // functions
 
   virtual void resize(const Uint size);
 
-  CTable<Uint>::ConstRow indexes_for_element(const CEntities& elements, const Uint idx) const;
+  Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
 
-  CTable<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
-  CList<Uint>& glb_idx() const { return field_group().glb_idx(); }
+  List<Uint>& glb_idx() const { return field_group().glb_idx(); }
 
-  CList<Uint>& rank() const { return field_group().rank(); }
+  List<Uint>& rank() const { return field_group().rank(); }
 
   bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
 
   const std::string& space() const { return field_group().space(); }
 
-  CSpace& space(const CEntities& entities) const { return entities.space(field_group().space()); }
+  Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
 
-  boost::iterator_range< common::ComponentIterator<CEntities> > entities_range() { return field_group().entities_range(); }
+  boost::iterator_range< common::ComponentIterator<Entities> > entities_range() { return field_group().entities_range(); }
 
-  boost::iterator_range< common::ComponentIterator<CElements> > elements_range() { return field_group().elements_range(); }
+  boost::iterator_range< common::ComponentIterator<Elements> > elements_range() { return field_group().elements_range(); }
 
   Field& coordinates() const { return field_group().coordinates(); }
 
@@ -115,7 +115,7 @@ public: // functions
 
   void synchronize();
 
-  CUnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
+  UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
 
   math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
 
@@ -129,7 +129,7 @@ private:
   void config_var_types();
 
   FieldGroup::Basis::Type m_basis;
-  boost::weak_ptr<CRegion> m_topology;
+  boost::weak_ptr<Region> m_topology;
   boost::weak_ptr<FieldGroup> m_field_group;
 
   boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;

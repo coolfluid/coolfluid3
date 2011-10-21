@@ -14,7 +14,7 @@
 #include "common/Root.hpp"
 
 #include "mesh/ElementType.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
 

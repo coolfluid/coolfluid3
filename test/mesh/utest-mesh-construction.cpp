@@ -18,9 +18,9 @@
 
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
@@ -119,17 +119,17 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Mesh& mesh = root.create_component<Mesh>( "mesh" ) ;
 
   // create regions
-  CRegion& superRegion = mesh.topology().create_region("superRegion");
+  Region& superRegion = mesh.topology().create_region("superRegion");
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Quad2D",nodes);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Triag2D",nodes);
+  Elements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Quad2D",nodes);
+  Elements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Triag2D",nodes);
 
-  CTable<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
-  CTable<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
-  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
+  Table<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
+  Table<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
+  Table<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
 
   //  Mesh of quads and triangles with node and element numbering:
   //
@@ -175,19 +175,19 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Uint elem=1;
   Uint node=2;
 
-  CTable<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  CTable<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
+  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
   // calculate all volumes of a region
-  BOOST_FOREACH( CElements& region, find_components_recursively<CElements>(superRegion))
+  BOOST_FOREACH( Elements& region, find_components_recursively<Elements>(superRegion))
   {
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.node_connectivity().size();
     std::vector<Real> volumes(nbRows);
-    const CTable<Real>& region_coordinates = region.geometry().coordinates();
-    const CTable<Uint>& region_connTable = region.node_connectivity();
+    const Table<Real>& region_coordinates = region.geometry().coordinates();
+    const Table<Uint>& region_connTable = region.node_connectivity();
 
     // the loop
     RealMatrix elementCoordinates(elementType.nb_nodes(), elementType.dimension());
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     }
   }
 
-//  BOOST_FOREACH(CTable<Real>::Row node , elem_coord)
+//  BOOST_FOREACH(Table<Real>::Row node , elem_coord)
 //  {
 //    CFinfo << "node = ";
 //    for (Uint j=0; j<node.size(); j++) {
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
 	meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 }
@@ -233,16 +233,16 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Mesh& mesh = root->create_component<Mesh>( "mesh" );
 
   // create regions
-  CRegion& superRegion = mesh.topology().create_region("superRegion");
+  Region& superRegion = mesh.topology().create_region("superRegion");
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
-  CElements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Quad2D",nodes);
-  CElements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Triag2D",nodes);
+  Elements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Quad2D",nodes);
+  Elements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Triag2D",nodes);
 
-  CTable<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
-  CTable<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
-  CTable<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
+  Table<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
+  Table<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
+  Table<Real>::Buffer coordinatesBuffer = nodes.coordinates().create_buffer();
 
   //  Mesh of quads and triangles with node numbering and element numbering in brackets:
   //
@@ -318,19 +318,19 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Uint elem=1;
   Uint node=2;
 
-  CTable<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  CTable<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
+  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
 //  // calculate all volumes of a region
-//  BOOST_FOREACH( CElements& region, find_components_recursively<CElements>(superRegion))
+//  BOOST_FOREACH( Elements& region, find_components_recursively<Elements>(superRegion))
 //  {
 //    const ElementType& elementType = region.element_type();
 //    const Uint nbRows = region.node_connectivity().size();
 //    std::vector<Real> volumes(nbRows);
-//    const CTable<Real>& region_coordinates = region.coordinates();
-//    const CTable<Uint>& region_connTable = region.node_connectivity();
+//    const Table<Real>& region_coordinates = region.coordinates();
+//    const Table<Uint>& region_connTable = region.node_connectivity();
 //    // the loop
 //    ElementType::NodesT elementCoordinates(elementType.nb_nodes(), elementType.dimension());
 //    for (Uint iElem=0; iElem<nbRows; ++iElem)
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //    }
 //  }
 //
-//	//  BOOST_FOREACH(CTable<Real>::Row node , elem_coord)
+//	//  BOOST_FOREACH(Table<Real>::Row node , elem_coord)
 //	//  {
 //	//    CFinfo << "node = ";
 //	//    for (Uint j=0; j<node.size(); j++) {
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
 	meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }

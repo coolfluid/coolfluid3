@@ -16,7 +16,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -83,8 +83,8 @@ BOOST_AUTO_TEST_CASE( Volume )
 BOOST_AUTO_TEST_CASE( Element )
 {
   Geometry::Ptr nodes = allocate_component<Geometry>("nodes") ;
-  // Create a CElements component
-  CElements::Ptr comp = allocate_component<CElements>("comp");
+  // Create a Elements component
+  Elements::Ptr comp = allocate_component<Elements>("comp");
 
   comp->initialize("CF.Mesh.LagrangeP1.Triag2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);

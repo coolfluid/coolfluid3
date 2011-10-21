@@ -34,14 +34,14 @@
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CList.hpp"
-#include "mesh/CUnifiedData.hpp"
-#include "mesh/CCells.hpp"
-#include "mesh/CFaces.hpp"
-#include "mesh/CSpace.hpp"
-#include "mesh/CConnectivity.hpp"
+#include "mesh/List.hpp"
+#include "mesh/UnifiedData.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Faces.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "math/Consts.hpp"
 #define UNKNOWN math::Consts::uint_max()
@@ -117,12 +117,12 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
 
   // Static components
   m_topology = create_static_component_ptr<Link>("topology");
-  m_elements_lookup = create_static_component_ptr<CUnifiedData>("elements_lookup");
+  m_elements_lookup = create_static_component_ptr<UnifiedData>("elements_lookup");
 
-  m_rank = create_static_component_ptr< CList<Uint> >("rank");
+  m_rank = create_static_component_ptr< List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  m_glb_idx = create_static_component_ptr< CList<Uint> >(mesh::Tags::global_indices());
+  m_glb_idx = create_static_component_ptr< List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
 
@@ -146,9 +146,9 @@ void FieldGroup::config_topology()
 {
   URI topology_uri;
   option("topology").put_value(topology_uri);
-  CRegion::Ptr topology = access_component(topology_uri).as_ptr<CRegion>();
+  Region::Ptr topology = access_component(topology_uri).as_ptr<Region>();
   if ( is_null(topology) )
-    throw CastingFailed (FromHere(), "Topology must be of a CRegion or derived type");
+    throw CastingFailed (FromHere(), "Topology must be of a Region or derived type");
   m_topology->link_to(topology);
 
   if (m_basis != Basis::INVALID && m_space != "invalid")
@@ -223,9 +223,9 @@ bool FieldGroup::is_ghost(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRegion& FieldGroup::topology() const
+Region& FieldGroup::topology() const
 {
-  return *m_topology->follow()->as_ptr<CRegion>();
+  return *m_topology->follow()->as_ptr<Region>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,7 +272,7 @@ void FieldGroup::check_sanity()
       throw InvalidStructure(FromHere(),"field ["+field.uri().string()+"] has a size "+to_str(field.size())+" != supposed "+to_str(m_size));
   }
 
-  boost_foreach(CList<Uint>& list, find_components<CList<Uint> >(*this))
+  boost_foreach(List<Uint>& list, find_components<List<Uint> >(*this))
   {
     if (list.size() != m_size)
       throw InvalidStructure(FromHere(),"list ["+list.uri().string()+"] has a size "+to_str(list.size())+" != supposed "+to_str(m_size));
@@ -281,27 +281,27 @@ void FieldGroup::check_sanity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<CEntities> > FieldGroup::entities_range()
+boost::iterator_range< common::ComponentIterator<Entities> > FieldGroup::entities_range()
 {
-  std::vector<CEntities::Ptr> elements_vec(elements_lookup().components().size());
+  std::vector<Entities::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<CEntities>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Entities>();
 
-  ComponentIterator<CEntities> begin_iter(elements_vec,0);
-  ComponentIterator<CEntities> end_iter(elements_vec,elements_vec.size());
+  ComponentIterator<Entities> begin_iter(elements_vec,0);
+  ComponentIterator<Entities> end_iter(elements_vec,elements_vec.size());
   return boost::make_iterator_range(begin_iter,end_iter);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<CElements> > FieldGroup::elements_range()
+boost::iterator_range< common::ComponentIterator<Elements> > FieldGroup::elements_range()
 {
-  std::vector<CElements::Ptr> elements_vec(elements_lookup().components().size());
+  std::vector<Elements::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<CElements>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Elements>();
 
-  ComponentIterator<CElements> begin_iter(elements_vec,0);
-  ComponentIterator<CElements> end_iter(elements_vec,elements_vec.size());
+  ComponentIterator<Elements> begin_iter(elements_vec,0);
+  ComponentIterator<Elements> end_iter(elements_vec,elements_vec.size());
   return boost::make_iterator_range(begin_iter,end_iter);
 }
 
@@ -358,15 +358,15 @@ void FieldGroup::update()
   {
     case Basis::POINT_BASED:
     case Basis::ELEMENT_BASED:
-      boost_foreach(CEntities& entities, find_components_recursively<CEntities>(topology()))
+      boost_foreach(Entities& entities, find_components_recursively<Entities>(topology()))
         elements_lookup().add(entities);
       break;
     case Basis::CELL_BASED:
-      boost_foreach(CCells& cells, find_components_recursively<CCells>(topology()))
+      boost_foreach(Cells& cells, find_components_recursively<Cells>(topology()))
         elements_lookup().add(cells);
       break;
     case Basis::FACE_BASED:
-      boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(topology(),mesh::Tags::face_entity()))
+      boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(topology(),mesh::Tags::face_entity()))
         elements_lookup().add(faces);
       break;
     default:
@@ -377,14 +377,14 @@ void FieldGroup::update()
 //  if (m_basis != Basis::POINT_BASED)
 //  {
 //    Uint new_size = 0;
-//    boost_foreach(CEntities& entities, entities_range())
+//    boost_foreach(Entities& entities, entities_range())
 //      new_size += entities.space(m_space).nb_states() * entities.size();
 //    resize(new_size);
 //    bind_space();
 //  }
 //  else
 //  {
-//    if (m_space != CEntities::MeshSpaces::to_str(CEntities::MeshSpaces::MESH_NODES))
+//    if (m_space != Entities::MeshSpaces::to_str(Entities::MeshSpaces::MESH_NODES))
 //    {
 //      bind_space();
 //    }
@@ -408,7 +408,7 @@ void FieldGroup::bind_space()
     create_connectivity_in_space();
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
-  boost_foreach(CEntities& entities, entities_range())
+  boost_foreach(Entities& entities, entities_range())
     entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
 }
 
@@ -516,7 +516,7 @@ void FieldGroup::create_connectivity_in_space()
 
     // step 1: collect nodes in a set
     // ------------------------------
-    boost_foreach(CEntities& entities, elements_range())
+    boost_foreach(Entities& entities, elements_range())
     {
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       for (Uint elem=0; elem<entities.size(); ++elem)
@@ -541,14 +541,14 @@ void FieldGroup::create_connectivity_in_space()
 
     // step 2: collect nodes in a set
     // ------------------------------
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
     {
       Geometry& geometry = entities.geometry();
-      CConnectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
-      CList<Uint>& geometry_rank = entities.geometry().rank();
+      Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
+      List<Uint>& geometry_rank = entities.geometry().rank();
       entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
-      CConnectivity& connectivity = entities.space(m_space).connectivity();
+      Connectivity& connectivity = entities.space(m_space).connectivity();
       connectivity.set_row_size(shape_function.nb_nodes());
       connectivity.resize(entities.size());
       for (Uint elem=0; elem<entities.size(); ++elem)
@@ -569,7 +569,7 @@ void FieldGroup::create_connectivity_in_space()
 
     // step 4: add lookup to connectivity tables
     // -----------------------------------------
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
         entities.space(m_space).connectivity().create_lookup().add(*this);
 
     // step 5: fix unknown ranks
@@ -578,12 +578,12 @@ void FieldGroup::create_connectivity_in_space()
     cf3_assert(size() == m_glb_idx->size());
     cf3_assert(size() == m_coordinates->size());
 
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
     {
-      CSpace& space = entities.space(m_space);
+      Space& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
       {
-        CConnectivity::ConstRow nodes = space.indexes_for_element(e);
+        Connectivity::ConstRow nodes = space.indexes_for_element(e);
         boost_foreach(const Uint node, nodes)
           rank()[node] = std::min(rank()[node] , entities.rank()[e] );
       }
@@ -732,7 +732,7 @@ void FieldGroup::create_connectivity_in_space()
   else // If Element-based
   {
     // Check if this space is not already bound to another field_group
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
     {
       if (entities.space(m_space).is_bound_to_fields() > 0)
         throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
@@ -741,9 +741,9 @@ void FieldGroup::create_connectivity_in_space()
 
     // Assign the space connectivity table
     Uint field_idx = 0;
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
     {
-      CSpace& space = entities.space(m_space);
+      Space& space = entities.space(m_space);
       space.get_child("bound_fields").as_type<Link>().link_to(*this);
       space.make_proxy(field_idx);
       field_idx += entities.size()*space.nb_states();
@@ -751,14 +751,14 @@ void FieldGroup::create_connectivity_in_space()
 
     resize(field_idx);
 
-    boost_foreach(CEntities& entities, entities_range())
+    boost_foreach(Entities& entities, entities_range())
     {
       cf3_assert_desc("mesh not properly constructed",entities.rank().size() == entities.size());
-      CSpace& space = entities.space(m_space);
+      Space& space = entities.space(m_space);
       space.connectivity().create_lookup().add(*this);
       for (Uint e=0; e<entities.size(); ++e)
       {
-        CConnectivity::ConstRow field_indexes = space.indexes_for_element(e);
+        Connectivity::ConstRow field_indexes = space.indexes_for_element(e);
         boost_foreach(const Uint idx, field_indexes)
           rank()[idx] = entities.rank()[e];
       }
@@ -772,7 +772,7 @@ void FieldGroup::create_connectivity_in_space()
     std::map<size_t,Uint>::iterator hash_not_found = hash_to_elem_idx.end();
 
     Uint nb_owned(0);
-    boost_foreach(const CEntities& entities, entities_range())
+    boost_foreach(const Entities& entities, entities_range())
     {
       Uint nb_states_per_cell = entities.space(m_space).nb_states();
       for (Uint e=0; e<entities.size(); ++e)
@@ -793,9 +793,9 @@ void FieldGroup::create_connectivity_in_space()
     }
 
     Uint id = start_id_per_proc[Comm::instance().rank()];
-    boost_foreach(const CEntities& entities, entities_range())
+    boost_foreach(const Entities& entities, entities_range())
     {
-      CSpace& space = entities.space(m_space);
+      Space& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
       {
         if (entities.is_ghost(e) == false)
@@ -811,9 +811,9 @@ void FieldGroup::create_connectivity_in_space()
       }
     }
 
-    boost_foreach(const CEntities& entities, entities_range())
+    boost_foreach(const Entities& entities, entities_range())
     {
-      const CSpace& space = entities.space(m_space);
+      const Space& space = entities.space(m_space);
       Uint nb_states_per_elem = space.nb_states();
       std::deque<Uint> ghosts;
       std::deque<size_t> ghosts_hashed_deque;
@@ -894,21 +894,21 @@ void FieldGroup::create_connectivity_in_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const CEntities& elements, const Uint idx) const
+Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
 {
-  CSpace& space = elements.space(m_space);
+  Space& space = elements.space(m_space);
   cf3_assert_desc("space not bound to this field_group", &space.bound_fields() == this);
   return space.indexes_for_element(idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CTable<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) const
+Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) const
 {
   Component::Ptr component;
   Uint elem_idx;
   boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
-  return indexes_for_element(component->as_type<CEntities>(),elem_idx);
+  return indexes_for_element(component->as_type<Entities>(),elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -936,14 +936,14 @@ Field& FieldGroup::create_coordinates()
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
 
   Field& coordinates = create_field("coordinates","coords[vector]");
-  boost_foreach(CEntities& entities, entities_range())
+  boost_foreach(Entities& entities, entities_range())
   {
-    CSpace& geometry_space = entities.geometry_space();
+    Space& geometry_space = entities.geometry_space();
     const ShapeFunction& geom_sf = geometry_space.shape_function();
     RealMatrix geom_nodes;
     entities.allocate_coordinates(geom_nodes);
 
-    CSpace& space = entities.space(m_space);
+    Space& space = entities.space(m_space);
     const ShapeFunction& sf = space.shape_function();
     const RealMatrix& local_coords = sf.local_coordinates();
 
@@ -955,7 +955,7 @@ Field& FieldGroup::create_coordinates()
 
     for (Uint e=0; e<entities.size(); ++e)
     {
-      CConnectivity::ConstRow field_index = space.indexes_for_element(e);
+      Connectivity::ConstRow field_index = space.indexes_for_element(e);
 
       entities.put_coordinates(geom_nodes,e);
       coords = interpolation*geom_nodes;

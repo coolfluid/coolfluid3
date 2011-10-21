@@ -9,8 +9,8 @@
 #include "common/OptionURI.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/CList.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/List.hpp"
+#include "mesh/Elements.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -33,7 +33,7 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
   m_idx(0)
 {
   // Following option is ignored if the loop is not about elements
-  //m_options.add_option(OptionComponent<mesh::CEntities>::create("elements","Elements that are being looped",&m_elements));
+  //m_options.add_option(OptionComponent<mesh::Entities>::create("elements","Elements that are being looped",&m_elements));
   m_options.add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Elements that are being looped")
       ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
@@ -54,21 +54,21 @@ void CLoopOperation::config_elements()
   {
     URI uri;
     option("elements").put_value(uri);
-    m_elements = access_component_ptr_checked(uri)->as_ptr_checked<CEntities>();
+    m_elements = access_component_ptr_checked(uri)->as_ptr_checked<Entities>();
     if ( is_null(m_elements.lock()) )
-      throw CastingFailed (FromHere(), "Elements must be of a CEntities or derived type");
+      throw CastingFailed (FromHere(), "Elements must be of a Entities or derived type");
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CLoopOperation::set_elements(CEntities& elements)
+void CLoopOperation::set_elements(Entities& elements)
 {
   // disable CLoopOperation::config_elements() trigger
   m_call_config_elements = false;
 
   // Set elements
-  m_elements = elements.as_ptr_checked<CEntities>();
+  m_elements = elements.as_ptr_checked<Entities>();
 
   // Call triggers
   option("elements").trigger();

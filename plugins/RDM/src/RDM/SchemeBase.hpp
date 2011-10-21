@@ -68,7 +68,7 @@ public: // functions
 
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ( const mesh::CTable<Uint>::ConstRow& nodes_idx );
+  void interpolate ( const mesh::Table<Uint>::ConstRow& nodes_idx );
 
   void sol_gradients_at_qdpoint(const Uint q);
 
@@ -77,7 +77,7 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
+        elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
         elements().geometry().coordinates().as_ptr< mesh::Field >();
 
@@ -124,7 +124,7 @@ protected: // data
   boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::CConnectivity::Ptr connectivity;
+  mesh::Connectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
   mesh::Field::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
@@ -253,7 +253,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate( const mesh::CTable<Uint>::ConstRow& nodes_idx )
+void SchemeBase<SF, QD,PHYS>::interpolate( const mesh::Table<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be tested for 3D
 

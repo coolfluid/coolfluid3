@@ -13,10 +13,10 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/Actions/CInitFieldConstant.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CRegion.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

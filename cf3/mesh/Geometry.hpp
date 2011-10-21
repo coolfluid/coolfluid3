@@ -16,7 +16,7 @@
 namespace cf3 {
 namespace mesh {
 
-template <typename T> class CDynTable;
+template <typename T> class DynTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public: // functions
 
   Field& coordinates() const { return *m_coordinates; }
 
-  CDynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
+  DynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
   /// The dimension for the coordinates of the mesh
   Uint dim() const { return coordinates().row_size(); }
@@ -53,7 +53,7 @@ public: // functions
 
 private: // data
 
-  boost::shared_ptr<CDynTable<Uint> > m_glb_elem_connectivity;
+  boost::shared_ptr<DynTable<Uint> > m_glb_elem_connectivity;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

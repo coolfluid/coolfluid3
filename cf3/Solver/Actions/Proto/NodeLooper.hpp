@@ -36,7 +36,7 @@ struct NodeLooperDim
   
   typedef NodeData<VariablesT, NbDimsT> DataT;
   
-  NodeLooperDim(const ExprT& expr, mesh::CRegion& region, VariablesT& variables) :
+  NodeLooperDim(const ExprT& expr, mesh::Region& region, VariablesT& variables) :
     m_expr(expr),
     m_region(region),
     m_variables(variables)
@@ -145,7 +145,7 @@ private:
   }
   
   const ExprT& m_expr;
-  mesh::CRegion& m_region;
+  mesh::Region& m_region;
   VariablesT& m_variables;
 };
 
@@ -156,7 +156,7 @@ struct NodeLooper
   /// Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
   
-  NodeLooper(const ExprT& expr, mesh::CRegion& region, VariablesT& variables) :
+  NodeLooper(const ExprT& expr, mesh::Region& region, VariablesT& variables) :
     m_expr(expr),
     m_region(region),
     m_variables(variables)
@@ -166,7 +166,7 @@ struct NodeLooper
   template<typename NbDimsT>
   void operator()(const NbDimsT&)
   {
-    mesh::CTable<Real>& coords = m_region.geometry().coordinates();
+    mesh::Table<Real>& coords = m_region.geometry().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
   
@@ -177,7 +177,7 @@ struct NodeLooper
 private:
   
   const ExprT& m_expr;
-  mesh::CRegion& m_region;
+  mesh::Region& m_region;
   VariablesT& m_variables;
 };
   
@@ -185,7 +185,7 @@ private:
 /// @param variable_names Name of each of the variables, in case a linear system is solved
 /// @param variable_sizes Size (number of scalars) that makes up each variable in the linear system, if any
 template<typename ExprT>
-void for_each_node(mesh::CRegion& root_region, const ExprT& expr)
+void for_each_node(mesh::Region& root_region, const ExprT& expr)
 {
   // IF COMPILATION FAILS HERE: the espression passed is invalid
   BOOST_MPL_ASSERT_MSG(

@@ -13,7 +13,7 @@
 
 namespace cf3 {
 
-namespace mesh   { class Field; class FieldGroup; class CCells; }
+namespace mesh   { class Field; class FieldGroup; class Cells; }
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////

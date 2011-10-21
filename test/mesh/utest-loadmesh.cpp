@@ -23,7 +23,7 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/MeshWriter.hpp"
 
 #include "mesh/LoadMesh.hpp"
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 {
   BOOST_CHECK(true);
 
-  CDomain::Ptr domain = Core::instance().root().create_component_ptr<CDomain>("Domain");
+  Domain::Ptr domain = Core::instance().root().create_component_ptr<Domain>("Domain");
 
   BOOST_CHECK(true);
 
@@ -70,9 +70,9 @@ BOOST_AUTO_TEST_CASE( constructor )
 
 BOOST_AUTO_TEST_CASE( output )
 {
-  CDomain& domain = find_component_recursively<CDomain>(Core::instance().root());
+  Domain& domain = find_component_recursively<Domain>(Core::instance().root());
   Mesh::Ptr mesh = domain.get_child_ptr_checked("Mesh")->as_ptr<Mesh>();
-  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter> ( "CF.Mesh.Gmsh.CWriter", "GmshWriter" );
+  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter> ( "CF.Mesh.Gmsh.Writer", "GmshWriter" );
   mesh_writer->write_from_to(*mesh,"utest-loadmesh-result.msh");
 }
 

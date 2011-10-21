@@ -26,10 +26,10 @@
 
 #include "math/MatrixTypes.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   MeshTerm<0, VectorField> u("Velocity", "solution");
 
   CModel& model = Core::instance().root().create_component<CModel>("Model");
-  CDomain& dom = model.create_domain("Domain");
+  Domain& dom = model.create_domain("Domain");
   Mesh& mesh = dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 

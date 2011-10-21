@@ -24,7 +24,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Space.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
@@ -226,7 +226,7 @@ void IterativeSolver::execute()
   if (m_time.expired())        throw SetupError(FromHere(), "Time was not set");
   CTime& time = *m_time.lock();
 
-  U0.as_type< CTable<Real> >() = U.as_type< CTable<Real> >();
+  U0.as_type< Table<Real> >() = U.as_type< Table<Real> >();
 
   const Real T0 = time.current_time();
   Real dt = 0;
@@ -247,9 +247,9 @@ void IterativeSolver::execute()
     // - time.dt()
     // Runge-Kutta UPDATE
     const Real one_minus_alpha = 1. - alpha[stage];
-    boost_foreach(const CEntities& elements, U.entities_range())
+    boost_foreach(const Entities& elements, U.entities_range())
     {
-      CSpace& solution_space = U.space(elements);
+      Space& solution_space = U.space(elements);
       for (Uint e=0; e<elements.size(); ++e)
       {
         boost_foreach(const Uint state, solution_space.indexes_for_element(e))

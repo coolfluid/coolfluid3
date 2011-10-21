@@ -13,7 +13,7 @@
 #include "common/Environment.hpp"
 #include "common/Root.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -68,7 +68,7 @@ struct ProtoUnsteadyFixture
   }
 
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
-  void set_analytical_solution(CRegion& region, const std::string& field_name, const std::string& var_name)
+  void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
   {
     MeshTerm<0, ScalarField > T(field_name, var_name);
 
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 
   // Setup a model
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)

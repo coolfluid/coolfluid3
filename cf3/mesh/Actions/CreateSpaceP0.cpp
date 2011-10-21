@@ -13,8 +13,8 @@
 #include "common/OptionT.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "mesh/Actions/CreateSpaceP0.hpp"
@@ -48,7 +48,7 @@ void CreateSpaceP0::execute()
 
   Mesh& mesh = *m_mesh.lock();
 
-  boost_foreach(CEntities& entities, find_components_recursively<CEntities>(mesh))
+  boost_foreach(Entities& entities, find_components_recursively<Entities>(mesh))
   {
     entities.create_space("P0","CF.Mesh.LagrangeP0."+entities.element_type().shape_name());
   }

@@ -12,7 +12,7 @@
 #include "common/Signal.hpp"
 #include "common/XML/MultiArray.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -68,7 +68,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
     SignalFrame reply = args.create_reply( uri() );
     SignalFrame& options = reply.map( Protocol::Tags::key_options() );
 //    std::vector<Real> data(8000);
-    CTable<Real>& table = *m_data.get();
+    Table<Real>& table = *m_data.get();
     std::vector<std::string> labels =
         list_of<std::string>("x")("y")("z")("u")("v")("w")("p")("t");
 
@@ -94,7 +94,7 @@ void CPlotXY::set_data(const URI &uri)
 {
   cf3_assert( !m_root.expired() );
 
-  m_data = m_root.lock()->access_component(uri).as_ptr< CTable<Real> >();
+  m_data = m_root.lock()->access_component(uri).as_ptr< Table<Real> >();
 }
 
 /////////////////////////////////////////////////////////////////////////////////

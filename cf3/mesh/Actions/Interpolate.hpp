@@ -20,9 +20,9 @@
 namespace cf3 {
 namespace mesh {
 
-  class COcttree;
+  class Octtree;
   class Field;
-  class CElements;
+  class Elements;
 
 namespace Actions {
 
@@ -56,7 +56,7 @@ public: // functions
   /// @post target is resized: row-size from source, nb_rows from coordinates
   /// @note MPI communication is used if coordinates are not found on this rank. Other ranks
   ///       then interpolate and send result back
-  void interpolate(const Field& source, const CTable<Real>& coordinates, CTable<Real>& target);
+  void interpolate(const Field& source, const Table<Real>& coordinates, Table<Real>& target);
 
   void signal_interpolate ( common::SignalArgs& node);
   void signature_interpolate ( common::SignalArgs& node);
@@ -72,9 +72,9 @@ private:
   boost::weak_ptr<Field> m_target;
 
   /// source octtree
-  boost::shared_ptr<COcttree> m_octtree;
+  boost::shared_ptr<Octtree> m_octtree;
 
-  void interpolate_coordinate(const RealVector& target_coord, const CElements& element_component, const Uint element_idx, Field::Row target_row);
+  void interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row);
 
 
 }; // end Interpolate

@@ -12,7 +12,7 @@
 
 #include "math/VariableManager.hpp"
 
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
@@ -46,7 +46,7 @@ struct CSolver::Implementation {
     // This will set the domain to null if the URI is invalid,
     // errors are reported through domain() on access.
     // Rationale: the URI may be set before the domain is created
-    m_domain = boost::dynamic_pointer_cast<CDomain>(m_component.access_component_ptr(m_domain_uri));
+    m_domain = boost::dynamic_pointer_cast<Domain>(m_component.access_component_ptr(m_domain_uri));
   }
 
   void trigger_physical_model()
@@ -64,7 +64,7 @@ struct CSolver::Implementation {
   }
 
   // Checked access to the domain
-  CDomain& domain()
+  Domain& domain()
   {
     if(m_domain.expired())
     {
@@ -73,7 +73,7 @@ struct CSolver::Implementation {
       if(!comp)
         throw SetupError(FromHere(), "No component found at URI " + m_domain_uri.string() + " when acessing domain from " + m_component.uri().string());
 
-      m_domain = boost::dynamic_pointer_cast<CDomain>(comp);
+      m_domain = boost::dynamic_pointer_cast<Domain>(comp);
 
       if(m_domain.expired())
         throw SetupError(FromHere(), "Error while acessing domain from " + m_component.uri().string() + ": component at " + m_domain_uri.string() + " is not a domain");
@@ -84,7 +84,7 @@ struct CSolver::Implementation {
 
   Component& m_component;
   URI m_domain_uri;
-  boost::weak_ptr<CDomain> m_domain;
+  boost::weak_ptr<Domain> m_domain;
   FieldManager& m_field_manager;
 
   boost::weak_ptr<Physics::PhysModel> m_physics;
@@ -130,7 +130,7 @@ FieldManager& CSolver::field_manager()
 }
 
 
-CDomain& CSolver::domain()
+Domain& CSolver::domain()
 {
   return m_implementation->domain();
 }

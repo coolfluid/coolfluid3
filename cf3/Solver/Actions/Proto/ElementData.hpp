@@ -25,11 +25,11 @@
 #include "math/VariablesDescriptor.hpp"
 #include "math/LSS/BlockAccumulator.hpp"
 
-#include "mesh/CElements.hpp"
+#include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementData.hpp"
 
@@ -83,7 +83,7 @@ public:
   /// We store nodes as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  GeometricSupport(const mesh::CElements& elements) :
+  GeometricSupport(const mesh::Elements& elements) :
     m_coordinates(elements.geometry().coordinates()),
     m_connectivity(elements.node_connectivity())
   {
@@ -108,7 +108,7 @@ public:
   }
 
   /// Connectivity data for the current element
-  mesh::CTable<Uint>::ConstRow element_connectivity() const
+  mesh::Table<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -223,10 +223,10 @@ private:
   ValueT m_nodes;
 
   /// Coordinates table
-  const mesh::CTable<Real>& m_coordinates;
+  const mesh::Table<Real>& m_coordinates;
 
   /// Connectivity table
-  const mesh::CTable<Uint>& m_connectivity;
+  const mesh::Table<Uint>& m_connectivity;
 
   /// Index for the current element
   Uint m_element_idx;
@@ -241,7 +241,7 @@ private:
 };
 
 /// Helper function to find a field starting from a region
-inline mesh::Field& find_field(mesh::CElements& elements, const std::string& tag)
+inline mesh::Field& find_field(mesh::Elements& elements, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(elements);
   return common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
@@ -331,7 +331,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  EtypeTVariableData(const VariableT& placeholder, mesh::CElements& elements, const SupportT& support) :
+  EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_connectivity(elements.node_connectivity()),
     m_support(support)
@@ -346,7 +346,7 @@ public:
     mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
   }
 
-  const mesh::CTable<Uint>::ConstRow element_connectivity() const
+  const mesh::Table<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -436,7 +436,7 @@ private:
   const mesh::Field& m_field;
 
   /// Connectivity table
-  const mesh::CConnectivity& m_connectivity;
+  const mesh::Connectivity& m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;
@@ -478,7 +478,7 @@ public:
   static const bool is_equation_variable = IsEquationVar;
 
   template<typename VariableT>
-  EtypeTVariableData(const VariableT& placeholder, mesh::CElements& elements, const SupportT& support) :
+  EtypeTVariableData(const VariableT& placeholder, mesh::Elements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
     m_elements_begin(m_field.field_group().space(elements).elements_begin()),
@@ -609,7 +609,7 @@ public:
   /// A view of only the data used in the element matrix
   typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
 
-  ElementData(VariablesT& variables, mesh::CElements& elements) :
+  ElementData(VariablesT& variables, mesh::Elements& elements) :
     m_variables(variables),
     m_elements(elements),
     m_support(elements),
@@ -740,8 +740,8 @@ private:
   /// Variables used in the expression
   VariablesT& m_variables;
 
-  /// Referred CElements
-  mesh::CElements& m_elements;
+  /// Referred Elements
+  mesh::Elements& m_elements;
 
   /// Data for the geometric support
   SupportT m_support;
@@ -762,7 +762,7 @@ private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, mesh::CElements& elems, VariablesDataT& vars_data, const SupportT& sup) :
+    InitVariablesData(VariablesT& vars, mesh::Elements& elems, VariablesDataT& vars_data, const SupportT& sup) :
       m_variables(vars),
       m_elements(elems),
       m_variables_data(vars_data),
@@ -787,7 +787,7 @@ private:
     }
 
     VariablesT& m_variables;
-    mesh::CElements& m_elements;
+    mesh::Elements& m_elements;
     VariablesDataT& m_variables_data;
     const SupportT& m_support;
   };

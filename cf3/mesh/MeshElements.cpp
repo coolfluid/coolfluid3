@@ -6,9 +6,9 @@
 
 #include "common/Builder.hpp"
 
-#include "mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/CEntities.hpp"
+#include "mesh/Entities.hpp"
 #include "mesh/MeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +23,7 @@ ComponentBuilder<MeshElements, Component, LibMesh> MeshElements_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshElements::MeshElements(const std::string& name) :
-  CUnifiedData(name)
+  UnifiedData(name)
 {
 }
 
@@ -32,7 +32,7 @@ MeshElements::MeshElements(const std::string& name) :
 void MeshElements::update()
 {
   Mesh& mesh = find_parent_component<Mesh>(*this);
-  boost_foreach(CEntities& elements, find_components_recursively<CEntities>(mesh.topology()))
+  boost_foreach(Entities& elements, find_components_recursively<Entities>(mesh.topology()))
     add(elements);
 }
 

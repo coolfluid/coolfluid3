@@ -21,14 +21,14 @@
 #include "common/Root.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/CInterpolator.hpp"
-#include "mesh/CSpace.hpp"
+#include "mesh/Interpolator.hpp"
+#include "mesh/Space.hpp"
 
 #include "mesh/Actions/CreateSpaceP0.hpp"
 
@@ -71,7 +71,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("CF.Mesh.LinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 
@@ -99,12 +99,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
-//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","cgns_meshreader");
+//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","cgns_meshreader");
 //  Mesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
 
 
   // Create and configure interpolator.
-  CInterpolator::Ptr interpolator = build_component_abstract_type<CInterpolator>("CF.Mesh.CLinearInterpolator","interpolator");
+  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("CF.Mesh.LinearInterpolator","interpolator");
   interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -158,9 +158,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   }
 
   RealMatrix coordinates;
-  boost_foreach( CElements& s_elements, find_components_recursively<CElements>(s_elembased.topology()) )
+  boost_foreach( Elements& s_elements, find_components_recursively<Elements>(s_elembased.topology()) )
   {
-    CSpace& space = s_elembased.space(s_elements);
+    Space& space = s_elembased.space(s_elements);
     space.allocate_coordinates(coordinates);
 
     for (Uint elem_idx = 0; elem_idx<s_elements.size(); ++elem_idx)
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Write the fields to file.
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
 
   BOOST_CHECK(true);
 

@@ -15,7 +15,7 @@
 #include "common/Root.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
-#include "mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshWriter.hpp"
 
@@ -33,8 +33,8 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.CWriter", "writer");
-  CDomain& domain = Core::instance().root().create_component<CDomain>("domain");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.Writer", "writer");
+  Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 
   const Real length = 1.;

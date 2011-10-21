@@ -16,7 +16,7 @@
 
 namespace cf3 {
   namespace common { template<typename T> class OptionComponent; }
-  namespace mesh { class CRegion; }
+  namespace mesh { class Region; }
   namespace Physics { class PhysModel; }
 namespace Solver {
 namespace Actions {

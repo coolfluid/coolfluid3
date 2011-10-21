@@ -16,7 +16,7 @@
 #include "math/Consts.hpp"
 #include "math/Functions.hpp"
 
-#include "mesh/CTable.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Triag3D.hpp"
 #include "mesh/ElementData.hpp"
@@ -53,18 +53,18 @@ struct LagrangeP1Triag3DFixture
   }
 
   /// Fills the given coordinate and connectivity data to create a cylinder along the Z-axis, consisting of ETYPE elements
-  void create_cylinder(CTable<Real>& coordinates, CTable<Uint>& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*Consts::pi())
+  void create_cylinder(Table<Real>& coordinates, Table<Uint>& connectivity, const Real radius, const Uint u_segments, const Uint v_segments, const Real height, const Real start_angle = 0., const Real end_angle = 2.*Consts::pi())
   {
     const Uint dim = ETYPE::dimension;
     const Uint nb_nodes = ETYPE::nb_nodes;
     const bool closed = std::abs(std::abs(end_angle - start_angle) - 2.0*Consts::pi()) < eps();
 
     coordinates.set_row_size(dim);
-    CTable<Real>::ArrayT& coord_array = coordinates.array();
+    Table<Real>::ArrayT& coord_array = coordinates.array();
     coord_array.resize(boost::extents[(u_segments + (!closed)) * (v_segments+1)][dim]);
 
     connectivity.set_row_size(nb_nodes);
-    CTable<Uint>::ArrayT& conn_array = connectivity.array();
+    Table<Uint>::ArrayT& conn_array = connectivity.array();
     conn_array.resize(boost::extents[2 * u_segments * v_segments][nb_nodes]);
     const Real v_step = height / v_segments;
 
@@ -76,7 +76,7 @@ struct LagrangeP1Triag3DFixture
         for(Uint u = 0; u <= u_segments; ++u)
         {
           const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(u_segments));
-          CTable<Real>::Row coord_row = coord_array[v*(u_segments+1) + u];
+          Table<Real>::Row coord_row = coord_array[v*(u_segments+1) + u];
 
           coord_row[XX] = radius * cos(theta);
           coord_row[YY] = radius * sin(theta);
@@ -94,8 +94,8 @@ struct LagrangeP1Triag3DFixture
           const Uint node3 = (v+1)*(u_segments+1) + u;
           const Uint node2 = node3 + 1;
 
-          CTable<Uint>::Row nodes1 = conn_array[2*(v*u_segments + u)];
-          CTable<Uint>::Row nodes2 = conn_array[2*(v*u_segments + u) + 1];
+          Table<Uint>::Row nodes1 = conn_array[2*(v*u_segments + u)];
+          Table<Uint>::Row nodes2 = conn_array[2*(v*u_segments + u) + 1];
 
           nodes1[0] = node0;
           nodes1[1] = node1;
@@ -115,7 +115,7 @@ struct LagrangeP1Triag3DFixture
         for(Uint u = 0; u != u_segments; ++u)
         {
           const Real theta = start_angle + (end_angle - start_angle) * (static_cast<Real>(u) / static_cast<Real>(u_segments));
-          CTable<Real>::Row coord_row = coord_array[v*u_segments + u];
+          Table<Real>::Row coord_row = coord_array[v*u_segments + u];
 
           coord_row[XX] = radius * cos(theta);
           coord_row[YY] = radius * sin(theta);
@@ -133,8 +133,8 @@ struct LagrangeP1Triag3DFixture
           const Uint node3 = (v+1)*u_segments + u;
           const Uint node2 = node3 + 1;
 
-          CTable<Uint>::Row nodes1 = conn_array[2*(v*u_segments + u)];
-          CTable<Uint>::Row nodes2 = conn_array[2*(v*u_segments + u) + 1];
+          Table<Uint>::Row nodes1 = conn_array[2*(v*u_segments + u)];
+          Table<Uint>::Row nodes2 = conn_array[2*(v*u_segments + u) + 1];
 
           nodes1[0] = node0;
           nodes1[1] = node1;
@@ -249,12 +249,12 @@ struct LagrangeP1Triag3DFixture
 const Real LagrangeP1Triag3DFixture::RotatingCylinderPressure::m_rho = 1.225;
 
 template<typename ResultT, typename FunctorT>
-void integrate_region(ResultT& result, FunctorT functor, const CTable<Real>& coordinates, const CTable<Uint>& connectivity)
+void integrate_region(ResultT& result, FunctorT functor, const Table<Real>& coordinates, const Table<Uint>& connectivity)
 {
   const Uint nb_elems = connectivity.array().size();
   for(Uint elem_idx = 0; elem_idx != nb_elems; ++ elem_idx)
   {
-    //const CTable<Uint>::ConstRow& r = connectivity.array()[elem_idx];
+    //const Table<Uint>::ConstRow& r = connectivity.array()[elem_idx];
     typename ETYPE::NodesT nodes;
     fill(nodes, coordinates, connectivity.array()[elem_idx]);
     integrate_element(result, functor, nodes);
@@ -355,8 +355,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
-  CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
+  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Check the area
@@ -374,8 +374,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  CTable<Real>::Ptr arc_coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
-  CTable<Uint>::Ptr arc_connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
+  Table<Real>::Ptr arc_coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Table<Uint>::Ptr arc_connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*arc_coordinates, *arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
   Real arc_flux = 0.;
   const ETYPE::CoordsT y_vector(0., 1., 0.);
@@ -393,8 +393,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
-  CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
+  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Rotating cylinder in uniform flow

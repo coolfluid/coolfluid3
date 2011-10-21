@@ -21,9 +21,9 @@
 #include "common/Environment.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/CRegion.hpp"
-#include "mesh/CElements.hpp"
-#include "mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Table.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_SUITE( TestCGNS_TestSuite, TestCGNS_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"CGNS");
 }
@@ -650,22 +650,22 @@ BOOST_AUTO_TEST_CASE ( WriteStructured )
 BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("grid_c");
   meshreader->read_mesh_into("grid_c.cgns",mesh);
 
   // Write to Gmsh
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"grid_c.msh");
 
   // Write to Neu
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"grid_c.neu");
 
   // Read from Neu
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   Mesh& mesh_from_neu = Core::instance().root().create_component<Mesh>("mesh_from_neu");
   neu_reader->read_mesh_into("grid_c.neu",mesh_from_neu);
 
@@ -682,7 +682,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
 BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("grid_str_2zones");
@@ -691,15 +691,15 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
   info->transform(mesh);
   // Write to Gmsh
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"grid_str_2zones.msh");
 
   // Write to Neu
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.CWriter","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"grid_str_2zones.neu");
 
   // Read from Neu
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
   Mesh& mesh_from_neu = Core::instance().root().create_component<Mesh>("grid_str_2zones_from_neu");
   neu_reader->read_mesh_into("grid_str_2zones.neu",mesh_from_neu);
 
@@ -717,7 +717,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
 BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
   MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CInfo", "info");
 
 
@@ -728,7 +728,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
   {
     meshreader->read_mesh_into("grid_c.cgns",mesh);
     //info->transform(mesh);
-    BOOST_CHECK_EQUAL(find_component<CRegion>(mesh).recursive_elements_count(), (1+count)*3776);
+    BOOST_CHECK_EQUAL(find_component<Region>(mesh).recursive_elements_count(), (1+count)*3776);
   }
   info->transform(mesh);
 
@@ -738,7 +738,7 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_multiple )
 
 BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
 
 
 
@@ -746,7 +746,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("grid_c_unstr");
   meshreader->read_mesh_into("grid_c.cgns",mesh);
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.CGNS.Writer","meshwriter");
 
   meshwriter->write_from_to(mesh,"grid_c2cgns.cgns");
 
@@ -757,7 +757,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
   //info->transform(mesh2);
 
   // Write to Gmsh
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh2,"grid_c2cgns2gmsh.msh");
   BOOST_CHECK(true);
 
@@ -767,17 +767,17 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 
 BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
 {
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.CReader","meshreader");
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag_mixed");
   neu_reader->read_mesh_into("quadtriag.neu",mesh);
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.CGNS.CWriter","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.CGNS.Writer","meshwriter");
 
   meshwriter->write_from_to(mesh,"quadtriag2cgns.cgns");
 
-  MeshReader::Ptr cgns_reader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.CReader","meshreader");
+  MeshReader::Ptr cgns_reader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","meshreader");
 
   Mesh& mesh2 = Core::instance().root().create_component<Mesh>("quadtriag2cgns");
   cgns_reader->read_mesh_into("quadtriag2cgns.cgns",mesh2);
@@ -786,7 +786,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
   //info->transform(mesh2);
 
   // Write to Gmsh
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.CWriter","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh2,"quadtriag2cgns2gmsh.msh");
   BOOST_CHECK(true);
 

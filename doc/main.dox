@@ -85,9 +85,9 @@ namespace cf3 {
  use then the @b Component::build_component() function
  @code
  mesh::CMeshReader& mesh_reader = 
-     myComp->build_component("meshreader","CF.Mesh.Gmsh.CReader").as_type<mesh::CMeshReader>();
+     myComp->build_component("meshreader","CF.Mesh.Gmsh.Reader").as_type<mesh::CMeshReader>();
  @endcode
- Here @c "CF.Mesh.Gmsh.CReader" is the name of the concrete class cf3::mesh::Gmsh::CReader
+ Here @c "CF.Mesh.Gmsh.Reader" is the name of the concrete class cf3::mesh::Gmsh::Reader
  The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
  
  @section _configure How to configure a component
