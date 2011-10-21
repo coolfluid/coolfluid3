@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshReader_hpp
-#define cf3_mesh_CMeshReader_hpp
+#ifndef cf3_mesh_MeshReader_hpp
+#define cf3_mesh_MeshReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,13 +14,13 @@
 #include "common/Component.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
   class CRegion;
   class CCells;
   class CFaces;
@@ -28,30 +28,30 @@ namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshReader component class
+/// MeshReader component class
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CMeshReader : public common::Component {
+class Mesh_API MeshReader : public common::Component {
 
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CMeshReader> Ptr;
+  typedef boost::shared_ptr<MeshReader> Ptr;
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CMeshReader const> ConstPtr;
+  typedef boost::shared_ptr<MeshReader const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshReader ( const std::string& name );
+  MeshReader ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshReader();
+  virtual ~MeshReader();
 
   /// Get the class name
-  static std::string type_name () { return "CMeshReader"; }
+  static std::string type_name () { return "MeshReader"; }
 
   /// @name SIGNALS
   //@{
@@ -75,12 +75,12 @@ public: // functions
   /// Read a given file to a given mesh. This calls a concrete implementation given by do_read_mesh_into
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  void read_mesh_into(const common::URI& path, CMesh& mesh);
+  void read_mesh_into(const common::URI& path, Mesh& mesh);
 
 //  /// Read a given file and create a mesh
 //  /// @param [in]   path    the file to read in
 //  /// @return mesh          the created mesh
-//  CMesh::Ptr create_mesh_from(const common::URI& path);
+//  Mesh::Ptr create_mesh_from(const common::URI& path);
 
 protected: // functions
 
@@ -112,7 +112,7 @@ private:
   /// this function implements the concrete mesh reading algorithm and is called by read_mesh_into
   /// @param [in]     path  the file to read in
   /// @param [in,out] mesh  the mesh to write to
-  virtual void do_read_mesh_into(const common::URI& path, CMesh& mesh) = 0;
+  virtual void do_read_mesh_into(const common::URI& path, Mesh& mesh) = 0;
 
 };
 
@@ -123,4 +123,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshReader_hpp
+#endif // cf3_mesh_MeshReader_hpp

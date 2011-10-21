@@ -287,7 +287,7 @@ private:
     void apply(boost::mpl::true_, const VarIdxT&)
     {
       const std::string& tag = boost::fusion::at<VarIdxT>(m_variables).field_tag();
-      mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(m_region);
+      mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(m_region);
       mesh::Field& field = common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
       field.synchronize();
     }

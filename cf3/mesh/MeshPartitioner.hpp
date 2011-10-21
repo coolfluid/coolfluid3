@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshPartitioner_hpp
-#define cf3_mesh_CMeshPartitioner_hpp
+#ifndef cf3_mesh_MeshPartitioner_hpp
+#define cf3_mesh_MeshPartitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,43 +24,43 @@
 #include "mesh/CList.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshTransformer.hpp"
 
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshPartitioner component class
+/// MeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class Mesh_API CMeshPartitioner : public CMeshTransformer {
+class Mesh_API MeshPartitioner : public MeshTransformer {
 
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CMeshPartitioner> Ptr;
+  typedef boost::shared_ptr<MeshPartitioner> Ptr;
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CMeshPartitioner const> ConstPtr;
+  typedef boost::shared_ptr<MeshPartitioner const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshPartitioner ( const std::string& name );
+  MeshPartitioner ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshPartitioner() {}
+  virtual ~MeshPartitioner() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMeshPartitioner"; }
+  static std::string type_name () { return "MeshPartitioner"; }
 
   virtual void execute();
 
-  void initialize(CMesh& mesh);
+  void initialize(Mesh& mesh);
 
   /// Partitioning functions
 
@@ -80,7 +80,7 @@ public: // functions
 
   /// location finding functions
 
-  void build_global_to_local_index(CMesh& mesh);
+  void build_global_to_local_index(Mesh& mesh);
 
   /// Graph building functions
 
@@ -166,7 +166,7 @@ private: // data
 
 //////////////////////////////////////////////////////////////////////////////
 
-inline Uint CMeshPartitioner::nb_objects_owned_by_part(const Uint part) const
+inline Uint MeshPartitioner::nb_objects_owned_by_part(const Uint part) const
 {
   return m_nb_owned_obj;
 }
@@ -174,7 +174,7 @@ inline Uint CMeshPartitioner::nb_objects_owned_by_part(const Uint part) const
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_objects_owned_by_part(const Uint part, VectorT& obj_list) const
+void MeshPartitioner::list_of_objects_owned_by_part(const Uint part, VectorT& obj_list) const
 {
   Uint idx=0;
   foreach_container((const Uint glb_obj),*m_global_to_local)
@@ -187,7 +187,7 @@ void CMeshPartitioner::list_of_objects_owned_by_part(const Uint part, VectorT& o
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const
+Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_connections_per_obj) const
 {
   // declaration for boost::tie
   common::Component::Ptr comp;
@@ -221,7 +221,7 @@ Uint CMeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
+void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT& connected_objects) const
 {
   // declaration for boost::tie
   common::Component::Ptr comp;
@@ -257,7 +257,7 @@ void CMeshPartitioner::list_of_connected_objects_in_part(const Uint part, Vector
 //////////////////////////////////////////////////////////////////////////////
 
 template <typename VectorT>
-void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& connected_procs) const
+void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& connected_procs) const
 {
   // declaration for boost::tie
   common::Component::Ptr comp;
@@ -295,4 +295,4 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshPartitioner_hpp
+#endif // cf3_mesh_MeshPartitioner_hpp

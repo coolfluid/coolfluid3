@@ -29,11 +29,11 @@
 
 #include "mesh/LibMesh.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/FieldGroup.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/WriteMesh.hpp"
 #include "mesh/MeshMetadata.hpp"
@@ -47,11 +47,11 @@ using namespace common;
 using namespace common::XML;
 using namespace common::PE;
 
-common::ComponentBuilder < CMesh, Component, LibMesh > CMesh_Builder;
+common::ComponentBuilder < Mesh, Component, LibMesh > Mesh_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh::CMesh ( const std::string& name  ) :
+Mesh::Mesh ( const std::string& name  ) :
   Component ( name ),
   m_dimension(0u),
   m_dimensionality(0u)
@@ -64,15 +64,15 @@ CMesh::CMesh ( const std::string& name  ) :
   m_properties.add_property("dimensionality",Uint(0));
   m_properties.add_property(common::Tags::dimension(),Uint(0));
 
-  m_elements   = create_static_component_ptr<CMeshElements>("elements");
+  m_elements   = create_static_component_ptr<MeshElements>("elements");
   m_topology   = create_static_component_ptr<CRegion>("topology");
   m_metadata   = create_static_component_ptr<MeshMetadata>("metadata");
 
   regist_signal ( "write_mesh" )
       ->description( "Write mesh, guessing automatically the format" )
       ->pretty_name("Write Mesh" )
-      ->connect   ( boost::bind ( &CMesh::signal_write_mesh,    this, _1 ) )
-      ->signature ( boost::bind ( &CMesh::signature_write_mesh, this, _1 ) );
+      ->connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
+      ->signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
   m_nodes = create_static_component_ptr<Geometry>(mesh::Tags::nodes());
   m_nodes->add_tag(mesh::Tags::nodes());
@@ -81,13 +81,13 @@ CMesh::CMesh ( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh::~CMesh()
+Mesh::~Mesh()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
+void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf3_assert(dimension > 0);
 
@@ -110,7 +110,7 @@ void CMesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::update_statistics()
+void Mesh::update_statistics()
 {
   cf3_assert(m_dimension == geometry().coordinates().row_size() );
   boost_foreach ( CEntities& elements, find_components_recursively<CEntities>(topology()) )
@@ -133,7 +133,7 @@ void CMesh::update_statistics()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& CMesh::create_field_group( const std::string& name,
+FieldGroup& Mesh::create_field_group( const std::string& name,
                                        const FieldGroup::Basis::Type base )
 {
   return create_field_group ( name, base, name, topology() );
@@ -141,7 +141,7 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& CMesh::create_field_group( const std::string& name,
+FieldGroup& Mesh::create_field_group( const std::string& name,
                                        const FieldGroup::Basis::Type base,
                                        const std::string& space )
 {
@@ -150,7 +150,7 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& CMesh::create_field_group( const std::string& name,
+FieldGroup& Mesh::create_field_group( const std::string& name,
                                        const FieldGroup::Basis::Type base,
                                        const std::string& space,
                                        const CRegion& topology )
@@ -164,14 +164,14 @@ FieldGroup& CMesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name)
+void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name)
 {
   create_space(name,base,space_lib_name,topology());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology)
+void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, CRegion& topology)
 {
   switch (base)
   {
@@ -196,7 +196,7 @@ void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
+FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
                                                  const FieldGroup::Basis::Type base,
                                                  const std::string& space_lib_name )
 {
@@ -205,7 +205,7 @@ FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
+FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
                                                  const FieldGroup::Basis::Type base,
                                                  const std::string& space_lib_name,
                                                  CRegion& topology )
@@ -216,21 +216,21 @@ FieldGroup& CMesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Geometry& CMesh::geometry() const
+Geometry& Mesh::geometry() const
 {
   return *m_nodes;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshElements& CMesh::elements() const
+MeshElements& Mesh::elements() const
 {
   return *m_elements;
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signature_write_mesh ( SignalArgs& node)
+void Mesh::signature_write_mesh ( SignalArgs& node)
 {
   SignalOptions options( node );
 
@@ -246,7 +246,7 @@ void CMesh::signature_write_mesh ( SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::signal_write_mesh ( SignalArgs& node )
+void Mesh::signal_write_mesh ( SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -278,7 +278,7 @@ void CMesh::signal_write_mesh ( SignalArgs& node )
   write_mesh(fpath,fields);
 }
 
-void CMesh::write_mesh( const URI& file, const std::vector<URI> fields)
+void Mesh::write_mesh( const URI& file, const std::vector<URI> fields)
 {
   WriteMesh& mesh_writer = create_component<WriteMesh>("writer");
   mesh_writer.write_mesh(*this,file,fields);
@@ -287,7 +287,7 @@ void CMesh::write_mesh( const URI& file, const std::vector<URI> fields)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMesh::check_sanity() const
+void Mesh::check_sanity() const
 {
   std::stringstream message;
 

@@ -36,20 +36,20 @@ list( APPEND coolfluid_mesh_files
   CLinearInterpolator.cpp
   CList.hpp
   CList.cpp
-  CMesh.hpp
-  CMesh.cpp
-  CMeshElements.hpp
-  CMeshElements.cpp
-  CMeshGenerator.hpp
-  CMeshGenerator.cpp
-  CMeshPartitioner.hpp
-  CMeshPartitioner.cpp
-  CMeshReader.hpp
-  CMeshReader.cpp
-  CMeshTransformer.hpp
-  CMeshTransformer.cpp
-  CMeshWriter.hpp
-  CMeshWriter.cpp
+  Mesh.hpp
+  Mesh.cpp
+  MeshElements.hpp
+  MeshElements.cpp
+  MeshGenerator.hpp
+  MeshGenerator.cpp
+  MeshPartitioner.hpp
+  MeshPartitioner.cpp
+  MeshReader.hpp
+  MeshReader.cpp
+  MeshTransformer.hpp
+  MeshTransformer.cpp
+  MeshWriter.hpp
+  MeshWriter.cpp
   CMixedHash.hpp
   CMixedHash.cpp
   Geometry.hpp

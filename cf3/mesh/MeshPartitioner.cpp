@@ -20,14 +20,14 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CList.hpp"
-#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/MeshPartitioner.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -39,8 +39,8 @@ namespace mesh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
-    CMeshTransformer(name),
+MeshPartitioner::MeshPartitioner ( const std::string& name ) :
+    MeshTransformer(name),
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
@@ -56,15 +56,15 @@ CMeshPartitioner::CMeshPartitioner ( const std::string& name ) :
   regist_signal( "load_balance" )
     ->description("Partitions and migrates elements between processors")
     ->pretty_name("Load Balance")
-    ->connect ( boost::bind ( &CMeshPartitioner::load_balance,this, _1 ) )
-    ->signature ( boost::bind ( &CMeshPartitioner::load_balance_signature, this, _1));
+    ->connect ( boost::bind ( &MeshPartitioner::load_balance,this, _1 ) )
+    ->signature ( boost::bind ( &MeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::execute()
+void MeshPartitioner::execute()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   initialize(mesh);
   partition_graph();
   //show_changes();
@@ -73,7 +73,7 @@ void CMeshPartitioner::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance( SignalArgs& node  )
+void MeshPartitioner::load_balance( SignalArgs& node  )
 {
   SignalOptions options( node );
 
@@ -83,9 +83,9 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  CMesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<CMesh>();
+  Mesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<Mesh>();
   if ( is_null(mesh) )
-    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid CMesh." );
+    throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid Mesh." );
 
   m_mesh = mesh;
 
@@ -95,7 +95,7 @@ void CMeshPartitioner::load_balance( SignalArgs& node  )
 
 //////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::load_balance_signature ( common::SignalArgs& node )
+void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -105,9 +105,9 @@ void CMeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 
 //////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::initialize(CMesh& mesh)
+void MeshPartitioner::initialize(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<CMesh>();
+  m_mesh = mesh.as_ptr<Mesh>();
 
   Geometry& nodes = mesh.geometry();
   Uint tot_nb_owned_nodes(0);
@@ -162,7 +162,7 @@ void CMeshPartitioner::initialize(CMesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
+void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
 {
 
 
@@ -232,7 +232,7 @@ void CMeshPartitioner::build_global_to_local_index(CMesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::show_changes()
+void MeshPartitioner::show_changes()
 {
   Uint nb_changes(0);
   boost_foreach(std::vector<Uint>& export_nodes_to_part, m_nodes_to_export)
@@ -273,7 +273,7 @@ void CMeshPartitioner::show_changes()
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Uint,Uint> CMeshPartitioner::location_idx(const Uint glb_obj) const
+boost::tuple<Uint,Uint> MeshPartitioner::location_idx(const Uint glb_obj) const
 {
   CMap<Uint,Uint>::const_iterator itr = m_global_to_local->find(glb_obj);
   if (itr != m_global_to_local->end() )
@@ -285,7 +285,7 @@ boost::tuple<Uint,Uint> CMeshPartitioner::location_idx(const Uint glb_obj) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Component::Ptr,Uint> CMeshPartitioner::location(const Uint glb_obj) const
+boost::tuple<Component::Ptr,Uint> MeshPartitioner::location(const Uint glb_obj) const
 {
   return m_lookup->location( (*m_global_to_local)[glb_obj] );
 }
@@ -419,7 +419,7 @@ void flex_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE:
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshPartitioner::migrate()
+void MeshPartitioner::migrate()
 {
   if (PE::Comm::instance().is_active() == false)
     return;
@@ -439,7 +439,7 @@ void CMeshPartitioner::migrate()
     return;
 
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
   Geometry& nodes = mesh.geometry();
 
   // ----------------------------------------------------------------------------

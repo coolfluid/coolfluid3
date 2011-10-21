@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshTransformer_hpp
-#define cf3_mesh_CMeshTransformer_hpp
+#ifndef cf3_mesh_MeshTransformer_hpp
+#define cf3_mesh_MeshTransformer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,54 +18,54 @@
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshTransformer component class
+/// MeshTransformer component class
 /// This class serves as a component that that will operate on meshes
 /// @author Willem Deconinck
-class Mesh_API CMeshTransformer : public common::CAction
+class Mesh_API MeshTransformer : public common::CAction
 {
 
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<CMeshTransformer> Ptr;
-  typedef boost::shared_ptr<CMeshTransformer const> ConstPtr;
+  typedef boost::shared_ptr<MeshTransformer> Ptr;
+  typedef boost::shared_ptr<MeshTransformer const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshTransformer ( const std::string& name );
+  MeshTransformer ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshTransformer();
+  virtual ~MeshTransformer();
 
   /// Get the class name
-  static std::string type_name () { return "CMeshTransformer"; }
+  static std::string type_name () { return "MeshTransformer"; }
 
   // --------- Direct access ---------
 
-  virtual void transform(boost::shared_ptr<CMesh> mesh);
-  virtual void transform(CMesh& mesh);
+  virtual void transform(boost::shared_ptr<Mesh> mesh);
+  virtual void transform(Mesh& mesh);
 
   virtual void execute();
 
   /// extended help that user can query
   virtual std::string help() const;
 
-  void set_mesh(boost::shared_ptr<CMesh> mesh);
-  void set_mesh(CMesh& mesh);
+  void set_mesh(boost::shared_ptr<Mesh> mesh);
+  void set_mesh(Mesh& mesh);
 
-  CMesh& mesh()
+  Mesh& mesh()
   {
     cf3_assert(m_mesh.expired() == false);
     return *m_mesh.lock();
   }
 
-  const CMesh& mesh() const
+  const Mesh& mesh() const
   {
     cf3_assert(m_mesh.expired() == false);
     return *m_mesh.lock();
@@ -73,7 +73,7 @@ public: // functions
 
 protected: // data
 
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
 
 };
 
@@ -84,4 +84,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshTransformer_hpp
+#endif // cf3_mesh_MeshTransformer_hpp

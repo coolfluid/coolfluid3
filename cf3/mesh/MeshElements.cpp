@@ -7,9 +7,9 @@
 #include "common/CBuilder.hpp"
 
 #include "mesh/CRegion.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CEntities.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,20 +18,20 @@ namespace mesh {
 
   using namespace common;
 
-ComponentBuilder<CMeshElements, Component, LibMesh> CMeshElements_Builder;
+ComponentBuilder<MeshElements, Component, LibMesh> MeshElements_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshElements::CMeshElements(const std::string& name) :
+MeshElements::MeshElements(const std::string& name) :
   CUnifiedData(name)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshElements::update()
+void MeshElements::update()
 {
-  CMesh& mesh = find_parent_component<CMesh>(*this);
+  Mesh& mesh = find_parent_component<Mesh>(*this);
   boost_foreach(CEntities& elements, find_components_recursively<CEntities>(mesh.topology()))
     add(elements);
 }

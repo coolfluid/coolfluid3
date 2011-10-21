@@ -11,7 +11,7 @@
 #include "common/CEnv.hpp"
 #include "common/Core.hpp"
 
-#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshWriter.hpp"
 #include "mesh/MeshMetadata.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Field.hpp"
@@ -23,7 +23,7 @@ using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshWriter::CMeshWriter ( const std::string& name  ) :
+MeshWriter::MeshWriter ( const std::string& name  ) :
   CAction ( name )
 {
   mark_basic();
@@ -32,7 +32,7 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
   m_options.add_option< OptionArrayT<URI> >("fields",fields)
       ->description("Fields to ouptut")
       ->mark_basic()
-      ->attach_trigger( boost::bind( &CMeshWriter::config_fields, this ) );
+      ->attach_trigger( boost::bind( &MeshWriter::config_fields, this ) );
 
   // Path to the mesh to write
   m_options.add_option( OptionURI::create("mesh", URI(), URI::Scheme::CPATH) )
@@ -48,14 +48,14 @@ CMeshWriter::CMeshWriter ( const std::string& name  ) :
 
   // signal for writing the mesh
   regist_signal( "write_mesh" )
-    ->connect( boost::bind( &CMeshWriter::signal_write, this, _1 ) )
+    ->connect( boost::bind( &MeshWriter::signal_write, this, _1 ) )
     ->description("Write the mesh")
     ->pretty_name("Write Mesh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::config_fields()
+void MeshWriter::config_fields()
 {
   std::vector<URI> field_uris;
   m_options["fields"].put_value(field_uris);
@@ -71,7 +71,7 @@ void CMeshWriter::config_fields()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::set_fields(const std::vector<Field::Ptr>& fields)
+void MeshWriter::set_fields(const std::vector<Field::Ptr>& fields)
 {
   m_fields.resize(0);
   boost_foreach( Field::Ptr field, fields )
@@ -80,23 +80,23 @@ void CMeshWriter::set_fields(const std::vector<Field::Ptr>& fields)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshWriter::~CMeshWriter()
+MeshWriter::~MeshWriter()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::signal_write( SignalArgs& node  )
+void MeshWriter::signal_write( SignalArgs& node  )
 {
   execute();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshWriter::execute()
+void MeshWriter::execute()
 {
   // Get the mesh
-  const CMesh& mesh = access_component(option("mesh").value<URI>()).as_type<CMesh>();
+  const Mesh& mesh = access_component(option("mesh").value<URI>()).as_type<Mesh>();
 
   // Get the file path
   std::string file = option("file").value<URI>().string();

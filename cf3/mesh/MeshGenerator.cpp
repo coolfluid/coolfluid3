@@ -12,9 +12,9 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshGenerator.hpp"
-#include "mesh/CMesh.hpp"
-#include "mesh/CMeshElements.hpp"
+#include "mesh/MeshGenerator.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshElements.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -24,7 +24,7 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
+MeshGenerator::MeshGenerator ( const std::string& name  ) :
   CAction ( name )
 {
   mark_basic();
@@ -33,17 +33,17 @@ CMeshGenerator::CMeshGenerator ( const std::string& name  ) :
       ->description("Mesh that will be generated")
       ->pretty_name("Mesh")
       ->mark_basic()
-      ->attach_trigger( boost::bind( &CMeshGenerator::config_mesh , this) );
+      ->attach_trigger( boost::bind( &MeshGenerator::config_mesh , this) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshGenerator::config_mesh()
+void MeshGenerator::config_mesh()
 {
   URI mesh_uri = option("mesh").value<URI>();
   if ( Component::Ptr found_mesh = Core::instance().root().access_component_ptr( mesh_uri ) )
   {
-    m_mesh = found_mesh->as_ptr_checked<CMesh>();
+    m_mesh = found_mesh->as_ptr_checked<Mesh>();
   }
   else
   {
@@ -51,7 +51,7 @@ void CMeshGenerator::config_mesh()
     std::string mesh_name = mesh_uri.name();
     if ( Component::Ptr found_parent = Core::instance().root().access_component_ptr( parent_uri ) )
     {
-      m_mesh = found_parent->create_component_ptr<CMesh>(mesh_name);
+      m_mesh = found_parent->create_component_ptr<Mesh>(mesh_name);
     }
     else
     {
@@ -62,7 +62,7 @@ void CMeshGenerator::config_mesh()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMesh& CMeshGenerator::generate()
+Mesh& MeshGenerator::generate()
 {
   execute();
   return *m_mesh.lock();
@@ -70,9 +70,9 @@ CMesh& CMeshGenerator::generate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshGenerator::raise_mesh_loaded()
+void MeshGenerator::raise_mesh_loaded()
 {
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
   mesh.update_statistics();
   mesh.elements().update();
@@ -87,7 +87,7 @@ void CMeshGenerator::raise_mesh_loaded()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshGenerator::~CMeshGenerator()
+MeshGenerator::~MeshGenerator()
 {
 }
 

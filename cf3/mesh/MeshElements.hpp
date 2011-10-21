@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshElements_hpp
-#define cf3_mesh_CMeshElements_hpp
+#ifndef cf3_mesh_MeshElements_hpp
+#define cf3_mesh_MeshElements_hpp
 
 #include "mesh/CUnifiedData.hpp"
 
@@ -14,7 +14,7 @@
 namespace cf3 {
 namespace mesh {
   
-  class CMesh;
+  class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,28 +22,28 @@ namespace mesh {
 /// with a continuous index
 /// @pre the data components must be of the same type and must have
 ///      a member function "Uint size() const" defined.
-class Mesh_API CMeshElements : public CUnifiedData
+class Mesh_API MeshElements : public CUnifiedData
 {
 public: //typedefs
 
-  typedef boost::shared_ptr<CMeshElements> Ptr;
-  typedef boost::shared_ptr<CMeshElements const> ConstPtr;
+  typedef boost::shared_ptr<MeshElements> Ptr;
+  typedef boost::shared_ptr<MeshElements const> ConstPtr;
   
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshElements ( const std::string& name );
+  MeshElements ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshElements() {}
+  virtual ~MeshElements() {}
 
   /// Get the class name
-  static std::string type_name () { return "CMeshElements"; }
+  static std::string type_name () { return "MeshElements"; }
 
   void update();
   
-}; // CMeshElements
+}; // MeshElements
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,4 +52,4 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshElements_hpp
+#endif // cf3_mesh_MeshElements_hpp

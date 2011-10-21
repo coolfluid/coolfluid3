@@ -21,7 +21,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/CMeshReader.hpp"
+#include "mesh/MeshReader.hpp"
 #include "mesh/CRegion.hpp"
 #include "mesh/CDomain.hpp"
 #include "mesh/CCells.hpp"
@@ -36,28 +36,28 @@ using namespace common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshReader::CMeshReader ( const std::string& name  ) :
+MeshReader::MeshReader ( const std::string& name  ) :
   Component ( name )
 {
   mark_basic();
 
   // signals
   regist_signal( "read" )
-    ->connect( boost::bind( &CMeshReader::signal_read, this, _1 ) )
+    ->connect( boost::bind( &MeshReader::signal_read, this, _1 ) )
     ->description("reads a mesh")
     ->pretty_name("Read mesh");
-  signal("read")->signature( boost::bind(&CMeshReader::read_signature, this, _1) );
+  signal("read")->signature( boost::bind(&MeshReader::read_signature, this, _1) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshReader::~CMeshReader()
+MeshReader::~MeshReader()
 {
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::signal_read( SignalArgs& node  )
+void MeshReader::signal_read( SignalArgs& node  )
 {
   SignalOptions options( node );
 
@@ -81,7 +81,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
   // create a mesh in the domain
   if( !files.empty() )
   {
-    CMesh& mesh = location->create_component<CMesh>("Mesh");
+    Mesh& mesh = location->create_component<Mesh>("Mesh");
 
     // Get the file paths
     boost_foreach(const URI& file, files)
@@ -97,7 +97,7 @@ void CMeshReader::signal_read( SignalArgs& node  )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
+void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 {
   // Call the concrete implementation
 
@@ -114,10 +114,10 @@ void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
 
 //////////////////////////////////////////////////////////////////////////////
 
-//CMesh::Ptr CMeshReader::create_mesh_from(const URI& file)
+//Mesh::Ptr MeshReader::create_mesh_from(const URI& file)
 //{
 //  // Create the mesh
-//  CMesh::Ptr mesh ( allocate_component<CMesh>("mesh") );
+//  Mesh::Ptr mesh ( allocate_component<Mesh>("mesh") );
 
 //  // Call implementation
 //  do_read_mesh_into(file,*mesh);
@@ -129,7 +129,7 @@ void CMeshReader::read_mesh_into(const URI& path, CMesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_cells_in_region (CRegion& parent_region, Geometry& nodes,
+  MeshReader::create_cells_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> cells_map;
@@ -149,7 +149,7 @@ std::map<std::string,CElements::Ptr>
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CElements::Ptr>
-  CMeshReader::create_faces_in_region (CRegion& parent_region, Geometry& nodes,
+  MeshReader::create_faces_in_region (CRegion& parent_region, Geometry& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,CElements::Ptr> faces_map;
@@ -169,7 +169,7 @@ std::map<std::string,CElements::Ptr>
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,CTable<Uint>::Buffer::Ptr>
-  CMeshReader::create_connectivity_buffermap (std::map<std::string,CElements::Ptr>& elems_map)
+  MeshReader::create_connectivity_buffermap (std::map<std::string,CElements::Ptr>& elems_map)
 {
   // Create regions for each element type
   std::map<std::string,CTable<Uint>::Buffer::Ptr> buffermap;
@@ -182,7 +182,7 @@ std::map<std::string,CTable<Uint>::Buffer::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
+void MeshReader::remove_empty_element_regions(CRegion& parent_region)
 {
   boost_foreach(CElements& region, find_components_recursively<CElements>(parent_region))
   {
@@ -215,7 +215,7 @@ void CMeshReader::remove_empty_element_regions(CRegion& parent_region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshReader::read_signature( SignalArgs& node )
+void MeshReader::read_signature( SignalArgs& node )
 {
   SignalOptions options( node );
 

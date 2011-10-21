@@ -14,7 +14,7 @@
 #include "common/CRoot.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "Tools/MeshTransformer/Transformer.hpp"
 #include "Tools/Shell/Interpreter.hpp"
@@ -46,7 +46,7 @@ int main(int argc, char * argv[])
 
     // create mesh object
     CRoot& root = Core::instance().root();
-    CMesh::Ptr mesh = root.create_component_ptr<CMesh>("mesh");
+    Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
     // Initialize empty commands
     options_description desc;

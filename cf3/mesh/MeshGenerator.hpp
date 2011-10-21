@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshGenerator_hpp
-#define cf3_mesh_CMeshGenerator_hpp
+#ifndef cf3_mesh_MeshGenerator_hpp
+#define cf3_mesh_MeshGenerator_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,46 +14,46 @@
 #include "common/CAction.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CTable.hpp"
 
 namespace cf3 {
 namespace mesh {
 
-  class CMesh;
+  class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshGenerator component class
+/// MeshGenerator component class
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API CMeshGenerator : public common::CAction {
+class Mesh_API MeshGenerator : public common::CAction {
 
 public: // typedefs
 
   /// type of pointer to Component
-  typedef boost::shared_ptr<CMeshGenerator> Ptr;
+  typedef boost::shared_ptr<MeshGenerator> Ptr;
   /// type of pointer to constant Component
-  typedef boost::shared_ptr<CMeshGenerator const> ConstPtr;
+  typedef boost::shared_ptr<MeshGenerator const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshGenerator ( const std::string& name );
+  MeshGenerator ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshGenerator();
+  virtual ~MeshGenerator();
 
   /// Get the class name
-  static std::string type_name () { return "CMeshGenerator"; }
+  static std::string type_name () { return "MeshGenerator"; }
 
   /// execute
   virtual void execute() = 0;
 
   /// generate, wraps execute() and returns the mesh reference
-  CMesh& generate();
+  Mesh& generate();
 
 private: // functions
 
@@ -65,7 +65,7 @@ protected: // functions
 
 protected: // data
 
-  boost::weak_ptr<CMesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
 
 };
 
@@ -76,4 +76,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshGenerator_hpp
+#endif // cf3_mesh_MeshGenerator_hpp

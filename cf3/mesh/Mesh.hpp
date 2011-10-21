@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMesh_hpp
-#define cf3_mesh_CMesh_hpp
+#ifndef cf3_mesh_Mesh_hpp
+#define cf3_mesh_Mesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,7 +21,7 @@ namespace mesh {
 
   class Geometry;
   class CRegion;
-  class CMeshElements;
+  class MeshElements;
   class MeshMetadata;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,25 +32,25 @@ namespace mesh {
 ///   - arrays containing coordinates, variables, ...
 /// @author Tiago Quintino
 /// @author Willem Deconinck
-class Mesh_API CMesh : public common::Component {
+class Mesh_API Mesh : public common::Component {
 public: // typedefs
 
-  typedef boost::shared_ptr<CMesh> Ptr;
-  typedef boost::shared_ptr<CMesh const> ConstPtr;
+  typedef boost::shared_ptr<Mesh> Ptr;
+  typedef boost::shared_ptr<Mesh const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMesh ( const std::string& name );
+  Mesh ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMesh();
+  virtual ~Mesh();
 
   /// Get the class name
-  static std::string type_name () { return "CMesh"; }
+  static std::string type_name () { return "Mesh"; }
 
-  // functions specific to the CMesh component
+  // functions specific to the Mesh component
 
   /// @return the geometry topology
   CRegion& topology() const { return *m_topology; }
@@ -84,7 +84,7 @@ public: // functions
   Geometry& geometry() const;
 
   /// @return linearized view of all the entities in the mesh
-  CMeshElements& elements() const;
+  MeshElements& elements() const;
 
   /// @return metadata component
   MeshMetadata& metadata() { return *m_metadata; }
@@ -113,7 +113,7 @@ private: // data
 
   Uint m_dimensionality;
 
-  boost::shared_ptr<CMeshElements> m_elements;
+  boost::shared_ptr<MeshElements> m_elements;
 
   boost::shared_ptr<MeshMetadata> m_metadata;
 
@@ -130,4 +130,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMesh_hpp
+#endif // cf3_mesh_Mesh_hpp

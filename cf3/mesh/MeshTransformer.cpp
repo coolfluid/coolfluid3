@@ -9,24 +9,24 @@
 #include "common/FindComponents.hpp"
 #include "common/CBuilder.hpp"
 
-#include "mesh/CMeshTransformer.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/MeshTransformer.hpp"
+#include "mesh/Mesh.hpp"
 
 namespace cf3 {
 namespace mesh {
 
 using namespace common;
 
-common::ComponentBuilder < CMeshTransformer, CMeshTransformer, LibMesh> CMeshTransformer_Builder;
+common::ComponentBuilder < MeshTransformer, MeshTransformer, LibMesh> MeshTransformer_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
+MeshTransformer::MeshTransformer ( const std::string& name  ) :
   CAction ( name )
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<CMesh>::create("mesh", &m_mesh))
+  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description( "The mesh to be transformed" )
       ->pretty_name( "Mesh" )
       ->mark_basic();
@@ -34,7 +34,7 @@ CMeshTransformer::CMeshTransformer ( const std::string& name  ) :
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string CMeshTransformer::help() const
+std::string MeshTransformer::help() const
 {
   return "  " + properties().value<std::string>("brief") + "\n" +
       properties().value<std::string>("description");
@@ -42,37 +42,37 @@ std::string CMeshTransformer::help() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::set_mesh(CMesh::Ptr mesh)
+void MeshTransformer::set_mesh(Mesh::Ptr mesh)
 {
   set_mesh(*mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::set_mesh(CMesh& mesh)
+void MeshTransformer::set_mesh(Mesh& mesh)
 {
-  m_mesh=mesh.as_ptr<CMesh>();
-  boost_foreach(CMeshTransformer& meshtransformer, find_components<CMeshTransformer>(*this))
+  m_mesh=mesh.as_ptr<Mesh>();
+  boost_foreach(MeshTransformer& meshtransformer, find_components<MeshTransformer>(*this))
     meshtransformer.set_mesh(mesh);
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CMeshTransformer::~CMeshTransformer()
+MeshTransformer::~MeshTransformer()
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::transform(CMesh::Ptr mesh)
+void MeshTransformer::transform(Mesh::Ptr mesh)
 {
   transform(*mesh);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::transform(CMesh& mesh)
+void MeshTransformer::transform(Mesh& mesh)
 {
   set_mesh(mesh);
   execute();
@@ -80,9 +80,9 @@ void CMeshTransformer::transform(CMesh& mesh)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CMeshTransformer::execute()
+void MeshTransformer::execute()
 {
-  boost_foreach(CMeshTransformer& meshtransformer, find_components<CMeshTransformer>(*this))
+  boost_foreach(MeshTransformer& meshtransformer, find_components<MeshTransformer>(*this))
     meshtransformer.transform(*m_mesh.lock());
 }
 

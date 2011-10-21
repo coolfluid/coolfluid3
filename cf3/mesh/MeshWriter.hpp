@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CMeshWriter_hpp
-#define cf3_mesh_CMeshWriter_hpp
+#ifndef cf3_mesh_MeshWriter_hpp
+#define cf3_mesh_MeshWriter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,7 +13,7 @@
 #include "common/CAction.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 #include "mesh/CElements.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -26,29 +26,29 @@ namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// CMeshWriter component class
+/// MeshWriter component class
 /// This class serves as a component that that will write
 /// the mesh to a file
 /// @author Willem Deconinck
-class Mesh_API CMeshWriter : public common::CAction {
+class Mesh_API MeshWriter : public common::CAction {
 
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<CMeshWriter> Ptr;
-  typedef boost::shared_ptr<CMeshWriter const> ConstPtr;
+  typedef boost::shared_ptr<MeshWriter> Ptr;
+  typedef boost::shared_ptr<MeshWriter const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CMeshWriter ( const std::string& name );
+  MeshWriter ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CMeshWriter();
+  virtual ~MeshWriter();
 
   /// Get the class name
-  static std::string type_name () { return "CMeshWriter"; }
+  static std::string type_name () { return "MeshWriter"; }
 
   // --------- Signals ---------
 
@@ -60,7 +60,7 @@ public: // functions
 
   virtual std::vector<std::string> get_extensions() = 0;
 
-  virtual void write_from_to(const CMesh& mesh, const common::URI& filepath) = 0;
+  virtual void write_from_to(const Mesh& mesh, const common::URI& filepath) = 0;
 
   virtual void execute();
 
@@ -87,7 +87,7 @@ protected: // classes
 protected:
 
   // TODO: remove this
-  const CMesh* m_mesh;
+  const Mesh* m_mesh;
 
   std::vector<boost::weak_ptr<Field> > m_fields;
 
@@ -100,4 +100,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CMeshWriter_hpp
+#endif // cf3_mesh_MeshWriter_hpp
