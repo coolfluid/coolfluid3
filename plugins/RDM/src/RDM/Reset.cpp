@@ -76,7 +76,7 @@ void Reset::config_field_tags()
   RDSolver& mysolver = solver().as_type<RDSolver>();
 
   boost_foreach(const std::string tag, vec)
-    boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
+    boost_foreach( Link& link, find_components_with_tag<Link>( mysolver.fields(), tag ) )
     {
       if( Field::Ptr field = link.follow()->as_ptr<Field>() )
       {

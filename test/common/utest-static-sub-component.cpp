@@ -17,7 +17,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Root.hpp"
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 using namespace std;
 using namespace boost;

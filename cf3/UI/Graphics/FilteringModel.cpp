@@ -29,7 +29,7 @@ FilteringModel::FilteringModel(QObject *parent) :
   m_icons["CF.Common.Group"] = prov.icon(QFileIconProvider::Folder);
   m_icons["CF.Mesh.Mesh"] = prov.icon(QFileIconProvider::Drive);
   m_icons["CF.Mesh.MeshReader"] = prov.icon(QFileIconProvider::Trashcan);
-  m_icons["CF.Common.CLink"] = prov.icon(QFileIconProvider::Network);
+  m_icons["CF.Common.Link"] = prov.icon(QFileIconProvider::Network);
   m_icons["NLog"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NBrowser"] = prov.icon(QFileIconProvider::Folder);
   m_icons["NTree"] = prov.icon(QFileIconProvider::Folder);

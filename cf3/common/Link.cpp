@@ -11,7 +11,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 using namespace cf3::common::XML;
 
@@ -20,79 +20,79 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CLink, Component, LibCommon > CLink_Builder;
+common::ComponentBuilder < Link, Component, LibCommon > Link_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLink::CLink ( const std::string& name) : Component ( name )
+Link::Link ( const std::string& name) : Component ( name )
 {
   m_is_link = true;
 
   regist_signal( "change_link" )
-    ->connect( boost::bind( &CLink::change_link, this, _1 ) )
+    ->connect( boost::bind( &Link::change_link, this, _1 ) )
     ->description("Change link path")
     ->pretty_name("Change target");
 }
 
 
-CLink::~CLink()
+Link::~Link()
 {
 }
 
 
-Component::Ptr CLink::follow()
-{
-//  cf3_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
-  return m_link_component.lock();
-}
-
-Component::ConstPtr CLink::follow() const
+Component::Ptr Link::follow()
 {
 //  cf3_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
   return m_link_component.lock();
 }
 
+Component::ConstPtr Link::follow() const
+{
+//  cf3_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
+  return m_link_component.lock();
+}
 
-bool CLink::is_linked () const
+
+bool Link::is_linked () const
 {
   return !m_link_component.expired();
 }
 
 
-CLink& CLink::link_to ( Component::Ptr lnkto )
+Link& Link::link_to ( Component::Ptr lnkto )
 {
   if ( is_null(lnkto) )
     throw BadValue(FromHere(), "Cannot link to null component");
 
   if (lnkto->is_link())
-    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+    throw SetupError(FromHere(), "Cannot link a Link to another Link");
 
   m_link_component = lnkto;
   return *this;
 }
 
 
-CLink& CLink::link_to ( Component& lnkto )
+Link& Link::link_to ( Component& lnkto )
 {
   if (lnkto.is_link())
-    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+    throw SetupError(FromHere(), "Cannot link a Link to another Link");
 
   m_link_component = lnkto.self();
   return *this;
 }
 
 
-CLink& CLink::link_to ( Component const& lnkto )
+Link& Link::link_to ( Component const& lnkto )
 {
   if (lnkto.is_link())
-    throw SetupError(FromHere(), "Cannot link a CLink to another CLink");
+    throw SetupError(FromHere(), "Cannot link a Link to another Link");
 
   m_link_component = boost::const_pointer_cast<Component>(lnkto.self());
   return *this;
 }
 
 
-void CLink::change_link( SignalArgs & args )
+void Link::change_link( SignalArgs & args )
 {
   SignalOptions options( args );
   SignalFrame reply = args.create_reply();

@@ -30,7 +30,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////
 
 NLink::NLink(const std::string & name)
-  : CNode(name, "CLink", CNode::STANDARD_NODE)
+  : CNode(name, "Link", CNode::STANDARD_NODE)
 {
   regist_signal( "goToTarget" )
     ->connect( boost::bind( &NLink::goToTarget, this, _1 ) )

@@ -635,7 +635,7 @@ CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkT
   if( typeName == "CCore" )
     return rootNode;
 
-  if( typeName == "CLink" )
+  if( typeName == "Link" )
   {
     NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(nodeName));
     rootNode = link;

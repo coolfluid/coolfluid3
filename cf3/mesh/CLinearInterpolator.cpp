@@ -15,7 +15,7 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "math/Consts.hpp"
 #include "mesh/CLinearInterpolator.hpp"

@@ -19,7 +19,7 @@
 
 namespace cf3 {
 namespace common {
-  class CLink;
+  class Link;
   namespace PE { class CommPattern; }
 }
 namespace math { class VariablesDescriptor; }
@@ -170,7 +170,7 @@ protected:
 
   Uint m_size;
 
-  boost::shared_ptr<common::CLink> m_topology;
+  boost::shared_ptr<common::Link> m_topology;
   boost::shared_ptr<CList<Uint> > m_glb_idx;
   boost::shared_ptr<CList<Uint> > m_rank;
   boost::shared_ptr<CUnifiedData> m_elements_lookup;

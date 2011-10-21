@@ -16,7 +16,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common { class CLink; }
+namespace common { class Link; }
 namespace Solver { class CModelUnsteady; }
 namespace SFDM {
 
@@ -75,7 +75,7 @@ private: // functions
   void build_setup();
 
 private: // data
-  boost::shared_ptr<common::CLink> m_model_link;
+  boost::shared_ptr<common::Link> m_model_link;
 
 }; // end SFDWizard
 

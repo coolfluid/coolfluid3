@@ -191,14 +191,14 @@ void IterativeSolver::link_fields()
     }
     else if ( Component::Ptr found_solution_backup = m_solution.lock()->field_group().get_child_ptr( "solution_backup" ) )
     {
-      solver().field_manager().create_component<CLink>("solution_backup").link_to(found_solution_backup);
+      solver().field_manager().create_component<Link>("solution_backup").link_to(found_solution_backup);
       m_solution_backup = found_solution_backup->as_ptr<Field>();
     }
     else
     {
       m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup", m_solution.lock()->descriptor().description()).as_ptr<Field>();
       m_solution_backup.lock()->descriptor().prefix_variable_names("backup_");
-      solver().field_manager().create_component<CLink>("solution_backup").link_to(*m_solution_backup.lock());
+      solver().field_manager().create_component<Link>("solution_backup").link_to(*m_solution_backup.lock());
     }
   }
 }

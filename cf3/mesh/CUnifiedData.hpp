@@ -11,7 +11,7 @@
 
 #include "common/Component.hpp"
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/StringConversion.hpp"
 
 #include "mesh/CList.hpp"
@@ -123,7 +123,7 @@ inline void CUnifiedData::add(DATA& data)
   {
     m_start_idx[actual_data.get()] = m_size;
 
-    m_data_links->create_component_ptr<common::CLink>("data_component_"+common::to_str(m_data_vector.size()))->link_to(*actual_data);
+    m_data_links->create_component_ptr<common::Link>("data_component_"+common::to_str(m_data_vector.size()))->link_to(*actual_data);
 
     m_data_vector.push_back(actual_data->as_non_const());
     m_size += actual_data->size();

@@ -9,7 +9,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -154,16 +154,16 @@ void SetupMultipleSolutions::execute()
   // create links
 
   if( ! fields.get_child_ptr( solution->name() ) )
-    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
+    fields.create_component<Link>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
   if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
+    fields.create_component<Link>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+    fields.create_component<Link>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
   for( Uint step = 1; step < rk_steps.size(); ++step)
   {
     if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
-      fields.create_component<CLink>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
+      fields.create_component<Link>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
   }
 
 

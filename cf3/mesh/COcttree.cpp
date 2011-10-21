@@ -16,7 +16,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"

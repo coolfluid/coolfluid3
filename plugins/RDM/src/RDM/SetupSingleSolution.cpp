@@ -7,7 +7,7 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -124,11 +124,11 @@ void SetupSingleSolution::execute()
   // place link to the fields in the Fields group
 
   if( ! fields.get_child_ptr( RDM::Tags::solution() ) )
-    fields.create_component<CLink>( RDM::Tags::solution()   ).link_to(solution).add_tag(RDM::Tags::solution());
+    fields.create_component<Link>( RDM::Tags::solution()   ).link_to(solution).add_tag(RDM::Tags::solution());
   if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
+    fields.create_component<Link>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+    fields.create_component<Link>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
 
   /// @todo apply here the bubble insertion if needed

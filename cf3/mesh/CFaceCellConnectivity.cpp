@@ -9,7 +9,7 @@
 
 #include "common/OptionT.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Log.hpp"
 #include "common/CBuilder.hpp"
 
@@ -67,7 +67,7 @@ void CFaceCellConnectivity::setup(CRegion& region)
 std::vector<Component::Ptr> CFaceCellConnectivity::used()
 {
   std::vector<Component::Ptr> vec;
-  boost_foreach( CLink& link, find_components<CLink>(*m_used_components) )
+  boost_foreach( Link& link, find_components<Link>(*m_used_components) )
   {
     vec.push_back(link.follow());
   }
@@ -89,7 +89,7 @@ void CFaceCellConnectivity::add_used (const Component& used_comp)
     }
   }
   if (found == false)
-    m_used_components->create_component_ptr<CLink>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
+    m_used_components->create_component_ptr<Link>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
 
   m_mesh_elements = find_parent_component<Mesh>(used_comp).elements().as_non_const()->as_ptr<MeshElements>();
 }

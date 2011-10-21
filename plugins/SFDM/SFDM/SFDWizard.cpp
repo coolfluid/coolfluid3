@@ -147,7 +147,7 @@ SFDWizard::SFDWizard( const std::string& name )
     ->connect ( boost::bind ( &SFDWizard::signal_start_simulation, this, _1 ) )
     ->signature( boost::bind ( &SFDWizard::signature_start_simulation, this, _1) );
 
-  m_model_link = create_static_component_ptr<CLink>("current_model");
+  m_model_link = create_static_component_ptr<Link>("current_model");
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@
 #include "common/FindComponents.hpp"
 #include "common/CBuilder.hpp"
 #include "common/OptionT.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "mesh/CSpace.hpp"
 #include "mesh/CElements.hpp"
@@ -45,7 +45,7 @@ CSpace::CSpace ( const std::string& name ) :
 
   m_connectivity = create_static_component_ptr<CConnectivity>("connectivity");
 
-  m_bound_fields = create_static_component_ptr<CLink>("bound_fields");
+  m_bound_fields = create_static_component_ptr<Link>("bound_fields");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

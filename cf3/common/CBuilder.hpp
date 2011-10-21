@@ -15,7 +15,7 @@
 
 #include "common/CFactories.hpp"
 #include "common/Root.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Core.hpp"
 #include "common/CLibrary.hpp"
 #include "common/CLibraries.hpp"
@@ -177,11 +177,11 @@ struct ComponentBuilder
     ///       when including CBuilder.cpp instead of CBuilder.hpp
     cf3_assert ( builder->template as_ptr<CBuilder>() );
 
-    // put a CLink to the builder in the respective CLibrary
+    // put a Link to the builder in the respective CLibrary
     CLibrary::Ptr lib = Core::instance().libraries().library<LIB>();
     cf3_assert ( is_not_null(lib) );
 
-    CLink::Ptr builder_link = lib->create_component_ptr<CLink>( name );
+    Link::Ptr builder_link = lib->create_component_ptr<Link>( name );
     cf3_assert ( is_not_null(builder_link) );
 
     builder_link->link_to(builder);

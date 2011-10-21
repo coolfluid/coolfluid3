@@ -7,7 +7,7 @@
 #include <set>
 
 #include <boost/assign/list_of.hpp>
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"

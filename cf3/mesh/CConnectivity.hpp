@@ -16,7 +16,7 @@
 
 namespace cf3 {
 namespace common {
-  class CLink;
+  class Link;
   class Group;
 }
 namespace mesh {
@@ -58,7 +58,7 @@ private: // data
 
   boost::shared_ptr<CUnifiedData> m_lookup;
 
-  boost::shared_ptr<common::CLink> m_lookup_link;
+  boost::shared_ptr<common::Link> m_lookup_link;
 
 }; // CConnectivity
 

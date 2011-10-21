@@ -7,7 +7,7 @@
 #include <set>
 
 #include "common/Log.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Group.hpp"
 #include "common/CBuilder.hpp"
 

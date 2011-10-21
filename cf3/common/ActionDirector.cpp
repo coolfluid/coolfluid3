@@ -84,7 +84,7 @@ ActionDirector& ActionDirector::append(const Action::Ptr& action)
   {
     if(action->has_parent())
     {
-      CLink& action_link = create_component<CLink>(action->name());
+      Link& action_link = create_component<Link>(action->name());
       action_link.link_to(action);
     }
     else

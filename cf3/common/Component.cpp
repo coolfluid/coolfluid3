@@ -770,7 +770,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
     this_node.set_attribute( "uuid", m_properties.value_str("uuid") );
 
-    CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_ptr<CLink>();
+    Link::Ptr lnk = boost::dynamic_pointer_cast<Link>(shared_from_this());//this->as_ptr<Link>();
 
     if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {

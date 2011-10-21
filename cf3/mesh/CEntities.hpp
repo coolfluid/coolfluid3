@@ -16,7 +16,7 @@
 #include "mesh/CTable.hpp"
 
 namespace cf3 {
-namespace common { class CLink; class Group;}
+namespace common { class Link; class Group;}
 namespace mesh {
 
   template <typename T> class CList;

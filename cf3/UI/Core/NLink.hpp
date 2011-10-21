@@ -22,7 +22,7 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-  /// @brief Client corresponding component for @c cf3::common::CLink.
+  /// @brief Client corresponding component for @c cf3::common::Link.
   /// @author Quentin Gasper.
 
   class Core_API NLink :

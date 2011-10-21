@@ -16,12 +16,12 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/CBuilder.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/StringConversion.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Tags.hpp"
 #include "common/XML/SignalOptions.hpp"
 
@@ -116,7 +116,7 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
     ->mark_basic();
 
   // Static components
-  m_topology = create_static_component_ptr<CLink>("topology");
+  m_topology = create_static_component_ptr<Link>("topology");
   m_elements_lookup = create_static_component_ptr<CUnifiedData>("elements_lookup");
 
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
@@ -409,7 +409,7 @@ void FieldGroup::bind_space()
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
   boost_foreach(CEntities& entities, entities_range())
-    entities.space(m_space).get_child("bound_fields").as_type<CLink>().link_to(*this);
+    entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
 }
 
 std::size_t hash_value(const RealMatrix& coords)
@@ -546,7 +546,7 @@ void FieldGroup::create_connectivity_in_space()
       Geometry& geometry = entities.geometry();
       CConnectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       CList<Uint>& geometry_rank = entities.geometry().rank();
-      entities.space(m_space).get_child("bound_fields").as_type<CLink>().link_to(*this);
+      entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       CConnectivity& connectivity = entities.space(m_space).connectivity();
       connectivity.set_row_size(shape_function.nb_nodes());
@@ -744,7 +744,7 @@ void FieldGroup::create_connectivity_in_space()
     boost_foreach(CEntities& entities, entities_range())
     {
       CSpace& space = entities.space(m_space);
-      space.get_child("bound_fields").as_type<CLink>().link_to(*this);
+      space.get_child("bound_fields").as_type<Link>().link_to(*this);
       space.make_proxy(field_idx);
       field_idx += entities.size()*space.nb_states();
     }

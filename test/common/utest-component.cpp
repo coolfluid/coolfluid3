@@ -17,7 +17,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Root.hpp"
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath:dir1" );
 
   // constructor with passed path
-  CLink::Ptr lnk = allocate_component<CLink>( "lnk" );
+  Link::Ptr lnk = allocate_component<Link>( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk->name() , "lnk" );
   BOOST_CHECK_EQUAL ( lnk->uri().base_path().string() , "cpath:./" );
@@ -99,14 +99,14 @@ BOOST_AUTO_TEST_CASE( get )
   Root::Ptr root = Root::create ( "root" );
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr lnk1 = allocate_component<CLink>( "lnk1" );
+  Component::Ptr lnk1 = allocate_component<Link>( "lnk1" );
 
   // add child components to root
   root->add_component( dir1 );
   root->add_component( lnk1 );
 
   // point link to the dir1
-  boost::shared_ptr<CLink> p_lnk1 = boost::dynamic_pointer_cast<CLink>(lnk1);
+  boost::shared_ptr<Link> p_lnk1 = boost::dynamic_pointer_cast<Link>(lnk1);
   p_lnk1->link_to(dir1);
 
   // check that the root returns himself

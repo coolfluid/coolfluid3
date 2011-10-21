@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CLink_hpp
-#define cf3_common_CLink_hpp
+#ifndef cf3_common_Link_hpp
+#define cf3_common_Link_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,37 +18,37 @@ namespace common {
 
 /// Component for creating links between components
 /// @author Tiago Quintino
-class Common_API CLink : public Component {
+class Common_API Link : public Component {
 
 public: //typedefs
 
-  typedef boost::shared_ptr<CLink> Ptr;
-  typedef boost::shared_ptr<CLink const> ConstPtr;
+  typedef boost::shared_ptr<Link> Ptr;
+  typedef boost::shared_ptr<Link const> ConstPtr;
 
 public: // functions
 
   /// Contructor
   /// @param name of the component
-  CLink ( const std::string& name );
+  Link ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~CLink();
+  virtual ~Link();
 
   /// Get the class name
-  static std::string type_name () { return "CLink"; }
+  static std::string type_name () { return "Link"; }
 
   /// get the component through the links to the actual components
   virtual Component::Ptr follow ();
   virtual Component::ConstPtr  follow() const;
 
-  // functions specific to the CLink component
+  // functions specific to the Link component
 
   /// link to component
   bool is_linked () const;
 
-  CLink& link_to ( Component::Ptr lnkto );
-  CLink& link_to ( Component& lnkto );
-  CLink& link_to ( const Component& lnkto );
+  Link& link_to ( Component::Ptr lnkto );
+  Link& link_to ( Component& lnkto );
+  Link& link_to ( const Component& lnkto );
 
   void change_link( SignalArgs & args );
 
@@ -58,7 +58,7 @@ private: // data
   /// using weak_ptr means it might become invalid so we should test for expire()
   boost::weak_ptr<Component> m_link_component;
 
-}; // CLink
+}; // Link
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -67,4 +67,4 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CLink_hpp
+#endif // cf3_common_Link_hpp

@@ -18,7 +18,7 @@ namespace common {
 
 /// @brief Action component that executes all contained actions.
 ///
-/// Contained actions must be of a derived type Action, or of the type CLink, which
+/// Contained actions must be of a derived type Action, or of the type Link, which
 /// points to a derived Action type.
 ///
 /// @author Willem Deconinck

@@ -6,7 +6,7 @@
 
 #include "common/OptionT.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Group.hpp"
 #include "common/Log.hpp"
 #include "common/CBuilder.hpp"
@@ -71,7 +71,7 @@ void CConnectivity::set_lookup(CUnifiedData& lookup)
     }
   }
   m_lookup = lookup.as_ptr<CUnifiedData>();
-  m_lookup_link = create_component_ptr<CLink>("lookup");
+  m_lookup_link = create_component_ptr<Link>("lookup");
   m_lookup_link->link_to(lookup);
 }
 

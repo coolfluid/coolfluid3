@@ -15,7 +15,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Root.hpp"
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "common/StringConversion.hpp"
 
@@ -82,7 +82,7 @@ struct ComponentIterationFixture
     component_names.push_back(group2_1_1->name());
     group_names.push_back(group2_1_1->name());
     group2_1_1->add_tag("very_special");
-    CLink::Ptr link2 = group2->create_component_ptr<CLink>("link2");
+    Link::Ptr link2 = group2->create_component_ptr<Link>("link2");
     component_names.push_back(link2->name());
     Group::Ptr group3 = m_root->create_component_ptr<Group>("group3");
     top_component_names.push_back(group3->name());
@@ -92,7 +92,7 @@ struct ComponentIterationFixture
     Group::Ptr group3_1 = group3->create_component_ptr<Group>("group3_1");
     component_names.push_back(group3_1->name());
     group_names.push_back(group3_1->name());
-    CLink::Ptr link1 = m_root->create_component_ptr<CLink>("link1");
+    Link::Ptr link1 = m_root->create_component_ptr<Link>("link1");
     component_names.push_back(link1->name());
     top_component_names.push_back(link1->name());
 

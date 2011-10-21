@@ -13,7 +13,7 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "common/CBuilder.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"

@@ -15,7 +15,7 @@
 
 namespace cf3 {
 namespace common {
-  class CLink;
+  class Link;
 }
 namespace mesh {
 
@@ -75,7 +75,7 @@ public:
 private: // data
 
   /// link to the nodes component
-  boost::shared_ptr<common::CLink> m_nodes;
+  boost::shared_ptr<common::Link> m_nodes;
 
   /// unified view of the elements
   CUnifiedData::Ptr m_face_cell_connectivity;

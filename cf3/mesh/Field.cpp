@@ -14,7 +14,7 @@
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 
 #include "common/PE/CommPattern.hpp"
 

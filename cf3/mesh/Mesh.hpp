@@ -15,7 +15,7 @@
 
 namespace cf3 {
   namespace common {
-    class CLink;
+    class Link;
   }
 namespace mesh {
 

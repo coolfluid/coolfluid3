@@ -16,7 +16,7 @@ namespace cf3 {
 
 namespace common
 {
-  class CLink;
+  class Link;
   namespace PE { class CommPattern; }
 }
 namespace math { class VariablesDescriptor; }

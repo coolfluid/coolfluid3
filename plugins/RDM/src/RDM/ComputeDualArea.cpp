@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/CBuilder.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
@@ -67,7 +67,7 @@ void ComputeDualArea::create_dual_area_field()
   Group& fields = mysolver.fields();
 
   if( ! fields.get_child_ptr( Tags::dual_area() ) )
-    fields.create_component<CLink>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
+    fields.create_component<Link>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
 }
 
 void ComputeDualArea::execute()

@@ -10,7 +10,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/OptionT.hpp"
 
 #include "common/XML/SignalFrame.hpp"
@@ -68,7 +68,7 @@ void NTreeTest::test_setRoot()
   NRoot::Ptr newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->root()->create_component_ptr<CLink>("link");
+  newRoot->root()->create_component_ptr<Link>("link");
   newRoot->root()->create_component_ptr<Group>("Group1");
   newRoot->root()->create_component_ptr<Group>("Group2");
   newRoot->root()->create_component_ptr<Group>("Group3");
@@ -461,7 +461,7 @@ void NTreeTest::test_signal_list_tree()
   NRoot::Ptr root = t->treeRoot();
   Root::Ptr newRoot = Root::create("Root");
 
-  newRoot->create_component_ptr<CLink>("Environment");
+  newRoot->create_component_ptr<Link>("Environment");
   newRoot->create_component_ptr<Group>("Tools");
 
   newRoot->signal_list_tree( frame );

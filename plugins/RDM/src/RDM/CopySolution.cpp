@@ -50,7 +50,7 @@ void CopySolution::execute()
 
   boost_foreach( Component& c, find_components_with_tag( mysolver.fields(), "rksteps" ) )
   {
-    Field::Ptr field = c.as_type<CLink>().follow()->as_ptr<Field>();
+    Field::Ptr field = c.as_type<Link>().follow()->as_ptr<Field>();
     if ( field )
     {
       *field = *m_solution.lock();

@@ -8,7 +8,7 @@
 
 #include "common/Foreach.hpp"
 #include "common/Group.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/CBuilder.hpp"
 
 #include "mesh/CRegion.hpp"
