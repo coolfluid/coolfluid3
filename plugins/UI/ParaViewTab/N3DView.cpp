@@ -47,7 +47,7 @@ N3DView::N3DView(const std::string & name) :
       ->description("Activates the tab")
       ->pretty_name("Switch to tab");
 
-  m_localSignals << "go_to_tab";
+  m_local_signals << "go_to_tab";
 
 }
 
@@ -60,7 +60,7 @@ N3DView::~N3DView()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void N3DView::aboutToBeRemoved()
+void N3DView::about_to_be_removed()
 {
   TabBuilder::instance()->queueTab( as_ptr<CNode>() );
 }
@@ -81,16 +81,16 @@ void N3DView::reload_client_view(){
 
 //////////////////////////////////////////////////////////////////////////////
 
-void N3DView::setUpFinished()
+void N3DView::setup_finished()
 {
   TabBuilder::instance()->getWidget<Widget3D>( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString N3DView::toolTip() const
+QString N3DView::tool_tip() const
 {
-  return componentType();
+  return component_type();
 }
 
 void N3DView::launch_pvserver( SignalArgs& node ){

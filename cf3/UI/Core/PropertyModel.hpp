@@ -45,7 +45,7 @@ namespace Core {
   ////////////////////////////////////////////////////////////////////////////
 
   /// @brief Model that maintains properties for the node pointed
-  /// by the index returned by <code>NTree::globalTree()->currentIndex()</code>.
+  /// by the index returned by <code>NTree::global()->currentIndex()</code>.
   /// This class is a view for the tree model and is automatically
   /// updated whenever the current index is changed.
   /// @author Quentin Gasper.

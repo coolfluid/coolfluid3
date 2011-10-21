@@ -182,7 +182,7 @@ void TreeBrowser::updateButtons()
       if(path.isEmpty())
       {
         path = NTree::global()->tree_root()->root()->uri().path().c_str();
-        //icon = NTree::globalTree()->getRoot()->getIcon();
+        //icon = NTree::global()->getRoot()->getIcon();
       }
 
       QAction * action = new QAction(icon, path, this);

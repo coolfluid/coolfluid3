@@ -118,7 +118,7 @@ void NRoot::connected_to_server()
   QString msg1 = "Now connected to server '%1' on port %2.";
   QString msg2 = "Attempting to register with UUID %1.";
 
-//  NLog::globalLog()->addMessage(msg1.arg(host).arg(port));
+//  NLog::global()->add_message(msg1.arg(host).arg(port));
   NLog::global()->add_message(msg2.arg(uuid().c_str()));
 
   // build and send signal

@@ -39,8 +39,8 @@ void LibParaViewTab::initiate_impl()
 
   m_appCore = new pqApplicationCore(m_argc, core.argv());
 
-  NPlugins::globalPlugins()->registerPlugin<LibParaViewTab>();
-  CNodeBuilders::instance().registerBuilder<N3DView>("CF.UI.ParaView.C3DView");
+  NPlugins::global()->register_plugin<LibParaViewTab>();
+  CNodeBuilders::instance().register_builder<N3DView>("CF.UI.ParaView.C3DView");
 }
 
 void LibParaViewTab::terminate_impl()

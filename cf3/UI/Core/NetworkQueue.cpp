@@ -244,11 +244,11 @@ void NetworkQueue::signal_ack ( common::SignalArgs & args )
       }
     }
 //    else
-//      NLog::globalLog()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
+//      NLog::global()->addWarning(QString("Bad uuid! Received \"%1\" but \"%2\" was excpeted")
 //                                    .arg(frameid.c_str()).arg(m_currentFrameID.c_str()));
   }
 //  else
-//    NLog::globalLog()->addWarning(QString("Received ACK while not running."));
+//    NLog::global()->addWarning(QString("Received ACK while not running."));
 
 }
 

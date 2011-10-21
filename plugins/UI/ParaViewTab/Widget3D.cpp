@@ -193,7 +193,7 @@ Widget3D::Widget3D(QWidget *parent) :
   this->m_gen_adv_opt_button = new QPushButton("General Adv. Settings");
   this->m_serv_adv_opt_button = new QPushButton("Server Adv. Settings");
 
-  showAdvOptions(NTree::globalTree().get()->isAdvancedMode());
+  show_advanced_options(NTree::global().get()-> is_advanced_mode());
 
   //Mesh Options
   m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
@@ -242,7 +242,7 @@ Widget3D::Widget3D(QWidget *parent) :
     //disable instant rendering
     enableRendering(false);
   }else{
-    NLog::globalLog()->addError("Error while creating 'builtin server'");
+    NLog::global()->add_error("Error while creating 'builtin server'");
   }
 
   //Group Box creation
@@ -302,7 +302,7 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
   connect(m_checkbox_enable_rendering,SIGNAL(toggled(bool)),this,SLOT(enableRendering(bool)));
   connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(setActorListSelectionMode(int)));
-  connect(NTree::globalTree().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(showAdvOptions(bool)));
+  connect(NTree::global().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(show_advanced_options(bool)));
 
 //  qDebug() << "widget built";
 
@@ -326,7 +326,7 @@ void Widget3D::connectToServer(QString given_host,QString port)
   //if the server is remote then :
   if(m_server && m_server->isRemote()){
     //show user info
-    NLog::globalLog()->addMessage("Connected to paraview server");
+    NLog::global()->add_message("Connected to paraview server");
 
     //show the "load file" button
     m_action_load_file->setEnabled(true);
@@ -338,7 +338,7 @@ void Widget3D::connectToServer(QString given_host,QString port)
     //create server view
     createView();
   }else{
-    NLog::globalLog()->addError("Error while connecting to paraview server");
+    NLog::global()->add_error("Error while connecting to paraview server");
     //Set Server to a stable state
     m_server = m_object_builder->createServer(pqServerResource("builtin:"));
     createView();
@@ -368,10 +368,10 @@ void Widget3D::createView(){
       m_layout_h->insertWidget(0,this->m_RenderView->getWidget());
       m_layout_h->setStretchFactor(this->m_RenderView->getWidget(), 10);
     }else{
-      NLog::globalLog()->addError("Problem when creating a RenderView.");
+      NLog::global()->add_error("Problem when creating a RenderView.");
     }
   }else{
-    NLog::globalLog()->addError("Cannot create RenderView if no paraview server connection is set.");
+    NLog::global()->add_error("Cannot create RenderView if no paraview server connection is set.");
   }
 }
 
@@ -381,7 +381,7 @@ void Widget3D::disconnectFromServer(){
   if(m_server)
     //show user info
     if(m_server->isRemote()){
-      NLog::globalLog()->addMessage("Disconnected from paraview server");
+      NLog::global()->add_message("Disconnected from paraview server");
     }
     m_object_builder->removeServer(m_server);
 
@@ -437,14 +437,14 @@ void Widget3D::showLoadFileDialog(){
 
     if(!fileinfo->filePath().isEmpty())
     {
-      NLog::globalLog()->addMessage("Loading file");
+      NLog::global()->add_message("Loading file");
       //open this file
       openFile(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
     }
     else
     {
       //error
-      NLog::globalLog()->addError("Cannot Load file !");
+      NLog::global()->add_error("Cannot Load file !");
     }
   }
 }
@@ -648,7 +648,7 @@ void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
   }else{
     if(!m_server->isRemote())
     {
-      NLog::globalLog()->addError("You must be connected to a ParaView server.");
+      NLog::global()->add_error("You must be connected to a ParaView server.");
     }
   }
 
@@ -678,12 +678,12 @@ void Widget3D::create_source(QString path){
     }else{
       m_mesh_options->setVisible(false);
       m_regions_box->setVisible(false);
-      NLog::globalLog()->addError("Source of this file path don't exist.");
+      NLog::global()->add_error("Source of this file path don't exist.");
     }
   }else{
     m_mesh_options->setVisible(false);
     m_regions_box->setVisible(false);
-    NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
+    NLog::global()->add_error("Cannot load a file if no paraview server connection is set.");
   }
 }
 
@@ -751,7 +751,7 @@ void Widget3D::actor_changed(){
       this->m_dataSet_selector->setRepresentation(0);
       this->m_mesh_style->setRepresentation(0);
       if(m_actor_list->selectedItems().size() > 1){
-        //NLog::globalLog()->addError("One row selection maximum.");
+        //NLog::global()->add_error("One row selection maximum.");
       }
     }
   }
@@ -989,7 +989,7 @@ void Widget3D::enableRendering(bool enable){
 
 void Widget3D::forceRendering(){
 //  m_RenderView->forceRender();
-  NLog::globalLog()->addMessage("Rendering in progress");
+  NLog::global()->add_message("Rendering in progress");
   connect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
   m_RenderView->render();
 }
@@ -998,14 +998,14 @@ void Widget3D::setActorListSelectionMode(int mode){
   m_actor_list->setSelectionMode(QAbstractItemView::SelectionMode((m_list_selection->itemData(mode)).toInt()));
 }
 
-void Widget3D::showAdvOptions(bool showAdv){
+void Widget3D::show_advanced_options(bool showAdv){
   this->m_disp_adv_opt_button->setVisible(showAdv);
   this->m_gen_adv_opt_button->setVisible(showAdv);
   this->m_serv_adv_opt_button->setVisible(showAdv);
 }
 
 void Widget3D::renderingProgress(){
-  NLog::globalLog()->addMessage("Rendering finished");
+  NLog::global()->add_message("Rendering finished");
   disconnect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
 }
 

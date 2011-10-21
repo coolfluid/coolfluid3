@@ -173,7 +173,7 @@ private slots: //slots
 
   /// Show advanced options on advanced mode.
   /// @param showAdv Option visibility.
-  void showAdvOptions(bool showAdv);
+  void show_advanced_options(bool showAdv);
 
   void renderingProgress();
 
