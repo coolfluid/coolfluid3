@@ -11,7 +11,7 @@
 
 #include "common/EventHandler.hpp"
 #include "common/Log.hpp"
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
@@ -220,7 +220,7 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  CFactory::Ptr pm_factory = Core::instance().factories().get_factory<Physics::PhysModel>();
+  Factory::Ptr pm_factory = Core::instance().factories().get_factory<Physics::PhysModel>();
   std::vector<boost::any> pms;
 
   // build the restricted list
@@ -266,7 +266,7 @@ void CModel::signature_create_solver ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  CFactory::Ptr solver_factory = Core::instance().factories().get_factory<CSolver>();
+  Factory::Ptr solver_factory = Core::instance().factories().get_factory<CSolver>();
   std::vector<boost::any> solvers;
 
   // build the restricted list

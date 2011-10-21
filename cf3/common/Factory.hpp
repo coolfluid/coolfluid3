@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef cf3_common_CFactory_hpp
-#define cf3_common_CFactory_hpp
+#ifndef cf3_common_Factory_hpp
+#define cf3_common_Factory_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -21,22 +21,22 @@ namespace common {
 
 /// @brief Component class for a factory which builds other components
 /// @author Tiago Quintino
-class Common_API CFactory : public Component
+class Common_API Factory : public Component
 {
 public:
 
-  typedef boost::shared_ptr<CFactory> Ptr;
-  typedef boost::shared_ptr<CFactory const> ConstPtr;
+  typedef boost::shared_ptr<Factory> Ptr;
+  typedef boost::shared_ptr<Factory const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
-  CFactory(const std::string& name);
+  Factory(const std::string& name);
 
   /// @brief Virtual destructor.
-  virtual ~CFactory();
+  virtual ~Factory();
 
   /// @returns the class name
-  static std::string type_name() { return "CFactory"; }
+  static std::string type_name() { return "Factory"; }
 
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const = 0;
@@ -44,33 +44,33 @@ public:
   /// returns a build by its name stripped out of the namespace part
   Component& find_builder_with_reduced_name( const std::string& name );
 
-}; // CFactory
+}; // Factory
 
 /////////////////////////////////////////////////////////////////////////////////
 
 /// @brief Component class for a factory which builds other components
 /// @author Tiago Quintino
 template < typename TYPE >
-class CFactoryT : public CFactory {
+class FactoryT : public Factory {
 public:
 
-  typedef boost::shared_ptr< CFactoryT<TYPE> > Ptr;
-  typedef boost::shared_ptr< CFactoryT<TYPE> const> ConstPtr;
+  typedef boost::shared_ptr< FactoryT<TYPE> > Ptr;
+  typedef boost::shared_ptr< FactoryT<TYPE> const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
-  CFactoryT(const std::string& name) : CFactory(name) {}
+  FactoryT(const std::string& name) : Factory(name) {}
 
   /// @brief Virtual destructor.
-  virtual ~CFactoryT() {}
+  virtual ~FactoryT() {}
 
   /// @returns the class name
-  static std::string type_name() { return "CFactoryT<" + TYPE::type_name() + ">"; }
+  static std::string type_name() { return "FactoryT<" + TYPE::type_name() + ">"; }
 
   /// @return the name of the type of this factory
   virtual std::string factory_type_name() const { return TYPE::type_name(); }
 
-}; // CFactoryT
+}; // FactoryT
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -79,5 +79,5 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CFactory_hpp
+#endif // cf3_common_Factory_hpp
 

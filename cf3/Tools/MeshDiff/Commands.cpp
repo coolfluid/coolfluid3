@@ -14,7 +14,7 @@
 #include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/BuildInfo.hpp"
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 #include "common/Builder.hpp"
  
 #include "common/Foreach.hpp"

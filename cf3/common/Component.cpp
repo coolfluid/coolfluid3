@@ -1403,7 +1403,7 @@ Component::Ptr build_component(const std::string& builder_name,
   Component::Ptr factory = factories->get_child_ptr( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
-                        "CFactory \'" + factory_type_name
+                        "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
   // get the builder
@@ -1454,10 +1454,10 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
   Component::Ptr factory = factories->get_child_ptr( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
-                        "CFactory \'" + factory_type_name
+                        "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
-  CFactory& cfactory = factory->as_type<CFactory>();
+  Factory& cfactory = factory->as_type<Factory>();
 
   // get the builder
 

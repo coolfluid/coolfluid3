@@ -62,7 +62,7 @@ LoadMesh::~LoadMesh() {}
 
 void LoadMesh::update_list_of_available_readers()
 {
-  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
+  Factory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
 
   if ( is_null(meshreader_factory) )
     throw ValueNotFound ( FromHere() , "Could not find factory for MeshReader" );
@@ -207,7 +207,7 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
   SignalOptions options( node );
 
   std::vector<URI> dummy;
-  CFactory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
+  Factory::Ptr meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
   std::vector<boost::any> readers;
 
   // build the restricted list

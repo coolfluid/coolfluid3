@@ -25,18 +25,18 @@ using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
-struct CFactoryFixture
+struct FactoryFixture
 {
   /// common setup for each test case
-  CFactoryFixture() {}
+  FactoryFixture() {}
 
   /// common tear-down for each test case
-  ~CFactoryFixture() {}
+  ~FactoryFixture() {}
 };
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( CFactoryTest, CFactoryFixture )
+BOOST_FIXTURE_TEST_SUITE( FactoryTest, FactoryFixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( component_builder )
 
   CFactories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< CFactories >();
 
-  CFactoryT<CAbstract>::Ptr cabstract_factory = factories->get_factory< CAbstract >();
+  FactoryT<CAbstract>::Ptr cabstract_factory = factories->get_factory< CAbstract >();
   BOOST_CHECK( cabstract_factory != nullptr );
   BOOST_CHECK_EQUAL( cabstract_factory->factory_type_name() , std::string("CAbstract") );
 

@@ -15,7 +15,7 @@
 #include "common/Core.hpp"
 #include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/LocalDispatcher.hpp"
 #include "common/OptionT.hpp"

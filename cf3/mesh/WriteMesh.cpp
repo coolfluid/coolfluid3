@@ -93,7 +93,7 @@ WriteMesh::~WriteMesh()
 
 void WriteMesh::update_list_of_available_writers()
 {
-  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
+  Factory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
 
   if ( is_null(meshwriter_factory) )
     throw ValueNotFound ( FromHere() , "Could not find factory for MeshWriter" );
@@ -266,7 +266,7 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  CFactory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
+  Factory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
   std::vector<boost::any> writers;
 
   // build the restricted list

@@ -48,7 +48,7 @@ public:
   static std::string type_name() { return  "Builder"; }
 
   /// Returns the name of the type of what abstract type it builds.
-  /// Should match the name of the CFactory holding the builder.
+  /// Should match the name of the Factory holding the builder.
   /// @return name of type
   virtual std::string builder_abstract_type_name() const = 0;
 
@@ -121,7 +121,7 @@ public:
   }
 
   /// Returns the name of the type of what abstract type it builds.
-  /// Should match the name of the CFactory holding the builder.
+  /// Should match the name of the Factory holding the builder.
   /// @return name of type
   virtual std::string builder_abstract_type_name() const { return  BASE::type_name(); }
 
@@ -164,7 +164,7 @@ struct ComponentBuilder
         regist< BuilderT<BASE,CONCRETE> >(  BuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
-    common::CFactory::Ptr factory =
+    common::Factory::Ptr factory =
         common::Core::instance().factories().get_factory< BASE >();
 
     cf3_assert ( is_not_null(factory) );

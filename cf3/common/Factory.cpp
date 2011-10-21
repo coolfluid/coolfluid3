@@ -6,7 +6,7 @@
 
 #include <sstream>
 
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 #include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
@@ -18,11 +18,11 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CFactory::CFactory(const std::string& name): Component(name)
+Factory::Factory(const std::string& name): Component(name)
 {
 }
 
-CFactory::~CFactory()
+Factory::~Factory()
 {
 }
 
@@ -53,7 +53,7 @@ public:
 };
 
 
-Component& CFactory::find_builder_with_reduced_name(const std::string& name)
+Component& Factory::find_builder_with_reduced_name(const std::string& name)
 {
   IsBuilderReducedName filter ( name );
 

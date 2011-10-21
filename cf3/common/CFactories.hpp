@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 
 namespace cf3 {
 namespace common {
@@ -40,16 +40,16 @@ namespace common {
     /// gives access to the factory of supplied type,
     /// insuring that in case it does not exist it gets built.
     template < typename CBase >
-    typename CFactoryT<CBase>::Ptr get_factory ()
+    typename FactoryT<CBase>::Ptr get_factory ()
     {
       const std::string tname = CBase::type_name();
       Component::Ptr factory = get_child_ptr(tname);
       if ( is_not_null(factory) )
-        return boost::dynamic_pointer_cast< CFactoryT<CBase> >(factory);
+        return boost::dynamic_pointer_cast< FactoryT<CBase> >(factory);
       else
       {
-        cf3::common::TypeInfo::instance().regist< CFactoryT<CBase> >( CFactoryT<CBase>::type_name() );
-        return create_component_ptr< CFactoryT<CBase> >(tname);
+        cf3::common::TypeInfo::instance().regist< FactoryT<CBase> >( FactoryT<CBase>::type_name() );
+        return create_component_ptr< FactoryT<CBase> >(tname);
       }
     }
 

@@ -11,7 +11,7 @@
 #include "common/Core.hpp"
 #include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
-#include "common/CFactory.hpp"
+#include "common/Factory.hpp"
 #include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
@@ -66,7 +66,7 @@ void Transformer::help( const std::string& param )
   std::map<std::string,boost::shared_ptr<mesh::MeshTransformer> > name_to_transformers;
 
 
-  CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
+  Factory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
 
   boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_fac ) )
   {
@@ -76,7 +76,7 @@ void Transformer::help( const std::string& param )
       extensions_to_readers[extension].push_back(reader);
   }
 
-  CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
+  Factory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
 
   boost_foreach(Builder& bdw, find_components_recursively<Builder>( *meshwriter_fac ) )
   {
@@ -86,7 +86,7 @@ void Transformer::help( const std::string& param )
       extensions_to_writers[extension].push_back(writer);
   }
 
-  CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
+  Factory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
 
   boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
@@ -169,7 +169,7 @@ void Transformer::input( const std::vector<std::string>& params )
   std::map<std::string,std::vector<boost::shared_ptr<mesh::MeshReader> > > extensions_to_readers;
   std::vector<boost::shared_ptr<mesh::MeshReader> > readers;
 
-  CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
+  Factory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
   boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_fac ) )
   {
     MeshReader::Ptr reader = bdr.build("reader")->as_ptr<MeshReader>();
@@ -224,7 +224,7 @@ void Transformer::output( const std::vector<std::string>& params )
   std::map<std::string,std::vector<boost::shared_ptr<mesh::MeshWriter> > > extensions_to_writers;
   std::vector<boost::shared_ptr<mesh::MeshWriter> > writers;
 
-  CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
+  Factory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
 
   boost_foreach(Builder& bdw, find_components_recursively<Builder>( *meshwriter_fac ) )
   {
@@ -286,7 +286,7 @@ void Transformer::transform( const std::vector<std::string>& params )
   std::map<std::string,std::string> transformers_description;
   std::map<std::string,boost::shared_ptr<mesh::MeshTransformer> > name_to_transformers;
 
-  CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
+  Factory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
 
   boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
