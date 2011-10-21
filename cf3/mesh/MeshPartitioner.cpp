@@ -50,7 +50,7 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
       ->link_to(&m_nb_parts)
       ->mark_basic();
 
-  m_global_to_local = create_static_component_ptr<Map<Uint,Uint> >("global_to_local");
+  m_global_to_local = create_static_component_ptr<common::Map<Uint,Uint> >("global_to_local");
   m_lookup = create_static_component_ptr<CUnifiedData >("lookup");
 
   regist_signal( "load_balance" )
@@ -275,7 +275,7 @@ void MeshPartitioner::show_changes()
 
 boost::tuple<Uint,Uint> MeshPartitioner::location_idx(const Uint glb_obj) const
 {
-  Map<Uint,Uint>::const_iterator itr = m_global_to_local->find(glb_obj);
+  common::Map<Uint,Uint>::const_iterator itr = m_global_to_local->find(glb_obj);
   if (itr != m_global_to_local->end() )
   {
     return m_lookup->location_idx(itr->second);
