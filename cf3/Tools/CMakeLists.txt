@@ -22,7 +22,7 @@ add_subdirectory( MeshGeneration )
 add_subdirectory( MeshDiff )
 
 # a command-line app to manipulate meshes
-add_subdirectory( MeshTransformer )
+add_subdirectory( mesh_transformer )
 
 # acommand-line tool to execute a batch of coolfluid commands
 add_subdirectory( Shell )

@@ -13,34 +13,34 @@ namespace cf3 {
     class MeshTransformer;
   }
 namespace Tools {
-namespace MeshTransformer {
-  
+namespace mesh_transformer {
+
 ////////////////////////////////////////////////////////////////////////////////
 
 class Transformer
 {
 public:
   typedef boost::program_options::options_description commands_description;
-  
+
 private:
   typedef std::pair<std::string,std::vector<boost::shared_ptr<mesh::MeshReader> > > extensions_to_readers_pair_t;
-	typedef std::pair<std::string,std::vector<boost::shared_ptr<mesh::MeshWriter> > > extensions_to_writers_pair_t;
-	typedef std::pair<std::string,std::string> transformers_description_t;
+  typedef std::pair<std::string,std::vector<boost::shared_ptr<mesh::MeshWriter> > > extensions_to_writers_pair_t;
+  typedef std::pair<std::string,std::string> transformers_description_t;
 
 public:
-  
+
   Transformer();
 
   static void help( const std::string& param);
   static void input( const std::vector<std::string>& params );
   static void output( const std::vector<std::string>& params );
   static void transform( const std::vector<std::string>& params );
-  
+
   static commands_description description();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // MeshTransformer
+} // mesh_transformer
 } // Tools
 } // cf3

@@ -13,7 +13,7 @@
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
 #include "common/CBuilder.hpp"
- 
+
 #include "common/Foreach.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -22,11 +22,11 @@
 #include "mesh/MeshTransformer.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
-#include "Tools/MeshTransformer/Transformer.hpp"
+#include "Tools/mesh_transformer/Transformer.hpp"
 
 namespace cf3 {
 namespace Tools {
-namespace MeshTransformer {
+namespace mesh_transformer {
 
   using namespace boost;
   using namespace boost::program_options;
@@ -322,6 +322,6 @@ void Transformer::transform( const std::vector<std::string>& params )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // MeshTransformer
+} // mesh_transformer
 } // Tools
 } // cf3

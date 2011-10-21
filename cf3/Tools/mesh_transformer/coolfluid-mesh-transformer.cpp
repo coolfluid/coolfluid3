@@ -16,7 +16,7 @@
 
 #include "mesh/Mesh.hpp"
 
-#include "Tools/MeshTransformer/Transformer.hpp"
+#include "Tools/mesh_transformer/Transformer.hpp"
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"
 
@@ -27,15 +27,15 @@ using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::Tools::Shell;
-using namespace cf3::Tools::MeshTransformer;
+using namespace cf3::Tools::mesh_transformer;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char * argv[])
 {
   Core::instance().initiate(argc, argv);
-  
-	try
+
+  try
   {
 
     // --------------------------------------------------------
@@ -50,10 +50,10 @@ int main(int argc, char * argv[])
 
     // Initialize empty commands
     options_description desc;
-    
+
     // Add basic commands to program
     desc.add(BasicCommands::description());
-    
+
     // Add mesh transformer commands to program
     desc.add(Transformer::description());
 
@@ -76,8 +76,8 @@ int main(int argc, char * argv[])
   {
     CFerror << "Detected unknown exception" << CFendl;
   }
-	
+
   Core::instance().terminate();
-	
+
   return 0;
 }
