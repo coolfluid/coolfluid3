@@ -22,7 +22,7 @@ common::ComponentBuilder < CNodeFaceCellConnectivity , Component, LibMesh > CNod
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name ) : 
+CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name ) :
   Component(name)
 {
   m_nodes = create_static_component_ptr<common::CLink>(mesh::Tags::nodes());
@@ -53,12 +53,12 @@ void CNodeFaceCellConnectivity::set_nodes(Geometry& nodes)
 void CNodeFaceCellConnectivity::build_connectivity()
 {
   Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
-  
+
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
+  boost_foreach(boost::weak_ptr<Component> face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp.lock()->as_type<CFaceCellConnectivity>();
     for (Uint f=0; f<face_cell_connectivity.size(); ++f)
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
@@ -75,13 +75,13 @@ void CNodeFaceCellConnectivity::build_connectivity()
   {
     row.reserve(connectivity_sizes[i++]);
   }
-  
+
   // fill m_connectivity->array()
-  
+
   Uint glb_face_idx(0);
-  boost_foreach(Component::ConstPtr face_cell_connectivity_comp, m_face_cell_connectivity->components() )
+  boost_foreach(boost::weak_ptr<Component> face_cell_connectivity_comp, m_face_cell_connectivity->components() )
   {
-    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp->as_type<CFaceCellConnectivity>();
+    const CFaceCellConnectivity& face_cell_connectivity = face_cell_connectivity_comp.lock()->as_type<CFaceCellConnectivity>();
     for (Uint f=0; f<face_cell_connectivity.size(); ++f, ++glb_face_idx)
     {
       if ( face_cell_connectivity.is_bdry_face()[f] )
@@ -93,7 +93,7 @@ void CNodeFaceCellConnectivity::build_connectivity()
       }
     }
   }
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////

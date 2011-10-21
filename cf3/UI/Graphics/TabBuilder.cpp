@@ -32,6 +32,12 @@ TabBuilder::TabBuilder(QWidget * parent)
 {
   connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
 
+  connect( NTree::globalTree().get(), SIGNAL(beginUpdateTree()),
+           this, SLOT(beginModelReset()) );
+
+  connect( NTree::globalTree().get(), SIGNAL(endUpdateTree()),
+           this, SLOT(endModelReset()) );
+
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -43,15 +49,69 @@ TabBuilder::~TabBuilder()
 
 ///////////////////////////////////////////////////////////////////////////
 
+void TabBuilder::beginModelReset()
+{
+//  QMap<std::string, TabInfo>::iterator it = m_tabs.begin();
+
+//  while( it != m_tabs.end() )
+//  {
+//    m_lastTabs[it.key()] = it.value().tabIndex;
+//    it++;
+//  }
+
+//  qDebug() << "last tabs" << m_lastTabs << "in" << __FUNCTION__;
+//  qDebug() << "tabs" << m_tabs << "in" << __FUNCTION__;
+}
+
+///////////////////////////////////////////////////////////////////////////
+
+void TabBuilder::endModelReset()
+{
+  QMap<std::string, int>::iterator it = m_lastTabs.begin();
+
+  while( it != m_lastTabs.end() )
+  {
+    if( !m_newTabs.contains(it.key()) )
+    {
+      m_tabs.remove( it.key() );
+      removeTab( it.value() );
+    }
+    it++;
+  }
+
+  m_lastTabs.clear();
+  m_newTabs.clear();
+
+  QMap<std::string, TabInfo>::iterator itTabs = m_tabs.begin();
+
+  while( itTabs != m_tabs.end() )
+  {
+    itTabs.value().tabIndex = indexOf( itTabs.value().widget );
+    itTabs++;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////
+
 void TabBuilder::showTab( CNode::ConstPtr node )
 {
-  std::string key = node->uri().path();
+  std::string key = node->properties().value_str("uuid"); //node->uri().path();
 
   if( m_tabs.contains(key) )
     setCurrentIndex( m_tabs[key].tabIndex );
   else
     throw ValueNotFound(FromHere(), "No tab for component [" +
                         node->uri().path() + "] was found.");
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void TabBuilder::queueTab(Core::CNode::ConstPtr node)
+{
+  std::string uuid = node->properties().value_str("uuid");
+
+  if( m_tabs.contains( uuid ) )
+     m_lastTabs[uuid] = m_tabs[uuid].tabIndex;
 }
 
 ///////////////////////////////////////////////////////////////////////////

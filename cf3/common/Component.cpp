@@ -8,6 +8,9 @@
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <boost/uuid/random_generator.hpp>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -17,6 +20,7 @@
 #include "common/Foreach.hpp"
 #include "common/CBuilder.hpp"
 #include "common/BasicExceptions.hpp"
+#include "common/EventHandler.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -137,6 +141,9 @@ Component::Component ( const std::string& name ) :
 
   m_properties.add_property("brief", std::string("No brief description available"));
   m_properties.add_property("description", std::string("This component has not a long description"));
+  m_properties.add_property("uuid", boost::lexical_cast<std::string>(boost::uuids::random_generator()()));
+  // events
+  EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);
 }
 
 
@@ -761,6 +768,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     this_node.set_attribute( "name", name() );
     this_node.set_attribute( "atype", type_name );
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
+    this_node.set_attribute( "uuid", m_properties.value_str("uuid") );
 
     CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_ptr<CLink>();
 
@@ -1497,6 +1505,13 @@ Component::Ptr build_component(const std::string& builder_name,
   Component::Ptr comp = builder.build( name );
 
   return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::on_ping_event(SignalArgs& args)
+{
+  CFdebug << "Ping response: " << uri().path() << " of type " << derived_type_name() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

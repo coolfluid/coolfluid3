@@ -353,9 +353,9 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   std::vector<Uint> elems_1_start_idx;
   std::vector<Uint> elems_2_start_idx;
   Uint nb_elems(0);
-  boost_foreach(Component::Ptr faces1_comp, Ufaces1->components())
+  boost_foreach(boost::weak_ptr<Component> faces1_comp, Ufaces1->components())
   {
-    CFaceCellConnectivity& faces1 = faces1_comp->as_type<CFaceCellConnectivity>();
+    CFaceCellConnectivity& faces1 = faces1_comp.lock()->as_type<CFaceCellConnectivity>();
     elems_1_start_idx.push_back(nb_elems);
     buf_fnb1.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces1.face_number().create_buffer())));
     buf_bdryf1.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(faces1.is_bdry_face().create_buffer())));
@@ -365,9 +365,9 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
     nb_elems += faces1.lookup().size();
   }
 
-  boost_foreach(Component::Ptr faces2_comp, Ufaces2->components())
+  boost_foreach(boost::weak_ptr<Component> faces2_comp, Ufaces2->components())
   {
-    CFaceCellConnectivity& faces2 = faces2_comp->as_type<CFaceCellConnectivity>();
+    CFaceCellConnectivity& faces2 = faces2_comp.lock()->as_type<CFaceCellConnectivity>();
     elems_2_start_idx.push_back(nb_elems);
     buf_fnb2.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(faces2.face_number().create_buffer())));
     buf_bdryf2.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(faces2.is_bdry_face().create_buffer())));
@@ -380,16 +380,16 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
   // Build a node to face connectivity matching faces2
   CNodeFaceCellConnectivity::Ptr node2faces2_ptr = allocate_component<CNodeFaceCellConnectivity>("node2faces");
   CNodeFaceCellConnectivity& node2faces2 = *node2faces2_ptr;
-  boost_foreach(Component::Ptr f2c, Ufaces2->components())
-    node2faces2.face_cell_connectivity().add(f2c->as_type<CFaceCellConnectivity>()); // it is assumed this is only face types
+  boost_foreach(boost::weak_ptr<Component> f2c, Ufaces2->components())
+    node2faces2.face_cell_connectivity().add(f2c.lock()->as_type<CFaceCellConnectivity>()); // it is assumed this is only face types
   node2faces2.set_nodes(mesh.geometry());
   node2faces2.build_connectivity();
 
   Uint f1(0);
   Uint faces1_idx(0);
-  boost_foreach(Component::Ptr faces1_comp, Ufaces1->components())
+  boost_foreach(boost::weak_ptr<Component> faces1_comp, Ufaces1->components())
   {
-    CFaceCellConnectivity& faces1 = faces1_comp->as_type<CFaceCellConnectivity>();
+    CFaceCellConnectivity& faces1 = faces1_comp.lock()->as_type<CFaceCellConnectivity>();
 
     std::vector<Uint> face_nodes;
     std::vector<Uint> elems(2);
@@ -425,7 +425,7 @@ CFaceCellConnectivity::Ptr CBuildFaces::match_faces(CRegion& region1, CRegion& r
               Uint f2_idx;
               Uint faces2_idx;
               boost::tie(faces2_idx,f2_idx) = node2faces2.face_cell_connectivity().location_idx(f2);
-              CFaceCellConnectivity& faces2 = Ufaces2->components()[faces2_idx]->as_type<CFaceCellConnectivity>();
+              CFaceCellConnectivity& faces2 = Ufaces2->components()[faces2_idx].lock()->as_type<CFaceCellConnectivity>();
               elems[LEFT]  = faces1.connectivity()[f1_idx][0] + elems_1_start_idx[faces1_idx];
               elems[RIGHT] = faces2.connectivity()[f2_idx][0] + elems_2_start_idx[faces2_idx];
 
@@ -475,9 +475,9 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
   std::vector<boost::shared_ptr<CList<bool>::Buffer> >  buf_vec_inner_face_is_bdry;
   std::vector<boost::shared_ptr<CTable<Uint>::Buffer> > buf_vec_inner_face_connectivity;
 
-  boost_foreach(Component::Ptr inner_faces_comp, unified_inner_faces_to_cells->components())
+  boost_foreach(boost::weak_ptr<Component> inner_faces_comp, unified_inner_faces_to_cells->components())
   {
-    CFaceCellConnectivity& inner_faces = inner_faces_comp->as_type<CFaceCellConnectivity>();
+    CFaceCellConnectivity& inner_faces = inner_faces_comp.lock()->as_type<CFaceCellConnectivity>();
     buf_vec_inner_face_nb.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(inner_faces.face_number().create_buffer())));
     buf_vec_inner_face_is_bdry.push_back( boost::shared_ptr<CList<bool>::Buffer> ( new CList<bool>::Buffer(inner_faces.is_bdry_face().create_buffer())));
     buf_vec_inner_face_connectivity.push_back( boost::shared_ptr<CTable<Uint>::Buffer> ( new CTable<Uint>::Buffer(inner_faces.connectivity().create_buffer())));
@@ -486,8 +486,8 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
   // Build a node to face connectivity matching faces2
   CNodeFaceCellConnectivity::Ptr nodes_to_inner_faces_ptr = allocate_component<CNodeFaceCellConnectivity>("node2faces");
   CNodeFaceCellConnectivity& nodes_to_inner_faces = *nodes_to_inner_faces_ptr;
-  boost_foreach(Component::Ptr inner_f2c, unified_inner_faces_to_cells->components())
-    nodes_to_inner_faces.face_cell_connectivity().add(inner_f2c->as_type<CFaceCellConnectivity>());
+  boost_foreach(boost::weak_ptr<Component> inner_f2c, unified_inner_faces_to_cells->components())
+    nodes_to_inner_faces.face_cell_connectivity().add(inner_f2c.lock()->as_type<CFaceCellConnectivity>());
   nodes_to_inner_faces.set_nodes(mesh.geometry());
   nodes_to_inner_faces.build_connectivity();
 
@@ -512,9 +512,9 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
 
     std::vector<Uint> vec_inner_cells_start_idx;
 
-    boost_foreach(Component::Ptr inner_cells_comp, unified_inner_faces_to_cells->components())
+    boost_foreach(boost::weak_ptr<Component> inner_cells_comp, unified_inner_faces_to_cells->components())
     {
-      CFaceCellConnectivity& inner_face_to_cells = inner_cells_comp->as_type<CFaceCellConnectivity>();
+      CFaceCellConnectivity& inner_face_to_cells = inner_cells_comp.lock()->as_type<CFaceCellConnectivity>();
       boost_foreach(Component::Ptr cells, inner_face_to_cells.used())
         bdry_face_to_cell->add_used(cells->as_type<CCells>());
     }
@@ -554,7 +554,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
               Uint inner_faces_comp_idx;
               Uint inner_face_idx;
               boost::tie(inner_faces_comp_idx,inner_face_idx) = nodes_to_inner_faces.face_cell_connectivity().location_idx(unified_inner_face_idx);
-              inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx]->as_ptr<CFaceCellConnectivity>();
+              inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx].lock()->as_ptr<CFaceCellConnectivity>();
               elems[0] = inner_faces_to_cells->connectivity()[inner_face_idx][0];
 
               //std::cout << PERank << "match found: " << unified_bdry_face_idx << " <--> " << elems[0] << std::endl;
@@ -583,7 +583,7 @@ void CBuildFaces::match_boundary(CRegion& bdry_region, CRegion& inner_region)
               Uint inner_face_idx;
               Uint inner_faces_comp_idx;
               boost::tie(inner_faces_comp_idx,inner_face_idx) = nodes_to_inner_faces.face_cell_connectivity().location_idx(unified_inner_face_idx);
-              inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx]->as_ptr<CFaceCellConnectivity>();
+              inner_faces_to_cells = unified_inner_faces_to_cells->components()[inner_faces_comp_idx].lock()->as_ptr<CFaceCellConnectivity>();
               elems[0] = inner_faces_to_cells->connectivity()[inner_face_idx][0];
 
               // ----------- debug -----------

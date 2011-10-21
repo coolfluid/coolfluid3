@@ -54,14 +54,14 @@ void CNodeElementConnectivity::set_nodes(Geometry& nodes)
 
 void CNodeElementConnectivity::build_connectivity()
 {
-  set_nodes(elements().components()[0]->as_type<CElements>().geometry());
+  set_nodes(elements().components()[0].lock()->as_type<CElements>().geometry());
   Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(Component::Ptr elements_comp, m_elements->components() )
+  boost_foreach(boost::weak_ptr<Component> elements_comp, m_elements->components() )
   {
-    CElements& elements = elements_comp->as_type<CElements>();
+    CElements& elements = elements_comp.lock()->as_type<CElements>();
     boost_foreach (CConnectivity::ConstRow nodes, elements.node_connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)
@@ -78,9 +78,9 @@ void CNodeElementConnectivity::build_connectivity()
 
   // fill m_connectivity->array()
   Uint glb_elem_idx = 0;
-  boost_foreach(Component::Ptr elements_comp, m_elements->components() )
+  boost_foreach(boost::weak_ptr<Component> elements_comp, m_elements->components() )
   {
-    CElements& elements = elements_comp->as_type<CElements>();
+    CElements& elements = elements_comp.lock()->as_type<CElements>();
     boost_foreach (CConnectivity::ConstRow nodes, elements.node_connectivity().array() )
     {
       boost_foreach (const Uint node_idx, nodes)

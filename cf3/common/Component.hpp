@@ -498,6 +498,9 @@ private: // helper functions
   template<typename ComponentT>
   ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
+  /// Triggered when the "ping" event is raised. Useful to find out what components still exist
+  void on_ping_event( SignalArgs& args );
+
 protected: // data
 
   /// component name (stored as path to ensure validity)

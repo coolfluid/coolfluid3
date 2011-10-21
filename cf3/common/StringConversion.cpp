@@ -13,8 +13,6 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
-#include "math/MatrixTypes.hpp"
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
@@ -157,24 +155,6 @@ namespace common {
     return s;
   }
 
-  template <>
-  Common_API std::string to_str<RealVector> (const RealVector& vec)
-  {
-    std::stringstream str;
-    const Uint len = vec.size();
-
-    // Push the first vector component
-    if(len)
-      str << vec[0];
-
-    // Push the rest, separated by spaces
-    for(Uint i = 1; i != len; ++i)
-      str << " " << vec[i];
-
-    // Return the string value from the stream
-    return str.str();
-  }
-
   ////////////////////////////////////////////////////////////////////////////////
 
   /// Converts from std::string
@@ -241,20 +221,6 @@ namespace common {
   Common_API std::string from_str<std::string> (const std::string& str)
   {
     return str;
-  }
-
-  template <>
-  Common_API RealVector from_str<RealVector> (const std::string& str)
-  {
-    std::vector<std::string> split_str;
-    boost::algorithm::split(split_str, str, boost::algorithm::is_any_of(" "));
-
-    const Uint len = split_str.size();
-    RealVector result(len);
-
-    for(Uint i = 0; i != len; ++i)
-      result[i] = boost::lexical_cast<Real>(split_str[i]);
-    return result;
   }
 
 ////////////////////////////////////////////////////////////////////////////////

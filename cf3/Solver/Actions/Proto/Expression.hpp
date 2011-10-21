@@ -93,10 +93,21 @@ public:
     // Add vector options
     for(ConstantStorage::VectorsT::iterator it = m_constant_values.m_vectors.begin(); it != m_constant_values.m_vectors.end(); ++it)
     {
+      // Initialize proxy with the default value
+      std::vector<Real>& vec_proxy = m_constant_values.m_vector_proxies[it->first];
+      const RealVector& real_vec = it->second;
+      const Uint nb_comps = real_vec.size();
+      vec_proxy.resize(nb_comps);
+      for(Uint i = 0; i != nb_comps; ++i)
+      {
+        vec_proxy[i] = real_vec[i];
+      }
+
       const std::string& name = it->first;
-      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< common::OptionT<RealVector> >(name, it->second);
+      common::Option& option = options.check(name) ? options.option(name) : *options.add_option< common::OptionArrayT<Real> >(name, vec_proxy);
       option.description(m_constant_values.descriptions[name]);
-      option.link_to(&it->second);
+      option.link_to(&vec_proxy);
+      option.attach_trigger(boost::bind(&ConstantStorage::convert_vector_proxy, &m_constant_values));
     }
   }
 
