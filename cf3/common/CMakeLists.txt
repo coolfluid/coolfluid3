@@ -47,8 +47,8 @@ list( APPEND coolfluid_common_files
     CJournal.hpp
     CLibraries.cpp
     CLibraries.hpp
-    CLibrary.cpp
-    CLibrary.hpp
+    Library.cpp
+    Library.hpp
     Link.hpp
     Link.cpp
     CMap.hpp

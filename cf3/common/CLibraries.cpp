@@ -10,7 +10,7 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "common/Builder.hpp"
 #include "common/CLibraries.hpp"
 #include "common/OSystem.hpp"
@@ -95,12 +95,12 @@ void CLibraries::load_library( const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLibrary::Ptr CLibraries::autoload_library_with_namespace( const std::string& libnamespace )
+Library::Ptr CLibraries::autoload_library_with_namespace( const std::string& libnamespace )
 {
   if( libnamespace.empty() )
     throw BadValue( FromHere(), "Library namespace is empty - cannot guess library name" );
 
-  CLibrary::Ptr lib;
+  Library::Ptr lib;
 
   const std::string lib_name = namespace_to_libname( libnamespace );
 
@@ -108,7 +108,7 @@ CLibrary::Ptr CLibraries::autoload_library_with_namespace( const std::string& li
   {
     CFinfo << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<CLibrary>();
+    lib = get_child( libnamespace ).as_ptr_checked<Library>();
   }
   catch(const std::exception& e)
   {
@@ -123,12 +123,12 @@ CLibrary::Ptr CLibraries::autoload_library_with_namespace( const std::string& li
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLibrary::Ptr CLibraries::autoload_library_with_builder( const std::string& builder_name )
+Library::Ptr CLibraries::autoload_library_with_builder( const std::string& builder_name )
 {
   if( builder_name.empty() )
     throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
 
-  CLibrary::Ptr lib;
+  Library::Ptr lib;
 
   const std::string libnamespace = Builder::extract_namespace( builder_name );
   const std::string lib_name = namespace_to_libname( libnamespace );
@@ -137,7 +137,7 @@ CLibrary::Ptr CLibraries::autoload_library_with_builder( const std::string& buil
   {
     CFinfo << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<CLibrary>();
+    lib = get_child( libnamespace ).as_ptr_checked<Library>();
   }
   catch(const std::exception& e)
   {
@@ -154,7 +154,7 @@ CLibrary::Ptr CLibraries::autoload_library_with_builder( const std::string& buil
 
 void CLibraries::initiate_all_libraries()
 {
-  boost_foreach( CLibrary& lib, find_components<CLibrary>(*this) )
+  boost_foreach( Library& lib, find_components<Library>(*this) )
   {
     lib.initiate(); // will do nothing if already initiated
   }
@@ -164,7 +164,7 @@ void CLibraries::initiate_all_libraries()
 
 void CLibraries::terminate_all_libraries()
 {
-  boost_foreach( CLibrary& lib, find_components<CLibrary>(*this) )
+  boost_foreach( Library& lib, find_components<Library>(*this) )
   {
     lib.terminate(); // will do nothing if already terminated
   }

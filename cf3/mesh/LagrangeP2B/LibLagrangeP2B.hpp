@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "mesh/LagrangeP2B/API.hpp"
 
 namespace cf3 {
@@ -23,7 +23,7 @@ namespace LagrangeP2B {
 
 /// Shape functions module for LagrangeP2B
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_LagrangeP2B_API LibLagrangeP2B : public common::CLibrary
+class Mesh_LagrangeP2B_API LibLagrangeP2B : public common::Library
 {
 public:
 
@@ -31,7 +31,7 @@ public:
   typedef boost::shared_ptr<LibLagrangeP2B const> ConstPtr;
 
   /// Constructor
-  LibLagrangeP2B ( const std::string& name) : common::CLibrary(name) {   }
+  LibLagrangeP2B ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -40,12 +40,12 @@ public: // functions
 
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "LagrangeP2B"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

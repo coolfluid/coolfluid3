@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace UFEM {
 /// Class defines the UFEM finite elment method library
 /// @author Bart Janssens
 class UFEM_API LibUFEM :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -44,7 +44,7 @@ public:
   typedef boost::shared_ptr<LibUFEM const> ConstPtr;
 
   /// Constructor
-  LibUFEM ( const std::string& name) : common::CLibrary(name) {   }
+  LibUFEM ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -52,12 +52,12 @@ public: // functions
   static std::string library_namespace() { return "CF.UFEM"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "UFEM"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

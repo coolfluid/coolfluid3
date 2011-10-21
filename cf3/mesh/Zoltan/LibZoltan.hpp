@@ -16,7 +16,7 @@
 // typedef for namespace, object conflict
 typedef Zoltan ZoltanHandle;
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ namespace Zoltan {
 
 /// Class defines a mesh partitioner using the Zoltan external library
 /// @author Willem Deconinck
-class Zoltan_API LibZoltan : public common::CLibrary
+class Zoltan_API LibZoltan : public common::Library
 {
 public:
 
@@ -51,18 +51,18 @@ public:
   typedef boost::shared_ptr<LibZoltan const> ConstPtr;
 
   /// Constructor
-  LibZoltan ( const std::string& name) : common::CLibrary(name) { }
+  LibZoltan ( const std::string& name) : common::Library(name) { }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Zoltan"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Zoltan"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

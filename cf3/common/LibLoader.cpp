@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/LibLoader.hpp"
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "common/CLibraries.hpp"
 #include "common/Core.hpp"
 
@@ -42,7 +42,7 @@ void LibLoader::load_library(const std::string& lib)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibLoader::unload_library( CLibrary::Ptr lib )
+void LibLoader::unload_library( Library::Ptr lib )
 {
   lib->terminate();
 

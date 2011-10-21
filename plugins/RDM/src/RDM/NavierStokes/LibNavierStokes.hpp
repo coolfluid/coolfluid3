@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_NAVIERSTOKES_API LibNavierStokes : public common::CLibrary {
+class RDM_NAVIERSTOKES_API LibNavierStokes : public common::Library {
 
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibNavierStokes const> ConstPtr;
 
   /// Constructor
-  LibNavierStokes ( const std::string& name) : common::CLibrary(name) {   }
+  LibNavierStokes ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -49,12 +49,12 @@ public: // functions
   static std::string library_namespace() { return "CF.RDM.NavierStokes"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "NavierStokes"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_LibRDM_hpp
 #define cf3_RDM_LibRDM_hpp
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_API LibRDM : public common::CLibrary {
+class RDM_API LibRDM : public common::Library {
 
 public:
 
@@ -39,7 +39,7 @@ public:
   typedef boost::shared_ptr<LibRDM const> ConstPtr;
 
   /// Constructor
-  LibRDM ( const std::string& name) : common::CLibrary(name) {   }
+  LibRDM ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -47,12 +47,12 @@ public: // functions
   static std::string library_namespace() { return "CF.RDM"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "RDM"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

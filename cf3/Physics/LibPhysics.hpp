@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace cf3 {
   /// Class defines the initialization and termination of the library Physics
   /// @author Tiago Quintino
   /// @author Martin Vymazal
-  class Physics_API LibPhysics : public common::CLibrary {
+  class Physics_API LibPhysics : public common::Library {
 
   public:
 
@@ -43,7 +43,7 @@ namespace cf3 {
     typedef boost::shared_ptr<LibPhysics const> ConstPtr;
 
     /// Constructor
-    LibPhysics ( const std::string& name) : common::CLibrary(name) {   }
+    LibPhysics ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
@@ -51,12 +51,12 @@ namespace cf3 {
     static std::string library_namespace() { return "CF.Physics"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "Physics"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

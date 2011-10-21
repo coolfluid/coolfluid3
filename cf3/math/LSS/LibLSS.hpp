@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ namespace LSS {
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library LSS
-  class LSS_API LibLSS :  public common::CLibrary
+  class LSS_API LibLSS :  public common::Library
   {
   public:
 
@@ -40,7 +40,7 @@ namespace LSS {
     typedef boost::shared_ptr<LibLSS const> ConstPtr;
 
     /// Constructor
-    LibLSS ( const std::string& name) : common::CLibrary(name) {   }
+    LibLSS ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
@@ -48,12 +48,12 @@ namespace LSS {
     static std::string library_namespace() { return "CF.math.LSS"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "math"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

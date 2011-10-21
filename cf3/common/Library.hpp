@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_common_CLibrary_hpp
-#define cf3_common_CLibrary_hpp
+#ifndef cf3_common_Library_hpp
+#define cf3_common_Library_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -22,22 +22,22 @@ struct LibRegistInfo;
 
 /// @brief Component class for a library
 /// @author Quentin Gasper
-class Common_API CLibrary : public Component {
+class Common_API Library : public Component {
 
 public:
 
-  typedef boost::shared_ptr<CLibrary> Ptr;
-  typedef boost::shared_ptr<CLibrary const> ConstPtr;
+  typedef boost::shared_ptr<Library> Ptr;
+  typedef boost::shared_ptr<Library const> ConstPtr;
 
   /// Contructor
   /// @param name of Library
-  CLibrary( const std::string& name);
+  Library( const std::string& name);
 
   /// Virtual destructor.
-  virtual ~CLibrary();
+  virtual ~Library();
 
   /// Get the class name
-  static std::string type_name() { return "CLibrary"; }
+  static std::string type_name() { return "Library"; }
 
   bool is_initiated() const { return m_is_initiated; }
 
@@ -64,7 +64,7 @@ protected:
   /// terminate library implemntation
   virtual void terminate_impl() = 0;
 
-}; // CLibrary
+}; // Library
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -74,4 +74,4 @@ protected:
 /////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // cf3_common_CLibrary_hpp
+#endif // cf3_common_Library_hpp

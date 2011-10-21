@@ -17,7 +17,7 @@
 #include "common/Root.hpp"
 #include "common/Link.hpp"
 #include "common/Core.hpp"
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "common/CLibraries.hpp"
 #include "common/XML/Protocol.hpp"
 
@@ -146,8 +146,8 @@ struct ComponentBuilder
   ComponentBuilder(const std::string& name =
                    std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
-    // verify that LIB derives from CLibrary
-    BOOST_STATIC_ASSERT( (boost::is_base_of<common::CLibrary,LIB>::value) );
+    // verify that LIB derives from Library
+    BOOST_STATIC_ASSERT( (boost::is_base_of<common::Library,LIB>::value) );
     // verify that BASE derives or is same type of Component
     BOOST_STATIC_ASSERT( (boost::is_base_of<common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
@@ -177,8 +177,8 @@ struct ComponentBuilder
     ///       when including Builder.cpp instead of Builder.hpp
     cf3_assert ( builder->template as_ptr<Builder>() );
 
-    // put a Link to the builder in the respective CLibrary
-    CLibrary::Ptr lib = Core::instance().libraries().library<LIB>();
+    // put a Link to the builder in the respective Library
+    Library::Ptr lib = Core::instance().libraries().library<LIB>();
     cf3_assert ( is_not_null(lib) );
 
     Link::Ptr builder_link = lib->create_component_ptr<Link>( name );

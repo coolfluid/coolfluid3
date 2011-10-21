@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace Neu {
 
 /// Class defines the Neutral mesh format operations
 /// @author Willem Deconinck
-class Neu_API LibNeu : public common::CLibrary
+class Neu_API LibNeu : public common::Library
 {
 public:
 
@@ -43,18 +43,18 @@ public:
   typedef boost::shared_ptr<LibNeu const> ConstPtr;
 
   /// Constructor
-  LibNeu ( const std::string& name) : common::CLibrary(name) {   }
+  LibNeu ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.Neu"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Neu"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

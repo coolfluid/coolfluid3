@@ -14,7 +14,7 @@
 namespace cf3 {
 namespace common {
 
-class CLibrary;
+class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -88,12 +88,12 @@ class CLibrary;
     /// Attempts to load a CF3 plugin library from the builders name
     /// @param [in] name of the shared library to be loaded
     /// @throws ValueNotFound in case of library not able to be loaded
-    boost::shared_ptr<CLibrary> autoload_library_with_builder( const std::string& builder_name );
+    boost::shared_ptr<Library> autoload_library_with_builder( const std::string& builder_name );
 
     /// Attempts to load a CF3 plugin library from its namespace
     /// @param [in] namespace of the shared library to be loaded (e.g. CF.Common)
     /// @throws ValueNotFound in case of library not able to be loaded
-    boost::shared_ptr<CLibrary> autoload_library_with_namespace( const std::string& libnamespace );
+    boost::shared_ptr<Library> autoload_library_with_namespace( const std::string& libnamespace );
 
     /// @name SIGNALS
     //@{

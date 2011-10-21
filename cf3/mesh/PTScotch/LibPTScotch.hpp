@@ -13,7 +13,7 @@
 #include <mpi.h>
 #include <ptscotch.h>
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ namespace PTScotch {
 
 /// Class defines a mesh partitioner using the PTScotch external library
 /// @author Willem Deconinck
-class PTScotch_API LibPTScotch : public common::CLibrary
+class PTScotch_API LibPTScotch : public common::Library
 {
 public:
 
@@ -48,18 +48,18 @@ public:
   typedef boost::shared_ptr<LibPTScotch const> ConstPtr;
 
   /// Constructor
-  LibPTScotch ( const std::string& name) : common::CLibrary(name) { }
+  LibPTScotch ( const std::string& name) : common::Library(name) { }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.PTScotch"; }
 
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "PTScotch"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

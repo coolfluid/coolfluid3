@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace CGAL {
 
 /// Class defines the CGAL mesh format operations
 /// @author Bart Janssens
-class CGAL_API LibCGAL : public cf3::common::CLibrary
+class CGAL_API LibCGAL : public cf3::common::Library
 {
 public:
 
@@ -43,7 +43,7 @@ public:
   typedef boost::shared_ptr<LibCGAL const> ConstPtr;
 
   /// Constructor
-  LibCGAL ( const std::string& name) : common::CLibrary(name) {   }
+  LibCGAL ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 

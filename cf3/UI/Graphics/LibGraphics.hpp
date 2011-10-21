@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace cf3 {
   /// Class defines the initialization and termination of the library Graphics
   /// @author Tiago Quintino
   class Graphics_API LibGraphics :
-      public common::CLibrary
+      public common::Library
   {
   public:
 
@@ -44,7 +44,7 @@ namespace cf3 {
     typedef boost::shared_ptr<LibGraphics const> ConstPtr;
 
     /// Constructor
-    LibGraphics ( const std::string& name) : common::CLibrary(name) {   }
+    LibGraphics ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
@@ -52,12 +52,12 @@ namespace cf3 {
     static std::string library_namespace() { return "CF.UI.Graphics"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "Graphics"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

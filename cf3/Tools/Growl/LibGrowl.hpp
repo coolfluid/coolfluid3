@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ namespace Growl {
 ///
 /// @see Growl::Notifier
 /// @author Willem Deconinck
-class Tools_Growl_API LibGrowl : public common::CLibrary
+class Tools_Growl_API LibGrowl : public common::Library
 {
 public:
 
@@ -49,7 +49,7 @@ public:
   typedef boost::shared_ptr<LibGrowl const> ConstPtr;
 
   /// Constructor
-  LibGrowl ( const std::string& name) : common::CLibrary(name) {   }
+  LibGrowl ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -57,12 +57,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Tools.Growl"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Growl"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

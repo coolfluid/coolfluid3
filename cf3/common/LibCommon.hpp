@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CommonAPI.hpp"
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace common {
 
 /// Class defines the initialization and termination of the library mesh
 /// @author Tiago Quintino
-class Common_API LibCommon : public common::CLibrary
+class Common_API LibCommon : public common::Library
 {
 public:
 
@@ -30,7 +30,7 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : common::CLibrary(name) {   }
+  LibCommon ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -38,12 +38,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Common"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary rCFegistration
+  /// Must be implemented for Library rCFegistration
   /// @return name of the library
   static std::string library_name() { return "Common"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
   static std::string library_description()
   {

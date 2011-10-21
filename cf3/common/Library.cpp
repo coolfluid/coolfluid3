@@ -4,39 +4,39 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "common/LibCommon.hpp"
 
 namespace cf3 {
 namespace common {
 
-RegistTypeInfo<CLibrary,LibCommon> CLibrary_TypeRegistration();
+RegistTypeInfo<Library,LibCommon> Library_TypeRegistration();
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-CLibrary::CLibrary(const std::string & lib_name) : Component(lib_name),
+Library::Library(const std::string & lib_name) : Component(lib_name),
   m_is_initiated(false)
 {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CLibrary::~CLibrary()
+Library::~Library()
 {
   terminate(); // insure cleanup
 }
 
-std::string CLibrary::lib_kversion()
+std::string Library::lib_kversion()
 {
   return CF3_KERNEL_VERSION_STR;
 }
 
-std::string CLibrary::lib_version()
+std::string Library::lib_version()
 {
   return CF3_KERNEL_VERSION_STR; // by default return the kernel version
 }
 
-void  CLibrary::initiate()
+void  Library::initiate()
 {
   if(!m_is_initiated)
   {
@@ -46,7 +46,7 @@ void  CLibrary::initiate()
   }
 }
 
-void  CLibrary::terminate()
+void  Library::terminate()
 {
   if(m_is_initiated)
   {

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ namespace VTKXML {
 /// Class defines the VTKXMLtral mesh format operations
 /// @author Willem Deconinck
 class VTKXML_API LibVTKXML :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -46,18 +46,18 @@ public:
   typedef boost::shared_ptr<LibVTKXML const> ConstPtr;
 
   /// Constructor
-  LibVTKXML ( const std::string& name) : common::CLibrary(name) {   }
+  LibVTKXML ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.VTKXML"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "VTKXML"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

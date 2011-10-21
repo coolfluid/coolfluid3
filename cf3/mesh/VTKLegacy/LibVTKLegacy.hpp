@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ namespace VTKLegacy {
 /// Class defines the VTKLegacytral mesh format operations
 /// @author Willem Deconinck
 class VTKLegacy_API LibVTKLegacy :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -46,18 +46,18 @@ public:
   typedef boost::shared_ptr<LibVTKLegacy const> ConstPtr;
 
   /// Constructor
-  LibVTKLegacy ( const std::string& name) : common::CLibrary(name) {   }
+  LibVTKLegacy ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
   static std::string library_namespace() { return "CF.Mesh.VTKLegacy"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "VTKLegacy"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

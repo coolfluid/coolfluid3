@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 #include "math/Defs.hpp"
 
@@ -39,7 +39,7 @@ namespace mesh {
 ///       and add a update() function that can be used to trigger dependent (linked) fields for update
 ///
 /// @author Tiago Quintino
-class Mesh_API LibMesh :  public common::CLibrary
+class Mesh_API LibMesh :  public common::Library
 {
 public:
 
@@ -47,7 +47,7 @@ public:
   typedef boost::shared_ptr<LibMesh const> ConstPtr;
 
   /// Constructor
-  LibMesh ( const std::string& name) : common::CLibrary(name) {   }
+  LibMesh ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -56,12 +56,12 @@ public: // functions
 
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Mesh"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ namespace Scalar {
 
 /// Class defines the Scalar library
 /// @author Tiago Quintino
-class Scalar_API LibScalar : public common::CLibrary
+class Scalar_API LibScalar : public common::Library
 {
 public:
 
@@ -45,7 +45,7 @@ public:
   typedef boost::shared_ptr<LibScalar const> ConstPtr;
 
   /// Constructor
-  LibScalar ( const std::string& name) : common::CLibrary(name) { }
+  LibScalar ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibScalar() { }
 
@@ -55,12 +55,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Physics.Scalar"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Scalar"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

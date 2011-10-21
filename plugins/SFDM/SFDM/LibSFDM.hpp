@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +41,7 @@ namespace SFDM {
 /// This library implements Core components to construct a Spectral Finite Difference Solver.";
 /// @author Willem Deconinck
 class SFDM_API LibSFDM :
-    public cf3::common::CLibrary
+    public cf3::common::Library
 {
 public:
 
@@ -49,7 +49,7 @@ public:
   typedef boost::shared_ptr<LibSFDM const> ConstPtr;
 
   /// Constructor
-  LibSFDM ( const std::string& name) : cf3::common::CLibrary(name) { }
+  LibSFDM ( const std::string& name) : cf3::common::Library(name) { }
 
   virtual ~LibSFDM() { }
 
@@ -59,12 +59,12 @@ public: // functions
   static std::string library_namespace() { return "CF.SFDM"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "SFDM"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

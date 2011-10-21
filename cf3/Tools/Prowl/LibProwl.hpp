@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,7 +43,7 @@ namespace Prowl {
 /// %Prowl is an iOS app that can receive push notifications (http://www.prowlapp.com/),
 /// sent from different sources (most notably <a href="http://growl.info/">Growl</a>).
 /// @author Willem Deconinck
-class Tools_Prowl_API LibProwl : public common::CLibrary
+class Tools_Prowl_API LibProwl : public common::Library
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   typedef boost::shared_ptr<LibProwl const> ConstPtr;
 
   /// Constructor
-  LibProwl ( const std::string& name) : common::CLibrary(name) {   }
+  LibProwl ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -59,12 +59,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Tools.Prowl"; }
 
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Prowl"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

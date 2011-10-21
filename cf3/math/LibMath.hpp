@@ -11,7 +11,7 @@
 
 #include <cmath>  // all sorts of mathematical functions and constants
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace cf3 {
 
     /// Class defines the initialization and termination of the library MeshDiff
     /// @author Tiago Quintino
-    class Math_API LibMath :  public common::CLibrary
+    class Math_API LibMath :  public common::Library
     {
     public:
 
@@ -44,7 +44,7 @@ namespace cf3 {
       typedef boost::shared_ptr<LibMath const> ConstPtr;
 
       /// Constructor
-      LibMath ( const std::string& name) : common::CLibrary(name) {   }
+      LibMath ( const std::string& name) : common::Library(name) {   }
 
     public: // functions
 
@@ -52,12 +52,12 @@ namespace cf3 {
       static std::string library_namespace() { return "CF.math"; }
 
       /// Static function that returns the library name.
-      /// Must be implemented for CLibrary registration
+      /// Must be implemented for Library registration
       /// @return name of the library
       static std::string library_name() { return "math"; }
 
       /// Static function that returns the description of the library.
-      /// Must be implemented for CLibrary registration
+      /// Must be implemented for Library registration
       /// @return description of the library
 
       static std::string library_description()

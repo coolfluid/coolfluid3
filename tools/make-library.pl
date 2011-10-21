@@ -81,7 +81,7 @@ print   LIBHPP <<ZZZ;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -109,7 +109,7 @@ namespace $libname {
 
 /// Class defines the $libname library
 /// \@author 
-class $libname\_API Lib$libname : public common::CLibrary
+class $libname\_API Lib$libname : public common::Library
 {
 public:
 
@@ -117,7 +117,7 @@ public:
   typedef boost::shared_ptr<Lib$libname const> ConstPtr;
 
   /// Constructor
-  Lib$libname ( const std::string& name) : common::CLibrary(name) { }
+  Lib$libname ( const std::string& name) : common::Library(name) { }
 
   virtual ~Lib$libname() { }
 
@@ -127,12 +127,12 @@ public: // functions
   static std::string library_namespace() { return "CF.$libname"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// \@return name of the library
   static std::string library_name() { return "$libname"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// \@return description of the library
 
   static std::string library_description()

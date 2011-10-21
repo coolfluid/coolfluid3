@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace Actions {
 
 /// Class defines the initialization and termination of the library Actions
 class Solver_Actions_API LibActions :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -41,7 +41,7 @@ public:
   typedef boost::shared_ptr<LibActions const> ConstPtr;
 
   /// Constructor
-  LibActions ( const std::string& name) : common::CLibrary(name) {   }
+  LibActions ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -50,12 +50,12 @@ public: // functions
 
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Actions"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

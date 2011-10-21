@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 #include "mesh/LagrangeP0/API.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ namespace LagrangeP0 {
 
 /// Shape functions module for LagrangeP0
 /// @author Tiago Quintino, Willem Deconinck
-class Mesh_LagrangeP0_API LibLagrangeP0 : public common::CLibrary
+class Mesh_LagrangeP0_API LibLagrangeP0 : public common::Library
 {
 public:
 
@@ -33,7 +33,7 @@ public:
   typedef boost::shared_ptr<LibLagrangeP0 const> ConstPtr;
 
   /// Constructor
-  LibLagrangeP0 ( const std::string& name) : common::CLibrary(name) {   }
+  LibLagrangeP0 ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -42,12 +42,12 @@ public: // functions
 
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "LagrangeP0"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

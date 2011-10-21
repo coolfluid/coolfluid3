@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace MeshGeneration {
   /// Class defines the initialization and termination of the library MeshGeneration
   /// @author Tiago Quintino
   class MeshGeneration_API LibMeshGeneration :
-      public common::CLibrary
+      public common::Library
   {
   public:
 
@@ -43,7 +43,7 @@ namespace MeshGeneration {
     typedef boost::shared_ptr<LibMeshGeneration const> ConstPtr;
 
     /// Constructor
-    LibMeshGeneration ( const std::string& name) : common::CLibrary(name) {   }
+    LibMeshGeneration ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
@@ -52,12 +52,12 @@ namespace MeshGeneration {
 
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "MeshGeneration"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

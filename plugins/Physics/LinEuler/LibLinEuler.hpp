@@ -8,7 +8,7 @@
 #define cf3_Physics_LinEuler_LibLinEuler_hpp
 
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 /// Define the macro LinEuler_API
 /// @note build system defines COOLFLUID_PHYSICS_LINEULER_EXPORTS when compiling LinEuler files
@@ -34,7 +34,7 @@ namespace LinEuler {
 
 /// Class defines the LinEuler library
 /// @author Tiago Quintino
-class LinEuler_API LibLinEuler : public common::CLibrary
+class LinEuler_API LibLinEuler : public common::Library
 {
 public:
 
@@ -42,7 +42,7 @@ public:
   typedef boost::shared_ptr<LibLinEuler const> ConstPtr;
 
   /// Constructor
-  LibLinEuler ( const std::string& name) : common::CLibrary(name) { }
+  LibLinEuler ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibLinEuler() { }
 
@@ -52,12 +52,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Physics.LinEuler"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "LinEuler"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

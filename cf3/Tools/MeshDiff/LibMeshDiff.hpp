@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace MeshDiff {
   /// Class defines the initialization and termination of the library MeshDiff
   /// @author Tiago Quintino
   class MeshDiff_API LibMeshDiff :
-      public common::CLibrary
+      public common::Library
   {
   public:
 
@@ -43,7 +43,7 @@ namespace MeshDiff {
     typedef boost::shared_ptr<LibMeshDiff const> ConstPtr;
 
     /// Constructor
-    LibMeshDiff ( const std::string& name) : common::CLibrary(name) {   }
+    LibMeshDiff ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
@@ -51,12 +51,12 @@ namespace MeshDiff {
     static std::string library_namespace() { return "CF.Tools.MeshDiff"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "MeshDiff"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

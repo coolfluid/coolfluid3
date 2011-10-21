@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace CGNS {
 
 /// Class defines the CGNS mesh format operations
 /// @author Willem Deconinck
-class Mesh_CGNS_API LibCGNS : public cf3::common::CLibrary
+class Mesh_CGNS_API LibCGNS : public cf3::common::Library
 {
 public:
 
@@ -43,7 +43,7 @@ public:
   typedef boost::shared_ptr<LibCGNS const> ConstPtr;
 
   /// Constructor
-  LibCGNS ( const std::string& name) : common::CLibrary(name) {   }
+  LibCGNS ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
@@ -51,12 +51,12 @@ public: // functions
   static std::string library_namespace() { return "CF.Mesh.CGNS"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "CGNS"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
