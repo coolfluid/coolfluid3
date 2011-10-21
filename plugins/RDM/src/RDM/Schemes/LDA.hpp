@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Schemes_LDA_hpp
 #define cf3_RDM_Schemes_LDA_hpp
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
@@ -129,7 +129,7 @@ inline Real myplus ( Real x )
 template<typename SF,typename QD, typename PHYS>
 void LDA::Term<SF,QD,PHYS>::execute()
 {
-  using namespace cf3::Math;
+  using namespace cf3::math;
 
   // get element connectivity
 

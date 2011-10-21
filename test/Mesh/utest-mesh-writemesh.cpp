@@ -13,7 +13,7 @@
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"

@@ -30,7 +30,7 @@
 namespace cf3 {
 
   /// Basic Classes for Mathematical applications used by %COOLFluiD
-  namespace Math {
+  namespace math {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -49,12 +49,12 @@ namespace cf3 {
     public: // functions
 
       /// @return string of the library namespace
-      static std::string library_namespace() { return "CF.Math"; }
+      static std::string library_namespace() { return "CF.math"; }
 
       /// Static function that returns the library name.
       /// Must be implemented for CLibrary registration
       /// @return name of the library
-      static std::string library_name() { return "Math"; }
+      static std::string library_name() { return "math"; }
 
       /// Static function that returns the description of the library.
       /// Must be implemented for CLibrary registration
@@ -80,7 +80,7 @@ namespace cf3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

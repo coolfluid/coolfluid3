@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Schemes_B_hpp
 #define cf3_RDM_Schemes_B_hpp
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 #include "RDM/CellTerm.hpp"
 #include "RDM/SchemeBase.hpp"
@@ -209,7 +209,7 @@ void B::Term<SF,QD,PHYS>::execute()
         sum_phi_N += std::abs(B::Phi_n(n,v) + Phi_n_diss(n,v));
     }
 
-    theta = Math::Checks::is_not_zero(sum_phi_N) ? std::abs(sum_phi)/sum_phi_N : 0.0;
+    theta = math::Checks::is_not_zero(sum_phi_N) ? std::abs(sum_phi)/sum_phi_N : 0.0;
 
     for (Uint n=0; n<SF::nb_nodes; ++n)
     {

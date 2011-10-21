@@ -11,7 +11,7 @@
 
 #include "common/Log.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 using namespace std;
 using namespace boost;

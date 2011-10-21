@@ -11,7 +11,7 @@
 
 #include "mesh/ShapeFunctionT.hpp"
 #include "mesh/ShapeFunctionBase.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 

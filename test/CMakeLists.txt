@@ -7,7 +7,7 @@ add_subdirectory( rapidxml )
 add_subdirectory( Eigen )
 
 add_subdirectory( common )
-add_subdirectory( Math )
+add_subdirectory( math )
 add_subdirectory( mesh )
 add_subdirectory( Physics )
 add_subdirectory( Solver )

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "mesh/CMeshTransformer.hpp"
 
@@ -53,7 +53,7 @@ private: // functions
 
 private: // data
   
-  Math::VectorialFunction  m_function;
+  math::VectorialFunction  m_function;
   
   boost::weak_ptr<Field> m_field;
   

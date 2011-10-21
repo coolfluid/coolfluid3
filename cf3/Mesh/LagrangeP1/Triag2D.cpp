@@ -8,7 +8,7 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/ElementTypeT.hpp"
 
@@ -78,8 +78,8 @@ void Triag2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 bool Triag2D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 {
   MappedCoordsT mapped_coord = mapped_coordinate(coord,nodes);
-  if( (mapped_coord[KSI] >= -Math::Consts::eps()) &&
-      (mapped_coord[ETA] >= -Math::Consts::eps()) &&
+  if( (mapped_coord[KSI] >= -math::Consts::eps()) &&
+      (mapped_coord[ETA] >= -math::Consts::eps()) &&
       (mapped_coord.sum() <= 1.))
   {
     return true;

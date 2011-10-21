@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing LSS::System and the dummy EmptyLSS."
+#define BOOST_TEST_MODULE "Test module for cf3::math::LSS where testing LSS::System and the dummy EmptyLSS."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,15 +14,15 @@
 #include <boost/assign/std/vector.hpp>
 
 #include "common/Log.hpp"
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/CommWrapper.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Math;
-using namespace cf3::Math::LSS;
+using namespace cf3::math;
+using namespace cf3::math::LSS;
 
 using namespace boost::assign;
 

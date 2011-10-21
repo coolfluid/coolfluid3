@@ -14,7 +14,7 @@
 #include "common/CActionDirector.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/CSolver.hpp"

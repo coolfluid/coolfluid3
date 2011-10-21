@@ -14,7 +14,7 @@
 
 #include "common/PE/debug.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllCells.hpp"

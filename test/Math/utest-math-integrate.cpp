@@ -14,15 +14,15 @@
 
 #include "common/Log.hpp"
 
-#include "Math/Integrate.hpp"
-#include "Math/Consts.hpp"
+#include "math/Integrate.hpp"
+#include "math/Consts.hpp"
 
 using namespace std;
 using namespace boost;
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 struct f
 {

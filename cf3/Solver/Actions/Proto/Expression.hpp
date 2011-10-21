@@ -19,8 +19,8 @@
 #include "common/OptionT.hpp"
 #include "common/OptionList.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/CRegion.hpp"
 #include "mesh/CElements.hpp"
@@ -142,13 +142,13 @@ private:
     /// Register a scalar
     void operator()(ScalarField& field) const
     {
-      get_descriptor(field.field_tag()).push_back(field.name(), Math::VariablesDescriptor::Dimensionalities::SCALAR);
+      get_descriptor(field.field_tag()).push_back(field.name(), math::VariablesDescriptor::Dimensionalities::SCALAR);
     }
 
     /// Register a vector field
     void operator()(VectorField& field) const
     {
-      get_descriptor(field.field_tag()).push_back(field.name(), Math::VariablesDescriptor::Dimensionalities::VECTOR);
+      get_descriptor(field.field_tag()).push_back(field.name(), math::VariablesDescriptor::Dimensionalities::VECTOR);
     }
 
     /// Skip unused variables
@@ -158,10 +158,10 @@ private:
 
   private:
     /// Get the VariablesDescriptor with the given tag
-    Math::VariablesDescriptor& get_descriptor(const std::string& tag) const
+    math::VariablesDescriptor& get_descriptor(const std::string& tag) const
     {
-      Math::VariablesDescriptor* result = 0;
-      BOOST_FOREACH(Math::VariablesDescriptor& descriptor, common::find_components_with_tag<Math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
+      math::VariablesDescriptor* result = 0;
+      BOOST_FOREACH(math::VariablesDescriptor& descriptor, common::find_components_with_tag<math::VariablesDescriptor>(m_physical_model.variable_manager(), tag))
       {
         if(is_not_null(result))
           throw common::SetupError(FromHere(), "Variablemanager " + m_physical_model.variable_manager().uri().string() + " has multiple descriptors with tag " + tag);
@@ -170,7 +170,7 @@ private:
 
       if(is_null(result))
       {
-        result = &m_physical_model.variable_manager().template create_component<Math::VariablesDescriptor>(tag);
+        result = &m_physical_model.variable_manager().template create_component<math::VariablesDescriptor>(tag);
         result->add_tag(tag);
       }
 

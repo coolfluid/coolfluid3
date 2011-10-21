@@ -5,16 +5,16 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Math::VariablesDescriptor"
+#define BOOST_TEST_MODULE "Test module for cf3::math::VariablesDescriptor"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_SUITE( VariablesDescriptorSuite )
 BOOST_AUTO_TEST_CASE( PushBackScalar )
 {
   VariablesDescriptor::Ptr descriptor = allocate_component<VariablesDescriptor>("descriptor");
-  descriptor->push_back("a", cf3::Math::VariablesDescriptor::Dimensionalities::SCALAR);
+  descriptor->push_back("a", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
 
   descriptor->configure_option(common::Tags::dimension(), 3u);
 
@@ -45,9 +45,9 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
 
   descriptor->configure_option(common::Tags::dimension(), 2u);
 
-  descriptor->push_back("v1", cf3::Math::VariablesDescriptor::Dimensionalities::VECTOR);
-  descriptor->push_back("v2", cf3::Math::VariablesDescriptor::Dimensionalities::VECTOR);
-  descriptor->push_back("t1", cf3::Math::VariablesDescriptor::Dimensionalities::TENSOR);
+  descriptor->push_back("v1", cf3::math::VariablesDescriptor::Dimensionalities::VECTOR);
+  descriptor->push_back("v2", cf3::math::VariablesDescriptor::Dimensionalities::VECTOR);
+  descriptor->push_back("t1", cf3::math::VariablesDescriptor::Dimensionalities::TENSOR);
 
   BOOST_CHECK_EQUAL(descriptor->size(), 8);
   BOOST_CHECK_EQUAL(descriptor->size("v1"), 2);
@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( PushBackVectors )
   BOOST_CHECK_EQUAL(descriptor->offset("v2"), 3);
   BOOST_CHECK_EQUAL(descriptor->offset("t1"), 6);
 
-  descriptor->push_back("s", cf3::Math::VariablesDescriptor::Dimensionalities::SCALAR);
+  descriptor->push_back("s", cf3::math::VariablesDescriptor::Dimensionalities::SCALAR);
   BOOST_CHECK_EQUAL(descriptor->description(), "v1[vector],v2[vector],t1[tensor],s[scalar]");
 }
 

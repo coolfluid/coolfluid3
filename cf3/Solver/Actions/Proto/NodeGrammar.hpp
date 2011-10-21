@@ -164,7 +164,7 @@ struct NodeGrammar :
   <
     DirichletBCGrammar<NodeMath>,
     NeumannBCGrammar<NodeMath>,
-    NodeMath, // Math expressions
+    NodeMath, // math expressions
     StreamOutput<NodeGrammar>
   >
 {

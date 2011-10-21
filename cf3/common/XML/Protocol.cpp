@@ -18,7 +18,7 @@
 
 #include "common/XML/Protocol.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 

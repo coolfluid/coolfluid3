@@ -25,7 +25,7 @@
 
 #include "common/XML/FileOperations.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "Python/Component.hpp"
 #include "Python/CTable.hpp"

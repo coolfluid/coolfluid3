@@ -10,7 +10,7 @@
 #include "common/OptionURI.hpp"
 #include "common/Signal.hpp"
 
-#include "Math/VariableManager.hpp"
+#include "math/VariableManager.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/FieldManager.hpp"

@@ -19,7 +19,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/BasicExceptions.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"

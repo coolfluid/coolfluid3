@@ -23,7 +23,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/CMesh.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 using namespace boost::assign;
 
@@ -216,20 +216,20 @@ void Field::synchronize()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_descriptor(Math::VariablesDescriptor& descriptor)
+void Field::set_descriptor(math::VariablesDescriptor& descriptor)
 {
-  if (Math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<Math::VariablesDescriptor>(*this))
+  if (math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = descriptor.as_ptr<Math::VariablesDescriptor>();
+  m_descriptor = descriptor.as_ptr<math::VariablesDescriptor>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Field::create_descriptor(const std::string& description, const Uint dimension)
 {
-  if (Math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<Math::VariablesDescriptor>(*this))
+  if (math::VariablesDescriptor::Ptr old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = create_component_ptr<Math::VariablesDescriptor>("description");
+  m_descriptor = create_component_ptr<math::VariablesDescriptor>("description");
   descriptor().set_variables(description,dimension);
 }
 

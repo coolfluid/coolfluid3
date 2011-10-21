@@ -15,11 +15,11 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 using namespace common;
 using namespace common::XML;
@@ -74,5 +74,5 @@ void VariableManager::signature_create_descriptor(SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3

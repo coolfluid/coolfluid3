@@ -14,7 +14,7 @@
 
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/CMesh.hpp"
@@ -96,7 +96,7 @@ struct NodeVarData< ScalarField >
   NodeVarData(const ScalarField& placeholder, mesh::CRegion& region) :
     m_field(find_field(region, placeholder.field_tag()))
   {
-    const Math::VariablesDescriptor& descriptor = m_field.descriptor();
+    const math::VariablesDescriptor& descriptor = m_field.descriptor();
     m_var_begin = descriptor.offset(placeholder.name());
 
     // Variable must be a scalar
@@ -163,7 +163,7 @@ struct NodeVarData<VectorField, Dim>
   NodeVarData(const VectorField& placeholder, mesh::CRegion& region) :
     m_field( find_field(region, placeholder.field_tag()) )
   {
-    const Math::VariablesDescriptor& descriptor = m_field.descriptor();
+    const math::VariablesDescriptor& descriptor = m_field.descriptor();
     m_var_begin = descriptor.offset(placeholder.name());
 
     // Variable must be a vector

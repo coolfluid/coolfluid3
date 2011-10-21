@@ -13,7 +13,7 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

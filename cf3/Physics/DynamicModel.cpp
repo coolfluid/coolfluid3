@@ -12,14 +12,14 @@
 #include "Physics/DynamicModel.hpp"
 #include "Physics/DynamicVars.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 namespace cf3 {
 namespace Physics {
 
 using namespace common;
-using namespace Math;
+using namespace math;
 
 struct DynamicModel::Implementation
 {

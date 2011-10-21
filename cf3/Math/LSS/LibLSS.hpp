@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Math {
+namespace math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,12 +45,12 @@ namespace LSS {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Math.LSS"; }
+    static std::string library_namespace() { return "CF.math.LSS"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for CLibrary registration
     /// @return name of the library
-    static std::string library_name() { return "Math"; }
+    static std::string library_name() { return "math"; }
 
     /// Static function that returns the description of the library.
     /// Must be implemented for CLibrary registration
@@ -78,7 +78,7 @@ namespace LSS {
 
 
 } // LSS
-} // Math
+} // math
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

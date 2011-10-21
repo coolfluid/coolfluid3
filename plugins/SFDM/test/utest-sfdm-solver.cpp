@@ -16,7 +16,7 @@
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "Solver/CModel.hpp"
 #include "Solver/Tags.hpp"
@@ -56,7 +56,7 @@
 
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Math;
+using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::Physics;

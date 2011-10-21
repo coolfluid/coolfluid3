@@ -11,7 +11,7 @@
 
 #include "common/EigenAssertions.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/CTable.hpp"

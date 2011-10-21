@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Math/LSS/LibLSS.hpp"
+#include "math/LSS/LibLSS.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 namespace LSS {
 
 cf3::common::RegistLibrary<LibLSS> libMath;
@@ -27,5 +27,5 @@ void LibLSS::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LSS
-} // Math
+} // math
 } // cf3

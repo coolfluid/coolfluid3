@@ -9,8 +9,8 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Math/Defs.hpp"
-#include "Math/MatrixTypes.hpp"
+#include "math/Defs.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "LibPhysics.hpp"
 #include <boost/scoped_ptr.hpp>

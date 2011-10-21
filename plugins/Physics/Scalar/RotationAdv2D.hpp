@@ -8,7 +8,7 @@
 #define cf3_Physics_Scalar_RotationAdv2D_hpp
 
 #include "common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CMeshTransformer.hpp"
 #include "mesh/Actions/LibActions.hpp"

@@ -11,7 +11,7 @@
 
 #include "UI/Graphics/GraphicalInt.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "test/UI/Core/ExceptionThrowHandler.hpp"
 
@@ -19,7 +19,7 @@
 
 using namespace cf3::common;
 using namespace cf3::UI::Graphics;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -10,7 +10,7 @@
 #include <iostream>
 
 #include "common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
 #include "Physics/Variables.hpp"
 

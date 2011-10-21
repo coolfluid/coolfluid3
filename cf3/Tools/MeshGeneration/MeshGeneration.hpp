@@ -7,7 +7,7 @@
 #ifndef cf3_Tools_MeshGeneration_Tools_hpp
 #define cf3_Tools_MeshGeneration_Tools_hpp
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 #include "mesh/CMesh.hpp"
 #include "mesh/Blockmesh/BlockData.hpp"
 
@@ -31,7 +31,7 @@ void MeshGeneration_API create_rectangle(mesh::CMesh& mesh, const Real x_len, co
 void MeshGeneration_API create_rectangle_tris(mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Creates a 2D circular arc
-void MeshGeneration_API create_circle_2d(mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::Consts::pi());
+void MeshGeneration_API create_circle_2d(mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*math::Consts::pi());
 
 /// Create block data for a 3D periodic channel (flow between infinite flat plates)
 /// @param length: Total distance between the streamwise periodic boundaries (X-direction)

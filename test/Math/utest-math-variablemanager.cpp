@@ -5,17 +5,17 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Math::VariableManager"
+#define BOOST_TEST_MODULE "Test module for cf3::math::VariableManager"
 
 #include <boost/test/unit_test.hpp>
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 //////////////////////////////////////////////////////////////////////////////
 

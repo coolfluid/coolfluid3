@@ -11,14 +11,14 @@
 
 #include "common/Log.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 using namespace std;
 using namespace boost;
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 typedef long int lint;
 

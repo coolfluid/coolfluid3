@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Init_hpp
 #define cf3_RDM_Init_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "Solver/Action.hpp"
 
@@ -51,7 +51,7 @@ private: // data
 
   boost::weak_ptr<mesh::Field> m_field;  ///< access to the field to initialize
 
-  Math::VectorialFunction  m_function;    ///< function parser for the math formula
+  math::VectorialFunction  m_function;    ///< function parser for the math formula
 
 };
 

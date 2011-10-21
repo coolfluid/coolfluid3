@@ -21,7 +21,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 #include "mesh/COcttree.hpp"
 #include "mesh/CMesh.hpp"
 #include "mesh/CTable.hpp"
@@ -40,7 +40,7 @@ namespace mesh {
 
   using namespace common;
   using namespace common::PE;
-  using namespace Math::Consts;
+  using namespace math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -227,7 +227,7 @@ void COcttree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, s
     }
     else
     {
-      ranks[i] = Math::Consts::uint_max();
+      ranks[i] = math::Consts::uint_max();
       missing_cells.push_back(i);
     }
   }
@@ -249,7 +249,7 @@ void COcttree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, s
     PE::Comm::instance().broadcast(send_coords,recv_coords,root,m_dim);
 
     // size is only because it doesn't get resized for this rank
-    std::vector<Uint> send_found(missing_cells.size(),Math::Consts::uint_max());
+    std::vector<Uint> send_found(missing_cells.size(),math::Consts::uint_max());
 
     if (root!=Comm::instance().rank())
     {
@@ -272,7 +272,7 @@ void COcttree::find_cell_ranks( const boost::multi_array<Real,2>& coordinates, s
           send_found[i] = Comm::instance().rank();
         }
         else
-          send_found[i] = Math::Consts::uint_max();
+          send_found[i] = math::Consts::uint_max();
       }
     }
 

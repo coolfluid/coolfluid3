@@ -13,7 +13,7 @@ call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=
 
 #############################################################################
 ### create LSS
-create HotModel/LSS CF.Math.LSS.System
+create HotModel/LSS CF.math.LSS.System
 configure HotModel/LSS solver:uri=string:Trilinos
 configure HotModel/HeatConductionSteady lss:uri=cpath://Root/HotModel/LSS
 configure HotModel/LSS/Matrix settings_file:string=@UFEM_LSS_CONFIG_FILE@

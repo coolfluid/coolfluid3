@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/CRoot.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/ElementType.hpp"
 #include "mesh/CTable.hpp"
@@ -27,7 +27,7 @@
 
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Math;
+using namespace cf3::math;
 using namespace cf3::mesh;
 using namespace cf3::mesh::Integrators;
 using namespace cf3::mesh::LagrangeP1;

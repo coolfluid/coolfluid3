@@ -9,7 +9,7 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 #include "common/Log.hpp"
 #include "common/CBuilder.hpp"
@@ -20,7 +20,7 @@
 
 
 using namespace cf3::common;
-using namespace cf3::Math::Checks;
+using namespace cf3::math::Checks;
 using namespace cf3::mesh;
 
 namespace cf3 {

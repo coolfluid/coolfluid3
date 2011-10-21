@@ -11,10 +11,10 @@
 
 #include "common/Component.hpp"
 
-#include "Math/LibMath.hpp"
+#include "math/LibMath.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 class VariablesDescriptor;
 
@@ -60,7 +60,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/ElementTypeT.hpp"
 
@@ -63,10 +63,10 @@ void Quad2D::compute_centroid(const NodesT& nodes , CoordsT& centroid)
 bool Quad2D::is_coord_in_element(const CoordsT& coord, const NodesT& nodes)
 {
   MappedCoordsT mapped_coord = mapped_coordinate(coord,nodes);
-  if( (mapped_coord[KSI] >= -1.0-Math::Consts::eps()) &&
-      (mapped_coord[ETA] >= -1.0-Math::Consts::eps()) &&
-      (mapped_coord[KSI] <=  1.0+Math::Consts::eps()) &&
-      (mapped_coord[ETA] <=  1.0+Math::Consts::eps()))
+  if( (mapped_coord[KSI] >= -1.0-math::Consts::eps()) &&
+      (mapped_coord[ETA] >= -1.0-math::Consts::eps()) &&
+      (mapped_coord[KSI] <=  1.0+math::Consts::eps()) &&
+      (mapped_coord[ETA] <=  1.0+math::Consts::eps()))
   {
     return true;
   }

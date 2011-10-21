@@ -101,10 +101,10 @@ public: // functions
     /// @todo to be implemented in the .cpp
   }
 
-  virtual Math::VariablesDescriptor& description()
+  virtual math::VariablesDescriptor& description()
   {
     throw common::NotSupported(FromHere(),"querying description not supported for DynamicVars, see VariableManager");
-    static Math::VariablesDescriptor::Ptr desc (common::allocate_component<Math::VariablesDescriptor>("desc"));
+    static math::VariablesDescriptor::Ptr desc (common::allocate_component<math::VariablesDescriptor>("desc"));
     return *desc;
   }
   //@} END INTERFACE

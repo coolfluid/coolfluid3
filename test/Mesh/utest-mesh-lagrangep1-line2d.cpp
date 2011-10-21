@@ -15,7 +15,7 @@
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/CTable.hpp"
 #include "mesh/Geometry.hpp"
@@ -32,7 +32,7 @@
 using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 using namespace cf3::mesh;
 using namespace cf3::mesh::Integrators;
 using namespace cf3::mesh::LagrangeP1;

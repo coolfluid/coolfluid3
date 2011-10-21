@@ -11,7 +11,7 @@
 
 #include "common/Component.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/GeoShape.hpp"
 

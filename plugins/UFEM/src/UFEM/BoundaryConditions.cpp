@@ -14,10 +14,10 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 #include "mesh/Geometry.hpp"
 
@@ -35,7 +35,7 @@ namespace UFEM {
 
 using namespace common;
 using namespace common::XML;
-using namespace Math;
+using namespace math;
 using namespace mesh;
 using namespace Solver;
 using namespace Solver::Actions;

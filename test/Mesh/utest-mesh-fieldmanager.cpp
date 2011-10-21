@@ -16,8 +16,8 @@
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/CMesh.hpp"
 #include "mesh/CRegion.hpp"
@@ -35,7 +35,7 @@ using namespace boost;
 using namespace cf3;
 using namespace cf3::mesh;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////////
 

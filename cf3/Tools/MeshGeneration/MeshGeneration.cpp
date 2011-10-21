@@ -25,8 +25,8 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::mesh::BlockMesh;
-using namespace cf3::Math;
-using namespace cf3::Math::Consts;
+using namespace cf3::math;
+using namespace cf3::math::Consts;
 
 using namespace boost::assign;
 

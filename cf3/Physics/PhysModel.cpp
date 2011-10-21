@@ -9,7 +9,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Math/VariableManager.hpp"
+#include "math/VariableManager.hpp"
 
 namespace cf3 {
 namespace Physics {
@@ -21,7 +21,7 @@ using namespace cf3::common::XML;
 
 PhysModel::PhysModel( const std::string& name ) :
   Component(name),
-  m_variable_manager(create_static_component<Math::VariableManager>("VariableManager"))
+  m_variable_manager(create_static_component<math::VariableManager>("VariableManager"))
 {
 
   regist_signal( "create_variables" )
@@ -36,12 +36,12 @@ PhysModel::~PhysModel()
 {
 }
 
-Math::VariableManager& PhysModel::variable_manager()
+math::VariableManager& PhysModel::variable_manager()
 {
   return m_variable_manager;
 }
 
-const Math::VariableManager& PhysModel::variable_manager() const
+const math::VariableManager& PhysModel::variable_manager() const
 {
   return m_variable_manager;
 }

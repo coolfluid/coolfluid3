@@ -14,7 +14,7 @@
 #include "Solver/Actions/LibActions.hpp"
 
 namespace cf3 {
-  namespace Math { namespace LSS { class System; } }
+  namespace math { namespace LSS { class System; } }
 namespace Solver {
 namespace Actions {
 
@@ -43,7 +43,7 @@ public: // functions
   void execute();
   
 private:
-  boost::weak_ptr<Math::LSS::System> m_lss;
+  boost::weak_ptr<math::LSS::System> m_lss;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

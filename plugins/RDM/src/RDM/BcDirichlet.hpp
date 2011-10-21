@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_BcDirichlet_hpp
 #define cf3_RDM_BcDirichlet_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
@@ -52,7 +52,7 @@ private: // data
   /// access to the solution field on the mesh
   boost::weak_ptr<mesh::Field> m_solution;
   /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  m_function;
+  math::VectorialFunction  m_function;
 
 };
 

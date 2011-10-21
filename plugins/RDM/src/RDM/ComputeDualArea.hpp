@@ -9,7 +9,7 @@
 
 #include "common/OptionComponent.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 #include "mesh/CTable.hpp"
 #include "mesh/ElementData.hpp"
@@ -208,7 +208,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 template<typename SF,typename QD >
 void ComputeDualArea::Term<SF,QD>::execute()
 {
-  using namespace cf3::Math;
+  using namespace cf3::math;
 
 //  std::cout << " dual area @ cell [" << idx() << "]" << std::endl;
 

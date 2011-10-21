@@ -43,7 +43,7 @@ Init::Init ( const std::string& name ) :
   // options
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
+      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
 

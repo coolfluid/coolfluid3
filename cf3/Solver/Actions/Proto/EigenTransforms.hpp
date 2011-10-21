@@ -14,7 +14,7 @@
 #include "Terminals.hpp"
 #include "Transforms.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 /// @file EigenTransforms.hpp
 /// @brief Transforms related to Eigen matrix library functionality

@@ -8,11 +8,11 @@
 #include <QVariant>
 #include <QVBoxLayout>
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "UI/Graphics/GraphicalInt.hpp"
 
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -22,7 +22,7 @@ namespace common {
   class CLink;
   namespace PE { class CommPattern; }
 }
-namespace Math { class VariablesDescriptor; }
+namespace math { class VariablesDescriptor; }
 namespace mesh {
 
   class CMesh;
@@ -88,7 +88,7 @@ public: // functions
   Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
 
   /// Create a new field in this group
-  Field& create_field( const std::string& name, Math::VariablesDescriptor& variables_descriptor);
+  Field& create_field( const std::string& name, math::VariablesDescriptor& variables_descriptor);
 
   /// Return the topology
   CRegion& topology() const;

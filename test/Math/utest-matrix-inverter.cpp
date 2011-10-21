@@ -15,16 +15,16 @@
 
 #include "common/Log.hpp"
 
-#include "Math/MatrixTypes.hpp"
-#include "Math/Checks.hpp"
+#include "math/MatrixTypes.hpp"
+#include "math/Checks.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace cf3;
 using namespace cf3::common;
 
-using namespace cf3::Math::Checks;
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Checks;
+using namespace cf3::math::Consts;
 
 using namespace Eigen;
 

@@ -10,7 +10,7 @@
 #include "common/OptionT.hpp"
 #include "common/Foreach.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/CMesh.hpp"
@@ -22,7 +22,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Math::Checks;
+using namespace cf3::math::Checks;
 
 namespace cf3 {
 namespace RDM {

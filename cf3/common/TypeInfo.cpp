@@ -9,7 +9,7 @@
 #include "common/TypeInfo.hpp"
 #include "common/URI.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #ifdef CF3_HAVE_CXXABI_H
 #include <cxxabi.h>

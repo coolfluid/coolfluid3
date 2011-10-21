@@ -17,7 +17,7 @@
 
 #include "common/PE/debug.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 #include "mesh/CDomain.hpp"
 
@@ -37,7 +37,7 @@ using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Consts;
 using namespace cf3::mesh;
 
 using namespace boost::assign;
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   CDomain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
-  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
   lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 

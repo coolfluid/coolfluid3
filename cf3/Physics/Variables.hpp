@@ -13,8 +13,8 @@
 
 #include "common/Component.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
-#include "Math/MatrixTypes.hpp"
+#include "math/VariablesDescriptor.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -98,7 +98,7 @@ public: // functions
                         RealVector& res) = 0;
 
 
-  virtual Math::VariablesDescriptor& description() = 0;
+  virtual math::VariablesDescriptor& description() = 0;
 
   //@} END INTERFACE
 
@@ -116,7 +116,7 @@ public:
   /// constructor
   VariablesT ( const std::string& name ) :
     Variables( name ),
-    m_description (common::allocate_component<Math::VariablesDescriptor>("description"))
+    m_description (common::allocate_component<math::VariablesDescriptor>("description"))
   {
     regist_typeinfo(this);
     add_static_component (m_description);
@@ -212,10 +212,10 @@ public:
     PHYS::residual( cp, flux_jacob, res );
   }
 
-  virtual Math::VariablesDescriptor& description() { return *m_description; }
+  virtual math::VariablesDescriptor& description() { return *m_description; }
 
 private:
-  boost::shared_ptr<Math::VariablesDescriptor> m_description;
+  boost::shared_ptr<math::VariablesDescriptor> m_description;
 
 }; // VariablesT
 

@@ -22,8 +22,8 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
-#include "Math/LSS/BlockAccumulator.hpp"
+#include "math/VariablesDescriptor.hpp"
+#include "math/LSS/BlockAccumulator.hpp"
 
 #include "mesh/CElements.hpp"
 #include "mesh/Field.hpp"
@@ -96,7 +96,7 @@ public:
     mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
   }
 
-  void update_block_connectivity(Math::LSS::BlockAccumulator& block_accumulator)
+  void update_block_connectivity(math::LSS::BlockAccumulator& block_accumulator)
   {
     block_accumulator.neighbour_indices(m_connectivity[m_element_idx]);
   }
@@ -734,7 +734,7 @@ public:
   };
 
   /// Stores a mutable block accululator, always up-to-date with index mapping and correct size
-  mutable Math::LSS::BlockAccumulator block_accumulator;
+  mutable math::LSS::BlockAccumulator block_accumulator;
 
 private:
   /// Variables used in the expression

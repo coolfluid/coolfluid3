@@ -26,7 +26,7 @@ generator.configure_option('cell_overlap', 1)
 generator.execute()
 
 # lss setup
-lss = model.create_component('LSS', 'CF.Math.LSS.System')
+lss = model.create_component('LSS', 'CF.math.LSS.System')
 lss.configure_option('solver', 'Trilinos');
 solver.configure_option('lss', lss.uri())
 lss.get_child('Matrix').configure_option('settings_file', sys.argv[1]);

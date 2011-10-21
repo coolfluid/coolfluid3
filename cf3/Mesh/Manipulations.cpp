@@ -6,7 +6,7 @@
 
 #include "common/PE/debug.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/Manipulations.hpp"
 #include "mesh/Geometry.hpp"
@@ -17,7 +17,7 @@ namespace mesh {
 
 using namespace common;
 using namespace common::PE;
-using namespace Math::Consts;
+using namespace math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 

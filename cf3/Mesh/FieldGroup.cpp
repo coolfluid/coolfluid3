@@ -28,7 +28,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/FieldGroup.hpp"
@@ -43,8 +43,8 @@
 #include "mesh/CSpace.hpp"
 #include "mesh/CConnectivity.hpp"
 
-#include "Math/Consts.hpp"
-#define UNKNOWN Math::Consts::uint_max()
+#include "math/Consts.hpp"
+#define UNKNOWN math::Consts::uint_max()
 
 namespace cf3 {
 namespace mesh {
@@ -249,7 +249,7 @@ Field& FieldGroup::create_field(const std::string &name, const std::string& vari
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, Math::VariablesDescriptor& variables_descriptor)
+Field& FieldGroup::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
   Field& field = create_component<Field>(name);
   field.set_field_group(*this);

@@ -54,7 +54,7 @@ Init::Init ( const std::string& name ) :
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->pretty_name("Functions")
-      ->description("Math function applied as initial condition using Input Variables (vars x,y)")
+      ->description("math function applied as initial condition using Input Variables (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
 

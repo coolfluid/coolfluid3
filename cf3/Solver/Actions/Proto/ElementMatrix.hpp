@@ -26,7 +26,7 @@
 
 #include <boost/proto/core.hpp>
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "IndexLooping.hpp"
 #include "Terminals.hpp"

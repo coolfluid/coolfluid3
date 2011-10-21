@@ -19,7 +19,7 @@
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"

@@ -19,14 +19,14 @@
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::Solver;
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Consts;
 
 namespace cf3 {
 namespace SFDM {

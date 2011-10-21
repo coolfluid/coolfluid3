@@ -13,11 +13,11 @@
 #include <boost/proto/traits.hpp>
 
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
-#include "Math/LSS/System.hpp"
-#include "Math/LSS/BlockAccumulator.hpp"
-#include "Math/LSS/Matrix.hpp"
+#include "math/LSS/System.hpp"
+#include "math/LSS/BlockAccumulator.hpp"
+#include "math/LSS/Matrix.hpp"
 
 #include "ComponentWrapper.hpp"
 #include "Terminals.hpp"
@@ -36,7 +36,7 @@ struct SystemMatrixTag
 };
 
 /// Represents a system matrix
-typedef ComponentWrapper<Math::LSS::System, SystemMatrixTag> SystemMatrix;
+typedef ComponentWrapper<math::LSS::System, SystemMatrixTag> SystemMatrix;
 
 /// Tag for RHS
 struct SystemRHSTag
@@ -44,12 +44,12 @@ struct SystemRHSTag
 };
 
 /// Represents an RHS
-typedef ComponentWrapper<Math::LSS::System, SystemRHSTag> SystemRHS;
+typedef ComponentWrapper<math::LSS::System, SystemRHSTag> SystemRHS;
 
 /// Grammar matching the LHS of an assignment op
 template<typename TagT>
 struct BlockLhsGrammar :
-  boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, TagT> >
+  boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, TagT> >
 {
 };
 
@@ -65,32 +65,32 @@ struct MatrixAssignOpsCases
 };
 
 /// Translate tag to operator
-inline void do_assign_op_matrix(boost::proto::tag::assign, Math::LSS::Matrix& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
+inline void do_assign_op_matrix(boost::proto::tag::assign, math::LSS::Matrix& lss_matrix, const math::LSS::BlockAccumulator& block_accumulator)
 {
   lss_matrix.set_values(block_accumulator);
 }
 
 /// Translate tag to operator
-inline void do_assign_op_matrix(boost::proto::tag::plus_assign, Math::LSS::Matrix& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
+inline void do_assign_op_matrix(boost::proto::tag::plus_assign, math::LSS::Matrix& lss_matrix, const math::LSS::BlockAccumulator& block_accumulator)
 {
   lss_matrix.add_values(block_accumulator);
 }
 
 /// Translate tag to operator
-inline void do_assign_op_rhs(boost::proto::tag::assign, Math::LSS::Vector& lss_rhs, const Math::LSS::BlockAccumulator& block_accumulator)
+inline void do_assign_op_rhs(boost::proto::tag::assign, math::LSS::Vector& lss_rhs, const math::LSS::BlockAccumulator& block_accumulator)
 {
   lss_rhs.set_rhs_values(block_accumulator);
 }
 
 /// Translate tag to operator
-inline void do_assign_op_rhs(boost::proto::tag::plus_assign, Math::LSS::Vector& lss_rhs, const Math::LSS::BlockAccumulator& block_accumulator)
+inline void do_assign_op_rhs(boost::proto::tag::plus_assign, math::LSS::Vector& lss_rhs, const math::LSS::BlockAccumulator& block_accumulator)
 {
   lss_rhs.add_rhs_values(block_accumulator);
 }
 
 /// Translate tag to operator
 template<typename TagT, typename TargetT>
-inline void do_assign_op(TagT, Real& lhs, TargetT& lss_matrix, const Math::LSS::BlockAccumulator& block_accumulator)
+inline void do_assign_op(TagT, Real& lhs, TargetT& lss_matrix, const math::LSS::BlockAccumulator& block_accumulator)
 {
   BOOST_MPL_ASSERT_MSG(
     false
@@ -107,12 +107,12 @@ template<typename OpTagT>
 struct BlockAssignmentOp<SystemMatrixTag, OpTagT>
 {
   template<typename RhsT, typename DataT>
-  void operator()(Math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
-    Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+    math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
 
     for(Uint row = 0; row != mat_size; ++row)
     {
@@ -132,12 +132,12 @@ template<typename OpTagT>
 struct BlockAssignmentOp<SystemRHSTag, OpTagT>
 {
   template<typename RhsT, typename DataT>
-  void operator()(Math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
+  void operator()(math::LSS::System& lss, const RhsT& rhs, const DataT& data) const
   {
     // TODO: We take some shortcuts here that assume the same shape function for every variable. Storage order for the system is i.e. uvp, uvp, ...
     static const Uint mat_size = DataT::EMatrixSizeT::value;
     static const Uint nb_dofs = mat_size / DataT::SupportT::EtypeT::nb_nodes;
-    Math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
+    math::LSS::BlockAccumulator& block_accumulator = data.block_accumulator;
     for(Uint i = 0; i != mat_size; ++i)
     {
       // This converts u1,u2...pn to u1v1p1...

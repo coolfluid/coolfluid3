@@ -11,13 +11,13 @@
 
 //#include <boost/utility.hpp>
 
-#include "Math/LSS/LibLSS.hpp"
+#include "math/LSS/LibLSS.hpp"
 #include "common/Component.hpp"
 #include "common/PE/CommPattern.hpp"
 #include "common/Log.hpp"
-#include "Math/LSS/BlockAccumulator.hpp"
-#include "Math/LSS/Matrix.hpp"
-#include "Math/LSS/Vector.hpp"
+#include "math/LSS/BlockAccumulator.hpp"
+#include "math/LSS/Matrix.hpp"
+#include "math/LSS/Vector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -47,7 +47,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Math {
+namespace math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -182,7 +182,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // namespace LSS
-} // namespace Math
+} // namespace math
 } // namespace cf3
 
 #endif // cf3_Math_LSS_System_hpp

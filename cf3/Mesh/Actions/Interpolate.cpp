@@ -18,7 +18,7 @@
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/COcttree.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -185,7 +185,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
     {
 //      std::cout << PERank<< "coord " << coord.transpose() << " not found " << std::endl;
       for (Uint v=0; v<nb_vars; ++v)
-        target[i][v] = Math::Consts::real_max();
+        target[i][v] = math::Consts::real_max();
       missing_cells.push_back(i);
     }
   }
@@ -223,7 +223,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
 
 
     // size is only because it doesn't get resized for this rank
-    std::vector<Real> send_target_rows(nb_vars*missing_cells.size(),Math::Consts::uint_max());
+    std::vector<Real> send_target_rows(nb_vars*missing_cells.size(),math::Consts::uint_max());
 
     if (root!=Comm::instance().rank())
     {
@@ -256,7 +256,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
         {
 //          std::cout << PERank<< " send to " << root << ": coord " << coord.transpose() << " not found " << std::endl;
           for (Uint v=0; v<nb_vars; ++v)
-            send_target_rows[i*nb_vars+v] = Math::Consts::real_max();
+            send_target_rows[i*nb_vars+v] = math::Consts::real_max();
         }
       }
     }
@@ -285,7 +285,7 @@ void Interpolate::interpolate(const Field& source, const CTable<Real>& coordinat
     bool found = true;
     for (Uint v=0; v<target.row_size(); ++v)
     {
-      if (target[i][v] == Math::Consts::uint_max())
+      if (target[i][v] == math::Consts::uint_max())
       {
         target[i][v] = 0.;
         found &= false;

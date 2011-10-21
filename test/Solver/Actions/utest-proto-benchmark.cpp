@@ -15,7 +15,7 @@
 #include "common/CRoot.hpp"
 #include "common/Log.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"

@@ -24,7 +24,7 @@
 #include "common/CRoot.hpp"
 #include "common/Log.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"
@@ -51,7 +51,7 @@ using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::mesh;
 using namespace cf3::common;
 
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Consts;
 
 using namespace boost;
 

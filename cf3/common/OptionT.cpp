@@ -14,7 +14,7 @@
 
 #include "common/XML/Protocol.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 
 using namespace cf3::common::XML;

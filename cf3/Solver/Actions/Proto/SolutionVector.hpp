@@ -9,9 +9,9 @@
 
 #include <boost/proto/core.hpp>
 
-#include "Math/MatrixTypes.hpp"
-#include "Math/LSS/System.hpp"
-#include "Math/LSS/Vector.hpp"
+#include "math/MatrixTypes.hpp"
+#include "math/LSS/System.hpp"
+#include "math/LSS/Vector.hpp"
 
 #include "ComponentWrapper.hpp"
 #include "Transforms.hpp"
@@ -27,7 +27,7 @@ struct SolutionVectorTag
 };
 
 /// Used to create placeholders for a Neumann condition
-typedef ComponentWrapper<Math::LSS::System, SolutionVectorTag> SolutionVector;
+typedef ComponentWrapper<math::LSS::System, SolutionVectorTag> SolutionVector;
 
 struct GetSolutionVector :
   boost::proto::transform< GetSolutionVector >
@@ -58,7 +58,7 @@ struct GetSolutionVector :
               , typename impl::data_param data
     ) const
     {
-      Math::LSS::System& lss = expr.component();
+      math::LSS::System& lss = expr.component();
       const Uint sys_idx = data.node_idx*data.var_data(state).nb_dofs + data.var_data(state).offset;
       result_type result;
       for(Uint i = 0; i != VarDataT::dimension; ++i)
@@ -74,7 +74,7 @@ struct SolutionVectorGrammar :
   <
     boost::proto::function
     <
-      boost::proto::terminal< ComponentWrapperImpl<Math::LSS::System, SolutionVectorTag> >,
+      boost::proto::terminal< ComponentWrapperImpl<math::LSS::System, SolutionVectorTag> >,
       FieldTypes
     >,
     GetSolutionVector(boost::proto::_value(boost::proto::_child0), boost::proto::_value(boost::proto::_child1))

@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing indivdual operations."
+#define BOOST_TEST_MODULE "Test module for cf3::math::LSS where testing indivdual operations."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +17,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include "common/Log.hpp"
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 /// @todo remove when finished debugging
 #include "common/PE/debug.hpp"
@@ -27,8 +27,8 @@
 using namespace boost::assign;
 
 using namespace cf3;
-using namespace cf3::Math;
-using namespace cf3::Math::LSS;
+using namespace cf3::math;
+using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////
 

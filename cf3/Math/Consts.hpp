@@ -11,10 +11,10 @@
 
 #include "common/CF.hpp"
 
-#include "Math/LibMath.hpp"
+#include "math/LibMath.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -38,7 +38,7 @@ namespace Consts
   inline Real real_min() { return std::numeric_limits<Real>::min(); }
   /// Definition of the maximum difference recognazible between two numbers with
   /// the chosen precision. Usefull for comparisons to zero  with real numbers:
-  /// @code std::abs(x) > Math::Consts::eps()  @endcode
+  /// @code std::abs(x) > math::Consts::eps()  @endcode
   inline Real eps() { return std::numeric_limits<Real>::epsilon(); }
   /// Definition of Infinity
   inline Real inf() { return std::numeric_limits<Real>::infinity(); }
@@ -48,7 +48,7 @@ namespace Consts
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3
 
 #endif // cf3_Math_Consts_hpp

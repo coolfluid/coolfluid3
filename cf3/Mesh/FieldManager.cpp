@@ -13,8 +13,8 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
-#include "Math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
 
 #include "mesh/FieldManager.hpp"
 #include "mesh/CMeshTransformer.hpp"
@@ -31,7 +31,7 @@ namespace mesh {
 
 using namespace common;
 using namespace common::XML;
-using namespace Math;
+using namespace math;
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////

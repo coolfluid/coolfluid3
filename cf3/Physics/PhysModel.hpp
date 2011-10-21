@@ -12,7 +12,7 @@
 #include "Physics/LibPhysics.hpp"
 
 namespace cf3 {
-namespace Math { class VariableManager; }
+namespace math { class VariableManager; }
 namespace Physics {
 
   class Variables; // forward declaration
@@ -78,11 +78,11 @@ public: // functions
   //@} END INTERFACE
 
   /// Access to the VariableManager
-  Math::VariableManager& variable_manager();
-  const Math::VariableManager& variable_manager() const;
+  math::VariableManager& variable_manager();
+  const math::VariableManager& variable_manager() const;
 
 private:
-  Math::VariableManager& m_variable_manager;
+  math::VariableManager& m_variable_manager;
 
 }; // PhysModel
 

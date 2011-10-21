@@ -25,7 +25,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/LibMesh.hpp"
 

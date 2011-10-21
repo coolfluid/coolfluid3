@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Math/LibMath.hpp"
+#include "math/LibMath.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 cf3::common::RegistLibrary<LibMath> libMath;
 
@@ -25,5 +25,5 @@ void LibMath::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3

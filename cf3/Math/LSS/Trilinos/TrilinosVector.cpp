@@ -9,7 +9,7 @@
 #include "common/Assertions.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
-#include "Math/LSS/Trilinos/TrilinosVector.hpp"
+#include "math/LSS/Trilinos/TrilinosVector.hpp"
 
 /// @todo remove when no debug any more
 #include "common/PE/debug.hpp"
@@ -26,8 +26,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Math;
-using namespace cf3::Math::LSS;
+using namespace cf3::math;
+using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

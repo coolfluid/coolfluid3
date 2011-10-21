@@ -15,7 +15,7 @@
 #include "common/CRoot.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 #include "mesh/CMesh.hpp"
 #include "mesh/CRegion.hpp"

@@ -9,7 +9,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/GeoShape.hpp"
 

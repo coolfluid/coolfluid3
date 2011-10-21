@@ -8,7 +8,7 @@
 
 #include <boost/utility.hpp>
 
-#include "Math/LSS/LibLSS.hpp"
+#include "math/LSS/LibLSS.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/CBuilder.hpp"
@@ -20,10 +20,10 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Math/LSS/System.hpp"
-#include "Math/LSS/Matrix.hpp"
-#include "Math/LSS/Vector.hpp"
-#include "Math/LSS/BlockAccumulator.hpp"
+#include "math/LSS/System.hpp"
+#include "math/LSS/Matrix.hpp"
+#include "math/LSS/Vector.hpp"
+#include "math/LSS/BlockAccumulator.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -34,20 +34,20 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "Math/LSS/EmptyLSS/EmptyLSSVector.hpp"
-#include "Math/LSS/EmptyLSS/EmptyLSSMatrix.hpp"
+#include "math/LSS/EmptyLSS/EmptyLSSVector.hpp"
+#include "math/LSS/EmptyLSS/EmptyLSSMatrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef CF3_HAVE_TRILINOS
-  #include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
-  #include "Math/LSS/Trilinos/TrilinosVector.hpp"
+  #include "math/LSS/Trilinos/TrilinosMatrix.hpp"
+  #include "math/LSS/Trilinos/TrilinosVector.hpp"
 #endif // cf3_HAVE_TRILINOS
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -13,7 +13,7 @@
 #include "common/FindComponents.hpp"
 #include "common/XML/SignalFrame.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/CMesh.hpp"

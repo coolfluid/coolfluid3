@@ -7,7 +7,7 @@
 #ifndef cf3_UFEM_NavierStokesOps_hpp
 #define cf3_UFEM_NavierStokesOps_hpp
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "Solver/Actions/Proto/ElementOperations.hpp"
 #include "Solver/Actions/Proto/Terminals.hpp"

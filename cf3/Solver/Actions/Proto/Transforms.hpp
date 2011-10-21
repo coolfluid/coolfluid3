@@ -254,7 +254,7 @@ struct MathOpDefaultCases
 };
 
 
-/// Math operators evaluated using default C++ meaning
+/// math operators evaluated using default C++ meaning
 template<typename GrammarT>
 struct MathOpDefault :
   boost::proto::when

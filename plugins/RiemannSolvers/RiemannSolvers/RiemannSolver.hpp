@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 #include "RiemannSolvers/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace cf3 {

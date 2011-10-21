@@ -19,10 +19,10 @@
 #include "common/OptionArray.hpp"
 #include "common/Tags.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 using namespace common;
 
@@ -461,5 +461,5 @@ void VariablesDescriptor::prefix_variable_names(const std::string& prefix)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3

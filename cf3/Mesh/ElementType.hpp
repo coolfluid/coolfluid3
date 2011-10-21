@@ -12,7 +12,7 @@
 //#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/range.hpp>
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/ShapeFunctionT.hpp"

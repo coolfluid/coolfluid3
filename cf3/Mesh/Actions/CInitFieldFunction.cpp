@@ -48,7 +48,7 @@ CInitFieldFunction::CInitFieldFunction( const std::string& name )
       ->mark_basic();
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as initial field (vars x,y,z)")
+      ->description("math function applied as initial field (vars x,y,z)")
       ->pretty_name("Functions definition")
       ->attach_trigger ( boost::bind ( &CInitFieldFunction::config_function, this ) )
       ->mark_basic();

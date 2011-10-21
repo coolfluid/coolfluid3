@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_SubsonicOutFlowWeakBc_hpp
 #define cf3_RDM_SubsonicOutFlowWeakBc_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
@@ -61,7 +61,7 @@ public: // data
   boost::weak_ptr<mesh::Field> solution;
 
   /// function parser to set the value of pressure
-  Math::VectorialFunction  pressure_function;
+  math::VectorialFunction  pressure_function;
 
 }; // !SubsonicOutFlowWeakBc
 

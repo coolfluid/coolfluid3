@@ -26,7 +26,7 @@
 #include "common/PE/Buffer.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/CMesh.hpp"
 #include "mesh/CCells.hpp"
@@ -49,7 +49,7 @@ using namespace cf3;
 using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Consts;
 
 template <typename T>
 std::ostream& operator<< (std::ostream& out , const std::vector<T>& v)

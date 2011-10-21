@@ -25,8 +25,8 @@
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
-#include "Math/LSS/Trilinos/TrilinosMatrix.hpp"
-#include "Math/LSS/Trilinos/TrilinosVector.hpp"
+#include "math/LSS/Trilinos/TrilinosMatrix.hpp"
+#include "math/LSS/Trilinos/TrilinosVector.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -40,8 +40,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Math;
-using namespace cf3::Math::LSS;
+using namespace cf3::math;
+using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

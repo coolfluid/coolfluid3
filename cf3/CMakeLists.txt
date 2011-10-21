@@ -5,7 +5,7 @@ add_subdirectory( common )
 add_subdirectory( mesh )
 
 # math library provides mathematical operations
-add_subdirectory( Math )
+add_subdirectory( math )
 
 # physiscs library provides access to physical models
 add_subdirectory( Physics )

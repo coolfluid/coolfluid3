@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/CRoot.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"

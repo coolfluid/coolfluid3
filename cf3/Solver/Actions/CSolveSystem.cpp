@@ -7,7 +7,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/CBuilder.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 #include "CSolveSystem.hpp"
 
@@ -16,7 +16,7 @@ namespace Solver {
 namespace Actions {
 
 using namespace common;
-using namespace Math;
+using namespace math;
 
 common::ComponentBuilder < CSolveSystem, CAction, LibActions > CSolveSystem_Builder;
 

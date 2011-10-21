@@ -13,10 +13,10 @@
 #include <Epetra_FEVbrMatrix.h>
 #include <Teuchos_RCP.hpp>
 
-#include "Math/LSS/LibLSS.hpp"
-#include "Math/LSS/BlockAccumulator.hpp"
-#include "Math/LSS/Vector.hpp"
-#include "Math/LSS/Matrix.hpp"
+#include "math/LSS/LibLSS.hpp"
+#include "math/LSS/BlockAccumulator.hpp"
+#include "math/LSS/Vector.hpp"
+#include "math/LSS/Matrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Math {
+namespace math {
 namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -194,7 +194,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // namespace LSS
-} // namespace Math
+} // namespace math
 } // namespace cf3
 
 #endif // cf3_Math_LSS_TrilinosMatrix_hpp

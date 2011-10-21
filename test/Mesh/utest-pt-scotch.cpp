@@ -20,7 +20,7 @@
 #include "common/PE/debug.hpp"
 #include "common/Foreach.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CMesh.hpp"
 #include "mesh/CRegion.hpp"

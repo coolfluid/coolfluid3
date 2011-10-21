@@ -18,7 +18,7 @@
 #include "common/Log.hpp"
 #include "common/TimedComponent.hpp"
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"

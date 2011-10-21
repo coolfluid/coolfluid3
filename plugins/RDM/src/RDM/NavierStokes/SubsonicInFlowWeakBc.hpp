@@ -9,7 +9,7 @@
 
 #include <iostream> // to remove
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
@@ -59,9 +59,9 @@ private: // helper functions
 public: // data
 
   /// function parser to set the value of density
-  Math::VectorialFunction  density_function;
+  math::VectorialFunction  density_function;
   /// function parser to set the value of velocity
-  Math::VectorialFunction  velocity_function;
+  math::VectorialFunction  velocity_function;
 
 }; // !SubsonicInFlowWeakBc
 

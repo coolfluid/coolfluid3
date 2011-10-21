@@ -8,7 +8,7 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "mesh/ElementTypeT.hpp"
 

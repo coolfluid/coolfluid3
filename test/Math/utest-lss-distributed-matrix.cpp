@@ -6,7 +6,7 @@
 //
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Math::LSS where testing on a distributed matrix."
+#define BOOST_TEST_MODULE "Test module for cf3::math::LSS where testing on a distributed matrix."
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,14 +18,14 @@
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/CommPattern.hpp"
-#include "Math/LSS/System.hpp"
-#include "test/Math/utest-lss-test-matrix.hpp"
+#include "math/LSS/System.hpp"
+#include "test/math/utest-lss-test-matrix.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Math;
-using namespace cf3::Math::LSS;
+using namespace cf3::math;
+using namespace cf3::math::LSS;
 
 ////////////////////////////////////////////////////////////////////////////////
 

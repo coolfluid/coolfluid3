@@ -12,7 +12,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "common/BasicExceptions.hpp"
 #include "common/CGroup.hpp"

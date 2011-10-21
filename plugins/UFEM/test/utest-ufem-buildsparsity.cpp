@@ -16,7 +16,7 @@
 
 #include "common/PE/CommPattern.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/LagrangeP1/Line1D.hpp"
@@ -37,8 +37,8 @@ using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math;
-using namespace cf3::Math::Consts;
+using namespace cf3::math;
+using namespace cf3::math::Consts;
 using namespace cf3::mesh;
 
 using namespace boost::assign;

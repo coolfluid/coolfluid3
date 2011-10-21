@@ -22,7 +22,7 @@
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CCells.hpp"
 #include "mesh/CMesh.hpp"
-#include "Math/Functions.hpp"
+#include "math/Functions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ namespace mesh {
 namespace Actions {
 
   using namespace common;
-  using namespace Math::Functions;
+  using namespace math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 

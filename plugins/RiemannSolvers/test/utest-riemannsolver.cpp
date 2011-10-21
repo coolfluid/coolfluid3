@@ -22,7 +22,7 @@
 #include "Physics/NavierStokes/Roe1D.hpp"
 #include "Physics/NavierStokes/Roe2D.hpp"
 #include "Physics/NavierStokes/Roe3D.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
 using namespace cf3;
 using namespace cf3::common;

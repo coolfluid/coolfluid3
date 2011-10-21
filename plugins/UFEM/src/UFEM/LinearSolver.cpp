@@ -9,10 +9,10 @@
 #include "common/Signal.hpp"
 #include "common/CBuilder.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
 #include "mesh/CDomain.hpp"
 #include "mesh/CMesh.hpp"
@@ -33,7 +33,7 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Math;
+using namespace math;
 using namespace mesh;
 using namespace Solver;
 using namespace Solver::Actions;

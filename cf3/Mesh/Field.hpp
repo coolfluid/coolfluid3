@@ -19,7 +19,7 @@ namespace common
   class CLink;
   namespace PE { class CommPattern; }
 }
-namespace Math { class VariablesDescriptor; }
+namespace math { class VariablesDescriptor; }
 
 
 namespace mesh {
@@ -117,9 +117,9 @@ public: // functions
 
   CUnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
 
-  Math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
+  math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
 
-  void set_descriptor(Math::VariablesDescriptor& descriptor);
+  void set_descriptor(math::VariablesDescriptor& descriptor);
 
   void create_descriptor(const std::string& description, const Uint dimension=0);
 
@@ -134,7 +134,7 @@ private:
 
   boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
 
-  boost::weak_ptr< Math::VariablesDescriptor > m_descriptor;
+  boost::weak_ptr< math::VariablesDescriptor > m_descriptor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

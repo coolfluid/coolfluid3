@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_WeakDirichlet_hpp
 #define cf3_RDM_WeakDirichlet_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "mesh/CElements.hpp"
 #include "mesh/CFaceCellConnectivity.hpp"
@@ -59,7 +59,7 @@ public: // data
   /// access to the solution field on the mesh
   boost::weak_ptr<mesh::Field> solution;
   /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  function;
+  math::VectorialFunction  function;
 
 }; // !WeakDirichlet
 

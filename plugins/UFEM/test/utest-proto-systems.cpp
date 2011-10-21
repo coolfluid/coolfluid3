@@ -32,7 +32,7 @@ using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math::Consts;
+using namespace cf3::math::Consts;
 using namespace cf3::mesh;
 
 using namespace boost;
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
   lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 

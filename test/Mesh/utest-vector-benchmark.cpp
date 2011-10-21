@@ -25,7 +25,7 @@
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Math;
+using namespace cf3::math;
 using namespace cf3::mesh;
 using namespace cf3::mesh::BlockMesh;
 

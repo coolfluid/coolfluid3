@@ -9,12 +9,12 @@
 
 #include "common/CF.hpp"
 
-#include "Math/BoostMath.hpp"
-#include "Math/Consts.hpp"
-#include "Math/FloatingPoint.hpp"
+#include "math/BoostMath.hpp"
+#include "math/Consts.hpp"
+#include "math/FloatingPoint.hpp"
 
 namespace cf3 {
-namespace Math {
+namespace math {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -111,7 +111,7 @@ inline bool is_neg(const Real& value)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Math
+} // math
 } // cf3
 
 #endif // cf3_Math_Checks_hpp

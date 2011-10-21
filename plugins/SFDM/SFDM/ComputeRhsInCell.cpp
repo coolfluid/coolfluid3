@@ -11,7 +11,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "math/MathConsts.hpp"
 
 #include "mesh/CField.hpp"
 #include "mesh/CMesh.hpp"
@@ -34,7 +34,7 @@
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::RiemannSolvers;
-using namespace cf3::Math::MathConsts;
+using namespace cf3::math::MathConsts;
 
 namespace cf3 {
 namespace SFDM {

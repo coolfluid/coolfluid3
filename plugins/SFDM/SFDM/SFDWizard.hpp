@@ -12,7 +12,7 @@
 #include "Solver/CWizard.hpp"
 #include "Solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "Math/MathConsts.hpp"
+#include "math/MathConsts.hpp"
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
@@ -46,7 +46,7 @@ public: // functions
 
   void prepare_simulation();
 
-  void start_simulation(const Real& end_time, const Real& time_step=Math::MathConsts::Real_max());
+  void start_simulation(const Real& end_time, const Real& time_step=math::MathConsts::Real_max());
 
   void initialize_solution(const std::vector<std::string>& functions);
 

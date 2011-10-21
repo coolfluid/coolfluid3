@@ -19,8 +19,8 @@
 #include "common/PE/CommPattern.hpp"
 #include "common/PE/CommWrapper.hpp"
 
-#include "Math/MatrixTypes.hpp"
-#include "Math/LSS/System.hpp"
+#include "math/MatrixTypes.hpp"
+#include "math/LSS/System.hpp"
 
 using namespace boost::assign;
 
@@ -29,7 +29,7 @@ using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 BOOST_AUTO_TEST_SUITE( SolveSystemSuite )
 
