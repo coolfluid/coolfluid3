@@ -20,7 +20,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/Actions/CGlobalConnectivity.hpp"
+#include "mesh/actions/CGlobalConnectivity.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -39,17 +39,17 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace math::Functions;
   using namespace math::Consts;
 
-  create_component_data_type( std::vector<std::size_t> , Mesh_Actions_API , CVector_size_t , "CVector<size_t>" );
+  create_component_data_type( std::vector<std::size_t> , mesh_actions_API , CVector_size_t , "CVector<size_t>" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalConnectivity, MeshTransformer, LibActions> CGlobalConnectivity_Builder;
+common::ComponentBuilder < CGlobalConnectivity, MeshTransformer, mesh::actions::LibActions> CGlobalConnectivity_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -207,6 +207,6 @@ void CGlobalConnectivity::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

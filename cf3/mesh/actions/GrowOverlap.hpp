@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_GrowOverlap_hpp
-#define cf3_mesh_GrowOverlap_hpp
+#ifndef cf3_mesh_actions_GrowOverlap_hpp
+#define cf3_mesh_actions_GrowOverlap_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshTransformer.hpp"
 
-#include "mesh/Actions/LibActions.hpp"
+#include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +29,7 @@ namespace Actions {
 /// Missing nodes are then also communicated to complete the elements
 ///
 /// @author Willem Deconinck
-class Mesh_Actions_API GrowOverlap : public MeshTransformer
+class mesh_actions_API GrowOverlap : public MeshTransformer
 {
 public: // typedefs
 
@@ -51,7 +51,7 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 

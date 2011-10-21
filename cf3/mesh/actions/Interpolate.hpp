@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Actions_Interpolate_hpp
-#define cf3_mesh_Actions_Interpolate_hpp
+#ifndef cf3_mesh_actions_Interpolate_hpp
+#define cf3_mesh_actions_Interpolate_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/Actions/LibActions.hpp"
+#include "mesh/actions/LibActions.hpp"
 #include "mesh/Field.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace mesh {
   class Field;
   class Elements;
 
-namespace Actions {
+namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -32,7 +32,7 @@ namespace Actions {
 ///
 /// @post After this, the mesh is ready to be parallellized
 /// @author Willem Deconinck
-class Mesh_Actions_API Interpolate : public MeshTransformer
+class mesh_actions_API Interpolate : public MeshTransformer
 {
 public: // typedefs
 
@@ -82,10 +82,10 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Actions_Interpolate_hpp
+#endif // cf3_mesh_actions_Interpolate_hpp

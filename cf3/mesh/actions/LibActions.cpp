@@ -8,12 +8,12 @@
 #include "common/Root.hpp"
 #include "common/Group.hpp"
 
-#include "mesh/Actions/LibActions.hpp"
-#include "mesh/Actions/LoadBalance.hpp"
+#include "mesh/actions/LibActions.hpp"
+#include "mesh/actions/LoadBalance.hpp"
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
 using namespace cf3::common;
 
@@ -38,6 +38,6 @@ void LibActions::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

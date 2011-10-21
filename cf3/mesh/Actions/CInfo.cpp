@@ -15,13 +15,13 @@
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "mesh/Actions/CInfo.hpp"
+#include "mesh/actions/CInfo.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
 
@@ -53,7 +53,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInfo, MeshTransformer, LibActions> CInfo_Builder;
+common::ComponentBuilder < CInfo, MeshTransformer, mesh::actions::LibActions> CInfo_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -146,6 +146,6 @@ std::string CInfo::print_elements(const Component& region, Uint level)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

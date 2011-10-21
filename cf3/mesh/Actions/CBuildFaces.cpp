@@ -13,7 +13,7 @@
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/OptionT.hpp"
-#include "mesh/Actions/CBuildFaces.hpp"
+#include "mesh/actions/CBuildFaces.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshElements.hpp"
@@ -28,14 +28,14 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaces, MeshTransformer, LibActions> CBuildFaces_Builder;
+common::ComponentBuilder < CBuildFaces, MeshTransformer, mesh::actions::LibActions> CBuildFaces_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -679,6 +679,6 @@ void CBuildFaces::build_cell_face_connectivity(Component& parent)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

@@ -141,7 +141,7 @@ add_subdirectory( Zoltan )        # Zoltan mesh partitioning
 
 add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 
-add_subdirectory( actions )       # Actions that can be performed on the mesh
+add_subdirectory( actions )       # namespace actions that can be performed on the mesh
 
 add_subdirectory(VTKLegacy)       # Writer for VTK legacy files
 

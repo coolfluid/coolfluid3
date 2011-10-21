@@ -126,7 +126,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
 
   // rebalance the mesh if necessary and create global idx and ranks
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.LoadBalance","load_balancer")
       ->transform(mesh);
 
   // raise an event to indicate that a mesh was rebalanced (changed)

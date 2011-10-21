@@ -4,27 +4,27 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CBuildFaceNormals_hpp
-#define cf3_mesh_CBuildFaceNormals_hpp
+#ifndef cf3_mesh_actions_CBuildFaceNormals_hpp
+#define cf3_mesh_actions_CBuildFaceNormals_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshTransformer.hpp"
 
-#include "mesh/Actions/LibActions.hpp"
+#include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
   
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CBuildFaceNormals : public MeshTransformer
+class mesh_actions_API CBuildFaceNormals : public MeshTransformer
 {
 public: // typedefs
 
@@ -53,10 +53,10 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CBuildFaceNormals_hpp
+#endif // cf3_mesh_actions_CBuildFaceNormals_hpp

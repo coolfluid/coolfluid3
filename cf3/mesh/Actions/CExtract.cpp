@@ -20,13 +20,13 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "mesh/Actions/CExtract.hpp"
+#include "mesh/actions/CExtract.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions{
+namespace actions{
 
   using namespace common;
 
@@ -44,7 +44,7 @@ namespace Actions{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < mesh::Actions::CExtract, mesh::MeshTransformer, mesh::Actions::LibActions > CExtract_Builder;
+common::ComponentBuilder < mesh::actions::CExtract, mesh::MeshTransformer, mesh::actions::LibActions > CExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -170,6 +170,6 @@ void CExtract::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

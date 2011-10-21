@@ -13,21 +13,21 @@
 
 #include "mesh/MeshTransformer.hpp"
 
-#include "mesh/Actions/LibActions.hpp"
+#include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh { 
   class Field;
-namespace Actions {
+namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines a mesh transformer
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class Mesh_Actions_API CInitFieldFunction : public MeshTransformer
+class mesh_actions_API CInitFieldFunction : public MeshTransformer
 {
 public: // typedefs
 
@@ -62,7 +62,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 

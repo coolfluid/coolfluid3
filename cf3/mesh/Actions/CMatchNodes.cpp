@@ -16,7 +16,7 @@
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
 
-#include "mesh/Actions/CMatchNodes.hpp"
+#include "mesh/actions/CMatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -33,7 +33,7 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace math::Functions;
@@ -41,7 +41,7 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CMatchNodes, MeshTransformer, LibActions> CMatchNodes_Builder;
+common::ComponentBuilder < CMatchNodes, MeshTransformer, mesh::actions::LibActions> CMatchNodes_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -184,6 +184,6 @@ std::size_t CMatchNodes::hash_value(const RealVector3& coords)
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

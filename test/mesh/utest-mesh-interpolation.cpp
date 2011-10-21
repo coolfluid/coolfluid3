@@ -30,13 +30,13 @@
 #include "mesh/Interpolator.hpp"
 #include "mesh/Space.hpp"
 
-#include "mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/actions/CreateSpaceP0.hpp"
 
 using namespace boost;
 using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::mesh;
-using namespace cf3::mesh::Actions;
+using namespace cf3::mesh::actions;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,7 +12,7 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "mesh/Actions/CInitFieldFunction.hpp"
+#include "mesh/actions/CInitFieldFunction.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
@@ -22,13 +22,13 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CInitFieldFunction, MeshTransformer, LibActions> CInitFieldFunction_Builder;
+common::ComponentBuilder < CInitFieldFunction, MeshTransformer, mesh::actions::LibActions> CInitFieldFunction_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -133,6 +133,6 @@ void CInitFieldFunction::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

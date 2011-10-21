@@ -14,8 +14,8 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Actions/CBuildFaces.hpp"
-#include "mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/actions/CBuildFaces.hpp"
+#include "mesh/actions/CGlobalNumbering.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -27,7 +27,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::mesh::Actions;
+using namespace cf3::mesh::actions;
 using namespace cf3::Solver;
 
 namespace cf3 {

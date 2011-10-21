@@ -1341,10 +1341,10 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    MeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.Actions.CGlobalConnectivity").as_type<MeshTransformer>();
+    MeshTransformer& global_conn = mesh.create_component("CGlobalConnectivity", "CF.Mesh.namespace actions.CGlobalConnectivity").as_type<MeshTransformer>();
     global_conn.transform(mesh);
 
-    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<MeshTransformer>();
+    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.namespace actions.GrowOverlap").as_type<MeshTransformer>();
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 

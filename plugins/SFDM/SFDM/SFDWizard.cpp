@@ -33,11 +33,11 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Region.hpp"
 
-#include "mesh/Actions/CInitFieldConstant.hpp"
-#include "mesh/Actions/CInitFieldFunction.hpp"
-#include "mesh/Actions/CBuildFaces.hpp"
-#include "mesh/Actions/CBuildVolume.hpp"
-#include "mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/actions/CInitFieldConstant.hpp"
+#include "mesh/actions/CInitFieldFunction.hpp"
+#include "mesh/actions/CBuildFaces.hpp"
+#include "mesh/actions/CBuildVolume.hpp"
+#include "mesh/actions/CreateSpaceP0.hpp"
 
 #include "SFDM/SFDWizard.hpp"
 #include "SFDM/UpdateSolution.hpp"
@@ -58,7 +58,7 @@ namespace SFDM {
   using namespace mesh;
   using namespace Solver;
   using namespace Solver::Actions;
-  using namespace mesh::Actions;
+  using namespace mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 

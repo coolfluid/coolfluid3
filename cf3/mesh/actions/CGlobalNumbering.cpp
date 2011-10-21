@@ -25,7 +25,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/actions/CGlobalNumbering.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -43,17 +43,17 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace math::Functions;
   using namespace math::Consts;
 
-  create_component_data_type( std::vector<std::size_t> , Mesh_Actions_API , CVector_size_t , "CVector<size_t>" );
+  create_component_data_type( std::vector<std::size_t> , mesh_actions_API , CVector_size_t , "CVector<size_t>" );
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CGlobalNumbering, MeshTransformer, LibActions> CGlobalNumbering_Builder;
+common::ComponentBuilder < CGlobalNumbering, MeshTransformer, mesh::actions::LibActions> CGlobalNumbering_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -422,6 +422,6 @@ std::size_t CGlobalNumbering::hash_value(const RealMatrix& coords)
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

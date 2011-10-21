@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Actions_LibActions_hpp
-#define cf3_mesh_Actions_LibActions_hpp
+#ifndef cf3_mesh_mesh_actions_LibActions_hpp
+#define cf3_mesh_mesh_actions_LibActions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Actions_API
+/// Define the macro namespace actions_API
 /// @note build system defines COOLFLUID_ACTIONS_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_MESH_ACTIONS_EXPORTS
-#   define Mesh_Actions_API      CF3_EXPORT_API
-#   define Mesh_Actions_TEMPLATE
+#   define mesh_actions_API      CF3_EXPORT_API
+#   define mesh_actions_TEMPLATE
 #else
-#   define Mesh_Actions_API      CF3_IMPORT_API
-#   define Mesh_Actions_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define mesh_actions_API      CF3_IMPORT_API
+#   define mesh_actions_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,18 +29,18 @@ namespace cf3 {
 namespace mesh{
 
 /// @brief Action derived classes for mesh manipulations
-namespace Actions {
+namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the initialization and termination of the library Actions
-class Mesh_Actions_API LibActions :
+/// Class defines the initialization and termination of the library namespace actions
+class mesh_actions_API LibActions :
     public common::Library {
 
 public:
 
-  typedef boost::shared_ptr<LibActions> Ptr;
-  typedef boost::shared_ptr<LibActions const> ConstPtr;
+  typedef boost::shared_ptr<mesh::actions::LibActions> Ptr;
+  typedef boost::shared_ptr<mesh::actions::LibActions const> ConstPtr;
 
   /// Constructor
   LibActions ( const std::string& name) : common::Library(name) {   }
@@ -48,24 +48,24 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.Actions"; }
+  static std::string library_namespace() { return "CF.Mesh.namespace actions"; }
 
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "Actions"; }
+  static std::string library_name() { return "namespace actions"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
   /// @return description of the library
   static std::string library_description()
   {
-    return "This library implements several Mesh Actions.";
+    return "This library implements several Mesh namespace actions.";
   }
 
   /// Gets the Class name
-  static std::string type_name() { return "LibActions"; }
+  static std::string type_name() { return "mesh::actions::LibActions"; }
 
 protected:
 
@@ -75,14 +75,14 @@ protected:
   /// terminate library
   virtual void terminate_impl();
 
-}; // end LibActions
+}; // end mesh::actions::LibActions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Actions_LibActions_hpp
+#endif // cf3_mesh_mesh_actions_LibActions_hpp

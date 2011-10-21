@@ -10,7 +10,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/Actions/CBuildArea.hpp"
+#include "mesh/actions/CBuildArea.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -21,13 +21,13 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildArea, MeshTransformer, LibActions> CBuildArea_Builder;
+common::ComponentBuilder < CBuildArea, MeshTransformer, mesh::actions::LibActions> CBuildArea_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -86,6 +86,6 @@ void CBuildArea::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

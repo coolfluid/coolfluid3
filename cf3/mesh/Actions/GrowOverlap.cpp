@@ -28,20 +28,20 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshElements.hpp"
 
-#include "mesh/Actions/GrowOverlap.hpp"
+#include "mesh/actions/GrowOverlap.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < GrowOverlap, MeshTransformer, LibActions> GrowOverlap_Builder;
+common::ComponentBuilder < GrowOverlap, MeshTransformer, mesh::actions::LibActions> GrowOverlap_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -491,6 +491,6 @@ void GrowOverlap::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

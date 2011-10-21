@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests mesh::Actions::CBuildFaces"
+#define BOOST_TEST_MODULE "Tests mesh::actions::CBuildFaces"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -16,9 +16,9 @@
 
 #include "common/FindComponents.hpp"
 
-#include "mesh/Actions/CreateSpaceP0.hpp"
-#include "mesh/Actions/CBuildFaces.hpp"
-#include "mesh/Actions/CBuildFaceNormals.hpp"
+#include "mesh/actions/CreateSpaceP0.hpp"
+#include "mesh/actions/CBuildFaces.hpp"
+#include "mesh/actions/CBuildFaceNormals.hpp"
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
@@ -35,7 +35,7 @@ using namespace cf3;
 using namespace boost::assign;
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::mesh::Actions;
+using namespace cf3::mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 

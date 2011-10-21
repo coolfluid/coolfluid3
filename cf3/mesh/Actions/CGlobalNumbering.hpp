@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_CGlobalNumbering_hpp
-#define cf3_mesh_CGlobalNumbering_hpp
+#ifndef cf3_mesh_actions_CGlobalNumbering_hpp
+#define cf3_mesh_actions_CGlobalNumbering_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/Actions/LibActions.hpp"
+#include "mesh/actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -35,7 +35,7 @@ namespace Actions {
 /// - id 25 must belong to process 2
 /// - ...
 /// @author Willem Deconinck
-class Mesh_Actions_API CGlobalNumbering : public MeshTransformer
+class mesh_actions_API CGlobalNumbering : public MeshTransformer
 {
 public: // typedefs
 
@@ -70,10 +70,10 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_CGlobalNumbering_hpp
+#endif // cf3_mesh_actions_CGlobalNumbering_hpp

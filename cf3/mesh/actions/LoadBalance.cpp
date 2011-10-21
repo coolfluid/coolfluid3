@@ -11,7 +11,7 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "mesh/Actions/LoadBalance.hpp"
+#include "mesh/actions/LoadBalance.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 
@@ -19,14 +19,14 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
 using namespace common;
 using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < LoadBalance, MeshTransformer, LibActions> LoadBalance_Builder;
+common::ComponentBuilder < LoadBalance, MeshTransformer, mesh::actions::LibActions> LoadBalance_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -65,18 +65,18 @@ void LoadBalance::execute()
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
     // build global numbering and connectivity of nodes and elements (necessary for partitioning)
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumbering","glb_numbering")->transform(mesh);
 
     CFinfo << "  + building global node-element connectivity" << CFendl;
 
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalConnectivity","glb_connectivity")->transform(mesh);
 
 
     CFinfo << "  + partitioning and migrating" << CFendl;
     m_partitioner->transform(mesh);
 
     CFinfo << "  + growing overlap layer" << CFendl;
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GrowOverlap","grow_overlap")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.GrowOverlap","grow_overlap")->transform(mesh);
 
 
     CFinfo << "  + deallocating unused connectivity" << CFendl;
@@ -89,7 +89,7 @@ void LoadBalance::execute()
   {
     /// @todo disable this when below is re-enabled
     CFinfo << "  + building joint node & element global numbering" << CFendl;
-    build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumbering","glb_numbering")->transform(mesh);
+    build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumbering","glb_numbering")->transform(mesh);
   }
 
 
@@ -100,17 +100,17 @@ void LoadBalance::execute()
 
   CFinfo << "creating continuous global node numbering" << CFendl;
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumberingNodes","glb_node_numbering")->transform(mesh);
 
   CFinfo << "creating continuous global element numbering" << CFendl;
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("CF.Mesh.namespace actions.CGlobalNumberingElements","glb_elem_numbering")->transform(mesh);
 #endif
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

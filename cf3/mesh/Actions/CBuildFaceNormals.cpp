@@ -13,7 +13,7 @@
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/Actions/CBuildFaceNormals.hpp"
+#include "mesh/actions/CBuildFaceNormals.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
@@ -33,14 +33,14 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
   using namespace math::Functions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CBuildFaceNormals, MeshTransformer, LibActions> CBuildFaceNormals_Builder;
+common::ComponentBuilder < CBuildFaceNormals, MeshTransformer, mesh::actions::LibActions> CBuildFaceNormals_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -142,6 +142,6 @@ void CBuildFaceNormals::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

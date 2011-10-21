@@ -10,7 +10,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/Actions/Interpolate.hpp"
+#include "mesh/actions/Interpolate.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
@@ -24,14 +24,14 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
 using namespace common;
 using namespace common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Interpolate, MeshTransformer, LibActions> Interpolate_Builder;
+common::ComponentBuilder < Interpolate, MeshTransformer, mesh::actions::LibActions> Interpolate_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -392,6 +392,6 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3

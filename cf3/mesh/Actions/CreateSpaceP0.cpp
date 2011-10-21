@@ -17,19 +17,19 @@
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/actions/CreateSpaceP0.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Actions {
+namespace actions {
 
   using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CreateSpaceP0, MeshTransformer, LibActions> CreateSpaceP0_Builder;
+common::ComponentBuilder < CreateSpaceP0, MeshTransformer, mesh::actions::LibActions> CreateSpaceP0_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -56,6 +56,6 @@ void CreateSpaceP0::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // actions
 } // mesh
 } // cf3
