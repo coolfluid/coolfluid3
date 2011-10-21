@@ -27,7 +27,7 @@ using namespace common;
 using namespace mesh;
 using namespace Physics;
 
-ComponentBuilder < CProtoAction, Action, LibSolver > CProtoAction_Builder;
+ComponentBuilder < CProtoAction, common::Action, LibSolver > CProtoAction_Builder;
 
 struct CProtoAction::Implementation
 {
