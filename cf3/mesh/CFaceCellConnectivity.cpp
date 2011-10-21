@@ -11,7 +11,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/Consts.hpp"

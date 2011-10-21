@@ -7,7 +7,7 @@
 #include <set>
 
 // coolfluid
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/StringConversion.hpp"
 #include "common/PE/Comm.hpp"

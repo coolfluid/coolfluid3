@@ -12,7 +12,7 @@
 // header
 #include "common/Log.hpp"
 #include "common/EventHandler.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"

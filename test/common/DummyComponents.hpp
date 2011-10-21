@@ -7,7 +7,7 @@
 #include "common/LibCommon.hpp"
 #include "common/Component.hpp"
 #include "common/OptionURI.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #ifndef DUMMYCOMPONENTS_HPP
 #define DUMMYCOMPONENTS_HPP

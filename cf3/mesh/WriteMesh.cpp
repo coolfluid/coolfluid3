@@ -11,7 +11,7 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
@@ -100,7 +100,7 @@ void WriteMesh::update_list_of_available_writers()
 
   m_extensions_to_writers.clear();
 
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshwriter_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshwriter_factory ) )
   {
     MeshWriter::Ptr writer;
 
@@ -270,7 +270,7 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
   std::vector<boost::any> writers;
 
   // build the restricted list
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshwriter_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshwriter_factory ) )
   {
     writers.push_back(bdr.name());
   }

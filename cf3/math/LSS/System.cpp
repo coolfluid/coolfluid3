@@ -11,7 +11,7 @@
 #include "math/LSS/LibLSS.hpp"
 
 #include "common/PE/Comm.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Component.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/CommPattern.hpp"

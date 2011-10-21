@@ -9,7 +9,7 @@
 #include "common/Link.hpp"
 #include "common/Group.hpp"
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 
 #include "mesh/CConnectivity.hpp"

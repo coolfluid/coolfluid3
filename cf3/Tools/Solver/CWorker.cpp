@@ -6,7 +6,7 @@
 
 #include <cmath>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/LibCommon.hpp"
 
 #include "common/Log.hpp"

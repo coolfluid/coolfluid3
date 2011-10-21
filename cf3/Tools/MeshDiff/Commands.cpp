@@ -15,7 +15,7 @@
 #include "common/Group.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
  
 #include "common/Foreach.hpp"
 #include "common/Action.hpp"

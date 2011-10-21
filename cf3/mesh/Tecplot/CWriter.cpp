@@ -11,7 +11,7 @@
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 

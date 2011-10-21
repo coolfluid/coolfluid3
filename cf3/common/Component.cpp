@@ -18,7 +18,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Foreach.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionArray.hpp"
@@ -1415,7 +1415,7 @@ Component::Ptr build_component(const std::string& builder_name,
   if ( is_null(builder) )
   {
     std::string msg =
-        "CBuilder \'" + builder_name + "\' not found in factory \'"
+        "Builder \'" + builder_name + "\' not found in factory \'"
         + factory_type_name + "\'. Probably forgot to load a library.\n"
         + "Possible builders:";
     boost_foreach(Component& comp, factory->children())
@@ -1426,10 +1426,10 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // build the component
 
-  Component::Ptr comp = builder->as_type<CBuilder>().build ( name );
+  Component::Ptr comp = builder->as_type<Builder>().build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
-                           "CBuilder \'" + builder_name
+                           "Builder \'" + builder_name
                            + "\' failed to allocate component with name \'" + name + "\'" );
 
 
@@ -1465,10 +1465,10 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 
   // build the component
 
-  Component::Ptr comp = cbuilder.as_type<CBuilder>().build ( name );
+  Component::Ptr comp = cbuilder.as_type<Builder>().build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
-                           "CBuilder \'" + builder_name
+                           "Builder \'" + builder_name
                            + "\' failed to allocate component with name \'" + name + "\'" );
 
 
@@ -1480,7 +1480,7 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 Component::Ptr build_component(const std::string& builder_name,
                                const std::string& name )
 {
-  std::string libnamespace = CBuilder::extract_namespace(builder_name);
+  std::string libnamespace = Builder::extract_namespace(builder_name);
 
   URI builder_path = Core::instance().libraries().uri()
                    / URI(libnamespace)
@@ -1500,7 +1500,7 @@ Component::Ptr build_component(const std::string& builder_name,
     throw ValueNotFound( FromHere(), "Could not find builder \'" + builder_name + "\'"
                                      " neither a plugin library that contains it." );
 
-  const CBuilder& builder = cbuilder->follow()->as_type<CBuilder const>();
+  const Builder& builder = cbuilder->follow()->as_type<Builder const>();
 
   Component::Ptr comp = builder.build( name );
 

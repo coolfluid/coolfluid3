@@ -12,7 +12,7 @@
 #include "common/EventHandler.hpp"
 #include "common/Log.hpp"
 #include "common/CFactory.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
 #include "common/OptionT.hpp"
@@ -172,7 +172,7 @@ Group& CModel::tools()
 
 Physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
-  std::string pm_name = CBuilder::extract_reduced_name(builder);
+  std::string pm_name = Builder::extract_reduced_name(builder);
 
   Physics::PhysModel::Ptr pm = boost::algorithm::contains( builder, "." ) ?
         build_component_abstract_type< Physics::PhysModel >( builder, pm_name ) :
@@ -200,7 +200,7 @@ CDomain& CModel::create_domain( const std::string& name )
 
 CSolver& CModel::create_solver( const std::string& builder)
 {
-  std::string solver_name = CBuilder::extract_reduced_name(builder);
+  std::string solver_name = Builder::extract_reduced_name(builder);
 
   CSolver::Ptr solver = boost::algorithm::contains( builder, "." ) ?
               build_component_abstract_type< Solver::CSolver >( builder, solver_name ) :
@@ -224,7 +224,7 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
   std::vector<boost::any> pms;
 
   // build the restricted list
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *pm_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *pm_factory ) )
   {
     pms.push_back(bdr.name());
   }
@@ -270,7 +270,7 @@ void CModel::signature_create_solver ( common::SignalArgs& node )
   std::vector<boost::any> solvers;
 
   // build the restricted list
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *solver_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *solver_factory ) )
   {
     solvers.push_back(bdr.name());
   }

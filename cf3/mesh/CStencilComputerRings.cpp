@@ -10,7 +10,7 @@
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 

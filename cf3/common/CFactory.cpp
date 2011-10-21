@@ -7,7 +7,7 @@
 #include <sstream>
 
 #include "common/CFactory.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
@@ -37,18 +37,18 @@ public:
 
   bool operator()(Component::ConstPtr component) const
   {
-//    std::cout << "checking [" << CBuilder::extract_reduced_name( component->name() )
+//    std::cout << "checking [" << Builder::extract_reduced_name( component->name() )
 //              << "] == [" << m_builder_reduced_name << std::endl;
 
-    return ( CBuilder::extract_reduced_name( component->name() ) == m_builder_reduced_name );
+    return ( Builder::extract_reduced_name( component->name() ) == m_builder_reduced_name );
   }
 
   bool operator()(const Component& component) const
   {
-//    std::cout << "checking [" << CBuilder::extract_reduced_name( component.name() )
+//    std::cout << "checking [" << Builder::extract_reduced_name( component.name() )
 //              << "] == [" << m_builder_reduced_name << std::endl;
 
-    return ( CBuilder::extract_reduced_name( component.name() ) == m_builder_reduced_name );
+    return ( Builder::extract_reduced_name( component.name() ) == m_builder_reduced_name );
   }
 };
 
@@ -60,7 +60,7 @@ Component& CFactory::find_builder_with_reduced_name(const std::string& name)
   std::vector<Component::Ptr> found;
   boost_foreach( Component& comp, find_components_with_filter( (*this), filter ) )
   {
-    CBuilder::Ptr builder = comp.as_ptr<CBuilder>();
+    Builder::Ptr builder = comp.as_ptr<Builder>();
       if( is_not_null(builder) )
         found.push_back( comp.self() );
   }

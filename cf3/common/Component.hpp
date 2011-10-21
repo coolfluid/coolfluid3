@@ -929,7 +929,7 @@ typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_nam
   typename ATYPE::Ptr ccomp = comp->as_ptr_checked<ATYPE>();
   if ( is_null(ccomp) )
     throw CastingFailed(FromHere(),
-                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
   return ccomp;
@@ -951,7 +951,7 @@ typename ATYPE::Ptr build_component_abstract_type_reduced(const std::string& bui
   typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
   if ( is_null(ccomp) )
     throw CastingFailed(FromHere(),
-                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
   return ccomp;

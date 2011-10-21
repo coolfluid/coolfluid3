@@ -11,7 +11,7 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/CLibrary.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/CLibraries.hpp"
 #include "common/OSystem.hpp"
 #include "common/OptionArray.hpp"
@@ -130,7 +130,7 @@ CLibrary::Ptr CLibraries::autoload_library_with_builder( const std::string& buil
 
   CLibrary::Ptr lib;
 
-  const std::string libnamespace = CBuilder::extract_namespace( builder_name );
+  const std::string libnamespace = Builder::extract_namespace( builder_name );
   const std::string lib_name = namespace_to_libname( libnamespace );
 
   try // to auto-load in case builder not there

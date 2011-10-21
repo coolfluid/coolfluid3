@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/FindComponents.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/Link.hpp"
 

@@ -12,7 +12,7 @@
 #include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
 
@@ -68,7 +68,7 @@ void Transformer::help( const std::string& param )
 
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
 
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_fac ) )
   {
     MeshReader::Ptr reader = bdr.build("reader")->as_ptr<MeshReader>();
     readers.push_back(reader);
@@ -78,7 +78,7 @@ void Transformer::help( const std::string& param )
 
   CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
 
-  boost_foreach(CBuilder& bdw, find_components_recursively<CBuilder>( *meshwriter_fac ) )
+  boost_foreach(Builder& bdw, find_components_recursively<Builder>( *meshwriter_fac ) )
   {
     MeshWriter::Ptr writer = bdw.build("writer")->as_ptr<MeshWriter>();
     writers.push_back(writer);
@@ -88,7 +88,7 @@ void Transformer::help( const std::string& param )
 
   CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
 
-  boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
+  boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
     MeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<MeshTransformer>();
     transformers_description[bdt.builder_concrete_type_name()] = transformer->option("brief").value<std::string>();
@@ -170,7 +170,7 @@ void Transformer::input( const std::vector<std::string>& params )
   std::vector<boost::shared_ptr<mesh::MeshReader> > readers;
 
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<MeshReader>();
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_fac ) )
   {
     MeshReader::Ptr reader = bdr.build("reader")->as_ptr<MeshReader>();
     readers.push_back(reader);
@@ -226,7 +226,7 @@ void Transformer::output( const std::vector<std::string>& params )
 
   CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<MeshWriter>();
 
-  boost_foreach(CBuilder& bdw, find_components_recursively<CBuilder>( *meshwriter_fac ) )
+  boost_foreach(Builder& bdw, find_components_recursively<Builder>( *meshwriter_fac ) )
   {
     MeshWriter::Ptr writer = bdw.build("writer")->as_ptr<MeshWriter>();
     writers.push_back(writer);
@@ -288,7 +288,7 @@ void Transformer::transform( const std::vector<std::string>& params )
 
   CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<MeshTransformer>();
 
-  boost_foreach(CBuilder& bdt, find_components_recursively<CBuilder>( *meshtrans_fac ))
+  boost_foreach(Builder& bdt, find_components_recursively<Builder>( *meshtrans_fac ))
   {
     MeshTransformer::Ptr transformer = bdt.build("transformer")->as_ptr<MeshTransformer>();
     transformers_description[bdt.builder_concrete_type_name()] = transformer->option("brief").value<std::string>();

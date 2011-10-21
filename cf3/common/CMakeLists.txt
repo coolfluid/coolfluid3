@@ -23,8 +23,8 @@ list( APPEND coolfluid_common_files
     ActionDirector.cpp
     GroupActions.hpp
     GroupActions.cpp
-    CBuilder.hpp
-    CBuilder.cpp
+    Builder.hpp
+    Builder.cpp
     CodeLocation.cpp
     CodeLocation.hpp
     CodeProfiler.cpp

@@ -6,7 +6,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "mesh/ElementTypeT.hpp"
 #include "mesh/ShapeFunctionT.hpp"

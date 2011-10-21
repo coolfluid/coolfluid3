@@ -16,7 +16,7 @@
 #include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/CFactory.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/LocalDispatcher.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -26,7 +26,7 @@
 #include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "Solver/CTime.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"

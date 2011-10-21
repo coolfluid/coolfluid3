@@ -35,7 +35,7 @@
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Timer.hpp"

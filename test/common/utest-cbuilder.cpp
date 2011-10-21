@@ -11,7 +11,7 @@
 
 #include "common/Core.hpp"
 #include "common/Root.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/LibCommon.hpp"
  
 
@@ -22,12 +22,12 @@ using namespace cf3::common;
 
 //------------------------------------------------------------------------------------------
 
-struct CBuilder_fixture
+struct Builder_fixture
 {
   /// common setup for each test case
-  CBuilder_fixture() {}
+  Builder_fixture() {}
   /// common tear-down for each test case
-  ~CBuilder_fixture() {}
+  ~Builder_fixture() {}
 };
 
 //------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( CFactoryTest, CBuilder_fixture )
+BOOST_FIXTURE_TEST_SUITE( CFactoryTest, Builder_fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 

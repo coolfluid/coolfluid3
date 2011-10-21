@@ -8,7 +8,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/XML/MultiArray.hpp"
 

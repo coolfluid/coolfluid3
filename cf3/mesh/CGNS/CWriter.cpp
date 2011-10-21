@@ -7,7 +7,7 @@
 #include "common/BoostFilesystem.hpp"
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/CGNS/CWriter.hpp"
@@ -205,7 +205,7 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 {
   CFactory& sf_factory = *Core::instance().factories().get_factory<ElementType>();
   std::map<std::string,std::string> builder_name;
-  boost_foreach(CBuilder& sf_builder, find_components_recursively<CBuilder>( sf_factory ) )
+  boost_foreach(Builder& sf_builder, find_components_recursively<Builder>( sf_factory ) )
   {
     ElementType::Ptr sf = sf_builder.build("sf")->as_ptr<ElementType>();
     builder_name[sf->derived_type_name()] = sf_builder.name();

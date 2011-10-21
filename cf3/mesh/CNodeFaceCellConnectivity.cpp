@@ -7,7 +7,7 @@
 #include "common/FindComponents.hpp"
 
 #include "common/Link.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "mesh/CNodeFaceCellConnectivity.hpp"
 #include "mesh/CDynTable.hpp"
 #include "mesh/Geometry.hpp"

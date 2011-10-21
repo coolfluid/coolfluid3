@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Foreach.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"

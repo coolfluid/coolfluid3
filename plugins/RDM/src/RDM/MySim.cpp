@@ -7,7 +7,7 @@
 #include "boost/assign/list_of.hpp"
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"

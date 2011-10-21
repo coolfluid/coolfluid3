@@ -8,7 +8,7 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/Foreach.hpp"

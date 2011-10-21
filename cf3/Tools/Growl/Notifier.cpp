@@ -11,7 +11,7 @@
 
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 extern "C" {
 #include "Tools/Growl/growl/headers/growl.h"

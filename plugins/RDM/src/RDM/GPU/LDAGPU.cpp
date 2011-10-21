@@ -8,7 +8,7 @@
 #include <boost/timer.hpp>
 
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"

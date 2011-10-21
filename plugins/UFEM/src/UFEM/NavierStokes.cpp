@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Component.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Solver/Actions/Proto/CProtoAction.hpp"
 #include "Solver/Actions/Proto/Expression.hpp"

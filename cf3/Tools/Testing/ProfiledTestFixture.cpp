@@ -17,7 +17,7 @@
 #include "common/Log.hpp"
 #include "common/Environment.hpp"
 #include "common/Core.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/CFactories.hpp"
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"

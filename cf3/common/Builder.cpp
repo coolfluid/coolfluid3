@@ -6,7 +6,7 @@
 
 #include <boost/algorithm/string.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Signal.hpp"
 #include "common/LibCommon.hpp"
@@ -14,27 +14,27 @@
 namespace cf3 {
 namespace common {
 
-RegistTypeInfo<CBuilder,LibCommon> CBuilder_TypeRegistration();
+RegistTypeInfo<Builder,LibCommon> Builder_TypeRegistration();
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CBuilder::CBuilder ( const std::string& name) : Component ( name )
+Builder::Builder ( const std::string& name) : Component ( name )
 {
   regist_signal( "create_component" )
-    ->connect( boost::bind( &CBuilder::signal_create_component, this, _1 ) )
+    ->connect( boost::bind( &Builder::signal_create_component, this, _1 ) )
     ->description("builds a component")
     ->pretty_name("Build component");
 
   signal("create_component")->
-      signature(boost::bind(&CBuilder::signature_signal_create_component, this, _1));
+      signature(boost::bind(&Builder::signature_signal_create_component, this, _1));
 
 }
 
-CBuilder::~CBuilder() {}
+Builder::~Builder() {}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CBuilder::signal_create_component ( SignalArgs& args )
+void Builder::signal_create_component ( SignalArgs& args )
 {
   XML::SignalFrame params = args.map( XML::Protocol::Tags::key_options() );
 
@@ -47,7 +47,7 @@ void CBuilder::signal_create_component ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void CBuilder::signature_signal_create_component ( SignalArgs& args )
+void Builder::signature_signal_create_component ( SignalArgs& args )
 {
   XML::SignalFrame p = args.map( XML::Protocol::Tags::key_options() );
 
@@ -56,7 +56,7 @@ void CBuilder::signature_signal_create_component ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CBuilder::extract_namespace (const std::string& builder_name)
+std::string Builder::extract_namespace (const std::string& builder_name)
 {
   using namespace boost::algorithm;
 
@@ -65,7 +65,7 @@ std::string CBuilder::extract_namespace (const std::string& builder_name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CBuilder::extract_reduced_name (const std::string& builder_name)
+std::string Builder::extract_reduced_name (const std::string& builder_name)
 {
   using namespace boost::algorithm;
 
@@ -74,7 +74,7 @@ std::string CBuilder::extract_reduced_name (const std::string& builder_name)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-std::string CBuilder::extract_library_name (const std::string& builder_name)
+std::string Builder::extract_library_name (const std::string& builder_name)
 {
   return CLibraries::namespace_to_libname( extract_namespace( builder_name ) );
 }

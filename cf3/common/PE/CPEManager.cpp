@@ -12,7 +12,7 @@
 
 #include "common/BasicExceptions.hpp"
 #include "common/BoostFilesystem.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/LibCommon.hpp"
 #include "common/NotificationQueue.hpp"
 #include "common/OptionT.hpp"

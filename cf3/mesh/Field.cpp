@@ -9,7 +9,7 @@
 #include <boost/regex.hpp>
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"

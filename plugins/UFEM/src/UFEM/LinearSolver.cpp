@@ -7,7 +7,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"

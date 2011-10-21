@@ -7,7 +7,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/Mesh.hpp"

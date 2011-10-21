@@ -6,7 +6,7 @@
 
 #include <boost/date_time/gregorian/gregorian.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "mesh/MeshMetadata.hpp"
 

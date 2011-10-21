@@ -9,7 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Root.hpp"

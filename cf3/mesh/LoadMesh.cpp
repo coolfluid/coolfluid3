@@ -6,7 +6,7 @@
 
 #include "common/Signal.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Core.hpp"
 #include "common/Root.hpp"
 #include "common/Foreach.hpp"
@@ -69,7 +69,7 @@ void LoadMesh::update_list_of_available_readers()
 
   m_extensions_to_readers.clear();
 
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_factory ) )
   {
     MeshReader::Ptr reader;
 
@@ -211,7 +211,7 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
   std::vector<boost::any> readers;
 
   // build the restricted list
-  boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_factory ) )
+  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_factory ) )
   {
     readers.push_back(bdr.name());
   }

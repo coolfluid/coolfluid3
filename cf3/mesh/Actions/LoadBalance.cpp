@@ -6,7 +6,7 @@
 
 #include "coolfluid-packages.hpp"
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 
 #include "common/PE/Comm.hpp"

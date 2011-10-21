@@ -12,7 +12,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/regex.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"

@@ -6,7 +6,7 @@
 
 #include <boost/assign/list_of.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Core.hpp"
 #include "common/Exception.hpp"
 #include "common/EventHandler.hpp"

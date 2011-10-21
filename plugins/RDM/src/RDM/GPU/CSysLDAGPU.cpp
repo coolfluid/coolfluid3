@@ -6,7 +6,7 @@
 
 #include <iostream>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"

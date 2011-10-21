@@ -54,11 +54,11 @@ public: // functions
   virtual mesh::CDomain& create_domain( const std::string& name );
 
   /// create physics
-  /// @param builder name of the CBuilder of the physics
+  /// @param builder name of the Builder of the physics
   virtual Physics::PhysModel& create_physics( const std::string& builder );
 
   /// create solver
-  /// @param builder_name name of the CBuilder of the solver
+  /// @param builder_name name of the Builder of the solver
   virtual CSolver& create_solver( const std::string& builder );
 
   /// gets the domain from this model

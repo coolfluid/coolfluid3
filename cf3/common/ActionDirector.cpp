@@ -7,7 +7,7 @@
 #include "common/URI.hpp"
 
 #include "common/BasicExceptions.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"

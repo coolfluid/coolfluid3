@@ -5,8 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 
-#ifndef cf3_common_CBuilder_hpp
-#define cf3_common_CBuilder_hpp
+#ifndef cf3_common_Builder_hpp
+#define cf3_common_Builder_hpp
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -30,22 +30,22 @@ namespace common {
 
 /// @brief Component that builds other components
 /// @author Tiago Quintino
-class Common_API CBuilder : public Component {
+class Common_API Builder : public Component {
 
 public:
 
-  typedef boost::shared_ptr< CBuilder > Ptr;
-  typedef boost::shared_ptr< CBuilder const> ConstPtr;
+  typedef boost::shared_ptr< Builder > Ptr;
+  typedef boost::shared_ptr< Builder const> ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
-  CBuilder(const std::string& name);
+  Builder(const std::string& name);
 
   /// @brief Virtual destructor.
-  virtual ~CBuilder();
+  virtual ~Builder();
 
   /// @returns the class name
-  static std::string type_name() { return  "CBuilder"; }
+  static std::string type_name() { return  "Builder"; }
 
   /// Returns the name of the type of what abstract type it builds.
   /// Should match the name of the CFactory holding the builder.
@@ -79,7 +79,7 @@ public:
   /// Extract the library name from the given builder name
   static std::string extract_library_name (const std::string& builder_name);
 
-}; // CBuilder
+}; // Builder
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -87,16 +87,16 @@ public:
 /// This is the actual builder for one concrete type.
 /// @author Tiago Quintino
 template < typename BASE, typename CONCRETE >
-class CBuilderT : public CBuilder {
+class BuilderT : public Builder {
 
 public:
 
-  typedef boost::shared_ptr< CBuilderT<BASE,CONCRETE> > Ptr;
-  typedef boost::shared_ptr< CBuilderT<BASE,CONCRETE> const > ConstPtr;
+  typedef boost::shared_ptr< BuilderT<BASE,CONCRETE> > Ptr;
+  typedef boost::shared_ptr< BuilderT<BASE,CONCRETE> const > ConstPtr;
 
   /// @brief Contructor
   /// @param name of component
-  CBuilderT(const std::string& name) : CBuilder(name)
+  BuilderT(const std::string& name) : Builder(name)
   {
     // verify that BASE derives or is same type of Component
     BOOST_STATIC_ASSERT( (boost::is_base_of<common::Component,BASE>::value) );
@@ -104,15 +104,15 @@ public:
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
 
     // verify inheritance
-    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
+    BOOST_STATIC_ASSERT( (boost::is_base_of<Builder,BuilderT<BASE,CONCRETE> >::value) );
 
   }
 
   /// @brief Virtual destructor.
-  virtual ~CBuilderT() {}
+  virtual ~BuilderT() {}
 
   /// @returns the class name
-  static std::string type_name() { return "CBuilderT<" + BASE::type_name() + "," + CONCRETE::type_name() + ">"; }
+  static std::string type_name() { return "BuilderT<" + BASE::type_name() + "," + CONCRETE::type_name() + ">"; }
 
   /// builds the component cast to the correct base
   typename BASE::Ptr create_component_typed ( const std::string& name ) const
@@ -133,16 +133,16 @@ public:
     return this->create_component_typed(name);
   }
 
-}; // CBuilderT
+}; // BuilderT
 
 /////////////////////////////////////////////////////////////////////////////////
 
-/// @brief Helper class to create the CBuilder and place it in the factory
+/// @brief Helper class to create the Builder and place it in the factory
 /// @author Tiago Quintino
 template <class CONCRETE, class BASE, class LIB >
 struct ComponentBuilder
 {
-  /// @brief creates the CBuilder and places it into the correct factory
+  /// @brief creates the Builder and places it into the correct factory
   ComponentBuilder(const std::string& name =
                    std::string( LIB::library_namespace() + "." + CONCRETE::type_name()) )
   {
@@ -152,8 +152,8 @@ struct ComponentBuilder
     BOOST_STATIC_ASSERT( (boost::is_base_of<common::Component,BASE>::value) );
     // verify that CONCRETE derives from BASE
     BOOST_STATIC_ASSERT( (boost::is_base_of<BASE,CONCRETE>::value) );
-    // verify that CBuilderT derives from CBuilder
-    BOOST_STATIC_ASSERT( (boost::is_base_of<CBuilder,CBuilderT<BASE,CONCRETE> >::value) );
+    // verify that BuilderT derives from Builder
+    BOOST_STATIC_ASSERT( (boost::is_base_of<Builder,BuilderT<BASE,CONCRETE> >::value) );
 
     // give some info
     //CFinfo << "lib [" << LIB::library_namespace() << "] : factory of \'" << BASE::type_name() << "\' registering builder of \'" << CONCRETE::type_name() << "\' with name \'" << name << "\'" << CFendl;
@@ -161,7 +161,7 @@ struct ComponentBuilder
     // regist the concrete type in TypeInfo
     RegistTypeInfo<CONCRETE,LIB> regist(name);
     cf3::common::TypeInfo::instance().
-        regist< CBuilderT<BASE,CONCRETE> >(  CBuilderT<BASE,CONCRETE>::type_name() );
+        regist< BuilderT<BASE,CONCRETE> >(  BuilderT<BASE,CONCRETE>::type_name() );
 
     // put builder in correct factory
     common::CFactory::Ptr factory =
@@ -169,13 +169,13 @@ struct ComponentBuilder
 
     cf3_assert ( is_not_null(factory) );
 
-    boost::shared_ptr< common::CBuilderT<BASE,CONCRETE> > builder =
-        factory->create_component_ptr< CBuilderT<BASE,CONCRETE> >( name );
+    boost::shared_ptr< common::BuilderT<BASE,CONCRETE> > builder =
+        factory->create_component_ptr< BuilderT<BASE,CONCRETE> >( name );
 
-    // check that CBuilderT can cast to CBuilder
+    // check that BuilderT can cast to Builder
     /// @note sanity check after weird bug on MacOSX
-    ///       when including CBuilder.cpp instead of CBuilder.hpp
-    cf3_assert ( builder->template as_ptr<CBuilder>() );
+    ///       when including Builder.cpp instead of Builder.hpp
+    cf3_assert ( builder->template as_ptr<Builder>() );
 
     // put a Link to the builder in the respective CLibrary
     CLibrary::Ptr lib = Core::instance().libraries().library<LIB>();
@@ -187,8 +187,8 @@ struct ComponentBuilder
     builder_link->link_to(builder);
 
     cf3_assert ( is_not_null(builder_link->follow()) );
-    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilderT<BASE,CONCRETE> >()) );
-    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<CBuilder>()) );
+    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<BuilderT<BASE,CONCRETE> >()) );
+    cf3_assert ( is_not_null(builder_link->follow()->as_ptr<Builder>()) );
 
   }
 
@@ -201,5 +201,5 @@ struct ComponentBuilder
 
 /////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_common_CBuilder_hpp
+#endif // cf3_common_Builder_hpp
 

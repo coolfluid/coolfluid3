@@ -9,7 +9,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/BoostAnyConversion.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
 #include "common/NetworkInfo.hpp"

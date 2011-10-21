@@ -12,7 +12,7 @@
 #include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"

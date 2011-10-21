@@ -9,7 +9,7 @@
 #include <boost/algorithm/string/erase.hpp>
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 #include "common/StreamHelpers.hpp"
