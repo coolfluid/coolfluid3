@@ -19,18 +19,18 @@
 #include "common/CLink.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshGenerator.hpp"
-#include "Mesh/CStencilComputerRings.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshGenerator.hpp"
+#include "mesh/CStencilComputerRings.hpp"
 
 using namespace boost;
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

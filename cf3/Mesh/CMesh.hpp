@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CMesh_hpp
-#define cf3_Mesh_CMesh_hpp
+#ifndef cf3_mesh_CMesh_hpp
+#define cf3_mesh_CMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/FieldGroup.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/FieldGroup.hpp"
 
 namespace cf3 {
   namespace common {
     class CLink;
   }
-namespace Mesh {
+namespace mesh {
 
   class Geometry;
   class CRegion;
@@ -125,9 +125,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CMesh_hpp
+#endif // cf3_mesh_CMesh_hpp

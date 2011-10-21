@@ -12,8 +12,8 @@
 
 #include "Math/VariableManager.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/FieldManager.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -24,7 +24,7 @@ namespace cf3 {
 namespace Solver {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

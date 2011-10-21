@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::PTScotch"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::PTScotch"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -22,20 +22,20 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/ConnectivityData.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/CMeshWriter.hpp"
 
-#include "Mesh/PTScotch/LibPTScotch.hpp"
+#include "mesh/PTScotch/LibPTScotch.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace boost::assign;
 

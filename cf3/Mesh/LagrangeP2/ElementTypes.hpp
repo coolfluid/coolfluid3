@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP2_ElementTypes_hpp
-#define cf3_Mesh_LagrangeP2_ElementTypes_hpp
+#ifndef cf3_mesh_LagrangeP2_ElementTypes_hpp
+#define cf3_mesh_LagrangeP2_ElementTypes_hpp
 
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/vector.hpp>
 
-#include "Mesh/ElementTypePredicates.hpp"
+#include "mesh/ElementTypePredicates.hpp"
 
-#include "Mesh/LagrangeP2/Line2D.hpp"
-#include "Mesh/LagrangeP2/Quad2D.hpp"
-#include "Mesh/LagrangeP2/Triag2D.hpp"
+#include "mesh/LagrangeP2/Line2D.hpp"
+#include "mesh/LagrangeP2/Quad2D.hpp"
+#include "mesh/LagrangeP2/Triag2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ typedef boost::mpl::filter_view<ElementTypes, IsEdgeType> EdgeTypes;
 ///////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP2_ElementTypes_hpp
+#endif // cf3_mesh_LagrangeP2_ElementTypes_hpp

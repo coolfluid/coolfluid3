@@ -12,14 +12,14 @@
 
 #include "Physics/Variables.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CSpace.hpp"
 
 #include "Solver/CSolver.hpp"
 
@@ -27,7 +27,7 @@
 #include "SFDM/Tags.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 
 namespace cf3 {

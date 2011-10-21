@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Actions_LibActions_hpp
-#define cf3_Mesh_Actions_LibActions_hpp
+#ifndef cf3_mesh_Actions_LibActions_hpp
+#define cf3_mesh_Actions_LibActions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh{
+namespace mesh{
 
 /// @brief CAction derived classes for mesh manipulations
 namespace Actions {
@@ -80,9 +80,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Actions_LibActions_hpp
+#endif // cf3_mesh_Actions_LibActions_hpp

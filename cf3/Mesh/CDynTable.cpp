@@ -7,11 +7,11 @@
 #include "common/CBuilder.hpp"
 #include "common/StreamHelpers.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CDynTable.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CDynTable.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -166,5 +166,5 @@ std::ostream& operator<<(std::ostream& os, const CDynTable<std::string>& table)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

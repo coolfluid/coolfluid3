@@ -15,22 +15,22 @@
 
 #include "common/Log.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace CGAL {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -122,7 +122,7 @@ void create_mesh(const ImplicitFunction& function, CMesh& mesh, const MeshParame
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace CGAL
-} // namespace Mesh
+} // namespace mesh
 } // namespace cf3
 
 ////////////////////////////////////////////////////////////////////////////////

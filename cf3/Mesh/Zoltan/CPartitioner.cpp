@@ -15,11 +15,11 @@
 #include "common/Log.hpp"
 #include "common/CMap.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Zoltan/CPartitioner.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Zoltan/CPartitioner.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Zoltan {
 
   using namespace common;
@@ -329,5 +329,5 @@ void CPartitioner::query_list_of_connected_objects(void *data, int sizeGID, int 
 //////////////////////////////////////////////////////////////////////////////
 
 } // Zoltan
-} // Mesh
+} // mesh
 } // cf3

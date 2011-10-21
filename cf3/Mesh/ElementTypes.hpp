@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_ElementTypes_hpp
-#define cf3_Mesh_ElementTypes_hpp
+#ifndef cf3_mesh_ElementTypes_hpp
+#define cf3_mesh_ElementTypes_hpp
 
 #include <boost/mpl/joint_view.hpp>
 
-#include "Mesh/ElementTypePredicates.hpp"
-#include "Mesh/LagrangeP0/ElementTypes.hpp"
-#include "Mesh/LagrangeP1/ElementTypes.hpp"
-#include "Mesh/LagrangeP2/ElementTypes.hpp"
-#include "Mesh/LagrangeP3/ElementTypes.hpp"
+#include "mesh/ElementTypePredicates.hpp"
+#include "mesh/LagrangeP0/ElementTypes.hpp"
+#include "mesh/LagrangeP1/ElementTypes.hpp"
+#include "mesh/LagrangeP2/ElementTypes.hpp"
+#include "mesh/LagrangeP3/ElementTypes.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +49,7 @@ typedef boost::mpl::joint_view< LagrangeP0::EdgeTypes,
 
 ///////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_ElementTypes_hpp
+#endif // cf3_mesh_ElementTypes_hpp

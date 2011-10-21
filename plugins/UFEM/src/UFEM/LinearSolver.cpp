@@ -14,10 +14,10 @@
 
 #include "Math/LSS/System.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Solver/Tags.hpp"
 #include "Solver/Actions/CSolveSystem.hpp"
@@ -34,7 +34,7 @@ namespace UFEM {
 
 using namespace common;
 using namespace Math;
-using namespace Mesh;
+using namespace mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;

@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_FieldGroup_hpp
-#define cf3_Mesh_FieldGroup_hpp
+#ifndef cf3_mesh_FieldGroup_hpp
+#define cf3_mesh_FieldGroup_hpp
 
 #include <boost/range.hpp>
 
 #include "common/EnumT.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CEntities.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CUnifiedData.hpp"
+#include "mesh/CEntities.hpp"
 
 namespace cf3 {
 namespace common {
@@ -23,7 +23,7 @@ namespace common {
   namespace PE { class CommPattern; }
 }
 namespace Math { class VariablesDescriptor; }
-namespace Mesh {
+namespace mesh {
 
   class CMesh;
   class Field;
@@ -180,7 +180,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_FieldGroup_hpp
+#endif // cf3_mesh_FieldGroup_hpp

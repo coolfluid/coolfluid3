@@ -9,9 +9,9 @@
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/FieldManager.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -23,7 +23,7 @@
 #include "SFDM/Term.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 

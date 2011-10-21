@@ -14,19 +14,19 @@
 ///
 /// @author Willem Deconinck
 
-#ifndef cf3_Mesh_ElementTypeBase_hpp
-#define cf3_Mesh_ElementTypeBase_hpp
+#ifndef cf3_mesh_ElementTypeBase_hpp
+#define cf3_mesh_ElementTypeBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/StringConversion.hpp"
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class  ElementType;
   struct ElementTypeFaceConnectivity;
 
@@ -232,9 +232,9 @@ void ElementTypeBase<ETYPE,TR>::compute_plane_jacobian_normal(const MappedCoords
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_ElementTypeBase_hpp
+#endif // cf3_mesh_ElementTypeBase_hpp

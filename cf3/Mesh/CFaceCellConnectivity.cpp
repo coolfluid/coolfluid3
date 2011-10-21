@@ -16,17 +16,17 @@
 #include "Math/MatrixTypes.hpp"
 #include "Math/Consts.hpp"
 
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCells.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -45,7 +45,7 @@ CFaceCellConnectivity::CFaceCellConnectivity ( const std::string& name ) :
       ->description("Improves efficiency for face building algorithm");
 
   m_used_components = create_static_component_ptr<CGroup>("used_components");
-  m_connectivity = create_static_component_ptr<CTable<Uint> >(Mesh::Tags::connectivity_table());
+  m_connectivity = create_static_component_ptr<CTable<Uint> >(mesh::Tags::connectivity_table());
   m_face_nb_in_elem = create_static_component_ptr<CTable<Uint> >("face_number");
   m_is_bdry_face = create_static_component_ptr<CList<bool> >("is_bdry_face");
   m_connectivity->set_row_size(2);
@@ -374,5 +374,5 @@ std::vector<Uint> CFaceCellConnectivity::face_nodes(const Uint face) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

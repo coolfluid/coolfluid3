@@ -8,13 +8,13 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
-#include "Mesh/LagrangeP0/Point2D.hpp"
+#include "mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "mesh/LagrangeP0/Point2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ common::ComponentBuilder < ElementTypeT<Point2D>, ElementType , LibLagrangeP0 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Point2D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Point2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -38,7 +38,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Point2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Point2D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Point2D::face_type(const cf3::Uint face)
 {
   throw common::NotImplemented(FromHere(), "LagrangeP0::Point2D Does not have a face type");
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Point2D> >(Point2D::type_name()) );
@@ -77,5 +77,5 @@ Real Point2D::area(const NodesT& nodes)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // Mesh
+} // mesh
 } // cf3

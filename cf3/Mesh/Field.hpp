@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Field_hpp
-#define cf3_Mesh_Field_hpp
+#ifndef cf3_mesh_Field_hpp
+#define cf3_mesh_Field_hpp
 
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/CElements.hpp"
 
 namespace cf3 {
 
@@ -22,7 +22,7 @@ namespace common
 namespace Math { class VariablesDescriptor; }
 
 
-namespace Mesh {
+namespace mesh {
 
   class CRegion;
 
@@ -139,7 +139,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_Field_hpp
+#endif // cf3_mesh_Field_hpp

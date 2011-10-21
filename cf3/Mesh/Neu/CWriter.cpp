@@ -16,29 +16,29 @@
 #include "common/CBuilder.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Neu/CWriter.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/ConnectivityData.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/MeshMetadata.hpp"
+#include "mesh/Neu/CWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/ConnectivityData.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/MeshMetadata.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Neu {
 
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Mesh::Neu::CWriter,
-                           Mesh::CMeshWriter,
-                           Mesh::Neu::LibNeu>
+common::ComponentBuilder < mesh::Neu::CWriter,
+                           mesh::CMeshWriter,
+                           mesh::Neu::LibNeu>
 aNeuWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -359,5 +359,5 @@ void CWriter::write_boundaries(std::fstream& file)
 
 
 } // Neu
-} // Mesh
+} // mesh
 } // cf3

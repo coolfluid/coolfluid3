@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Integrators_GaussImplementation_HH
-#define cf3_Mesh_Integrators_GaussImplementation_HH
+#ifndef cf3_mesh_Integrators_GaussImplementation_HH
+#define cf3_mesh_Integrators_GaussImplementation_HH
 
 #include <boost/assign/list_of.hpp>
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/GeoShape.hpp"
+#include "mesh/GeoShape.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Integrators {
 
 /// This file hides some implementation details of Gauss integration
@@ -846,7 +846,7 @@ struct GaussIntegrator<Order, GeoShape::HEXA>
 
 
 } // Gauss
-} // Mesh
+} // mesh
 } // cf3
 
 #endif /* CF3_Mesh_Integrators_Gaussimplementation_HH */

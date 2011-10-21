@@ -15,7 +15,7 @@ namespace P0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Line, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Line, mesh::ShapeFunction, LibSFDM >
   Line_Builder(LibSFDM::library_namespace()+".P0."+Line::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ const RealMatrix& Line::local_coordinates() const
 const Uint Line::nb_nodes;
 const Uint Line::dimensionality;
 const Uint Line::order;
-const Mesh::GeoShape::Type Line::shape;
+const mesh::GeoShape::Type Line::shape;
 
 ////////////////////////////////////////////////////////////////////////////////
 

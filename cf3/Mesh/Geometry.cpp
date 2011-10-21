@@ -7,11 +7,11 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CDynTable.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -22,13 +22,13 @@ common::ComponentBuilder < Geometry, Component, LibMesh > Geometry_Builder;
 Geometry::Geometry ( const std::string& name ) :
   FieldGroup ( name )
 {
-  m_coordinates = create_static_component_ptr< Field >(Mesh::Tags::coordinates());
-  m_coordinates->add_tag(Mesh::Tags::coordinates());
+  m_coordinates = create_static_component_ptr< Field >(mesh::Tags::coordinates());
+  m_coordinates->add_tag(mesh::Tags::coordinates());
   m_coordinates->create_descriptor("coord[vector]");
   m_glb_elem_connectivity = create_static_component_ptr< CDynTable<Uint> >("glb_elem_connectivity");
   m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
 
-  add_tag(Mesh::Tags::nodes());
+  add_tag(mesh::Tags::nodes());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -39,5 +39,5 @@ Geometry::~Geometry()
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

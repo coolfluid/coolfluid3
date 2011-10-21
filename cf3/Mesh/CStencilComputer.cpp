@@ -10,16 +10,16 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CStencilComputer.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CStencilComputer.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Geometry.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -66,5 +66,5 @@ void CStencilComputer::set_mesh(CMesh& mesh)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

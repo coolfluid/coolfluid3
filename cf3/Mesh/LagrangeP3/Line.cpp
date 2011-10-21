@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
-#include "Mesh/LagrangeP3/Line.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP3/LibLagrangeP3.hpp"
+#include "mesh/LagrangeP3/Line.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP3 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -62,5 +62,5 @@ const RealMatrix& Line::local_coordinates()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP3
-} // Mesh
+} // mesh
 } // cf3

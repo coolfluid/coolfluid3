@@ -14,17 +14,17 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 using namespace cf3::Math;
 using namespace cf3::Math::Consts;
 

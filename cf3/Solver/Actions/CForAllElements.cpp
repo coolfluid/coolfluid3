@@ -8,15 +8,15 @@
 #include "common/CBuilder.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
 
 #include "Solver/Actions/CForAllElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

@@ -15,18 +15,18 @@
 #include "common/CRoot.hpp"
 #include "common/Core.hpp"
 
-#include "Mesh/CMixedHash.hpp"
-#include "Mesh/CHash.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CMixedHash.hpp"
+#include "mesh/CHash.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CElements.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -486,5 +486,5 @@ void CSimpleMeshGenerator::create_rectangle()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

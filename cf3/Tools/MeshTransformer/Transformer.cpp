@@ -16,24 +16,24 @@
  
 #include "common/Foreach.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshTransformer.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/MeshTransformer/Transformer.hpp"
 
 namespace cf3 {
 namespace Tools {
-namespace MeshTransformer {
+namespace meshTransformer {
 
   using namespace boost;
   using namespace boost::program_options;
 
   using namespace cf3;
   using namespace cf3::common;
-  using namespace cf3::Mesh;
+  using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,12 +58,12 @@ Transformer::commands_description Transformer::description()
 
 void Transformer::help( const std::string& param )
 {
-  std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshReader> > > extensions_to_readers;
-  std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshWriter> > > extensions_to_writers;
-  std::vector<boost::shared_ptr<Mesh::CMeshReader> > readers;
-  std::vector<boost::shared_ptr<Mesh::CMeshWriter> > writers;
+  std::map<std::string,std::vector<boost::shared_ptr<mesh::CMeshReader> > > extensions_to_readers;
+  std::map<std::string,std::vector<boost::shared_ptr<mesh::CMeshWriter> > > extensions_to_writers;
+  std::vector<boost::shared_ptr<mesh::CMeshReader> > readers;
+  std::vector<boost::shared_ptr<mesh::CMeshWriter> > writers;
   std::map<std::string,std::string> transformers_description;
-  std::map<std::string,boost::shared_ptr<Mesh::CMeshTransformer> > name_to_transformers;
+  std::map<std::string,boost::shared_ptr<mesh::CMeshTransformer> > name_to_transformers;
 
 
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<CMeshReader>();
@@ -166,8 +166,8 @@ void Transformer::input( const std::vector<std::string>& params )
 
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
 
-  std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshReader> > > extensions_to_readers;
-  std::vector<boost::shared_ptr<Mesh::CMeshReader> > readers;
+  std::map<std::string,std::vector<boost::shared_ptr<mesh::CMeshReader> > > extensions_to_readers;
+  std::vector<boost::shared_ptr<mesh::CMeshReader> > readers;
 
   CFactory::Ptr meshreader_fac = Core::instance().factories().get_factory<CMeshReader>();
   boost_foreach(CBuilder& bdr, find_components_recursively<CBuilder>( *meshreader_fac ) )
@@ -221,8 +221,8 @@ void Transformer::output( const std::vector<std::string>& params )
 
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
 
-  std::map<std::string,std::vector<boost::shared_ptr<Mesh::CMeshWriter> > > extensions_to_writers;
-  std::vector<boost::shared_ptr<Mesh::CMeshWriter> > writers;
+  std::map<std::string,std::vector<boost::shared_ptr<mesh::CMeshWriter> > > extensions_to_writers;
+  std::vector<boost::shared_ptr<mesh::CMeshWriter> > writers;
 
   CFactory::Ptr meshwriter_fac = Core::instance().factories().get_factory<CMeshWriter>();
 
@@ -284,7 +284,7 @@ void Transformer::transform( const std::vector<std::string>& params )
   CMesh::Ptr mesh = Core::instance().root().get_child("mesh").as_ptr<CMesh>();
 
   std::map<std::string,std::string> transformers_description;
-  std::map<std::string,boost::shared_ptr<Mesh::CMeshTransformer> > name_to_transformers;
+  std::map<std::string,boost::shared_ptr<mesh::CMeshTransformer> > name_to_transformers;
 
   CFactory::Ptr meshtrans_fac = Core::instance().factories().get_factory<CMeshTransformer>();
 

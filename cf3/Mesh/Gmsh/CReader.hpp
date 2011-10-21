@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Gmsh_CReader_hpp
-#define cf3_Mesh_Gmsh_CReader_hpp
+#ifndef cf3_mesh_Gmsh_CReader_hpp
+#define cf3_mesh_Gmsh_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
 #include <boost/tuple/tuple.hpp>
 
-#include "Mesh/CMeshReader.hpp"
+#include "mesh/CMeshReader.hpp"
 
-#include "Mesh/Gmsh/LibGmsh.hpp"
-#include "Mesh/Gmsh/Shared.hpp"
+#include "mesh/Gmsh/LibGmsh.hpp"
+#include "mesh/Gmsh/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 class CElements;
 class CRegion;
@@ -146,9 +146,9 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Gmsh
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Gmsh_CReader_hpp
+#endif // cf3_mesh_Gmsh_CReader_hpp

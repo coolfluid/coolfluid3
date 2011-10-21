@@ -16,11 +16,11 @@
 #include "Math/Consts.hpp"
 #include "Math/Functions.hpp"
 
-#include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/LagrangeP1/Quad3D.hpp"
-#include "Mesh/ElementData.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Integrators/Gauss.hpp"
+#include "mesh/LagrangeP1/Quad3D.hpp"
+#include "mesh/ElementData.hpp"
 
 
 #include "Tools/Testing/Difference.hpp"
@@ -29,9 +29,9 @@ using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::Math;
 using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Integrators;
-using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Integrators;
+using namespace cf3::mesh::LagrangeP1;
 using namespace cf3::Tools::Testing;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
   CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
@@ -379,7 +379,7 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  CTable<Real>::Ptr arc_coordinates(common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Real>::Ptr arc_coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
   CTable<Uint>::Ptr arc_connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
   create_cylinder(*arc_coordinates, *arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
   Real arc_flux = 0.;
@@ -398,7 +398,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(Mesh::Tags::coordinates()));
+  CTable<Real>::Ptr coordinates(common::allocate_component< CTable<Real> >(mesh::Tags::coordinates()));
   CTable<Uint>::Ptr connectivity(common::allocate_component< CTable<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 

@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/VTKLegacy/LibVTKLegacy.hpp"
+#include "mesh/VTKLegacy/LibVTKLegacy.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace VTKLegacy {
 
 cf3::common::RegistLibrary<LibVTKLegacy> libVTKLegacy;
@@ -27,5 +27,5 @@ void LibVTKLegacy::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // VTKLegacy
-} // Mesh
+} // mesh
 } // cf3

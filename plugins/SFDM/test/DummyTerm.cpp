@@ -8,14 +8,14 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/FieldGroup.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "DummyTerm.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {

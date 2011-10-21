@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_ConnectivityData_hpp
-#define cf3_Mesh_ConnectivityData_hpp
+#ifndef cf3_mesh_ConnectivityData_hpp
+#define cf3_mesh_ConnectivityData_hpp
 
 #include <set>
 
 #include <boost/shared_ptr.hpp>
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Geometry.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -237,9 +237,9 @@ void CNodeConnectivity::initialize(const Uint nb_nodes, const RangeT& celements_
   create_node_element_connectivity(nb_nodes, m_celements_vector, m_celements_first_elements, m_node_first_elements, m_node_element_counts, m_node_elements);
 }
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_ConnectivityData_hpp
+#endif // cf3_mesh_ConnectivityData_hpp

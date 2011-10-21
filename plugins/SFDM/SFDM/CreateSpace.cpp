@@ -12,10 +12,10 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionT.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
 
 #include "SFDM/CreateSpace.hpp"
 
@@ -25,7 +25,7 @@ namespace cf3 {
 namespace SFDM {
 
   using namespace common;
-  using namespace Mesh;
+  using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

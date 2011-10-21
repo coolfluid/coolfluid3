@@ -15,10 +15,10 @@
 
 #include "common/CRoot.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -26,8 +26,8 @@
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::Math;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 
 struct VectorBenchmarkFixture : Tools::Testing::TimedTestFixture
 {

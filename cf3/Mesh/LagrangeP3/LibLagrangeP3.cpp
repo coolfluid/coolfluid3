@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/LagrangeP3/LibLagrangeP3.hpp"
+#include "mesh/LagrangeP3/LibLagrangeP3.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP3 {
 
 cf3::common::RegistLibrary<LibLagrangeP3> LibLagrangeP3;
@@ -29,5 +29,5 @@ void LibLagrangeP3::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP3
-} // Mesh
+} // mesh
 } // cf3

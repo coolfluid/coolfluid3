@@ -16,14 +16,14 @@
 #include "common/XML/SignalOptions.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/CConnectivity.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CConnectivity.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CSpace.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -42,8 +42,8 @@ CEntities::CEntities ( const std::string& name ) :
       ->pretty_name("Element type")
       ->attach_trigger(boost::bind(&CEntities::configure_element_type, this));
 
-  m_global_numbering = create_static_component_ptr<CList<Uint> >(Mesh::Tags::global_elem_indices());
-  m_global_numbering->add_tag(Mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component_ptr<CList<Uint> >(mesh::Tags::global_elem_indices());
+  m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
   m_spaces_group = create_static_component_ptr<CGroup>("spaces");
@@ -98,14 +98,14 @@ void CEntities::configure_element_type()
   m_element_type->rename(m_element_type->derived_type_name());
   add_component( m_element_type );
 
-  if ( exists_space(Mesh::Tags::geometry()) )
+  if ( exists_space(mesh::Tags::geometry()) )
   {
-    space(Mesh::Tags::geometry()).configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    space(mesh::Tags::geometry()).configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   }
   else
   {
-    CSpace& geometry_space = create_space(Mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
-    geometry_space.add_tag(Mesh::Tags::geometry());
+    CSpace& geometry_space = create_space(mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
+    geometry_space.add_tag(mesh::Tags::geometry());
     m_geometry_space = geometry_space.as_ptr<CSpace>();
   }
 }
@@ -122,7 +122,7 @@ ElementType& CEntities::element_type() const
 
 CList<Uint>& CEntities::used_nodes(Component& parent, const bool rebuild)
 {
-  CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,Mesh::Tags::nodes_used());
+  CList<Uint>::Ptr used_nodes = find_component_ptr_with_tag<CList<Uint> >(parent,mesh::Tags::nodes_used());
   if (rebuild && is_not_null(used_nodes))
   {
     parent.remove_component(*used_nodes);
@@ -131,8 +131,8 @@ CList<Uint>& CEntities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component_ptr<CList<Uint> >(Mesh::Tags::nodes_used());
-    used_nodes->add_tag(Mesh::Tags::nodes_used());
+    used_nodes = parent.create_component_ptr<CList<Uint> >(mesh::Tags::nodes_used());
+    used_nodes->add_tag(mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
 
     // Assemble all unique node numbers in a set
@@ -294,5 +294,5 @@ bool IsElementsSurface::operator()(const CEntities& component)
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-} // Mesh
+} // mesh
 } // cf3

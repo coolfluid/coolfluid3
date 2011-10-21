@@ -8,13 +8,13 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
-#include "Mesh/LagrangeP2/Line2D.hpp"
+#include "mesh/LagrangeP2/LibLagrangeP2.hpp"
+#include "mesh/LagrangeP2/Line2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ common::ComponentBuilder < ElementTypeT<Line2D>, ElementType , LibLagrangeP2 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Line2D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Line2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -38,7 +38,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Line2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Line2D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Line2D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Line2D> >(Line2D::type_name()) );
   return *facetype;
@@ -54,5 +54,5 @@ Real Line2D::volume(const NodesT& nodes)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2
-} // Mesh
+} // mesh
 } // cf3

@@ -7,17 +7,17 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionURI.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CEntities.hpp"
 
 #include "Solver/Actions/CComputeVolume.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {
@@ -38,7 +38,7 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
       ->description("Field to set")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
-      ->add_tag(Mesh::Tags::volume());
+      ->add_tag(mesh::Tags::volume());
 
   m_options["elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 

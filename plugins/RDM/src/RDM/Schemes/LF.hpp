@@ -87,7 +87,7 @@ void LF::Term<SF,QD,PHYS>::execute()
 {
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+  const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
   B::interpolate( nodes_idx );
 

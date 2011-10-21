@@ -9,11 +9,11 @@
 #include "common/FindComponents.hpp"
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/CMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -89,5 +89,5 @@ void CMeshTransformer::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Mesh
+} // mesh
 } // cf3

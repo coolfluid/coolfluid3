@@ -12,14 +12,14 @@
 
 #include "common/Log.hpp"
 
-#include "Mesh/LagrangeP2B/Triag2D.hpp"
+#include "mesh/LagrangeP2B/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::LagrangeP2B;
+using namespace cf3::mesh;
+using namespace cf3::mesh::LagrangeP2B;
 
 //////////////////////////////////////////////////////////////////////////////
 

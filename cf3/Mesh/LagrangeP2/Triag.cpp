@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP2/LibLagrangeP2.hpp"
-#include "Mesh/LagrangeP2/Triag.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP2/LibLagrangeP2.hpp"
+#include "mesh/LagrangeP2/Triag.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -83,5 +83,5 @@ const RealMatrix& Triag::local_coordinates()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2
-} // Mesh
+} // mesh
 } // cf3

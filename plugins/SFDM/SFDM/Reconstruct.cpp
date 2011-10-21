@@ -12,7 +12,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/StringConversion.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "mesh/GeoShape.hpp"
 
 #include "SFDM/Reconstruct.hpp"
 #include "SFDM/ShapeFunction.hpp"

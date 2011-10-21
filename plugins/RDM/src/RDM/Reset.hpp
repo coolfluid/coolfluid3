@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 namespace RDM {
 
 
@@ -47,7 +47,7 @@ private: // helper functions
 
 private: // data
 
-  std::vector< boost::weak_ptr<Mesh::Field> > m_fields;
+  std::vector< boost::weak_ptr<mesh::Field> > m_fields;
 
 };
 

@@ -8,13 +8,13 @@
 
 #include "common/CLink.hpp"
 #include "common/CBuilder.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -27,9 +27,9 @@ ComponentBuilder< CNodeElementConnectivity, Component, LibMesh > CNodeElementCon
 CNodeElementConnectivity::CNodeElementConnectivity ( const std::string& name ) :
   Component(name)
 {
-  m_nodes = create_static_component_ptr<common::CLink>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<common::CLink>(mesh::Tags::nodes());
   m_elements = create_static_component_ptr<CUnifiedData>("elements");
-  m_connectivity = create_static_component_ptr<CDynTable<Uint> >(Mesh::Tags::connectivity_table());
+  m_connectivity = create_static_component_ptr<CDynTable<Uint> >(mesh::Tags::connectivity_table());
   mark_basic();
 }
 
@@ -94,5 +94,5 @@ void CNodeElementConnectivity::build_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

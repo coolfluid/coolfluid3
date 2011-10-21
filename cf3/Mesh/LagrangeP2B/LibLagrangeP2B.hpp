@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
-#define cf3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#ifndef cf3_mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#define cf3_mesh_LagrangeP2B_LibLagrangeP2B_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CLibrary.hpp"
-#include "Mesh/LagrangeP2B/API.hpp"
+#include "mesh/LagrangeP2B/API.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 /// @brief namespace holding LagrangeP2B shape functions and elements
 /// @author Willem Deconinck
@@ -69,9 +69,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2B
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_LagrangeP2B_LibLagrangeP2B_hpp
+#endif // cf3_mesh_LagrangeP2B_LibLagrangeP2B_hpp

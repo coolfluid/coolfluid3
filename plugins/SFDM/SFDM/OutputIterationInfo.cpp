@@ -10,8 +10,8 @@
 #include "common/OptionComponent.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CTable.hpp"
 
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
@@ -22,7 +22,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 

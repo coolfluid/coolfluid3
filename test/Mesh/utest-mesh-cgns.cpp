@@ -20,23 +20,23 @@
 #include "common/Core.hpp"
 #include "common/CEnv.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshTransformer.hpp"
 
-#include "Mesh/CGNS/Shared.hpp"
+#include "mesh/CGNS/Shared.hpp"
 
 
 using namespace std;
 using namespace boost;
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::CGNS;
+using namespace cf3::mesh;
+using namespace cf3::mesh::CGNS;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/Zoltan/LibZoltan.hpp"
+#include "mesh/Zoltan/LibZoltan.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Zoltan {
 
 cf3::common::RegistLibrary<LibZoltan> libZoltan;
@@ -27,5 +27,5 @@ void LibZoltan::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Zoltan
-} // Mesh
+} // mesh
 } // cf3

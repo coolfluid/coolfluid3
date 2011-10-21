@@ -9,15 +9,15 @@
 
 #include "Math/VectorialFunction.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
 
 namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -57,7 +57,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> solution;
+  boost::weak_ptr<mesh::Field> solution;
   /// function parser for the math formula of the dirichlet condition
   Math::VectorialFunction  function;
 
@@ -194,15 +194,15 @@ public: // functions
 
     Uint face_idx = B::idx();
 
-    Mesh::CFaceCellConnectivity& f2c =
-        B::elements().get_child("cell_connectivity").as_type<Mesh::CFaceCellConnectivity>();
+    mesh::CFaceCellConnectivity& f2c =
+        B::elements().get_child("cell_connectivity").as_type<mesh::CFaceCellConnectivity>();
 
     // cf3_assert( f2c.is_bdry_face()[face_idx] );
 
     Component::Ptr neighbor_cells;
     Uint neighbor_cell_idx;
 
-    Mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+    mesh::CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
     Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
 
     // lookup the neighbor_cell elements and the index in its connectivity
@@ -211,10 +211,10 @@ public: // functions
 
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    Mesh::CTable<Uint>& connectivity =
-        neighbor_cells->as_type<Mesh::CElements>().node_connectivity();
+    mesh::CTable<Uint>& connectivity =
+        neighbor_cells->as_type<mesh::CElements>().node_connectivity();
 
-    const Mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
+    const mesh::CTable<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 
@@ -229,7 +229,7 @@ public: // functions
 
     // get face connectivity
 
-     const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+     const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
 //   std::cout << "face_nodes_idx : ";
 //   const Uint nbnodes = nodes_idx.shape()[1];
@@ -241,7 +241,7 @@ public: // functions
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 

@@ -12,7 +12,7 @@
 #include "common/FindComponents.hpp"
 //#include "common/CreateComponent.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -22,7 +22,7 @@
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 
 namespace cf3 {
@@ -61,7 +61,7 @@ void CSysLDAGPU::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
     std::cout << "looping on region " << region->name() << std::endl;
 

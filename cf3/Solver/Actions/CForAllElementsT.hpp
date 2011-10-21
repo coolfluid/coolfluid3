@@ -12,8 +12,8 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/ElementTypes.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/ElementTypes.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Solver/Actions/CLoop.hpp"
 
@@ -33,9 +33,9 @@ class Solver_Actions_API CForAllElementsT : public CLoop
   template < typename TYPE >
   struct IsShapeFunction
   {
-    bool operator()(const Mesh::CElements& component)
+    bool operator()(const mesh::CElements& component)
     {
-      return Mesh::IsElementType<TYPE>()( component.element_type() );
+      return mesh::IsElementType<TYPE>()( component.element_type() );
     }
   };
 
@@ -46,7 +46,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
     private: // data
 
       /// Region to loop on
-      Mesh::CRegion& region;
+      mesh::CRegion& region;
 
       /// Operation to perform
       ActionT& op;
@@ -54,7 +54,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
     public: // functions
 
       /// Constructor
-      ElementLooper(ActionT& operation, Mesh::CRegion& region_in )
+      ElementLooper(ActionT& operation, mesh::CRegion& region_in )
         : region(region_in) , op(operation)
       {}
 
@@ -62,7 +62,7 @@ class Solver_Actions_API CForAllElementsT : public CLoop
       template < typename SFType >
       void operator() ( SFType& T )
       {
-        boost_foreach(Mesh::CElements& elements, common::find_components_recursively_with_filter<Mesh::CElements>(region,IsShapeFunction<SFType>()))
+        boost_foreach(mesh::CElements& elements, common::find_components_recursively_with_filter<mesh::CElements>(region,IsShapeFunction<SFType>()))
         {
           op.set_elements(elements);
           if (op.can_start_loop())
@@ -117,12 +117,12 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute()
   {
-    boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+    boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
     {
       CFinfo << region->uri().string() << CFendl;
 
       ElementLooper loop_elements(*m_action,*region);
-      boost::mpl::for_each< Mesh::ElementTypes >(loop_elements);
+      boost::mpl::for_each< mesh::ElementTypes >(loop_elements);
     }
   }
 
@@ -141,4 +141,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CForAllElementsT_hpp
+#endif // cf3_mesh_CForAllElementsT_hpp

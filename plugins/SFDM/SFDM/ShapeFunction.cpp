@@ -13,7 +13,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-ShapeFunction::ShapeFunction(const std::string& name) : Mesh::ShapeFunction(name)
+ShapeFunction::ShapeFunction(const std::string& name) : mesh::ShapeFunction(name)
 {
 }
 

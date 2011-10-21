@@ -19,8 +19,8 @@
 #include "common/OptionT.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/Field.hpp"
 
 //#include "UI/Server/ServerRoot.hpp"
 #include "UI/ParaView/LibParaView.hpp"
@@ -30,7 +30,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ C3DView::C3DView(const std::string& name) :
 
   // options
 
-  m_options.add_option( OptionComponent<Mesh::CMesh>::create("mesh", &m_mesh))
+  m_options.add_option( OptionComponent<mesh::CMesh>::create("mesh", &m_mesh))
       ->description("Mesh to visualize with given refresh rate")
       ->pretty_name("Mesh")
       ->mark_basic();
@@ -105,8 +105,8 @@ C3DView::C3DView(const std::string& name) :
                                                      this,
                                                      &C3DView::signal_iteration_done );
 
-  Mesh::CMeshWriter::Ptr meshwriter =
-      build_component_abstract_type<Mesh::CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
+  mesh::CMeshWriter::Ptr meshwriter =
+      build_component_abstract_type<mesh::CMeshWriter>("CF.Mesh.VTKLegacy.CWriter","writer");
   add_component(meshwriter);
 
 }
@@ -170,7 +170,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
     if (m_mesh.expired())
     {
 
-      Mesh::CMesh& mesh = find_component_recursively<Mesh::CMesh>( Core::instance().root() );
+      mesh::CMesh& mesh = find_component_recursively<mesh::CMesh>( Core::instance().root() );
       URI mesh_path = mesh.uri();
       configure_option("mesh", mesh_path );
     }
@@ -181,7 +181,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     if( curr_iteration == 1 || ( curr_iteration % m_options["refresh_rate"].value<Uint>() ) == 0 )
     {
-      Mesh::CMeshWriter& writer = get_child("writer").as_type<Mesh::CMeshWriter>();
+      mesh::CMeshWriter& writer = get_child("writer").as_type<mesh::CMeshWriter>();
 
 
       std::vector<URI> fields;

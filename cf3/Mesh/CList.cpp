@@ -6,11 +6,11 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CList.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CList.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -85,5 +85,5 @@ std::ostream& operator<<(std::ostream& os, const CList<std::string>& list)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

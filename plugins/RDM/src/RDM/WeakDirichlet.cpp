@@ -10,10 +10,10 @@
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
 
 #include "RDM/WeakDirichlet.hpp"
 
@@ -25,7 +25,7 @@
 #include "Physics/NavierStokes/Cons2D.hpp"   // to remove
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 
@@ -74,7 +74,7 @@ void WeakDirichlet::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;

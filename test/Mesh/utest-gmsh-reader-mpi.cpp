@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::Gmsh::CReader"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::Gmsh::CReader"
 
 #include <boost/test/unit_test.hpp>
 
@@ -17,23 +17,23 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

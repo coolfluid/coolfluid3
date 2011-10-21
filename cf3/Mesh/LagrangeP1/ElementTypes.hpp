@@ -4,26 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP1_ElementTypes_hpp
-#define cf3_Mesh_LagrangeP1_ElementTypes_hpp
+#ifndef cf3_mesh_LagrangeP1_ElementTypes_hpp
+#define cf3_mesh_LagrangeP1_ElementTypes_hpp
 
 #include <boost/mpl/filter_view.hpp>
 #include <boost/mpl/vector.hpp>
 
-#include "Mesh/ElementTypePredicates.hpp"
+#include "mesh/ElementTypePredicates.hpp"
 
-#include "Mesh/LagrangeP1/Line1D.hpp"
-#include "Mesh/LagrangeP1/Line2D.hpp"
-#include "Mesh/LagrangeP1/Line3D.hpp"
-#include "Mesh/LagrangeP1/Quad2D.hpp"
-#include "Mesh/LagrangeP1/Quad3D.hpp"
-#include "Mesh/LagrangeP1/Triag2D.hpp"
-#include "Mesh/LagrangeP1/Triag3D.hpp"
-#include "Mesh/LagrangeP1/Hexa3D.hpp"
-#include "Mesh/LagrangeP1/Tetra3D.hpp"
+#include "mesh/LagrangeP1/Line1D.hpp"
+#include "mesh/LagrangeP1/Line2D.hpp"
+#include "mesh/LagrangeP1/Line3D.hpp"
+#include "mesh/LagrangeP1/Quad2D.hpp"
+#include "mesh/LagrangeP1/Quad3D.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/LagrangeP1/Triag3D.hpp"
+#include "mesh/LagrangeP1/Hexa3D.hpp"
+#include "mesh/LagrangeP1/Tetra3D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ typedef boost::mpl::filter_view<ElementTypes, IsEdgeType> EdgeTypes;
 ///////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP1_ElementTypes_hpp
+#endif // cf3_mesh_LagrangeP1_ElementTypes_hpp

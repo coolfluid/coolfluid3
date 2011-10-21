@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_FieldManager_hpp
-#define cf3_Mesh_FieldManager_hpp
+#ifndef cf3_mesh_FieldManager_hpp
+#define cf3_mesh_FieldManager_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,10 +13,10 @@
 
 #include "common/Component.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 class FieldGroup;
 class CMesh;
@@ -46,7 +46,7 @@ public: // functions
   static std::string type_name () { return "FieldManager"; }
 
   /// Create fields. Looks up the VariablesDescriptor with the given tag, and creates a field with the same tag in the given field group.
-  void create_field(const std::string& tag, cf3::Mesh::FieldGroup& field_group);
+  void create_field(const std::string& tag, cf3::mesh::FieldGroup& field_group);
 
   /// @name SIGNALS
   //@{
@@ -64,9 +64,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_FieldManager_hpp
+#endif // cf3_mesh_FieldManager_hpp

@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_FaceLoop_hpp
 #define cf3_RDM_FaceLoop_hpp
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/ElementLoop.hpp"
 #include "RDM/SupportedFaces.hpp"
@@ -87,8 +87,8 @@ struct FaceLoopT1 : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(Mesh::CElements& elements,
-                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::CElements& elements,
+                  common::find_components_recursively_with_filter<mesh::CElements>(*current_region,IsElementType<SF>()))
     {
 
       TermT& term = this->access_term<TermT>();
@@ -141,8 +141,8 @@ struct FaceLoopT : public FaceLoop
 
     // loop on the (sub)regions that hold elements of this type
 
-    boost_foreach(Mesh::CElements& elements,
-                  common::find_components_recursively_with_filter<Mesh::CElements>(*current_region,IsElementType<SF>()))
+    boost_foreach(mesh::CElements& elements,
+                  common::find_components_recursively_with_filter<mesh::CElements>(*current_region,IsElementType<SF>()))
     {
       TermT& term = this->access_term<TermT>();
 

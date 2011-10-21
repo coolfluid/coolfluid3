@@ -9,10 +9,10 @@
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
-#include "Mesh/PTScotch/CPartitioner.hpp"
+#include "mesh/PTScotch/CPartitioner.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace PTScotch {
 
   using namespace common;
@@ -214,5 +214,5 @@ void CPartitioner::partition_graph()
 //////////////////////////////////////////////////////////////////////////////
 
 } // PTScotch
-} // Mesh
+} // mesh
 } // CF

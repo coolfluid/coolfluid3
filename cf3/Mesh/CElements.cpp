@@ -11,15 +11,15 @@
 #include "common/CGroup.hpp"
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CConnectivity.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CConnectivity.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CSpace.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -111,5 +111,5 @@ CTable<Uint>::ConstRow CElements::get_nodes(const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

@@ -26,13 +26,13 @@
 #include "common/XML/XmlDoc.hpp"
 #include "common/XML/XmlNode.hpp"
 
-#include "Mesh/VTKXML/CWriter.hpp"
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/VTKXML/CWriter.hpp"
+#include "mesh/GeoShape.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -42,7 +42,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace VTKXML {
 
 namespace detail
@@ -368,7 +368,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
       continue;
 
     // point-based field
-    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == cf3::Mesh::FieldGroup::Basis::ELEMENT_BASED))
+    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == cf3::mesh::FieldGroup::Basis::ELEMENT_BASED))
       continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
@@ -391,7 +391,7 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::Mesh::FieldGroup::Basis::POINT_BASED)
+      if(field.basis() == cf3::mesh::FieldGroup::Basis::POINT_BASED)
       {
         if(dim == 2 && var_size == 2)
         {
@@ -499,5 +499,5 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // VTKXML
-} // Mesh
+} // mesh
 } // cf3

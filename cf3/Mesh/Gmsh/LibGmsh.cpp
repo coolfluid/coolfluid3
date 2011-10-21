@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/Gmsh/LibGmsh.hpp"
+#include "mesh/Gmsh/LibGmsh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Gmsh {
 
 cf3::common::RegistLibrary<LibGmsh> libGmsh;
@@ -27,5 +27,5 @@ void LibGmsh::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Gmsh
-} // Mesh
+} // mesh
 } // cf3

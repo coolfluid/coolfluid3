@@ -48,8 +48,8 @@ public: // functions
 
   virtual void execute();
 
-  virtual void mesh_loaded(Mesh::CMesh& mesh);
-  virtual void mesh_changed(Mesh::CMesh& mesh);
+  virtual void mesh_loaded(mesh::CMesh& mesh);
+  virtual void mesh_changed(mesh::CMesh& mesh);
 
   /// Return an action that resets the LSS to zero
   common::CAction& zero_action();

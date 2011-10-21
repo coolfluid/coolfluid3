@@ -8,14 +8,14 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Line1D.hpp"
-#include "Mesh/LagrangeP0/Point1D.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "mesh/LagrangeP1/Line1D.hpp"
+#include "mesh/LagrangeP0/Point1D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,7 @@ common::ComponentBuilder < ElementTypeT<Line1D>, ElementType , LibLagrangeP1 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Line1D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Line1D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -40,7 +40,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Line1D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Line1D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Line1D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP0::Point1D> >(LagrangeP0::Point1D::type_name()) );
   return *facetype;
@@ -149,5 +149,5 @@ void Line1D::compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, co
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3

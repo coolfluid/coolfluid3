@@ -10,10 +10,10 @@
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
 
 #include "RDM/FaceLoop.hpp"
 #include "RDM/NavierStokes/WallWeakBc.hpp"
@@ -21,7 +21,7 @@
 #include "Physics/NavierStokes/Cons2D.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 
 namespace cf3 {
@@ -47,7 +47,7 @@ void WallWeakBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;

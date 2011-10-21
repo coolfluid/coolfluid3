@@ -23,19 +23,19 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/MeshMetadata.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/MeshMetadata.hpp"
 
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/WriteMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
 
@@ -290,5 +290,5 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

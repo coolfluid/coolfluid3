@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP2_Line2D_hpp
-#define cf3_Mesh_LagrangeP2_Line2D_hpp
+#ifndef cf3_mesh_LagrangeP2_Line2D_hpp
+#define cf3_mesh_LagrangeP2_Line2D_hpp
 
-#include "Mesh/ElementTypeBase.hpp"
-#include "Mesh/LagrangeP2/Line.hpp"
+#include "mesh/ElementTypeBase.hpp"
+#include "mesh/LagrangeP2/Line.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ struct Mesh_LagrangeP2_API Line2D : public ElementTypeBase<Line2D,Line2D_traits>
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP2_Line2D_hpp
+#endif // cf3_mesh_LagrangeP2_Line2D_hpp

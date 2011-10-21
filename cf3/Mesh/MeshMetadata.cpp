@@ -8,12 +8,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/MeshMetadata.hpp"
+#include "mesh/MeshMetadata.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -57,5 +57,5 @@ bool MeshMetadata::check(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

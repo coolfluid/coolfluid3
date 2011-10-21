@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -40,5 +40,5 @@ const char * Tags::geometry_elements () { return "geometry_elements"; }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

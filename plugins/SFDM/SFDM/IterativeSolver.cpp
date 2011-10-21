@@ -22,9 +22,9 @@
 #include "Solver/Actions/CCriterion.hpp"
 #include "Solver/Actions/CCriterionMaxIterations.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CSpace.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
@@ -33,7 +33,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {

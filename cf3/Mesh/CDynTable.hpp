@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CDynTable_hpp
-#define cf3_Mesh_CDynTable_hpp
+#ifndef cf3_mesh_CDynTable_hpp
+#define cf3_mesh_CDynTable_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,12 +13,12 @@
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Foreach.hpp"
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -480,9 +480,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CDynTable_hpp
+#endif // cf3_mesh_CDynTable_hpp

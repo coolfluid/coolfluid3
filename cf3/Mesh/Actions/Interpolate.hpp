@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Actions_Interpolate_hpp
-#define cf3_Mesh_Actions_Interpolate_hpp
+#ifndef cf3_mesh_Actions_Interpolate_hpp
+#define cf3_mesh_Actions_Interpolate_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Actions/LibActions.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Actions/LibActions.hpp"
+#include "mesh/Field.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   class COcttree;
   class Field;
@@ -83,9 +83,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Actions_Interpolate_hpp
+#endif // cf3_mesh_Actions_Interpolate_hpp

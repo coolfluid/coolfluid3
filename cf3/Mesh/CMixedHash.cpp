@@ -13,11 +13,11 @@
 #include "common/StringConversion.hpp"
 #include "common/Log.hpp"
 
-#include "Mesh/CMixedHash.hpp"
-#include "Mesh/CHash.hpp"
+#include "mesh/CMixedHash.hpp"
+#include "mesh/CHash.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -201,5 +201,5 @@ Uint CMixedHash::subhash_of_obj(const Uint obj) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

@@ -8,13 +8,13 @@
 
 #include "common/CLink.hpp"
 #include "common/CBuilder.hpp"
-#include "Mesh/CNodeFaceCellConnectivity.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/CNodeFaceCellConnectivity.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -25,9 +25,9 @@ common::ComponentBuilder < CNodeFaceCellConnectivity , Component, LibMesh > CNod
 CNodeFaceCellConnectivity::CNodeFaceCellConnectivity ( const std::string& name ) : 
   Component(name)
 {
-  m_nodes = create_static_component_ptr<common::CLink>(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<common::CLink>(mesh::Tags::nodes());
   m_face_cell_connectivity = create_static_component_ptr<CUnifiedData>("elements");
-  m_connectivity = create_static_component_ptr<CDynTable<Uint> >(Mesh::Tags::connectivity_table());
+  m_connectivity = create_static_component_ptr<CDynTable<Uint> >(mesh::Tags::connectivity_table());
   mark_basic();
 }
 
@@ -98,5 +98,5 @@ void CNodeFaceCellConnectivity::build_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

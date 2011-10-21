@@ -9,18 +9,18 @@
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CList.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CList.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {

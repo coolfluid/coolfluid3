@@ -20,9 +20,9 @@
 #include "ElementExpressionWrapper.hpp"
 #include "ElementGrammar.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementTypePredicates.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementTypePredicates.hpp"
 
 namespace cf3 {
 namespace Solver {
@@ -33,15 +33,15 @@ namespace Proto {
 template<typename ETYPE>
 struct CheckSameEtype
 {
-  CheckSameEtype(Mesh::CElements& elems) : elements(elems) {}
+  CheckSameEtype(mesh::CElements& elems) : elements(elems) {}
 
   template <typename VarT>
   void operator() ( const VarT& var ) const
   {
     // Find the field group for the variable
-    Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
-    const Mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
-    Mesh::CSpace& space = var_field_group.space(elements);
+    mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+    const mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
+    mesh::CSpace& space = var_field_group.space(elements);
 
     if(ETYPE::order != space.shape_function().order()) // TODO also check the same space (Lagrange, ...)
     {
@@ -53,14 +53,14 @@ struct CheckSameEtype
   {
   }
 
-  Mesh::CElements& elements;
+  mesh::CElements& elements;
 };
 
 /// Find the concrete element type of each field variable
 template<typename ElementTypesT, typename ExprT, typename SupportETYPE, typename VariablesT, typename VariablesEtypesT, typename NbVarsT, typename VarIdxT>
 struct ExpressionRunner
 {
-  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0), m_found(false) {}
+  ExpressionRunner(VariablesT& vars, const ExprT& expr, mesh::CElements& elems) : variables(vars), expression(expr), elements(elems), m_nb_tests(0), m_found(false) {}
 
   typedef typename boost::remove_reference<typename boost::fusion::result_of::at<VariablesT, VarIdxT>::type>::type VarT;
 
@@ -105,9 +105,9 @@ struct ExpressionRunner
     const VarT& var = boost::fusion::at<VarIdxT>(variables);
 
     // Find the field group for the variable
-    Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
-    const Mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<Mesh::Field>(mesh, var.field_tag()).field_group();
-    Mesh::CSpace& space = var_field_group.space(elements);
+    mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+    const mesh::FieldGroup& var_field_group = common::find_component_recursively_with_tag<mesh::Field>(mesh, var.field_tag()).field_group();
+    mesh::CSpace& space = var_field_group.space(elements);
 
     ++m_nb_tests;
 
@@ -146,7 +146,7 @@ struct ExpressionRunner
 
   VariablesT& variables;
   const ExprT& expression;
-  Mesh::CElements& elements;
+  mesh::CElements& elements;
   // Number of times we tried a shape function
   mutable Uint m_nb_tests;
   mutable bool m_found;
@@ -184,7 +184,7 @@ private:
 template<typename ElementTypesT, typename ExprT, typename SupportETYPE, typename VariablesT, typename VariablesEtypesT, typename NbVarsT>
 struct ExpressionRunner<ElementTypesT, ExprT, SupportETYPE, VariablesT, VariablesEtypesT, NbVarsT, NbVarsT>
 {
-  ExpressionRunner(VariablesT& vars, const ExprT& expr, Mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
+  ExpressionRunner(VariablesT& vars, const ExprT& expr, mesh::CElements& elems) : variables(vars), expression(expr), elements(elems) {}
 
   typedef ElementData<VariablesT, VariablesEtypesT, SupportETYPE, typename EquationVariables<ExprT, NbVarsT>::type> DataT;
 
@@ -204,7 +204,7 @@ struct ExpressionRunner<ElementTypesT, ExprT, SupportETYPE, VariablesT, Variable
 private:
   VariablesT& variables;
   const ExprT& expression;
-  Mesh::CElements& elements;
+  mesh::CElements& elements;
 };
 
 /// mpl::for_each compatible functor to loop over elements, using the correct shape function for the geometry
@@ -215,7 +215,7 @@ struct ElementLooper
   // Type of a fusion vector that can contain a copy of each variable that is used in the expression
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
 
-  ElementLooper(Mesh::CElements& elements, const ExprT& expr, VariablesT& variables) :
+  ElementLooper(mesh::CElements& elements, const ExprT& expr, VariablesT& variables) :
     m_elements(elements),
     m_expr(expr),
     m_variables(variables)
@@ -234,10 +234,10 @@ struct ElementLooper
         , (ETYPE)
         );
 
-    if(!Mesh::IsElementType<ETYPE>()(m_elements.element_type()))
+    if(!mesh::IsElementType<ETYPE>()(m_elements.element_type()))
       return;
 
-    dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ElementTypesT, Mesh::IsCompatibleWith<ETYPE> > >::value>(), sf);
+    dispatch(boost::mpl::int_<boost::mpl::size< boost::mpl::filter_view< ElementTypesT, mesh::IsCompatibleWith<ETYPE> > >::value>(), sf);
   }
 
   /// Static dispatch in case everything has the same ETYPE
@@ -266,7 +266,7 @@ struct ElementLooper
     // This recurses through the variables, selecting the appropriate shape function for each variable
     ExpressionRunner
     <
-      boost::mpl::filter_view< ElementTypesT, Mesh::IsCompatibleWith<ETYPE> >, // MPL vector with the element types to consider
+      boost::mpl::filter_view< ElementTypesT, mesh::IsCompatibleWith<ETYPE> >, // MPL vector with the element types to consider
       ExprT, // type of the expression
       ETYPE, // Element type for the support
       VariablesT, // type of the fusion vector with the variables
@@ -277,13 +277,13 @@ struct ElementLooper
   }
 
 private:
-  Mesh::CElements& m_elements;
+  mesh::CElements& m_elements;
   const ExprT& m_expr;
   VariablesT& m_variables;
 };
 
 template<typename ElementTypesT, typename ExprT>
-void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
+void for_each_element(mesh::CRegion& root_region, const ExprT& expr)
 {
   // Store the variables
   typedef typename ExpressionProperties<ExprT>::VariablesT VariablesT;
@@ -292,10 +292,10 @@ void for_each_element(Mesh::CRegion& root_region, const ExprT& expr)
   boost::proto::eval(expr, ctx); // calling eval using the above context stores all variables in vars
 
   // Traverse all CElements under the root and evaluate the expression
-  BOOST_FOREACH(Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(root_region))
+  BOOST_FOREACH(mesh::CElements& elements, common::find_components_recursively<mesh::CElements>(root_region))
   {
     // We skip order 0 functions in the top-call, because first the support shape function is determined, and order 0 is not allowed there
-    boost::mpl::for_each< boost::mpl::filter_view< ElementTypesT, Mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypesT, ExprT>(elements, expr, vars) );
+    boost::mpl::for_each< boost::mpl::filter_view< ElementTypesT, mesh::IsMinimalOrder<1> > >( ElementLooper<ElementTypesT, ExprT>(elements, expr, vars) );
   }
 };
 

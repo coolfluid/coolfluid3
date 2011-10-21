@@ -16,12 +16,12 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Transforms.hpp"
 
@@ -34,13 +34,13 @@ namespace Actions {
 namespace Proto {
 
 /// Extract the coordinates, given a specific region
-inline const Mesh::CTable<Real>& extract_coordinates(const Mesh::CRegion& region)
+inline const mesh::CTable<Real>& extract_coordinates(const mesh::CRegion& region)
 {
-  const Mesh::CTable<Real>* coordinates = nullptr;
-  coordinates = common::find_component_ptr_with_tag<Mesh::CTable<Real> >(region, Mesh::Tags::coordinates()).get();
+  const mesh::CTable<Real>* coordinates = nullptr;
+  coordinates = common::find_component_ptr_with_tag<mesh::CTable<Real> >(region, mesh::Tags::coordinates()).get();
   if(!coordinates)
   {
-    BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
+    BOOST_FOREACH(const mesh::CElements& elements, common::find_components_recursively<mesh::CElements>(region))
     {
       if(coordinates)
       {
@@ -64,7 +64,7 @@ struct NodeVarData
   /// Return type of the value() method
   typedef ValueT& ValueResultT;
 
-  NodeVarData(T& var, Mesh::CRegion&) : m_var(var)
+  NodeVarData(T& var, mesh::CRegion&) : m_var(var)
   {
   }
 
@@ -81,11 +81,11 @@ private:
 };
 
 /// Helper function to find a field starting from a region
-inline Mesh::Field& find_field(Mesh::CRegion& region, const std::string& tag)
+inline mesh::Field& find_field(mesh::CRegion& region, const std::string& tag)
 {
-  Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(region);
-  Mesh::FieldGroup& field_group =  mesh.geometry();
-  return common::find_component_with_tag<Mesh::Field>(field_group, tag);
+  mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(region);
+  mesh::FieldGroup& field_group =  mesh.geometry();
+  return common::find_component_with_tag<mesh::Field>(field_group, tag);
 }
 
 template<>
@@ -93,7 +93,7 @@ struct NodeVarData< ScalarField >
 {
   static const Uint dimension = 1;
 
-  NodeVarData(const ScalarField& placeholder, Mesh::CRegion& region) :
+  NodeVarData(const ScalarField& placeholder, mesh::CRegion& region) :
     m_field(find_field(region, placeholder.field_tag()))
   {
     const Math::VariablesDescriptor& descriptor = m_field.descriptor();
@@ -144,7 +144,7 @@ struct NodeVarData< ScalarField >
   Uint nb_dofs;
 
 private:
-  Mesh::Field& m_field;
+  mesh::Field& m_field;
   Uint m_var_begin;
   Uint m_idx;
   Real m_value;
@@ -160,7 +160,7 @@ struct NodeVarData<VectorField, Dim>
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  NodeVarData(const VectorField& placeholder, Mesh::CRegion& region) :
+  NodeVarData(const VectorField& placeholder, mesh::CRegion& region) :
     m_field( find_field(region, placeholder.field_tag()) )
   {
     const Math::VariablesDescriptor& descriptor = m_field.descriptor();
@@ -215,7 +215,7 @@ struct NodeVarData<VectorField, Dim>
   Uint nb_dofs;
 
 private:
-  Mesh::Field& m_field;
+  mesh::Field& m_field;
   Uint m_var_begin;
   ValueT m_value;
   Uint m_idx;
@@ -278,7 +278,7 @@ public:
   typedef Eigen::Matrix<Real, NbDims::value, 1> CoordsT;
 
   template<typename ExprT>
-  NodeData(VariablesT& variables, Mesh::CRegion& region, const Mesh::CTable<Real>& coords, const ExprT& expr) :
+  NodeData(VariablesT& variables, mesh::CRegion& region, const mesh::CTable<Real>& coords, const ExprT& expr) :
     m_variables(variables),
     m_region(region),
     m_coordinates(coords)
@@ -304,7 +304,7 @@ public:
   /// Access to the current coordinates
   const CoordsT& coordinates() const
   {
-    const Mesh::CTable<Real>::ConstRow row = m_coordinates[node_idx];
+    const mesh::CTable<Real>::ConstRow row = m_coordinates[node_idx];
     for(Uint i = 0; i != NbDims::value; ++i)
     {
       m_position[i] = row[i];
@@ -317,10 +317,10 @@ private:
   VariablesT& m_variables;
 
   /// Referred region
-  Mesh::CRegion& m_region;
+  mesh::CRegion& m_region;
 
   /// Aray holding the coordinate values
-  const Mesh::CTable<Real>& m_coordinates;
+  const mesh::CTable<Real>& m_coordinates;
 
   /// Data associated with each numbered variable
   VariablesDataT m_variables_data;
@@ -333,7 +333,7 @@ private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CRegion& reg, VariablesDataT& vars_data) :
+    InitVariablesData(VariablesT& vars, mesh::CRegion& reg, VariablesDataT& vars_data) :
       variables(vars),
       region(reg),
       variables_data(vars_data)
@@ -360,7 +360,7 @@ private:
     }
 
     VariablesT& variables;
-    Mesh::CRegion& region;
+    mesh::CRegion& region;
     VariablesDataT& variables_data;
   };
 
@@ -401,21 +401,21 @@ private:
 };
 
 /// Creates a list of unique nodes in the region
-inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>& coordinates, std::vector<Uint>& nodes)
+inline void make_node_list(const mesh::CRegion& region, const mesh::CTable<Real>& coordinates, std::vector<Uint>& nodes)
 {
   std::vector<bool> node_is_used(coordinates.size(), false);
 
   // First count the number of unique nodes
   Uint nb_nodes = 0;
-  BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
+  BOOST_FOREACH(const mesh::CElements& elements, common::find_components_recursively<mesh::CElements>(region))
   {
-    const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
+    const mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_elem_nodes = conn_tbl.row_size();
 
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const Mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
+      const mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_elem_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];
@@ -434,15 +434,15 @@ inline void make_node_list(const Mesh::CRegion& region, const Mesh::CTable<Real>
 
   // Add the unique node indices
   node_is_used.assign(coordinates.size(), false);
-  BOOST_FOREACH(const Mesh::CElements& elements, common::find_components_recursively<Mesh::CElements>(region))
+  BOOST_FOREACH(const mesh::CElements& elements, common::find_components_recursively<mesh::CElements>(region))
   {
-    const Mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
+    const mesh::CTable<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_nodes = conn_tbl.row_size();
 
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const Mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
+      const mesh::CTable<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];

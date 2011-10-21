@@ -14,7 +14,7 @@
 namespace cf3 {
 namespace common { class CActionDirector; }
 namespace Solver { class CTime; }
-namespace Mesh   { class Field; }
+namespace mesh   { class Field; }
 namespace SFDM {
 
 
@@ -65,10 +65,10 @@ private: // data
   std::vector<Real> m_beta;
   std::vector<Real> m_gamma;
 
-  boost::weak_ptr<Mesh::Field> m_solution;
-  boost::weak_ptr<Mesh::Field> m_solution_backup;
-  boost::weak_ptr<Mesh::Field> m_residual;
-  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_solution_backup;
+  boost::weak_ptr<mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_update_coeff;
 
   boost::weak_ptr<Solver::CTime> m_time;
 

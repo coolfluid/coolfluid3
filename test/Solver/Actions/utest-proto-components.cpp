@@ -20,10 +20,10 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -42,7 +42,7 @@
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;

@@ -9,7 +9,7 @@
 #include "CGAL/LibCGAL.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace CGAL {
 
 cf3::common::RegistLibrary<LibCGAL> libCGAL;
@@ -27,5 +27,5 @@ void LibCGAL::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // CGAL
-} // Mesh
+} // mesh
 } // CF

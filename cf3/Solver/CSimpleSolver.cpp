@@ -9,9 +9,9 @@
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -22,7 +22,7 @@ namespace cf3 {
 namespace Solver {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 common::ComponentBuilder < CSimpleSolver, CSolver, LibSolver > Builder_CSimpleSolver;
 

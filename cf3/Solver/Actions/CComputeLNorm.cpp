@@ -13,14 +13,14 @@
 #include "common/OptionComponent.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CTable.hpp"
 
 #include "Solver/Actions/CComputeLNorm.hpp"
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests cf3::Mesh::CUnifiedData<T>"
+#define BOOST_TEST_MODULE "Tests cf3::mesh::CUnifiedData<T>"
 
 #include <boost/test/unit_test.hpp>
 
@@ -14,16 +14,16 @@
 #include "common/CRoot.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CUnifiedData.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -40,7 +40,7 @@
 #include "common/PE/Comm.hpp"
 #include "common/Timer.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "CEigenLSS.hpp"
 
@@ -49,7 +49,7 @@ namespace cf3 {
 namespace Solver {
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 cf3::common::ComponentBuilder < CEigenLSS, common::Component, LibSolver > aCeigenLSS_Builder;
 

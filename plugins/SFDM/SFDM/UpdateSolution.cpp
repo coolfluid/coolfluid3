@@ -7,9 +7,9 @@
 #include "common/Foreach.hpp"
 #include "common/CBuilder.hpp"
 #include "common/OptionComponent.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Solver/CSolver.hpp"
 
@@ -19,7 +19,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {

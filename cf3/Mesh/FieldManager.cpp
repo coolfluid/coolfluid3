@@ -16,10 +16,10 @@
 #include "Math/VariablesDescriptor.hpp"
 #include "Math/VariableManager.hpp"
 
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/WriteMesh.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -27,7 +27,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -130,5 +130,5 @@ void FieldManager::signal_create_field(SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

@@ -13,10 +13,10 @@
 #include "common/OptionT.hpp"
 #include "common/BasicExceptions.hpp"
 
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementType.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -58,9 +58,9 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::Field >();
+        elements().geometry().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
@@ -97,20 +97,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
+  boost::weak_ptr< mesh::Field > csolution;   ///< solution field
+  boost::weak_ptr< mesh::Field > cresidual;   ///< residual field
+  boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CConnectivity::Ptr connectivity;
+  mesh::CConnectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  mesh::CTable<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  mesh::CTable<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr residual;
+  mesh::CTable<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr wave_speed;
+  mesh::CTable<Real>::Ptr wave_speed;
 
   typename PHYS::MODEL::Properties phys_props; ///< physical properties
 

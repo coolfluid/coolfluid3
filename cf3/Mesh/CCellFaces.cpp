@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementType.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -28,7 +28,7 @@ CCellFaces::CCellFaces ( const std::string& name ) :
 
   m_cell_connectivity = create_static_component_ptr<CFaceCellConnectivity>("cell_connectivity");
 
-  add_tag(Mesh::Tags::face_entity());
+  add_tag(mesh::Tags::face_entity());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -89,5 +89,5 @@ void CCellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) c
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

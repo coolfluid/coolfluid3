@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_BlockMesh_ChannelGenerator_hpp
-#define cf3_Mesh_BlockMesh_ChannelGenerator_hpp
+#ifndef cf3_mesh_BlockMesh_ChannelGenerator_hpp
+#define cf3_mesh_BlockMesh_ChannelGenerator_hpp
 
 #include "common/CF.hpp"
 #include "common/Component.hpp"
 
-#include "Mesh/CMeshGenerator.hpp"
+#include "mesh/CMeshGenerator.hpp"
 
-#include "Mesh/BlockMesh/LibBlockMesh.hpp"
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/Blockmesh/LibBlockMesh.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 class CMesh;
 
@@ -40,7 +40,7 @@ public:
 };
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3
 
 #endif /* CF3_Mesh_BlockMesh_ChannelGenerator_hpp */

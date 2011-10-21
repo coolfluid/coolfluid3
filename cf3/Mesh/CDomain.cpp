@@ -14,10 +14,10 @@
 #include "common/FindComponents.hpp"
 #include "common/EventHandler.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/WriteMesh.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -25,7 +25,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -188,5 +188,5 @@ void CDomain::signal_write_mesh(SignalArgs& node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

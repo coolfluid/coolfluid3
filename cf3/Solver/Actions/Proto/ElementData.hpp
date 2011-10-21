@@ -25,13 +25,13 @@
 #include "Math/VariablesDescriptor.hpp"
 #include "Math/LSS/BlockAccumulator.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementData.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
@@ -83,7 +83,7 @@ public:
   /// We store nodes as a fixed-size Eigen matrix, so we need to make sure alignment is respected
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-  GeometricSupport(const Mesh::CElements& elements) :
+  GeometricSupport(const mesh::CElements& elements) :
     m_coordinates(elements.geometry().coordinates()),
     m_connectivity(elements.node_connectivity())
   {
@@ -93,7 +93,7 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    Mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
+    mesh::fill(m_nodes, m_coordinates, m_connectivity[element_idx]);
   }
 
   void update_block_connectivity(Math::LSS::BlockAccumulator& block_accumulator)
@@ -108,7 +108,7 @@ public:
   }
 
   /// Connectivity data for the current element
-  Mesh::CTable<Uint>::ConstRow element_connectivity() const
+  mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -223,10 +223,10 @@ private:
   ValueT m_nodes;
 
   /// Coordinates table
-  const Mesh::CTable<Real>& m_coordinates;
+  const mesh::CTable<Real>& m_coordinates;
 
   /// Connectivity table
-  const Mesh::CTable<Uint>& m_connectivity;
+  const mesh::CTable<Uint>& m_connectivity;
 
   /// Index for the current element
   Uint m_element_idx;
@@ -241,10 +241,10 @@ private:
 };
 
 /// Helper function to find a field starting from a region
-inline Mesh::Field& find_field(Mesh::CElements& elements, const std::string& tag)
+inline mesh::Field& find_field(mesh::CElements& elements, const std::string& tag)
 {
-  Mesh::CMesh& mesh = common::find_parent_component<Mesh::CMesh>(elements);
-  return common::find_component_recursively_with_tag<Mesh::Field>(mesh, tag);
+  mesh::CMesh& mesh = common::find_parent_component<mesh::CMesh>(elements);
+  return common::find_component_recursively_with_tag<mesh::Field>(mesh, tag);
 }
 
 /// Dummy shape function type used for element-based fields
@@ -331,7 +331,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   template<typename VariableT>
-  EtypeTVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+  EtypeTVariableData(const VariableT& placeholder, mesh::CElements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_connectivity(elements.node_connectivity()),
     m_support(support)
@@ -343,10 +343,10 @@ public:
   void set_element(const Uint element_idx)
   {
     m_element_idx = element_idx;
-    Mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
+    mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
   }
 
-  const Mesh::CTable<Uint>::ConstRow element_connectivity() const
+  const mesh::CTable<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -433,10 +433,10 @@ private:
   ValueT m_element_values;
 
   /// Data table
-  const Mesh::Field& m_field;
+  const mesh::Field& m_field;
 
   /// Connectivity table
-  const Mesh::CConnectivity& m_connectivity;
+  const mesh::CConnectivity& m_connectivity;
 
   /// Gemetric support
   const SupportT& m_support;
@@ -478,7 +478,7 @@ public:
   static const bool is_equation_variable = IsEquationVar;
 
   template<typename VariableT>
-  EtypeTVariableData(const VariableT& placeholder, Mesh::CElements& elements, const SupportT& support) :
+  EtypeTVariableData(const VariableT& placeholder, mesh::CElements& elements, const SupportT& support) :
     m_field(find_field(elements, placeholder.field_tag())),
     m_support(support),
     m_elements_begin(m_field.field_group().space(elements).elements_begin()),
@@ -498,7 +498,7 @@ public:
   }
 
 private:
-  Mesh::Field& m_field;
+  mesh::Field& m_field;
   const SupportT& m_support;
   const Uint m_elements_begin;
   Uint m_field_idx;
@@ -609,7 +609,7 @@ public:
   /// A view of only the data used in the element matrix
   typedef boost::fusion::filter_view< VariablesDataT, IsEquationData > EquationDataT;
 
-  ElementData(VariablesT& variables, Mesh::CElements& elements) :
+  ElementData(VariablesT& variables, mesh::CElements& elements) :
     m_variables(variables),
     m_elements(elements),
     m_support(elements),
@@ -741,7 +741,7 @@ private:
   VariablesT& m_variables;
 
   /// Referred CElements
-  Mesh::CElements& m_elements;
+  mesh::CElements& m_elements;
 
   /// Data for the geometric support
   SupportT m_support;
@@ -762,7 +762,7 @@ private:
   /// Initializes the pointers in a VariablesDataT fusion sequence
   struct InitVariablesData
   {
-    InitVariablesData(VariablesT& vars, Mesh::CElements& elems, VariablesDataT& vars_data, const SupportT& sup) :
+    InitVariablesData(VariablesT& vars, mesh::CElements& elems, VariablesDataT& vars_data, const SupportT& sup) :
       m_variables(vars),
       m_elements(elems),
       m_variables_data(vars_data),
@@ -787,7 +787,7 @@ private:
     }
 
     VariablesT& m_variables;
-    Mesh::CElements& m_elements;
+    mesh::CElements& m_elements;
     VariablesDataT& m_variables_data;
     const SupportT& m_support;
   };

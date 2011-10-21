@@ -9,12 +9,12 @@
 #include "common/RegistLibrary.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/WriteMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace cf3::common;
 
@@ -24,10 +24,10 @@ cf3::common::RegistLibrary<LibMesh> libMesh;
 
 void LibMesh::initiate_impl()
 {
-  Core::instance().tools().create_component_ptr<Mesh::LoadMesh>( "LoadMesh" )
+  Core::instance().tools().create_component_ptr<mesh::LoadMesh>( "LoadMesh" )
       ->mark_basic();
 
-  Core::instance().tools().create_component_ptr<Mesh::WriteMesh>( "WriteMesh" )
+  Core::instance().tools().create_component_ptr<mesh::WriteMesh>( "WriteMesh" )
       ->mark_basic();
 }
 
@@ -39,5 +39,5 @@ void LibMesh::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

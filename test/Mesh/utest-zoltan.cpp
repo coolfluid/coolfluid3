@@ -20,18 +20,18 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshGenerator.hpp"
-#include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshGenerator.hpp"
+#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/CMeshTransformer.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace cf3::common::PE;
 

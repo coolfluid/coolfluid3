@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_VTKLegacy_CWriter_hpp
-#define cf3_Mesh_VTKLegacy_CWriter_hpp
+#ifndef cf3_mesh_VTKLegacy_CWriter_hpp
+#define cf3_mesh_VTKLegacy_CWriter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/GeoShape.hpp"
 
-#include "Mesh/VTKLegacy/LibVTKLegacy.hpp"
+#include "mesh/VTKLegacy/LibVTKLegacy.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class ElementType;
 namespace VTKLegacy {
 
@@ -51,9 +51,9 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // VTKLegacy
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_VTKLegacy_CWriter_hpp
+#endif // cf3_mesh_VTKLegacy_CWriter_hpp

@@ -7,7 +7,7 @@
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -17,7 +17,7 @@
 #include "RDM/FaceTerm.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {

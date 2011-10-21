@@ -15,8 +15,8 @@
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -25,7 +25,7 @@
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Math::Checks;
 
 namespace cf3 {
@@ -45,11 +45,11 @@ RK::RK ( const std::string& name ) :
   // options
 
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &m_solution));
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &m_residual));
 
   options().add_option< OptionT<Real> >( "cfl", 1.0 )
       ->pretty_name("CFL")

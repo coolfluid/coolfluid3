@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Neu_CWriter_hpp
-#define cf3_Mesh_Neu_CWriter_hpp
+#ifndef cf3_mesh_Neu_CWriter_hpp
+#define cf3_mesh_Neu_CWriter_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CTable.hpp"
 
-#include "Mesh/Neu/LibNeu.hpp"
-#include "Mesh/Neu/Shared.hpp"
+#include "mesh/Neu/LibNeu.hpp"
+#include "mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class CElements;
 
 namespace Neu {
@@ -80,9 +80,9 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Neu
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Neu_CWriter_hpp
+#endif // cf3_mesh_Neu_CWriter_hpp

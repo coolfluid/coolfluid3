@@ -15,21 +15,21 @@
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/Tecplot/CWriter.hpp"
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/Tecplot/CWriter.hpp"
+#include "mesh/GeoShape.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Tecplot {
 
 #define CF3_BREAK_LINE(f,x) { if( x+1 % 10) { f << "\n"; } }
@@ -401,5 +401,5 @@ std::string CWriter::zone_type(const ElementType& etype) const
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Tecplot
-} // Mesh
+} // mesh
 } // cf3

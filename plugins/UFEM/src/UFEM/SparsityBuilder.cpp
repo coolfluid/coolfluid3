@@ -8,10 +8,10 @@
 
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 
@@ -19,7 +19,7 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

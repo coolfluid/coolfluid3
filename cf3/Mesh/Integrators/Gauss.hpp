@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Integrators_Gauss_hpp
-#define cf3_Mesh_Integrators_Gauss_hpp
+#ifndef cf3_mesh_Integrators_Gauss_hpp
+#define cf3_mesh_Integrators_Gauss_hpp
 
 #include <boost/mpl/for_each.hpp>
 #include <boost/foreach.hpp>
@@ -13,14 +13,14 @@
 #include "common/BasicExceptions.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CTable.hpp"
 
-#include "Mesh/Integrators/GaussImplementation.hpp"
+#include "mesh/Integrators/GaussImplementation.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 /// @brief Functions to provide integration over elements
 namespace Integrators {
@@ -37,7 +37,7 @@ void gauss_integrate(const FunctorT& functor, MappedCoordsT& mapped_coords, Resu
 }
 
 } // Integrators
-} // Mesh
+} // mesh
 } // cf3
 
 #endif /* CF3_Mesh_Integrators_Gauss_hpp */

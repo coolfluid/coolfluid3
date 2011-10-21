@@ -9,8 +9,8 @@
 
 #include "common/BoostArray.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/ShapeFunctionBase.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/ShapeFunctionBase.hpp"
 #include "Math/Defs.hpp"
 
 #include "SFDM/LibSFDM.hpp"
@@ -24,7 +24,7 @@ namespace SFDM {
 /// element dimensionality. The total shape function is then the tensorial product of these
 /// 1D shape functions.
 /// Therefore the only possible SFD element types are Lines (1D), Quadrilaterals(2D), Hexahedrals(3D)
-class SFDM_API ShapeFunction  : public Mesh::ShapeFunction {
+class SFDM_API ShapeFunction  : public mesh::ShapeFunction {
 public:
 
   typedef boost::shared_ptr<ShapeFunction>       Ptr;

@@ -16,19 +16,19 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CDomain.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CDomain.hpp"
 
-#include "Mesh/LoadMesh.hpp"
+#include "mesh/LoadMesh.hpp"
 
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 common::ComponentBuilder < LoadMesh, Component, LibMesh > LoadMesh_Builder;
 
@@ -231,5 +231,5 @@ void LoadMesh::signature_load_mesh ( common::SignalArgs& node)
       ->description( "Files to read" );
 }
 
-} // Mesh
+} // mesh
 } // cf3

@@ -30,9 +30,9 @@
 namespace cf3 {
 
 /// Basic Classes for %Mesh applications used by %COOLFluiD
-namespace Mesh {
+namespace mesh {
 
-/// Class defines the initialization and termination of the library Mesh
+/// Class defines the initialization and termination of the library mesh
 ///
 /// @todo Some new mesh transformers: CScale, CRotate, CTranslate, CMirror, CCopy, CMergeMesh
 /// @todo New field functionality - base fields on other fields defined by analytical functions (vectorial functions)
@@ -82,12 +82,12 @@ protected:
 
 }; // end LibMesh
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/Tags.hpp"
+#include "mesh/Tags.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

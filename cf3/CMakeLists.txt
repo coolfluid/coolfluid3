@@ -2,7 +2,7 @@
 add_subdirectory( common )
 
 # mesh library provides the mesh database handling
-add_subdirectory( Mesh )
+add_subdirectory( mesh )
 
 # math library provides mathematical operations
 add_subdirectory( Math )

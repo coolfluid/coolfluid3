@@ -10,15 +10,15 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/WriteMesh.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/WriteMesh.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "CPeriodicWriteMesh.hpp"
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

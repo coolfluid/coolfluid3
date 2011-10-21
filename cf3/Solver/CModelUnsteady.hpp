@@ -13,7 +13,7 @@
 #include "Solver/LibSolver.hpp"
 
 namespace cf3 {
-namespace Mesh{
+namespace mesh{
   class Field;
 }
 namespace Solver {

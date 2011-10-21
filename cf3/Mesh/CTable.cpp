@@ -8,11 +8,11 @@
 #include "common/StreamHelpers.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CTable.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -142,5 +142,5 @@ std::ostream& operator<<(std::ostream& os, const CTable<std::string>& table)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

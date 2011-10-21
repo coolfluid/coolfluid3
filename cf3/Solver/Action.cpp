@@ -8,8 +8,8 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -19,7 +19,7 @@
 #include "Solver/Tags.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

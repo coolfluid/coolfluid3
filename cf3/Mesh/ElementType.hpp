@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_ElementType_hpp
-#define cf3_Mesh_ElementType_hpp
+#ifndef cf3_mesh_ElementType_hpp
+#define cf3_mesh_ElementType_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,14 +14,14 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/ShapeFunction.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "mesh/ShapeFunction.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -59,7 +59,7 @@ public: // functions
   //@{
 
   /// @return shape as string
-  std::string shape_name() const { return Mesh::GeoShape::Convert::instance().to_str( m_shape ); }
+  std::string shape_name() const { return mesh::GeoShape::Convert::instance().to_str( m_shape ); }
 
   /// @return shape as enum
   GeoShape::Type shape() const  {  return m_shape; }
@@ -248,9 +248,9 @@ struct IsElementType
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_ElementType_hpp
+#endif // cf3_mesh_ElementType_hpp

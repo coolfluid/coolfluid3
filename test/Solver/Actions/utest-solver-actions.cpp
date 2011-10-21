@@ -21,15 +21,15 @@
 #include "common/CLibraries.hpp"
 #include "common/CEnv.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CSpace.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 #include "Solver/Actions/CForAllElements.hpp"
@@ -44,7 +44,7 @@ using namespace boost::assign;
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 

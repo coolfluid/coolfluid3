@@ -3,19 +3,19 @@
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text  .
-#ifndef cf3_Mesh_Tecplot_Shared_hpp
-#define cf3_Mesh_Tecplot_Shared_hpp
+#ifndef cf3_mesh_Tecplot_Shared_hpp
+#define cf3_mesh_Tecplot_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/GeoShape.hpp"
+#include "mesh/GeoShape.hpp"
 
-#include "Mesh/Tecplot/LibTecplot.hpp"
+#include "mesh/Tecplot/LibTecplot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Tecplot {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -68,9 +68,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Tecplot
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Tecplot_Shared_hpp
+#endif // cf3_mesh_Tecplot_Shared_hpp

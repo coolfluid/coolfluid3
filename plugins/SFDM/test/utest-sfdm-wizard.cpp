@@ -15,22 +15,22 @@
 #include "common/CRoot.hpp"
 #include "common/CEnv.hpp"
 #include "common/FindComponents.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/WriteMesh.hpp"
-#include "Mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/WriteMesh.hpp"
+#include "mesh/CDomain.hpp"
 #include "SFDM/SFDWizard.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/CSolver.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 //using namespace cf3::Solver::Actions;
 using namespace cf3::SFDM;

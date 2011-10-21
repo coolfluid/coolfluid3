@@ -9,10 +9,10 @@
 
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CFieldView.hpp"
+#include "mesh/CMeshElements.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -67,21 +67,21 @@ private: // helper functions
 
   void build_riemann_solver();
 
-  RealRowVector    to_row_vector(Mesh::CTable<Real>::ConstRow row) const ;
-  RealMatrix       to_matrix(Mesh::CMultiStateFieldView::View data) const ;
+  RealRowVector    to_row_vector(mesh::CTable<Real>::ConstRow row) const ;
+  RealMatrix       to_matrix(mesh::CMultiStateFieldView::View data) const ;
 
 private: // data
 
-  boost::shared_ptr<Mesh::CMultiStateFieldView> m_solution;
-  boost::shared_ptr<Mesh::CMultiStateFieldView> m_residual;
-  boost::shared_ptr<Mesh::CMultiStateFieldView> m_jacobian_determinant;
+  boost::shared_ptr<mesh::CMultiStateFieldView> m_solution;
+  boost::shared_ptr<mesh::CMultiStateFieldView> m_residual;
+  boost::shared_ptr<mesh::CMultiStateFieldView> m_jacobian_determinant;
 
-  boost::shared_ptr<Mesh::CScalarFieldView> m_wave_speed;
+  boost::shared_ptr<mesh::CScalarFieldView> m_wave_speed;
 
   boost::shared_ptr<Reconstruct> m_reconstruct_solution;
   boost::shared_ptr<Reconstruct> m_reconstruct_flux;
 
-  boost::weak_ptr<Mesh::CMeshElements> m_mesh_elements;
+  boost::weak_ptr<mesh::CMeshElements> m_mesh_elements;
 
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
   boost::weak_ptr<Solver::State> m_sol_state;

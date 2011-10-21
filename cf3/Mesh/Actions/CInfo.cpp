@@ -10,17 +10,17 @@
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
 
-#include "Mesh/Actions/CInfo.hpp"
+#include "mesh/Actions/CInfo.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -147,5 +147,5 @@ std::string CInfo::print_elements(const Component& region, Uint level)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

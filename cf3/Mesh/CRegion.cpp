@@ -11,17 +11,17 @@
 #include "common/CLink.hpp"
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -151,5 +151,5 @@ CRegion::ElementsRange CRegion::elements_range()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Mesh
+} // mesh
 } // cf3

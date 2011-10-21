@@ -23,10 +23,10 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -39,7 +39,7 @@ namespace Solver {
 
 using namespace common;
 using namespace common::XML;
-using namespace Mesh;
+using namespace mesh;
 
 common::ComponentBuilder < CModel, CModel, LibSolver > CModel_Builder;
 

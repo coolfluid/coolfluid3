@@ -25,24 +25,24 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Mesh/Actions/CGlobalNumberingElements.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CNodeFaceCellConnectivity.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Actions/CGlobalNumberingElements.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CNodeFaceCellConnectivity.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
 #include "Math/Functions.hpp"
 #include "Math/Consts.hpp"
-#include "Mesh/ElementData.hpp"
+#include "mesh/ElementData.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -216,5 +216,5 @@ std::size_t CGlobalNumberingElements::hash_value(const RealMatrix& coords)
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

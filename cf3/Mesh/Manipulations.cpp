@@ -8,12 +8,12 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/Manipulations.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Manipulations.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CElements.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::PE;
@@ -269,5 +269,5 @@ void PackUnpackNodes::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

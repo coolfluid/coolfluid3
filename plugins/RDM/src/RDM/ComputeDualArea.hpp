@@ -11,11 +11,11 @@
 
 #include "Math/Checks.hpp"
 
-#include "Mesh/CTable.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementType.hpp"
 #include "Solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/CellTerm.hpp"
@@ -53,7 +53,7 @@ public: // functions
   /// Execute the loop for all elements
   virtual void execute();
 
-  Mesh::Field& dual_area() { return *cdual_area.lock(); }
+  mesh::Field& dual_area() { return *cdual_area.lock(); }
 
 protected: // helper functions
 
@@ -61,7 +61,7 @@ protected: // helper functions
 
 private: // data
 
-  boost::weak_ptr< Mesh::Field > cdual_area;  ///< dual area
+  boost::weak_ptr< mesh::Field > cdual_area;  ///< dual area
 
 };
 
@@ -99,15 +99,15 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::Field >();
+        elements().geometry().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
 
     solution   = csolution.lock();
-    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<Mesh::Field>();
+    dual_area  = parent().as_type<ComputeDualArea>().dual_area().as_ptr<mesh::Field>();
   }
 
 protected: // typedefs
@@ -121,16 +121,16 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::Field > csolution;  ///< solution field
+  boost::weak_ptr< mesh::Field > csolution;  ///< solution field
 
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr solution;
+  mesh::Field::Ptr solution;
   /// pointer to dual area table
-  Mesh::Field::Ptr dual_area;
+  mesh::Field::Ptr dual_area;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::Field::Ptr coordinates;
+  mesh::Field::Ptr coordinates;
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CConnectivity::Ptr connectivity;
+  mesh::CConnectivity::Ptr connectivity;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -170,7 +170,7 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
   m_options["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
@@ -215,11 +215,11 @@ void ComputeDualArea::Term<SF,QD>::execute()
 
   // get element connectivity
 
-  const Mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
+  const mesh::CConnectivity::ConstRow nodes_idx = (*connectivity)[idx()];
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(X_n, *coordinates, nodes_idx );
+  mesh::fill(X_n, *coordinates, nodes_idx );
 
   // interpolation of coordinates to quadrature points
 

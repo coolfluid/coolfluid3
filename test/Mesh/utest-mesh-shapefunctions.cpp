@@ -13,17 +13,17 @@
 #include "common/Core.hpp"
 #include "common/CEnv.hpp"
 
-#include "Mesh/ElementType.hpp"
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP0/Triag.hpp"
-#include "Mesh/LagrangeP1/Line.hpp"
-#include "Mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP0/Triag.hpp"
+#include "mesh/LagrangeP1/Line.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
 
-#include "Mesh/ElementTypes.hpp"
+#include "mesh/ElementTypes.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

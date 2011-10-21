@@ -17,12 +17,12 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/LagrangeP1/Line2D.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Integrators/Gauss.hpp"
+#include "mesh/LagrangeP1/Line2D.hpp"
 
 
 
@@ -33,9 +33,9 @@ using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::Math;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Integrators;
-using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Integrators;
+using namespace cf3::mesh::LagrangeP1;
 using namespace cf3::Tools::Testing;
 using namespace cf3::Tools::MeshGeneration;
 

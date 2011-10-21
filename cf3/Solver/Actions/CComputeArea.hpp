@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { class CScalarFieldView; }
+namespace mesh { class CScalarFieldView; }
 namespace Solver {
 namespace Actions {
 
@@ -48,8 +48,8 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_area;
-  boost::weak_ptr<Mesh::CSpace> m_area_field_space;
+  boost::weak_ptr<mesh::Field> m_area;
+  boost::weak_ptr<mesh::CSpace> m_area_field_space;
 
   RealMatrix m_coordinates;
 

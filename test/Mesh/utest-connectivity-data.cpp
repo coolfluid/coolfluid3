@@ -16,13 +16,13 @@
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/ConnectivityData.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/ConnectivityData.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -30,7 +30,7 @@
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace cf3::Tools::Testing;
 using namespace cf3::Tools::MeshGeneration;
@@ -126,7 +126,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
   CFaceConnectivity::ElementsT celements_vector;
   CFaceConnectivity::IndicesT celements_first_elements;
   create_celements_vector(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
-  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, Mesh::Tags::coordinates());
+  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, mesh::Tags::coordinates());
   CFaceConnectivity::IndicesT node_first_elements;
   CFaceConnectivity::CountsT node_element_counts;
   CFaceConnectivity::IndicesT node_elements;
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
   create_celements_vector(find_components_recursively_with_filter<CElements>(*mesh2d, IsElementsVolume()), celements_vector, celements_first_elements);
 
   // Get the coordinates array
-  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, Mesh::Tags::coordinates());
+  const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(*mesh2d, mesh::Tags::coordinates());
 
   // Link nodes to the elements
   CFaceConnectivity::IndicesT node_first_elements;
@@ -220,7 +220,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 //   create_celements_vector(find_components_recursively_with_filter<CElements>(grid2D, IsElementsVolume()), celements_vector, celements_first_elements);
 //
 //   // Get the coordinates array
-//   const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(grid2D, Mesh::Tags::coordinates());
+//   const CTable<Real>& coordinates = find_component_recursively_with_name<CTable<Real> >(grid2D, mesh::Tags::coordinates());
 //
 //   // Link nodes to the elements
 //   CFaceConnectivity::IndicesT node_first_elements;

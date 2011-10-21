@@ -9,16 +9,16 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/ComputeDualArea.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 
 namespace cf3 {
@@ -57,7 +57,7 @@ void ComputeDualArea::create_dual_area_field()
     field = comp->as_ptr_checked<Field>();
   else
   {
-    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
+    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<mesh::Field>();
     field->add_tag(Tags::dual_area());
   }
 
@@ -98,7 +98,7 @@ void ComputeDualArea::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
     std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
 

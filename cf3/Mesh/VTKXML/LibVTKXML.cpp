@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/VTKXML/LibVTKXML.hpp"
+#include "mesh/VTKXML/LibVTKXML.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace VTKXML {
 
 cf3::common::RegistLibrary<LibVTKXML> libVTKXML;
@@ -27,5 +27,5 @@ void LibVTKXML::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // VTKXML
-} // Mesh
+} // mesh
 } // cf3

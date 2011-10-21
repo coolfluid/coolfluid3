@@ -18,31 +18,31 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/BlockMesh/WriteDict.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/Blockmesh/WriteDict.hpp"
 
-#include "Mesh/CCells.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/ElementData.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ConnectivityData.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/ElementData.hpp"
 
-#include "Mesh/LagrangeP1/Hexa3D.hpp"
-#include "Mesh/LagrangeP1/Line1D.hpp"
-#include "Mesh/LagrangeP1/Quad2D.hpp"
+#include "mesh/LagrangeP1/Hexa3D.hpp"
+#include "mesh/LagrangeP1/Line1D.hpp"
+#include "mesh/LagrangeP1/Quad2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace BlockMesh {
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::mesh;
+using namespace cf3::mesh::LagrangeP1;
 
 ComponentBuilder < BlockData, Component, LibBlockMesh > BlockData_Builder;
 
@@ -1960,7 +1960,7 @@ void partition_blocks_2d(const BlockData& blocks_in, CMesh& block_mesh, const Ui
   }
 }
 
-void partition_blocks(const cf3::Mesh::BlockMesh::BlockData& blocks_in, const cf3::Uint nb_partitions, const cf3::CoordXYZ direction, cf3::Mesh::BlockMesh::BlockData& blocks_out)
+void partition_blocks(const cf3::mesh::BlockMesh::BlockData& blocks_in, const cf3::Uint nb_partitions, const cf3::CoordXYZ direction, cf3::mesh::BlockMesh::BlockData& blocks_out)
 {
   CMesh& block_mesh = blocks_out.create_component<CMesh>("serial_block_mesh");
 
@@ -1993,5 +1993,5 @@ void create_block_mesh(const BlockData& block_data, CMesh& mesh)
 
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3

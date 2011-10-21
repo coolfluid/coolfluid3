@@ -13,19 +13,19 @@
 #include "common/Log.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/LagrangeP1/Triag2D.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Integrators/Gauss.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/CElements.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Integrators;
-using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Integrators;
+using namespace cf3::mesh::LagrangeP1;
 
 //////////////////////////////////////////////////////////////////////////////
 

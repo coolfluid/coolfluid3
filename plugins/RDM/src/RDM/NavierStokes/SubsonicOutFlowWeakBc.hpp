@@ -16,7 +16,7 @@
 
 namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class CMesh; class Field; }
 
 namespace RDM {
 
@@ -58,7 +58,7 @@ private: // helper functions
 public: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> solution;
+  boost::weak_ptr<mesh::Field> solution;
 
   /// function parser to set the value of pressure
   Math::VectorialFunction  pressure_function;
@@ -190,11 +190,11 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+   const mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 

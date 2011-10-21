@@ -5,14 +5,14 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #ifndef cf3_LibMesh_hpp
-#error The header Mesh/Tags.hpp shouldnt be included directly but rather by including LibMesh.hpp instead
+#error The header mesh/Tags.hpp shouldnt be included directly but rather by including LibMesh.hpp instead
 #endif
 
-#ifndef cf3_Mesh_Tags_hpp
-#define cf3_Mesh_Tags_hpp
+#ifndef cf3_mesh_Tags_hpp
+#define cf3_mesh_Tags_hpp
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_Tags_hpp
+#endif // cf3_mesh_Tags_hpp

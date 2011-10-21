@@ -20,7 +20,7 @@ namespace cf3 {
 /// Common Classes for Component Environment
 namespace common {
 
-/// Class defines the initialization and termination of the library Mesh
+/// Class defines the initialization and termination of the library mesh
 /// @author Tiago Quintino
 class Common_API LibCommon : public common::CLibrary
 {

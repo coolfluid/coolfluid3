@@ -9,8 +9,8 @@
 #include "common/OptionURI.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CList.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CElements.hpp"
 
 #include "Solver/Actions/CLoopOperation.hpp"
 
@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {
@@ -33,7 +33,7 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
   m_idx(0)
 {
   // Following option is ignored if the loop is not about elements
-  //m_options.add_option(OptionComponent<Mesh::CEntities>::create("elements","Elements that are being looped",&m_elements));
+  //m_options.add_option(OptionComponent<mesh::CEntities>::create("elements","Elements that are being looped",&m_elements));
   m_options.add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Elements that are being looped")
       ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );

@@ -8,13 +8,13 @@
 #include "common/OptionT.hpp"
 
 
-#include "Mesh/CInterpolator.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CStencilComputer.hpp"
+#include "mesh/CInterpolator.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CStencilComputer.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -95,5 +95,5 @@ void CInterpolator::interpolate()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-} // Mesh
+} // mesh
 } // cf3

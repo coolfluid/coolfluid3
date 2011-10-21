@@ -13,13 +13,13 @@
 
 #include "Math/MathConsts.hpp"
 
-#include "Mesh/CField.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CConnectivity.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/CConnectivity.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
 
 #include "Solver/State.hpp"
 
@@ -32,7 +32,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::RiemannSolvers;
 using namespace cf3::Math::MathConsts;
 
@@ -427,7 +427,7 @@ void ComputeRhsInCell::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealRowVector ComputeRhsInCell::to_row_vector(Mesh::CTable<Real>::ConstRow row) const
+RealRowVector ComputeRhsInCell::to_row_vector(mesh::CTable<Real>::ConstRow row) const
 {
   RealRowVector rowvec (row.size());
   for (Uint i=0; i<row.size(); ++i)
@@ -439,7 +439,7 @@ RealRowVector ComputeRhsInCell::to_row_vector(Mesh::CTable<Real>::ConstRow row) 
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix ComputeRhsInCell::to_matrix(Mesh::CMultiStateFieldView::View data) const
+RealMatrix ComputeRhsInCell::to_matrix(mesh::CMultiStateFieldView::View data) const
 {
   RealMatrix m (data.shape()[0] , data.shape()[1]);
   for (Uint i=0; i<m.rows(); ++i)

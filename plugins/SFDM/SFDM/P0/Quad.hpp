@@ -18,7 +18,7 @@ namespace P0 {
 class SFDM_API Quad  : public ShapeFunction {
 public:
 
-  static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::QUAD;
+  static const mesh::GeoShape::Type shape          = mesh::GeoShape::QUAD;
   static const Uint                 nb_nodes       = 1;
   static const Uint                 dimensionality = 2;
   static const Uint                 order          = 0;
@@ -49,4 +49,4 @@ public:
 } // SFDM
 } // cf3
 
-#endif // cf3_Mesh_P0_Quad
+#endif // cf3_mesh_P0_Quad

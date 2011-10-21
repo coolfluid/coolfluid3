@@ -14,12 +14,12 @@
 #include "common/CRoot.hpp"
 #include "common/Log.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/BlockMesh/WriteDict.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/Blockmesh/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -29,8 +29,8 @@
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 using namespace cf3::BlockMeshReader;
 
 //////////////////////////////////////////////////////////////////////////////

@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP1_Triag3D_hpp
-#define cf3_Mesh_LagrangeP1_Triag3D_hpp
+#ifndef cf3_mesh_LagrangeP1_Triag3D_hpp
+#define cf3_mesh_LagrangeP1_Triag3D_hpp
 
-#include "Mesh/ElementTypeBase.hpp"
-#include "Mesh/LagrangeP1/Triag.hpp"
+#include "mesh/ElementTypeBase.hpp"
+#include "mesh/LagrangeP1/Triag.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ struct Mesh_LagrangeP1_API Triag3D : public ElementTypeBase<Triag3D,Triag3D_trai
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP1_Triag3D_hpp
+#endif // cf3_mesh_LagrangeP1_Triag3D_hpp

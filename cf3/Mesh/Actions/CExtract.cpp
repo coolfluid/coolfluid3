@@ -16,16 +16,16 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionArray.hpp"
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
 
-#include "Mesh/Actions/CExtract.hpp"
+#include "mesh/Actions/CExtract.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions{
 
   using namespace common;
@@ -44,7 +44,7 @@ namespace Actions{
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Mesh::Actions::CExtract, Mesh::CMeshTransformer, Mesh::Actions::LibActions > CExtract_Builder;
+common::ComponentBuilder < mesh::Actions::CExtract, mesh::CMeshTransformer, mesh::Actions::LibActions > CExtract_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -171,5 +171,5 @@ void CExtract::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

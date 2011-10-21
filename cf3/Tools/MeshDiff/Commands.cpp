@@ -21,20 +21,20 @@
 #include "common/CAction.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/LoadMesh.hpp"
+#include "mesh/LoadMesh.hpp"
 
 #include "Tools/MeshDiff/Commands.hpp"
 #include "Tools/MeshDiff/MeshDiff.hpp"
 
 namespace cf3 {
 namespace Tools {
-namespace MeshDiff {
+namespace meshDiff {
 
   using namespace boost;
   using namespace boost::program_options;
 
   using namespace cf3::common;
-  using namespace cf3::Mesh;
+  using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -17,12 +17,12 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -42,7 +42,7 @@ namespace RDM {
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 

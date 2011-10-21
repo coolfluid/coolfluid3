@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/StreamHelpers.hpp"
 
-#include "Mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 
 #include "Python/Component.hpp"
 #include "Python/CTable.hpp"
@@ -28,7 +28,7 @@ using namespace boost::python;
 template<typename ValueT>
 struct CTableRowWrapper
 {
-  typedef Mesh::CTable<ValueT> TableT;
+  typedef mesh::CTable<ValueT> TableT;
   typedef typename TableT::Row RowT;
 
   static void set_item(RowT& self, const Uint i, const ValueT value)
@@ -62,7 +62,7 @@ struct CTableRowWrapper
 template<typename ValueT>
 struct CTableList : PythonListInterface
 {
-  typedef Mesh::CTable<ValueT> TableT;
+  typedef mesh::CTable<ValueT> TableT;
   typedef typename TableT::Row RowT;
 
   CTableList(ComponentWrapper& wrapped) :
@@ -113,16 +113,16 @@ struct CTableMethods
 {
   static Uint row_size(ComponentWrapper& wrapped)
   {
-    return wrapped.component< Mesh::CTable<ValueT> >().row_size();
+    return wrapped.component< mesh::CTable<ValueT> >().row_size();
   }
 };
 
 template<typename ValueT>
 void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& py_obj)
 {
-  if(dynamic_cast<const Mesh::CTable<ValueT>*>(&wrapped.component()))
+  if(dynamic_cast<const mesh::CTable<ValueT>*>(&wrapped.component()))
   {
-    CFdebug << "adding custom methods for " << Mesh::CTable<ValueT>::type_name() << CFendl;
+    CFdebug << "adding custom methods for " << mesh::CTable<ValueT>::type_name() << CFendl;
 
     // Add list functionality
     typedef CTableList<ValueT> ListInterfaceT;
@@ -145,7 +145,7 @@ void def_ctable_types()
 {
   // The CTable row types are statically defined
   typedef CTableRowWrapper<ValueT> WrapperT;
-  scope ctable_row = class_<typename Mesh::CTable<ValueT>::Row>(("CTableRow_"+common::class_name<ValueT>()).c_str(), "Coolfluid CTable row class wrapper", no_init)
+  scope ctable_row = class_<typename mesh::CTable<ValueT>::Row>(("CTableRow_"+common::class_name<ValueT>()).c_str(), "Coolfluid CTable row class wrapper", no_init)
     .def("__setitem__", WrapperT::set_item)
     .def("__getitem__", WrapperT::get_item)
     .def("__len__", WrapperT::size)

@@ -17,23 +17,23 @@
 #include "common/PE/debug.hpp"
 
 
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Manipulations.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Manipulations.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshElements.hpp"
 
-#include "Mesh/Actions/GrowOverlap.hpp"
+#include "mesh/Actions/GrowOverlap.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -494,5 +494,5 @@ void GrowOverlap::execute()
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

@@ -16,23 +16,23 @@
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Mesh/LagrangeP1/Tetra3D.hpp"
-#include "Mesh/ElementTypes.hpp"
+#include "mesh/LagrangeP1/Tetra3D.hpp"
+#include "mesh/ElementTypes.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::CGAL;
+using namespace cf3::mesh;
+using namespace cf3::mesh::CGAL;
 
 //////////////////////////////////////////////////////////////////////////////
 

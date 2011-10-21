@@ -7,9 +7,9 @@
 #ifndef cf3_RDM_Quadrature_hpp
 #define cf3_RDM_Quadrature_hpp
 
-#include "Mesh/CElements.hpp"
+#include "mesh/CElements.hpp"
 
-#include "Mesh/Integrators/GaussImplementation.hpp"
+#include "mesh/Integrators/GaussImplementation.hpp"
 
 namespace cf3 {
 namespace RDM {
@@ -33,9 +33,9 @@ inline Real minus ( Real x )
 template < typename TYPE >
 struct IsElementType
 {
-  bool operator()(const Mesh::CElements& component)
+  bool operator()(const mesh::CElements& component)
   {
-    return Mesh::IsElementType<TYPE>()( component.element_type() );
+    return mesh::IsElementType<TYPE>()( component.element_type() );
   }
 };
 
@@ -44,7 +44,7 @@ struct IsElementType
 template < typename SF, Uint order = SF::order >
 struct DefaultQuadrature
 {
-  typedef Mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
+  typedef mesh::Integrators::GaussMappedCoords< order, SF::shape> type;
 };
 
 

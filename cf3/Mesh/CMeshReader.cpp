@@ -21,15 +21,15 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CElements.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -232,5 +232,5 @@ void CMeshReader::read_signature( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

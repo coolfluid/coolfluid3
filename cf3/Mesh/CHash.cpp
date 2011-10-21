@@ -9,10 +9,10 @@
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/CHash.hpp"
+#include "mesh/CHash.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -135,5 +135,5 @@ Uint CHash::end_idx_in_proc(const Uint proc) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

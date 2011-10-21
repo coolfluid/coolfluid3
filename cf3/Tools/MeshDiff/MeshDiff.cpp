@@ -11,15 +11,15 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace Tools::Testing;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
 
 }
 
-namespace MeshDiff {
+namespace meshDiff {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -126,12 +126,12 @@ void compare_ranges(const RangeT& a, const RangeT& b, Accumulator& accumulator)
   range_test(a.begin(), a.end(), b.begin(), b.end(), accumulator);
 }
 
-bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
+bool diff(const mesh::CMesh& a, const mesh::CMesh& b, const Uint max_ulps)
 {
   Accumulator accumulator;
   accumulator.max_ulps = max_ulps;
   // Compare Array data TODO: filtered out only coords, because the neu reader always adds a global_indices table
-  compare_ranges(find_components_recursively_with_name<CTable<Real> >(a, Mesh::Tags::coordinates()), find_components_recursively_with_name<CTable<Real> >(b, Mesh::Tags::coordinates()), accumulator);
+  compare_ranges(find_components_recursively_with_name<CTable<Real> >(a, mesh::Tags::coordinates()), find_components_recursively_with_name<CTable<Real> >(b, mesh::Tags::coordinates()), accumulator);
   // Compare connectivity
   compare_ranges(find_components_recursively<CElements>(a), find_components_recursively<CElements>(b), accumulator);
 

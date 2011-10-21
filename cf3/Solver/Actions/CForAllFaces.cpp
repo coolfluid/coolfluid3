@@ -7,15 +7,15 @@
 #include "common/CBuilder.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCellFaces.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCellFaces.hpp"
 
 #include "Solver/Actions/CForAllFaces.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {
@@ -34,7 +34,7 @@ void CForAllFaces::execute()
 {
   boost_foreach(CRegion::Ptr& region, m_loop_regions)
   {
-    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region, Mesh::Tags::face_entity() ) )
+    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(*region, mesh::Tags::face_entity() ) )
     {
       // setup all child operations
       boost_foreach(CLoopOperation& op, find_components<CLoopOperation>(*this))

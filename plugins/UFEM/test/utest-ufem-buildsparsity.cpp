@@ -18,8 +18,8 @@
 
 #include "Math/LSS/System.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/LagrangeP1/Line1D.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/LagrangeP1/Line1D.hpp"
 
 #include "Solver/CModel.hpp"
 
@@ -39,7 +39,7 @@ using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
 using namespace cf3::Math;
 using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 using namespace boost::assign;
 
@@ -273,7 +273,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver

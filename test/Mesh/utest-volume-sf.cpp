@@ -25,12 +25,12 @@
 #include "common/CEnv.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/ElementTypes.hpp"
+#include "mesh/GeoShape.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/ElementTypes.hpp"
 
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace boost::assign;
 

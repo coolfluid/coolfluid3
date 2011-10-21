@@ -12,12 +12,12 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshGenerator.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CMeshGenerator.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshElements.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -93,5 +93,5 @@ CMeshGenerator::~CMeshGenerator()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

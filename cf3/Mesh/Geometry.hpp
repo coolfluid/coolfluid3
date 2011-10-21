@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Geometry_hpp
-#define cf3_Mesh_Geometry_hpp
+#ifndef cf3_mesh_Geometry_hpp
+#define cf3_mesh_Geometry_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/LibMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 template <typename T> class CDynTable;
 
@@ -23,7 +23,7 @@ template <typename T> class CDynTable;
 /// Geometry component class
 /// This class stores information about the nodes of the mesh
 /// @author Willem Deconinck
-class Mesh_API Geometry : public Mesh::FieldGroup {
+class Mesh_API Geometry : public mesh::FieldGroup {
 
 public: // typedefs
 
@@ -58,9 +58,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Geometry_hpp
+#endif // cf3_mesh_Geometry_hpp

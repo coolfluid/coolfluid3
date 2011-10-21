@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::LagrangeSF"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::LagrangeSF"
 
 #include <boost/assign/list_of.hpp>
 #include <boost/test/unit_test.hpp>
@@ -17,23 +17,23 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Mesh/Integrators/Gauss.hpp"
+#include "mesh/Integrators/Gauss.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
 using namespace cf3;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Integrators;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Integrators;
 using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////

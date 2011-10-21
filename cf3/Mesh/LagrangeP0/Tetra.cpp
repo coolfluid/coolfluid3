@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
-#include "Mesh/LagrangeP0/Tetra.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "mesh/LagrangeP0/Tetra.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -51,5 +51,5 @@ const RealMatrix& Tetra::local_coordinates()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // Mesh
+} // mesh
 } // cf3

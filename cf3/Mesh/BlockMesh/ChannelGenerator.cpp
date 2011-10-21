@@ -19,14 +19,14 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/BlockMesh/ChannelGenerator.hpp"
+#include "mesh/Blockmesh/ChannelGenerator.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace BlockMesh {
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 using namespace boost::assign;
 
@@ -143,5 +143,5 @@ void ChannelGenerator::execute()
 }
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3

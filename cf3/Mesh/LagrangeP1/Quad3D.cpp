@@ -8,13 +8,13 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Quad3D.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "mesh/LagrangeP1/Quad3D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ common::ComponentBuilder < ElementTypeT<Quad3D>, ElementType , LibLagrangeP1 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Quad3D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Quad3D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -38,7 +38,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Quad3D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Quad3D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Quad3D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
   return *facetype;
@@ -126,5 +126,5 @@ void Quad3D::normal(const MappedCoordsT& mapped_coord, const NodesT& nodes , Coo
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3

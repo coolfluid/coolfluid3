@@ -15,7 +15,7 @@
 
 namespace cf3 {
 
-  namespace Mesh
+  namespace mesh
   {
     class CRegion;
   }

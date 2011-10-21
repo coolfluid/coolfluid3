@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CList_hpp
-#define cf3_Mesh_CList_hpp
+#ifndef cf3_mesh_CList_hpp
+#define cf3_mesh_CList_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/ListBufferT.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/ListBufferT.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -135,9 +135,9 @@ std::ostream& operator<<(std::ostream& os, const CList<std::string>& list);
 
 /////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CList_hpp
+#endif // cf3_mesh_CList_hpp

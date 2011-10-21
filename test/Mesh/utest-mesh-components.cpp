@@ -16,20 +16,20 @@
 #include "common/CRoot.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Geometry.hpp"
 
 using namespace boost;
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -10,12 +10,12 @@
 #include "common/CGroup.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CUnifiedData.hpp"
+#include "mesh/CUnifiedData.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 cf3::common::ComponentBuilder < CUnifiedData, cf3::common::Component, LibMesh > CUnifiedData_Builder;
 
@@ -160,5 +160,5 @@ const std::vector<common::Component::Ptr>& CUnifiedData::components() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

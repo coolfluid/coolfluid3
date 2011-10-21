@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/BlockMesh/LibBlockMesh.hpp"
+#include "mesh/Blockmesh/LibBlockMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace BlockMesh {
 
 cf3::common::RegistLibrary<LibBlockMesh> libBlockMesh;
@@ -27,5 +27,5 @@ void LibBlockMesh::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3

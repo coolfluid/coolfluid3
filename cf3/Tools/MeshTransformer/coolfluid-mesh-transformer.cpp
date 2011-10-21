@@ -14,7 +14,7 @@
 #include "common/CRoot.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Tools/MeshTransformer/Transformer.hpp"
 #include "Tools/Shell/Interpreter.hpp"
@@ -25,7 +25,7 @@ using namespace boost::program_options;
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Tools::Shell;
 using namespace cf3::Tools::MeshTransformer;
 

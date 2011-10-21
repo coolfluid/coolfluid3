@@ -13,7 +13,7 @@
 
 namespace cf3 {
 
-namespace Mesh   { class Field; class FieldGroup; class CCells; }
+namespace mesh   { class Field; class FieldGroup; class CCells; }
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,15 +41,15 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  Mesh::FieldGroup& field_group() { return *m_field_group.lock(); }
+  mesh::FieldGroup& field_group() { return *m_field_group.lock(); }
 
-  Mesh::Field& solution()    { return *m_solution.lock(); }
+  mesh::Field& solution()    { return *m_solution.lock(); }
 
-  Mesh::Field& residual()    { return *m_residual.lock(); }
+  mesh::Field& residual()    { return *m_residual.lock(); }
 
-  Mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
+  mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
 
-  Mesh::Field& jacob_det()   { return *m_jacob_det.lock(); }
+  mesh::Field& jacob_det()   { return *m_jacob_det.lock(); }
 
   //@} END ACCESSORS
 
@@ -59,15 +59,15 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<Mesh::FieldGroup> m_field_group;
+  boost::weak_ptr<mesh::FieldGroup> m_field_group;
 
-  boost::weak_ptr<Mesh::Field> m_solution;     ///< access to the solution field
+  boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<Mesh::Field> m_residual;     ///< access to the residual field
+  boost::weak_ptr<mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<Mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+  boost::weak_ptr<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
-  boost::weak_ptr<Mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
+  boost::weak_ptr<mesh::Field> m_jacob_det;    ///< access to the jacobian_determinant field
 
 };
 

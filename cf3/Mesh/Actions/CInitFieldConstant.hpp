@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CInitFieldConstant_hpp
-#define cf3_Mesh_CInitFieldConstant_hpp
+#ifndef cf3_mesh_CInitFieldConstant_hpp
+#define cf3_mesh_CInitFieldConstant_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/VectorialFunction.hpp"
 
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/CMeshTransformer.hpp"
 
-#include "Mesh/Actions/LibActions.hpp"
+#include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { 
+namespace mesh { 
   class Field;
 namespace Actions {
 
@@ -62,9 +62,9 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CInitFieldConstant_hpp
+#endif // cf3_mesh_CInitFieldConstant_hpp

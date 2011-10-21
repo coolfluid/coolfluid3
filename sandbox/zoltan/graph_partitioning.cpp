@@ -15,7 +15,7 @@
 using namespace cf3;
 using namespace cf3::common;
 using namespace boost::assign;
-//using namespace cf3::Mesh;
+//using namespace cf3::mesh;
 
 typedef struct 
 {

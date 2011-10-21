@@ -11,14 +11,14 @@
 
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/Actions/LoadBalance.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Actions/LoadBalance.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
 using namespace common;
@@ -112,5 +112,5 @@ void LoadBalance::execute()
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

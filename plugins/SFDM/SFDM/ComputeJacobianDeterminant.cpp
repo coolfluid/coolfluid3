@@ -6,10 +6,10 @@
 
 #include "common/CBuilder.hpp"
 #include "common/OptionURI.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CEntities.hpp"
 
 #include "SFDM/ComputeJacobianDeterminant.hpp"
 #include "SFDM/ShapeFunction.hpp"
@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {

@@ -12,9 +12,9 @@
 
 #include <boost/proto/core.hpp>
 
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/ElementType.hpp"
 
 /// @file
 /// Some commonly used, statically defined terminal types

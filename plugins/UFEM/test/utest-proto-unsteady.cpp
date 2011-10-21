@@ -13,7 +13,7 @@
 #include "common/CEnv.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/CDomain.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -34,7 +34,7 @@ using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
 using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 using namespace boost;
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver

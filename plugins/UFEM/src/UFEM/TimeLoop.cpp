@@ -7,8 +7,8 @@
 #include "common/CBuilder.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/Tags.hpp"

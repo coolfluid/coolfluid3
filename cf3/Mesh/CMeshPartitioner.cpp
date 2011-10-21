@@ -20,17 +20,17 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Manipulations.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Manipulations.hpp"
+#include "mesh/CMeshElements.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 
   using namespace common;
@@ -696,5 +696,5 @@ void CMeshPartitioner::migrate()
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

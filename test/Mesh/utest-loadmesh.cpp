@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::LoadMesh"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::LoadMesh"
 
 #include <boost/test/unit_test.hpp>
 
@@ -23,15 +23,15 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMeshWriter.hpp"
 
-#include "Mesh/LoadMesh.hpp"
+#include "mesh/LoadMesh.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/LagrangeP2B/LibLagrangeP2B.hpp"
+#include "mesh/LagrangeP2B/LibLagrangeP2B.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2B {
 
 cf3::common::RegistLibrary<LibLagrangeP2B> LibLagrangeP2B;
@@ -29,5 +29,5 @@ void LibLagrangeP2B::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2B
-} // Mesh
+} // mesh
 } // cf3

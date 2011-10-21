@@ -14,7 +14,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 namespace RDM {
 
 /// Runge-Kutta update step
@@ -44,11 +44,11 @@ public: // functions
 private: // data
 
   /// solution field pointer
-  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_solution;
   /// residual field pointer
-  boost::weak_ptr<Mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_residual;
   /// dual_area field pointer
-  boost::weak_ptr<Mesh::Field> m_dual_area;
+  boost::weak_ptr<mesh::Field> m_dual_area;
 
 };
 

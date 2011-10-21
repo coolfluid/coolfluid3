@@ -21,29 +21,29 @@
 #include <boost/spirit/include/phoenix_stl.hpp>
 
 #include "common/BasicExceptions.hpp"
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
 
 #include "Parser.hpp"
 
 
 BOOST_FUSION_ADAPT_STRUCT(
-  cf3::Mesh::BlockMesh::BlockData,
+  cf3::mesh::BlockMesh::BlockData,
   (cf3::Real, scaling_factor)
-  (std::vector<cf3::Mesh::BlockMesh::BlockData::PointT>, points)
-  (std::vector<cf3::Mesh::BlockMesh::BlockData::IndicesT>, block_points)
-  (std::vector<cf3::Mesh::BlockMesh::BlockData::CountsT>, block_subdivisions)
-  (std::vector<cf3::Mesh::BlockMesh::BlockData::GradingT>, block_gradings)
+  (std::vector<cf3::mesh::BlockMesh::BlockData::PointT>, points)
+  (std::vector<cf3::mesh::BlockMesh::BlockData::IndicesT>, block_points)
+  (std::vector<cf3::mesh::BlockMesh::BlockData::CountsT>, block_subdivisions)
+  (std::vector<cf3::mesh::BlockMesh::BlockData::GradingT>, block_gradings)
   (std::vector<std::string>, patch_types)
   (std::vector<std::string>, patch_names)
-  (std::vector<cf3::Mesh::BlockMesh::BlockData::IndicesT>, patch_points)
+  (std::vector<cf3::mesh::BlockMesh::BlockData::IndicesT>, patch_points)
 )
 
 namespace cf3 {
 namespace BlockMeshReader {
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 
 namespace fusion = boost::fusion;
 namespace phoenix = boost::phoenix;

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::BlockMesh::BlockMeshMPI"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::BlockMesh::BlockMeshMPI"
 
 #include <boost/assign.hpp>
 #include <boost/lexical_cast.hpp>
@@ -16,22 +16,22 @@
 #include "common/CRoot.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 using namespace boost::assign;
 

@@ -26,14 +26,14 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CLinearInterpolator.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CLinearInterpolator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
@@ -41,20 +41,20 @@
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
-//#include "Mesh/CMesh.hpp"
-//#include "Mesh/CField.hpp"
-//#include "Mesh/CEntities.hpp"
-//#include "Mesh/ElementType.hpp"
-//#include "Mesh/CMeshWriter.hpp"
-//#include "Mesh/CDomain.hpp"
-//#include "Mesh/Actions/CInitFieldFunction.hpp"
-//#include "Mesh/Actions/CreateSpaceP0.hpp"
+//#include "mesh/CMesh.hpp"
+//#include "mesh/CField.hpp"
+//#include "mesh/CEntities.hpp"
+//#include "mesh/ElementType.hpp"
+//#include "mesh/CMeshWriter.hpp"
+//#include "mesh/CDomain.hpp"
+//#include "mesh/Actions/CInitFieldFunction.hpp"
+//#include "mesh/Actions/CreateSpaceP0.hpp"
 //#include "Solver/CModelUnsteady.hpp"
 //#include "Solver/CSolver.hpp"
 //#include "Solver/CPhysicalModel.hpp"
-//#include "Mesh/Actions/CBuildFaces.hpp"
-//#include "Mesh/Actions/CBuildVolume.hpp"
-//#include "Mesh/Actions/CreateSpaceP0.hpp"
+//#include "mesh/Actions/CBuildFaces.hpp"
+//#include "mesh/Actions/CBuildVolume.hpp"
+//#include "mesh/Actions/CreateSpaceP0.hpp"
 //#include "SFDM/CreateSpace.hpp"
 
 using namespace boost::assign;
@@ -62,7 +62,7 @@ using namespace cf3;
 using namespace cf3::Math;
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 using namespace cf3::SFDM;

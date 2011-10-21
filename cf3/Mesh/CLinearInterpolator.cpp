@@ -18,21 +18,21 @@
 #include "common/CLink.hpp"
 
 #include "Math/Consts.hpp"
-#include "Mesh/CLinearInterpolator.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CLinearInterpolator.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
   using namespace Math::Consts;
@@ -372,7 +372,7 @@ void CLinearInterpolator::create_octtree()
           Uint k=0;
           // CFinfo << "("<<i<<","<<j<<") has elems ";
           // if (m_honeycomb[i][j][k].size())
-          //   CFinfo << Mesh::to_vector(m_honeycomb[i][j][k]).transpose() << CFendl;
+          //   CFinfo << mesh::to_vector(m_honeycomb[i][j][k]).transpose() << CFendl;
           // else
           //   CFinfo << CFendl;
           total += m_honeycomb[i][j][k].size();
@@ -385,7 +385,7 @@ void CLinearInterpolator::create_octtree()
           {
             // CFinfo << "("<<i<<","<<j<<","<<k<<") has elems ";
             // if (m_honeycomb[i][j][k].size())
-            //   CFinfo << Mesh::to_vector(m_honeycomb[i][j][k]).transpose() << CFendl;
+            //   CFinfo << mesh::to_vector(m_honeycomb[i][j][k]).transpose() << CFendl;
             // else
             //   CFinfo << CFendl;
             total += m_honeycomb[i][j][k].size();
@@ -627,5 +627,5 @@ void CLinearInterpolator::pseudo_laplacian_weighted_linear_interpolation(const s
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

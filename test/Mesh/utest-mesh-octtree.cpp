@@ -21,20 +21,20 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshGenerator.hpp"
-#include "Mesh/COcttree.hpp"
-#include "Mesh/CStencilComputerOcttree.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshGenerator.hpp"
+#include "mesh/COcttree.hpp"
+#include "mesh/CStencilComputerOcttree.hpp"
+#include "mesh/CMeshWriter.hpp"
 
 using namespace boost;
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -15,16 +15,16 @@
 #include "common/CEnv.hpp"
 #include "common/CRoot.hpp"
 #include "common/FindComponents.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/Actions/CInitFieldFunction.hpp"
-#include "Mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/Actions/CInitFieldFunction.hpp"
+#include "mesh/Actions/CreateSpaceP0.hpp"
 #include "Solver/CModel.hpp"
 #include "Solver/FlowSolver.hpp"
 #include "Solver/CTime.hpp"
@@ -33,13 +33,13 @@
 #include "SFDM/Reconstruct.hpp"
 #include "SFDM/SFDWizard.hpp"
 
-#include "Mesh/SF/Quad2DLagrangeP1.hpp"
+#include "mesh/SF/Quad2DLagrangeP1.hpp"
 #include "Solver/Physics.hpp"
 #include "Physics/src/Euler/Cons1D.hpp"
 
 using namespace cf3;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::SF;
+using namespace cf3::mesh;
+using namespace cf3::mesh::SF;
 using namespace cf3::common;
 using namespace cf3::SFDM;
 using namespace cf3::Solver;

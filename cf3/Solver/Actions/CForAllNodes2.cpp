@@ -7,16 +7,16 @@
 #include "common/CBuilder.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CList.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CList.hpp"
 
 #include "Solver/Actions/CForAllNodes2.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

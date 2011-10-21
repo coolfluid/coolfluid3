@@ -12,7 +12,7 @@
 #include "common/Signal.hpp"
 #include "common/XML/MultiArray.hpp"
 
-#include "Mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -23,7 +23,7 @@
 using namespace boost::assign;
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 

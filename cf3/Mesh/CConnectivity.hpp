@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CConnectivity_hpp
-#define cf3_Mesh_CConnectivity_hpp
+#ifndef cf3_mesh_CConnectivity_hpp
+#define cf3_mesh_CConnectivity_hpp
 
-//#include "Mesh/CElements.hpp"
-#include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CTable.hpp"
+//#include "mesh/CElements.hpp"
+#include "mesh/CUnifiedData.hpp"
+#include "mesh/CTable.hpp"
 #include "common/CGroup.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -19,7 +19,7 @@ namespace common {
   class CLink;
   class CGroup;
 }
-namespace Mesh {
+namespace mesh {
 
   class CRegion;
   class CCells;
@@ -29,7 +29,7 @@ namespace Mesh {
 /// Stores connectivity data between faces and their adjacent elements
 /// and provides a convenient API to access the data
 /// @author Willem Deconinck
-class Mesh_API CConnectivity : public Mesh::CTable<Uint>
+class Mesh_API CConnectivity : public mesh::CTable<Uint>
 {
 public:
 
@@ -64,9 +64,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Connectivity_hpp
+#endif // cf3_mesh_Connectivity_hpp

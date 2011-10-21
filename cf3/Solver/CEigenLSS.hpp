@@ -18,7 +18,7 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "LibSolver.hpp"
 
@@ -95,7 +95,7 @@ private:
 };
 
 /// Helper function to increment the solution field(s) with the given solution vector from a LSS, i.e. treat the solution vector as the differece between the new  and old field values
-void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, Mesh::CMesh& solution_mesh);
+void increment_solution(const RealVector& solution, const std::vector<std::string>& field_names, const std::vector<std::string>& var_names, const std::vector<Uint>& var_sizes, mesh::CMesh& solution_mesh);
 
 ////////////////////////////////////////////////////////////////////////////////
 

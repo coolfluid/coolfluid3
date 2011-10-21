@@ -10,14 +10,14 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Hexa3D.hpp"
-#include "Mesh/LagrangeP1/Quad3D.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "mesh/LagrangeP1/Hexa3D.hpp"
+#include "mesh/LagrangeP1/Quad3D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ common::ComponentBuilder < ElementTypeT<Hexa3D>, ElementType , LibLagrangeP1 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Hexa3D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -47,7 +47,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Hexa3D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Hexa3D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Hexa3D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
   return *facetype;
@@ -369,5 +369,5 @@ bool Hexa3D::is_orientation_inside(const CoordsT& coord, const NodesT& nodes, co
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3

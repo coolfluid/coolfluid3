@@ -16,19 +16,19 @@
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/VTKLegacy/CWriter.hpp"
-#include "Mesh/GeoShape.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/VTKLegacy/CWriter.hpp"
+#include "mesh/GeoShape.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace VTKLegacy {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -195,5 +195,5 @@ void CWriter::write_from_to(const CMesh& mesh, const URI& file_path)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // VTKLegacy
-} // Mesh
+} // mesh
 } // cf3

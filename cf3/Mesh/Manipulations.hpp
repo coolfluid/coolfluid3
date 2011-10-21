@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Manipulations_hpp
-#define cf3_Mesh_Manipulations_hpp
+#ifndef cf3_mesh_Manipulations_hpp
+#define cf3_mesh_Manipulations_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/PE/Buffer.hpp"
 
-#include "Mesh/CList.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CDynTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CDynTable.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   class Geometry;
   class CElements;
@@ -103,9 +103,9 @@ struct PackUnpackNodes: common::PE::PackedObject
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Manipulations_hpp
+#endif // cf3_mesh_Manipulations_hpp

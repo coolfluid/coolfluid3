@@ -6,7 +6,7 @@
 
 #include "common/Log.hpp"
 
-#include "Mesh/Geometry.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/Tags.hpp"
@@ -18,7 +18,7 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;

@@ -14,7 +14,7 @@
 
 namespace cf3 {
 
-namespace Mesh { class CRegion; class CMesh; }
+namespace mesh { class CRegion; class CMesh; }
 namespace Physics { class PhysModel; }
 namespace Solver {
 
@@ -50,13 +50,13 @@ public: // functions
   Solver::CSolver& solver();
 
   /// @returns the mesh this action is using
-  Mesh::CMesh& mesh();
+  mesh::CMesh& mesh();
 
   /// @returns the physical model this action relies on
   Physics::PhysModel& physical_model();
 
   /// @returns the regions this action is operating on
-  common::ComponentIteratorRange<Mesh::CRegion> regions();
+  common::ComponentIteratorRange<mesh::CRegion> regions();
 
   //@} END ACCESSORS
 
@@ -69,12 +69,12 @@ protected: // data
   /// link back to the solver
   boost::weak_ptr< Solver::CSolver > m_solver;
   /// mesh where this action data resides
-  boost::weak_ptr< Mesh::CMesh > m_mesh;
+  boost::weak_ptr< mesh::CMesh > m_mesh;
   /// physical model used by this action
   boost::weak_ptr< Physics::PhysModel > m_physical_model;
 
   /// regions of the mesh to loop over
-  std::vector< boost::shared_ptr< Mesh::CRegion > > m_loop_regions;
+  std::vector< boost::shared_ptr< mesh::CRegion > > m_loop_regions;
 
 };
 

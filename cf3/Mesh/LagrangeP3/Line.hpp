@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP3_Line_hpp
-#define cf3_Mesh_LagrangeP3_Line_hpp
+#ifndef cf3_mesh_LagrangeP3_Line_hpp
+#define cf3_mesh_LagrangeP3_Line_hpp
 
-#include "Mesh/ShapeFunctionBase.hpp"
-#include "Mesh/LagrangeP3/API.hpp"
+#include "mesh/ShapeFunctionBase.hpp"
+#include "mesh/LagrangeP3/API.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP3 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ struct Mesh_LagrangeP3_API Line : public ShapeFunctionBase<Line,Line_traits>
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP3
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP3_Line_hpp
+#endif // cf3_mesh_LagrangeP3_Line_hpp

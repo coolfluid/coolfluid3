@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CStencilComputerRings_hpp
-#define cf3_Mesh_CStencilComputerRings_hpp
+#ifndef cf3_mesh_CStencilComputerRings_hpp
+#define cf3_mesh_CStencilComputerRings_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
-#include "Mesh/CStencilComputer.hpp"
+#include "mesh/CStencilComputer.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   class CNodeElementConnectivity;
 
@@ -58,9 +58,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Neu_CStencilComputerRings_hpp
+#endif // cf3_mesh_Neu_CStencilComputerRings_hpp

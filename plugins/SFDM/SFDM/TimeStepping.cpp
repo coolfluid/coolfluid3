@@ -14,8 +14,8 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/MeshMetadata.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/MeshMetadata.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/Actions/CCriterionTime.hpp"
@@ -27,7 +27,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 

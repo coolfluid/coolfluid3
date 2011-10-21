@@ -27,21 +27,21 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/WriteMesh.hpp"
-#include "Mesh/MeshMetadata.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/WriteMesh.hpp"
+#include "mesh/MeshMetadata.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 using namespace common::XML;
@@ -74,8 +74,8 @@ CMesh::CMesh ( const std::string& name  ) :
       ->connect   ( boost::bind ( &CMesh::signal_write_mesh,    this, _1 ) )
       ->signature ( boost::bind ( &CMesh::signature_write_mesh, this, _1 ) );
 
-  m_nodes = create_static_component_ptr<Geometry>(Mesh::Tags::nodes());
-  m_nodes->add_tag(Mesh::Tags::nodes());
+  m_nodes = create_static_component_ptr<Geometry>(mesh::Tags::nodes());
+  m_nodes->add_tag(mesh::Tags::nodes());
 
 }
 
@@ -185,7 +185,7 @@ void CMesh::create_space( const std::string& name, const FieldGroup::Basis::Type
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
   case FieldGroup::Basis::FACE_BASED:
-    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(topology,Mesh::Tags::face_entity()))
+    boost_foreach(CEntities& elements, find_components_recursively_with_tag<CEntities>(topology,mesh::Tags::face_entity()))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
   case FieldGroup::Basis::INVALID:
@@ -362,5 +362,5 @@ void CMesh::check_sanity() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

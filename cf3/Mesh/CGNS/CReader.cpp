@@ -17,16 +17,16 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/CGNS/CReader.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/CGNS/CReader.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace CGNS {
 
 using namespace common;
@@ -929,5 +929,5 @@ Uint CReader::get_total_nbElements()
 //////////////////////////////////////////////////////////////////////////////
 
 } // CGNS
-} // Mesh
+} // mesh
 } // cf3

@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::FieldManager"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::FieldManager"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -19,21 +19,21 @@
 #include "Math/VariableManager.hpp"
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace cf3::Math;
 

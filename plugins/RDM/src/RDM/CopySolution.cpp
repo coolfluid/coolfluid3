@@ -9,7 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -18,7 +18,7 @@
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
@@ -37,7 +37,7 @@ CopySolution::CopySolution ( const std::string& name ) :
   // options
 
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution))
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution");
 }
 

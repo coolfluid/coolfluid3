@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Mesh::Tecplot::CWriter"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::CWriter"
 
 #include <boost/test/unit_test.hpp>
 
@@ -13,16 +13,16 @@
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMeshWriter.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "Mesh/CList.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
 
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

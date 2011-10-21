@@ -9,9 +9,9 @@
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Solver/CTime.hpp"
 #include "Solver/CModel.hpp"
@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 using namespace cf3::Math::Consts;
 

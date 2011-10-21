@@ -26,18 +26,18 @@
 #include "Solver/Actions/CCriterionTime.hpp"
 #include "Solver/Actions/CForAllCells.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CRegion.hpp"
 
-#include "Mesh/Actions/CInitFieldConstant.hpp"
-#include "Mesh/Actions/CInitFieldFunction.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/Actions/CInitFieldConstant.hpp"
+#include "mesh/Actions/CInitFieldFunction.hpp"
+#include "mesh/Actions/CBuildFaces.hpp"
+#include "mesh/Actions/CBuildVolume.hpp"
+#include "mesh/Actions/CreateSpaceP0.hpp"
 
 #include "SFDM/SFDWizard.hpp"
 #include "SFDM/UpdateSolution.hpp"
@@ -55,10 +55,10 @@ namespace SFDM {
   using namespace common;
   using namespace common::XML;
 
-  using namespace Mesh;
+  using namespace mesh;
   using namespace Solver;
   using namespace Solver::Actions;
-  using namespace Mesh::Actions;
+  using namespace mesh::Actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 

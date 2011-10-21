@@ -11,13 +11,13 @@
 #include "common/CEnv.hpp"
 #include "common/Core.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/MeshMetadata.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/MeshMetadata.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -108,5 +108,5 @@ void CMeshWriter::execute()
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Mesh
+} // mesh
 } // cf3

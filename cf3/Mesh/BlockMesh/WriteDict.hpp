@@ -4,15 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_BlockMesh_WriteDict_hpp
-#define cf3_Mesh_BlockMesh_WriteDict_hpp
+#ifndef cf3_mesh_BlockMesh_WriteDict_hpp
+#define cf3_mesh_BlockMesh_WriteDict_hpp
 
 #include "common/CF.hpp"
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/BlockMesh/LibBlockMesh.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
+#include "mesh/Blockmesh/LibBlockMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {  
+namespace mesh {  
 namespace BlockMesh {
 
 BlockMesh_API std::ostream& operator<<(std::ostream& os, const BlockData::IndicesT& data);
@@ -24,7 +24,7 @@ BlockMesh_API std::ostream& operator<<(std::ostream& os, const BlockData& block_
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3
 
 #endif /* CF3_Mesh_BlockMesh_WriteDict_hpp */

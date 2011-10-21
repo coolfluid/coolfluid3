@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CEntities_hpp
-#define cf3_Mesh_CEntities_hpp
+#ifndef cf3_mesh_CEntities_hpp
+#define cf3_mesh_CEntities_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/EnumT.hpp"
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CTable.hpp"
 
 namespace cf3 {
 namespace common { class CLink; class CGroup;}
-namespace Mesh {
+namespace mesh {
 
   template <typename T> class CList;
   class Geometry;
@@ -144,9 +144,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CEntities_hpp
+#endif // cf3_mesh_CEntities_hpp

@@ -8,15 +8,15 @@
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "CSynchronizeFields.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

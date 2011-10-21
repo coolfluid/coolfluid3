@@ -4,22 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Neu_CReader_hpp
-#define cf3_Mesh_Neu_CReader_hpp
+#ifndef cf3_mesh_Neu_CReader_hpp
+#define cf3_mesh_Neu_CReader_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Mesh/Neu/LibNeu.hpp"
-#include "Mesh/Neu/Shared.hpp"
+#include "mesh/Neu/LibNeu.hpp"
+#include "mesh/Neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class CElements;
   class CRegion;
   class CMixedHash;
@@ -135,9 +135,9 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Neu
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Neu_CReader_hpp
+#endif // cf3_mesh_Neu_CReader_hpp

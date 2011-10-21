@@ -12,16 +12,16 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/Actions/CInitFieldConstant.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/Actions/CInitFieldConstant.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -86,5 +86,5 @@ void CInitFieldConstant::execute()
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

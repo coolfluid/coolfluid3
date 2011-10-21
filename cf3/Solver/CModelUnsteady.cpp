@@ -15,8 +15,8 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CSolver.hpp"
@@ -27,7 +27,7 @@ namespace cf3 {
 namespace Solver {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 common::ComponentBuilder < CModelUnsteady, Component, LibSolver > CModelUnsteady_Builder;
 

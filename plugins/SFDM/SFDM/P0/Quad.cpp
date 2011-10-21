@@ -16,7 +16,7 @@ namespace P0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Quad, mesh::ShapeFunction, LibSFDM >
   Quad_Builder(LibSFDM::library_namespace()+".P0."+Quad::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ const RealMatrix& Quad::local_coordinates() const
 const Uint Quad::nb_nodes;
 const Uint Quad::dimensionality;
 const Uint Quad::order;
-const Mesh::GeoShape::Type Quad::shape;
+const mesh::GeoShape::Type Quad::shape;
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -21,10 +21,10 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementType.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -68,7 +68,7 @@ public: // functions
 
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ( const Mesh::CTable<Uint>::ConstRow& nodes_idx );
+  void interpolate ( const mesh::CTable<Uint>::ConstRow& nodes_idx );
 
   void sol_gradients_at_qdpoint(const Uint q);
 
@@ -77,9 +77,9 @@ protected: // helper functions
   void change_elements()
   {
     connectivity =
-        elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
+        elements().as_ptr<mesh::CElements>()->node_connectivity().as_ptr< mesh::CConnectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< Mesh::Field >();
+        elements().geometry().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
@@ -119,20 +119,20 @@ protected: // typedefs
 
 protected: // data
 
-  boost::weak_ptr< Mesh::Field > csolution;   ///< solution field
-  boost::weak_ptr< Mesh::Field > cresidual;   ///< residual field
-  boost::weak_ptr< Mesh::Field > cwave_speed; ///< wave_speed field
+  boost::weak_ptr< mesh::Field > csolution;   ///< solution field
+  boost::weak_ptr< mesh::Field > cresidual;   ///< residual field
+  boost::weak_ptr< mesh::Field > cwave_speed; ///< wave_speed field
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CConnectivity::Ptr connectivity;
+  mesh::CConnectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::Field::Ptr coordinates;
+  mesh::Field::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr solution;
+  mesh::Field::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr residual;
+  mesh::Field::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::Field::Ptr wave_speed;
+  mesh::Field::Ptr wave_speed;
 
   /// helper object to compute the quadrature information
   const QD& m_quadrature;
@@ -201,11 +201,11 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
   // options
 
   m_options.add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &csolution));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
   m_options.add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
   m_options.add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &cresidual));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
   m_options["elements"]
@@ -253,13 +253,13 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate( const Mesh::CTable<Uint>::ConstRow& nodes_idx )
+void SchemeBase<SF, QD,PHYS>::interpolate( const mesh::CTable<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be tested for 3D
 
   // copy the coordinates from the large array to a small
 
-  Mesh::fill(X_n, *coordinates, nodes_idx );
+  mesh::fill(X_n, *coordinates, nodes_idx );
 
   // copy the solution from the large array to a small
 

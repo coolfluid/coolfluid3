@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 namespace RDM {
 
 /// Copies the solution to a set of fields
@@ -44,7 +44,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_solution;  ///< solution field pointer
+  boost::weak_ptr<mesh::Field> m_solution;  ///< solution field pointer
 
 };
 

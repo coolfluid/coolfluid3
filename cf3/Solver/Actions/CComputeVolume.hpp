@@ -12,7 +12,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   template <typename T> class CTable;
   class CElements;
   class Field;
@@ -54,8 +54,8 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_volume;
-  boost::weak_ptr<Mesh::CSpace> m_volume_field_space;
+  boost::weak_ptr<mesh::Field> m_volume;
+  boost::weak_ptr<mesh::CSpace> m_volume_field_space;
 
   RealMatrix m_coordinates;
 

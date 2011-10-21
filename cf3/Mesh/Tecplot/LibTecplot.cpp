@@ -6,10 +6,10 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "Mesh/Tecplot/LibTecplot.hpp"
+#include "mesh/Tecplot/LibTecplot.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Tecplot {
 
 cf3::common::RegistLibrary<LibTecplot> libTecplot;
@@ -27,5 +27,5 @@ void LibTecplot::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Tecplot
-} // Mesh
+} // mesh
 } // cf3

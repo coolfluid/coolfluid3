@@ -16,7 +16,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -34,7 +34,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
@@ -62,7 +62,7 @@ RDSolver::RDSolver ( const std::string& name  ) :
   options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option< OptionT<std::string> >( "solution_space", Mesh::Tags::geometry() )
+  options().add_option< OptionT<std::string> >( "solution_space", mesh::Tags::geometry() )
       ->pretty_name("Solution Space")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 

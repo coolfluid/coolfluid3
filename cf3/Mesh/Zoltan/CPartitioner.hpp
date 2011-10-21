@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Zoltan_CPartitioner_hpp
-#define cf3_Mesh_Zoltan_CPartitioner_hpp
+#ifndef cf3_mesh_Zoltan_CPartitioner_hpp
+#define cf3_mesh_Zoltan_CPartitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/Zoltan/LibZoltan.hpp"
+#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/Zoltan/LibZoltan.hpp"
 
 namespace cf3 {
 namespace common { template <typename KEY, typename DATA> class CMap;}
-namespace Mesh {
+namespace mesh {
 namespace Zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,9 +101,9 @@ private: // data
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Zoltan
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Zoltan_CPartitioner_hpp
+#endif // cf3_mesh_Zoltan_CPartitioner_hpp

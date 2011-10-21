@@ -10,14 +10,14 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Triag2D.hpp"
-#include "Mesh/LagrangeP1/Line2D.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/LagrangeP1/Line2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -42,7 +42,7 @@ Real jacobian_determinant_helper(const Triag2D::NodesT& nodes)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Triag2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -58,7 +58,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Triag2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Triag2D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Triag2D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Line2D> >(LagrangeP1::Line2D::type_name()) );
   return *facetype;
@@ -162,5 +162,5 @@ Real Triag2D::area(const NodesT& nodes)
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3

@@ -11,12 +11,12 @@
 
 #include "Solver/Actions/CLoop.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/CRegion.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace Solver {

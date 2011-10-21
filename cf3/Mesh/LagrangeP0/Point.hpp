@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP0_Point_hpp
-#define cf3_Mesh_LagrangeP0_Point_hpp
+#ifndef cf3_mesh_LagrangeP0_Point_hpp
+#define cf3_mesh_LagrangeP0_Point_hpp
 
-#include "Mesh/ShapeFunctionBase.hpp"
-#include "Mesh/LagrangeP0/API.hpp"
+#include "mesh/ShapeFunctionBase.hpp"
+#include "mesh/LagrangeP0/API.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -75,7 +75,7 @@ struct Mesh_LagrangeP0_API Point
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // Mesh
+} // mesh
 } // cf3
 
-#endif // cf3_Mesh_LagrangeP0_Point_hpp
+#endif // cf3_mesh_LagrangeP0_Point_hpp

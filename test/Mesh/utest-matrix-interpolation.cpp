@@ -14,15 +14,15 @@
 #include "common/CRoot.hpp"
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/LagrangeP1/Triag2D.hpp"
+#include "mesh/LagrangeP1/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::LagrangeP1;
+using namespace cf3::mesh;
+using namespace cf3::mesh::LagrangeP1;
 
 //////////////////////////////////////////////////////////////////////////////
 

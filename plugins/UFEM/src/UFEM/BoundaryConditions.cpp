@@ -19,7 +19,7 @@
 
 #include "Math/LSS/System.hpp"
 
-#include "Mesh/Geometry.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Solver/Actions/CSolveSystem.hpp"
 
@@ -36,7 +36,7 @@ namespace UFEM {
 using namespace common;
 using namespace common::XML;
 using namespace Math;
-using namespace Mesh;
+using namespace mesh;
 using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;

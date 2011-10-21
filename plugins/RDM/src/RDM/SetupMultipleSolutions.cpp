@@ -14,10 +14,10 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -28,7 +28,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {

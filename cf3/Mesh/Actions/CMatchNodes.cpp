@@ -16,23 +16,23 @@
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
 
-#include "Mesh/Actions/CMatchNodes.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CNodeFaceCellConnectivity.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Actions/CMatchNodes.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CNodeFaceCellConnectivity.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
 #include "Math/Functions.hpp"
 #include "Math/Consts.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -185,5 +185,5 @@ std::size_t CMatchNodes::hash_value(const RealVector3& coords)
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

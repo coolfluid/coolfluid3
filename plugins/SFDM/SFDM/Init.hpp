@@ -16,7 +16,7 @@
 namespace cf3 {
 
 namespace Physics { class Variables; }
-namespace Mesh    { class CMesh; class Field; }
+namespace mesh    { class CMesh; class Field; }
 
 namespace SFDM {
 
@@ -50,7 +50,7 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_field;  ///< access to the field to initialize
+  boost::weak_ptr<mesh::Field> m_field;  ///< access to the field to initialize
   boost::weak_ptr<Physics::Variables> m_input_vars;  ///< access to the input variables
   Math::VectorialFunction  m_function;    ///< function parser for the math formula
 

@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh   { class Field; class CMesh; class WriteMesh; }
+namespace mesh   { class Field; class CMesh; class WriteMesh; }
 namespace Solver {
 namespace Actions {
 
@@ -43,7 +43,7 @@ private: // data
 
   boost::weak_ptr<Component> m_iterator;  ///< component that holds the iteration
 
-  Mesh::WriteMesh& m_writer; ///< mesh writer
+  mesh::WriteMesh& m_writer; ///< mesh writer
 
 };
 

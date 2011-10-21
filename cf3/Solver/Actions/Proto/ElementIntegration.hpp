@@ -11,7 +11,7 @@
 
 #include <boost/proto/transform/lazy.hpp>
 
-#include "Mesh/Integrators/Gauss.hpp"
+#include "mesh/Integrators/Gauss.hpp"
 
 #include "ElementMatrix.hpp"
 #include "ElementTransforms.hpp"
@@ -107,7 +107,7 @@ public:
     
     result_type operator ()(typename impl::expr_param expr, typename impl::state_param state, typename impl::data_param data) const
     {
-      typedef Mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
+      typedef mesh::Integrators::GaussMappedCoords<order, ShapeFunctionT::shape> GaussT;
       ChildT e = boost::proto::child_c<1>(expr); // expression to integrate
       data.precompute_element_matrices(GaussT::instance().coords.col(0), expr);
       expr.value = GaussT::instance().weights[0] * ElementMathImplicit()(e, state, data);
@@ -175,7 +175,7 @@ struct ElementQuadrature :
     {
       typedef typename boost::remove_reference<DataT>::type::SupportT::EtypeT ShapeFunctionT;
       typedef typename ShapeFunctionT::MappedCoordsT MappedCoordsT;
-      typedef Mesh::Integrators::GaussMappedCoords<2, ShapeFunctionT::shape> GaussT;
+      typedef mesh::Integrators::GaussMappedCoords<2, ShapeFunctionT::shape> GaussT;
       
       for(Uint i = 0; i != GaussT::nb_points; ++i)
       {

@@ -21,7 +21,7 @@ public:
   typedef boost::shared_ptr<Quad>       Ptr;
   typedef boost::shared_ptr<Quad const> ConstPtr;
 
-  static const Mesh::GeoShape::Type shape          = Mesh::GeoShape::QUAD;
+  static const mesh::GeoShape::Type shape          = mesh::GeoShape::QUAD;
   static const Uint                 nb_nodes       = 16;
   static const Uint                 dimensionality = 2;
   static const Uint                 order          = 3;
@@ -52,4 +52,4 @@ public:
 } // SFDM
 } // cf3
 
-#endif // cf3_Mesh_P3_Quad
+#endif // cf3_mesh_P3_Quad

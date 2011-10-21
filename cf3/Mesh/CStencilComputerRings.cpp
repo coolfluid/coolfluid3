@@ -14,19 +14,19 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 
-#include "Mesh/CStencilComputerRings.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/COcttree.hpp"
+#include "mesh/CStencilComputerRings.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/COcttree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -107,5 +107,5 @@ void CStencilComputerRings::compute_neighbors(std::set<Uint>& included, const Ui
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

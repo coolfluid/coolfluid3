@@ -10,17 +10,17 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/Actions/CBuildVolume.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -68,8 +68,8 @@ void CBuildVolume::execute()
   CMesh& mesh = *m_mesh.lock();
 
   FieldGroup& cells_P0 = mesh.create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
-  Field& volume = cells_P0.create_field(Mesh::Tags::volume());
-  volume.add_tag(Mesh::Tags::volume());
+  Field& volume = cells_P0.create_field(mesh::Tags::volume());
+  volume.add_tag(mesh::Tags::volume());
 
   boost_foreach( CElements& elements, volume.elements_range() )
   {
@@ -87,5 +87,5 @@ void CBuildVolume::execute()
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

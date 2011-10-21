@@ -13,7 +13,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -27,7 +27,7 @@
 #include "RDM/GPU/SchemeLDAGPU.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 
 namespace cf3 {
@@ -45,11 +45,11 @@ template < typename PHYS>
 struct LDAGPU::ElementLoop
 {
   /// region to loop on
-  Mesh::CRegion& region;
+  mesh::CRegion& region;
   /// component containing the element loop
   LDAGPU& comp;
   /// Constructor
-  ElementLoop( LDAGPU& comp_in, Mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
+  ElementLoop( LDAGPU& comp_in, mesh::CRegion& region_in ) : comp(comp_in), region(region_in) {}
   /// operator needed for the loop over element types (SF)
   template < typename SF >
   void operator() ( SF& T )
@@ -59,8 +59,8 @@ struct LDAGPU::ElementLoop
     /// parametrization of the numerical scheme
     typedef SchemeLDAGPU< SF, QD, PHYS > SchemeT;
 
-    boost_foreach(Mesh::CElements& elements,
-                  common::find_components_recursively_with_filter<Mesh::CElements>(region,IsElementType<SF>()))
+    boost_foreach(mesh::CElements& elements,
+                  common::find_components_recursively_with_filter<mesh::CElements>(region,IsElementType<SF>()))
     {
       // get the scheme or create it if does not exist
       Component::Ptr cscheme = comp.get_child_ptr( SchemeT::type_name() );
@@ -98,7 +98,7 @@ void LDAGPU::execute()
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
     std::string physics = pm->type();
 

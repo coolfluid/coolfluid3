@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CRegion_hpp
-#define cf3_Mesh_CRegion_hpp
+#ifndef cf3_mesh_CRegion_hpp
+#define cf3_mesh_CRegion_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/FindComponents.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
-#include "Mesh/CEntities.hpp"
+#include "mesh/CEntities.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   template <typename T> class CTable;
   class Geometry;
@@ -114,9 +114,9 @@ inline Uint CRegion::recursive_filtered_elements_count(const Predicate& pred) co
   return elem_count;
 }
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CRegion_hpp
+#endif // cf3_mesh_CRegion_hpp

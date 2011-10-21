@@ -12,15 +12,15 @@
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/PE/debug.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CCellFaces.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CCellFaces.hpp"
 
 #include "Physics/Variables.hpp"
 #include "Physics/PhysModel.hpp"
@@ -37,7 +37,7 @@ namespace cf3 {
 namespace SFDM {
 
   using namespace common;
-  using namespace Mesh;
+  using namespace mesh;
   using namespace Physics;
   using namespace RiemannSolvers;
 
@@ -574,7 +574,7 @@ void Convection::compute_inner_face_flux_points_contribution()
 
   /// inner-faces loop
   boost_foreach(CRegion::Ptr region, m_loop_regions)
-  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(*region,Mesh::Tags::inner_faces()))
+  boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(*region,mesh::Tags::inner_faces()))
   {
     CFaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
 

@@ -7,7 +7,7 @@
 #ifndef cf3_Tools_MeshDiff_Tools_hpp
 #define cf3_Tools_MeshDiff_Tools_hpp
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Tools/Testing/Difference.hpp"
 
@@ -17,12 +17,12 @@
 
 namespace cf3 {
 namespace Tools {
-namespace MeshDiff {
+namespace meshDiff {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Calculates the difference between two meshes
-bool MeshDiff_API diff( const cf3::Mesh::CMesh& a, const cf3::Mesh::CMesh& b, const cf3::Uint max_ulps);
+bool MeshDiff_API diff( const cf3::mesh::CMesh& a, const cf3::mesh::CMesh& b, const cf3::Uint max_ulps);
 
 ////////////////////////////////////////////////////////////////////////////////
 

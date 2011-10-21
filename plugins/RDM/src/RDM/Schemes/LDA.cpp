@@ -10,13 +10,13 @@
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/LDA.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Solver;
 
 namespace cf3 {
@@ -42,7 +42,7 @@ void LDA::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::CRegion::Ptr& region, m_loop_regions)
   {
     loop.select_region( region );
 

@@ -10,14 +10,14 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/ElementTypeT.hpp"
+#include "mesh/ElementTypeT.hpp"
 
-#include "Mesh/LagrangeP1/LibLagrangeP1.hpp"
-#include "Mesh/LagrangeP1/Quad2D.hpp"
-#include "Mesh/LagrangeP1/Line2D.hpp"
+#include "mesh/LagrangeP1/LibLagrangeP1.hpp"
+#include "mesh/LagrangeP1/Quad2D.hpp"
+#include "mesh/LagrangeP1/Line2D.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP1 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ common::ComponentBuilder < ElementTypeT<Quad2D>, ElementType , LibLagrangeP1 >
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType::FaceConnectivity& Quad2D::faces()
+const cf3::mesh::ElementType::FaceConnectivity& Quad2D::faces()
 {
   static ElementType::FaceConnectivity connectivity;
   if(connectivity.displs.empty())
@@ -44,7 +44,7 @@ const cf3::Mesh::ElementType::FaceConnectivity& Quad2D::faces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const cf3::Mesh::ElementType& Quad2D::face_type(const cf3::Uint face)
+const cf3::mesh::ElementType& Quad2D::face_type(const cf3::Uint face)
 {
   static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP1::Line2D> >(LagrangeP1::Line2D::type_name()) );
   return *facetype;
@@ -265,5 +265,5 @@ void Quad2D::compute_plane_jacobian_normal(const MappedCoordsT& mapped_coord, co
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP1
-} // Mesh
+} // mesh
 } // cf3

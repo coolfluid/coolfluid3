@@ -12,10 +12,10 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Actions/CBuildFaces.hpp"
+#include "mesh/Actions/CGlobalNumbering.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -26,8 +26,8 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Actions;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Actions;
 using namespace cf3::Solver;
 
 namespace cf3 {

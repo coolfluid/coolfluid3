@@ -8,11 +8,11 @@
 #include "common/CRoot.hpp"
 #include "common/CGroup.hpp"
 
-#include "Mesh/Actions/LibActions.hpp"
-#include "Mesh/Actions/LoadBalance.hpp"
+#include "mesh/Actions/LibActions.hpp"
+#include "mesh/Actions/LoadBalance.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
 using namespace cf3::common;
@@ -39,5 +39,5 @@ void LibActions::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

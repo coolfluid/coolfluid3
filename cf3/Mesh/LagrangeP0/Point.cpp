@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP0/LibLagrangeP0.hpp"
-#include "Mesh/LagrangeP0/Point.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP0/LibLagrangeP0.hpp"
+#include "mesh/LagrangeP0/Point.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP0 {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,5 +61,5 @@ const Uint Point::order;
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // Mesh
+} // mesh
 } // cf3

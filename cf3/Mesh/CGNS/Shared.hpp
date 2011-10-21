@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CGNS_Shared_hpp
-#define cf3_Mesh_CGNS_Shared_hpp
+#ifndef cf3_mesh_CGNS_Shared_hpp
+#define cf3_mesh_CGNS_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <cgnslib.h>
 
-#include "Mesh/CGNS/LibCGNS.hpp"
-#include "Mesh/CGNS/CGNSExceptions.hpp"
+#include "mesh/CGNS/LibCGNS.hpp"
+#include "mesh/CGNS/CGNSExceptions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   class Geometry;
   class CRegion;
@@ -154,9 +154,9 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // CGNS
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CGNS_Shared_hpp
+#endif // cf3_mesh_CGNS_Shared_hpp

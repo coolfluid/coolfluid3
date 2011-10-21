@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CHash_hpp
-#define cf3_Mesh_CHash_hpp
+#ifndef cf3_mesh_CHash_hpp
+#define cf3_mesh_CHash_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -82,9 +82,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CHash_hpp
+#endif // cf3_mesh_CHash_hpp

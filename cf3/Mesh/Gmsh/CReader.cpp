@@ -15,26 +15,26 @@
 #include "common/StringConversion.hpp"
 
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CMixedHash.hpp"
-#include "Mesh/CHash.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/ConnectivityData.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CMixedHash.hpp"
+#include "mesh/CHash.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CSpace.hpp"
 
-#include "Mesh/Gmsh/CReader.hpp"
+#include "mesh/Gmsh/CReader.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Gmsh {
 
   using namespace common;
@@ -665,7 +665,7 @@ void CReader::read_element_data()
 
       if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
-      Mesh::Field& field = field_group.create_field(gmsh_field.name);
+      mesh::Field& field = field_group.create_field(gmsh_field.name);
       field.configure_option("var_names",gmsh_field.var_names);
       field.configure_option("var_types",var_types_str);
 
@@ -694,7 +694,7 @@ void CReader::read_element_data()
           {
             boost::tie(elements,cf_idx) = it->second;
 
-            Mesh::Field::Row field_data = field[field.space(*elements).indexes_for_element(cf_idx)[0]] ;
+            mesh::Field::Row field_data = field[field.space(*elements).indexes_for_element(cf_idx)[0]] ;
 
             d=0;
             for(Uint v=var_begin; v<var_end; ++v)
@@ -742,7 +742,7 @@ void CReader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    Mesh::Field& field = m_mesh->geometry().create_field(gmsh_field.name);
+    mesh::Field& field = m_mesh->geometry().create_field(gmsh_field.name);
     field.configure_option("var_names",gmsh_field.var_names);
     field.configure_option("var_types",var_types_str);
     field.resize(gmsh_field.nb_entries);
@@ -769,7 +769,7 @@ void CReader::read_node_data()
         if (it != m_node_idx_gmsh_to_cf.end())
         {
           cf_idx = it->second;
-          Mesh::Field::Row field_data = field[cf_idx];
+          mesh::Field::Row field_data = field[cf_idx];
 
           d=0;
           for(Uint v=var_begin; v<var_end; ++v)
@@ -892,5 +892,5 @@ std::string CReader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Gmsh
-} // Mesh
+} // mesh
 } // cf3

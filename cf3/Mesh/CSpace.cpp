@@ -9,17 +9,17 @@
 #include "common/OptionT.hpp"
 #include "common/CLink.hpp"
 
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CConnectivity.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/ShapeFunction.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/CConnectivity.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/ShapeFunction.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -227,5 +227,5 @@ RealMatrix CSpace::get_coordinates(const Uint elem_idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

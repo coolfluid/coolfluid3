@@ -14,7 +14,7 @@
 using namespace cf3::common;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace BlockMesh {
 
 std::ostream& operator<<(std::ostream& os, const BlockData::IndicesT& data)
@@ -84,5 +84,5 @@ std::ostream& operator<<(std::ostream& os, const BlockData& block_data)
 }
   
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3

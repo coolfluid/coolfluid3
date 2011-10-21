@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/URI.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/CRegion.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -24,7 +24,7 @@ namespace Actions {
 namespace Proto {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 using namespace Physics;
 
 ComponentBuilder < CProtoAction, CAction, LibSolver > CProtoAction_Builder;

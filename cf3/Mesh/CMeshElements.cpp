@@ -6,15 +6,15 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CEntities.hpp"
+#include "mesh/CMeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -38,5 +38,5 @@ void CMeshElements::update()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

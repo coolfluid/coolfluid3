@@ -17,23 +17,23 @@
 #include "common/StringConversion.hpp"
 #include "common/Tags.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CMixedHash.hpp"
-#include "Mesh/CHash.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMeshElements.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CMixedHash.hpp"
+#include "mesh/CHash.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMeshElements.hpp"
 
-#include "Mesh/Neu/CReader.hpp"
+#include "mesh/Neu/CReader.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Neu {
 
   using namespace common;
@@ -605,5 +605,5 @@ std::string CReader::element_type(const Uint neu_type, const Uint nb_nodes)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Neu
-} // Mesh
+} // mesh
 } // cf3

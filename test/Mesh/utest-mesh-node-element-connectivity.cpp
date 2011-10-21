@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests cf3::Mesh::CNodeElementConnectivity"
+#define BOOST_TEST_MODULE "Tests cf3::mesh::CNodeElementConnectivity"
 
 #include <boost/test/unit_test.hpp>
 
@@ -14,17 +14,17 @@
 #include "common/CRoot.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CConnectivity.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CConnectivity.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

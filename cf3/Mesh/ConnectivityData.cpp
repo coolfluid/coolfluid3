@@ -8,12 +8,12 @@
 
 #include "common/FindComponents.hpp"
 
-#include "Mesh/ConnectivityData.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ConnectivityData.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/ElementType.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -317,5 +317,5 @@ void create_face_face_connectivity(const CElements& own_celements, const CFaceCo
 
 
 
-} // Mesh
+} // mesh
 } // cf3

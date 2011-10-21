@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Mesh/Gmsh/Shared.hpp"
+#include "mesh/Gmsh/Shared.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -385,5 +385,5 @@ std::string Shared::gmsh_name_to_cf_name(const Uint dim, const Uint gmsh_type)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Gmsh
-} // Mesh
+} // mesh
 } // cf3

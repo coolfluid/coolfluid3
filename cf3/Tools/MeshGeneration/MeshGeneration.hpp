@@ -8,8 +8,8 @@
 #define cf3_Tools_MeshGeneration_Tools_hpp
 
 #include "Math/Consts.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
 
 #include "Tools/MeshGeneration/LibMeshGeneration.hpp"
 
@@ -22,16 +22,16 @@ namespace MeshGeneration {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Create a 1D line mesh
-void MeshGeneration_API create_line(Mesh::CMesh& mesh, const Real x_len, const Uint x_segments);
+void MeshGeneration_API create_line(mesh::CMesh& mesh, const Real x_len, const Uint x_segments);
 
 /// Create a rectangular, 2D, quad-only mesh. No buffer for creation
-void MeshGeneration_API create_rectangle(Mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle(mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Create a triangulated version of a 2D rectangular grid.
-void MeshGeneration_API create_rectangle_tris(Mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
+void MeshGeneration_API create_rectangle_tris(mesh::CMesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments);
 
 /// Creates a 2D circular arc
-void MeshGeneration_API create_circle_2d(Mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::Consts::pi());
+void MeshGeneration_API create_circle_2d(mesh::CMesh& mesh, const Real radius, const Uint segments, const Real start_angle = 0., const Real end_angle = 2.*Math::Consts::pi());
 
 /// Create block data for a 3D periodic channel (flow between infinite flat plates)
 /// @param length: Total distance between the streamwise periodic boundaries (X-direction)
@@ -41,7 +41,7 @@ void MeshGeneration_API create_circle_2d(Mesh::CMesh& mesh, const Real radius, c
 /// @param y_segs_half: HALF the number of segements between the flat plates
 /// @param z_segs: Number of segments in the Z-direction
 /// @param ratio: Ratio (smallest cell / largest cell) in the Y-direction
-void MeshGeneration_API create_channel_3d(Mesh::BlockMesh::BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio);
+void MeshGeneration_API create_channel_3d(mesh::BlockMesh::BlockData& blocks, const Real length, const Real half_height, const Real width, const Uint x_segs, const Uint y_segs_half, const Uint z_segs, const Real ratio);
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -57,11 +57,11 @@ struct MeshSourceGlobalFixture {
   }
 
   /// Returns a 2D square grid, with side MeshSize
-  static const Mesh::CMesh& grid2()
+  static const mesh::CMesh& grid2()
   {
-    static Mesh::CMesh::Ptr grid2D;
+    static mesh::CMesh::Ptr grid2D;
     if(!grid2D) {
-      grid2D = common::allocate_component<Mesh::CMesh>("grid2D");
+      grid2D = common::allocate_component<mesh::CMesh>("grid2D");
       create_rectangle(*grid2D, 1., 1., MeshSize, MeshSize);
     }
     return *grid2D;

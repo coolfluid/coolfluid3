@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP1_API_hpp
-#define cf3_Mesh_LagrangeP1_API_hpp
+#ifndef cf3_mesh_LagrangeP1_API_hpp
+#define cf3_mesh_LagrangeP1_API_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,4 +21,4 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_LagrangeP1_API_hpp
+#endif // cf3_mesh_LagrangeP1_API_hpp

@@ -17,19 +17,19 @@
 
 #include "Math/MatrixTypes.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/LagrangeP0/Hexa.hpp"
+#include "mesh/Integrators/Gauss.hpp"
+#include "mesh/LagrangeP0/Hexa.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -55,7 +55,7 @@ using namespace cf3;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////

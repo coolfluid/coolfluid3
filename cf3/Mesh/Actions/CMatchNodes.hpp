@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CMatchNodes_hpp
-#define cf3_Mesh_CMatchNodes_hpp
+#ifndef cf3_mesh_CMatchNodes_hpp
+#define cf3_mesh_CMatchNodes_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Actions/LibActions.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Actions/LibActions.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
   
 //////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ private: // functions
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CMatchNodes_hpp
+#endif // cf3_mesh_CMatchNodes_hpp

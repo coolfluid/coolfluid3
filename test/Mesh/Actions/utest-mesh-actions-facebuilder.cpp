@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests Mesh::Actions::CBuildFaces"
+#define BOOST_TEST_MODULE "Tests mesh::Actions::CBuildFaces"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -16,26 +16,26 @@
 
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Actions/CreateSpaceP0.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CBuildFaceNormals.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
+#include "mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/Actions/CBuildFaces.hpp"
+#include "mesh/Actions/CBuildFaceNormals.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CSimpleMeshGenerator.hpp"
 
 using namespace cf3;
 using namespace boost::assign;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Actions;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   CMeshWriter::Ptr mesh_writer = build_component_abstract_type<CMeshWriter>("CF.Mesh.Gmsh.CWriter","writer");
 
-  mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,Mesh::Tags::normal())));
+  mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");
   BOOST_CHECK(true);
 
@@ -170,7 +170,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   facebuilder->execute();
 
   BOOST_CHECK(true);
-  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh.topology(),Mesh::Tags::inner_faces());
+  CRegion& inner_faces_region = find_component_recursively_with_name<CRegion>(rmesh.topology(),mesh::Tags::inner_faces());
   CCellFaces& inner_faces = find_component<CCellFaces>(inner_faces_region);
   CFaceCellConnectivity& f2c = find_component<CFaceCellConnectivity>(inner_faces);
   Component::Ptr cells;

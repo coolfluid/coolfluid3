@@ -7,7 +7,7 @@
 #ifndef cf3_BlockMeshReader_BlockMeshReader_hpp
 #define cf3_BlockMeshReader_BlockMeshReader_hpp
 
-#include "Mesh/CMeshReader.hpp"
+#include "mesh/CMeshReader.hpp"
 
 namespace cf3 {
 namespace BlockMeshReader {
@@ -16,7 +16,7 @@ namespace BlockMeshReader {
 
 /// This class defines BlockMeshReader BlockMesh mesh format reader
 /// @author Bart Janssens
-class BlockMeshReader : public cf3::Mesh::CMeshReader
+class BlockMeshReader : public cf3::mesh::CMeshReader
 {
 public:
 
@@ -31,7 +31,7 @@ public:
   virtual std::vector<std::string> get_extensions();
 
 private:
-  virtual void do_read_mesh_into(const common::URI& path, Mesh::CMesh& mesh);
+  virtual void do_read_mesh_into(const common::URI& path, mesh::CMesh& mesh);
 
 }; // end BlockMeshReader
 

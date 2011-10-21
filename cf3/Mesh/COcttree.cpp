@@ -22,21 +22,21 @@
 #include "common/PE/debug.hpp"
 
 #include "Math/Consts.hpp"
-#include "Mesh/COcttree.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/COcttree.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
   using namespace common::PE;
@@ -178,7 +178,7 @@ void COcttree::create_octtree()
   //         Uint k=0;
   //         // CFinfo << "("<<i<<","<<j<<") has elems ";
   //         // if (m_octtree[i][j][k].size())
-  //         //   CFinfo << Mesh::to_vector(m_octtree[i][j][k]).transpose() << CFendl;
+  //         //   CFinfo << mesh::to_vector(m_octtree[i][j][k]).transpose() << CFendl;
   //         // else
   //         //   CFinfo << CFendl;
   //         total += m_octtree[i][j][k].size();
@@ -191,7 +191,7 @@ void COcttree::create_octtree()
   //         {
   //           // CFinfo << "("<<i<<","<<j<<","<<k<<") has elems ";
   //           // if (m_octtree[i][j][k].size())
-  //           //   CFinfo << Mesh::to_vector(m_octtree[i][j][k]).transpose() << CFendl;
+  //           //   CFinfo << mesh::to_vector(m_octtree[i][j][k]).transpose() << CFendl;
   //           // else
   //           //   CFinfo << CFendl;
   //           total += m_octtree[i][j][k].size();
@@ -474,5 +474,5 @@ bool COcttree::find_element(const RealVector& target_coord, CElements::ConstPtr&
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

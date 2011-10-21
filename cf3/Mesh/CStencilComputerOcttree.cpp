@@ -11,18 +11,18 @@
 #include "common/CBuilder.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CStencilComputerOcttree.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/COcttree.hpp"
+#include "mesh/CStencilComputerOcttree.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/COcttree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   using namespace common;
 
@@ -81,5 +81,5 @@ void CStencilComputerOcttree::compute_stencil(const Uint unified_elem_idx, std::
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

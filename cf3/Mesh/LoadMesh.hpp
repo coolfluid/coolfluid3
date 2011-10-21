@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LoadMesh_hpp
-#define cf3_Mesh_LoadMesh_hpp
+#ifndef cf3_mesh_LoadMesh_hpp
+#define cf3_mesh_LoadMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
 #include "common/URI.hpp"
-#include "Mesh/CMeshReader.hpp"
+#include "mesh/CMeshReader.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class CMesh;
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -65,15 +65,15 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<Mesh::CMeshReader::Ptr> > m_extensions_to_readers;
+  std::map<std::string,std::vector<mesh::CMeshReader::Ptr> > m_extensions_to_readers;
 
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_LoadMesh_hpp
+#endif // cf3_mesh_LoadMesh_hpp

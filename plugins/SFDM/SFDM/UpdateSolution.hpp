@@ -13,7 +13,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh   { class Field; }
+namespace mesh   { class Field; }
 namespace SFDM {
 
 class SFDM_API UpdateSolution : public Solver::Action
@@ -44,9 +44,9 @@ private: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_solution;
-  boost::weak_ptr<Mesh::Field> m_residual;
-  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_update_coeff;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

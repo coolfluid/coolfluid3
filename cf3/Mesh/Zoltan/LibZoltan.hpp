@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_Zoltan_LibZoltan_hpp
-#define cf3_Mesh_Zoltan_LibZoltan_hpp
+#ifndef cf3_mesh_Zoltan_LibZoltan_hpp
+#define cf3_mesh_Zoltan_LibZoltan_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ typedef Zoltan ZoltanHandle;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   
 /// @brief Library for Zoltan mesh partitioning and load balancing
 /// @author Willem Deconinck
@@ -86,9 +86,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Zoltan
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_Zoltan_LibZoltan_hpp
+#endif // cf3_mesh_Zoltan_LibZoltan_hpp

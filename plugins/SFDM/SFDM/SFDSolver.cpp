@@ -12,7 +12,7 @@
 #include "common/CGroup.hpp"
 #include "common/Core.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -26,7 +26,7 @@
 #include "SFDM/ComputeUpdateCoefficient.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
@@ -168,7 +168,7 @@ void SFDSolver::config_mesh()
   if( is_null(m_mesh.lock()) ) return;
 
   Physics::PhysModel& pm = physics(); // physcial model must have already been configured
-  Mesh::CMesh& mesh = *m_mesh.lock();
+  mesh::CMesh& mesh = *m_mesh.lock();
 
   if( physics().ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );

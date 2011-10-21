@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CMeshPartitioner_hpp
-#define cf3_Mesh_CMeshPartitioner_hpp
+#ifndef cf3_mesh_CMeshPartitioner_hpp
+#define cf3_mesh_CMeshPartitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,19 +16,19 @@
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/CHash.hpp"
-#include "Mesh/CMixedHash.hpp"
-#include "Mesh/CDynTable.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/CHash.hpp"
+#include "mesh/CMixedHash.hpp"
+#include "mesh/CDynTable.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CMeshTransformer.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
   class CMesh;
 
@@ -290,9 +290,9 @@ void CMeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT&
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CMeshPartitioner_hpp
+#endif // cf3_mesh_CMeshPartitioner_hpp

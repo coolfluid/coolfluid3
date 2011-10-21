@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CFaceCellConnectivity_hpp
-#define cf3_Mesh_CFaceCellConnectivity_hpp
+#ifndef cf3_mesh_CFaceCellConnectivity_hpp
+#define cf3_mesh_CFaceCellConnectivity_hpp
 
-//#include "Mesh/CElements.hpp"
-#include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CMeshElements.hpp"
+//#include "mesh/CElements.hpp"
+#include "mesh/CUnifiedData.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CMeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +18,7 @@ namespace cf3 {
 namespace common {
   class CLink;
 }
-namespace Mesh {
+namespace mesh {
 
   class Geometry;
   class CRegion;
@@ -113,9 +113,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_ConnectivityData_hpp
+#endif // cf3_mesh_ConnectivityData_hpp

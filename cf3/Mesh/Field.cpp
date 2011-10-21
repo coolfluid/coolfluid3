@@ -18,10 +18,10 @@
 
 #include "common/PE/CommPattern.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Math/VariablesDescriptor.hpp"
 
@@ -31,7 +31,7 @@ using namespace cf3::common;
 using namespace cf3::common::PE;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -235,5 +235,5 @@ void Field::create_descriptor(const std::string& description, const Uint dimensi
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

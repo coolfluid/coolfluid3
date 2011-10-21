@@ -4,19 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_WriteMesh_hpp
-#define cf3_Mesh_WriteMesh_hpp
+#ifndef cf3_mesh_WriteMesh_hpp
+#define cf3_mesh_WriteMesh_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CAction.hpp"
 #include "common/URI.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMeshWriter.hpp"
 
-#include "Mesh/LibMesh.hpp"
+#include "mesh/LibMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
   class CMesh;
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -69,7 +69,7 @@ protected: // helper functions
 
 private: // data
 
-  std::map<std::string,std::vector<Mesh::CMeshWriter::Ptr> > m_extensions_to_writers;
+  std::map<std::string,std::vector<mesh::CMeshWriter::Ptr> > m_extensions_to_writers;
 
   boost::weak_ptr<CMesh> m_mesh;
   common::URI m_file;
@@ -79,9 +79,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_WriteMesh_hpp
+#endif // cf3_mesh_WriteMesh_hpp

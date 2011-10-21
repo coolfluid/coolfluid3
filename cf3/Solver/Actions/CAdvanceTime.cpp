@@ -8,9 +8,9 @@
 #include "common/CBuilder.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/MeshMetadata.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/MeshMetadata.hpp"
 
 #include "Solver/Tags.hpp"
 #include "Solver/CModel.hpp"
@@ -22,7 +22,7 @@ namespace Solver {
 namespace Actions {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

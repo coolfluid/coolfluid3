@@ -19,15 +19,15 @@
 #include "Solver/CSolver.hpp"
 #include "Solver/Actions/CForAllCells.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/FieldManager.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "Physics/Variables.hpp"
 #include "Physics/PhysModel.hpp"
@@ -41,7 +41,7 @@ namespace cf3 {
 namespace SFDM {
 
   using namespace common;
-  using namespace Mesh;
+  using namespace mesh;
   using namespace Solver::Actions;
   using namespace Solver;
   using namespace Physics;

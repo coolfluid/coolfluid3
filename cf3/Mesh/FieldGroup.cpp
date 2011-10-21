@@ -30,24 +30,24 @@
 
 #include "Math/VariablesDescriptor.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CUnifiedData.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CConnectivity.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CList.hpp"
+#include "mesh/CUnifiedData.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CConnectivity.hpp"
 
 #include "Math/Consts.hpp"
 #define UNKNOWN Math::Consts::uint_max()
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace boost::assign;
 
@@ -122,8 +122,8 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   m_rank = create_static_component_ptr< CList<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  m_glb_idx = create_static_component_ptr< CList<Uint> >(Mesh::Tags::global_indices());
-  m_glb_idx->add_tag(Mesh::Tags::global_indices());
+  m_glb_idx = create_static_component_ptr< CList<Uint> >(mesh::Tags::global_indices());
+  m_glb_idx->add_tag(mesh::Tags::global_indices());
 
 
   // Event handlers
@@ -365,7 +365,7 @@ void FieldGroup::update()
         elements_lookup().add(cells);
       break;
     case Basis::FACE_BASED:
-      boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(topology(),Mesh::Tags::face_entity()))
+      boost_foreach(CEntities& faces, find_components_recursively_with_tag<CEntities>(topology(),mesh::Tags::face_entity()))
         elements_lookup().add(faces);
       break;
     default:
@@ -403,7 +403,7 @@ void FieldGroup::bind_space()
   if (m_basis == Basis::INVALID)
     throw SetupError(FromHere(), "type of field_group ["+uri().string()+"] not configured");
 
-  if (m_space != Mesh::Tags::geometry())
+  if (m_space != mesh::Tags::geometry())
     create_connectivity_in_space();
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
@@ -1003,7 +1003,7 @@ void FieldGroup::signal_create_field( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 #undef UNKNOWN

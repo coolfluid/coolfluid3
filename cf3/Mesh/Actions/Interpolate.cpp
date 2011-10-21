@@ -10,20 +10,20 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "Mesh/Actions/Interpolate.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/ShapeFunction.hpp"
-#include "Mesh/COcttree.hpp"
+#include "mesh/Actions/Interpolate.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/ShapeFunction.hpp"
+#include "mesh/COcttree.hpp"
 
 #include "Math/Consts.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
 using namespace common;
@@ -393,5 +393,5 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

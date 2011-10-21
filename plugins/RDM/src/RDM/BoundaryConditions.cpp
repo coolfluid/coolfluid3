@@ -12,7 +12,7 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/CMesh.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -25,7 +25,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {

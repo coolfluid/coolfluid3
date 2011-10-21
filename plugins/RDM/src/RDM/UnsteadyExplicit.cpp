@@ -12,9 +12,9 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/WriteMesh.hpp"
 
 // supported physical models
 
@@ -45,7 +45,7 @@ namespace RDM {
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::Physics;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;

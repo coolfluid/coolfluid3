@@ -9,9 +9,9 @@
 
 #include "Solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CTable.hpp"
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "mesh/CFieldView.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -52,7 +52,7 @@ private: // helper functions
   
 private: // data
   
-  boost::shared_ptr<Mesh::CMultiStateFieldView> m_jacobian_determinant;
+  boost::shared_ptr<mesh::CMultiStateFieldView> m_jacobian_determinant;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////

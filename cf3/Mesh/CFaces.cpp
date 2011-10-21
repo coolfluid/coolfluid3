@@ -6,10 +6,10 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CFaces.hpp"
+#include "mesh/CFaces.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -26,7 +26,7 @@ CFaces::CFaces ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");  
   
-  add_tag(Mesh::Tags::face_entity());
+  add_tag(mesh::Tags::face_entity());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,5 +45,5 @@ void CFaces::initialize(const std::string& element_type_name, Geometry& nodes)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3

@@ -6,12 +6,12 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/ShapeFunctionT.hpp"
-#include "Mesh/LagrangeP2B/LibLagrangeP2B.hpp"
-#include "Mesh/LagrangeP2B/Triag.hpp"
+#include "mesh/ShapeFunctionT.hpp"
+#include "mesh/LagrangeP2B/LibLagrangeP2B.hpp"
+#include "mesh/LagrangeP2B/Triag.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace LagrangeP2B {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,5 +97,5 @@ const RealMatrix& Triag::local_coordinates()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP2B
-} // Mesh
+} // mesh
 } // cf3

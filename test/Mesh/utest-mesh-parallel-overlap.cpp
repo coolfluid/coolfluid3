@@ -28,25 +28,25 @@
 
 #include "Math/Consts.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshElements.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMeshGenerator.hpp"
-#include "Mesh/CMeshPartitioner.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/Manipulations.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshReader.hpp"
+#include "mesh/CMeshElements.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMeshGenerator.hpp"
+#include "mesh/CMeshPartitioner.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/Manipulations.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/CSpace.hpp"
 
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::Math::Consts;

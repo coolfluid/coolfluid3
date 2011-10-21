@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Tests Mesh::Actions::CGlobalConnectivity"
+#define BOOST_TEST_MODULE "Tests mesh::Actions::CGlobalConnectivity"
 
 #include <boost/test/unit_test.hpp>
 
@@ -15,19 +15,19 @@
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/Actions/CGlobalConnectivity.hpp"
-#include "Mesh/Actions/CGlobalNumbering.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMeshReader.hpp"
+#include "mesh/Actions/CGlobalConnectivity.hpp"
+#include "mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/CMeshTransformer.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CMeshReader.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Actions;
+using namespace cf3::mesh;
+using namespace cf3::mesh::Actions;
 using namespace cf3::common::PE;
 
 ////////////////////////////////////////////////////////////////////////////////

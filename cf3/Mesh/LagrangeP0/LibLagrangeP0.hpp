@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_LagrangeP0_LibLagrangeP0_hpp
-#define cf3_Mesh_LagrangeP0_LibLagrangeP0_hpp
+#ifndef cf3_mesh_LagrangeP0_LibLagrangeP0_hpp
+#define cf3_mesh_LagrangeP0_LibLagrangeP0_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CLibrary.hpp"
-#include "Mesh/LagrangeP0/API.hpp"
+#include "mesh/LagrangeP0/API.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 /// @brief namespace holding LagrangeP0 shape functions and elements
 /// @author Willem Deconinck
@@ -71,9 +71,9 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LagrangeP0
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_LagrangeP0_LibLagrangeP0_hpp
+#endif // cf3_mesh_LagrangeP0_LibLagrangeP0_hpp

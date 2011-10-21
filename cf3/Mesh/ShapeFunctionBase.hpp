@@ -8,18 +8,18 @@
 /// @brief Base class to inherit shape function implementations from
 /// @author Willem Deconinck
 
-#ifndef cf3_Mesh_ShapeFunctionBase_hpp
-#define cf3_Mesh_ShapeFunctionBase_hpp
+#ifndef cf3_mesh_ShapeFunctionBase_hpp
+#define cf3_mesh_ShapeFunctionBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Math/MatrixTypes.hpp"
-#include "Mesh/GeoShape.hpp"
+#include "mesh/GeoShape.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -144,9 +144,9 @@ inline typename ShapeFunctionBase<SF,TR>::GradientT ShapeFunctionBase<SF,TR>::gr
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_ShapeFunctionBase_hpp
+#endif // cf3_mesh_ShapeFunctionBase_hpp

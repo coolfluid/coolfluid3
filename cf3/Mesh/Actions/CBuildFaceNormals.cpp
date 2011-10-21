@@ -13,26 +13,26 @@
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/Actions/CBuildFaceNormals.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
-#include "Mesh/CNodeElementConnectivity.hpp"
-#include "Mesh/CNodeFaceCellConnectivity.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CFaces.hpp"
-#include "Mesh/CCellFaces.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/Actions/CBuildFaceNormals.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CNodeElementConnectivity.hpp"
+#include "mesh/CNodeFaceCellConnectivity.hpp"
+#include "mesh/CCells.hpp"
+#include "mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CFaces.hpp"
+#include "mesh/CCellFaces.hpp"
+#include "mesh/Field.hpp"
 
 #include "Math/Functions.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Actions {
 
   using namespace common;
@@ -83,8 +83,8 @@ void CBuildFaceNormals::execute()
   const Uint dimension = mesh.geometry().coordinates().row_size();
 
   FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
-  Field& face_normals = faces_P0.create_field(Mesh::Tags::normal(),std::string(Mesh::Tags::normal())+"[vector]");
-  face_normals.add_tag(Mesh::Tags::normal());
+  Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
+  face_normals.add_tag(mesh::Tags::normal());
 
   Component::Ptr component;
   Uint cell_idx(0);
@@ -143,5 +143,5 @@ void CBuildFaceNormals::execute()
 
 
 } // Actions
-} // Mesh
+} // mesh
 } // cf3

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_CUnifiedData_hpp
-#define cf3_Mesh_CUnifiedData_hpp
+#ifndef cf3_mesh_CUnifiedData_hpp
+#define cf3_mesh_CUnifiedData_hpp
 
 #include <boost/tuple/tuple.hpp>
 
@@ -14,12 +14,12 @@
 #include "common/CLink.hpp"
 #include "common/StringConversion.hpp"
 
-#include "Mesh/CList.hpp"
+#include "mesh/CList.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -139,9 +139,9 @@ inline void CUnifiedData::add(DATA& data)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Mesh_CUnifiedData_hpp
+#endif // cf3_mesh_CUnifiedData_hpp

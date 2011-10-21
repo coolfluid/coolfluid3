@@ -14,21 +14,21 @@
 #include "common/StringConversion.hpp"
 #include "common/CMap.hpp"
 
-#include "Mesh/Gmsh/CWriter.hpp"
+#include "mesh/Gmsh/CWriter.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/CSpace.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace Gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -640,5 +640,5 @@ void CWriter::write_element_data(std::fstream& file)
 //////////////////////////////////////////////////////////////////////////////
 
 } // Gmsh
-} // Mesh
+} // mesh
 } // cf3

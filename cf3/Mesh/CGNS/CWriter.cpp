@@ -10,19 +10,19 @@
 #include "common/CBuilder.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CGNS/CWriter.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CGNS/CWriter.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/Geometry.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 namespace CGNS {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ void CWriter::write_zone(const CRegion& region)
   m_zone.coord_dim = m_mesh->dimension();
 
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(m_mesh->geometry(),Mesh::Tags::coordinates()))
+  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -123,7 +123,7 @@ void CWriter::write_zone(const CRegion& region)
   }
 
   Uint idx=0;
-  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(m_mesh->geometry(),Mesh::Tags::coordinates()))
+  BOOST_FOREACH(const CTable<Real>& coordinates, find_components_recursively_with_tag<CTable<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
   {
     m_global_start_idx[&coordinates] = idx;
 
@@ -321,5 +321,5 @@ void CWriter::write_section(const GroupedElements& grouped_elements)
 
 
 } // CGNS
-} // Mesh
+} // mesh
 } // cf3

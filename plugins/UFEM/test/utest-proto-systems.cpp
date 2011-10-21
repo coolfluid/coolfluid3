@@ -13,7 +13,7 @@
 #include "common/CEnv.hpp"
 #include "common/CRoot.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/CDomain.hpp"
 
 #include "Solver/CModelUnsteady.hpp"
 #include "Solver/CTime.hpp"
@@ -33,7 +33,7 @@ using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
 using namespace cf3::common;
 using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 using namespace boost;
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::LagrangeP1::Quad2D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // build up the solver out of different actions
   solver

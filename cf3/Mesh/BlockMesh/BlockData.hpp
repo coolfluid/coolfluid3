@@ -4,17 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Mesh_BlockMesh_BlockData_hpp
-#define cf3_Mesh_BlockMesh_BlockData_hpp
+#ifndef cf3_mesh_BlockMesh_BlockData_hpp
+#define cf3_mesh_BlockMesh_BlockData_hpp
 
 #include "common/CF.hpp"
 #include "common/Component.hpp"
 
-#include "Mesh/LibMesh.hpp"
-#include "Mesh/BlockMesh/LibBlockMesh.hpp"
+#include "mesh/LibMesh.hpp"
+#include "mesh/Blockmesh/LibBlockMesh.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 class CMesh;
 
@@ -78,7 +78,7 @@ struct BlockMesh_API BlockData : common::Component
 /// @param block_data Description of the structured blocks that make up the grid. A mesh containing only the blocks will be created here.
 /// @param mesh Stores the generated mesh
 /// @param overlap Amount of cell overlap to generate
-void BlockMesh_API build_mesh(cf3::Mesh::BlockMesh::BlockData& block_data, cf3::Mesh::CMesh& mesh, const Uint overlap = 0);
+void BlockMesh_API build_mesh(cf3::mesh::BlockMesh::BlockData& block_data, cf3::mesh::CMesh& mesh, const Uint overlap = 0);
 
 /// Partition a mesh along the X, Y or Z axis into the given number of partitions
 /// Partitioning ensures that processor boundaries lie on a boundary between blocks
@@ -94,7 +94,7 @@ void BlockMesh_API create_block_mesh(const BlockData& block_data, CMesh& mesh);
 ////////////////////////////////////////////////////////////////////////////////
 
 } // BlockMesh
-} // Mesh
+} // mesh
 } // cf3
 
 #endif /* CF3_Mesh_BlockMesh_BlockData_hpp */

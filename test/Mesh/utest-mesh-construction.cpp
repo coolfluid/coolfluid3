@@ -17,20 +17,20 @@
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CTable.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/ElementType.hpp"
 
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/CMeshWriter.hpp"
 
 using namespace std;
 using namespace boost;
 using namespace cf3;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////

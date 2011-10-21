@@ -18,20 +18,20 @@
 #include "Math/MatrixTypes.hpp"
 #include "Math/Consts.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/ElementData.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/CDomain.hpp"
+#include "mesh/CMesh.hpp"
+#include "mesh/CRegion.hpp"
+#include "mesh/CElements.hpp"
+#include "mesh/CMeshWriter.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Mesh/Integrators/Gauss.hpp"
-#include "Mesh/ElementTypes.hpp"
-#include "Mesh/LagrangeP0/Quad.hpp"
+#include "mesh/Integrators/Gauss.hpp"
+#include "mesh/ElementTypes.hpp"
+#include "mesh/LagrangeP0/Quad.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
+#include "mesh/Blockmesh/BlockData.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -52,7 +52,7 @@ using namespace cf3;
 using namespace cf3::Solver;
 using namespace cf3::Solver::Actions;
 using namespace cf3::Solver::Actions::Proto;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::common;
 
 using namespace cf3::Math::Consts;
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   Real total_error = 0;
 
   // Accepted element types
-  boost::mpl::vector2<Mesh::LagrangeP0::Quad, Mesh::LagrangeP1::Quad2D> allowed_elements;
+  boost::mpl::vector2<mesh::LagrangeP0::Quad, mesh::LagrangeP1::Quad2D> allowed_elements;
 
   // Expression to compute volumes, assuming rectangles
   boost::shared_ptr<Expression> volumes = elements_expression

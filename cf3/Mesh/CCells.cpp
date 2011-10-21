@@ -6,10 +6,10 @@
 
 #include "common/CBuilder.hpp"
 
-#include "Mesh/CCells.hpp"
+#include "mesh/CCells.hpp"
 
 namespace cf3 {
-namespace Mesh {
+namespace mesh {
 
 using namespace common;
 
@@ -43,5 +43,5 @@ void CCells::initialize(const std::string& element_type_name, Geometry& nodes)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Mesh
+} // mesh
 } // cf3
