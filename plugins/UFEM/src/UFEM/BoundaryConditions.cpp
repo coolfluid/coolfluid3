@@ -43,13 +43,13 @@ using namespace Solver::Actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < BoundaryConditions, CActionDirector, LibUFEM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, ActionDirector, LibUFEM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 struct BoundaryConditions::Implementation
 {
-  Implementation(CActionDirector& comp) :
+  Implementation(ActionDirector& comp) :
     m_component(comp),
     m_physical_model(),
     dirichlet(*m_component.options().add_option< OptionComponent<LSS::System> >("lss", URI())
@@ -66,7 +66,7 @@ struct BoundaryConditions::Implementation
       ->link_to(&m_physical_model);
   }
 
-  CAction::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
+  Action::Ptr create_scalar_bc(const std::string& region_name, const std::string& variable_name, const Real default_value)
   {
     MeshTerm<0, ScalarField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<Real> value("value", "Value for constant boundary condition", default_value);
@@ -74,7 +74,7 @@ struct BoundaryConditions::Implementation
     return create_proto_action("BC"+region_name+variable_name, nodes_expression(dirichlet(var) = value));
   }
 
-  CAction::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
+  Action::Ptr create_vector_bc(const std::string& region_name, const std::string& variable_name, const RealVector default_value)
   {
     MeshTerm<0, VectorField> var(variable_name, UFEM::Tags::solution());
     ConfigurableConstant<RealVector> value("value", "Value for constant boundary condition", default_value);
@@ -102,14 +102,14 @@ struct BoundaryConditions::Implementation
     return *m_physical_model.lock();
   }
 
-  CActionDirector& m_component;
+  ActionDirector& m_component;
   boost::weak_ptr<Physics::PhysModel> m_physical_model;
   DirichletBC dirichlet;
   std::vector<URI> m_region_uris;
 };
 
 BoundaryConditions::BoundaryConditions(const std::string& name) :
-  CActionDirector(name),
+  ActionDirector(name),
   m_implementation( new Implementation(*this) )
 {
   regist_signal( "add_constant_bc" )
@@ -127,7 +127,7 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
 {
   const VariablesDescriptor& descriptor = find_component_with_tag<VariablesDescriptor>(m_implementation->physical_model().variable_manager(), UFEM::Tags::solution());
 
-  CAction::Ptr result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
+  Action::Ptr result = descriptor.dimensionality(variable_name) == VariablesDescriptor::Dimensionalities::SCALAR ?
     m_implementation->create_scalar_bc(region_name, variable_name, boost::any_cast<Real>(default_value)) :
     m_implementation->create_vector_bc(region_name, variable_name, boost::any_cast<RealVector>(default_value));
 

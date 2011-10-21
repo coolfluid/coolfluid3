@@ -24,7 +24,7 @@ using namespace common;
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshWriter::MeshWriter ( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   mark_basic();
 

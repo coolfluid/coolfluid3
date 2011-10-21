@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // Create a field with glb node numbers
   Field& P1_node_rank = mesh.geometry().create_field("P1_node_rank");
 
-  CAction& interpolator = mesh.create_component("interpolator","CF.Mesh.Actions.Interpolate").as_type<CAction>();
+  Action& interpolator = mesh.create_component("interpolator","CF.Mesh.Actions.Interpolate").as_type<Action>();
   interpolator.configure_option("source",nodes_P1_node_rank.uri());
   interpolator.configure_option("target",P1_node_rank.uri());
   interpolator.execute();

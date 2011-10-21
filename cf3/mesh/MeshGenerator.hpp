@@ -11,7 +11,7 @@
 
 #include "common/BoostFilesystem.hpp"
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
@@ -28,7 +28,7 @@ namespace mesh {
 /// This class serves as a component that that will read
 /// the mesh format from file
 /// @author Willem Deconinck
-class Mesh_API MeshGenerator : public common::CAction {
+class Mesh_API MeshGenerator : public common::Action {
 
 public: // typedefs
 

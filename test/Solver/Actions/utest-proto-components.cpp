@@ -12,7 +12,7 @@
 #include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/Core.hpp"
 #include "common/CRoot.hpp"
 #include "common/Log.hpp"

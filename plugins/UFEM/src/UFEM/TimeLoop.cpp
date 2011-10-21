@@ -36,7 +36,7 @@ struct TimeLoop::Implementation
 };
 
 TimeLoop::TimeLoop(const std::string& name) :
-  CActionDirector(name),
+  ActionDirector(name),
   m_implementation(new Implementation(*this))
 {
 }
@@ -57,7 +57,7 @@ void TimeLoop::execute()
   Uint iter = time.iter();
   while(t < time.end_time())
   {
-    CActionDirector::execute();
+    ActionDirector::execute();
     time.configure_option("iteration", ++iter);
     time.configure_option("time", dt * static_cast<Real>(iter));
   }

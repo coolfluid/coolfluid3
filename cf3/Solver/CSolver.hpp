@@ -10,7 +10,7 @@
 #include <boost/scoped_ptr.hpp>
 
 #include "common/Component.hpp"
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 
 #include "Solver/LibSolver.hpp"
 
@@ -24,13 +24,13 @@ namespace Solver {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Solver component class
-/// Base class for solvers. By default, actions added through the CActionDirector interface are
+/// Base class for solvers. By default, actions added through the ActionDirector interface are
 /// executed in the configured order. Override the execute function to change behavior.
 /// Adds an option to set a domain
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 /// @author Bart Janssens
-class Solver_API CSolver : public common::CActionDirector {
+class Solver_API CSolver : public common::ActionDirector {
 
 public: // typedefs
 

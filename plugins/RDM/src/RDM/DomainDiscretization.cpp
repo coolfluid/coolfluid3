@@ -35,7 +35,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < DomainDiscretization, CAction, LibRDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, Action, LibRDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,8 +59,8 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
       ->pretty_name("Create Cell Term");
 
 
-  m_face_terms = create_static_component_ptr<CActionDirector>("FaceTerms");
-  m_cell_terms = create_static_component_ptr<CActionDirector>("CellTerms");
+  m_face_terms = create_static_component_ptr<ActionDirector>("FaceTerms");
+  m_cell_terms = create_static_component_ptr<ActionDirector>("CellTerms");
 }
 
 

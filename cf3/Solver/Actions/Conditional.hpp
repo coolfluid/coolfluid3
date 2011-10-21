@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 namespace cf3 {
 namespace Solver {
@@ -20,7 +20,7 @@ namespace Actions {
 
 /// Action that gets executed Conditionalally
 /// @author Tiago Quintino
-class Solver_Actions_API Conditional : public common::CAction {
+class Solver_Actions_API Conditional : public common::Action {
 
 public: // typedefs
 

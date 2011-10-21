@@ -11,7 +11,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -40,7 +40,7 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, Action, LibSFDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,9 +55,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_update = create_static_component_ptr<CActionDirector>("PreUpdate");
+  m_pre_update = create_static_component_ptr<ActionDirector>("PreUpdate");
 
-  m_post_update = create_static_component_ptr<CActionDirector>("PostUpdate");
+  m_post_update = create_static_component_ptr<ActionDirector>("PostUpdate");
 
   m_options.add_option< OptionT<Uint> >("rk_order", 1u)
       ->description("Order of the Runge-Kutta integration")

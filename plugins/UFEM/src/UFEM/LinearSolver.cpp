@@ -39,14 +39,14 @@ using namespace Solver;
 using namespace Solver::Actions;
 using namespace Solver::Actions::Proto;
 
-class ZeroAction : public common::CAction
+class ZeroAction : public common::Action
 {
 public:
 
   typedef boost::shared_ptr<ZeroAction> Ptr;
   typedef boost::shared_ptr<ZeroAction const> ConstPtr;
 
-  ZeroAction(const std::string& name) : CAction(name)
+  ZeroAction(const std::string& name) : Action(name)
   {
   }
 
@@ -65,7 +65,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ZeroAction, CAction, LibUFEM > ZeroAction_Builder;
+common::ComponentBuilder < ZeroAction, Action, LibUFEM > ZeroAction_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -181,12 +181,12 @@ void LinearSolver::mesh_changed(CMesh& mesh)
 }
 
 
-CAction& LinearSolver::zero_action()
+Action& LinearSolver::zero_action()
 {
   return m_implementation->m_zero_action;
 }
 
-CAction& LinearSolver::solve_action()
+Action& LinearSolver::solve_action()
 {
   return m_implementation->m_solver;
 }

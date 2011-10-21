@@ -24,5 +24,5 @@ a[0] = 1.
 a[1] = 2.
 print len(a), a[0], a[1]
 
-action_director = root.create_component('director', 'CF.Common.CActionDirector')
+action_director = root.create_component('director', 'CF.Common.ActionDirector')
 action_director.configure_option('action_order', ['a', 'b', 'c'])

@@ -33,7 +33,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, Action, LibRDM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -44,8 +44,8 @@ BoundaryConditions::BoundaryConditions ( const std::string& name ) :
 
   // subcomponents
 
-  m_weak_bcs   = create_static_component_ptr<CActionDirector>("WeakBCs");
-  m_strong_bcs = create_static_component_ptr<CActionDirector>("StrongBCs");
+  m_weak_bcs   = create_static_component_ptr<ActionDirector>("WeakBCs");
+  m_strong_bcs = create_static_component_ptr<ActionDirector>("StrongBCs");
 
   // signals
 

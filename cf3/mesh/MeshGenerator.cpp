@@ -25,7 +25,7 @@ using namespace common::XML;
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshGenerator::MeshGenerator ( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   mark_basic();
 

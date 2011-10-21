@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 
@@ -22,7 +22,7 @@ namespace Actions {
 
 /// CSolveSystem wraps a linear system solver in an action that will execute the solve
 /// @author Bart Janssens
-class Solver_Actions_API CSolveSystem : public common::CAction
+class Solver_Actions_API CSolveSystem : public common::Action
 {
 
 public: // typedefs

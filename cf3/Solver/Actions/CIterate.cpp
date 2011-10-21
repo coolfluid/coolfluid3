@@ -27,12 +27,12 @@ namespace Actions {
 using namespace common;
 using namespace math::Consts;
 
-common::ComponentBuilder < CIterate, CAction, LibActions > CIterate_Builder;
+common::ComponentBuilder < CIterate, Action, LibActions > CIterate_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CIterate::CIterate( const std::string& name  ) :
-  CAction ( name ),
+  Action ( name ),
   m_iter(0),
   m_verbose(false),
   m_max_iter(uint_max())
@@ -86,7 +86,7 @@ void CIterate::execute ()
     // call all actions and action links inside this component
     boost_foreach(Component& child, children())
     {
-      if (CAction::Ptr action = child.follow()->as_ptr<CAction>())
+      if (Action::Ptr action = child.follow()->as_ptr<Action>())
         action->execute();
     }
 

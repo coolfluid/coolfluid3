@@ -29,11 +29,11 @@ namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CPrintIterationSummary, CAction, LibActions > CPrintIterationSummary_Builder;
+common::ComponentBuilder < CPrintIterationSummary, Action, LibActions > CPrintIterationSummary_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CPrintIterationSummary::CPrintIterationSummary ( const std::string& name ) : CAction(name)
+CPrintIterationSummary::CPrintIterationSummary ( const std::string& name ) : Action(name)
 {
   mark_basic();
 

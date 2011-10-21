@@ -6,7 +6,7 @@
 
 #include "common/Signal.hpp"
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 
 #include "common/LibCommon.hpp"
@@ -16,27 +16,27 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CAction::CAction ( const std::string& name ) : Component(name)
+Action::Action ( const std::string& name ) : Component(name)
 {
   // signals
 
   regist_signal( "execute" )
-    ->connect( boost::bind( &CAction::signal_execute, this, _1 ) )
+    ->connect( boost::bind( &Action::signal_execute, this, _1 ) )
     ->description("Execute the action")
     ->pretty_name("Execute");
 }
 
 
-CAction& CAction::create_action(const std::string& action_provider,
+Action& Action::create_action(const std::string& action_provider,
                                       const std::string& name)
 {
-  CAction::Ptr sub_action = build_component_abstract_type<CAction>(action_provider,name);
+  Action::Ptr sub_action = build_component_abstract_type<Action>(action_provider,name);
   add_component(sub_action);
   return *sub_action;
 }
 
 
-void CAction::signal_execute ( common::SignalArgs& node )
+void Action::signal_execute ( common::SignalArgs& node )
 {
   this->execute();
 }

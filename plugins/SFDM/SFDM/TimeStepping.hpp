@@ -42,8 +42,8 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  common::CActionDirector& pre_actions()  { return *m_pre_actions; }
-  common::CActionDirector& post_actions() { return *m_post_actions; }
+  common::ActionDirector& pre_actions()  { return *m_pre_actions; }
+  common::ActionDirector& post_actions() { return *m_post_actions; }
 
   cf3::Solver::CTime&       time()         { return *m_time; }
 
@@ -63,9 +63,9 @@ private: // data
 
   boost::shared_ptr< Solver::CTime > m_time;   ///< component tracking time
 
-  common::CActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
+  common::ActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
 
-  common::CActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
+  common::ActionDirector::Ptr m_post_actions; ///< set of actions after non-linear solve
 
 };
 

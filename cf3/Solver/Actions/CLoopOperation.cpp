@@ -27,7 +27,7 @@ namespace Actions {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 CLoopOperation::CLoopOperation ( const std::string& name ) :
-  common::CAction(name),
+  common::Action(name),
   m_can_start_loop(true),
   m_call_config_elements(true),
   m_idx(0)

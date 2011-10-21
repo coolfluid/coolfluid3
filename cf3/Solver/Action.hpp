@@ -7,7 +7,7 @@
 #ifndef cf3_Solver_Action_hpp
 #define cf3_Solver_Action_hpp
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 
 #include "Solver/LibSolver.hpp"
@@ -23,7 +23,7 @@ class CTime;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API Action : public common::CAction {
+class Solver_API Action : public common::Action {
 
 public: // typedefs
 

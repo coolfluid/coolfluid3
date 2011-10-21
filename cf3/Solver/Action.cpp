@@ -27,7 +27,7 @@ namespace Solver {
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Action::Action ( const std::string& name ) :
-  common::CAction(name)
+  common::Action(name)
 {
   mark_basic();
 

@@ -66,9 +66,9 @@ public: // functions
 
 private:
 
-  common::CActionDirector::Ptr m_face_terms;   ///< set of face terms
+  common::ActionDirector::Ptr m_face_terms;   ///< set of face terms
 
-  common::CActionDirector::Ptr m_cell_terms;   ///< set of cell terms
+  common::ActionDirector::Ptr m_cell_terms;   ///< set of cell terms
 
 };
 

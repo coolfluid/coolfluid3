@@ -18,12 +18,12 @@ namespace Actions {
 using namespace common;
 using namespace math;
 
-common::ComponentBuilder < CSolveSystem, CAction, LibActions > CSolveSystem_Builder;
+common::ComponentBuilder < CSolveSystem, Action, LibActions > CSolveSystem_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 CSolveSystem::CSolveSystem( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   mark_basic();
 

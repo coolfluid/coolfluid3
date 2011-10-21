@@ -18,7 +18,7 @@
 #include "common/CBuilder.hpp"
  
 #include "common/Foreach.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/LoadMesh.hpp"

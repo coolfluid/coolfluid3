@@ -93,7 +93,7 @@ struct CSolver::Implementation {
 ////////////////////////////////////////////////////////////////////////////////
 
 CSolver::CSolver ( const std::string& name  ) :
-  CActionDirector ( name ),
+  ActionDirector ( name ),
   m_implementation(new Implementation(*this))
 {
   mark_basic();

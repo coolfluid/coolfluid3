@@ -12,7 +12,7 @@
 #include "SFDM/LibSFDM.hpp"
 
 namespace cf3 {
-namespace common { class CActionDirector; }
+namespace common { class ActionDirector; }
 namespace Solver { class CTime; }
 namespace mesh   { class Field; }
 namespace SFDM {
@@ -42,8 +42,8 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  common::CActionDirector& pre_update()    { return *m_pre_update; }
-  common::CActionDirector& post_update()   { return *m_post_update; }
+  common::ActionDirector& pre_update()    { return *m_pre_update; }
+  common::ActionDirector& post_update()   { return *m_post_update; }
 
   /// @name SIGNALS
   //@{
@@ -73,9 +73,9 @@ private: // data
   boost::weak_ptr<Solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
-  boost::shared_ptr<common::CActionDirector> m_pre_update;
+  boost::shared_ptr<common::ActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
-  boost::shared_ptr<common::CActionDirector> m_post_update;
+  boost::shared_ptr<common::ActionDirector> m_post_update;
 
 };
 

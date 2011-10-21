@@ -1,5 +1,5 @@
 ################################################################################
-# test Component CAction
+# test Component Action
 
 coolfluid_add_test( UTEST utest-solver-actions
                     CPP   utest-solver-actions.cpp CDummyLoopOperation.hpp CDummyLoopOperation.cpp

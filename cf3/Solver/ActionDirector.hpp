@@ -7,7 +7,7 @@
 #ifndef cf3_Solver_ActionDirector_hpp
 #define cf3_Solver_ActionDirector_hpp
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
 
 #include "Solver/LibSolver.hpp"
@@ -24,7 +24,7 @@ class CTime;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class Solver_API ActionDirector : public common::CActionDirector {
+class Solver_API ActionDirector : public common::ActionDirector {
 
 public: // typedefs
 

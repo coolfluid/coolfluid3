@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 namespace cf3 {
 namespace Solver {
@@ -24,7 +24,7 @@ namespace Actions {
 /// of iterations, or a stop-criterion, derived from the type Solver::Actions::CCriterion
 ///
 /// @author Willem Deconinck
-class Solver_Actions_API CIterate : public common::CAction {
+class Solver_Actions_API CIterate : public common::Action {
 
 public: // typedefs
 

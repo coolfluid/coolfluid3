@@ -55,7 +55,7 @@ public: // functions
 
 private:
 
-  common::CActionDirector::Ptr m_terms;   ///< set of terms
+  common::ActionDirector::Ptr m_terms;   ///< set of terms
 
 };
 

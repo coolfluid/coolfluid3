@@ -249,7 +249,7 @@ void SFDWizard::start_simulation(const Real& end_time, const Real& time_step)
 
 void SFDWizard::initialize_solution(const std::vector<std::string>& functions)
 {
-  CAction& init_solution = model().tools().get_child("initialize_solution").as_type<CAction>();
+  Action& init_solution = model().tools().get_child("initialize_solution").as_type<Action>();
   init_solution.configure_option("functions",functions);
   init_solution.execute();
 }
@@ -394,7 +394,7 @@ void SFDWizard::build_setup()
   /// - time
 
   FlowSolver& solver = model().solver().as_type<FlowSolver>();
-  CAction& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"CF.SFDM.SFDSetup");
+  Action& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"CF.SFDM.SFDSetup");
 
   /// Create a mesh transformer to adapt the mesh for SFDM
   CMeshTransformer& transform_mesh = setup.create_component<CMeshTransformer>("1_transform_mesh").mark_basic().as_type<CMeshTransformer>();
@@ -409,7 +409,7 @@ void SFDWizard::build_setup()
 
 //////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder<SFDSetup,CAction,LibSFDM> SFDSetup_builder;
+ComponentBuilder<SFDSetup,Action,LibSFDM> SFDSetup_builder;
 
 void SFDSetup::execute()
 {
@@ -419,7 +419,7 @@ void SFDSetup::execute()
   /// - time
 
   /// 1) execute all mesh transforming actions, and field creation (added in SFDWizard::build_setup())
-  boost_foreach(CAction& action, find_components<CAction>(*this))
+  boost_foreach(Action& action, find_components<Action>(*this))
     action.execute();
 
   /// @todo configure this differently perhaps

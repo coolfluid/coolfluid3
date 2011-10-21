@@ -37,7 +37,7 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < DomainDiscretization, CAction, LibSFDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, Action, LibSFDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -54,7 +54,7 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
       ->description("creates a discretization term for cells")
       ->pretty_name("Create Cell Term");
 
-  m_terms = create_static_component_ptr<CActionDirector>("Terms");
+  m_terms = create_static_component_ptr<ActionDirector>("Terms");
 }
 
 

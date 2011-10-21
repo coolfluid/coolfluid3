@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "Solver/Actions/LibActions.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 namespace cf3 {
 namespace Solver {

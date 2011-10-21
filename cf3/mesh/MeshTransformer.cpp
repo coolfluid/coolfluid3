@@ -22,7 +22,7 @@ common::ComponentBuilder < MeshTransformer, MeshTransformer, LibMesh> MeshTransf
 ////////////////////////////////////////////////////////////////////////////////
 
 MeshTransformer::MeshTransformer ( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   mark_basic();
 

@@ -34,7 +34,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < TimeStepping, CAction, LibRDM > TimeStepping_Builder;
+common::ComponentBuilder < TimeStepping, Action, LibRDM > TimeStepping_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -51,9 +51,9 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_time  = create_static_component_ptr<CTime>("Time");
 
-  m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
+  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
 
-  m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
+  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
 
   CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
   post_actions().append( cwriter );
@@ -98,7 +98,7 @@ void TimeStepping::execute()
 
     // (2) the registered actions that solve one time step
 
-    CActionDirector::execute();
+    ActionDirector::execute();
 
     // (3) the post actions - compute norm, post-process something, etc
 

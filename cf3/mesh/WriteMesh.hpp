@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/URI.hpp"
 #include "mesh/CMeshWriter.hpp"
 
@@ -21,7 +21,7 @@ namespace mesh {
 ////////////////////////////////////////////////////////////////////////////////
 
 /// @author Tiago Quintino
-class Mesh_API WriteMesh : public common::CAction {
+class Mesh_API WriteMesh : public common::Action {
 
 public: // typedefs
 

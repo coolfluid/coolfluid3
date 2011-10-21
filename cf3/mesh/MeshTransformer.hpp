@@ -11,7 +11,7 @@
 
 #include "common/BoostFilesystem.hpp"
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 #include "mesh/LibMesh.hpp"
 
@@ -25,7 +25,7 @@ namespace mesh {
 /// MeshTransformer component class
 /// This class serves as a component that that will operate on meshes
 /// @author Willem Deconinck
-class Mesh_API MeshTransformer : public common::CAction
+class Mesh_API MeshTransformer : public common::Action
 {
 
 public: // typedefs

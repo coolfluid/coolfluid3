@@ -7,7 +7,7 @@
 #ifndef cf3_UFEM_LinearSolver_hpp
 #define cf3_UFEM_LinearSolver_hpp
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
 #include "Solver/CSimpleSolver.hpp"
@@ -52,10 +52,10 @@ public: // functions
   virtual void mesh_changed(mesh::CMesh& mesh);
 
   /// Return an action that resets the LSS to zero
-  common::CAction& zero_action();
+  common::Action& zero_action();
 
   /// Return the action used for solving the system
-  common::CAction& solve_action();
+  common::Action& solve_action();
 
   /// Get the component that manages boundary conditions
   BoundaryConditions& boundary_conditions();

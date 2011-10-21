@@ -23,7 +23,7 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/Foreach.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 
 #include "common/CBuilder.hpp"
@@ -122,7 +122,7 @@ void BasicCommands::unrecognized(std::vector<std::string>& unrecognized_commands
   {
     if ( Component::Ptr executable = current_component->access_component_ptr(command) )
     {
-      if ( CAction::Ptr action = executable->as_ptr<CAction>() )
+      if ( Action::Ptr action = executable->as_ptr<Action>() )
       {
         action->execute();
         unrecognized_commands.erase(unrecognized_commands.begin()+idx);
@@ -217,7 +217,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<CAction>()) )
+        if ( is_null(sub_comp.as_ptr<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -244,7 +244,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<CAction>()) )
+        if ( is_null(sub_comp.as_ptr<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -297,7 +297,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<CAction>()) )
+        if ( is_null(sub_comp.as_ptr<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";
@@ -324,7 +324,7 @@ void BasicCommands::ls(const std::vector<std::string>& params)
           CFinfo << "r-";
         else
           CFinfo << "rw";
-        if ( is_null(sub_comp.as_ptr<CAction>()) )
+        if ( is_null(sub_comp.as_ptr<Action>()) )
           CFinfo << "-";
         else
           CFinfo << "x";

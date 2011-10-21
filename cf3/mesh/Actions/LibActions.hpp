@@ -28,7 +28,7 @@
 namespace cf3 {
 namespace mesh{
 
-/// @brief CAction derived classes for mesh manipulations
+/// @brief Action derived classes for mesh manipulations
 namespace Actions {
 
 ////////////////////////////////////////////////////////////////////////////////

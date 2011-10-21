@@ -7,7 +7,7 @@
 #ifndef cf3_Solver_Actions_CComputeLNorm_hpp
 #define cf3_Solver_Actions_CComputeLNorm_hpp
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 #include "Solver/Actions/LibActions.hpp"
 
@@ -18,7 +18,7 @@ namespace mesh   { class Field; }
 namespace Solver {
 namespace Actions {
 
-class Solver_Actions_API CComputeLNorm : public common::CAction {
+class Solver_Actions_API CComputeLNorm : public common::Action {
 
 public: // typedefs
 

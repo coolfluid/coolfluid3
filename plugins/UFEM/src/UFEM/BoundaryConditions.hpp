@@ -7,7 +7,7 @@
 #ifndef cf3_UFEM_BoundaryConditions_hpp
 #define cf3_UFEM_BoundaryConditions_hpp
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
 #include "Solver/CSolver.hpp"
@@ -22,7 +22,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// BoundaryConditions for UFEM problems
-class UFEM_API BoundaryConditions : public common::CActionDirector
+class UFEM_API BoundaryConditions : public common::ActionDirector
 {
 public: // typedefs
 

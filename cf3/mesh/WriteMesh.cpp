@@ -42,7 +42,7 @@ common::ComponentBuilder < WriteMesh, Component, LibMesh > WriteMesh_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 WriteMesh::WriteMesh ( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   // properties
 

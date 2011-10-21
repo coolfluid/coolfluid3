@@ -35,7 +35,7 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < IterativeSolver, CAction, LibRDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, Action, LibRDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -50,11 +50,11 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
+  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
 
-  m_update = create_static_component_ptr<CActionDirector>("Update");
+  m_update = create_static_component_ptr<ActionDirector>("Update");
 
-  m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
+  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
 
   // dynamic components
 
@@ -92,13 +92,13 @@ void IterativeSolver::execute()
 
   // access components (out of loop)
 
-  CActionDirector& boundary_conditions =
-      access_component( "cpath:../BoundaryConditions" ).as_type<CActionDirector>();
+  ActionDirector& boundary_conditions =
+      access_component( "cpath:../BoundaryConditions" ).as_type<ActionDirector>();
 
-  CActionDirector& domain_discretization =
-      access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
+  ActionDirector& domain_discretization =
+      access_component( "cpath:../DomainDiscretization" ).as_type<ActionDirector>();
 
-  CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
+  Action& synchronize = mysolver.actions().get_child("Synchronize").as_type<Action>();
 
   Component& cnorm = post_actions().get_child("ComputeNorm");
   cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );

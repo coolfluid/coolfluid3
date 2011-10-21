@@ -19,12 +19,12 @@ namespace Actions {
 
 using namespace common;
 
-common::ComponentBuilder < Conditional, CAction, LibActions > Conditional_Builder;
+common::ComponentBuilder < Conditional, Action, LibActions > Conditional_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Conditional::Conditional( const std::string& name  ) :
-  CAction ( name )
+  Action ( name )
 {
   mark_basic();
   properties()["brief"] = std::string("Iterator object");
@@ -61,7 +61,7 @@ void Conditional::execute ()
 
   if (conditional)
   {
-    boost_foreach(CAction& action, find_components<CAction>(*this))
+    boost_foreach(Action& action, find_components<Action>(*this))
     {
       action.execute();
     }

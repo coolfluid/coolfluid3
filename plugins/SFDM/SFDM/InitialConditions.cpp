@@ -34,7 +34,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < InitialConditions, CAction, LibSFDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, Action, LibSFDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -58,19 +58,19 @@ void InitialConditions::execute()
 {
   // apply all registered actions
 
-  CActionDirector::execute();
+  ActionDirector::execute();
 
   /// @todo apply all strong BCs
 
-//  CAction& strong_bcs =
-//      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<CAction>();
+//  Action& strong_bcs =
+//      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<Action>();
 
 //  strong_bcs.execute();
 
   // synchronize fields to insure consistency of parallel data
 
-//  CAction& synchronize =
-//      access_component( "cpath:../Actions/Synchronize" ).as_type<CAction>();
+//  Action& synchronize =
+//      access_component( "cpath:../Actions/Synchronize" ).as_type<Action>();
 
 //  synchronize.execute();
 }

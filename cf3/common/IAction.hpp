@@ -17,7 +17,7 @@ namespace common {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 
-/// Abstract interface for actions. You probably want to use CAction as a base to start from, since that implements IAction as a component
+/// Abstract interface for actions. You probably want to use Action as a base to start from, since that implements IAction as a component
 class Common_API IAction {
 public: // functions
 

@@ -7,7 +7,7 @@
 #ifndef cf3_common_CGroupActions_hpp
 #define cf3_common_CGroupActions_hpp
 
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,11 +18,11 @@ namespace common {
 
 /// @brief Action component that executes all contained actions.
 ///
-/// Contained actions must be of a derived type CAction, or of the type CLink, which
-/// points to a derived CAction type.
+/// Contained actions must be of a derived type Action, or of the type CLink, which
+/// points to a derived Action type.
 ///
 /// @author Willem Deconinck
-class Common_API CGroupActions : public CAction {
+class Common_API CGroupActions : public Action {
 
 public: // typedefs
 

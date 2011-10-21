@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/FindComponents.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
@@ -30,7 +30,7 @@ namespace mesh {
 /// This class serves as a component that that will write
 /// the mesh to a file
 /// @author Willem Deconinck
-class Mesh_API MeshWriter : public common::CAction {
+class Mesh_API MeshWriter : public common::Action {
 
 public: // typedefs
 

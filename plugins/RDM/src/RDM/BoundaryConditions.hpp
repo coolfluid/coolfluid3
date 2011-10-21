@@ -55,9 +55,9 @@ public: // functions
 
 private:
 
-  common::CActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
+  common::ActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
 
-  common::CActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
+  common::ActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
 
 };
 

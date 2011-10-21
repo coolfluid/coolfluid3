@@ -35,7 +35,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < InitialConditions, CAction, LibRDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, Action, LibRDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -59,19 +59,19 @@ void InitialConditions::execute()
 {
   // apply all registered actions
 
-  CActionDirector::execute();
+  ActionDirector::execute();
 
   // apply all strong BCs
 
-  CAction& strong_bcs =
-      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<CAction>();
+  Action& strong_bcs =
+      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<Action>();
 
   strong_bcs.execute();
 
   // synchronize fields to insure consistency of parallel data
 
-  CAction& synchronize =
-      access_component( "cpath:../Actions/Synchronize" ).as_type<CAction>();
+  Action& synchronize =
+      access_component( "cpath:../Actions/Synchronize" ).as_type<Action>();
 
   synchronize.execute();
 }
@@ -83,7 +83,7 @@ void InitialConditions::signal_create_initial_condition ( SignalArgs& node )
 
   std::string name = options.value<std::string>("name");
 
-  CAction::Ptr ic = allocate_component< RDM::Init >(name);
+  Action::Ptr ic = allocate_component< RDM::Init >(name);
   append( ic );
 
 

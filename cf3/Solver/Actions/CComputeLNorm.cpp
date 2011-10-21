@@ -88,11 +88,11 @@ void compute_Lp( CTable<Real>::ArrayT& array, Real& norm, Uint order )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CComputeLNorm, CAction, LibActions > CComputeLNorm_Builder;
+common::ComponentBuilder < CComputeLNorm, Action, LibActions > CComputeLNorm_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-CComputeLNorm::CComputeLNorm ( const std::string& name ) : CAction(name)
+CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 {
   mark_basic();
 

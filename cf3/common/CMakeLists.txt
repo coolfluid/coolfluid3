@@ -17,10 +17,10 @@ list( APPEND coolfluid_common_files
     BuildInfo.hpp
     BuildInfo.cpp
     CF.hpp
-    CAction.hpp
-    CAction.cpp
-    CActionDirector.hpp
-    CActionDirector.cpp
+    Action.hpp
+    Action.cpp
+    ActionDirector.hpp
+    ActionDirector.cpp
     CGroupActions.hpp
     CGroupActions.cpp
     CBuilder.hpp
