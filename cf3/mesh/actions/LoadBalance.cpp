@@ -43,7 +43,7 @@ LoadBalance::LoadBalance( const std::string& name )
 #if defined (CF3_HAVE_PTSCOTCH)
   m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.PTScotch.Partitioner","partitioner");
 #elif defined (CF3_HAVE_ZOLTAN)
-  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.Zoltan.Partitioner","partitioner");
+  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner");
   m_partitioner->configure_option("graph_package", std::string("PHG"));
 #endif
   add_static_component(*m_partitioner);

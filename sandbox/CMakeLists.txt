@@ -31,7 +31,7 @@ add_subdirectory( cuda )
 add_subdirectory( opencl )
 
 ###############################################################################
-### test for Zoltan
+### test for zoltan
 add_subdirectory( zoltan )
 
 ###############################################################################

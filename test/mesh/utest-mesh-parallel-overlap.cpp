@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "Global Connectivity... done" << CFendl;
 
   CFinfo << "Partitioning..." << CFendl;
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.Zoltan.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
   MeshPartitioner& p = *partitioner_ptr;
   p.configure_option("graph_package", std::string("PHG"));
   p.initialize(mesh);

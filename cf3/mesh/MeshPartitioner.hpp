@@ -71,7 +71,7 @@ public: // functions
   void show_changes();
 
   /// Migrate the elements and nodes to corresponding processors
-  /// @todo this is now virtual because Zoltan is used.
+  /// @todo this is now virtual because zoltan is used.
   virtual void migrate();
 
   void load_balance ( common::SignalArgs& args );

@@ -137,7 +137,7 @@ add_subdirectory( CGNS )          # CGNS file IO
 
 add_subdirectory( Tecplot )       # Tecplot file IO
 
-add_subdirectory( Zoltan )        # Zoltan mesh partitioning
+add_subdirectory( zoltan )        # zoltan mesh partitioning
 
 add_subdirectory( PTScotch )      # PTScotch mesh partitioning
 

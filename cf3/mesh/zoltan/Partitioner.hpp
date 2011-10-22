@@ -4,25 +4,25 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Zoltan_Partitioner_hpp
-#define cf3_mesh_Zoltan_Partitioner_hpp
+#ifndef cf3_mesh_zoltan_Partitioner_hpp
+#define cf3_mesh_zoltan_Partitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshPartitioner.hpp"
-#include "mesh/Zoltan/LibZoltan.hpp"
+#include "mesh/zoltan/LibZoltan.hpp"
 
 namespace cf3 {
 namespace common { template <typename KEY, typename DATA> class Map;}
 namespace mesh {
-namespace Zoltan {
+namespace zoltan {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// MeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class Zoltan_API Partitioner : public MeshPartitioner {
+class mesh_zoltan_API Partitioner : public MeshPartitioner {
 
 public: // typedefs
 
@@ -53,7 +53,7 @@ private: // functions
 
   /// returns the handle to zoltan
   /// @pre must be called after the PE is initialized
-  ZoltanHandle& zoltan_handle();
+  Zoltan& zoltan_handle();
 
   void set_partitioning_params();
 
@@ -94,16 +94,16 @@ private: // data
   int *exportProcs;
   int *exportToPart;
 
-  boost::shared_ptr<ZoltanHandle> m_zz;
+  boost::shared_ptr<Zoltan> m_zz;
   Real m_zoltan_version;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Zoltan
+} // zoltan
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Zoltan_Partitioner_hpp
+#endif // cf3_mesh_zoltan_Partitioner_hpp
