@@ -13,7 +13,7 @@
 
 #include "UI/Graphics/GraphicalRestrictedList.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalRestrictedListTest.hpp"
 

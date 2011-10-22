@@ -12,7 +12,7 @@
 
 #include "UI/Graphics/GraphicalUri.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
 

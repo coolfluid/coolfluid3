@@ -28,7 +28,7 @@
 
 #include "UI/Graphics/GraphicalValue.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 #include "test/UI/Graphics/GraphicalValueTest.hpp"
 
 using namespace boost::assign;

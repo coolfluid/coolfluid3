@@ -31,7 +31,7 @@
 #include "UI/Core/TreeThread.hpp"
 
 #include "test/UI/CoreApplication.hpp"
-#include "test/UI/Core/MyNode.hpp"
+#include "test/UI/MyNode.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;

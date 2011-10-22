@@ -9,7 +9,7 @@
 
 #include "common/OptionT.hpp"
 
-#include "test/UI/Core/MyNode.hpp"
+#include "test/UI/MyNode.hpp"
 
 using namespace cf3::common;
 using namespace cf3::UI::Core;

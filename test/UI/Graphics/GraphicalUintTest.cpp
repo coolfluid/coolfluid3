@@ -13,7 +13,7 @@
 
 #include "Math/Consts.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalUintTest.hpp"
 

@@ -14,7 +14,7 @@
 
 #include "UI/Graphics/GraphicalArray.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalArrayTest.hpp"
 

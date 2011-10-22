@@ -9,7 +9,7 @@
   include(${QT_USE_FILE})
 
   coolfluid_add_test( UTEST      utest-ui-core-cnode
-                      CPP        utest-ui-core-cnode.cpp CoreApplication.hpp
+                      CPP        utest-ui-core-cnode.cpp CoreApplication.hpp ExceptionThrowHandler.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
                       CONDITION  CF3_ENABLE_GUI)
