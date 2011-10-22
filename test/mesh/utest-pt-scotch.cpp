@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::PTScotch"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::ptscotch"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -31,7 +31,7 @@
 #include "mesh/MeshPartitioner.hpp"
 #include "mesh/MeshWriter.hpp"
 
-#include "mesh/PTScotch/LibPTScotch.hpp"
+#include "mesh/ptscotch/LibPTScotch.hpp"
 
 using namespace boost;
 using namespace cf3;
@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   meshwriter->write_from_to(mesh,fp_out_1);
   CF3_DEBUG_POINT;
 
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.PTScotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.ptscotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
 
   MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

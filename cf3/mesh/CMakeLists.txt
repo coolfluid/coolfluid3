@@ -139,7 +139,7 @@ add_subdirectory( Tecplot )       # Tecplot file IO
 
 add_subdirectory( zoltan )        # zoltan mesh partitioning
 
-add_subdirectory( PTScotch )      # PTScotch mesh partitioning
+add_subdirectory( ptscotch )      # PTScotch mesh partitioning
 
 add_subdirectory( actions )       # namespace actions that can be performed on the mesh
 

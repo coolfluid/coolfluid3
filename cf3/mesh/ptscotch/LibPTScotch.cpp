@@ -6,11 +6,11 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "mesh/PTScotch/LibPTScotch.hpp"
+#include "mesh/ptscotch/LibPTScotch.hpp"
 
 namespace cf3 {
 namespace mesh {
-namespace PTScotch {
+namespace ptscotch {
 
 cf3::common::RegistLibrary<LibPTScotch> libPTScotch;
 
@@ -26,6 +26,6 @@ void LibPTScotch::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // PTScotch
+} // ptscotch
 } // mesh
 } // CF

@@ -4,24 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_PTScotch_Partitioner_hpp
-#define CF_Mesh_PTScotch_Partitioner_hpp
+#ifndef cf3_mesh_ptscotch_Partitioner_hpp
+#define cf3_mesh_ptscotch_Partitioner_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshPartitioner.hpp"
-#include "mesh/PTScotch/LibPTScotch.hpp"
+#include "mesh/ptscotch/LibPTScotch.hpp"
 
 namespace cf3 {
 namespace mesh {
-namespace PTScotch {
+namespace ptscotch {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// MeshPartitioner component class
 /// This class serves as a component that that will partition the mesh
 /// @author Willem Deconinck
-class PTScotch_API Partitioner : public MeshPartitioner {
+class mesh_ptscotch_API Partitioner : public MeshPartitioner {
 
 public: // typedefs
 
@@ -75,10 +75,10 @@ private: // functions
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // PTScotch
+} // ptscotch
 } // mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_PTScotch_Partitioner_hpp
+#endif // cf3_mesh_ptscotch_Partitioner_hpp

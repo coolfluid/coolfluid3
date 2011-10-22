@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Mesh_PTScotch_LibPTScotch_hpp
-#define CF_Mesh_PTScotch_LibPTScotch_hpp
+#ifndef cf3_mesh_ptscotch_LibPTScotch_hpp
+#define cf3_mesh_ptscotch_LibPTScotch_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,14 +17,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro PTScotch_API
+/// Define the macro mesh_ptscotch_API
 /// @note build system defines COOLFLUID_PTSCOTCH_EXPORTS when compiling PTScotch files
 #ifdef COOLFLUID_NEU_EXPORTS
-#   define PTScotch_API      CF3_EXPORT_API
-#   define PTScotch_TEMPLATE
+#   define mesh_ptscotch_API      CF3_EXPORT_API
+#   define mesh_ptscotch_TEMPLATE
 #else
-#   define PTScotch_API      CF3_IMPORT_API
-#   define PTScotch_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define mesh_ptscotch_API      CF3_IMPORT_API
+#   define mesh_ptscotch_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -34,13 +34,13 @@ namespace mesh {
 
 /// @brief Library for PTScotch mesh partitioning and load balancing
 /// @author Willem Deconinck
-namespace PTScotch {
+namespace ptscotch {
 
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class defines a mesh partitioner using the PTScotch external library
 /// @author Willem Deconinck
-class PTScotch_API LibPTScotch : public common::Library
+class mesh_ptscotch_API LibPTScotch : public common::Library
 {
 public:
 
@@ -51,7 +51,7 @@ public:
   LibPTScotch ( const std::string& name) : common::Library(name) { }
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.mesh.PTScotch"; }
+  static std::string library_namespace() { return "cf3.mesh.ptscotch"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for Library registration
@@ -80,10 +80,10 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // PTScotch
+} // ptscotch
 } // mesh
 } // CF
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Mesh_PTScotch_LibPTScotch_hpp
+#endif // cf3_mesh_ptscotch_LibPTScotch_hpp
