@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 

@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_SUITE( TecWriterTests_TestSuite, TecWriterTests_Fixture )
 BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("read_groups",true);
 
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
   meshreader->configure_option("rank",(Uint) Comm::instance().rank());
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("Repartition",true);
   meshreader->configure_option("OutputRank",(Uint) 0);

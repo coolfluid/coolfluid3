@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( build )
 {
   Core::instance().initiate(m_argc,m_argv);
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   meshreader->configure_option("read_boundaries",false);
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 

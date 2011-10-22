@@ -53,7 +53,7 @@ struct MeshReading_Fixture
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
     root = Root::create("Root");
-    reader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","MyReader");
+    reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","MyReader");
     domain = root->create_component_ptr<Domain>("MyDom");
 
     root->add_component( reader );
@@ -86,25 +86,25 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
-  BOOST_CHECK_EQUAL(meshreader->get_format(),"Neu");
+  BOOST_CHECK_EQUAL(meshreader->get_format(),"neu");
 
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Neu.Writer","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
-  BOOST_CHECK_EQUAL(neu_writer->get_format(),"Neu");
+  BOOST_CHECK_EQUAL(neu_writer->get_format(),"neu");
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
+BOOST_AUTO_TEST_CASE( quadtriag_readneu_writeGmsh_writeneu )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag" );
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
   gmsh_writer->write_from_to(mesh,"quadtriag.msh");
   BOOST_CHECK(true);
 
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Neu.Writer","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"quadtriag_write.neu");
   BOOST_CHECK(true);
 
@@ -126,9 +126,9 @@ BOOST_AUTO_TEST_CASE( quadtriag_readNeu_writeGmsh_writeNeu )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
+BOOST_AUTO_TEST_CASE( quadtriag_read_Newneu_writeGmsh )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   // the mesh to store in
@@ -148,9 +148,9 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_NewNeu_writeGmsh )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
+BOOST_AUTO_TEST_CASE( hextet_readneu_writeGmsh_writeneu )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextet" );
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"hextet.msh");
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Neu.Writer","meshwriter");
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"hextet_write.neu");
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
@@ -167,9 +167,9 @@ BOOST_AUTO_TEST_CASE( hextet_readNeu_writeGmsh_writeNeu )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
+BOOST_AUTO_TEST_CASE( hextet_read_Newneu_writeGmsh )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   // the mesh to store in
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( hextet_read_NewNeu_writeGmsh )
 /*
 BOOST_AUTO_TEST_CASE( read_multiple )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");

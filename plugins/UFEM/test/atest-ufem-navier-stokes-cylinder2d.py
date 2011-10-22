@@ -17,7 +17,7 @@ model = root.create_component('NavierStokes', 'cf3.Solver.CModelUnsteady')
 model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.Physics.DynamicModel')
 solver = model.get_child('NavierStokes')
 domain = model.get_child('Domain')
-domain.create_component('NeuReader', 'cf3.mesh.Neu.Reader')
+domain.create_component('neuReader', 'cf3.mesh.neu.Reader')
 
 # Generate a channel mesh
 domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')

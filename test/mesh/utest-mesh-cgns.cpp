@@ -660,12 +660,12 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Unstructured )
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"grid_c.msh");
 
-  // Write to Neu
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Neu.Writer","meshwriter");
+  // Write to neu
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"grid_c.neu");
 
-  // Read from Neu
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  // Read from neu
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh& mesh_from_neu = Core::instance().root().create_component<Mesh>("mesh_from_neu");
   neu_reader->read_mesh_into("grid_c.neu",mesh_from_neu);
 
@@ -694,12 +694,12 @@ BOOST_AUTO_TEST_CASE( ReadCGNS_Structured )
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"grid_str_2zones.msh");
 
-  // Write to Neu
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Neu.Writer","meshwriter");
+  // Write to neu
+  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"grid_str_2zones.neu");
 
-  // Read from Neu
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  // Read from neu
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh& mesh_from_neu = Core::instance().root().create_component<Mesh>("grid_str_2zones_from_neu");
   neu_reader->read_mesh_into("grid_str_2zones.neu",mesh_from_neu);
 
@@ -767,7 +767,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_unstructured )
 
 BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
 {
-  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr neu_reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag_mixed");

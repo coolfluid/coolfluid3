@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Neu::Reader"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::neu::Reader"
 
 #include <boost/test/unit_test.hpp>
 
@@ -32,17 +32,17 @@ using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct NeuReaderMPITests_Fixture
+struct neuReaderMPITests_Fixture
 {
   /// common setup for each test case
-  NeuReaderMPITests_Fixture()
+  neuReaderMPITests_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~NeuReaderMPITests_Fixture()
+  ~neuReaderMPITests_Fixture()
   {
   }
   /// possibly common functions used on the tests below
@@ -56,7 +56,7 @@ struct NeuReaderMPITests_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( NeuReaderMPITests_TestSuite, NeuReaderMPITests_Fixture )
+BOOST_FIXTURE_TEST_SUITE( neuReaderMPITests_TestSuite, neuReaderMPITests_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( read_2d_mesh )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("read_groups",true);
 
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 BOOST_AUTO_TEST_CASE( threeD_test )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("number_of_processors",(Uint) Comm::instance().size());
   meshreader->configure_option("rank",(Uint) Comm::instance().rank());
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
 BOOST_AUTO_TEST_CASE( read_multiple_2D )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   meshreader->configure_option("Repartition",true);
   meshreader->configure_option("OutputRank",(Uint) 0);

@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( Channel3D )
 
   // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Channel3D-reference.neu");
-  MeshReader::Ptr ref_reader = root.create_component("meshreader", "cf3.mesh.Neu.Reader").as_ptr<MeshReader>();
+  MeshReader::Ptr ref_reader = root.create_component("meshreader", "cf3.mesh.neu.Reader").as_ptr<MeshReader>();
   Mesh& ref_mesh = root.create_component< Mesh >("ref_mesh");
   ref_reader->read_mesh_into(ref_path, ref_mesh);
 
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Cavity2D-reference.neu");
-  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-PitzDaily-reference.neu");
-  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 

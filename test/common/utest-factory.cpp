@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( component_builder )
 
 BOOST_AUTO_TEST_CASE( LibraryName )
 {
-  const std::string builder_name1 = "cf3.mesh.Neu.Reader";
+  const std::string builder_name1 = "cf3.mesh.neu.Reader";
   BOOST_CHECK_EQUAL(Builder::extract_library_name(builder_name1), "coolfluid_mesh_neu");
   
   const std::string builder_name2 = "cf3.UFEM.Test";

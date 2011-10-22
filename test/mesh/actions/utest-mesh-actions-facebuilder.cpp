@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
   BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");

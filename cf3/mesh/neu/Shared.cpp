@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "mesh/Neu/Shared.hpp"
+#include "mesh/neu/Shared.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Neu {
+namespace neu {
   
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,11 +31,11 @@ Shared::Shared() :
   m_supported_types.push_back("cf3.mesh.LagrangeP1.Hexa3D");
   m_supported_types.push_back("cf3.mesh.LagrangeP1.Tetra3D");
 
-  m_CFelement_to_NeuElement[GeoShape::LINE ]=LINE;
-  m_CFelement_to_NeuElement[GeoShape::QUAD ]=QUAD;
-  m_CFelement_to_NeuElement[GeoShape::TRIAG]=TRIAG;
-  m_CFelement_to_NeuElement[GeoShape::HEXA ]=HEXA;
-  m_CFelement_to_NeuElement[GeoShape::TETRA]=TETRA;
+  m_CFelement_to_neuElement[GeoShape::LINE ]=LINE;
+  m_CFelement_to_neuElement[GeoShape::QUAD ]=QUAD;
+  m_CFelement_to_neuElement[GeoShape::TRIAG]=TRIAG;
+  m_CFelement_to_neuElement[GeoShape::HEXA ]=HEXA;
+  m_CFelement_to_neuElement[GeoShape::TETRA]=TETRA;
 
   // ------------------------------------------------------- FACES
   // line
@@ -186,6 +186,6 @@ Shared::Shared() :
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Neu
+} // neu
 } // mesh
 } // cf3

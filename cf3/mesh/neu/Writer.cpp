@@ -16,7 +16,7 @@
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/Neu/Writer.hpp"
+#include "mesh/neu/Writer.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Table.hpp"
@@ -30,16 +30,16 @@
 
 namespace cf3 {
 namespace mesh {
-namespace Neu {
+namespace neu {
 
 using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < mesh::Neu::Writer,
+common::ComponentBuilder < mesh::neu::Writer,
                            mesh::MeshWriter,
-                           mesh::Neu::LibNeu>
-aNeuWriter_Builder;
+                           mesh::neu::LibNeu>
+aneuWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -194,7 +194,7 @@ void Writer::write_connectivity(std::fstream& file)
       // information of this region with one unique element type
       Uint elm_type;
       Uint nb_nodes;
-      elm_type = m_CFelement_to_NeuElement[elementregion.element_type().shape()];
+      elm_type = m_CFelement_to_neuElement[elementregion.element_type().shape()];
       nb_nodes = elementregion.element_type().nb_nodes();
       m_global_start_idx[elementregion.as_ptr<Elements>()]=elm_number;
 
@@ -334,7 +334,7 @@ void Writer::write_boundaries(std::fstream& file)
 
               Uint elm_local_idx = connected.second;
               Uint elm_global_idx = connected_region_start_idx + elm_local_idx;
-              Uint neu_elm_type = m_CFelement_to_NeuElement[connected_region->element_type().shape()];
+              Uint neu_elm_type = m_CFelement_to_neuElement[connected_region->element_type().shape()];
               Uint neu_elm_face_idx = m_faces_cf_to_neu[neu_elm_type][face_connectivity.adjacent_face(elem, face)];
 
               file << std::setw(10) << elm_global_idx+1 << std::setw(5) << neu_elm_type << std::setw(5) << neu_elm_face_idx << std::endl;
@@ -358,6 +358,6 @@ void Writer::write_boundaries(std::fstream& file)
 //////////////////////////////////////////////////////////////////////////////
 
 
-} // Neu
+} // neu
 } // mesh
 } // cf3

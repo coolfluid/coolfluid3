@@ -41,16 +41,16 @@ using namespace cf3::Tools::MeshGeneration;
 typedef MeshSourceGlobalFixture<1000> MeshSource;
 
 /// Fixture providing a simple mesh read from a .neu file. Unprofiled.
-struct NeuFixture
+struct neuFixture
 {
   /// common setup for each test case
-  NeuFixture()
+  neuFixture()
   {
     mesh2d = Core::instance().root().create_component_ptr<Mesh>("mesh2d");
     mesh3d = Core::instance().root().create_component_ptr<Mesh>("mesh3d");
 
     // Read the a .neu mesh as 2D mixed mesh
-    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
     // Read the mesh
     meshreader->read_mesh_into("quadtriag.neu",*mesh2d);
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_SUITE( ConnectivityDataSuite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateElementVector, neuFixture )
 {
   CFaceConnectivity::ElementsT celements_vector;
   CFaceConnectivity::IndicesT celements_first_elements;
@@ -121,7 +121,7 @@ BOOST_FIXTURE_TEST_CASE( CreateElementVector, NeuFixture )
   BOOST_CHECK_EQUAL(celements_vector.size(), static_cast<Uint>(6));
 }
 
-BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, neuFixture )
 {
   CFaceConnectivity::ElementsT celements_vector;
   CFaceConnectivity::IndicesT celements_first_elements;
@@ -154,7 +154,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, NeuFixture )
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
 }
 
-BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, neuFixture )
 {
   // Vector of the elements that are concerned
   CFaceConnectivity::ElementsT celements_vector;
@@ -244,7 +244,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, NeuFixture )
 // }
 
 /// Internal connectivity between all volume cells of the mesh
-BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, neuFixture )
 {
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_ptr<CNodeConnectivity>("node_connectivity");
@@ -261,7 +261,7 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToVolumeConnectivity, NeuFixture )
 }
 
 /// For all surface elements, look up their adjacent volume element
-BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, neuFixture )
 {
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_ptr<CNodeConnectivity>("node_connectivity");
@@ -279,7 +279,7 @@ BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity, NeuFixture )
 }
 
 /// For all volume elements, look up their adjacent surface element, if any
-BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, neuFixture )
 {
   // Add node connectivity data at the mesh level, for surface elements only
   CNodeConnectivity::Ptr node_connectivity = mesh2d->create_component_ptr<CNodeConnectivity>("node_connectivity");
@@ -297,7 +297,7 @@ BOOST_FIXTURE_TEST_CASE( CreateVolumeToSurfaceConnectivity, NeuFixture )
 
 
 /// For all surface elements, look up their adjacent volume element
-BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, NeuFixture )
+BOOST_FIXTURE_TEST_CASE( CreateSurfaceToVolumeConnectivity3D, neuFixture )
 {
   // Add node connectivity data at the mesh level
   CNodeConnectivity::Ptr node_connectivity = mesh3d->create_component_ptr<CNodeConnectivity>("node_connectivity");

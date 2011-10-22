@@ -4,26 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Neu_Shared_hpp
-#define cf3_mesh_Neu_Shared_hpp
+#ifndef cf3_mesh_neu_Shared_hpp
+#define cf3_mesh_neu_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/GeoShape.hpp"
 
-#include "mesh/Neu/LibNeu.hpp"
+#include "mesh/neu/LibNeu.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Neu {
+namespace neu {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Neu mesh format common functionality
+/// This class defines neu mesh format common functionality
 /// @author Willem Deconinck
-class Neu_API Shared
+class neu_API Shared
 {
 public:
   
@@ -37,9 +37,9 @@ public:
 
 protected:
 
-  enum NeuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
+  enum neuElement {LINE=1,QUAD=2,TRIAG=3,HEXA=4,TETRA=6};
   
-  std::map<GeoShape::Type,Uint> m_CFelement_to_NeuElement;
+  std::map<GeoShape::Type,Uint> m_CFelement_to_neuElement;
   std::vector<std::string> m_supported_types;    
   std::vector<std::vector<Uint> > m_faces_cf_to_neu;
   std::vector<std::vector<Uint> > m_faces_neu_to_cf;
@@ -51,10 +51,10 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Neu
+} // neu
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Neu_Shared_hpp
+#endif // cf3_mesh_neu_Shared_hpp

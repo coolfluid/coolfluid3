@@ -24,7 +24,7 @@ namespace mesh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Neutral mesh format reader
+/// This class defines neutral mesh format reader
 /// @author Willem Deconinck
 class Mesh_API StencilComputer : public common::Component
 {
@@ -67,4 +67,4 @@ protected: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Neu_StencilComputer_hpp
+#endif // cf3_mesh_neu_StencilComputer_hpp

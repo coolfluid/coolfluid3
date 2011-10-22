@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef NEU
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+      build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
   Mesh& mesh = *mesh_ptr;
 #endif

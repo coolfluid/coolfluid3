@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Neu_Writer_hpp
-#define cf3_mesh_Neu_Writer_hpp
+#ifndef cf3_mesh_neu_Writer_hpp
+#define cf3_mesh_neu_Writer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Table.hpp"
 
-#include "mesh/Neu/LibNeu.hpp"
-#include "mesh/Neu/Shared.hpp"
+#include "mesh/neu/LibNeu.hpp"
+#include "mesh/neu/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,14 +21,14 @@ namespace cf3 {
 namespace mesh {
   class Elements;
 
-namespace Neu {
+namespace neu {
 
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Neu mesh format writer
+/// This class defines neu mesh format writer
 /// @author Willem Deconinck
-class Neu_API Writer : public MeshWriter, public Shared
+class neu_API Writer : public MeshWriter, public Shared
 {
 
 public: // typedefs
@@ -49,7 +49,7 @@ public: // functions
 
   virtual void write_from_to(const Mesh& mesh, const common::URI& path);
 
-  virtual std::string get_format() { return "Neu"; }
+  virtual std::string get_format() { return "neu"; }
 
   virtual std::vector<std::string> get_extensions();
 
@@ -79,10 +79,10 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Neu
+} // neu
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Neu_Writer_hpp
+#endif // cf3_mesh_neu_Writer_hpp

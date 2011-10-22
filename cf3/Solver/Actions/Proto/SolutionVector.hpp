@@ -53,7 +53,7 @@ struct GetSolutionVector :
     }
 
     result_type operator ()(
-                typename impl::expr_param expr // Of the form neumann(lss, variable)
+                typename impl::expr_param expr // Of the form Neumann(lss, variable)
               , typename impl::state_param state
               , typename impl::data_param data
     ) const

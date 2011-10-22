@@ -6,13 +6,13 @@
 
 #include "common/RegistLibrary.hpp"
 
-#include "mesh/Neu/LibNeu.hpp"
+#include "mesh/neu/LibNeu.hpp"
 
 namespace cf3 {
 namespace mesh {
-namespace Neu {
+namespace neu {
 
-cf3::common::RegistLibrary<LibNeu> libNeu;
+cf3::common::RegistLibrary<LibNeu> libneu;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,6 +26,6 @@ void LibNeu::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Neu
+} // neu
 } // mesh
 } // cf3

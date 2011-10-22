@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
 {
   CFinfo << "MeshPartitioner_test" << CFendl;
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from

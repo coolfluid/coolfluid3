@@ -27,20 +27,20 @@
 #include "mesh/Elements.hpp"
 #include "mesh/MeshElements.hpp"
 
-#include "mesh/Neu/Reader.hpp"
+#include "mesh/neu/Reader.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Neu {
+namespace neu {
 
   using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < Neu::Reader, MeshReader, LibNeu > aNeuReader_Builder;
+cf3::common::ComponentBuilder < neu::Reader, MeshReader, LibNeu > aneuReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@ Reader::Reader( const std::string& name )
 {
   // options
   m_options.add_option<OptionT <bool> >("read_groups" ,true)
-      ->description("Reads Neu Groups and splits the mesh in these subgroups")
+      ->description("Reads neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
   m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
@@ -64,7 +64,7 @@ Reader::Reader( const std::string& name )
       ->description("Read the surface elements for the boundary")
       ->pretty_name("Read Boundaries");
 
-  m_properties["brief"] = std::string("Neutral file mesh reader component");
+  m_properties["brief"] = std::string("neutral file mesh reader component");
 
   std::string desc;
   desc += "This component can read in parallel.\n";
@@ -596,7 +596,7 @@ std::string Reader::element_type(const Uint neu_type, const Uint nb_nodes)
   else {
     throw common::NotSupported(FromHere(),"no support for element type/nodes "
                                + to_str<int>(neu_type) + "/" + to_str<int>(nb_nodes) +
-                               " in Neutral format");
+                               " in neutral format");
   }
 
   return cf_type;
@@ -604,6 +604,6 @@ std::string Reader::element_type(const Uint neu_type, const Uint nb_nodes)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Neu
+} // neu
 } // mesh
 } // cf3

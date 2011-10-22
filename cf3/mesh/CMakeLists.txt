@@ -127,7 +127,7 @@ add_subdirectory(LagrangeP2B)     # LagrangeP2 bubble elements / shape functions
 
 add_subdirectory(LagrangeP3)      # LagrangeP3 elements / shape functions
 
-add_subdirectory( Neu )           # Neutral file IO
+add_subdirectory( neu )           # neutral file IO
 
 add_subdirectory( gmsh )          # gmsh file IO
 
