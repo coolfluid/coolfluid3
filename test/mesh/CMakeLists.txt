@@ -370,7 +370,7 @@ coolfluid_add_test( UTEST utest-mesh-deletion
 
 ##########################################################################
 # test Actions
-add_subdirectory( Actions )
+add_subdirectory( actions )
 
 ##########################################################################
 # test BlockMesh
