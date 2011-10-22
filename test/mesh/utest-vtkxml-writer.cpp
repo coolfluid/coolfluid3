@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
-  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer","meshwriter");
+  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer","meshwriter");
   
   std::vector<Field::Ptr> fields; fields.push_back(mesh->geometry().coordinates().as_ptr<Field>());
   vtk_writer->set_fields(fields);

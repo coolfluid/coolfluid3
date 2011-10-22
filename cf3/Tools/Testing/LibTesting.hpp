@@ -47,7 +47,7 @@ namespace Testing {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Tools.Testing"; }
+    static std::string library_namespace() { return "cf3.Tools.Testing"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for Library registration

@@ -107,7 +107,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
 
   // Define the volume cells, i.e. the blocks
   Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
-  block_elements.initialize("CF.Mesh.LagrangeP1.Hexa3D", block_nodes);
+  block_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D", block_nodes);
   Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][8]);
@@ -121,7 +121,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   const Uint nb_patches = block_data.patch_names.size();
   for(Uint patch_idx = 0 ; patch_idx != nb_patches; ++patch_idx)
   {
-    Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("CF.Mesh.LagrangeP1.Quad3D", block_nodes);
+    Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("cf3.mesh.LagrangeP1.Quad3D", block_nodes);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
     Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
@@ -166,7 +166,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
 
   // Define the volume cells, i.e. the blocks
   Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
-  block_elements.initialize("CF.Mesh.LagrangeP1.Quad2D", block_nodes);
+  block_elements.initialize("cf3.mesh.LagrangeP1.Quad2D", block_nodes);
   Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][4]);
@@ -180,7 +180,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   const Uint nb_patches = block_data.patch_names.size();
   for(Uint patch_idx = 0 ; patch_idx != nb_patches; ++patch_idx)
   {
-    Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("CF.Mesh.LagrangeP1.Line2D", block_nodes);
+    Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("cf3.mesh.LagrangeP1.Line2D", block_nodes);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
     Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
@@ -842,7 +842,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   Region& root_region = mesh.topology().create_region("root_region");
   Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
-  volume_elements.initialize("CF.Mesh.LagrangeP1.Hexa3D");
+  volume_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
@@ -956,7 +956,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.parent().name();
-    Elements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.LagrangeP1.Quad3D", mesh_geo_comp);
+    Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Quad3D", mesh_geo_comp);
     Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
     const Uint nb_patches = patch_block.node_connectivity().array().size();
@@ -1110,7 +1110,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   Region& root_region = mesh.topology().create_region("root_region");
   Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
-  volume_elements.initialize("CF.Mesh.LagrangeP1.Quad2D");
+  volume_elements.initialize("cf3.mesh.LagrangeP1.Quad2D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
   Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
@@ -1201,7 +1201,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
     const CFaceConnectivity& adjacency_data = find_component<CFaceConnectivity>(patch_block);
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.parent().name();
-    Elements& patch_elements = root_region.create_region(patch_name).create_elements("CF.Mesh.LagrangeP1.Line2D", mesh_geo_comp);
+    Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Line2D", mesh_geo_comp);
     Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
     // Numbering of the faces
@@ -1341,10 +1341,10 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    MeshTransformer& global_conn = mesh.create_component("GlobalConnectivity", "CF.Mesh.namespace actions.GlobalConnectivity").as_type<MeshTransformer>();
+    MeshTransformer& global_conn = mesh.create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity").as_type<MeshTransformer>();
     global_conn.transform(mesh);
 
-    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "CF.Mesh.namespace actions.GrowOverlap").as_type<MeshTransformer>();
+    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap").as_type<MeshTransformer>();
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 

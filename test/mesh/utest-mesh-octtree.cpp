@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
   // create meshreader
-  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","mesh_generator");
+  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( Octtree_parallel )
   BOOST_CHECK_EQUAL(ranks[1] , 1u);
 
 
-//  MeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+//  MeshWriter& gmsh_writer = mesh.create_component("gmsh_writer","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
 //  gmsh_writer.write_from_to(mesh,"octtree.msh");
 }
 

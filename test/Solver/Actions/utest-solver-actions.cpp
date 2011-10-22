@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
   CLoop::Ptr node_loop2 = root.create_component_ptr< CForAllNodes2 >("node_loop");
 
-  node_loop2->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+  node_loop2->create_loop_operation("cf3.TestActions.CDummyLoopOperation");
   node_loop2->configure_option("regions",regions);
 
   CFinfo << "\n\n\nNode loop 2 " << CFendl;
@@ -119,18 +119,18 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
   std::vector<URI> regions = list_of(mesh->topology().uri());
 
   // Create inner_faces
-  MeshTransformer::Ptr facebuilder = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.BuildFaces","facebuilder");
+  MeshTransformer::Ptr facebuilder = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.BuildFaces","facebuilder");
   //facebuilder->transform(mesh);
 
   // Create a loop over the inlet bc to set the inlet bc to a dirichlet condition
   CLoop::Ptr face_loop = root.create_component_ptr< CForAllFaces >("face_loop");
-  face_loop->create_loop_operation("CF.TestActions.CDummyLoopOperation");
+  face_loop->create_loop_operation("cf3.TestActions.CDummyLoopOperation");
   face_loop->configure_option("regions",regions);
   CFinfo << "\n\n\nFace loop" << CFendl;
 
   BOOST_CHECK_NO_THROW( face_loop->execute() );
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
   info->transform(mesh);
 
   //root.remove_component(*mesh);
@@ -157,21 +157,21 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   node_loop->configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));
 
 /// @todo CSetFieldValues no longer exists, find replacement for node_loop
-//  node_loop->create_loop_operation("CF.Solver.Actions.CSetFieldValues");
-//  node_loop->action("CF.Solver.Actions.CSetFieldValues").configure_option("Field",field.uri());
+//  node_loop->create_loop_operation("cf3.Solver.Actions.CSetFieldValues");
+//  node_loop->action("cf3.Solver.Actions.CSetFieldValues").configure_option("Field",field.uri());
   node_loop->execute();
 
   BOOST_CHECK(true);
 
   BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
-  FieldGroup& cells_P0 = mesh->create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& cells_P0 = mesh->create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
 
   BOOST_CHECK(true);
 
 
-  FieldGroup& faces_P0 = mesh->create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED, "CF.Mesh.LagrangeP0");
+  FieldGroup& faces_P0 = mesh->create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED, "cf3.mesh.LagrangeP0");
   Field& areas = faces_P0.create_field("area");
 
 
@@ -196,11 +196,11 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   CLoop::Ptr elem_loop = root.create_component_ptr< CForAllElements >("elem_loop");
   elem_loop->configure_option("regions",std::vector<URI>(1,volumes.topology().uri()));
 
-  elem_loop->create_loop_operation("CF.Solver.Actions.CComputeVolume");
-  elem_loop->action("CF.Solver.Actions.CComputeVolume").configure_option("volume",volumes.uri());
+  elem_loop->create_loop_operation("cf3.Solver.Actions.CComputeVolume");
+  elem_loop->action("cf3.Solver.Actions.CComputeVolume").configure_option("volume",volumes.uri());
 
-  elem_loop->create_loop_operation("CF.Solver.Actions.CComputeArea");
-  elem_loop->action("CF.Solver.Actions.CComputeArea").configure_option("area",areas.uri());
+  elem_loop->create_loop_operation("cf3.Solver.Actions.CComputeArea");
+  elem_loop->action("cf3.Solver.Actions.CComputeArea").configure_option("area",areas.uri());
 
   elem_loop->execute();
 
@@ -210,7 +210,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
   fields.push_back(volumes.as_ptr<Field>());
   fields.push_back(field.as_ptr<Field>());
   fields.push_back(areas.as_ptr<Field>());
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"quadtriag.msh");
 
@@ -249,7 +249,7 @@ BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 
   std::vector<Field::Ptr> fields;
   fields.push_back(field.as_ptr<Field>());
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(fields);
   gmsh_writer->write_from_to(*mesh,"test_utest-actions_CForAllElementsT.msh");
 

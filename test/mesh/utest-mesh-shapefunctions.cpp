@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
                       ).finished();
   RealVector centroid(2);
 
-  ElementType::Ptr etype = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Triag2D","etype");
+  ElementType::Ptr etype = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Triag2D","etype");
   etype->compute_centroid(nodes,centroid);
   std::cout << "dynamic: centroid = " << centroid.transpose() << std::endl;
 
@@ -118,7 +118,7 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
   Core::instance().environment().configure_option("exception_outputs",true);
   Core::instance().environment().configure_option("exception_backtrace",true);
 
-  ElementType::Ptr quad_face = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Quad3D","etype");
+  ElementType::Ptr quad_face = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Quad3D","etype");
 
   RealMatrix quad_face_nodes = (RealMatrix(4,3) <<
                       0, 0, 0,

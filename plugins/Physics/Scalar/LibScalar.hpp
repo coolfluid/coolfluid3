@@ -52,7 +52,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.Scalar"; }
+  static std::string library_namespace() { return "cf3.Physics.Scalar"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration

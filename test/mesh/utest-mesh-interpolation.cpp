@@ -71,7 +71,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("CF.Mesh.LinearInterpolator","interpolator");
+  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 
@@ -99,12 +99,12 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
-//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.CGNS.Reader","cgns_meshreader");
+//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","cgns_meshreader");
 //  Mesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
 
 
   // Create and configure interpolator.
-  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("CF.Mesh.LinearInterpolator","interpolator");
+  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
   interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  FieldGroup& source_elem_fields = source.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "CF.Mesh.LagrangeP0");
-  FieldGroup& target_elem_fields = target.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "CF.Mesh.LagrangeP0");
+  FieldGroup& source_elem_fields = source.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
+  FieldGroup& target_elem_fields = target.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
   FieldGroup& source_node_fields = source.geometry();
   FieldGroup& target_node_fields = target.geometry();
 
@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Write the fields to file.
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   BOOST_CHECK(true);
 

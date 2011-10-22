@@ -45,7 +45,7 @@ struct MeshTransformer_Fixture
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
     root = Root::create("Root");
-    reader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","MyReader");
+    reader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","MyReader");
     domain = root->create_component_ptr<Domain>("MyDom");
 
     root->add_component( reader );
@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshTransformer_TestSuite, MeshTransformer_Fixture )
 
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
-  // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+  // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
   // 
   // // the file to read from
   // boost::filesystem::path fp_in ("quadtriag.neu");
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 
 BOOST_AUTO_TEST_CASE( test_arguments )
 {
-  MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
+  MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
   
   std::vector<std::string> args;
   args.push_back("variable:bool=true");

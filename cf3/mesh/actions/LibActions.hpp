@@ -33,7 +33,7 @@ namespace actions {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the initialization and termination of the library namespace actions
+/// Class defines the initialization and termination of the library actions
 class mesh_actions_API LibActions :
     public common::Library {
 
@@ -48,20 +48,20 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.namespace actions"; }
+  static std::string library_namespace() { return "cf3.mesh.actions"; }
 
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "namespace actions"; }
+  static std::string library_name() { return "actions"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
   /// @return description of the library
   static std::string library_description()
   {
-    return "This library implements several Mesh namespace actions.";
+    return "This library implements several Mesh actions.";
   }
 
   /// Gets the Class name

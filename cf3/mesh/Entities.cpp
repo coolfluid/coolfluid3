@@ -244,7 +244,7 @@ void Entities::signature_create_space ( SignalArgs& node)
   options.add_option< OptionT<std::string> >("name" , std::string("new_space") )
       ->description("Name to add to space");
 
-  options.add_option< OptionT<std::string> >("shape_function" , std::string("CF.Mesh.LagrangeP0.Line") )
+  options.add_option< OptionT<std::string> >("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
       ->description("Shape Function to add as space");
 }
 

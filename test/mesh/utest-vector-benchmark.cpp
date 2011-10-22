@@ -190,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector3D, VectorBenchmarkFixture )
   RealVector c7(3);
   RealVector result(3);
 
-  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.SF.LagrangeP1.Hexa3D");
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.SF.LagrangeP1.Hexa3D");
   const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -212,7 +212,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 3> c7(3);
   boost::numeric::ublas::c_vector<Real, 3> result(3);
 
-  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
   const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -234,7 +234,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c7(3);
   boost::numeric::ublas::vector<Real> result(3);
 
-  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
   const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -284,7 +284,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
   Eigen::Vector3d c7(3);
   Eigen::Vector3d result(3);
 
-  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
   const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
@@ -306,7 +306,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c7(3);
   Eigen::VectorXd result(3);
 
-  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "CF.Mesh.LagrangeP1.Hexa3D");
+  const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
   const Table<Real>& coords = elems.geometry().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);

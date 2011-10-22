@@ -11,7 +11,7 @@ env.configure_option('exception_log_level', 0)
 env.configure_option('log_level', 4)
 env.configure_option('exception_outputs', False)
 
-table = root.create_component("table", "CF.Mesh.Table<unsigned>")
+table = root.create_component("table", "cf3.mesh.Table<unsigned>")
 
 if len(table) != 0:
   raise Exception('Created table was not size 0')

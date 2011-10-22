@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( output )
 {
   Domain& domain = find_component_recursively<Domain>(Core::instance().root());
   Mesh::Ptr mesh = domain.get_child_ptr_checked("Mesh")->as_ptr<Mesh>();
-  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter> ( "CF.Mesh.Gmsh.Writer", "GmshWriter" );
+  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter> ( "cf3.mesh.gmsh.Writer", "GmshWriter" );
   mesh_writer->write_from_to(*mesh,"utest-loadmesh-result.msh");
 }
 

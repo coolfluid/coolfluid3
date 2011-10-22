@@ -71,7 +71,7 @@ void SetupSingleSolution::execute()
     solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "CF.Mesh."+solution_space).as_ptr<FieldGroup>();
+      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "cf3.mesh."+solution_space).as_ptr<FieldGroup>();
     }
     else // not null so check that space is what user wants
     {

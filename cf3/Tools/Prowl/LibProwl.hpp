@@ -56,7 +56,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Tools.Prowl"; }
+  static std::string library_namespace() { return "cf3.Tools.Prowl"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for Library registration

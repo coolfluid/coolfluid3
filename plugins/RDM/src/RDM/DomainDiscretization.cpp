@@ -170,8 +170,8 @@ void DomainDiscretization::signature_signal_create_cell_term( SignalArgs& args )
   /// @todo loop over the existing CellTerm providers to provide the available list
 
   //  std::vector< std::string > restricted;
-  //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+  //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
+  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions
@@ -199,8 +199,8 @@ void DomainDiscretization::signature_signal_create_face_term( SignalArgs& args )
   /// @todo loop over the existing FaceTerm providers to provide the available list
 
   //  std::vector< std::string > restricted;
-  //  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("CF.RDM.BcDirichlet"), "Type for created boundary");
+  //  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
+  //  XmlNode type_node = options.add_option< OptionT<std::string> >("Type", std::string("cf3.RDM.BcDirichlet"), "Type for created boundary");
   //  Map(type_node).set_array( Protocol::Tags::key_restricted_values(), restricted, " ; " );
 
   // regions

@@ -50,7 +50,7 @@ void CreateSpaceP0::execute()
 
   boost_foreach(Entities& entities, find_components_recursively<Entities>(mesh))
   {
-    entities.create_space("P0","CF.Mesh.LagrangeP0."+entities.element_type().shape_name());
+    entities.create_space("P0","cf3.mesh.LagrangeP0."+entities.element_type().shape_name());
   }
 }
 

@@ -281,7 +281,7 @@ void Writer::write_file(std::fstream& file)
 
               if (option("cell_centred").value<bool>())
               {
-                ShapeFunction::Ptr P0_cell_centred = build_component("CF.Mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+                ShapeFunction::Ptr P0_cell_centred = build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {

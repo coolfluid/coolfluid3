@@ -42,7 +42,7 @@ ProfiledTestFixture::ProfiledTestFixture() :
     Core::instance().environment().configure_option("exception_aborts",false);
     Core::instance().environment().configure_option("exception_backtrace",false);
     Core::instance().environment().configure_option("exception_outputs",false);
-    const std::string prof_name ( "CF.Tools.GooglePerfTools.GooglePerfProfiling" );
+    const std::string prof_name ( "cf3.Tools.GooglePerfTools.GooglePerfProfiling" );
     try
     {
       Core::instance().set_profiler( prof_name );

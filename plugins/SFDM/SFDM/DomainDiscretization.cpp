@@ -121,7 +121,7 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option< OptionT<std::string> >("type", std::string("CF.SFDM.Convection"))
+  options.add_option< OptionT<std::string> >("type", std::string("cf3.SFDM.Convection"))
       ->description("Type for created term");
 
   // regions

@@ -185,7 +185,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     );
 
   // Setup physics
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.Physics.DynamicModel");
 
   // Setup mesh
   Mesh& mesh = domain.create_component<Mesh>("Mesh");

@@ -124,8 +124,8 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
-  Elements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Quad2D",nodes);
-  Elements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP1.Triag2D",nodes);
+  Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP1.Quad2D",nodes);
+  Elements& triagRegion = superRegion.create_elements("cf3.mesh.LagrangeP1.Triag2D",nodes);
 
   Table<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
   Table<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 	meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 }
@@ -237,8 +237,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Geometry& nodes = mesh.geometry();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
-  Elements& quadRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Quad2D",nodes);
-  Elements& triagRegion = superRegion.create_elements("CF.Mesh.LagrangeP2.Triag2D",nodes);
+  Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);
+  Elements& triagRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Triag2D",nodes);
 
   Table<Uint>::Buffer qTableBuffer = quadRegion.node_connectivity().create_buffer();
   Table<Uint>::Buffer tTableBuffer = triagRegion.node_connectivity().create_buffer();
@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 	meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }

@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 #define GEN
 
 #ifdef GEN
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -110,14 +110,14 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef NEU
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+      build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
   Mesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
   MeshReader::Ptr meshreader =
-      build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+      build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
   Mesh& mesh = *mesh_ptr;
 #endif
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   Core::instance().root().add_component(mesh);
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);
 
  // Core::instance().tools().get_child("LoadBalancer").as_type<MeshTransformer>().transform(mesh);
 
@@ -149,12 +149,12 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
   Field& elem_rank     = elems_P0.create_field("elem_rank");
 
 
-  FieldGroup& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",FieldGroup::Basis::POINT_BASED,"CF.Mesh.LagrangeP2");
+  FieldGroup& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",FieldGroup::Basis::POINT_BASED,"cf3.mesh.LagrangeP2");
   Field& nodes_P1_node_rank = nodes_P1.create_field("node_rank");
   nodes_P1_node_rank.parallelize();
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   // Create a field with glb node numbers
   Field& P1_node_rank = mesh.geometry().create_field("P1_node_rank");
 
-  Action& interpolator = mesh.create_component("interpolator","CF.Mesh.Actions.Interpolate").as_type<Action>();
+  Action& interpolator = mesh.create_component("interpolator","cf3.mesh.actions.Interpolate").as_type<Action>();
   interpolator.configure_option("source",nodes_P1_node_rank.uri());
   interpolator.configure_option("target",P1_node_rank.uri());
   interpolator.execute();
@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   fields.push_back(glb_node_idx.as_ptr<Field>());
 
   MeshWriter::Ptr tec_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Tecplot.Writer","tec_writer");
+      build_component_abstract_type<MeshWriter>("cf3.mesh.Tecplot.Writer","tec_writer");
 
   tec_writer->set_fields(fields);
   tec_writer->configure_option("cell_centred",true);
@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   CFinfo << "parallel_fields_P*.plt written" << CFendl;
 
   MeshWriter::Ptr msh_writer =
-      build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","msh_writer");
+      build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","msh_writer");
 
   msh_writer->set_fields(fields);
   msh_writer->write_from_to(mesh,"parallel_fields.msh");
@@ -224,14 +224,14 @@ BOOST_AUTO_TEST_CASE( minitest )
   CFinfo << "ParallelFields_test" << CFendl;
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   meshgenerator->configure_option("bdry",false);
   Mesh& mesh = meshgenerator->generate();
 
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balancer")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balancer")->transform(mesh);
 
   // create a field and assign it to the comm pattern
 
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   }
 
 
-  FieldGroup& elems = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& elems = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   elems.create_coordinates();
   Field& elem_rank     = elems.create_field("elem_rank");
   elem_rank.parallelize();

@@ -50,7 +50,7 @@ struct NeuFixture
     mesh3d = Core::instance().root().create_component_ptr<Mesh>("mesh3d");
 
     // Read the a .neu mesh as 2D mixed mesh
-    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+    MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
 
     // Read the mesh
     meshreader->read_mesh_into("quadtriag.neu",*mesh2d);

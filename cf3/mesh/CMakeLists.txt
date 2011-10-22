@@ -115,7 +115,7 @@ set( coolfluid_mesh_kernellib TRUE )
 coolfluid_add_library( coolfluid_mesh )
 
 ############################################################################################
-# sub modules of CF.Mesh
+# sub modules of cf3Mesh
 
 add_subdirectory(LagrangeP0)      # LagrangeP0 shape functions
 
@@ -129,7 +129,7 @@ add_subdirectory(LagrangeP3)      # LagrangeP3 elements / shape functions
 
 add_subdirectory( Neu )           # Neutral file IO
 
-add_subdirectory( Gmsh )          # Gmsh file IO
+add_subdirectory( gmsh )          # gmsh file IO
 
 add_subdirectory( BlockMesh )     # Structured mesh generation
 

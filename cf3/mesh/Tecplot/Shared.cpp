@@ -54,24 +54,24 @@ Shared::Shared() :
     m_nodes_tp_to_cf(nb_tp_types)
 {
   m_supported_types.reserve(20);
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line1D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP2.Line2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP3.Line2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Line3D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP2.Quad2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP3.Quad2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Quad3D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP2.Triag2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP3.Triag2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Triag3D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Hexa3D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP1.Tetra3D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point1D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point2D");
-  m_supported_types.push_back("CF.Mesh.LagrangeP0.Point3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Line1D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Line2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP2.Line2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP3.Line2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Line3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Quad2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP2.Quad2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP3.Quad2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Quad3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Triag2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP2.Triag2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP3.Triag2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Triag3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Hexa3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP1.Tetra3D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP0.Point1D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP0.Point2D");
+  m_supported_types.push_back("cf3.mesh.LagrangeP0.Point3D");
 
   m_element_cf_to_tp[GeoShape::LINE ]=P1LINE;
   m_element_cf_to_tp[GeoShape::TRIAG]=P1TRIAG;
@@ -377,9 +377,9 @@ Shared::Shared() :
 
 std::string Shared::tp_name_to_cf_name(const Uint dim, const Uint tp_type)
 {
-  //Compose the name of the form   "CF.Mesh.LagrangeP1.Line1D"
+  //Compose the name of the form   "cf3.mesh.LagrangeP1.Line1D"
   const Uint order = m_tp_elem_order[tp_type];
-  std::string name = "CF.Mesh.Lagrange"+order_name[order]+"." + tp_elem_geo_name[tp_type] + dim_name[dim];
+  std::string name = "cf3.mesh.Lagrange"+order_name[order]+"." + tp_elem_geo_name[tp_type] + dim_name[dim];
   return name;
 }
 

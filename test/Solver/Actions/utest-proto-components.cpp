@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( UseConfigurableConstant )
 BOOST_AUTO_TEST_CASE( SetupModel )
 {
   CModel& model = Core::instance().root().create_component<CModel>("Model");
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.Physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = dom.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_line(mesh, 1., 5);

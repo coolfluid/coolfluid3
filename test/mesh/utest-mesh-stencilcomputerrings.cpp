@@ -67,7 +67,7 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
 {
 
   // create meshreader
-  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","mesh_generator");
+  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
   mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
   mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));

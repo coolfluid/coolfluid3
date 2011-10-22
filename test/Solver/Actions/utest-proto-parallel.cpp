@@ -88,9 +88,9 @@ struct ProtoParallelFixture :
   CModel& setup(const std::string& model_name)
   {
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
-    Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
+    Physics::PhysModel& phys_model = model.create_physics("cf3.Physics.DynamicModel");
     Domain& dom = model.create_domain("Domain");
-    CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
+    CSolver& solver = model.create_solver("cf3.Solver.CSimpleSolver");
 
     Mesh& mesh = dom.create_component<Mesh>("mesh");
     Mesh& serial_block_mesh = dom.create_component<Mesh>("serial_block_mesh"); // temporary mesh used for paralellization
@@ -111,7 +111,7 @@ struct ProtoParallelFixture :
     // Create field
     boost_foreach(Entities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
+      elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
     }
 
     return model;
@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE( BuildGlobalConn, ProtoParallelFixture )
   CModel& model = root.get_child("Overlap").as_type<CModel>();
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  MeshTransformer& global_conn = model.domain().create_component("GlobalConnectivity", "CF.Mesh.Actions.GlobalConnectivity").as_type<MeshTransformer>();
+  MeshTransformer& global_conn = model.domain().create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity").as_type<MeshTransformer>();
   global_conn.transform(mesh);
 }
 
@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE( GrowOverlap, ProtoParallelFixture )
   CModel& model = root.get_child("Overlap").as_type<CModel>();
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  MeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "CF.Mesh.Actions.GrowOverlap").as_type<MeshTransformer>();
+  MeshTransformer& grow_overlap = model.domain().create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap").as_type<MeshTransformer>();
   grow_overlap.transform(mesh);
 }
 
@@ -265,7 +265,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultNoOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume, 1e-6);
   }
 
-  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.Writer").as_type<MeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "cf3.mesh.VTKXML.Writer").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);
@@ -293,7 +293,7 @@ BOOST_FIXTURE_TEST_CASE( CheckResultOverlap, ProtoParallelFixture )
     BOOST_CHECK_CLOSE(total_volume_check, wanted_volume_overlap, 1e-6);
   }
 
-  MeshWriter& writer = root.create_component("Writer", "CF.Mesh.VTKXML.Writer").as_type<MeshWriter>();
+  MeshWriter& writer = root.create_component("Writer", "cf3.mesh.VTKXML.Writer").as_type<MeshWriter>();
   std::vector<Field::Ptr> fields;
   fields.push_back(find_component_ptr_recursively_with_name<Field>(mesh, "variables"));
   writer.set_fields(fields);

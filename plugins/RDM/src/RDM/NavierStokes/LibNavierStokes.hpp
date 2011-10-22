@@ -46,7 +46,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RDM.NavierStokes"; }
+  static std::string library_namespace() { return "cf3.RDM.NavierStokes"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration

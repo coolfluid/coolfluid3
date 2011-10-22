@@ -49,7 +49,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.BlockMesh"; }
+  static std::string library_namespace() { return "cf3.mesh.BlockMesh"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for Library registration

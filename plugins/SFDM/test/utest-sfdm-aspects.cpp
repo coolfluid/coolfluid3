@@ -54,13 +54,13 @@ BOOST_AUTO_TEST_CASE( test_SF_lines )
 {
   typedef SFDM::ShapeFunction SFD_SF;
   Root& root = Core::instance().root();
-  SFD_SF& sol_line_p0 = root.create_component("sol_line_p0","CF.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
-  SFD_SF& sol_line_p1 = root.create_component("sol_line_p1","CF.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
-  SFD_SF& sol_line_p2 = root.create_component("sol_line_p2","CF.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
+  SFD_SF& sol_line_p0 = root.create_component("sol_line_p0","cf3.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
+  SFD_SF& sol_line_p1 = root.create_component("sol_line_p1","cf3.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
+  SFD_SF& sol_line_p2 = root.create_component("sol_line_p2","cf3.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
 
-  SFD_SF& flx_line_p1 = root.create_component("flx_line_p1","CF.SFDM.SF.LineFluxP1").as_type<SFD_SF>();
-  SFD_SF& flx_line_p2 = root.create_component("flx_line_p2","CF.SFDM.SF.LineFluxP2").as_type<SFD_SF>();
-  SFD_SF& flx_line_p3 = root.create_component("flx_line_p3","CF.SFDM.SF.LineFluxP3").as_type<SFD_SF>();
+  SFD_SF& flx_line_p1 = root.create_component("flx_line_p1","cf3.SFDM.SF.LineFluxP1").as_type<SFD_SF>();
+  SFD_SF& flx_line_p2 = root.create_component("flx_line_p2","cf3.SFDM.SF.LineFluxP2").as_type<SFD_SF>();
+  SFD_SF& flx_line_p3 = root.create_component("flx_line_p3","cf3.SFDM.SF.LineFluxP3").as_type<SFD_SF>();
 
   const Uint line0 = 0;
 
@@ -102,10 +102,10 @@ BOOST_AUTO_TEST_CASE( test_SF_lines )
 BOOST_AUTO_TEST_CASE( test_Reconstruction_lines )
 {
   Root& root = common::Core::instance().root();
-  Reconstruct& reconstruct = root.create_component("reconstruct","CF.SFDM.Reconstruct").as_type<Reconstruct>();
+  Reconstruct& reconstruct = root.create_component("reconstruct","cf3.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
-  from_to[0] = "CF.SFDM.SF.LineSolutionP1";
-  from_to[1] = "CF.SFDM.SF.LineFluxP2";
+  from_to[0] = "cf3.SFDM.SF.LineSolutionP1";
+  from_to[1] = "cf3.SFDM.SF.LineFluxP2";
   reconstruct.configure_option("from_to",from_to);
 
   RealVector solution(2); solution << 0. , 4.;      // in cell <-1,1>
@@ -121,31 +121,31 @@ BOOST_AUTO_TEST_CASE( test_SF_quads )
 {
   typedef SFDM::ShapeFunction SFD_SF;
   Root& root = Core::instance().root();
-  SFD_SF& sol_quad_p0 = root.create_component("sol_quad_p0","CF.SFDM.SF.QuadSolutionP0").as_type<SFD_SF>();
-  SFD_SF& sol_quad_p1 = root.create_component("sol_quad_p1","CF.SFDM.SF.QuadSolutionP1").as_type<SFD_SF>();
-  SFD_SF& sol_quad_p2 = root.create_component("sol_quad_p2","CF.SFDM.SF.QuadSolutionP2").as_type<SFD_SF>();
-  SFD_SF& flx_quad_p1 = root.create_component("flx_quad_p1","CF.SFDM.SF.QuadFluxP1").as_type<SFD_SF>();
-  SFD_SF& flx_quad_p2 = root.create_component("flx_quad_p2","CF.SFDM.SF.QuadFluxP2").as_type<SFD_SF>();
-  SFD_SF& flx_quad_p3 = root.create_component("flx_quad_p3","CF.SFDM.SF.QuadFluxP3").as_type<SFD_SF>();
+  SFD_SF& sol_quad_p0 = root.create_component("sol_quad_p0","cf3.SFDM.SF.QuadSolutionP0").as_type<SFD_SF>();
+  SFD_SF& sol_quad_p1 = root.create_component("sol_quad_p1","cf3.SFDM.SF.QuadSolutionP1").as_type<SFD_SF>();
+  SFD_SF& sol_quad_p2 = root.create_component("sol_quad_p2","cf3.SFDM.SF.QuadSolutionP2").as_type<SFD_SF>();
+  SFD_SF& flx_quad_p1 = root.create_component("flx_quad_p1","cf3.SFDM.SF.QuadFluxP1").as_type<SFD_SF>();
+  SFD_SF& flx_quad_p2 = root.create_component("flx_quad_p2","cf3.SFDM.SF.QuadFluxP2").as_type<SFD_SF>();
+  SFD_SF& flx_quad_p3 = root.create_component("flx_quad_p3","cf3.SFDM.SF.QuadFluxP3").as_type<SFD_SF>();
 
 
   BOOST_CHECK_EQUAL( sol_quad_p0.nb_nodes() , 1u );
-  BOOST_CHECK_EQUAL( sol_quad_p0.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP0") );
+  BOOST_CHECK_EQUAL( sol_quad_p0.line().derived_type_name() , std::string("cf3.SFDM.SF.LineSolutionP0") );
 
   BOOST_CHECK_EQUAL( sol_quad_p1.nb_nodes() , 4u );
-  BOOST_CHECK_EQUAL( sol_quad_p1.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP1") );
+  BOOST_CHECK_EQUAL( sol_quad_p1.line().derived_type_name() , std::string("cf3.SFDM.SF.LineSolutionP1") );
 
   BOOST_CHECK_EQUAL( sol_quad_p2.nb_nodes() , 9u );
-  BOOST_CHECK_EQUAL( sol_quad_p2.line().derived_type_name() , std::string("CF.SFDM.SF.LineSolutionP2") );
+  BOOST_CHECK_EQUAL( sol_quad_p2.line().derived_type_name() , std::string("cf3.SFDM.SF.LineSolutionP2") );
 
   BOOST_CHECK_EQUAL( flx_quad_p1.nb_nodes() , 4u );
-  BOOST_CHECK_EQUAL( flx_quad_p1.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP1") );
+  BOOST_CHECK_EQUAL( flx_quad_p1.line().derived_type_name() , std::string("cf3.SFDM.SF.LineFluxP1") );
 
   BOOST_CHECK_EQUAL( flx_quad_p2.nb_nodes() , 9u );
-  BOOST_CHECK_EQUAL( flx_quad_p2.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP2") );
+  BOOST_CHECK_EQUAL( flx_quad_p2.line().derived_type_name() , std::string("cf3.SFDM.SF.LineFluxP2") );
 
   BOOST_CHECK_EQUAL( flx_quad_p3.nb_nodes() , 20u );
-  BOOST_CHECK_EQUAL( flx_quad_p3.line().derived_type_name() , std::string("CF.SFDM.SF.LineFluxP3") );
+  BOOST_CHECK_EQUAL( flx_quad_p3.line().derived_type_name() , std::string("cf3.SFDM.SF.LineFluxP3") );
 
   const Uint line0 = 0;
 
@@ -172,10 +172,10 @@ BOOST_AUTO_TEST_CASE( test_SF_quads )
 BOOST_AUTO_TEST_CASE( test_Reconstruction_quads )
 {
   Root& root = common::Core::instance().root();
-  Reconstruct& reconstruct = root.create_component("reconstruct_quads","CF.SFDM.Reconstruct").as_type<Reconstruct>();
+  Reconstruct& reconstruct = root.create_component("reconstruct_quads","cf3.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
-  from_to[0] = "CF.SFDM.SF.QuadSolutionP0";
-  from_to[1] = "CF.SFDM.SF.QuadFluxP1";
+  from_to[0] = "cf3.SFDM.SF.QuadSolutionP0";
+  from_to[1] = "cf3.SFDM.SF.QuadFluxP1";
   reconstruct.configure_option("from_to",from_to);
 
   RealVector solution(1); solution << 2. ;      // in cell <-1,1><-1,1>
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(*mesh,URI("line.msh"));
 
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   //CFinfo << "initialized solution field with data:\n" << solution.data() << CFendl;
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(*mesh,URI("rectangle.msh"));
 
@@ -278,12 +278,12 @@ BOOST_AUTO_TEST_CASE( test_mesh_transform )
   /// Create a mesh consisting of a line with length 1. and 20 divisions
   Mesh& mesh = common::Core::instance().root().get_child("rectangle").as_type<Mesh>();
 
-  MeshTransformer& build_faces = common::Core::instance().root().create_component("build_faces","CF.Mesh.Actions.BuildFaces").as_type<MeshTransformer>();
+  MeshTransformer& build_faces = common::Core::instance().root().create_component("build_faces","cf3.mesh.actions.BuildFaces").as_type<MeshTransformer>();
   build_faces.configure_option("store_cell2face",true);
   build_faces.transform(mesh);
 
   /// write gmsh file. note that gmsh gets really confused because of the multistate view
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 //  gmsh_writer->set_fields(std::vector<CField::Ptr>(1,solution.as_ptr<CField>()));
   gmsh_writer->write_from_to(mesh,URI("rectangle.msh"));
 
@@ -303,8 +303,8 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   wizard.configure_option("model",std::string("test"));
   wizard.configure_option("dim",2u);
   wizard.configure_option("RK_stages",1u);
-  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
-  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State2D"));
+  wizard.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State2D"));
 
   wizard.create_simulation();
 
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xdir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_ydir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -454,7 +454,7 @@ BOOST_AUTO_TEST_CASE( test_computerhsincell_xydir )
   CFinfo << "\nInitializing solution with [" << step << "]" << CFendl;
   wizard.initialize_solution(std::vector<std::string>(1,step));
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -519,8 +519,8 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler1D )
   wizard.configure_option("model",std::string("test"));
   wizard.configure_option("dim",1u);
   wizard.configure_option("RK_stages",1u);
-  wizard.configure_option("solution_state",std::string("CF.Euler.Cons1D"));
-  wizard.configure_option("roe_state",std::string("CF.Euler.Roe1D"));
+  wizard.configure_option("solution_state",std::string("cf3.Euler.Cons1D"));
+  wizard.configure_option("roe_state",std::string("cf3.Euler.Roe1D"));
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -552,7 +552,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler1D )
       CFinfo << "     " << f << CFendl;
   wizard.initialize_solution(function);
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());
@@ -587,8 +587,8 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler2D )
   wizard.configure_option("model",std::string("test"));
   wizard.configure_option("dim",2u);
   wizard.configure_option("RK_stages",1u);
-  wizard.configure_option("solution_state",std::string("CF.Euler.Cons2D"));
-  wizard.configure_option("roe_state",std::string("CF.Euler.Roe2D"));
+  wizard.configure_option("solution_state",std::string("cf3.Euler.Cons2D"));
+  wizard.configure_option("roe_state",std::string("cf3.Euler.Roe2D"));
   wizard.create_simulation();
 
   CModel& model = wizard.model();
@@ -621,7 +621,7 @@ BOOST_AUTO_TEST_CASE( test_riemannproblem_euler2D )
       CFinfo << "     " << f << CFendl;
   wizard.initialize_solution(function);
 
-  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = model.tools().create_component("gmsh","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   std::vector<URI> fields;
   fields.push_back(mesh.get_child("solution").uri());
   fields.push_back(mesh.get_child("residual").uri());

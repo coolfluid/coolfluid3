@@ -65,8 +65,8 @@ std::string Libraries::namespace_to_libname( const std::string& libnamespace )
   // Copy holding the result
   std::string result = libnamespace;
 
-  if( boost::starts_with(result, "CF.") )
-      boost::replace_first(result, "CF", "coolfluid");
+  if( boost::starts_with(result, "cf3.") )
+      boost::replace_first(result, "cf3", "coolfluid");
 
   boost::replace_all(result, ".", "_");
   boost::to_lower(result);

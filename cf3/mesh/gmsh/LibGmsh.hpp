@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Gmsh_API
-/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling Gmsh files
+/// Define the macro gmsh_API
+/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling gmsh files
 #ifdef COOLFLUID_GMSH_EXPORTS
-#   define Gmsh_API      CF3_EXPORT_API
-#   define Gmsh_TEMPLATE
+#   define gmsh_API      CF3_EXPORT_API
+#   define gmsh_TEMPLATE
 #else
-#   define Gmsh_API      CF3_IMPORT_API
-#   define Gmsh_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define gmsh_API      CF3_IMPORT_API
+#   define gmsh_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -31,13 +31,13 @@ namespace cf3 {
 namespace mesh {
   
 /// @brief Library for I/O of the gmsh format
-namespace Gmsh {
+namespace gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Gmshtral mesh format operations
+/// Class defines the gmshtral mesh format operations
 /// @author Willem Deconinck
-class Gmsh_API LibGmsh :
+class gmsh_API LibGmsh :
     public common::Library
 {
 public:
@@ -49,12 +49,12 @@ public:
   LibGmsh ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.Gmsh"; }
+  static std::string library_namespace() { return "cf3.mesh.gmsh"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "Gmsh"; }
+  static std::string library_name() { return "gmsh"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
@@ -62,7 +62,7 @@ public:
 
   static std::string library_description()
   {
-    return "This library implements the Gmsh mesh format operations.";
+    return "This library implements the gmsh mesh format operations.";
   }
 
   /// Gets the Class name
@@ -80,7 +80,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3
 

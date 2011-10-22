@@ -18,8 +18,8 @@ cf3::common::RegistLibrary<LibPython> libPython;
 
 void LibPython::initiate_impl()
 {
-  common::Component& group = common::Core::instance().tools().create_component("Python", "CF.Common.Group");
-  group.create_component("ScriptEngine", "CF.Python.ScriptEngine");
+  common::Component& group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
+  group.create_component("ScriptEngine", "cf3.Python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()

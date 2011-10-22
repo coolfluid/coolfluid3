@@ -9,11 +9,11 @@ call //Root/Libraries/load_libraries "libs:array[uri]=\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_advectiondiffusion"
 
-create wizard CF.SFDM.SFDWizard
+create wizard cf3SFDM.SFDWizard
 configure wizard \
    model:string=SFD_simulation \
-   solution_state:string=CF.Euler.Cons1D \
-   roe_state:string=CF.Euler.Roe1D \
+   solution_state:string=cf3Euler.Cons1D \
+   roe_state:string=cf3Euler.Roe1D \
    P:unsigned=0 \
    cfl:real=1 \
    RK_stages:unsigned=1
@@ -22,7 +22,7 @@ call wizard/create_simulation
 
 export length:real=10
 
-create SFD_simulation/tools/meshgen CF.Mesh.SimpleMeshGenerator
+create SFD_simulation/tools/meshgen cf3Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=${length} \
   nb_cells:array[unsigned]=100 \

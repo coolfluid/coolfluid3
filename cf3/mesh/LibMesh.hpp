@@ -52,13 +52,13 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh"; }
+  static std::string library_namespace() { return "cf3.mesh"; }
 
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "Mesh"; }
+  static std::string library_name() { return "mesh"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration

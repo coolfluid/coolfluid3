@@ -48,7 +48,7 @@ namespace cf3 {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Physics"; }
+    static std::string library_namespace() { return "cf3.Physics"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for Library registration

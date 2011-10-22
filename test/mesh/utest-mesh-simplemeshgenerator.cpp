@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 {
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   Uint nb_ghosts=0;
 
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"line.msh");
 
   BOOST_CHECK(true);
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 {
 
-  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("CF.Mesh.SimpleMeshGenerator","1Dgenerator");
+  MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
   meshgenerator->configure_option("mesh",URI("//Root/rect"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   Uint nb_ghosts=0;
 
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"rect.msh");
 
   BOOST_CHECK(true);

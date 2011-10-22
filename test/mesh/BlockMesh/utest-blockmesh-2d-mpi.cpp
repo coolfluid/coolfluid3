@@ -44,7 +44,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
 
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer", "writer");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
   
   Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(Elements& elements , elems_P0.elements_range())

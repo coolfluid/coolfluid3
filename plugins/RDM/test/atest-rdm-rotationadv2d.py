@@ -17,9 +17,9 @@ env.configure_option('regist_signal_handlers', False)
 
 ### create model
 
-wizard = root.create_component('Wizard',  'CF.RDM.SteadyExplicit')
+wizard = root.create_component('Wizard',  'cf3.RDM.SteadyExplicit')
 
-wizard.create_model(model_name='Model', physical_model='CF.Physics.Scalar.Scalar2D')
+wizard.create_model(model_name='Model', physical_model='cf3.Physics.Scalar.Scalar2D')
 model = root.get_child('Model')
 
 
@@ -58,21 +58,21 @@ iconds.get_child('INIT').configure_option('regions', internal_regions)
 
 bcs = solver.get_child('BoundaryConditions')
 
-bcs.create_boundary_condition(name='INLET', type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/inlet')])
+bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/inlet')])
 bcs.get_child('INLET').configure_option('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 
-bcs.create_boundary_condition(name='FARFIELD', type='CF.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/farfield')])
+bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/farfield')])
 bcs.get_child('FARFIELD').configure_option('functions', ['0'])
 
 ### domain discretization
-solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='CF.RDM.Schemes.LDA')
+solver.get_child('DomainDiscretization').create_cell_term(name='INTERNAL', type='cf3.RDM.Schemes.LDA')
 solver.get_child('DomainDiscretization').get_child('CellTerms').get_child('INTERNAL').configure_option('regions', internal_regions)
 
 ### simulate and write the result
 
 iconds.execute()
 
-domain.create_component('tecwriter', 'CF.Mesh.Tecplot.Writer')
+domain.create_component('tecwriter', 'cf3.mesh.Tecplot.Writer')
 
 domain.write_mesh(cf.URI('initial.msh'))
 domain.write_mesh(cf.URI('initial.plt'))

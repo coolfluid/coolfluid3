@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 BOOST_AUTO_TEST_CASE( node_elem_connectivity )
 {
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
 
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("quadtriag.neu",mesh);

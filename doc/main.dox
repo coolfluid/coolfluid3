@@ -81,13 +81,13 @@ namespace cf3 {
  common::Group& myGroup = myComp->create_component<common::Group>("group1");
  @endcode
  @anchor using_build_component
- Say you want to create a component of the abstract type mesh::CMeshReader, but with concrete implementation from a Gmsh reader,
+ Say you want to create a component of the abstract type mesh::MeshReader, but with concrete implementation from a gmsh reader,
  use then the @b Component::build_component() function
  @code
  mesh::CMeshReader& mesh_reader = 
-     myComp->build_component("meshreader","CF.Mesh.Gmsh.Reader").as_type<mesh::CMeshReader>();
+     myComp->build_component("meshreader","cf3.mesh.gmsh.Reader").as_type<mesh::MeshReader>();
  @endcode
- Here @c "CF.Mesh.Gmsh.Reader" is the name of the concrete class cf3::mesh::Gmsh::Reader
+ Here @c "cf3.mesh.gmsh.Reader" is the name of the concrete class cf3::mesh::gmsh::Reader
  The possibility of this last approach is that component creation can be configurable, as the concrete type can be passed as a string.
  
  @section _configure How to configure a component

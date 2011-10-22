@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE( component_builder )
   BOOST_CHECK( cabstract_factory != nullptr );
   BOOST_CHECK_EQUAL( cabstract_factory->factory_type_name() , std::string("CAbstract") );
 
-  Builder::Ptr cconcrete1_builder = cabstract_factory->get_child_ptr( "CF.Common.CConcrete1" )->as_ptr< Builder >();
+  Builder::Ptr cconcrete1_builder = cabstract_factory->get_child_ptr( "cf3.common.CConcrete1" )->as_ptr< Builder >();
   BOOST_CHECK( cconcrete1_builder != nullptr );
   BOOST_CHECK_EQUAL( cconcrete1_builder->builder_concrete_type_name() , std::string("CConcrete1") );
 }
@@ -70,10 +70,10 @@ BOOST_AUTO_TEST_CASE( component_builder )
 
 BOOST_AUTO_TEST_CASE( LibraryName )
 {
-  const std::string builder_name1 = "CF.Mesh.Neu.Reader";
+  const std::string builder_name1 = "cf3.mesh.Neu.Reader";
   BOOST_CHECK_EQUAL(Builder::extract_library_name(builder_name1), "coolfluid_mesh_neu");
   
-  const std::string builder_name2 = "CF.UFEM.Test";
+  const std::string builder_name2 = "cf3.UFEM.Test";
   BOOST_CHECK_EQUAL(Builder::extract_library_name(builder_name2), "coolfluid_ufem");
 }
 

@@ -60,7 +60,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RiemannSolvers"; }
+  static std::string library_namespace() { return "cf3.RiemannSolvers"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration

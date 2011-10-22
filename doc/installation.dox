@@ -117,7 +117,7 @@ $> export DYLD_LIBRARY_PATH=$CF3/deps/lib:$DYLD_LIBRARY_PATH
 
 @section _installation_build_coolfluid Build COOLFluiD
 
-On this phase you will select your building options for CF.
+On this phase you will select your building options for cf3
 Repeat this phase as often as you need and whenever you want to refresh your build directory.
 
 @subsection _installation_create_a_build_directory_separate_from_the_sources Create a build directory separate from the sources

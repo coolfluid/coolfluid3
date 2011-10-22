@@ -73,7 +73,7 @@ void CreateSFDFields::execute()
   }
   else
   {
-    FieldGroup& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,FieldGroup::Basis::CELL_BASED,"CF.SFDM.P"+to_str(solution_order-1));
+    FieldGroup& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,FieldGroup::Basis::CELL_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
     sfdm_fields.add_tag(sfdm_fields_space);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());

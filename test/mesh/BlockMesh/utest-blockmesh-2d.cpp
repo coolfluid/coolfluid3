@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_SUITE( BlockMesh2D )
 
 BOOST_AUTO_TEST_CASE( Grid2D )
 {
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.Writer", "writer");
+  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer", "writer");
   Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 

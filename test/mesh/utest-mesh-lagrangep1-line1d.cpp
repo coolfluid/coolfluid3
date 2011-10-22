@@ -73,7 +73,7 @@ BOOST_FIXTURE_TEST_SUITE( Line1DSuite, LagrangeP1Line1DFixture )
 BOOST_AUTO_TEST_CASE( Volume )
 {
   RealMatrix nodes_line1D ( (RealMatrix(2,1) << 2.0, 1.0).finished() );
-  ElementType::Ptr line1d = build_component_abstract_type<ElementType>("CF.Mesh.LagrangeP1.Line1D","line1d");
+  ElementType::Ptr line1d = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Line1D","line1d");
   BOOST_CHECK_EQUAL(line1d->volume(nodes_line1D),1.);
 }
 

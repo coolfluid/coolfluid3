@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( registration )
 {
   common::ComponentBuilder < CConcrete1 , CAbstract, common::LibCommon > aBuilder;
 
-  CAbstract::Ptr ptr = build_component_abstract_type< CAbstract >("CF.Common.CConcrete1","acomp");
+  CAbstract::Ptr ptr = build_component_abstract_type< CAbstract >("cf3.common.CConcrete1","acomp");
 
   BOOST_CHECK( is_not_null(ptr) );
 

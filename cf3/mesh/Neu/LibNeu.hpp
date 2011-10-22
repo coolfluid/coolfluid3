@@ -46,7 +46,7 @@ public:
   LibNeu ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.Neu"; }
+  static std::string library_namespace() { return "cf3.mesh.Neu"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration

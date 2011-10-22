@@ -65,7 +65,7 @@ struct BockMesh3DFixture :
 
     if(!domain().get_child_ptr("writer"))
     {
-      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("CF.Mesh.VTKXML.Writer", "writer")).as_ptr<MeshWriter>();
+      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).as_ptr<MeshWriter>();
     }
     else
     {
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 BOOST_AUTO_TEST_CASE( RankField )
 {
   // Store element ranks
-  FieldGroup& elems_P0 = mesh().create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& elems_P0 = mesh().create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(Elements& elements , elems_P0.elements_range())

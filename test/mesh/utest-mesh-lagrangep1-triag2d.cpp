@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE( Element )
   // Create a Elements component
   Elements::Ptr comp = allocate_component<Elements>("comp");
 
-  comp->initialize("CF.Mesh.LagrangeP1.Triag2D",*nodes);
+  comp->initialize("cf3.mesh.LagrangeP1.Triag2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::TRIAG);
   BOOST_CHECK_EQUAL(comp->element_type().nb_nodes(), (Uint) 3);
 

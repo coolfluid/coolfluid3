@@ -583,11 +583,11 @@ std::string Reader::element_type(const Uint neu_type, const Uint nb_nodes)
 {
   std::string cf_type;
   std::string dim = to_str<int>(m_headerData.NDFCD);
-  if      (neu_type==LINE  && nb_nodes==2) cf_type = "CF.Mesh.LagrangeP1.Line"  + dim + "D";  // line
-  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "CF.Mesh.LagrangeP1.Quad"  + dim + "D";  // quadrilateral
-  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "CF.Mesh.LagrangeP1.Triag" + dim + "D";  // triangle
-  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "CF.Mesh.LagrangeP1.Hexa"  + dim + "D";  // hexahedron
-  else if (neu_type==TETRA && nb_nodes==4) cf_type = "CF.Mesh.LagrangeP1.Tetra" + dim + "D";  // tetrahedron
+  if      (neu_type==LINE  && nb_nodes==2) cf_type = "cf3.mesh.LagrangeP1.Line"  + dim + "D";  // line
+  else if (neu_type==QUAD  && nb_nodes==4) cf_type = "cf3.mesh.LagrangeP1.Quad"  + dim + "D";  // quadrilateral
+  else if (neu_type==TRIAG && nb_nodes==3) cf_type = "cf3.mesh.LagrangeP1.Triag" + dim + "D";  // triangle
+  else if (neu_type==HEXA  && nb_nodes==8) cf_type = "cf3.mesh.LagrangeP1.Hexa"  + dim + "D";  // hexahedron
+  else if (neu_type==TETRA && nb_nodes==4) cf_type = "cf3.mesh.LagrangeP1.Tetra" + dim + "D";  // tetrahedron
   /// @todo to be implemented
   else if (neu_type==5 && nb_nodes==6) // wedge (prism)
     throw common::NotImplemented(FromHere(),"wedge or prism element not able to convert to COOLFluiD yet.");

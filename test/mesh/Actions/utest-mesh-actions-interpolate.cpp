@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( build )
   interpolator.execute();
 
 
-  MeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","CF.Mesh.Gmsh.Writer").as_type<MeshWriter>();
+  MeshWriter& gmsh_writer = Core::instance().root().create_component("gmsh_writer","cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   gmsh_writer.configure_option("fields",std::vector<URI>(1,target.uri()) );
   gmsh_writer.write_from_to(line,"line-interpolated.msh");
 }

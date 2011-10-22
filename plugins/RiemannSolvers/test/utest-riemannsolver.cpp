@@ -39,12 +39,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model1D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes1D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes1D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons1D","solution");
   Variables& roe_vars = *physics.create_variables("Roe1D","roe");
 
   // Creation + configuration of riemann solver
-  RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
+  RiemannSolver& riemann = model.create_component("riemann","cf3.RiemannSolvers.Roe").as_type<RiemannSolver>();
   riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model2D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons2D","solution");
   Variables& roe_vars = *physics.create_variables("Roe2D","roe");
 
   // Creation + configuration of riemann solver
-  RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
+  RiemannSolver& riemann = model.create_component("riemann","cf3.RiemannSolvers.Roe").as_type<RiemannSolver>();
   riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
@@ -190,12 +190,12 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model3D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","CF.Physics.NavierStokes.NavierStokes3D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes3D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons3D","solution");
   Variables& roe_vars = *physics.create_variables("Roe3D","roe");
 
   // Creation + configuration of riemann solver
-  RiemannSolver& riemann = model.create_component("riemann","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
+  RiemannSolver& riemann = model.create_component("riemann","cf3.RiemannSolvers.Roe").as_type<RiemannSolver>();
   riemann.configure_option("physical_model",physics.uri());
   riemann.configure_option("solution_vars",sol_vars.uri());
   riemann.configure_option("roe_vars",roe_vars.uri());
@@ -332,11 +332,11 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
 
 BOOST_AUTO_TEST_CASE( test_Roe_adv_diff )
 {
-  RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver-AdvectionDiffusion1D","CF.RiemannSolvers.Roe").as_type<RiemannSolver>();
+  RiemannSolver& riemannsolver = Core::instance().root().create_component("Roe-solver-AdvectionDiffusion1D","cf3.RiemannSolvers.Roe").as_type<RiemannSolver>();
 
-  Component& state = Core::instance().root().create_component("solution-state-AdvectionDiffusion1D","CF.AdvectionDiffusion.State1D");
+  Component& state = Core::instance().root().create_component("solution-state-AdvectionDiffusion1D","cf3.AdvectionDiffusion.State1D");
   riemannsolver.configure_option("solution_state",state.uri());
-  riemannsolver.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
+  riemannsolver.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
 
   RealVector left(1);   left   << 1.5;
   RealVector right(1);  right  << 0.5;

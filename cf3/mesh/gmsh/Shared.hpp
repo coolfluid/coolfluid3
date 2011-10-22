@@ -10,20 +10,20 @@
 
 #include "mesh/GeoShape.hpp"
 
-#include "mesh/Gmsh/LibGmsh.hpp"
+#include "mesh/gmsh/LibGmsh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Gmsh {
+namespace gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Gmsh mesh format common functionality
+/// This class defines gmsh mesh format common functionality
 /// @author Willem Deconinck
 /// @author Martin Vymazal
-class Gmsh_API Shared
+class gmsh_API Shared
 {
 public:
   
@@ -56,7 +56,7 @@ protected:
   static const std::string dim_name[4];
   static const std::string order_name[10];
 
-  enum GmshElement { P1LINE=1,   P1TRIAG=2,  P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
+  enum gmshElement { P1LINE=1,   P1TRIAG=2,  P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
                      P2LINE=8,   P2TRIAG=9,  P2QUAD=10, P2TETRA=11, P2HEXA=12,
                      P0POINT=15, P3TRIAG=21, P3LINE=26, P3QUAD = 36 };
   
@@ -75,7 +75,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3
 

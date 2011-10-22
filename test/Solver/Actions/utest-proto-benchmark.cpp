@@ -84,9 +84,9 @@ struct ProtoBenchmarkFixture :
     const Uint z_segs = boost::lexical_cast<Uint>(argv[3]);
 
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
-    Physics::PhysModel& phys_model = model.create_physics("CF.Physics.DynamicModel");
+    Physics::PhysModel& phys_model = model.create_physics("cf3.Physics.DynamicModel");
     Domain& dom = model.create_domain("Domain");
-    CSolver& solver = model.create_solver("CF.Solver.CSimpleSolver");
+    CSolver& solver = model.create_solver("cf3.Solver.CSimpleSolver");
 
     Mesh& mesh = dom.create_component<Mesh>("mesh");
 
@@ -104,7 +104,7 @@ struct ProtoBenchmarkFixture :
     // Create field
     boost_foreach(Entities& elements, mesh.topology().elements_range())
     {
-      elements.create_space("elems_P0","CF.Mesh.LagrangeP0."+elements.element_type().shape_name());
+      elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
     }
     FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
     solver.field_manager().create_field("volume", elems_P0);
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( SetupVolumeComputer )
   Field& vol_field = find_component_recursively_with_tag<Field>(mesh, "volume");
   Elements& elements = find_component_recursively_with_filter<Elements>(mesh.topology(), IsElementsVolume());
 
-  CLoopOperation& volume_computer = elem_loop.create_loop_operation("CF.Solver.Actions.CComputeVolume");
+  CLoopOperation& volume_computer = elem_loop.create_loop_operation("cf3.Solver.Actions.CComputeVolume");
   volume_computer.configure_option("volume",vol_field.uri());
   volume_computer.configure_option("elements",elements.uri());
 }

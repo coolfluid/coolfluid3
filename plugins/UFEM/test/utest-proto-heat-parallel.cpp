@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.Physics.DynamicModel");
 
   // Setup mesh
   Mesh& mesh = domain.create_component<Mesh>("Mesh");
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   }
 
   // Save
-  model.domain().create_component("writer", "CF.Mesh.VTKXML.Writer");
+  model.domain().create_component("writer", "cf3.mesh.VTKXML.Writer");
   model.domain().write_mesh(URI("utest-proto-heat-parallel_output.pvtu", cf3::common::URI::Scheme::FILE));
 //   lss.matrix()->print("utest-proto-heat-parallel_matrix-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");
 //   lss.rhs()->print("utest-proto-heat-parallel_rhs-" + boost::lexical_cast<std::string>(common::PE::Comm::instance().rank()) + ".plt");

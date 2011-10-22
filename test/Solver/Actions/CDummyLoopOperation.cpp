@@ -35,7 +35,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.TestActions"; }
+  static std::string library_namespace() { return "cf3.TestActions"; }
 
 
   /// Static function that returns the library name.

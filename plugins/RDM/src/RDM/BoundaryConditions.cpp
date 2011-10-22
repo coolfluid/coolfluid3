@@ -125,8 +125,8 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
   // type
 
   std::vector< boost::any > restricted;
-//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  options.add_option< OptionT<std::string> >("type", std::string("CF.RDM.BcDirichlet") )
+//  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
+  options.add_option< OptionT<std::string> >("type", std::string("cf3.RDM.BcDirichlet") )
       ->description("Type for created boundary")
       ->restricted_list() = restricted;
 

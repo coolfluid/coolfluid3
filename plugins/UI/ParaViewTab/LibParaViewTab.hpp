@@ -52,7 +52,7 @@ public:
 public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.ParaViewTab"; }
+    static std::string library_namespace() { return "cf3.UI.ParaViewTab"; }
 
     /// Static function that returns the module name.
     /// Must be implemented for Library registration

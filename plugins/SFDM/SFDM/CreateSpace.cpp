@@ -55,8 +55,8 @@ void CreateSpace::execute()
   Uint p = option("P").value<Uint>();
   boost_foreach(Entities& entities, find_components_recursively_with_filter<Entities>(mesh,IsElementsVolume()))
   {
-    entities.create_space("solution","CF.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+to_str(p));
-    entities.create_space("flux",    "CF.SFDM.SF."+entities.element_type().shape_name()+"FluxP"    +to_str(p+1));
+    entities.create_space("solution","cf3.SFDM.SF."+entities.element_type().shape_name()+"SolutionP"+to_str(p));
+    entities.create_space("flux",    "cf3.SFDM.SF."+entities.element_type().shape_name()+"FluxP"    +to_str(p+1));
     //CFinfo << "local coords ("<< entities.space(1).shape_function().local_coordinates().rows()<<"x"<< entities.space(1).shape_function().local_coordinates().cols()<< ") = " << entities.space(1).shape_function().local_coordinates() << CFendl;
   }
 }

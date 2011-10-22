@@ -35,19 +35,19 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Common"; }
+  static std::string library_namespace() { return "cf3.common"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library rCFegistration
   /// @return name of the library
-  static std::string library_name() { return "Common"; }
+  static std::string library_name() { return "common"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
   /// @return description of the library
   static std::string library_description()
   {
-    return "This library implements the Common API.";
+    return "This library implements the common API.";
   }
 
   /// Gets the Class name

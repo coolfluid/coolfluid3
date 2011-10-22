@@ -10,10 +10,10 @@ configure //Root/Environment assertion_throws:bool=false   \
 
 ### create model
 
-create Wizard CF.RDM.SteadyExplicit
+create Wizard cf3.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.Scalar.Scalar2D
+                          physical_model:string=cf3.Physics.Scalar.Scalar2D
 
 ### read mesh
 
@@ -36,14 +36,14 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=0.0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=INLET \
-     Type:string=CF.RDM.BcDirichlet \
+     Type:string=cf3.RDM.BcDirichlet \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/inlet
 
 configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]="if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)"
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      Name:string=FARFIELD \
-     Type:string=CF.RDM.BcDirichlet \
+     Type:string=cf3.RDM.BcDirichlet \
      Regions:array[uri]=//Root/Model/Domain/mesh/topology/default_id1084/farfield
 
 configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.
@@ -52,7 +52,7 @@ configure Model/RDSolver/BoundaryConditions/FARFIELD functions:array[string]=0.
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      Name:string=INTERNAL \
-     Type:string=CF.RDM.GPU.LDAGPU
+     Type:string=cf3.RDM.GPU.LDAGPU
 
 ### simulate and write the result
 

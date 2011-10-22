@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Gmsh::Reader"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::gmsh::Reader"
 
 #include <boost/test/unit_test.hpp>
 
@@ -38,17 +38,17 @@ using namespace cf3::common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct GmshReaderMPITests_Fixture
+struct gmshReaderMPITests_Fixture
 {
   /// common setup for each test case
-  GmshReaderMPITests_Fixture()
+  gmshReaderMPITests_Fixture()
   {
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
   }
 
   /// common tear-down for each test case
-  ~GmshReaderMPITests_Fixture()
+  ~gmshReaderMPITests_Fixture()
   {
   }
   /// possibly common functions used on the tests below
@@ -62,7 +62,7 @@ struct GmshReaderMPITests_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( GmshReaderMPITests_TestSuite, GmshReaderMPITests_Fixture )
+BOOST_FIXTURE_TEST_SUITE( gmshReaderMPITests_TestSuite, gmshReaderMPITests_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -76,7 +76,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
   BOOST_CHECK_EQUAL( meshreader->name() , "meshreader" );
   BOOST_CHECK_EQUAL( meshreader->get_format() , "Gmsh" );
   std::vector<std::string> extensions = meshreader->get_extensions();
@@ -97,7 +97,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 
 mesh_writer->write_from_to(mesh,"rectangle-tg-p1-out.msh");
 
@@ -111,7 +111,7 @@ mesh_writer->write_from_to(mesh,"rectangle-tg-p1-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p2 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_triag_p2");
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p2 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 mesh_writer->write_from_to(mesh,"rectangle-tg-p2-out.msh");
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
@@ -136,7 +136,7 @@ mesh_writer->write_from_to(mesh,"rectangle-tg-p2-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p1 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_quad_p1");
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p1 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 mesh_writer->write_from_to(mesh,"rectangle-qd-p1-out.msh");
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
@@ -160,7 +160,7 @@ mesh_writer->write_from_to(mesh,"rectangle-qd-p1-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p2 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_quad_p2");
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p2 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 mesh_writer->write_from_to(mesh,"rectangle-qd-p2-out.msh");
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
@@ -185,7 +185,7 @@ mesh_writer->write_from_to(mesh,"rectangle-qd-p2-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_mix_p1");
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out.msh");
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
@@ -210,7 +210,7 @@ mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p2 )
 {
 
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_mix_p2");
@@ -222,7 +222,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p2 )
   // CFinfo << mesh.tree() << CFendl;
 
 MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
 mesh_writer->write_from_to(mesh,"rectangle-mix-p2-out.msh");
 
   CFinfo << "elements count = " << find_component<Region>(mesh).recursive_elements_count() << CFendl;
@@ -235,7 +235,7 @@ mesh_writer->write_from_to(mesh,"rectangle-mix-p2-out.msh");
 BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 {
   BOOST_CHECK(true);
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Gmsh.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_mix_p1_out");
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
       nodal[n][j] = n;
   }
 
-  mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
 
   Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
 
   MeshWriter::Ptr mesh_writer =
-    build_component_abstract_type<MeshWriter> ("CF.Mesh.Gmsh.Writer", "GmshWriter" );
+    build_component_abstract_type<MeshWriter> ("cf3.mesh.gmsh.Writer", "GmshWriter" );
   mesh_writer->set_fields(fields);
   mesh_writer->write_from_to(mesh,"rectangle-mix-p1-out-out.msh");
 

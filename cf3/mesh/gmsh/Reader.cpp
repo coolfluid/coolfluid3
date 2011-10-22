@@ -28,20 +28,20 @@
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 
-#include "mesh/Gmsh/Reader.hpp"
+#include "mesh/gmsh/Reader.hpp"
 
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Gmsh {
+namespace gmsh {
 
   using namespace common;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::ComponentBuilder < Gmsh::Reader, MeshReader, LibGmsh> aGmshReader_Builder;
+cf3::common::ComponentBuilder < gmsh::Reader, MeshReader, LibGmsh> aGmshReader_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -257,7 +257,7 @@ void Reader::get_file_positions()
   m_file.clear();
 
   if (m_element_node_data_positions.size())
-    CFwarn << "ElementNodeData record(s) found. The Gmsh reader has not implemented reading this record yet. They will be ignored" << CFendl;
+    CFwarn << "ElementNodeData record(s) found. The gmsh reader has not implemented reading this record yet. They will be ignored" << CFendl;
 
 //  CFinfo << "Mesh dimension: " << m_mesh_dimension << CFendl;
 //  CFinfo << "The number of regions is: " << m_nb_regions << CFendl;
@@ -515,11 +515,11 @@ void Reader::read_connectivity()
        ElementType::Ptr allocated_type = build_component_abstract_type<ElementType>(cf_elem_name,"tmp");
        Entities::Ptr elements;
        if (allocated_type->dimensionality() == allocated_type->dimension()-1)
-         elements = build_component_abstract_type<Entities>("CF.Mesh.Faces",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Faces",allocated_type->shape_name());
        else if(allocated_type->dimensionality() == allocated_type->dimension())
-         elements = build_component_abstract_type<Entities>("CF.Mesh.Cells",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Cells",allocated_type->shape_name());
        else
-         elements = build_component_abstract_type<Entities>("CF.Mesh.Elements",allocated_type->shape_name());
+         elements = build_component_abstract_type<Entities>("cf3.mesh.Elements",allocated_type->shape_name());
       region->add_component(elements);
       elements->initialize(cf_elem_name,nodes);
 
@@ -891,6 +891,6 @@ std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 }
 //////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3

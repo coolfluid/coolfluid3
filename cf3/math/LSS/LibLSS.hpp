@@ -45,7 +45,7 @@ namespace LSS {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.math.LSS"; }
+    static std::string library_namespace() { return "cf3.math.LSS"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for Library registration

@@ -59,7 +59,7 @@ void cgal_to_coolfluid(const TriangulationComplexT& complex, Mesh& mesh) {
   Uint coord_row_count = 0;
 
   // connectivity storage
-  Elements& elements = region.create_elements("CF.Mesh.LagrangeP1.Tetra3D",nodes);
+  Elements& elements = region.create_elements("cf3.mesh.LagrangeP1.Tetra3D",nodes);
   Table<Uint>::Buffer connBuffer = elements.node_connectivity().create_buffer(complex.number_of_cells());
   std::vector<Uint> cell_row(4);
 

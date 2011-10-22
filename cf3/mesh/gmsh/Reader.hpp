@@ -14,8 +14,8 @@
 
 #include "mesh/MeshReader.hpp"
 
-#include "mesh/Gmsh/LibGmsh.hpp"
-#include "mesh/Gmsh/Shared.hpp"
+#include "mesh/gmsh/LibGmsh.hpp"
+#include "mesh/gmsh/Shared.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,14 +28,14 @@ class MergedParallelDistribution;
 class Geometry;
 class Mesh;
 
-namespace Gmsh {
+namespace gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Gmsh mesh format reader
+/// This class defines gmsh mesh format reader
 /// @author Willem Deconinck
 /// @author Martin Vymazal
-class Gmsh_API Reader : public MeshReader, public Shared
+class gmsh_API Reader : public MeshReader, public Shared
 {
 public: // typedefs
 
@@ -99,7 +99,7 @@ private: // data
   };
 
   Uint m_nb_regions; // This corresponds to the number of physical groups in
-                     // Gmsh terminology
+                     // gmsh terminology
   Uint m_mesh_dimension;
 
 
@@ -145,7 +145,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3
 

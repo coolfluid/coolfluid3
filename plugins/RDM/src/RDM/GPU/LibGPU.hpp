@@ -46,7 +46,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RDM.GPU"; }
+  static std::string library_namespace() { return "cf3.RDM.GPU"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for Library registration

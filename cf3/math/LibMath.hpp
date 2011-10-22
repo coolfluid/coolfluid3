@@ -49,7 +49,7 @@ namespace cf3 {
     public: // functions
 
       /// @return string of the library namespace
-      static std::string library_namespace() { return "CF.math"; }
+      static std::string library_namespace() { return "cf3.math"; }
 
       /// Static function that returns the library name.
       /// Must be implemented for Library registration
@@ -62,7 +62,7 @@ namespace cf3 {
 
       static std::string library_description()
       {
-        return "This library implements the MeshDiff manipulation API.";
+        return "This library implements the Math API.";
       }
 
       /// Gets the Class name

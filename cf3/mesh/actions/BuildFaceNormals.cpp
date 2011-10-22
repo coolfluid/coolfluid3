@@ -82,7 +82,7 @@ void BuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry().coordinates().row_size();
 
-  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(mesh::Tags::normal());
 

@@ -4,8 +4,8 @@ configure //Root/Environment assertion_throws:bool=false assertion_backtrace:boo
 
 #############################################################################
 ### create model
-create HotModel CF.Solver.CModel
-call HotModel/setup solver_builder:string=CF.UFEM.HeatConductionSteady physics_builder:string=CF.Physics.DynamicModel
+create HotModel cf3.Solver.CModel
+call HotModel/setup solver_builder:string=cf3.UFEM.HeatConductionSteady physics_builder:string=cf3.Physics.DynamicModel
 
 #############################################################################
 ### Read input
@@ -13,7 +13,7 @@ call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=
 
 #############################################################################
 ### create LSS
-create HotModel/LSS CF.math.LSS.System
+create HotModel/LSS cf3.math.LSS.System
 configure HotModel/LSS solver:uri=string:Trilinos
 configure HotModel/HeatConductionSteady lss:uri=cpath://Root/HotModel/LSS
 configure HotModel/LSS/Matrix settings_file:string=@UFEM_LSS_CONFIG_FILE@
@@ -29,5 +29,5 @@ configure HotModel/HeatConductionSteady/BoundaryConditions/BCouterTemperature va
 ### Run simulation and write the result
 call HotModel/simulate
 
-create HotModel/Domain CF.Mesh.VTKXML.Writer
+create HotModel/Domain cf3Mesh.VTKXML.Writer
 call HotModel/Domain/write_mesh file:uri=file:atest-ufem-heat-steady-output.pvtu

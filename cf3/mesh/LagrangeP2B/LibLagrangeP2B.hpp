@@ -36,7 +36,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.LagrangeP2B"; }
+  static std::string library_namespace() { return "cf3.mesh.LagrangeP2B"; }
 
 
   /// Static function that returns the library name.

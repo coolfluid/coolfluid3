@@ -38,7 +38,7 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
-  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.VTKLegacy.Writer","meshwriter");
+  MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKLegacy.Writer","meshwriter");
   vtk_writer->write_from_to(*mesh,"grid.vtk");
 
   BOOST_CHECK(true);

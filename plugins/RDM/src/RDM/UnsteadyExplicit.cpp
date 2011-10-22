@@ -105,7 +105,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4) setup solver
 
-  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = model.create_solver( "cf3.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
 
   solver.mark_basic();
 

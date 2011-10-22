@@ -56,7 +56,7 @@ int main(int argc, char ** argv)
   // Make sure the python ScriptEngine gets created, if it exists
   try
   {
-    build_component("CF.Python.ScriptEngine", "DummyScriptEngine");
+    build_component("cf3.Python.ScriptEngine", "DummyScriptEngine");
   }
   catch(...)
   {

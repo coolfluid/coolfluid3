@@ -40,7 +40,7 @@ class Library;
     static std::string type_name () { return "Libraries"; }
 
     /// Converts a CF3 library namespace to the library name.
-    /// For example: CF.Common to coolfluid_common
+    /// For example: cf3Common to coolfluid_common
     static std::string namespace_to_libname( const std::string& libnamespace );
 
     /// gives access to the factory of supplied type,
@@ -91,7 +91,7 @@ class Library;
     boost::shared_ptr<Library> autoload_library_with_builder( const std::string& builder_name );
 
     /// Attempts to load a CF3 plugin library from its namespace
-    /// @param [in] namespace of the shared library to be loaded (e.g. CF.Common)
+    /// @param [in] namespace of the shared library to be loaded (e.g. cf3Common)
     /// @throws ValueNotFound in case of library not able to be loaded
     boost::shared_ptr<Library> autoload_library_with_namespace( const std::string& libnamespace );
 

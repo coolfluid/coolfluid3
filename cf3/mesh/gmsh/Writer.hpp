@@ -12,20 +12,20 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/GeoShape.hpp"
 
-#include "mesh/Gmsh/LibGmsh.hpp"
+#include "mesh/gmsh/LibGmsh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace common { template <typename KEY, typename DATA> class Map; }
 namespace mesh {
-namespace Gmsh {
+namespace gmsh {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Gmsh mesh format writer
+/// This class defines gmsh mesh format writer
 /// @author Willem Deconinck
-class Gmsh_API Writer : public MeshWriter
+class gmsh_API Writer : public MeshWriter
 {
 public: // typedefs
 
@@ -74,7 +74,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3
 

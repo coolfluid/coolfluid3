@@ -10,10 +10,10 @@ configure //Root/Environment assertion_throws:bool=false   \
 
 ### create model
 
-create Wizard CF.RDM.SteadyExplicit
+create Wizard cf3.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.NavierStokes.NavierStokes2D
+                          physical_model:string=cf3.Physics.NavierStokes.NavierStokes2D
 
 ### read mesh
 
@@ -37,26 +37,26 @@ configure Model/RDSolver/InitialConditions/INIT functions:array[string]=1.204751
 ### boundary conditions
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     name:string=INLET  type:string=CF.RDM.SubsonicInFlowWeakBc \
+     name:string=INLET  type:string=cf3.RDM.SubsonicInFlowWeakBc \
      regions:array[uri]=//Root/Model/Domain/mesh/topology/SubInlet
 
 configure Model/RDSolver/BoundaryConditions/INLET rho_in:string=1.204751547 vel_in:array[string]=171.570881,0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     name:string=OUTLET  type:string=CF.RDM.SubsonicOutFlowWeakBc \
+     name:string=OUTLET  type:string=cf3.RDM.SubsonicOutFlowWeakBc \
      regions:array[uri]=//Root/Model/Domain/mesh/topology/SubOutlet
 
 configure Model/RDSolver/BoundaryConditions/OUTLET p_out:string=101325.0
 
 call Model/RDSolver/BoundaryConditions/create_boundary_condition \
-     name:string=WALLS  type:string=CF.RDM.WallWeakBc \
+     name:string=WALLS  type:string=cf3.RDM.WallWeakBc \
      regions:array[uri]=//Root/Model/Domain/mesh/topology/LowerWall,//Root/Model/Domain/mesh/topology/UpperWall
 
 ### domain discretization
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      name:string=INTERNAL \
-     type:string=CF.RDM.Schemes.LDA
+     type:string=cf3.RDM.Schemes.LDA
 
 ### simulate and write the result
 

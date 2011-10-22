@@ -10,10 +10,10 @@ configure //Root/Environment assertion_throws:bool=false   \
 
 ### create model
 
-create Wizard CF.RDM.SteadyExplicit
+create Wizard cf3.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=CF.Physics.NavierStokes.NavierStokes3D
+                          physical_model:string=cf3.Physics.NavierStokes.NavierStokes3D
 
 ### read mesh
 
@@ -36,7 +36,7 @@ configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.500,1
 
 # call Model/RDSolver/BoundaryConditions/create_boundary_condition \
 #      name:string=INLET \
-#      type:string=CF.RDM.BcDirichlet \
+#      type:string=cf3.RDM.BcDirichlet \
 #      regions:array[uri]=\
 # //Root/Model/Domain/mesh/topology/bottom,\
 # //Root/Model/Domain/mesh/topology/left
@@ -47,7 +47,7 @@ configure Model/RDSolver/InitialConditions/INIT "functions:array[string]=0.500,1
 
 call Model/RDSolver/DomainDiscretization/create_cell_term \
      name:string=INTERNAL \
-     type:string=CF.RDM.Schemes.LDA
+     type:string=cf3.RDM.Schemes.LDA
 
 ### simulate and write the result
 

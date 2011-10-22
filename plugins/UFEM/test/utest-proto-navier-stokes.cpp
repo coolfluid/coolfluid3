@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
 
     // Setup physics
-    model.create_physics("CF.Physics.DynamicModel");
+    model.create_physics("cf3.Physics.DynamicModel");
 
     // Setup mesh
     Mesh& mesh = domain.create_component<Mesh>("Mesh");

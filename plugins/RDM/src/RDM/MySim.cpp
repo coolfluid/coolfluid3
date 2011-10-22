@@ -129,7 +129,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     std::string name ("WEAK_INLET");
 
     options.add_option< OptionT<std::string> >("Name",name);
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
+    options.add_option< OptionT<std::string> >("Type","cf3.RDM.BcDirichlet");
     options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
     solver.boundary_conditions().signal_create_boundary_condition(frame);
@@ -181,7 +181,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     cf3_assert( regions.size() == 1u);
 
     options.add_option< OptionT<std::string> >("Name","INTERNAL");
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.LDA");
+    options.add_option< OptionT<std::string> >("Type","cf3.RDM.Schemes.LDA");
     options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
     solver.domain_discretization().signal_create_cell_term(frame);

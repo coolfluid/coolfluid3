@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   Uint dim=1;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("CF.SFDM.SFDSolver","CF.Physics.Scalar.Scalar1D");
+  model.setup("cf3.SFDM.SFDSolver","cf3.Physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   Domain&   domain  = model.domain();
@@ -145,13 +145,13 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   generate_mesh.configure_option("offsets",offsets);
   generate_mesh.configure_option("bdry",false);
   generate_mesh.execute();
-  build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balance")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.Scalar.LinearAdv1D"));
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.Physics.Scalar.LinearAdv1D"));
   solver.configure_option(SFDM::Tags::solution_order(),order);
   solver.iterative_solver().configure_option("rk_order",order);
   solver.prepare_mesh().execute();
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("CF.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
   solver.time_stepping().time().configure_option("time_step",100.);

@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 
 BOOST_AUTO_TEST_CASE( build_faces )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
   meshreader->read_mesh_into("quadtriag.neu",*mesh);
 
   BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
   //info->transform(mesh);
 
   Region& wall_region = find_component_recursively_with_name<Region>(mesh->topology(),"wall");
@@ -136,10 +136,10 @@ BOOST_AUTO_TEST_CASE( build_face_normals )
 
   //CFinfo << mesh->tree() << CFendl;
 
-  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.Info","info");
+  MeshTransformer::Ptr info = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
   //info->transform(mesh);
 
-  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","writer");
+  MeshWriter::Ptr mesh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","writer");
 
   mesh_writer->set_fields(std::vector<Field::Ptr>(1,find_component_ptr_recursively_with_name<Field>(*mesh,mesh::Tags::normal())));
   mesh_writer->write_from_to(*mesh,"facenormals.msh");

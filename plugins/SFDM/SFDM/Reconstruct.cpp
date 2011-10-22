@@ -38,8 +38,8 @@ Reconstruct::Reconstruct( const std::string& name )
   m_properties["description"] = std::string("Perform reconstruction between 2 shapefunctions inside one element");
 
   std::vector<std::string> from_to(2);
-  from_to[0] = "e.g. CF.SFDM.SF.LineSolutionP2";
-  from_to[1] = "e.g. CF.SFDM.SF.LineFluxP3";
+  from_to[0] = "e.g. cf3SFDM.SF.LineSolutionP2";
+  from_to[1] = "e.g. cf3SFDM.SF.LineFluxP3";
   m_options.add_option( OptionArrayT<std::string>::create("from_to", from_to ) )
       ->description("Shape function points from where the states are known")
       ->pretty_name("From and To Shape Function")

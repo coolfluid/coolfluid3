@@ -14,7 +14,7 @@
 #include "common/StringConversion.hpp"
 #include "common/Map.hpp"
 
-#include "mesh/Gmsh/Writer.hpp"
+#include "mesh/gmsh/Writer.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Table.hpp"
@@ -29,11 +29,11 @@ using namespace cf3::common;
 
 namespace cf3 {
 namespace mesh {
-namespace Gmsh {
+namespace gmsh {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Gmsh::Writer, MeshWriter, LibGmsh> aGmshWriter_Builder;
+common::ComponentBuilder < gmsh::Writer, MeshWriter, LibGmsh> aGmshWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -44,36 +44,36 @@ Writer::Writer( const std::string& name )
 
   // gmsh types: http://www.geuz.org/gmsh/doc/texinfo/gmsh.html#MSH-ASCII-file-format
 
-  m_elementTypes["CF.Mesh.LagrangeP0.Point1D"]=15;
-  m_elementTypes["CF.Mesh.LagrangeP0.Point2D"]=15;
-  m_elementTypes["CF.Mesh.LagrangeP0.Point3D"]=15;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point1D"]=15;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point2D"]=15;
+  m_elementTypes["cf3.mesh.LagrangeP0.Point3D"]=15;
 
-  m_elementTypes["CF.Mesh.LagrangeP1.Line1D" ]=1;
-  m_elementTypes["CF.Mesh.LagrangeP1.Line2D" ]=1;
-  m_elementTypes["CF.Mesh.LagrangeP1.Line3D" ]=1;
-  m_elementTypes["CF.Mesh.LagrangeP1.Triag2D"]=2;
-  m_elementTypes["CF.Mesh.LagrangeP1.Triag3D"]=2;
-  m_elementTypes["CF.Mesh.LagrangeP1.Quad2D" ]=3;
-  m_elementTypes["CF.Mesh.LagrangeP1.Quad3D" ]=3;
-  m_elementTypes["CF.Mesh.LagrangeP1.Tetra3D"]=4;
-  m_elementTypes["CF.Mesh.LagrangeP1.Hexa3D" ]=5;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line1D" ]=1;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line2D" ]=1;
+  m_elementTypes["cf3.mesh.LagrangeP1.Line3D" ]=1;
+  m_elementTypes["cf3.mesh.LagrangeP1.Triag2D"]=2;
+  m_elementTypes["cf3.mesh.LagrangeP1.Triag3D"]=2;
+  m_elementTypes["cf3.mesh.LagrangeP1.Quad2D" ]=3;
+  m_elementTypes["cf3.mesh.LagrangeP1.Quad3D" ]=3;
+  m_elementTypes["cf3.mesh.LagrangeP1.Tetra3D"]=4;
+  m_elementTypes["cf3.mesh.LagrangeP1.Hexa3D" ]=5;
 
-  m_elementTypes["CF.Mesh.LagrangeP2.Line1D" ]=8;
-  m_elementTypes["CF.Mesh.LagrangeP2.Line2D" ]=8;
-  m_elementTypes["CF.Mesh.LagrangeP2.Line3D" ]=8;
-  m_elementTypes["CF.Mesh.LagrangeP2.Triag2D"]=9;
-  m_elementTypes["CF.Mesh.LagrangeP2.Triag3D"]=9;
-  m_elementTypes["CF.Mesh.LagrangeP2.Quad2D" ]=10;
-  m_elementTypes["CF.Mesh.LagrangeP2.Quad3D" ]=10;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line1D" ]=8;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line2D" ]=8;
+  m_elementTypes["cf3.mesh.LagrangeP2.Line3D" ]=8;
+  m_elementTypes["cf3.mesh.LagrangeP2.Triag2D"]=9;
+  m_elementTypes["cf3.mesh.LagrangeP2.Triag3D"]=9;
+  m_elementTypes["cf3.mesh.LagrangeP2.Quad2D" ]=10;
+  m_elementTypes["cf3.mesh.LagrangeP2.Quad3D" ]=10;
 
-  m_elementTypes["CF.Mesh.LagrangeP3.Line1D" ]=26;
-  m_elementTypes["CF.Mesh.LagrangeP3.Line2D" ]=26;
-  m_elementTypes["CF.Mesh.LagrangeP3.Line3D" ]=26;
-  m_elementTypes["CF.Mesh.LagrangeP3.Triag2D"]=21;
-  m_elementTypes["CF.Mesh.LagrangeP3.Triag3D"]=21;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line1D" ]=26;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line2D" ]=26;
+  m_elementTypes["cf3.mesh.LagrangeP3.Line3D" ]=26;
+  m_elementTypes["cf3.mesh.LagrangeP3.Triag2D"]=21;
+  m_elementTypes["cf3.mesh.LagrangeP3.Triag3D"]=21;
 
-  m_elementTypes["CF.Mesh.LagrangeP3.Quad2D"] = 36;
-  m_elementTypes["CF.Mesh.LagrangeP3.Quad3D"] = 36;
+  m_elementTypes["cf3.mesh.LagrangeP3.Quad2D"] = 36;
+  m_elementTypes["cf3.mesh.LagrangeP3.Quad3D"] = 36;
 
   m_cf_2_gmsh_node = create_static_component_ptr<Map<Uint,Uint> >("to_gmsh_node");
 
@@ -639,6 +639,6 @@ void Writer::write_element_data(std::fstream& file)
 */
 //////////////////////////////////////////////////////////////////////////////
 
-} // Gmsh
+} // gmsh
 } // mesh
 } // cf3

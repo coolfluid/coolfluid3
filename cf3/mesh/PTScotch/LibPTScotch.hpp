@@ -51,7 +51,7 @@ public:
   LibPTScotch ( const std::string& name) : common::Library(name) { }
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.PTScotch"; }
+  static std::string library_namespace() { return "cf3.mesh.PTScotch"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for Library registration

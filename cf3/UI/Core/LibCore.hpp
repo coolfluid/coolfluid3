@@ -49,7 +49,7 @@ namespace Core {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.Core"; }
+    static std::string library_namespace() { return "cf3.UI.Core"; }
 
 
     /// Static function that returns the library name.

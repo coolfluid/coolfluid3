@@ -95,19 +95,19 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK element-based field group building
 
   // Create space and field_group for Lagrange P0 elements
-  FieldGroup& elem_fields = mesh.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& elem_fields = mesh.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
   BOOST_CHECK_EQUAL( elem_fields.elements_lookup().components().size() , 5u);
 
   // Create space and field_group for Lagrange P0 cells
-  FieldGroup& cell_fields = mesh.create_space_and_field_group("cells_P0", FieldGroup::Basis::CELL_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& cell_fields = mesh.create_space_and_field_group("cells_P0", FieldGroup::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( cell_fields.size() , 25);
   BOOST_CHECK_EQUAL( cell_fields.elements_lookup().components().size() , 1u);
 
   // Create space and field_group for Lagrange P0 faces
-  FieldGroup& face_fields = mesh.create_space_and_field_group("faces_P0", FieldGroup::Basis::FACE_BASED,"CF.Mesh.LagrangeP0");
+  FieldGroup& face_fields = mesh.create_space_and_field_group("faces_P0", FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( face_fields.size() , 20);
   BOOST_CHECK_EQUAL( face_fields.elements_lookup().components().size() , 4u);
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK P1 point-based field group building
 
   // Create field group for the space "points_P1" fields
-  FieldGroup& point_P1_fields = mesh.create_space_and_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "CF.Mesh.LagrangeP1");
+  FieldGroup& point_P1_fields = mesh.create_space_and_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "cf3.mesh.LagrangeP1");
 
   BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry().size() );
 
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK P2 point-based field group building
 
   // Create field group for the space "P2"
-  FieldGroup& point_P2_fields = mesh.create_space_and_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "CF.Mesh.LagrangeP2");
+  FieldGroup& point_P2_fields = mesh.create_space_and_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "cf3.mesh.LagrangeP2");
   BOOST_CHECK_EQUAL ( point_P2_fields.size() , 121u );
 
 

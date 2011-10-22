@@ -360,7 +360,7 @@ BOOST_AUTO_TEST_CASE( PTSCOTCH_tutorial_construction )
 BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
 {
   CFinfo << "MeshPartitioner_test" << CFendl;
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("CF.Mesh.Neu.Reader","meshreader");
+  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.Neu.Reader","meshreader");
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
@@ -371,20 +371,20 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test )
   meshreader->read_mesh_into(fp_in,mesh);
   CF3_DEBUG_POINT;
 
-  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalNumbering","glb_numbering");
+  MeshTransformer::Ptr glb_numbering = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering");
   glb_numbering->transform(mesh);
   CF3_DEBUG_POINT;
 
-  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("CF.Mesh.Actions.GlobalConnectivity","glb_connectivity");
+  MeshTransformer::Ptr glb_connectivity = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_connectivity");
   glb_connectivity->transform(mesh);
   CF3_DEBUG_POINT;
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   URI fp_out_1 ("file:quadtriag.msh");
   meshwriter->write_from_to(mesh,fp_out_1);
   CF3_DEBUG_POINT;
 
-  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("CF.Mesh.PTScotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
+  MeshPartitioner::Ptr partitioner_ptr = build_component_abstract_type<MeshTransformer>("cf3.mesh.PTScotch.Partitioner","partitioner")->as_ptr<MeshPartitioner>();
 
   MeshPartitioner& p = *partitioner_ptr;
   BOOST_CHECK_EQUAL(p.name(),"partitioner");

@@ -79,7 +79,7 @@ void TreeThread::run()
   NBrowser::Ptr browser(new NBrowser());
   NTree::Ptr tree(new NTree(m_root));
   NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
-  NGeneric::Ptr uidir( new NGeneric("UI", "CF.Common.Group", CNode::LOCAL_NODE ) );
+  NGeneric::Ptr uidir( new NGeneric("UI", "cf3.common.Group", CNode::LOCAL_NODE ) );
   NetworkQueue::Ptr networkQueue( new NetworkQueue() );
 
   Logger::instance().getStream(WARNING).addStringForwarder( log.get() );

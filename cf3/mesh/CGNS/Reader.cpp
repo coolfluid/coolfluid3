@@ -529,13 +529,13 @@ void Reader::create_structured_elements(Region& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "CF.Mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 1: // Segments
-      etype_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }
@@ -762,16 +762,16 @@ void Reader::read_boco_structured(Region& parent_region)
   switch (m_base.cell_dim)
   {
     case 3: // Hexahedrons
-      etype_CF = "CF.Mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
-      etypeBC_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Hexa"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "cf3.mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 2: // Quadrilaterals
-      etype_CF = "CF.Mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
-      etypeBC_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Quad"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "cf3.mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
       break;
     case 1: // Segments
-      etype_CF = "CF.Mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
-      etypeBC_CF = "CF.Mesh.LagrangeP1.Point"+to_str<int>(m_base.phys_dim)+"D";
+      etype_CF = "cf3.mesh.LagrangeP1.Line"+to_str<int>(m_base.phys_dim)+"D";
+      etypeBC_CF = "cf3.mesh.LagrangeP1.Point"+to_str<int>(m_base.phys_dim)+"D";
     default:
       break;
   }

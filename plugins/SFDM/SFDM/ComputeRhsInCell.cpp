@@ -73,7 +73,7 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
-  m_options.add_option( OptionT<std::string>::create("riemann_solver", "CF.RiemannSolvers.Roe") )
+  m_options.add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
     ->description("The component to solve the Rieman Problem on cell-faces")
     ->pretty_name("Riemann Solver")
     ->mark_basic()

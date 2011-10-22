@@ -44,7 +44,7 @@ struct GlobalFixture {
       sphere = allocate_component<Mesh>("sphere");
       MeshParameters params;
       create_mesh(SphereFunction(1.), *sphere, params);
-      MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("CF.Mesh.Gmsh.Writer","meshwriter");
+      MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
       URI file_out("sphere.msh");
       meshwriter->write_from_to(*sphere,file_out);
     }

@@ -48,7 +48,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Mesh.CGAL"; }
+  static std::string library_namespace() { return "cf3.mesh.CGAL"; }
 
   /// Static function that returns the module name.
   /// Must be implemented for the LibraryRegister template

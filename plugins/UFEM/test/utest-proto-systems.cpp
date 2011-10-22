@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
     );
 
   // Setup physics
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.Physics.DynamicModel");
 
   // Setup mesh
   Mesh& mesh = domain.create_component<Mesh>("Mesh");
@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.simulate();
 
   // Write result
-  domain.create_component("VTKwriter", "CF.Mesh.VTKXML.Writer");
+  domain.create_component("VTKwriter", "cf3.mesh.VTKXML.Writer");
   domain.write_mesh(URI("systems.pvtu"));
 };
 

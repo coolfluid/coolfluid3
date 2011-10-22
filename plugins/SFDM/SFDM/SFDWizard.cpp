@@ -83,17 +83,17 @@ SFDWizard::SFDWizard( const std::string& name )
     ->pretty_name("Dimension")
     ->mark_basic();
 
-  //options().add_option( OptionT<std::string>::create("physics", "CF.") )
+  //options().add_option( OptionT<std::string>::create("physics", "cf3.") )
   //  ->description("Builder name for the physical model")
   //  ->pretty_name("Physics")
   //  ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("solution_state", "CF.Euler.Cons1D") )
+  m_options.add_option( OptionT<std::string>::create("solution_state", "cf3.Euler.Cons1D") )
     ->description("Solution state builder")
     ->pretty_name("Solution State")
     ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("roe_state", "CF.Euler.Roe1D") )
+  m_options.add_option( OptionT<std::string>::create("roe_state", "cf3.Euler.Roe1D") )
     ->description("Roe state builder")
     ->pretty_name("Roe State")
     ->mark_basic();
@@ -171,7 +171,7 @@ void SFDWizard::create_simulation()
 
   Domain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
-  CSolver& solver                = model.create_solver("CF.Solver.FlowSolver");
+  CSolver& solver                = model.create_solver("cf3.Solver.FlowSolver");
 
   // These 2 functions are the only specific ones to SFDM (together with some configuration options)
   // -------------------------
@@ -353,8 +353,8 @@ void SFDWizard::build_solve()
 {
   FlowSolver& solver = m_model_link->follow()->as_type<CModel>().solver().as_type<FlowSolver>();
 
-  Component& iterate = solver.create_solve("iterate","CF.Solver.Actions.CIterate");
-  Component& RK = iterate.create_component("1_RK_stages","CF.RungeKutta.RK");
+  Component& iterate = solver.create_solve("iterate","cf3.Solver.Actions.CIterate");
+  Component& RK = iterate.create_component("1_RK_stages","cf3.RungeKutta.RK");
   RK.configure_option("stages",option("RK_stages").value<Uint>());
   Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
@@ -376,7 +376,7 @@ void SFDWizard::build_solve()
   iterate.create_component<OutputIterationInfo>("2_output_info").mark_basic();
   iterate.create_component<CCriterionTime>("time_stop_criterion").mark_basic();
 
-  solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
+  solver.configure_option_recursively("riemann_solver",std::string("cf3.RiemannSolvers.Roe"));
   solver.configure_option_recursively("roe_state",option("roe_state").value_str());
 
   solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().uri());
@@ -394,7 +394,7 @@ void SFDWizard::build_setup()
   /// - time
 
   FlowSolver& solver = model().solver().as_type<FlowSolver>();
-  Action& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"CF.SFDM.SFDSetup");
+  Action& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"cf3.SFDM.SFDSetup");
 
   /// Create a mesh transformer to adapt the mesh for SFDM
   MeshTransformer& transform_mesh = setup.create_component<MeshTransformer>("1_transform_mesh").mark_basic().as_type<MeshTransformer>();

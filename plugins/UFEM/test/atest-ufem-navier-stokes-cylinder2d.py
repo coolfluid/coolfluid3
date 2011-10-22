@@ -13,17 +13,17 @@ env.configure_option('regist_signal_handlers', False)
 env.configure_option('log_level', 4)
 
 # setup a model
-model = root.create_component('NavierStokes', 'CF.Solver.CModelUnsteady')
-model.setup(solver_builder = 'CF.UFEM.NavierStokes', physics_builder = 'CF.Physics.DynamicModel')
+model = root.create_component('NavierStokes', 'cf3.Solver.CModelUnsteady')
+model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.Physics.DynamicModel')
 solver = model.get_child('NavierStokes')
 domain = model.get_child('Domain')
-domain.create_component('NeuReader', 'CF.Mesh.Neu.Reader')
+domain.create_component('NeuReader', 'cf3.mesh.Neu.Reader')
 
 # Generate a channel mesh
 domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # lss setup
-lss = model.create_component('LSS', 'CF.math.LSS.System')
+lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.configure_option('solver', 'Trilinos')
 solver.configure_option('lss', lss.uri())
 lss.get_child('Matrix').configure_option('settings_file', sys.argv[2])
@@ -52,7 +52,7 @@ time = model.get_child('Time')
 time.configure_option('time_step', 0.1)
 
 # dummy writer (to load the library)
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.Writer')
+domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer')
 
 # Setup a time series write
 final_end_time = 10.
