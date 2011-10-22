@@ -135,7 +135,7 @@ add_subdirectory( BlockMesh )     # Structured mesh generation
 
 add_subdirectory( CGNS )          # CGNS file IO
 
-add_subdirectory( Tecplot )       # Tecplot file IO
+add_subdirectory( tecplot )       # tecplot file IO
 
 add_subdirectory( zoltan )        # zoltan mesh partitioning
 

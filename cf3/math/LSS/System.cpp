@@ -314,7 +314,7 @@ void LSS::System::signature_print(common::SignalArgs& args)
 
   options.add_option< common::OptionT<std::string> >("file_name")
     ->pretty_name("File name")
-    ->description("Tecplot file to print the matrix to");
+    ->description("tecplot file to print the matrix to");
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

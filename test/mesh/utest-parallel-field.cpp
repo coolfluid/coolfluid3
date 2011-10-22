@@ -198,7 +198,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   fields.push_back(glb_node_idx.as_ptr<Field>());
 
   MeshWriter::Ptr tec_writer =
-      build_component_abstract_type<MeshWriter>("cf3.mesh.Tecplot.Writer","tec_writer");
+      build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
 
   tec_writer->set_fields(fields);
   tec_writer->configure_option("cell_centred",true);

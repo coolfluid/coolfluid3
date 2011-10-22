@@ -15,7 +15,7 @@
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/Tecplot/Writer.hpp"
+#include "mesh/tecplot/Writer.hpp"
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Table.hpp"
@@ -30,13 +30,13 @@ using namespace cf3::common;
 
 namespace cf3 {
 namespace mesh {
-namespace Tecplot {
+namespace tecplot {
 
 #define CF3_BREAK_LINE(f,x) { if( x+1 % 10) { f << "\n"; } }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Tecplot::Writer, MeshWriter, LibTecplot> aTecplotWriter_Builder;
+common::ComponentBuilder < tecplot::Writer, MeshWriter, LibTecplot> atecplotWriter_Builder;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -141,7 +141,7 @@ void Writer::write_file(std::fstream& file)
     const ElementType& etype = elements.element_type();
     if (etype.shape() == GeoShape::POINT)
       continue;
-    // Tecplot doesn't handle zones with 0 elements
+    // tecplot doesn't handle zones with 0 elements
     // which can happen in parallel, so skip them
     if (elements.size() == 0)
       continue;
@@ -400,6 +400,6 @@ std::string Writer::zone_type(const ElementType& etype) const
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Tecplot
+} // tecplot
 } // mesh
 } // cf3

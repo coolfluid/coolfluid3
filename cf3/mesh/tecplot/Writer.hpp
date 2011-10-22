@@ -4,28 +4,28 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Tecplot_Writer_hpp
-#define cf3_mesh_Tecplot_Writer_hpp
+#ifndef cf3_mesh_tecplot_Writer_hpp
+#define cf3_mesh_tecplot_Writer_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshWriter.hpp"
 #include "mesh/GeoShape.hpp"
 
-#include "mesh/Tecplot/LibTecplot.hpp"
+#include "mesh/tecplot/LibTecplot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
   class ElementType;
-namespace Tecplot {
+namespace tecplot {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Tecplot mesh format writer
+/// This class defines tecplot mesh format writer
 /// @author Willem Deconinck
-class Tecplot_API Writer : public MeshWriter
+class tecplot_API Writer : public MeshWriter
 {
 public: // typedefs
 
@@ -42,7 +42,7 @@ public: // functions
 
   virtual void write_from_to(const Mesh& mesh, const common::URI& path);
 
-  virtual std::string get_format() { return "Tecplot"; }
+  virtual std::string get_format() { return "tecplot"; }
 
   virtual std::vector<std::string> get_extensions();
 
@@ -60,10 +60,10 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Tecplot
+} // tecplot
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Tecplot_Writer_hpp
+#endif // cf3_mesh_tecplot_Writer_hpp

@@ -236,7 +236,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   )
 
 
-  MeshWriter::Ptr tecwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.Tecplot.Writer","meshwriter");
+  MeshWriter::Ptr tecwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tecwriter->write_from_to(mesh,"rect_repartitioned.plt");
   meshwriter->write_from_to(mesh,"rect_repartitioned.msh");
 }

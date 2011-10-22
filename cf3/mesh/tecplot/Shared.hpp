@@ -3,26 +3,26 @@
 // This software is distributed under the terms of the
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text  .
-#ifndef cf3_mesh_Tecplot_Shared_hpp
-#define cf3_mesh_Tecplot_Shared_hpp
+#ifndef cf3_mesh_tecplot_Shared_hpp
+#define cf3_mesh_tecplot_Shared_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/GeoShape.hpp"
 
-#include "mesh/Tecplot/LibTecplot.hpp"
+#include "mesh/tecplot/LibTecplot.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Tecplot {
+namespace tecplot {
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// This class defines Tecplot mesh format common functionality
+/// This class defines tecplot mesh format common functionality
 /// @author Willem Deconinck
-class Tecplot_API Shared
+class tecplot_API Shared
 {
 public:
   
@@ -48,7 +48,7 @@ protected:
   static const std::string dim_name[4];
   static const std::string order_name[10];
 
-  enum TecplotElement { P1LINE=1,   P1TRIAG=2,  P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
+  enum tecplotElement { P1LINE=1,   P1TRIAG=2,  P1QUAD=3,  P1TETRA=4,  P1HEXA=5,
                      P2LINE=8,   P2TRIAG=9,  P2QUAD=10, P2TETRA=11, P2HEXA=12,
                      P1POINT=15, P3TRIAG=21, P3LINE=26, P3QUAD = 36 };
   
@@ -67,10 +67,10 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Tecplot
+} // tecplot
 } // mesh
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Tecplot_Shared_hpp
+#endif // cf3_mesh_tecplot_Shared_hpp

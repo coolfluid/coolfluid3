@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Tecplot_API
-/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling Tecplot files
+/// Define the macro tecplot_API
+/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling tecplot files
 #ifdef COOLFLUID_GMSH_EXPORTS
-#   define Tecplot_API      CF3_EXPORT_API
-#   define Tecplot_TEMPLATE
+#   define tecplot_API      CF3_EXPORT_API
+#   define tecplot_TEMPLATE
 #else
-#   define Tecplot_API      CF3_IMPORT_API
-#   define Tecplot_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define tecplot_API      CF3_IMPORT_API
+#   define tecplot_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,14 +30,14 @@
 namespace cf3 {
 namespace mesh {
   
-/// @brief Library for I/O of the Tecplot format 
-namespace Tecplot {
+/// @brief Library for I/O of the tecplot format 
+namespace tecplot {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Class defines the Tecplot mesh format operations
+/// Class defines the tecplot mesh format operations
 /// @author Willem Deconinck
-class Tecplot_API LibTecplot :
+class tecplot_API LibTecplot :
     public common::Library {
 
 public:
@@ -49,12 +49,12 @@ public:
   LibTecplot ( const std::string& name) : common::Library(name) {   }
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.mesh.Tecplot"; }
+  static std::string library_namespace() { return "cf3.mesh.tecplot"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
   /// @return name of the library
-  static std::string library_name() { return "Tecplot"; }
+  static std::string library_name() { return "tecplot"; }
 
   /// Static function that returns the description of the library.
   /// Must be implemented for Library registration
@@ -62,7 +62,7 @@ public:
 
   static std::string library_description()
   {
-    return "This library implements the Tecplot mesh format operations.";
+    return "This library implements the tecplot mesh format operations.";
   }
 
   /// Gets the Class name
@@ -80,7 +80,7 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Tecplot
+} // tecplot
 } // mesh
 } // cf3
 

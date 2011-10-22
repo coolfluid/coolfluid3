@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "mesh/Tecplot/Shared.hpp"
+#include "mesh/tecplot/Shared.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
-namespace Tecplot {
+namespace tecplot {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -385,6 +385,6 @@ std::string Shared::tp_name_to_cf_name(const Uint dim, const Uint tp_type)
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // Tecplot
+} // tecplot
 } // mesh
 } // cf3

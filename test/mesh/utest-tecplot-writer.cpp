@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::Tecplot::Writer"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::tecplot::Writer"
 
 #include <boost/test/unit_test.hpp>
 
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   fields.push_back(nodal.as_ptr<Field>());
   fields.push_back(cell_centred.as_ptr<Field>());
   fields.push_back(nodesP2.as_ptr<Field>());
-  MeshWriter::Ptr tec_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.Tecplot.Writer","meshwriter");
+  MeshWriter::Ptr tec_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tec_writer->configure_option("cell_centred",true);
   tec_writer->set_fields(fields);
   tec_writer->write_from_to(mesh,"quadtriag.plt");

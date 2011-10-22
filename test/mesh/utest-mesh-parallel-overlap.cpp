@@ -383,7 +383,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   Geometry& nodes = mesh.geometry();
 
   MeshWriter::Ptr tec_writer =
-      build_component_abstract_type<MeshWriter>("cf3.mesh.Tecplot.Writer","tec_writer");
+      build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
 
   MeshWriter::Ptr gmsh_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","gmsh_writer");
