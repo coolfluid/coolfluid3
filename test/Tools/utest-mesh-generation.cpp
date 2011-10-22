@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   // Load the required libraries (we assume the working dir is the binary path)
   LibLoader& loader = *OSystem::instance().lib_loader();
 
-  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../cf3/mesh/Gmsh");
+  const std::vector< boost::filesystem::path > lib_paths = boost::assign::list_of("../../cf3/mesh/gmsh");
   loader.set_search_paths(lib_paths);
 
   loader.load_library("coolfluid_mesh_gmsh");
