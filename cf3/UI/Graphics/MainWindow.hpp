@@ -94,15 +94,8 @@ namespace Graphics {
       ACTION_ABOUT_COOLFLUID,
 
       ACTION_ABOUT_QT
-    };
 
-  protected:
-    /// @brief Overrides @c QWidget::closeEvent().
-
-    /// This method is called when the user closes the window. If a network
-    /// communication is active, he is prompt to confirm his action.
-    /// @param event Close event to manage the window closing.
-    virtual void closeEvent(QCloseEvent * event);
+    }; // MainWinActions
 
   public:
 
@@ -117,6 +110,14 @@ namespace Graphics {
     /// Frees the allocated memory.
     ~MainWindow();
 
+  protected:
+    /// @brief Overrides @c QWidget::closeEvent().
+
+    /// This method is called when the user closes the window. If a network
+    /// communication is active, he is prompt to confirm his action.
+    /// @param event Close event to manage the window closing.
+    virtual void closeEvent(QCloseEvent * event);
+
   private slots:
 
     /// @brief Slot called when the user wants to quit the application.
@@ -126,41 +127,41 @@ namespace Graphics {
 
     /// @brief Slot called when the user wants to to toggle
     /// basic/advanced mode.
-    void toggleAdvanced();
+    void toggle_advanced();
 
-    void toggleDebugMode();
+    void toggle_debug_mode();
 
-    void showHelp();
+    void show_help();
 
-    void goToWebSite();
+    void go_to_web_site();
 
-    void newException(const QString &);
+    void new_exception(const QString &);
 
-    void connectToServer();
+    void connect_to_server();
 
-    void disconnectFromServer();
+    void disconnect_from_server();
 
-    void connectedToServer();
+    void connected_to_server();
 
     void disconnected_from_server(bool requested);
 
-    void saveFileLocally();
+    void save_file_locally();
 
-    void saveFileRemotely();
+    void save_file_remotely();
 
-    void openFileLocally();
+    void open_file_locally();
 
-    void openFileRemotely();
+    void open_file_remotely();
 
-    void runScript();
+    void run_script();
 
-    void newLogMessage(const QString & message, UICommon::LogMessage::Type type);
+    void new_log_message(const QString & message, UICommon::LogMessage::Type type);
 
-    void tabClicked(int num);
+    void tab_clicked(int num);
 
     void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
-    void scriptFinished();
+    void script_finished();
 
   private:
 
@@ -181,13 +182,13 @@ namespace Graphics {
     static const int CLOSE_CANCEL = 2;
 
     /// @brief The Client that displays the model.
-    TreeView * m_treeView;
+    TreeView * m_tree_view;
 
-    AboutCFDialog * m_aboutCFDialog;
+    AboutCFDialog * m_about_cf_dialog;
 
     /// @brief Panel used to display and modify options for a selected
     /// object.
-    CentralPanel * m_centralPanel;
+    CentralPanel * m_central_panel;
 
     /// @brief Hashmap containing all available actions for menu m_items.
 
@@ -196,52 +197,52 @@ namespace Graphics {
     QMap<MainWindow::MainWinActions, QAction *> m_actions;
 
     /// @brief "File" menu
-    QMenu * m_mnuFile;
+    QMenu * m_mnu_file;
 
     /// @brief "View" menu
-    QMenu * m_mnuView;
+    QMenu * m_mnu_view;
 
-    QMenu * m_mnuHelp;
+    QMenu * m_mnu_help;
 
     /// @brief "Open file" sub-menu
-    QMenu * m_mnuOpenFile;
+    QMenu * m_mnu_open_file;
 
     /// @brief "Save file" sub-menu
-    QMenu * m_mnuSaveFile;
+    QMenu * m_mnu_save_file;
 
     /// @brief Text area displaying the log messages.
-    LoggingList * m_logList;
+    LoggingList * m_log_list;
 
     /// @brief Splitter used to allow user to resize the Client.
     QSplitter * m_splitter;
 
-    QTextStream m_logFile;
+    QTextStream m_log_file;
 
-    QSplitter * m_centralSplitter;
+    QSplitter * m_central_splitter;
 
-    QTabWidget * m_tabWindow;
+    QTabWidget * m_tab_window;
 
-    QTableView * m_propertyView;
+    QTableView * m_property_view;
 
-    Core::PropertyModel * m_propertyModel;
+    Core::PropertyModel * m_property_model;
 
-    QLabel * m_labDescription;
+    QLabel * m_lab_description;
 
-    QScrollArea * m_scrollDescription;
+    QScrollArea * m_scroll_description;
 
-    TreeBrowser * m_treeBrowser;
+    TreeBrowser * m_tree_browser;
 
-    Tools::Shell::Interpreter * m_scriptRunner;
+    Tools::Shell::Interpreter * m_script_runner;
 
     /// @brief Creates actions and menus
-    void buildMenus();
+    void build_menus();
 
     /// @brief Sets the client to a <i>file open</i> or a <i>file
     /// not open</i> state by enabling or disabling certain m_options.
 
     /// @param fileOpen If @c true, the client is set to a <i>file open</i>
     /// running state, otherwise it is set to a <i>file not open</i> state.
-    void setFileOpen(bool fileOpen);
+    void set_file_open(bool fileOpen);
 
     /// @brief Asks to the user to confirm his request to close the
     /// connection or window.
@@ -249,16 +250,16 @@ namespace Graphics {
     /// @return Returns @c CLOSE_DISC if the user just wants to disconnect from
     /// the server, @c CLOSE_SHUTDOWN if the user wants to shutdown the server
     /// or @c SHUT_CANCEL if the user wants to cancel his action.
-    int confirmClose();
+    int confirm_close();
 
     /// @brief Shows an error message in a message box.
 
     /// @param errorMessage Error message to show.
-    void showError(const QString & errorMessage);
+    void show_error(const QString & errorMessage);
 
-    void setConnectedState(bool connected);
+    void set_connected_state(bool connected);
 
-    void setRunningScriptState(bool running);
+    void set_running_script_state(bool running);
 
   }; // class MainWindow
 

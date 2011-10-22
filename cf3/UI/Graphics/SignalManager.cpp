@@ -39,8 +39,8 @@ namespace Graphics {
 
 SignalManager::SignalManager(QMainWindow *parent) :
     QObject(parent),
-    m_currentAction(nullptr),
-    m_waitingForSignature(false)
+    m_current_action(nullptr),
+    m_waiting_for_signature(false)
 {
   m_menu = new QMenu();
 }
@@ -55,7 +55,7 @@ SignalManager::~SignalManager()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
+void SignalManager::show_menu(const QPoint & pos, CNode::Ptr node,
                              const QList<ActionInfo> & sigs)
 {
   QList<ActionInfo>::const_iterator it = sigs.begin();
@@ -66,10 +66,10 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
   m_menu->clear();
 
   m_node = node;
-  m_currentAction = nullptr;
+  m_current_action = nullptr;
 
   node->signal("signal_signature")
-      ->connect( boost::bind(&SignalManager::signalSignature, this, _1) );
+      ->connect( boost::bind(&SignalManager::signal_signature, this, _1) );
 
 //  connect(node->notifier(), SIGNAL(signalSignature(cf3::common::SignalArgs*)),
 //          this, SLOT(signalSignature(cf3::common::SignalArgs*)));
@@ -86,11 +86,11 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
       action->setStatusTip(it->description);
       action->setEnabled(it->is_enabled);
 
-      connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
-      connect(action, SIGNAL(hovered()), this, SLOT(actionHovered()));
+      connect(action, SIGNAL(triggered()), this, SLOT(action_triggered()));
+      connect(action, SIGNAL(hovered()), this, SLOT(action_hovered()));
 
       m_signals[action] = *it;
-      m_localStatus[action] = it->is_local;
+      m_local_status[action] = it->is_local;
     }
 
     is_local = it->is_local;
@@ -102,29 +102,29 @@ void SignalManager::showMenu(const QPoint & pos, CNode::Ptr node,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::actionTriggered()
+void SignalManager::action_triggered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
   if(action != nullptr)
   {
-    m_currentAction = action;
-    m_waitingForSignature = true;
+    m_current_action = action;
+    m_waiting_for_signature = true;
 
-    if(!m_localStatus[action])
+    if(!m_local_status[action])
       m_node->request_signal_signature( m_signals[action].name );
     else
     {
       SignalFrame frame;
       m_node->local_signature(m_signals[action].name, frame);
-      signalSignature(frame);
+      signal_signature(frame);
     }
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::actionHovered()
+void SignalManager::action_hovered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
@@ -136,12 +136,12 @@ void SignalManager::actionHovered()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::signalSignature(SignalArgs & args)
+void SignalManager::signal_signature(SignalArgs & args)
 {
-  if(m_waitingForSignature)
+  if(m_waiting_for_signature)
   {
     URI path = m_node->real_component()->uri();
-    ActionInfo & info = m_signals[m_currentAction];
+    ActionInfo & info = m_signals[m_current_action];
     const char * tag = Protocol::Tags::key_options();
 
     m_frame = SignalFrame(info.name.toStdString(), path, path);
@@ -154,9 +154,9 @@ void SignalManager::signalSignature(SignalArgs & args)
     {
       SignatureDialog * sg = new SignatureDialog();
 
-      connect(sg, SIGNAL(finished(int)), this, SLOT(dialogFinished(int)));
+      connect(sg, SIGNAL(finished(int)), this, SLOT(dialog_finished(int)));
 
-      sg->show(options.main_map.content, m_currentAction->text());
+      sg->show(options.main_map.content, m_current_action->text());
     }
     catch( Exception & e)
     {
@@ -169,14 +169,14 @@ void SignalManager::signalSignature(SignalArgs & args)
 
 
 
-    m_waitingForSignature = false;
+    m_waiting_for_signature = false;
   }
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void SignalManager::dialogFinished(int result)
+void SignalManager::dialog_finished(int result)
 {
   if(result == QDialog::Accepted)
   {
@@ -184,11 +184,11 @@ void SignalManager::dialogFinished(int result)
 
     if(dlg != nullptr)
     {
-      if(m_localStatus[m_currentAction]) // if it is a local signal, call it...
+      if(m_local_status[m_current_action]) // if it is a local signal, call it...
       {
         try
         {
-          m_node->call_signal(m_signals[m_currentAction].name.toStdString(), m_frame);
+          m_node->call_signal(m_signals[m_current_action].name.toStdString(), m_frame);
         }
         catch(InvalidURI ip)
         {

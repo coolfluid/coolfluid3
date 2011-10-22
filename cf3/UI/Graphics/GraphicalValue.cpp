@@ -57,7 +57,7 @@ GraphicalValue::~GraphicalValue()
 
 //////////////////////////////////////////////////////////////////////////
 
-GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
+GraphicalValue * GraphicalValue::create_from_option(Option::ConstPtr option,
                                                   QWidget * parent)
 {
   GraphicalValue * value = nullptr;
@@ -128,7 +128,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
       else
         throw CastingFailed(FromHere(), tag + ": Unknown type");
 
-      value->setValue( QString(value_str.c_str()).split(array->separator().c_str()) );
+      value->set_value( QString(value_str.c_str()).split(array->separator().c_str()) );
     }
   }
   return value;
@@ -136,7 +136,7 @@ GraphicalValue * GraphicalValue::createFromOption(Option::ConstPtr option,
 
 //////////////////////////////////////////////////////////////////////////
 
-QString GraphicalValue::valueString() const
+QString GraphicalValue::value_string() const
 {
   QVariant value = this->value();
 
@@ -148,34 +148,34 @@ QString GraphicalValue::valueString() const
 
 //////////////////////////////////////////////////////////////////////////
 
-QVariant GraphicalValue::originalValue() const
+QVariant GraphicalValue::original_value() const
 {
-  return m_originalValue;
+  return m_original_value;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-QString GraphicalValue::originalValueString() const
+QString GraphicalValue::original_value_string() const
 {
-  if(m_originalValue.type() == QVariant::StringList)
-    return m_originalValue.toStringList().join( m_separator );
+  if(m_original_value.type() == QVariant::StringList)
+    return m_original_value.toStringList().join( m_separator );
 
-  return m_originalValue.toString();
+  return m_original_value.toString();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GraphicalValue::isModified() const
+bool GraphicalValue::is_modified() const
 {
-  return originalValueString() != valueString();
+  return original_value_string() != value_string();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void GraphicalValue::commit()
 {
-  m_originalValue = value();
-  emit valueChanged();
+  m_original_value = value();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////

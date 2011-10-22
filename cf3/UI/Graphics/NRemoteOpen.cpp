@@ -24,8 +24,8 @@ namespace Graphics {
 NRemoteOpen::NRemoteOpen(QMainWindow * parent)
 : NRemoteBrowser("NRemoteOpen", parent)
 {
-  this->setIncludeFiles(true);
-  this->setIncludeNoExtension(true);
+  this->set_include_files(true);
+  this->set_include_no_extension(true);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,18 +54,18 @@ QString NRemoteOpen::tool_tip() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ValidationPolicy NRemoteOpen::isAcceptable(const QString & name, bool isDir)
+ValidationPolicy NRemoteOpen::is_acceptable(const QString & name, bool is_dir)
 {
-  if(isDir)
+  if(is_dir)
     return POLICY_ENTER_DIRECTORY;
 
-  m_fileList << name;
+  m_file_list << name;
   return POLICY_VALID;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ValidationPolicy NRemoteOpen::isAcceptable(const QStringList & names)
+ValidationPolicy NRemoteOpen::is_acceptable(const QStringList & names)
 {
   QStringList::const_iterator it = names.begin();
   ValidationPolicy validation = POLICY_VALID;
@@ -74,18 +74,18 @@ ValidationPolicy NRemoteOpen::isAcceptable(const QStringList & names)
   {
     QString item = *it;
 
-    if(this->isDirectory(item) && names.size() > 1)
+    if(this->is_directory(item) && names.size() > 1)
     {
-      this->showError("Directories are not allowed in multiple selection.");
+      this->show_error("Directories are not allowed in multiple selection.");
       validation = POLICY_NOT_VALID;
-      m_fileList.clear();
+      m_file_list.clear();
     }
 
-    else if(this->isDirectory(item) && names.size() == 1)
+    else if(this->is_directory(item) && names.size() == 1)
       validation = POLICY_ENTER_DIRECTORY;
 
     else
-      m_fileList << item;
+      m_file_list << item;
 
     it++;
   }
@@ -95,10 +95,10 @@ ValidationPolicy NRemoteOpen::isAcceptable(const QStringList & names)
 
 //////////////////////////////////////////////////////////////////////////
 
-QString NRemoteOpen::selectedFile() const
+QString NRemoteOpen::selected_file() const
 {
-  if(!m_fileList.isEmpty())
-    return m_fileList.at(0);
+  if(!m_file_list.isEmpty())
+    return m_file_list.at(0);
 
   return QString();
 }
@@ -112,9 +112,9 @@ QString NRemoteOpen::selectedFile() const
 
 //////////////////////////////////////////////////////////////////////////
 
-void NRemoteOpen::reinitValues()
+void NRemoteOpen::reinit_values()
 {
-  m_fileList.clear();
+  m_file_list.clear();
 }
 
 //////////////////////////////////////////////////////////////////////////

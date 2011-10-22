@@ -29,24 +29,24 @@ ConfirmCommitDialog::ConfirmCommitDialog(QWidget * parent)
 {
   this->setWindowTitle("Commit confirm");
 
-  m_labText = new QLabel("Options have been modified but were not comitted.<br>"
+  m_lab_text = new QLabel("Options have been modified but were not comitted.<br>"
                                "Click on \"<i>Details</i>\" to see what "
                                "modifications have been done.", this);
 
 
-  m_mainLayout = new QVBoxLayout(this);
+  m_main_layout = new QVBoxLayout(this);
 
-  m_buttonBox = new QDialogButtonBox(this);
+  m_button_box = new QDialogButtonBox(this);
 
-  m_detailsView = new QTableView(this);
+  m_details_view = new QTableView(this);
 
-  this->createButton("Cancel", CANCEL, QDialogButtonBox::RejectRole);
-  this->createButton("Commit", COMMIT, QDialogButtonBox::YesRole);
-  this->createButton("Do not commit", DONT_COMMIT, QDialogButtonBox::NoRole);
+  this->create_button("Cancel", CANCEL, QDialogButtonBox::RejectRole);
+  this->create_button("Commit", COMMIT, QDialogButtonBox::YesRole);
+  this->create_button("Do not commit", DONT_COMMIT, QDialogButtonBox::NoRole);
 
-  m_mainLayout->addWidget(m_labText);
-  m_mainLayout->addWidget(m_detailsView);
-  m_mainLayout->addWidget(m_buttonBox);
+  m_main_layout->addWidget(m_lab_text);
+  m_main_layout->addWidget(m_details_view);
+  m_main_layout->addWidget(m_button_box);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails 
 
   if(commitDetails.has_options())
   {
-    m_detailsView->setModel(&commitDetails);
+    m_details_view->setModel(&commitDetails);
     this->exec();
   }
 
@@ -83,7 +83,7 @@ ConfirmCommitDialog::CommitConfirmation ConfirmCommitDialog::show(CommitDetails 
 
 //////////////////////////////////////////////////////////////////////////
 
-void ConfirmCommitDialog::buttonClicked()
+void ConfirmCommitDialog::button_clicked()
 {
   QPushButton * button = static_cast<QPushButton *> (sender());
 
@@ -97,12 +97,12 @@ void ConfirmCommitDialog::buttonClicked()
 
 //////////////////////////////////////////////////////////////////////////
 
-void ConfirmCommitDialog::createButton(const QString & text,
+void ConfirmCommitDialog::create_button(const QString & text,
                                        CommitConfirmation commConf,
                                        QDialogButtonBox::ButtonRole role)
 {
-  QPushButton * button = m_buttonBox->addButton(text, role);
-  connect(button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
+  QPushButton * button = m_button_box->addButton(text, role);
+  connect(button, SIGNAL(clicked()), this, SLOT(button_clicked()));
   m_buttons[commConf] = button;
 }
 

@@ -34,150 +34,150 @@ namespace Graphics {
 
 TreeBrowser::TreeBrowser(TreeView * view, QWidget *parent) :
     QWidget(parent),
-    m_treeView(view),
-    m_currentIndex(0)
+    m_tree_view(view),
+    m_current_index(0)
 {
   cf3_assert(view != nullptr);
 
-  m_btPrevious = new QToolButton(this);
-  m_btNext = new QToolButton(this);
-  m_menuNext = new QMenu(m_btNext);
-  m_menuPrevious = new QMenu(m_btPrevious);
+  m_bt_previous = new QToolButton(this);
+  m_bt_next = new QToolButton(this);
+  m_menu_next = new QMenu(m_bt_next);
+  m_menu_previous = new QMenu(m_bt_previous);
   m_filter = new QLineEdit(this);
 
-  m_buttonsLayout = new QGridLayout();
-  m_mainLayout = new QVBoxLayout(this);
+  m_buttons_layout = new QGridLayout();
+  m_main_layout = new QVBoxLayout(this);
 
-  m_mainLayout->setMargin(0);
+  m_main_layout->setMargin(0);
 
-  m_btPrevious->setArrowType(Qt::LeftArrow);
-  m_btNext->setArrowType(Qt::RightArrow);
+  m_bt_previous->setArrowType(Qt::LeftArrow);
+  m_bt_next->setArrowType(Qt::RightArrow);
 
-  m_btNext->setMenu(m_menuNext);
-  m_btPrevious->setMenu(m_menuPrevious);
+  m_bt_next->setMenu(m_menu_next);
+  m_bt_previous->setMenu(m_menu_previous);
 
-  m_btNext->setPopupMode(QToolButton::MenuButtonPopup);
-  m_btPrevious->setPopupMode(QToolButton::MenuButtonPopup);
+  m_bt_next->setPopupMode(QToolButton::MenuButtonPopup);
+  m_bt_previous->setPopupMode(QToolButton::MenuButtonPopup);
 
-  m_buttonsLayout->addWidget(m_btPrevious, 0, 0);
-  m_buttonsLayout->addWidget(m_btNext, 0, 1);
-  m_buttonsLayout->addWidget(m_filter, 0, 2);
+  m_buttons_layout->addWidget(m_bt_previous, 0, 0);
+  m_buttons_layout->addWidget(m_bt_next, 0, 1);
+  m_buttons_layout->addWidget(m_filter, 0, 2);
 
-  m_buttonsLayout->setColumnStretch(2, 10);
+  m_buttons_layout->setColumnStretch(2, 10);
 
-  m_mainLayout->addLayout(m_buttonsLayout);
-  m_mainLayout->addWidget(m_treeView);
+  m_main_layout->addLayout(m_buttons_layout);
+  m_main_layout->addWidget(m_tree_view);
 
-  connect(m_btPrevious, SIGNAL(clicked()), this, SLOT(previousClicked()));
-  connect(m_btNext, SIGNAL(clicked()), this, SLOT(nextClicked()));
-  connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(filterUpdated(QString)));
+  connect(m_bt_previous, SIGNAL(clicked()), this, SLOT(previous_clicked()));
+  connect(m_bt_next, SIGNAL(clicked()), this, SLOT(next_clicked()));
+  connect(m_filter, SIGNAL(textChanged(QString)), this, SLOT(filter_updated(QString)));
 
-  connect(m_treeView, SIGNAL(itemDoubleClicked(QModelIndex)),
-          this, SLOT(doubleClicked(QModelIndex)));
+  connect(m_tree_view, SIGNAL(item_double_clicked(QModelIndex)),
+          this, SLOT(double_clicked(QModelIndex)));
 
-  m_history << m_treeView->rootIndex();
-  this->updateButtons();
+  m_history << m_tree_view->rootIndex();
+  this->update_buttons();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 TreeBrowser::~TreeBrowser()
 {
-  delete m_menuNext;
-  delete m_menuPrevious;
-  delete m_buttonsLayout;
-  delete m_mainLayout;
-  delete m_btNext;
-  delete m_btPrevious;
+  delete m_menu_next;
+  delete m_menu_previous;
+  delete m_buttons_layout;
+  delete m_main_layout;
+  delete m_bt_next;
+  delete m_bt_previous;
   delete m_filter;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::focusFilter()
+void TreeBrowser::focus_filter()
 {
   m_filter->setFocus();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::previousClicked()
+void TreeBrowser::previous_clicked()
 {
-  cf3_assert(m_currentIndex > 0);
+  cf3_assert(m_current_index > 0);
 
-  m_currentIndex--;
+  m_current_index--;
 
-  const QModelIndex & index = m_history.at(m_currentIndex);
+  const QModelIndex & index = m_history.at(m_current_index);
 
 //  if(!index.parent().isValid())
 //    m_treeView->setRootIndex(index.parent());
 //  else
-    m_treeView->setRootIndex(index.parent());
+    m_tree_view->setRootIndex(index.parent());
 
-  this->updateButtons();
+  this->update_buttons();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::nextClicked()
+void TreeBrowser::next_clicked()
 {
-  cf3_assert(m_currentIndex < m_history.size() - 1);
+  cf3_assert(m_current_index < m_history.size() - 1);
 
-  m_currentIndex++;
-  m_treeView->setRootIndex(m_history.at(m_currentIndex));
-  this->updateButtons();
+  m_current_index++;
+  m_tree_view->setRootIndex(m_history.at(m_current_index));
+  this->update_buttons();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::doubleClicked(const QModelIndex & index)
+void TreeBrowser::double_clicked(const QModelIndex & index)
 {
-  while(m_currentIndex < m_history.size() - 1)
+  while(m_current_index < m_history.size() - 1)
     m_history.removeLast();
 
   m_history << QPersistentModelIndex(index);
   //m_actions << QAction(m_treeView->getPath(index).string().c_string());
-  m_currentIndex++;
-  m_treeView->setRootIndex(index);
-  this->updateButtons();
+  m_current_index++;
+  m_tree_view->setRootIndex(index);
+  this->update_buttons();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::actionTriggered()
+void TreeBrowser::action_triggered()
 {
   QAction * action = static_cast<QAction*>(sender());
 
   if(action != nullptr && m_actions.contains(action))
   {
-    m_currentIndex = m_actions[action];
-    m_treeView->setRootIndex(m_history.at(m_currentIndex));
-    this->updateButtons();
+    m_current_index = m_actions[action];
+    m_tree_view->setRootIndex(m_history.at(m_current_index));
+    this->update_buttons();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::filterUpdated(const QString & text)
+void TreeBrowser::filter_updated(const QString & text)
 {
-  m_treeView->setFilter(text);
+  m_tree_view->set_filter(text);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeBrowser::updateButtons()
+void TreeBrowser::update_buttons()
 {
   m_actions.clear();
-  m_menuNext->clear();
-  m_menuPrevious->clear();
+  m_menu_next->clear();
+  m_menu_previous->clear();
 
   if(!m_history.isEmpty())
   {
     for(int i = 0 ; i < m_history.size() ; i++)
     {
       QPersistentModelIndex index = m_history.at(i);
-      QString path = m_treeView->pathFromIndex(index).path().c_str();
-      QIcon icon = m_treeView->iconFromIndex(index);
+      QString path = m_tree_view->path_from_index(index).path().c_str();
+      QIcon icon = m_tree_view->icon_from_index(index);
 
       if(path.isEmpty())
       {
@@ -187,18 +187,18 @@ void TreeBrowser::updateButtons()
 
       QAction * action = new QAction(icon, path, this);
 
-      connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+      connect(action, SIGNAL(triggered()), this, SLOT(action_triggered()));
       m_actions[action] = i;
 
-        if(i < m_currentIndex)
-          m_menuPrevious->addAction(action);
-        else if(i > m_currentIndex)
-          m_menuNext->addAction(action);
+        if(i < m_current_index)
+          m_menu_previous->addAction(action);
+        else if(i > m_current_index)
+          m_menu_next->addAction(action);
     }
   }
 
-  m_btNext->setEnabled(!m_menuNext->isEmpty());
-  m_btPrevious->setEnabled(!m_menuPrevious->isEmpty());
+  m_bt_next->setEnabled(!m_menu_next->isEmpty());
+  m_bt_previous->setEnabled(!m_menu_previous->isEmpty());
 }
 
 //////////////////////////////////////////////////////////////////////////

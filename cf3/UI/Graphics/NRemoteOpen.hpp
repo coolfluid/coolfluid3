@@ -61,7 +61,7 @@ namespace Graphics {
     /// @param name Name to check
     /// @param isDir If @c true, @c name is a directory; otherwise, it is a file.
     /// @return Returns the validation as described above.
-    virtual ValidationPolicy isAcceptable(const QString & name, bool isDir);
+    virtual ValidationPolicy is_acceptable(const QString & name, bool isDir);
 
     /// @brief Checks if the selection is valid.
 
@@ -72,7 +72,7 @@ namespace Graphics {
     /// m_items are files, @c #POLICY_VALID is returned
     /// @param names Name list to check
     /// @return Returns the validation as described above.
-    virtual ValidationPolicy isAcceptable(const QStringList & names);
+    virtual ValidationPolicy is_acceptable(const QStringList & names);
 
     /// @brief Give the selected file.
 
@@ -80,7 +80,7 @@ namespace Graphics {
     /// @return Returns the selected file, or an empty string if the last call
     /// to <code>isAcceptable(const QString &, bool)</code> did not return
     /// @c #POLICY_VALID or if this method was never called.
-    virtual QString selectedFile() const;
+    virtual QString selected_file() const;
 
     /// @brief Give the selected files.
 
@@ -93,21 +93,21 @@ namespace Graphics {
     /// @brief Reinitializes internal data to their default value.
 
     /// This method overrides base class method.
-    virtual void reinitValues();
+    virtual void reinit_values();
 
   protected:
 
     /// Disables the local signals that need to.
-    /// @param localSignals Map of local signals. All values are set to true
+    /// @param local_signals Map of local signals. All values are set to true
     /// by default.
-    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & local_signals) const {}
 
   private:
 
     /// @brief Selected files list.
 
     /// Contains at most one item if the dialog is in single selection mode.
-    QStringList m_fileList;
+    QStringList m_file_list;
 
   }; // NRemoteOpen
 

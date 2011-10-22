@@ -42,7 +42,7 @@ JournalBrowserBuilder & JournalBrowserBuilder::instance()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void JournalBrowserBuilder::journalRequest(bool local)
+void JournalBrowserBuilder::journal_request(bool local)
 {
   m_dialog->show(nullptr);
 }
@@ -53,8 +53,8 @@ JournalBrowserBuilder::JournalBrowserBuilder()
 {
   m_dialog = new JournalBrowserDialog();
 
-  connect(&JournalNotifier::instance(), SIGNAL(journalRequest(bool)),
-          this, SLOT(journalRequest(bool)));
+  connect(&JournalNotifier::instance(), SIGNAL(journal_request(bool)),
+          this, SLOT(journal_request(bool)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_buttons = new QDialogButtonBox(this);
 
 
-  m_mainLayout = new QVBoxLayout(this);
+  m_main_layout = new QVBoxLayout(this);
 
   NBrowser::global()->add_node(m_model);
 
@@ -79,10 +79,10 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   m_view->setAlternatingRowColors(true);
 
   m_buttons->addButton(QDialogButtonBox::Ok);
-  m_btExecute = m_buttons->addButton("Execute", QDialogButtonBox::ActionRole);
+  m_bt_execute = m_buttons->addButton("Execute", QDialogButtonBox::ActionRole);
 
-  m_mainLayout->addWidget(m_view);
-  m_mainLayout->addWidget(m_buttons);
+  m_main_layout->addWidget(m_view);
+  m_main_layout->addWidget(m_buttons);
 
   m_view->updateGeometry();
   updateGeometry();
@@ -90,8 +90,8 @@ JournalBrowserDialog::JournalBrowserDialog(QWidget *parent) :
   resize( childrenRect().size() );
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
-  connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(btClicked(QAbstractButton*)));
-  connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(doubleClicked(QModelIndex)));
+  connect(m_buttons, SIGNAL(clicked(QAbstractButton*)), this, SLOT(bt_clicked(QAbstractButton*)));
+  connect(m_view, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(double_clicked(QModelIndex)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -101,7 +101,7 @@ JournalBrowserDialog::~JournalBrowserDialog()
   NBrowser::global()->remove_node(m_model->name().c_str());
   delete m_view;
   delete m_buttons;
-  delete m_mainLayout;
+  delete m_main_layout;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -118,7 +118,7 @@ void JournalBrowserDialog::show(const XmlNode * rootNode)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
+void JournalBrowserDialog::double_clicked(const QModelIndex & index)
 {
   if(index.isValid())
   {
@@ -130,9 +130,9 @@ void JournalBrowserDialog::doubleClicked(const QModelIndex & index)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void JournalBrowserDialog::btClicked(QAbstractButton *button)
+void JournalBrowserDialog::bt_clicked(QAbstractButton *button)
 {
-  if(button == ((QAbstractButton*) m_btExecute) )
+  if(button == ((QAbstractButton*) m_bt_execute) )
   {
     try
     {

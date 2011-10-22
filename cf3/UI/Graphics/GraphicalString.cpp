@@ -20,27 +20,27 @@ namespace Graphics {
 GraphicalString::GraphicalString(const QString & value, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_lineEdit = new QLineEdit(this);
+  m_line_edit = new QLineEdit(this);
 
-  m_layout->addWidget(m_lineEdit);
+  m_layout->addWidget(m_line_edit);
 
-  this->setValue(value);
+  this->set_value(value);
 
-  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString))); }
+  connect(m_line_edit, SIGNAL(textChanged(QString)), this, SLOT(text_updated(QString))); }
 
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalString::~GraphicalString()
 {
-  delete m_lineEdit;
+  delete m_line_edit;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GraphicalString::setValue(const QVariant & value)
+bool GraphicalString::set_value(const QVariant & value)
 {
-  m_originalValue = value;
-  m_lineEdit->setText(value.toString());
+  m_original_value = value;
+  m_line_edit->setText(value.toString());
   return true;
 }
 
@@ -48,14 +48,14 @@ bool GraphicalString::setValue(const QVariant & value)
 
 QVariant GraphicalString::value() const
 {
-  return m_lineEdit->text();
+  return m_line_edit->text();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void GraphicalString::textUpdated(const QString & text)
+void GraphicalString::text_updated(const QString & text)
 {
-  emit valueChanged();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////

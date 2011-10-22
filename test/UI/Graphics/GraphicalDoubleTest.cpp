@@ -70,28 +70,28 @@ void GraphicalDoubleTest::test_setValue()
   //
   // 1. check with doubles
   //
-  QVERIFY( value->setValue(3.14159265) );
+  QVERIFY( value->set_value(3.14159265) );
   QCOMPARE( lineEdit->text(), QString("3.14159265") );
 
-  QVERIFY( value->setValue(-2.71) );
+  QVERIFY( value->set_value(-2.71) );
   QCOMPARE( lineEdit->text(), QString("-2.71") );
 
   //
   // 2. check with other types
   //
-  QVERIFY( value->setValue(12) );
+  QVERIFY( value->set_value(12) );
   QCOMPARE( lineEdit->text(), QString("12") ); // value does not change
 
-  QVERIFY( !value->setValue("Hello") );
+  QVERIFY( !value->set_value("Hello") );
   QCOMPARE( lineEdit->text(), QString("12") ); // value does not change
 
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( lineEdit->text(), QString("12") ); // value does not change
 
-  QVERIFY( !value->setValue("1.6a45") );     // with an invalid character
+  QVERIFY( !value->set_value("1.6a45") );     // with an invalid character
   QCOMPARE( lineEdit->text(), QString("12") ); // value does not change
 
-  QVERIFY( value->setValue("1.6E-45") );       // try scientific notation
+  QVERIFY( value->set_value("1.6E-45") );       // try scientific notation
   QCOMPARE( lineEdit->text(), QString("1.6E-45") );
 
 
@@ -138,8 +138,8 @@ void GraphicalDoubleTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue(3.14159265);
-  value->setValue(2.71);
+  value->set_value(3.14159265);
+  value->set_value(2.71);
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -175,11 +175,11 @@ void GraphicalDoubleTest::test_valueString()
 {
   GraphicalDouble * value = new GraphicalDouble();
 
-  value->setValue(-3.14159265);
-  QCOMPARE( value->valueString(), QString("-3.14159265") );
+  value->set_value(-3.14159265);
+  QCOMPARE( value->value_string(), QString("-3.14159265") );
 
-  value->setValue(1.6E-98);
-  QCOMPARE( value->valueString(), QString("1.6e-98") );
+  value->set_value(1.6E-98);
+  QCOMPARE( value->value_string(), QString("1.6e-98") );
 
   delete value;
 }
@@ -192,17 +192,17 @@ void GraphicalDoubleTest::test_isModified()
   QLineEdit* lineEdit = findLineEdit(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   lineEdit->setText("12.45");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   lineEdit->setText("-5.879");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }

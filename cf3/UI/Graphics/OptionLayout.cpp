@@ -33,7 +33,7 @@ OptionLayout::OptionLayout(QWidget * parent)
 
 OptionLayout::~OptionLayout()
 {
-  this->clearOptions();
+  this->clear_options();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,14 +46,14 @@ void OptionLayout::options(QMap<QString, QString> & options, bool all) const
   {
     GraphicalValue * value = it.value();
 
-    if(all || value->isModified())
-      options[ it.key() ] = value->valueString();
+    if(all || value->is_modified())
+      options[ it.key() ] = value->value_string();
   }
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::commitOpions()
+void OptionLayout::commit_options()
 {
   QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -63,7 +63,7 @@ void OptionLayout::commitOpions()
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::clearOptions()
+void OptionLayout::clear_options()
 {
   QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -79,21 +79,21 @@ void OptionLayout::clearOptions()
 
 //////////////////////////////////////////////////////////////////////////
 
-bool OptionLayout::isModified() const
+bool OptionLayout::is_modified() const
 {
   bool modified = false;
 
   QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
   for( ; it != m_options.end() && !modified ; it++)
-    modified = it.value()->isModified();
+    modified = it.value()->is_modified();
 
   return modified;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
+void OptionLayout::modified_options(CommitDetails & commitDetails) const
 {
   QMap<QString, GraphicalValue *>::const_iterator it = m_options.begin();
 
@@ -101,10 +101,10 @@ void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
   {
     GraphicalValue * value = it.value();
 
-    if(value->isModified())
+    if(value->is_modified())
     {
-      QString oldValue = value->originalValueString();
-      QString newValue = value->valueString();
+      QString oldValue = value->original_value_string();
+      QString newValue = value->value_string();
 
       commitDetails.set_option(it.key(), oldValue, newValue);
     }
@@ -115,9 +115,9 @@ void OptionLayout::modifiedOptions(CommitDetails & commitDetails) const
 
 //////////////////////////////////////////////////////////////////////////
 
-void OptionLayout::addOption(cf3::common::Option::ConstPtr option)
+void OptionLayout::add_option(cf3::common::Option::ConstPtr option)
 {
-  GraphicalValue * value = GraphicalValue::createFromOption(option);
+  GraphicalValue * value = GraphicalValue::create_from_option(option);
   QString name(option->name().c_str());
 
   m_options[name] = value;
@@ -130,12 +130,12 @@ void OptionLayout::addOption(cf3::common::Option::ConstPtr option)
   addRow(name + ':', value);
 
   // forward the signal
-  connect(value, SIGNAL(valueChanged()), this, SIGNAL(valueChanged()));
+  connect(value, SIGNAL(value_changed()), this, SIGNAL(value_changed()));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool OptionLayout::hasOptions() const
+bool OptionLayout::has_options() const
 {
   return !m_options.isEmpty();
 }

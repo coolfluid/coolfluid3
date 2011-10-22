@@ -35,61 +35,61 @@ CentralPanel::CentralPanel(QWidget * parent)
   NTree::Ptr tree = NTree::global();
 
   // create the components
-  m_scrollBasicOptions = new QScrollArea();
-  m_scrollAdvancedOptions = new QScrollArea();
-  m_gbBasicOptions = new QGroupBox(m_scrollBasicOptions);
-  m_gbAdvancedOptions = new QGroupBox(m_scrollAdvancedOptions);
-  m_btApply = new QPushButton("Apply");
-  m_btSeeChanges = new QPushButton("See changes");
-  m_btForget = new QPushButton("Forget");
+  m_scroll_basic_options = new QScrollArea();
+  m_scroll_advanced_options = new QScrollArea();
+  m_gbox_basic_options = new QGroupBox(m_scroll_basic_options);
+  m_gbox_advanced_options = new QGroupBox(m_scroll_advanced_options);
+  m_bt_apply = new QPushButton("Apply");
+  m_bt_see_changes = new QPushButton("See changes");
+  m_bt_forget = new QPushButton("Forget");
   m_splitter = new QSplitter(this);
 
-  m_basicOptionLayout = new OptionLayout(m_gbBasicOptions);
-  m_advancedOptionLayout = new OptionLayout(m_gbAdvancedOptions);
+  m_basic_option_layout = new OptionLayout(m_gbox_basic_options);
+  m_advanced_option_layout = new OptionLayout(m_gbox_advanced_options);
 
-  m_mainLayout = new QGridLayout(this);
+  m_main_layout = new QGridLayout(this);
 
-  m_mainLayout->setContentsMargins(0, 11, 0, 0);
+  m_main_layout->setContentsMargins(0, 11, 0, 0);
 
   m_splitter->setOrientation(Qt::Vertical);
 
-  m_scrollBasicOptions->setWidgetResizable(true);
-  m_scrollBasicOptions->setWidget(m_gbBasicOptions);
+  m_scroll_basic_options->setWidgetResizable(true);
+  m_scroll_basic_options->setWidget(m_gbox_basic_options);
 
-  m_scrollAdvancedOptions->setWidgetResizable(true);
-  m_scrollAdvancedOptions->setWidget(m_gbAdvancedOptions);
+  m_scroll_advanced_options->setWidgetResizable(true);
+  m_scroll_advanced_options->setWidget(m_gbox_advanced_options);
 
-  m_btSeeChanges->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  m_btForget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-  m_btApply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_bt_see_changes->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_bt_forget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+  m_bt_apply->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
   // add the components to the splitter
-  m_splitter->addWidget(m_scrollBasicOptions);
-  m_splitter->addWidget(m_scrollAdvancedOptions);
+  m_splitter->addWidget(m_scroll_basic_options);
+  m_splitter->addWidget(m_scroll_advanced_options);
 
-  m_mainLayout->addWidget(m_btSeeChanges, 0, 2);
-  m_mainLayout->addWidget(m_splitter, 1, 0, 1, 0);
-  m_mainLayout->addWidget(m_btForget, 2, 0);
-  m_mainLayout->addWidget(m_btApply, 2, 2, -1, -1, Qt::AlignRight);
+  m_main_layout->addWidget(m_bt_see_changes, 0, 2);
+  m_main_layout->addWidget(m_splitter, 1, 0, 1, 0);
+  m_main_layout->addWidget(m_bt_forget, 2, 0);
+  m_main_layout->addWidget(m_bt_apply, 2, 2, -1, -1, Qt::AlignRight);
 
-  m_mainLayout->setRowStretch(1, 10);
+  m_main_layout->setRowStretch(1, 10);
 
   advanced_mode_changed(tree->is_advanced_mode());
 
-  this->setButtonsVisible(false);
+  this->set_buttons_visible(false);
 
-  connect(m_btApply, SIGNAL(clicked()), this, SLOT(btApplyClicked()));
-  connect(m_btSeeChanges, SIGNAL(clicked()), this, SLOT(btSeeChangesClicked()));
-  connect(m_btForget, SIGNAL(clicked()), this, SLOT(btForgetClicked()));
+  connect(m_bt_apply, SIGNAL(clicked()), this, SLOT(bt_apply_clicked()));
+  connect(m_bt_see_changes, SIGNAL(clicked()), this, SLOT(bt_see_changes_clicked()));
+  connect(m_bt_forget, SIGNAL(clicked()), this, SLOT(bt_forget_clicked()));
 
-  connect(m_basicOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
-  connect(m_advancedOptionLayout, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
+  connect(m_basic_option_layout, SIGNAL(value_changed()), this, SLOT(value_changed()));
+  connect(m_advanced_option_layout, SIGNAL(value_changed()), this, SLOT(value_changed()));
 
   connect(tree.get(), SIGNAL(current_index_changed(QModelIndex, QModelIndex)),
           this, SLOT(current_index_changed(QModelIndex, QModelIndex)));
 
-  connect(tree.get(), SIGNAL(dataChanged(QModelIndex, QModelIndex)),
-          this, SLOT(dataChanged(QModelIndex, QModelIndex)));
+  connect(tree.get(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+          this, SLOT(data_changed(QModelIndex, QModelIndex)));
 
   connect(tree.get(), SIGNAL(advanced_mode_changed(bool)),
           this, SLOT(advanced_mode_changed(bool)));
@@ -100,21 +100,21 @@ CentralPanel::CentralPanel(QWidget * parent)
 CentralPanel::~CentralPanel()
 {
   // buttons
-  delete m_btApply;
-  delete m_btForget;
-  delete m_btSeeChanges;
+  delete m_bt_apply;
+  delete m_bt_forget;
+  delete m_bt_see_changes;
 
   // layouts
-  delete m_basicOptionLayout;
-  delete m_advancedOptionLayout;
+  delete m_basic_option_layout;
+  delete m_advanced_option_layout;
 
   // group boxes
-  delete m_gbBasicOptions;
-  delete m_gbAdvancedOptions;
+  delete m_gbox_basic_options;
+  delete m_gbox_advanced_options;
 
   // scroll areas
-  delete m_scrollAdvancedOptions;
-  delete m_scrollBasicOptions;
+  delete m_scroll_advanced_options;
+  delete m_scroll_basic_options;
 
   // splitter
   delete m_splitter;
@@ -122,14 +122,14 @@ CentralPanel::~CentralPanel()
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
+void CentralPanel::set_options(const QList<Option::ConstPtr> & list)
 {
   QList<Option::ConstPtr>::const_iterator it = list.begin();
   const NTree::Ptr & tree = NTree::global();
 
   // delete old options
-  m_basicOptionLayout->clearOptions();
-  m_advancedOptionLayout->clearOptions();
+  m_basic_option_layout->clear_options();
+  m_advanced_option_layout->clear_options();
 
   // if there is at least one option, we set the group boxes title
   if(!list.isEmpty())
@@ -137,9 +137,9 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
     // get a UNIX-like path for the node
     QString parentPath = tree->node_path(tree->current_index());
 
-    m_gbBasicOptions->setTitle(QString("Basic options of %1").arg(parentPath));
-    m_gbAdvancedOptions->setTitle(QString("Advanced options of %1").arg(parentPath));
-    m_currentPath = parentPath;
+    m_gbox_basic_options->setTitle(QString("Basic options of %1").arg(parentPath));
+    m_gbox_advanced_options->setTitle(QString("Advanced options of %1").arg(parentPath));
+    m_current_path = parentPath;
   }
 
   while(it != list.end())
@@ -151,9 +151,9 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
       bool basic = option->has_tag("basic");
 
       if (basic)
-        m_basicOptionLayout->addOption(option);
+        m_basic_option_layout->add_option(option);
       else
-        m_advancedOptionLayout->addOption(option);
+        m_advanced_option_layout->add_option(option);
     }
     catch(Exception e)
     {
@@ -166,8 +166,8 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 
   // change row stretch and panel visibilities
   this->advanced_mode_changed(tree->is_advanced_mode());
-  this->setButtonsVisible(!list.isEmpty());
-  this->setButtonsEnabled(false);
+  this->set_buttons_visible(!list.isEmpty());
+  this->set_buttons_enabled(false);
 
   // set options to enabled or disabled (depending on their mode)
 //  this->setEnabled(m_basicOptionsNodes, m_basicOptions);
@@ -176,27 +176,27 @@ void CentralPanel::setOptions(const QList<Option::ConstPtr> & list)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool CentralPanel::isModified() const
+bool CentralPanel::is_modified() const
 {
-  return m_basicOptionLayout->isModified() || m_advancedOptionLayout->isModified();
+  return m_basic_option_layout->is_modified() || m_advanced_option_layout->is_modified();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::modifiedOptions(CommitDetails & commitDetails) const
+void CentralPanel::list_modified_options(CommitDetails & commitDetails) const
 {
   commitDetails.clear();
-  commitDetails.set_node_path(m_currentPath);
+  commitDetails.set_node_path(m_current_path);
 
-  m_basicOptionLayout->modifiedOptions(commitDetails);
-  m_advancedOptionLayout->modifiedOptions(commitDetails);
+  m_basic_option_layout->modified_options(commitDetails);
+  m_advanced_option_layout->modified_options(commitDetails);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-QString CentralPanel::currentPath() const
+QString CentralPanel::current_path() const
 {
-  return m_currentPath;
+  return m_current_path;
 }
 
 /****************************************************************************
@@ -205,20 +205,20 @@ QString CentralPanel::currentPath() const
 
  ****************************************************************************/
 
-void CentralPanel::setButtonsVisible(bool visible)
+void CentralPanel::set_buttons_visible(bool visible)
 {
-  m_btApply->setVisible(visible);
-  m_btSeeChanges->setVisible(visible);
-  m_btForget->setVisible(visible);
+  m_bt_apply->setVisible(visible);
+  m_bt_see_changes->setVisible(visible);
+  m_bt_forget->setVisible(visible);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::setButtonsEnabled(bool enabled)
+void CentralPanel::set_buttons_enabled(bool enabled)
 {
-  m_btApply->setEnabled(enabled);
-  m_btSeeChanges->setEnabled(enabled);
-  m_btForget->setEnabled(enabled);
+  m_bt_apply->setEnabled(enabled);
+  m_bt_see_changes->setEnabled(enabled);
+  m_bt_forget->setEnabled(enabled);
 }
 
 /****************************************************************************
@@ -227,12 +227,12 @@ void CentralPanel::setButtonsEnabled(bool enabled)
 
  ****************************************************************************/
 
-void CentralPanel::btApplyClicked()
+void CentralPanel::bt_apply_clicked()
 {
   QMap<QString, QString> options;
 
-  m_basicOptionLayout->options(options, false);
-  m_advancedOptionLayout->options(options, false);
+  m_basic_option_layout->options(options, false);
+  m_advanced_option_layout->options(options, false);
 
   // if there is at least one option that has been modified
   if(!options.isEmpty())
@@ -243,8 +243,8 @@ void CentralPanel::btApplyClicked()
 
       NTree::global()->modify_options(currentIndex, options);
 
-      m_basicOptionLayout->commitOpions();
-      m_advancedOptionLayout->commitOpions();
+      m_basic_option_layout->commit_options();
+      m_advanced_option_layout->commit_options();
     }
     catch (ValueNotFound & vnf)
     {
@@ -260,7 +260,7 @@ void CentralPanel::current_index_changed(const QModelIndex & newIndex, const QMo
   QList<Option::ConstPtr> options;
   NTree::global()->list_node_options(newIndex, options);
 
-  this->setOptions(options);
+  this->set_options(options);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -273,25 +273,25 @@ void CentralPanel::advanced_mode_changed(bool advanced)
   /// @todo what if options are modified ???
   if(!tree->check_index_visible(tree->current_index()))
   {
-    m_basicOptionLayout->clearOptions();
-    m_advancedOptionLayout->clearOptions();
+    m_basic_option_layout->clear_options();
+    m_advanced_option_layout->clear_options();
   }
 
-  m_scrollAdvancedOptions->setVisible(advanced && m_advancedOptionLayout->hasOptions());
+  m_scroll_advanced_options->setVisible(advanced && m_advanced_option_layout->has_options());
 
   // To avoid confusion, basic option panel is always showed if there is at
   // least one option for the selected object, even if all options are advanced.
   // Doing so, we ensure that the advanced options panel is *never* the
   // top one (if visible).
-  m_scrollBasicOptions->setVisible(m_basicOptionLayout->hasOptions() ||
-                                   m_scrollAdvancedOptions->isVisible());
+  m_scroll_basic_options->setVisible(m_basic_option_layout->has_options() ||
+                                   m_scroll_advanced_options->isVisible());
 
-  setButtonsVisible(m_scrollBasicOptions->isVisible());
+  set_buttons_visible(m_scroll_basic_options->isVisible());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & last)
+void CentralPanel::data_changed(const QModelIndex & first, const QModelIndex & last)
 {
   QModelIndex currIndex = NTree::global()->current_index();
 
@@ -301,27 +301,27 @@ void CentralPanel::dataChanged(const QModelIndex & first, const QModelIndex & la
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::btSeeChangesClicked()
+void CentralPanel::bt_see_changes_clicked()
 {
   CommitDetails details;
   ModifiedOptionsDialog dialog;
 
-  this->modifiedOptions(details);
+  this->list_modified_options(details);
   dialog.show(details);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::btForgetClicked()
+void CentralPanel::bt_forget_clicked()
 {
   this->current_index_changed(NTree::global()->current_index(), QModelIndex());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void CentralPanel::valueChanged()
+void CentralPanel::value_changed()
 {
-  this->setButtonsEnabled(this->isModified());
+  this->set_buttons_enabled(this->is_modified());
 }
 
 //////////////////////////////////////////////////////////////////////////

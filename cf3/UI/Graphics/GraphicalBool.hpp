@@ -30,19 +30,17 @@ namespace Graphics {
 
     ~GraphicalBool();
 
-    virtual bool setValue(const QVariant & value);
+    virtual bool set_value(const QVariant & value);
 
     virtual QVariant value() const;
 
   private slots:
 
-    void stateChanged(int state);
+    void state_changed(int state);
 
   private:
 
-      QCheckBox * m_checkBox;
-
-      void initGui();
+      QCheckBox * m_check_box;
 
   }; // class GraphicalBool
 

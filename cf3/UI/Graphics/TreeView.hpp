@@ -53,8 +53,9 @@ namespace Graphics {
     /// @param optionsPanel Panel m_options of the selected node will be displayed.
     /// @param parent Parent window. May be @c nullptr.
     /// @throws std::invalid_argument if @c optionsPanel is @c nullptr.
-    TreeView(CentralPanel * optionsPanel, QMainWindow * parent = nullptr,
-             bool contextMenuAllowed = true);
+    TreeView( CentralPanel * optionsPanel,
+              QMainWindow * parent = nullptr,
+              bool contextMenuAllowed = true);
 
     /// @brief Destructor.
 
@@ -66,25 +67,25 @@ namespace Graphics {
 
     /// @param readOnly If @c true, the tree m_view will switch to the read-only
     /// mode.
-    void setReadOnly(bool readOnly);
+    void set_read_only(bool readOnly);
 
     /// @brief Indicates whether the tree m_view is in read-only mode or not.
 
     /// @return Returns @c true if the tree m_view is in read-only mode.
     /// Otherwise, returns @c false.
-    bool isReadOnly() const;
+    bool is_read_only() const;
 
-    cf3::common::URI selectedPath() const;
+    common::URI selected_path() const;
 
-    cf3::common::URI pathFromIndex(const QModelIndex & index);
+    common::URI path_from_index(const QModelIndex & index);
 
-    QIcon iconFromIndex(const QModelIndex & index);
+    QIcon icon_from_index(const QModelIndex & index);
 
-    void selectItem(const cf3::common::URI & path);
+    void select_item(const cf3::common::URI & path);
 
-    void setFilter(const QString & pattern);
+    void set_filter(const QString & pattern);
 
-    bool tryToCommit();
+    bool try_commit();
 
   protected:
 
@@ -110,22 +111,22 @@ namespace Graphics {
 
   signals:
 
-    void itemDoubleClicked(const QModelIndex & index);
+    void item_double_clicked(const QModelIndex & index);
 
   private:
 
     /// @brief Panel used to display and modify m_options for a selected
     /// object.
-    CentralPanel * m_centralPanel;
+    CentralPanel * m_central_panel;
 
     /// @brief List of abstract types
-    QStringList m_abstractTypes;
+    QStringList m_abstract_types;
 
     /// @brief Filter for the Client.
 
     /// Allows to switch between basic/advanced mode. The filter is used as the
     /// Client model. Its source is the tree model.
-    FilteringModel * m_modelFilter;
+    FilteringModel * m_model_filter;
 
     /// @brief Indicates whether the tree m_view is in read-only mode or not.
 
@@ -133,11 +134,11 @@ namespace Graphics {
     /// all m_options in the context that may modify an object are disbaled.
     /// "Delete", "Rename", "Add a child node" and "Add an option" m_items are then
     /// disabled.
-    bool m_readOnly;
+    bool m_read_only;
 
-    SignalManager * m_signalManager;
+    SignalManager * m_signal_manager;
 
-    bool m_contextMenuAllowed;
+    bool m_context_menu_allowed;
 
     /// @brief Asks user to commit or rollback before changing m_options in
     /// m_options panel.
@@ -152,7 +153,7 @@ namespace Graphics {
     /// same. If @c true, no check is done.
     /// @return Returns @c false if the user clicked on "Cancel" ; otherwise
     /// returns @c true.
-    bool confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex = false);
+    bool confirm_change_options(const QModelIndex & index, bool okIfSameIndex = false);
 
   }; // class TreeView
 

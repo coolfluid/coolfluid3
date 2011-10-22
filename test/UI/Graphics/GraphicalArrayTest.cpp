@@ -80,14 +80,14 @@ void GraphicalArrayTest::test_setValidator()
   QCOMPARE( lineEdit->validator(), validator );
 
   // 2. try to set a null validator
-  value->setValidator(nullptr);
+  value->set_validator(nullptr);
   QCOMPARE( lineEdit->validator(), (QValidator*) nullptr );
 
   delete validator;
   validator = new QDoubleValidator(nullptr);
 
   // 3. set a new validator
-  value->setValidator(validator);
+  value->set_validator(validator);
   QCOMPARE( lineEdit->validator(), validator );
 
 
@@ -116,16 +116,16 @@ void GraphicalArrayTest::test_setValue()
   // 1. check with strings
   //
   // 1a. list that only contains valid values
-  QVERIFY( value->setValue( validList.join(sep) ) );
+  QVERIFY( value->set_value( validList.join(sep) ) );
   QCOMPARE( model->stringList(), validList );
 
   // 1c. only one value
-  QVERIFY( value->setValue( QString("1456789") ) );
+  QVERIFY( value->set_value( QString("1456789") ) );
   QCOMPARE( model->stringList().count(), 1 );
   QCOMPARE( model->stringList().at(0), QString("1456789") );
 
   // 1b. list that contains some invalid values
-  QVERIFY( !value->setValue( invalidList.join(sep) ) );
+  QVERIFY( !value->set_value( invalidList.join(sep) ) );
   QStringList list = model->stringList();
 
   // "something" and "3.14" are invalid integers and so the value shouldn't have changed
@@ -135,10 +135,10 @@ void GraphicalArrayTest::test_setValue()
   //
   // 2. check with other types
   //
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( model->stringList().at(0), QString("1456789") );
 
-  QVERIFY( !value->setValue(3.145) );
+  QVERIFY( !value->set_value(3.145) );
   QCOMPARE( model->stringList().at(0), QString("1456789") );
 
   delete value;
@@ -180,9 +180,9 @@ void GraphicalArrayTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue( QString("Hello World") ); // when the value is a string
-  value->setValue( QStringList() << "Hello" << "World" ); // when the value is a string list
-  value->setValue( 42 ); // when the value is not valid (so signal emitted)
+  value->set_value( QString("Hello World") ); // when the value is a string
+  value->set_value( QStringList() << "Hello" << "World" ); // when the value is a string list
+  value->set_value( 42 ); // when the value is not valid (so signal emitted)
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -229,11 +229,11 @@ void GraphicalArrayTest::test_valueString()
 {
   GraphicalArray * value = new GraphicalArray(nullptr, ";");
 
-  value->setValue( QString("Hello") );
-  QCOMPARE( value->valueString(), QString("Hello") );
+  value->set_value( QString("Hello") );
+  QCOMPARE( value->value_string(), QString("Hello") );
 
-  value->setValue( QStringList() << "Hello" << "World");
-  QCOMPARE( value->valueString(), QString("Hello;World") );
+  value->set_value( QStringList() << "Hello" << "World");
+  QCOMPARE( value->value_string(), QString("Hello;World") );
 
   delete value;
 }
@@ -246,21 +246,21 @@ void GraphicalArrayTest::test_isModified()
   QStringListModel * model = findModel(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   model->setStringList( QStringList() << "Hello" << "World" );
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   model->setStringList( QStringList() << "Hello" << "World" << "and" << "Happy" << "New" << "Year!" );
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 4. set the same value
   model->setStringList( QStringList() << "Hello" << "World" << "and" << "Happy" << "New" << "Year!" );
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }

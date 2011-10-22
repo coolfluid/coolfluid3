@@ -45,11 +45,11 @@ public:
 
 private:
 
-  QTextEdit * m_textArea;
+  QTextEdit * m_text_area;
 
   QDialogButtonBox * m_buttons;
 
-  QVBoxLayout * m_mainLayout;
+  QVBoxLayout * m_main_layout;
 
 }; // SignalInspectorDialog
 

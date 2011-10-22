@@ -39,36 +39,36 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
   QStringList restrList;
   QStringList valList;
 
-  m_groupBox = new QGroupBox(parent);
-  m_allowedListView = new QListView(m_groupBox);
-  m_allowedModel = new QStringListModel(m_groupBox);
-  m_selectedListView = new QListView(m_groupBox);
-  m_selectedModel = new QStringListModel(m_groupBox);
-  m_btAdd = new QPushButton("Add ->", m_groupBox);
-  m_btRemove = new QPushButton("<- Remove", m_groupBox);
+  m_group_box = new QGroupBox(parent);
+  m_allowed_list_view = new QListView(m_group_box);
+  m_allowed_model = new QStringListModel(m_group_box);
+  m_selected_list_view = new QListView(m_group_box);
+  m_selected_model = new QStringListModel(m_group_box);
+  m_bt_add = new QPushButton("Add ->", m_group_box);
+  m_bt_remove = new QPushButton("<- Remove", m_group_box);
 
-  m_buttonsLayout = new QVBoxLayout();
-  m_boxLayout = new QGridLayout(m_groupBox);
+  m_buttons_layout = new QVBoxLayout();
+  m_box_layout = new QGridLayout(m_group_box);
 
-  m_allowedListView->setModel(m_allowedModel);
-  m_selectedListView->setModel(m_selectedModel);
+  m_allowed_list_view->setModel(m_allowed_model);
+  m_selected_list_view->setModel(m_selected_model);
 
   // allow multiple selection
-  m_allowedListView->setSelectionMode(QAbstractItemView::MultiSelection);
-  m_selectedListView->setSelectionMode(QAbstractItemView::MultiSelection);
+  m_allowed_list_view->setSelectionMode(QAbstractItemView::MultiSelection);
+  m_selected_list_view->setSelectionMode(QAbstractItemView::MultiSelection);
 
-  m_buttonsLayout->addWidget(m_btAdd);
-  m_buttonsLayout->addWidget(m_btRemove);
+  m_buttons_layout->addWidget(m_bt_add);
+  m_buttons_layout->addWidget(m_bt_remove);
 
-  m_boxLayout->addWidget(m_allowedListView, 0, 0);
-  m_boxLayout->addLayout(m_buttonsLayout, 0, 1);
-  m_boxLayout->addWidget(m_selectedListView, 0, 2);
+  m_box_layout->addWidget(m_allowed_list_view, 0, 0);
+  m_box_layout->addLayout(m_buttons_layout, 0, 1);
+  m_box_layout->addWidget(m_selected_list_view, 0, 2);
 
 
-  m_layout->addWidget(m_groupBox);
+  m_layout->addWidget(m_group_box);
 
-  connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
-  connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
+  connect(m_bt_add, SIGNAL(clicked()), this, SLOT(bt_add_clicked()));
+  connect(m_bt_remove, SIGNAL(clicked()), this, SLOT(bt_remove_clicked()));
 
  if(opt.get() != nullptr && std::strcmp(opt->tag(), "array") == 0 &&
     opt->has_restricted_list())
@@ -91,39 +91,39 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
 
    if(type == Protocol::Tags::type<bool>())              // bool option
    {
-     vectToStringList<bool>(vect, restrList);
-     anyToStringList<bool>(opt->value(), valList);
+     vect_to_stringlist<bool>(vect, restrList);
+     any_to_stringlist<bool>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<Real>())     // Real option
    {
-     vectToStringList<cf3::Real>(vect, restrList);
-     anyToStringList<cf3::Real>(opt->value(), valList);
+     vect_to_stringlist<cf3::Real>(vect, restrList);
+     any_to_stringlist<cf3::Real>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<int>())          // int option
    {
-     vectToStringList<int>(vect, restrList);
-     anyToStringList<int>(opt->value(), valList);
+     vect_to_stringlist<int>(vect, restrList);
+     any_to_stringlist<int>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<Uint>())     // Uint option
    {
-     vectToStringList<cf3::Uint>(vect, restrList);
-     anyToStringList<cf3::Uint>(opt->value(), valList);
+     vect_to_stringlist<cf3::Uint>(vect, restrList);
+     any_to_stringlist<cf3::Uint>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<std::string>())  // string option
    {
-     vectToStringList<std::string>(vect, restrList);
-     anyToStringList<std::string>(opt->value(), valList);
+     vect_to_stringlist<std::string>(vect, restrList);
+     any_to_stringlist<std::string>(opt->value(), valList);
    }
    else if(type == Protocol::Tags::type<URI>())          // URI option
    {
-     vectToStringList<URI>(vect, restrList);
-     anyToStringList<URI>(opt->value(), valList);
+     vect_to_stringlist<URI>(vect, restrList);
+     any_to_stringlist<URI>(opt->value(), valList);
    }
    else
      throw CastingFailed(FromHere(), type + ": Unknown type");
 
-   setRestrictedList(restrList);
-   setValue(valList);
+   set_restricted_list(restrList);
+   set_value(valList);
  }
 }
 
@@ -132,31 +132,31 @@ GraphicalArrayRestrictedList::GraphicalArrayRestrictedList(Option::ConstPtr opt,
 
 GraphicalArrayRestrictedList::~GraphicalArrayRestrictedList()
 {
-  delete m_allowedListView;
-  delete m_selectedListView;
-  delete m_allowedModel;
-  delete m_selectedModel;
+  delete m_allowed_list_view;
+  delete m_selected_list_view;
+  delete m_allowed_model;
+  delete m_selected_model;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalArrayRestrictedList::setRestrictedList(const QStringList & list)
+void GraphicalArrayRestrictedList::set_restricted_list(const QStringList & list)
 {
-  m_allowedModel->setStringList(list);
+  m_allowed_model->setStringList(list);
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
+bool GraphicalArrayRestrictedList::set_value(const QVariant & value)
 {
   bool valid = false;
 
   if(value.type() == QVariant::StringList)
   {
-    m_selectedModel->setStringList(value.toStringList());
-    m_originalValue = value;
+    m_selected_model->setStringList(value.toStringList());
+    m_original_value = value;
   }
 
   return valid;
@@ -167,45 +167,45 @@ bool GraphicalArrayRestrictedList::setValue(const QVariant & value)
 
 QVariant GraphicalArrayRestrictedList::value() const
 {
-  return m_selectedModel->stringList();
+  return m_selected_model->stringList();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalArrayRestrictedList::btAddClicked()
+void GraphicalArrayRestrictedList::bt_add_clicked()
 {
-  QItemSelectionModel * selectionModel = m_allowedListView->selectionModel();
+  QItemSelectionModel * selectionModel = m_allowed_list_view->selectionModel();
   QModelIndexList list = selectionModel->selectedIndexes();
 
   if( !list.empty() )
   {
-    QStringList stringList = m_selectedModel->stringList();
+    QStringList stringList = m_selected_model->stringList();
     const QAbstractItemModel * model = selectionModel->model();
     QModelIndexList::const_iterator it = list.begin();
 
     for( ; it != list.end() ; it++)
       stringList << model->data(*it).toString();
 
-    m_selectedModel->setStringList(stringList);
+    m_selected_model->setStringList(stringList);
 
-    m_allowedListView->clearSelection();
+    m_allowed_list_view->clearSelection();
 
-    emit valueChanged();
+    emit value_changed();
   }
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void GraphicalArrayRestrictedList::btRemoveClicked()
+void GraphicalArrayRestrictedList::bt_remove_clicked()
 {
-  QItemSelectionModel * selectionModel = m_selectedListView->selectionModel();
+  QItemSelectionModel * selectionModel = m_selected_list_view->selectionModel();
   QModelIndexList list = selectionModel->selectedIndexes();
 
   if( !list.empty() )
   {
-    QStringList stringList = m_selectedModel->stringList();
+    QStringList stringList = m_selected_model->stringList();
     //const QAbstractItemModel * model = selectionModel->model();
     QModelIndexList::const_iterator it = list.end();
 
@@ -215,11 +215,11 @@ void GraphicalArrayRestrictedList::btRemoveClicked()
         stringList.removeAt( it->row() );
     }
 
-    m_selectedModel->setStringList(stringList);
+    m_selected_model->setStringList(stringList);
 
-    m_allowedListView->clearSelection();
+    m_allowed_list_view->clearSelection();
 
-    emit valueChanged();
+    emit value_changed();
   }
 }
 
@@ -227,7 +227,7 @@ void GraphicalArrayRestrictedList::btRemoveClicked()
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 template<typename TYPE>
-void GraphicalArrayRestrictedList::vectToStringList(const std::vector<boost::any> & vect,
+void GraphicalArrayRestrictedList::vect_to_stringlist(const std::vector<boost::any> & vect,
                                                     QStringList & list) const
 {
   std::vector<boost::any>::const_iterator it = vect.begin();
@@ -251,7 +251,7 @@ void GraphicalArrayRestrictedList::vectToStringList(const std::vector<boost::any
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 template<typename TYPE>
-void GraphicalArrayRestrictedList::anyToStringList(const boost::any & value,
+void GraphicalArrayRestrictedList::any_to_stringlist(const boost::any & value,
                                                    QStringList & list) const
 {
   try
@@ -276,9 +276,9 @@ void GraphicalArrayRestrictedList::anyToStringList(const boost::any & value,
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
-Common_TEMPLATE template void GraphicalArrayRestrictedList::vectToStringList<T>(\
+Common_TEMPLATE template void GraphicalArrayRestrictedList::vect_to_stringlist<T>(\
                                 const std::vector<boost::any>&, QStringList&) const;\
-Common_TEMPLATE template void GraphicalArrayRestrictedList::anyToStringList<T>(\
+Common_TEMPLATE template void GraphicalArrayRestrictedList::any_to_stringlist<T>(\
                                 const boost::any&, QStringList&) const
 
 TEMPLATE_EXPLICIT_INSTANTIATON( bool );

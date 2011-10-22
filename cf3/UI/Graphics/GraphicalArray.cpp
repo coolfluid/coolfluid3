@@ -30,55 +30,55 @@ namespace Graphics {
 GraphicalArray::GraphicalArray(QValidator * validator, const QString& sep, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_groupBox = new QGroupBox(this);
-  m_editAdd = new QLineEdit(this);
+  m_group_box = new QGroupBox(this);
+  m_edit_add = new QLineEdit(this);
   m_model = new QStringListModel(this);
-  m_listView = new QListView(this);
-  m_btRemove = new QPushButton("Remove", this);
+  m_list_view = new QListView(this);
+  m_bt_remove = new QPushButton("Remove", this);
   m_separator = sep;
 
-  m_boxLayout = new QGridLayout(m_groupBox);
+  m_box_layout = new QGridLayout(m_group_box);
 
-  m_editAdd->setValidator(validator);
+  m_edit_add->setValidator(validator);
 
-  m_listView->setModel(m_model);
-  m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  m_list_view->setModel(m_model);
+  m_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  m_boxLayout->addWidget(m_editAdd, 0, 0);
-  m_boxLayout->addWidget(m_listView, 1, 0);
-  m_boxLayout->addWidget(m_btRemove, 1, 1);
+  m_box_layout->addWidget(m_edit_add, 0, 0);
+  m_box_layout->addWidget(m_list_view, 1, 0);
+  m_box_layout->addWidget(m_bt_remove, 1, 1);
 
-  m_layout->addWidget(m_groupBox);
+  m_layout->addWidget(m_group_box);
 
-  connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
+  connect(m_bt_remove, SIGNAL(clicked()), this, SLOT(bt_remove_clicked()));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalArray::~GraphicalArray()
 {
-  delete m_editAdd;
+  delete m_edit_add;
   delete m_model;
-  delete m_listView;
-  delete m_btRemove;
+  delete m_list_view;
+  delete m_bt_remove;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void GraphicalArray::setValidator(QValidator * validator)
+void GraphicalArray::set_validator(QValidator * validator)
 {
-  m_editAdd->setValidator(validator);
+  m_edit_add->setValidator(validator);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GraphicalArray::setValue(const QVariant & value)
+bool GraphicalArray::set_value(const QVariant & value)
 {
   QStringList invalidValues;
   QStringList values;
   QStringList list;
   bool success = true;
-  const QValidator * validator = m_editAdd->validator();
+  const QValidator * validator = m_edit_add->validator();
   int pos;
 
   if(value.type() == QVariant::String)
@@ -126,9 +126,9 @@ bool GraphicalArray::setValue(const QVariant & value)
   }
   else
   {
-    m_originalValue = list;
+    m_original_value = list;
     m_model->setStringList(list);
-    emit valueChanged();
+    emit value_changed();
   }
 
   return success;
@@ -143,11 +143,11 @@ QVariant GraphicalArray::value() const
 
 //////////////////////////////////////////////////////////////////////////
 
-void GraphicalArray::btRemoveClicked()
+void GraphicalArray::bt_remove_clicked()
 {
   QModelIndexList selectedItems;
 
-  selectedItems = m_listView->selectionModel()->selectedIndexes();
+  selectedItems = m_list_view->selectionModel()->selectedIndexes();
 
   for(int i = selectedItems.size() - 1 ; i >= 0 ; i--)
   {
@@ -156,7 +156,7 @@ void GraphicalArray::btRemoveClicked()
     m_model->removeRow(index.row(), index.parent());
   }
 
-  emit valueChanged();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -166,7 +166,7 @@ void GraphicalArray::keyPressEvent(QKeyEvent * event)
   GraphicalValue::keyPressEvent(event);
 
   // if the path line edit has the focus
-  if(m_editAdd->hasFocus())
+  if(m_edit_add->hasFocus())
   {
     // key code for the pressed key
     int pressedKey = event->key();
@@ -175,11 +175,11 @@ void GraphicalArray::keyPressEvent(QKeyEvent * event)
     // Qt::Key_Return : return key
     if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
     {
-      m_model->setStringList( m_model->stringList() << m_editAdd->text() );
+      m_model->setStringList( m_model->stringList() << m_edit_add->text() );
 
-      m_editAdd->clear();
+      m_edit_add->clear();
 
-      emit valueChanged();
+      emit value_changed();
     }
   }
 }

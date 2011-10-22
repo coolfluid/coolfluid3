@@ -74,41 +74,41 @@ public slots://slots
   /// Connect client to paraview server.
   /// @param host Ip or name of the paraview server.
   /// @param port Port used.
-  void connectToServer(QString host,QString port);
+  void connect_to_server(QString host,QString port);
 
   /// Load Actor and set their names into Actor List.
   /// @param paths Vector of server path.
   /// @param names Vector of names corresponding to paths.
-  void loadPaths(std::vector<QString> paths,std::vector<QString> names);
+  void load_paths(std::vector<QString> paths,std::vector<QString> names);
 
 
 private : //function
 
-    /// Create a view from server
-    void createView();
+  /// Create a view from server
+  void create_view();
 
-    /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
-    /// @param file_path Path of files in server side.
-    /// @param file_name Name of file in server side.
-    void openFile(QString file_path,QString file_name);
+  /// Create a reader for the defined PATH file on the server side ( .vtk or .ex2 )
+  /// @param file_path Path of files in server side.
+  /// @param file_name Name of file in server side.
+  void open_file(QString file_path,QString file_name);
 
-    /// Create a pqPipelineSource with the path.
-    /// @param path Path of files in server side.
-    void create_source(QString path);
+  /// Create a pqPipelineSource with the path.
+  /// @param path Path of files in server side.
+  void create_source(QString path);
 
 private slots: //slots
 
   /// Ask connection options to user and try to connect to server host with port.
-  void connectToServer();
+  void connect_to_server();
 
   /// Disconnect from current paraview server.
-  void disconnectFromServer();
+  void disconnect_from_server();
 
   /// Show a dialog window that ask for a path file.
-  void showLoadFileDialog();
+  void show_load_file_dialog();
 
   /// Show a dialog window that ask for an host and port.
-  void showConnectDialog();
+  void show_connect_dialog();
 
   /// Set the rotation center, in center of the screen.
   void set_rotation_center();
@@ -138,7 +138,7 @@ private slots: //slots
 
   /// Change the current Region/Actor opacity.
   /// @param value Value of opacity from 0 to 1.
-  void opacityChange(double value);
+  void opacity_change(double value);
 
   /// Change the current Region/Actor opacity.
   /// @param type
@@ -161,21 +161,21 @@ private slots: //slots
   void show_serv_adv_settings();
 
   /// Force the mesh to render.
-  void forceRendering();
+  void force_rendering();
 
   /// Set auto render
   /// @param enable Auto Render state.
-  void enableRendering(bool enable);
+  void enable_rendering(bool enable);
 
   /// Set the Acor list selection mode.
   /// @param mode The chosen mode.
-  void setActorListSelectionMode(int mode);
+  void set_actor_list_selection_mode(int mode);
 
   /// Show advanced options on advanced mode.
   /// @param showAdv Option visibility.
   void show_advanced_options(bool showAdv);
 
-  void renderingProgress();
+  void rendering_progress();
 
 private: //data
 

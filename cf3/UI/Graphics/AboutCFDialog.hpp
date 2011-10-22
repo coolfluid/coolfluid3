@@ -49,16 +49,16 @@ namespace Graphics {
   private: // data
 
     /// Main layout
-    QVBoxLayout * m_mainLayout;
+    QVBoxLayout * m_main_layout;
 
     /// "OK" button
-    QPushButton * m_btOK;
+    QPushButton * m_bt_ok;
 
     /// Layout that contain the information.
-    QFormLayout * m_infoLayout;
+    QFormLayout * m_info_layout;
 
     /// Label for Qwt.
-    QLabel * m_labQwt;
+    QLabel * m_lab_qwt;
 
   }; // class AboutCFDialog
 

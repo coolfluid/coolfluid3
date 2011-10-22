@@ -34,7 +34,7 @@ NPlotXY::NPlotXY(const std::string & name) :
 {
 //  m_tabIndex = Graphics::TabBuilder::instance()->addTab(new Graph(), name.c_str());
 
-//  TabBuilder::instance()->getWidget<Graph>(as_const());
+//  TabBuilder::instance()->widget<Graph>(as_const());
 
   regist_signal( "convergence_history" )
       ->connect( boost::bind( &NPlotXY::convergence_history, this, _1 ) )
@@ -84,14 +84,14 @@ void NPlotXY::show_hide_plot( common::SignalArgs& node )
 
 void NPlotXY::go_to_plot( common::SignalArgs& node )
 {
-  TabBuilder::instance()->showTab( as_ptr<CNode>() );
+  TabBuilder::instance()->show_tab( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void NPlotXY::setup_finished()
 {
-  TabBuilder::instance()->getWidget<Graph>( as_ptr<CNode>() );
+  TabBuilder::instance()->widget<Graph>( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -134,7 +134,7 @@ void NPlotXY::convergence_history ( SignalArgs& node )
       (*plot)[row][col+1] = (*array)[row][col];
   }
 
-  TabBuilder::instance()->getWidget<Graph>(as_ptr<CNode>())->set_xy_data(plot, fct_label);
+  TabBuilder::instance()->widget<Graph>(as_ptr<CNode>())->set_xy_data(plot, fct_label);
 }
 
 //////////////////////////////////////////////////////////////////////////////

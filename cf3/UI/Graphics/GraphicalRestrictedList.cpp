@@ -35,24 +35,24 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
     const std::vector<boost::any> & vect = opt->restricted_list();
 
     if(type == "bool")              // bool option
-      vectToStringList<bool>(vect, list);
+      vect_to_stringlist<bool>(vect, list);
     else if(type == "real")         // Real option
-      vectToStringList<Real>(vect, list);
+      vect_to_stringlist<Real>(vect, list);
     else if(type == "integer")          // int option
-      vectToStringList<int>(vect, list);
+      vect_to_stringlist<int>(vect, list);
     else if(type == "unsigned")         // Uint option
-      vectToStringList<Uint>(vect, list);
+      vect_to_stringlist<Uint>(vect, list);
     else if(type == "string")  // string option
-      vectToStringList<std::string>(vect, list);
+      vect_to_stringlist<std::string>(vect, list);
     else if(type == "uri")          // URI option
-      vectToStringList<URI>(vect, list);
+      vect_to_stringlist<URI>(vect, list);
     else
       throw CastingFailed(FromHere(), type + ": Unknown type");
 
-    setRestrictedList(list);
+    set_restricted_list(list);
   }
 
-  setValue(m_comboChoices->currentText());
+  set_value(m_comboChoices->currentText());
 
   m_layout->addWidget(m_comboChoices);
 
@@ -68,7 +68,7 @@ GraphicalRestrictedList::~GraphicalRestrictedList()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void GraphicalRestrictedList::setRestrictedList(const QStringList & list)
+void GraphicalRestrictedList::set_restricted_list(const QStringList & list)
 {
   QStringList mList(list);
   mList.removeAll("");
@@ -78,12 +78,12 @@ void GraphicalRestrictedList::setRestrictedList(const QStringList & list)
   m_comboChoices->addItems(mList);
 
   if(!mList.isEmpty())
-    setValue(mList.front());
+    set_value(mList.front());
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool GraphicalRestrictedList::setValue(const QVariant & value)
+bool GraphicalRestrictedList::set_value(const QVariant & value)
 {
   bool valid = false;
 
@@ -93,7 +93,7 @@ bool GraphicalRestrictedList::setValue(const QVariant & value)
 
     if(index > -1)
     {
-      m_originalValue = value;
+      m_original_value = value;
       m_comboChoices->setCurrentIndex(index); // emits current_index_changed() signal
       valid = true;
     }
@@ -113,13 +113,13 @@ QVariant GraphicalRestrictedList::value() const
 
 void GraphicalRestrictedList::current_index_changed(int)
 {
-  emit valueChanged();
+  emit value_changed();
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-void GraphicalRestrictedList::vectToStringList(const std::vector<boost::any> & vect,
+void GraphicalRestrictedList::vect_to_stringlist(const std::vector<boost::any> & vect,
                       QStringList & list) const
 {
   std::vector<boost::any>::const_iterator it = vect.begin();
@@ -131,7 +131,7 @@ void GraphicalRestrictedList::vectToStringList(const std::vector<boost::any> & v
 /////////////////////////////////////////////////////////////////////////////
 
 #define TEMPLATE_EXPLICIT_INSTANTIATON(T) \
-Common_TEMPLATE template void GraphicalRestrictedList::vectToStringList<T>(\
+Common_TEMPLATE template void GraphicalRestrictedList::vect_to_stringlist<T>(\
     const std::vector<boost::any>&,QStringList&) const
 
 

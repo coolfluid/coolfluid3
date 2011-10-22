@@ -62,14 +62,14 @@ N3DView::~N3DView()
 
 void N3DView::about_to_be_removed()
 {
-  TabBuilder::instance()->queueTab( as_ptr<CNode>() );
+  TabBuilder::instance()->queue_tab( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void N3DView::go_to_tab( SignalArgs& node )
 {
-  TabBuilder::instance()->showTab( as_ptr<CNode>() );
+  TabBuilder::instance()->show_tab( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ void N3DView::reload_client_view(){
 
 void N3DView::setup_finished()
 {
-  TabBuilder::instance()->getWidget<Widget3D>( as_ptr<CNode>() );
+  TabBuilder::instance()->widget<Widget3D>( as_ptr<CNode>() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -101,8 +101,8 @@ void N3DView::launch_pvserver( SignalArgs& node ){
   std::string host = data[0];
   std::string port = data[1];
 
-  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
-      ->connectToServer(host.c_str(), port.c_str());
+  TabBuilder::instance()->widget<Widget3D>(as_ptr<CNode>())
+      ->connect_to_server(host.c_str(), port.c_str());
 
 }
 
@@ -122,8 +122,8 @@ void N3DView::send_server_info_to_client( SignalArgs& node ){
   std::vector<QString> name_list(1);
   name_list[0] = QString(name.c_str());
 
-  TabBuilder::instance()->getWidget<Widget3D>(as_ptr<CNode>())
-      ->loadPaths(path_list, name_list);
+  TabBuilder::instance()->widget<Widget3D>(as_ptr<CNode>())
+      ->load_paths(path_list, name_list);
 
 }
 
