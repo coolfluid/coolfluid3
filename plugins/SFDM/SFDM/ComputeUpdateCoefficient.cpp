@@ -13,9 +13,9 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/CModel.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
@@ -25,7 +25,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 using namespace cf3::math::Consts;
 
 namespace cf3 {
@@ -38,7 +38,7 @@ common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSFDM > C
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
-  Solver::Action(name),
+  solver::Action(name),
   m_freeze(false),
   m_tolerance(1e-12)
 {

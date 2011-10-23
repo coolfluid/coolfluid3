@@ -23,7 +23,7 @@
 #include "mesh/CNodes.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -36,7 +36,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::Actions::CLoopOperation
 {
 public: // typedefs
 

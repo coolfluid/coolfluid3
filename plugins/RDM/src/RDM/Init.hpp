@@ -9,7 +9,7 @@
 
 #include "math/VectorialFunction.hpp"
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Init : public cf3::Solver::Action {
+class RDM_API Init : public cf3::solver::Action {
 
 public: // typedefs
 

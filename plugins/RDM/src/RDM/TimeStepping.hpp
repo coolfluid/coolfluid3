@@ -7,20 +7,20 @@
 #ifndef cf3_RDM_TimeStepping_hpp
 #define cf3_RDM_TimeStepping_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 namespace cf3 {
 
-  namespace Solver { class CTime; }
+  namespace solver { class CTime; }
 
 namespace RDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API TimeStepping : public cf3::Solver::ActionDirector {
+class RDM_API TimeStepping : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
@@ -44,7 +44,7 @@ public: // functions
   common::ActionDirector& pre_actions()  { return *m_pre_actions; }
   common::ActionDirector& post_actions() { return *m_post_actions; }
 
-  cf3::Solver::CTime&       time()         { return *m_time; }
+  cf3::solver::CTime&       time()         { return *m_time; }
 
   /// @name SIGNALS
   //@{
@@ -60,7 +60,7 @@ private: // functions
 
 private: // data
 
-  boost::shared_ptr< Solver::CTime > m_time;   ///< component tracking time
+  boost::shared_ptr< solver::CTime > m_time;   ///< component tracking time
 
   common::ActionDirector::Ptr m_pre_actions;  ///< set of actions before non-linear solve
 

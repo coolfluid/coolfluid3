@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_RK_hpp
 #define cf3_RDM_RK_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -19,7 +19,7 @@ namespace RDM {
 
 /// Runge-Kutta update step
 /// @author Tiago Quintino
-class RDM_API RK : public cf3::Solver::Action {
+class RDM_API RK : public cf3::solver::Action {
 
 public: // typedefs
 

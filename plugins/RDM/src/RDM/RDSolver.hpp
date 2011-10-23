@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_RDM_Solver_hpp
-#define cf3_RDM_Solver_hpp
+#ifndef cf3_RDM_solver_hpp
+#define cf3_RDM_solver_hpp
 
 #include "common/Group.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Action.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
 
@@ -18,7 +18,7 @@ namespace cf3 {
 
 namespace mesh    { class Field;    class Mesh; }
 namespace Physics { class PhysModel; class Variables; }
-namespace Solver  { namespace Actions { class CSynchronizeFields; } }
+namespace solver  { namespace Actions { class CSynchronizeFields; } }
 
 namespace RDM {
 
@@ -38,7 +38,7 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public cf3::Solver::CSolver {
+class RDM_API RDSolver : public cf3::solver::CSolver {
 
 public: // typedefs
 
@@ -126,4 +126,4 @@ private: // data
 } // RDM
 } // cf3
 
-#endif // cf3_RDM_Solver_hpp
+#endif // cf3_RDM_solver_hpp

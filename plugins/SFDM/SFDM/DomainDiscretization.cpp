@@ -17,9 +17,9 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
-#include "Solver/Actions/CForAllFaces.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/Actions/CForAllCells.hpp"
+#include "solver/Actions/CForAllFaces.hpp"
 
 #include "SFDM/DomainDiscretization.hpp"
 #include "SFDM/Term.hpp"
@@ -28,8 +28,8 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 
 namespace cf3 {
 namespace SFDM {
@@ -42,7 +42,7 @@ common::ComponentBuilder < DomainDiscretization, common::Action, LibSFDM > Domai
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

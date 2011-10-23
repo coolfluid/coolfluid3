@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_FwdEuler_hpp
 #define cf3_RDM_FwdEuler_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -17,7 +17,7 @@ namespace cf3 {
 namespace mesh { class Field; }
 namespace RDM {
 
-class RDM_API FwdEuler : public cf3::Solver::Action {
+class RDM_API FwdEuler : public cf3::solver::Action {
 
 public: // typedefs
 

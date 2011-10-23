@@ -36,7 +36,7 @@ common::ComponentBuilder < SetupSingleSolution, common::Action, LibRDM > SetupSi
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::Solver::Action(name)
+SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::solver::Action(name)
 {
 }
 

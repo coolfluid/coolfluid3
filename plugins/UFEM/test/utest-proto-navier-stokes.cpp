@@ -15,12 +15,12 @@
 
 #include "mesh/Domain.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -32,9 +32,9 @@
 #include "NavierStokes.hpp"
 
 using namespace cf3;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
+using namespace cf3::solver::Actions::Proto;
 using namespace cf3::common;
 using namespace cf3::math::Consts;
 using namespace cf3::mesh;
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<Region>(mesh.topology(), "left").uri())
                                                           (find_component_recursively_with_name<Region>(mesh.topology(), "right").uri());
 
-    solver.boundary_conditions().get_child("ParabolicBC").configure_option(Solver::Tags::regions(), in_out);
+    solver.boundary_conditions().get_child("ParabolicBC").configure_option(solver::Tags::regions(), in_out);
 
     // Configure timings
     CTime& time = model.create_time();

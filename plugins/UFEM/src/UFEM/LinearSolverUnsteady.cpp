@@ -8,8 +8,8 @@
 
 #include "mesh/Geometry.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
 #include "LinearSolverUnsteady.hpp"
 
@@ -19,9 +19,9 @@ namespace UFEM {
 
 using namespace common;
 using namespace mesh;
-using namespace Solver;
-using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
+using namespace solver;
+using namespace solver::Actions;
+using namespace solver::Actions::Proto;
 
 
 
@@ -48,7 +48,7 @@ LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
   LinearSolver(name),
   m_implementation( new Implementation() )
 {
-  m_options.add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_implementation->m_time))
+  m_options.add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_implementation->m_time))
     ->pretty_name("Time")
     ->description("Component that keeps track of time for this simulation")
     ->attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()));

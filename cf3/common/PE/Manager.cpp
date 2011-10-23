@@ -353,7 +353,7 @@ boost::thread & Manager::listening_thread ()
 void Manager::signal_spawn_group ( SignalArgs & args )
 {
   SignalOptions options( args );
-  const std::string cmd = std::string(CF3_BUILD_DIR) + "/src/Tools/Solver/coolfluid-solver";
+  const std::string cmd = std::string(CF3_BUILD_DIR) + "/src/Tools/solver/coolfluid-solver";
 
   Uint nb_workers = options.value<Uint>("count");
   std::string name = options.value<std::string>("name");

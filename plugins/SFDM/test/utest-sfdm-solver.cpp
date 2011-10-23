@@ -18,8 +18,8 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "Solver/CModel.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CModel.hpp"
+#include "solver/Tags.hpp"
 
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
@@ -46,9 +46,9 @@
 //#include "mesh/Domain.hpp"
 //#include "mesh/actions/InitFieldFunction.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
-//#include "Solver/CModelUnsteady.hpp"
-//#include "Solver/CSolver.hpp"
-//#include "Solver/CPhysicalModel.hpp"
+//#include "solver/CModelUnsteady.hpp"
+//#include "solver/CSolver.hpp"
+//#include "solver/CPhysicalModel.hpp"
 //#include "mesh/actions/BuildFaces.hpp"
 //#include "mesh/actions/BuildVolume.hpp"
 //#include "mesh/actions/CreateSpaceP0.hpp"
@@ -60,7 +60,7 @@ using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 using namespace cf3::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -89,7 +89,7 @@ struct SFDM_MPITests_Fixture
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( SFDM_Solver_TestSuite, SFDM_MPITests_Fixture )
+BOOST_FIXTURE_TEST_SUITE( SFDM_solver_TestSuite, SFDM_MPITests_Fixture )
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
   PE::Comm::instance().init(m_argc,m_argv);
 }
 
-BOOST_AUTO_TEST_CASE( Solver_test )
+BOOST_AUTO_TEST_CASE( solver_test )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   // Configure simulation
 
   // Initial condition
-  Solver::Action& shocktube = solver.initial_conditions().create_initial_condition("accoustics");
+  solver::Action& shocktube = solver.initial_conditions().create_initial_condition("accoustics");
   std::vector<std::string> functions;
 
   // Accoustic pulse LinEuler

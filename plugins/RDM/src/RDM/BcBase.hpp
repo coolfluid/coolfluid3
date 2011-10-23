@@ -18,7 +18,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/Actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/FaceLoop.hpp"
@@ -31,7 +31,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API BcBase : public Solver::Actions::CLoopOperation {
+class RDM_API BcBase : public solver::Actions::CLoopOperation {
 
 public: // typedefs
 
@@ -120,7 +120,7 @@ protected: // data
 
 template<typename SF, typename QD, typename PHYS>
 BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  solver::Actions::CLoopOperation(name)
 {
   regist_typeinfo(this);
 

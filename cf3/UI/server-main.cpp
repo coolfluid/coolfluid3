@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     // spawn the
     Manager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<Manager>();
-    mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/cf3/Tools/Solver/coolfluid-solver").c_str());
+    mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/cf3/Tools/solver/coolfluid-solver").c_str());
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)

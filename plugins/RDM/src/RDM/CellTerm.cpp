@@ -25,7 +25,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 CellTerm::CellTerm ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

@@ -30,7 +30,7 @@ common::ComponentBuilder < CopySolution, common::Action, LibRDM > CopySolution_B
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 CopySolution::CopySolution ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "Solver/Tags.hpp"
+#include "solver/Tags.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -18,7 +18,7 @@ namespace RDM {
 
 /// Class defines the tags for the RDM components
 /// @author Tiago Quintino
-class RDM_API Tags : public Solver::Tags {
+class RDM_API Tags : public solver::Tags {
 public:
 
   static const char * fields()         { return "Fields";  }

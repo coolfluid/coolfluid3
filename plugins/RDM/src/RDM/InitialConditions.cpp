@@ -40,7 +40,7 @@ common::ComponentBuilder < InitialConditions, common::Action, LibRDM > InitialCo
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

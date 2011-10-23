@@ -39,7 +39,7 @@ common::ComponentBuilder < SetupMultipleSolutions, common::Action, LibRDM > Setu
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::Solver::Action(name)
+SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::solver::Action(name)
 {
   // options
 

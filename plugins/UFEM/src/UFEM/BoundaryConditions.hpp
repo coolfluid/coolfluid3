@@ -10,10 +10,10 @@
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
+#include "solver/Actions/Proto/BlockAccumulator.hpp"
+#include "solver/Actions/Proto/DirichletBC.hpp"
 
 #include "LibUFEM.hpp"
 

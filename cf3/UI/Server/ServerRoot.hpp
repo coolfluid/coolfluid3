@@ -26,7 +26,7 @@ template<typename T> class QList;
 namespace cf3 {
 
 namespace common { namespace PE { class Manager; } }
-namespace Solver { class CPlotter; }
+namespace solver { class CPlotter; }
 
 namespace UI {
 namespace Server {
@@ -109,7 +109,7 @@ namespace Server {
 
     boost::shared_ptr<common::PE::Manager> m_manager;
 
-    boost::shared_ptr<Solver::CPlotter> m_plotter;
+    boost::shared_ptr<solver::CPlotter> m_plotter;
 
   }; // class ServerRoot
 

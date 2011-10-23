@@ -16,7 +16,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
@@ -38,7 +38,7 @@ common::ComponentBuilder < BoundaryConditions, common::Action, LibRDM > Boundary
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 BoundaryConditions::BoundaryConditions ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

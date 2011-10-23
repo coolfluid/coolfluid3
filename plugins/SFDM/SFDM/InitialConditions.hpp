@@ -7,19 +7,19 @@
 #ifndef cf3_SFDM_InitialConditions_hpp
 #define cf3_SFDM_InitialConditions_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
 namespace cf3 {
 namespace common { class URI; }
-namespace Solver { class Action; }
+namespace solver { class Action; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API InitialConditions : public cf3::Solver::ActionDirector {
+class SFDM_API InitialConditions : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
@@ -41,7 +41,7 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  Solver::Action& create_initial_condition( const std::string& name, const std::vector<common::URI>& regions = std::vector<common::URI>() );
+  solver::Action& create_initial_condition( const std::string& name, const std::vector<common::URI>& regions = std::vector<common::URI>() );
 
   /// @name SIGNALS
   //@{

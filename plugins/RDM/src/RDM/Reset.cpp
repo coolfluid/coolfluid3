@@ -30,7 +30,7 @@ common::ComponentBuilder < Reset, common::Action, LibRDM > Reset_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Reset::Reset ( const std::string& name ) : Solver::Action(name)
+Reset::Reset ( const std::string& name ) : solver::Action(name)
 {
   mark_basic();
 

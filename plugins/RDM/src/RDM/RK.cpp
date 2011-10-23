@@ -38,7 +38,7 @@ common::ComponentBuilder < RK, common::Action, LibRDM > RK_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

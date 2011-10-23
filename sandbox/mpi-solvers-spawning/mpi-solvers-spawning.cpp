@@ -22,11 +22,11 @@ int main(int argc, char * argv[])
 
   Manager & manager = Core::instance().tools().create_component<Manager>("PEManager");
 
-  manager.spawn_group("Group1", 1, "../../src/Tools/Solver/coolfluid-solver");
+  manager.spawn_group("Group1", 1, "../../src/Tools/solver/coolfluid-solver");
 
   CFinfo << "============================================================================" << CFendl;
 
-  manager.spawn_group("Group2", 1, "../../src/Tools/Solver/coolfluid-solver");
+  manager.spawn_group("Group2", 1, "../../src/Tools/solver/coolfluid-solver");
 
   Comm::instance().finalize();
   Core::instance().terminate();

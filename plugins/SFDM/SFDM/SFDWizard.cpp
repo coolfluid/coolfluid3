@@ -17,14 +17,14 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/FlowSolver.hpp"
-#include "Solver/CPhysicalModel.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/FlowSolver.hpp"
+#include "solver/CPhysicalModel.hpp"
+#include "solver/CTime.hpp"
 
-#include "Solver/Actions/CAdvanceTime.hpp"
-#include "Solver/Actions/CCriterionTime.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
+#include "solver/Actions/CAdvanceTime.hpp"
+#include "solver/Actions/CCriterionTime.hpp"
+#include "solver/Actions/CForAllCells.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
@@ -56,8 +56,8 @@ namespace SFDM {
   using namespace common::XML;
 
   using namespace mesh;
-  using namespace Solver;
-  using namespace Solver::Actions;
+  using namespace solver;
+  using namespace solver::Actions;
   using namespace mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -171,7 +171,7 @@ void SFDWizard::create_simulation()
 
   Domain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
-  CSolver& solver                = model.create_solver("cf3.Solver.FlowSolver");
+  CSolver& solver                = model.create_solver("cf3.solver.FlowSolver");
 
   // These 2 functions are the only specific ones to SFDM (together with some configuration options)
   // -------------------------
@@ -353,7 +353,7 @@ void SFDWizard::build_solve()
 {
   FlowSolver& solver = m_model_link->follow()->as_type<CModel>().solver().as_type<FlowSolver>();
 
-  Component& iterate = solver.create_solve("iterate","cf3.Solver.Actions.CIterate");
+  Component& iterate = solver.create_solve("iterate","cf3.solver.Actions.CIterate");
   Component& RK = iterate.create_component("1_RK_stages","cf3.RungeKutta.RK");
   RK.configure_option("stages",option("RK_stages").value<Uint>());
   Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();
@@ -387,7 +387,7 @@ void SFDWizard::build_solve()
 
 void SFDWizard::build_setup()
 {
-  /// Create a Solver::Action that gets executed automatically when the FlowSolver
+  /// Create a solver::Action that gets executed automatically when the FlowSolver
   /// has been configured with ALL of the following:
   /// - physical_model
   /// - mesh

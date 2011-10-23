@@ -32,4 +32,4 @@ add_subdirectory( Command )
 
 # a solver app to be spawned from the coolfluid-server
 # to run parallel simulations ( started from the UI )
-add_subdirectory( Solver )
+add_subdirectory( solver )

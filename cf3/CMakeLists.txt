@@ -11,7 +11,7 @@ add_subdirectory( math )
 add_subdirectory( Physics )
 
 # solver library provides access to PDE solvers
-add_subdirectory( Solver )
+add_subdirectory( solver )
 
 # UI provides the user interface
 add_subdirectory( UI )

@@ -11,7 +11,7 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/UpdateSolution.hpp"
 #include "SFDM/Tags.hpp"
@@ -31,7 +31,7 @@ common::ComponentBuilder < UpdateSolution, Action, LibSFDM > UpdateSolution_Buil
 ///////////////////////////////////////////////////////////////////////////////////////
 
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 

@@ -13,11 +13,11 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Solver/Actions/CPeriodicWriteMesh.hpp"
-#include "Solver/Actions/CSynchronizeFields.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
-#include "Solver/Actions/CComputeLNorm.hpp"
-#include "Solver/Actions/CPrintIterationSummary.hpp"
+#include "solver/Actions/CPeriodicWriteMesh.hpp"
+#include "solver/Actions/CSynchronizeFields.hpp"
+#include "solver/Actions/CCriterionMaxIterations.hpp"
+#include "solver/Actions/CComputeLNorm.hpp"
+#include "solver/Actions/CPrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
@@ -27,7 +27,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver::Actions;
 
 namespace cf3 {
 namespace RDM {
@@ -40,7 +40,7 @@ common::ComponentBuilder < IterativeSolver, common::Action, LibRDM > IterativeSo
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_ComputeJacobianDeterminant_hpp
-#define CF_Solver_Actions_ComputeJacobianDeterminant_hpp
+#ifndef CF_solver_Actions_ComputeJacobianDeterminant_hpp
+#define CF_solver_Actions_ComputeJacobianDeterminant_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
 #include "mesh/Table.hpp"
 #include "math/MatrixTypes.hpp"
@@ -22,7 +22,7 @@ namespace SFDM {
 
 /// @class ComputeJacobianDeterminant
 /// @brief Computes the Jacobian determinant in every solution point in one cell.
-class SFDM_API ComputeJacobianDeterminant : public Solver::Actions::CLoopOperation {
+class SFDM_API ComputeJacobianDeterminant : public solver::Actions::CLoopOperation {
 
 public: // typedefs
 
@@ -62,4 +62,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_ComputeJacobianDeterminant_hpp
+#endif // CF_solver_Actions_ComputeJacobianDeterminant_hpp

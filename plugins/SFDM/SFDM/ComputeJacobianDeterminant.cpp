@@ -24,12 +24,12 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeJacobianDeterminant, Solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
+common::ComponentBuilder < ComputeJacobianDeterminant, solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  solver::Actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))

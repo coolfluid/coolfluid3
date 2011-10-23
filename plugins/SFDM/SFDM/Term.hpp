@@ -7,7 +7,7 @@
 #ifndef cf3_SFDM_Term_hpp
 #define cf3_SFDM_Term_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
@@ -18,7 +18,7 @@ namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API Term : public cf3::Solver::Action {
+class SFDM_API Term : public cf3::solver::Action {
 
 public: // typedefs
 

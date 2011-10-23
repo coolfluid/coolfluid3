@@ -16,8 +16,8 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/Actions/CForAllCells.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
@@ -42,8 +42,8 @@ namespace SFDM {
 
   using namespace common;
   using namespace mesh;
-  using namespace Solver::Actions;
-  using namespace Solver;
+  using namespace solver::Actions;
+  using namespace solver;
   using namespace Physics;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ common::ComponentBuilder < CreateSFDFields, common::Action, LibSFDM> CreateSFDFi
 //////////////////////////////////////////////////////////////////////////////
 
 CreateSFDFields::CreateSFDFields( const std::string& name )
-  : Solver::Action(name)
+  : solver::Action(name)
 {
   properties()["brief"] = std::string("Create Fields for use with SFD");
   properties()["description"] = std::string("Fields to be created: ...");

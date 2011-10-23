@@ -19,9 +19,9 @@
 #include "mesh/FieldManager.hpp"
 #include "mesh/Geometry.hpp"
 
-#include "Solver/Tags.hpp"
-#include "Solver/Actions/CSolveSystem.hpp"
-#include "Solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Tags.hpp"
+#include "solver/Actions/CSolveSystem.hpp"
+#include "solver/Actions/Proto/CProtoAction.hpp"
 
 #include "Physics/PhysModel.hpp"
 
@@ -35,9 +35,9 @@ namespace UFEM {
 using namespace common;
 using namespace math;
 using namespace mesh;
-using namespace Solver;
-using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
+using namespace solver;
+using namespace solver::Actions;
+using namespace solver::Actions::Proto;
 
 class ZeroAction : public common::Action
 {
@@ -175,7 +175,7 @@ void LinearSolver::mesh_changed(Mesh& mesh)
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
-  configure_option_recursively(Solver::Tags::regions(), root_regions);
+  configure_option_recursively(solver::Tags::regions(), root_regions);
 
   trigger_lss();
 }

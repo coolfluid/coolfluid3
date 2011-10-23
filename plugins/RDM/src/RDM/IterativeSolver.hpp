@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_IterativeSolver_hpp
 #define cf3_RDM_IterativeSolver_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -17,7 +17,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API IterativeSolver : public cf3::Solver::ActionDirector {
+class RDM_API IterativeSolver : public cf3::solver::ActionDirector {
 
 public: // typedefs
 

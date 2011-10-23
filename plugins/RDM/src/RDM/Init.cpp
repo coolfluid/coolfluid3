@@ -32,7 +32,7 @@ common::ComponentBuilder < Init, common::Action, LibRDM > Init_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

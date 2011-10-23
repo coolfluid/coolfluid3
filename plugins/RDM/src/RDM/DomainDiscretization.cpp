@@ -17,7 +17,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/CellTerm.hpp"
@@ -40,7 +40,7 @@ common::ComponentBuilder < DomainDiscretization, common::Action, LibRDM > Domain
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

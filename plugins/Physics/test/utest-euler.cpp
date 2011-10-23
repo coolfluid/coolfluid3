@@ -32,9 +32,9 @@ BOOST_AUTO_TEST_CASE( eulercons1d )
   common::Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   Euler::Cons1D cons_state;
   Euler::Roe1D  roe_state;
-  boost::shared_ptr<Solver::Physics> phys = cons_state.create_physics();
+  boost::shared_ptr<solver::Physics> phys = cons_state.create_physics();
   //Euler::Physics p;
-  Solver::Physics& p = *phys;
+  solver::Physics& p = *phys;
   p.set_var(Euler::Physics::gamma,1.4);
   p.set_var(Euler::Physics::R,286.9);
   p.set_var(Euler::Physics::rho,4.696);

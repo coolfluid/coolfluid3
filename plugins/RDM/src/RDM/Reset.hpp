@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_Reset_hpp
 #define cf3_RDM_Reset_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -18,7 +18,7 @@ namespace mesh { class Field; }
 namespace RDM {
 
 
-class RDM_API Reset : public cf3::Solver::Action {
+class RDM_API Reset : public cf3::solver::Action {
 
 public: // typedefs
 

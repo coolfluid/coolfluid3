@@ -25,7 +25,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {

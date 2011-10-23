@@ -21,11 +21,11 @@
 
 #include "mesh/Geometry.hpp"
 
-#include "Solver/Actions/CSolveSystem.hpp"
+#include "solver/Actions/CSolveSystem.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Actions/Proto/Expression.hpp"
+#include "solver/Tags.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "Tags.hpp"
@@ -37,9 +37,9 @@ using namespace common;
 using namespace common::XML;
 using namespace math;
 using namespace mesh;
-using namespace Solver;
-using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
+using namespace solver;
+using namespace solver::Actions;
+using namespace solver::Actions::Proto;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -56,11 +56,11 @@ struct BoundaryConditions::Implementation
               ->pretty_name("LSS")
               ->description("The referenced linear system solver"))
   {
-    m_component.options().add_option< OptionArrayT < URI > > (Solver::Tags::regions())
+    m_component.options().add_option< OptionArrayT < URI > > (solver::Tags::regions())
       ->pretty_name("Regions")
       ->description("Regions the boundary condition applies to")
       ->link_to(&m_region_uris);
-    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(Solver::Tags::physical_model())
+    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(solver::Tags::physical_model())
       ->pretty_name("Physical Model")
       ->description("Physical Model")
       ->link_to(&m_physical_model);
@@ -164,8 +164,8 @@ void BoundaryConditions::add_constant_bc(const std::string& region_name, const s
     }
   }
 
-  result->configure_option(Solver::Tags::regions(), bc_regions);
-  result->configure_option(Solver::Tags::physical_model(), m_implementation->m_physical_model);
+  result->configure_option(solver::Tags::regions(), bc_regions);
+  result->configure_option(solver::Tags::physical_model(), m_implementation->m_physical_model);
 }
 
 void BoundaryConditions::signal_create_constant_bc(SignalArgs& node)

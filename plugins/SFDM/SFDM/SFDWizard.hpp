@@ -9,15 +9,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CWizard.hpp"
-#include "Solver/Action.hpp"
+#include "solver/CWizard.hpp"
+#include "solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 #include "math/MathConsts.hpp"
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace common { class Link; }
-namespace Solver { class CModelUnsteady; }
+namespace solver { class CModelUnsteady; }
 namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ namespace SFDM {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_API SFDWizard : public Solver::CWizard
+class SFDM_API SFDWizard : public solver::CWizard
 {
 public: // typedefs
 
@@ -67,7 +67,7 @@ public: // functions
 
   //@} END SIGNALS
 
-  Solver::CModelUnsteady& model();
+  solver::CModelUnsteady& model();
 
 private: // functions
 
@@ -81,7 +81,7 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API SFDSetup : public Solver::Action
+class SFDM_API SFDSetup : public solver::Action
 {
 public: // typedefs
 
@@ -91,7 +91,7 @@ public: // typedefs
 public: // functions
 
   /// constructor
-  SFDSetup( const std::string& name ) : Solver::Action(name) {}
+  SFDSetup( const std::string& name ) : solver::Action(name) {}
 
   /// Gets the Class name
   static std::string type_name() { return "SFDSetup"; }

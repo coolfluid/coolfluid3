@@ -13,7 +13,7 @@ env.configure_option('regist_signal_handlers', False)
 env.configure_option('log_level', 4)
 
 # setup a model
-model = root.create_component('HotModel', 'cf3.Solver.CModel')
+model = root.create_component('HotModel', 'cf3.solver.CModel')
 model.setup(solver_builder = 'cf3.UFEM.HeatConductionSteady', physics_builder = 'cf3.Physics.DynamicModel')
 solver = model.get_child('HeatConductionSteady')
 domain = model.get_child('Domain')

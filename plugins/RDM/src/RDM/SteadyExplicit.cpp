@@ -16,8 +16,8 @@
 #include "mesh/Domain.hpp"
 #include "mesh/WriteMesh.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModelSteady.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -44,14 +44,14 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
-common::ComponentBuilder < SteadyExplicit, cf3::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
+common::ComponentBuilder < SteadyExplicit, cf3::solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  cf3::Solver::CWizard ( name )
+  cf3::solver::CWizard ( name )
 {
   // signals
 

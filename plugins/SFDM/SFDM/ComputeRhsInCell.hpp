@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_ComputeRhsInCell_hpp
-#define CF_Solver_Actions_ComputeRhsInCell_hpp
+#ifndef CF_solver_Actions_ComputeRhsInCell_hpp
+#define CF_solver_Actions_ComputeRhsInCell_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
 #include "mesh/Table.hpp"
 #include "math/MatrixTypes.hpp"
@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Solver { class State; class Physics; }
+namespace solver { class State; class Physics; }
 namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
@@ -32,7 +32,7 @@ namespace SFDM {
 ///
 /// It is the workhorse of SFD Solver.
 
-class SFDM_API ComputeRhsInCell : public Solver::Actions::CLoopOperation {
+class SFDM_API ComputeRhsInCell : public solver::Actions::CLoopOperation {
 
 public: // typedefs
 
@@ -84,8 +84,8 @@ private: // data
   boost::weak_ptr<mesh::MeshElements> m_mesh_elements;
 
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
-  boost::weak_ptr<Solver::State> m_sol_state;
-  boost::shared_ptr<Solver::Physics> m_sol_vars;
+  boost::weak_ptr<solver::State> m_sol_state;
+  boost::shared_ptr<solver::Physics> m_sol_vars;
 
   boost::shared_ptr<SFDM::ShapeFunction const> m_solution_sf;
   boost::shared_ptr<SFDM::ShapeFunction const> m_flux_sf;
@@ -110,4 +110,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_ComputeRhsInCell_hpp
+#endif // CF_solver_Actions_ComputeRhsInCell_hpp

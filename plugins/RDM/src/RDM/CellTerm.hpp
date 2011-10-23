@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_CellTerm_hpp
 #define cf3_RDM_CellTerm_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API CellTerm : public cf3::Solver::Action {
+class RDM_API CellTerm : public cf3::solver::Action {
 
 public: // typedefs
 

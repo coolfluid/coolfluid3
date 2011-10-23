@@ -13,9 +13,9 @@
 #include "mesh/CField.hpp"
 #include "mesh/Table.hpp"
 
-#include "Solver/FlowSolver.hpp"
-#include "Solver/CTime.hpp"
-#include "Solver/Actions/CIterate.hpp"
+#include "solver/FlowSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Actions/CIterate.hpp"
 
 #include "SFDM/OutputIterationInfo.hpp"
 
@@ -23,8 +23,8 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 
 namespace cf3 {
 namespace SFDM {
@@ -36,7 +36,7 @@ common::ComponentBuilder < OutputIterationInfo, Action, LibSFDM > OutputIteratio
 ///////////////////////////////////////////////////////////////////////////////////////
 
 OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 

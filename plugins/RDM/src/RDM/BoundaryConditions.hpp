@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_BoundaryConditions_hpp
 #define cf3_RDM_BoundaryConditions_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -18,7 +18,7 @@ class BoundaryTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BoundaryConditions : public cf3::Solver::ActionDirector {
+class RDM_API BoundaryConditions : public cf3::solver::ActionDirector {
 
 public: // typedefs
 

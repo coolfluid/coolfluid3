@@ -34,7 +34,7 @@ common::ComponentBuilder < FwdEuler, common::Action, LibRDM > FwdEuler_Builder;
 ///////////////////////////////////////////////////////////////////////////////////////
 
 FwdEuler::FwdEuler ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

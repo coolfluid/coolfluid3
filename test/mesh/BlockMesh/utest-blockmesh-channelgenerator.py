@@ -11,7 +11,7 @@ env.configure_option('exception_log_level', 0)
 #env.configure_option('log_level', 4)
 env.configure_option('exception_outputs', False)
 
-model = root.create_component('model', 'cf3.Solver.CModel')
+model = root.create_component('model', 'cf3.solver.CModel')
 model.create_domain()
 domain = model.get_child('Domain')
 generator = domain.create_component('generator', 'cf3.mesh.BlockMesh.ChannelGenerator')

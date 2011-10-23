@@ -10,11 +10,11 @@
 #include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "Solver/CSimpleSolver.hpp"
+#include "solver/CSimpleSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
-#include "Solver/Actions/Proto/SolutionVector.hpp"
+#include "solver/Actions/Proto/BlockAccumulator.hpp"
+#include "solver/Actions/Proto/DirichletBC.hpp"
+#include "solver/Actions/Proto/SolutionVector.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "LibUFEM.hpp"
@@ -28,7 +28,7 @@ namespace UFEM {
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public Solver::CSimpleSolver
+class UFEM_API LinearSolver : public solver::CSimpleSolver
 {
 public: // typedefs
 
@@ -70,13 +70,13 @@ private:
 
 public:
   /// Proto placeholder for the system matrix
-  const Solver::Actions::Proto::SystemMatrix& system_matrix;
+  const solver::Actions::Proto::SystemMatrix& system_matrix;
   /// Proto placeholder for the right hand side of the system
-  const Solver::Actions::Proto::SystemRHS& system_rhs;
+  const solver::Actions::Proto::SystemRHS& system_rhs;
   /// Proto placeholder for dirichlet boundary conditions
-  const Solver::Actions::Proto::DirichletBC& dirichlet;
+  const solver::Actions::Proto::DirichletBC& dirichlet;
   /// Proto placeholder for the solution vector
-  const Solver::Actions::Proto::SolutionVector& solution;
+  const solver::Actions::Proto::SolutionVector& solution;
 };
 
 } // UFEM

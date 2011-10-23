@@ -21,7 +21,7 @@
 #include "mesh/Connectivity.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 
-#include "Solver/State.hpp"
+#include "solver/State.hpp"
 
 #include "RiemannSolvers/src/RiemannSolvers/RiemannSolver.hpp"
 
@@ -41,12 +41,12 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeRhsInCell, Solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
+common::ComponentBuilder < ComputeRhsInCell, solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  solver::Actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
@@ -79,7 +79,7 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
-  m_options.add_option( OptionComponent<Solver::State>::create("solution_state", &m_sol_state) )
+  m_options.add_option( OptionComponent<solver::State>::create("solution_state", &m_sol_state) )
     ->description("The component describing the solution state")
     ->pretty_name("Solution State")
     ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
@@ -260,8 +260,8 @@ void ComputeRhsInCell::execute()
   Reconstruct& reconstruct_solution_in_all_flux_points = *m_reconstruct_solution;
   Reconstruct& reconstruct_flux_in_solution_points_in_line = *m_reconstruct_flux;
 
-  Solver::State& sol_state = *m_sol_state.lock();
-  Solver::Physics& sol_vars = *m_sol_vars;
+  solver::State& sol_state = *m_sol_state.lock();
+  solver::Physics& sol_vars = *m_sol_vars;
 
   const SFDM::ShapeFunction& solution_sf = *m_solution_sf;
   const SFDM::ShapeFunction& flux_sf     = *m_flux_sf;
@@ -311,7 +311,7 @@ void ComputeRhsInCell::execute()
     { /// <ul>
       //CFdebug << "  line = " << line << CFendl;
       /// <li> Compute analytical flux in the flux points of the line, excluding begin and end point
-      ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
+      ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see solver::State::compute_flux())
 
       for (Uint sol_pt=0; sol_pt<solution_sf.nb_nodes_per_line(); ++sol_pt)
       {

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace SFDM {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_API CreateSFDFields : public Solver::Action
+class SFDM_API CreateSFDFields : public solver::Action
 {
 public: // typedefs
 

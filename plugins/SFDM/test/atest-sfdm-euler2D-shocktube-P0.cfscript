@@ -41,7 +41,7 @@ SFD_simulation/tools/initialize_solution
 
 call SFD_simulation/Domain/mesh/write_mesh file:string=initial_condition${length}x${length}.msh solution:bool=true
 
-#configure SFD_simulation/FlowSolver/iterate max_iter:unsigned=100
+#configure SFD_simulation/Flowsolver/iterate max_iter:unsigned=100
 call wizard/start_simulation end_time:real=0.008
 
 call SFD_simulation/Domain/mesh/write_mesh file:string=final${nb_cells}x${nb_cells}.msh solution:bool=true

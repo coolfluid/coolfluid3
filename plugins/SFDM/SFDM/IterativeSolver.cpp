@@ -16,11 +16,11 @@
 
 #include "math/VariablesDescriptor.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/CSolver.hpp"
 
-#include "Solver/Actions/CCriterion.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
+#include "solver/Actions/CCriterion.hpp"
+#include "solver/Actions/CCriterionMaxIterations.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -31,8 +31,8 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 using namespace cf3::mesh;
 
 namespace cf3 {
@@ -45,7 +45,7 @@ common::ComponentBuilder < IterativeSolver, common::Action, LibSFDM > IterativeS
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 

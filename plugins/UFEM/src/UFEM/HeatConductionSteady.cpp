@@ -6,8 +6,8 @@
 
 #include "common/Builder.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Actions/Proto/Expression.hpp"
 
 #include "HeatConductionSteady.hpp"
 #include "Tags.hpp"
@@ -16,8 +16,8 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Solver;
-using namespace Solver::Actions::Proto;
+using namespace solver;
+using namespace solver::Actions::Proto;
 
 ComponentBuilder < HeatConductionSteady, CSolver, LibUFEM > HeatConductionSteady_builder;
 

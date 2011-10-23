@@ -7,7 +7,7 @@
 #ifndef cf3_SFDM_UpdateSolution_hpp
 #define cf3_SFDM_UpdateSolution_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -16,7 +16,7 @@ namespace cf3 {
 namespace mesh   { class Field; }
 namespace SFDM {
 
-class SFDM_API UpdateSolution : public Solver::Action
+class SFDM_API UpdateSolution : public solver::Action
 {
 public: // typedefs
 

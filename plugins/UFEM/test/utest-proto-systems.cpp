@@ -15,11 +15,11 @@
 
 #include "mesh/Domain.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -28,9 +28,9 @@
 #include "UFEM/Tags.hpp"
 
 using namespace cf3;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
+using namespace cf3::solver::Actions::Proto;
 using namespace cf3::common;
 using namespace cf3::math::Consts;
 using namespace cf3::mesh;

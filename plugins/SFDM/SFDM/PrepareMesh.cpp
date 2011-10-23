@@ -28,7 +28,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::mesh::actions;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace SFDM {
@@ -41,7 +41,7 @@ common::ComponentBuilder < PrepareMesh, common::Action, LibSFDM > PrepareMesh_Bu
 ///////////////////////////////////////////////////////////////////////////////////////
 
 PrepareMesh::PrepareMesh ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

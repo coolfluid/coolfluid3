@@ -17,10 +17,10 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshMetadata.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Actions/CCriterionTime.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
-#include "Solver/Actions/CPeriodicWriteMesh.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Actions/CCriterionTime.hpp"
+#include "solver/Actions/CCriterionMaxIterations.hpp"
+#include "solver/Actions/CPeriodicWriteMesh.hpp"
 
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/Tags.hpp"
@@ -28,8 +28,8 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 
 namespace cf3 {
 namespace SFDM {
@@ -42,7 +42,7 @@ common::ComponentBuilder < TimeStepping, common::Action, LibSFDM > TimeStepping_
 ///////////////////////////////////////////////////////////////////////////////////////
 
 TimeStepping::TimeStepping ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 

@@ -17,7 +17,7 @@
 #include "Physics/PhysModel.hpp"
 #include "Physics/Variables.hpp"
 
-#include "Solver/Actions/CSynchronizeFields.hpp"
+#include "solver/Actions/CSynchronizeFields.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/SFDSolver.hpp"
@@ -28,8 +28,8 @@
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::Physics;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 
 
 namespace cf3 {
@@ -89,9 +89,9 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   m_iterative_solver = allocate_component< IterativeSolver >( IterativeSolver::type_name() );
   m_time_stepping->append(m_iterative_solver);
 
-  Action::Ptr conditional ( build_component("cf3.Solver.Actions.Conditional","Periodic")->as_ptr<Action>() );
+  Action::Ptr conditional ( build_component("cf3.solver.Actions.Conditional","Periodic")->as_ptr<Action>() );
   m_time_stepping->post_actions().append(conditional);
-  conditional->create_component("milestone_dt","cf3.Solver.Actions.CCriterionMilestoneTime");
+  conditional->create_component("milestone_dt","cf3.solver.Actions.CCriterionMilestoneTime");
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
 
   m_domain_discretization= create_static_component_ptr< DomainDiscretization > ( DomainDiscretization::type_name() );

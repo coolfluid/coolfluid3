@@ -25,16 +25,16 @@
 #include "mesh/Domain.hpp"
 #include "mesh/actions/InitFieldFunction.hpp"
 #include "mesh/actions/CreateSpaceP0.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/FlowSolver.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModel.hpp"
+#include "solver/FlowSolver.hpp"
+#include "solver/CTime.hpp"
 #include "SFDM/CreateSpace.hpp"
 #include "SFDM/ShapeFunction.hpp"
 #include "SFDM/Reconstruct.hpp"
 #include "SFDM/SFDWizard.hpp"
 
 #include "mesh/SF/Quad2DLagrangeP1.hpp"
-#include "Solver/Physics.hpp"
+#include "solver/Physics.hpp"
 #include "Physics/src/Euler/Cons1D.hpp"
 
 using namespace cf3;
@@ -42,7 +42,7 @@ using namespace cf3::mesh;
 using namespace cf3::mesh::SF;
 using namespace cf3::common;
 using namespace cf3::SFDM;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
 //////////////////////////////////////////////////////////////////////////////
 

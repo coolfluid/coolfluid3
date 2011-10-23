@@ -25,14 +25,14 @@
 #include "mesh/WriteMesh.hpp"
 #include "mesh/Domain.hpp"
 #include "SFDM/SFDWizard.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModel.hpp"
+#include "solver/CSolver.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Solver;
-//using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+//using namespace cf3::solver::Actions;
 using namespace cf3::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver_1D )
+BOOST_AUTO_TEST_CASE( solver_1D )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
@@ -57,9 +57,9 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
   SimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
-  Component& if_milestone = iterate.create_component("7_if_milestone","cf3.Solver.Actions.Conditional");
-  if_milestone.create_component("milestone_time_criterion","cf3.Solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","cf3.Solver.Actions.CCriterionMilestoneIteration");
+  Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.Actions.Conditional");
+  if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneIteration");
 
   WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_option("mesh",mesh.uri());
@@ -90,7 +90,7 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver_2D )
+BOOST_AUTO_TEST_CASE( solver_2D )
 {
   //Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
 
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   SimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
-  //Component& if_milestone = iterate.create_component("7_if_milestone","cf3.Solver.Actions.Conditional");
-  //if_milestone.create_component("milestone_time_criterion","cf3.Solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","cf3.Solver.Actions.CCriterionMilestoneIteration");
+  //Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.Actions.Conditional");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneIteration");
 
   //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();

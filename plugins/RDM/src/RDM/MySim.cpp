@@ -26,8 +26,8 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModelSteady.hpp"
+#include "solver/CSolver.hpp"
 
 #include "RDM/SteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
@@ -44,14 +44,14 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
-common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, solver::CWizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 MySim::MySim ( const std::string& name  ) :
-  Solver::CWizard ( name )
+  solver::CWizard ( name )
 {
   // signals
 

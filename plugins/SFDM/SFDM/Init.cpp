@@ -21,7 +21,7 @@
 #include "mesh/List.hpp"
 #include "mesh/Space.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Init.hpp"
 #include "SFDM/Tags.hpp"
@@ -40,7 +40,7 @@ common::ComponentBuilder < Init, common::Action, LibSFDM > Init_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

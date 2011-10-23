@@ -9,7 +9,7 @@
 
 #include "math/VectorialFunction.hpp"
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
@@ -22,7 +22,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API Init : public cf3::Solver::Action {
+class SFDM_API Init : public cf3::solver::Action {
 
 public: // typedefs
 

@@ -7,20 +7,20 @@
 #ifndef cf3_SFDM_IterativeSolver_hpp
 #define cf3_SFDM_IterativeSolver_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
 namespace cf3 {
 namespace common { class ActionDirector; }
-namespace Solver { class CTime; }
+namespace solver { class CTime; }
 namespace mesh   { class Field; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API IterativeSolver : public Solver::Action {
+class SFDM_API IterativeSolver : public solver::Action {
 
 public: // typedefs
 
@@ -70,7 +70,7 @@ private: // data
   boost::weak_ptr<mesh::Field> m_residual;
   boost::weak_ptr<mesh::Field> m_update_coeff;
 
-  boost::weak_ptr<Solver::CTime> m_time;
+  boost::weak_ptr<solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
   boost::shared_ptr<common::ActionDirector> m_pre_update;

@@ -17,7 +17,7 @@
 
 #include "Physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/Init.hpp"
@@ -39,7 +39,7 @@ common::ComponentBuilder < InitialConditions, Action, LibSFDM > InitialCondition
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -75,9 +75,9 @@ void InitialConditions::execute()
 //  synchronize.execute();
 }
 
-Solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
+solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
 {
-  Solver::Action::Ptr ic = allocate_component< SFDM::Init >(name);
+  solver::Action::Ptr ic = allocate_component< SFDM::Init >(name);
   append( ic );
 
   /// @todo find the field through solver links

@@ -17,7 +17,7 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// Solver for the incompressible Navier-Stokes equations
+/// solver for the incompressible Navier-Stokes equations
 class UFEM_API NavierStokes : public LinearSolverUnsteady
 {
 public: // typedefs

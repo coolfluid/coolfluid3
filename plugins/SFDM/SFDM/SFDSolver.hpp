@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/TimeStepping.hpp"
@@ -20,7 +20,7 @@
 namespace cf3 {
 
 namespace common    { class Group; }
-namespace Solver    { namespace Actions { class CSynchronizeFields; } }
+namespace solver    { namespace Actions { class CSynchronizeFields; } }
 
 namespace SFDM {
 
@@ -40,7 +40,7 @@ class TimeStepping;
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
-class SFDM_API SFDSolver : public Solver::CSolver {
+class SFDM_API SFDSolver : public solver::CSolver {
 
 public: // typedefs
 

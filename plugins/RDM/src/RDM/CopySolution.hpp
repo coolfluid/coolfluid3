@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_CopySolution_hpp
 #define cf3_RDM_CopySolution_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -19,7 +19,7 @@ namespace RDM {
 
 /// Copies the solution to a set of fields
 /// @author Tiago Quintino
-class RDM_API CopySolution : public cf3::Solver::Action {
+class RDM_API CopySolution : public cf3::solver::Action {
 
 public: // typedefs
 

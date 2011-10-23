@@ -23,11 +23,11 @@
 #include "Physics/Scalar/Scalar3D.hpp"
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
 #include "RDM/Tags.hpp"
 
-#include "Solver/Actions/CCriterionTime.hpp"
+#include "solver/Actions/CCriterionTime.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -47,17 +47,17 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::Physics;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::solver;
+using namespace cf3::solver::Actions;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < UnsteadyExplicit, cf3::Solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
+common::ComponentBuilder < UnsteadyExplicit, cf3::solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
-  cf3::Solver::CWizard ( name )
+  cf3::solver::CWizard ( name )
 {
   // options
 
