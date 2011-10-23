@@ -8,23 +8,21 @@
 #include "common/StreamHelpers.hpp"
 #include "common/Foreach.hpp"
 
-#include "mesh/LibMesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/LibCommon.hpp"
+#include "common/Table.hpp"
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
-using namespace common;
+common::ComponentBuilder < Table<bool>, Component, LibCommon > Table_bool_Builder;
 
-common::ComponentBuilder < Table<bool>, Component, LibMesh > Table_bool_Builder;
+common::ComponentBuilder < Table<Uint>, Component, LibCommon > Table_Uint_Builder;
 
-common::ComponentBuilder < Table<Uint>, Component, LibMesh > Table_Uint_Builder;
+common::ComponentBuilder < Table<int>, Component, LibCommon >  Table_int_Builder;
 
-common::ComponentBuilder < Table<int>, Component, LibMesh >  Table_int_Builder;
+common::ComponentBuilder < Table<Real>, Component, LibCommon > Table_Real_Builder;
 
-common::ComponentBuilder < Table<Real>, Component, LibMesh > Table_Real_Builder;
-
-common::ComponentBuilder < Table<std::string>, Component, LibMesh > Table_string_Builder;
+common::ComponentBuilder < Table<std::string>, Component, LibCommon > Table_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -142,5 +140,5 @@ std::ostream& operator<<(std::ostream& os, const Table<std::string>& table)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3

@@ -19,7 +19,7 @@
 #include "mesh/neu/Writer.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Geometry.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ConnectivityData.hpp"
@@ -156,7 +156,7 @@ void Writer::write_coordinates(std::fstream& file)
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  boost_foreach(Table<Real>::ConstRow row, m_mesh->geometry().coordinates().array())
+  boost_foreach(common::Table<Real>::ConstRow row, m_mesh->geometry().coordinates().array())
   {
     ++node_number;
     file << std::setw(10) << node_number;

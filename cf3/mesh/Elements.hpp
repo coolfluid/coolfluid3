@@ -60,7 +60,7 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const { return node_connectivity().size(); }
 
-  virtual Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
 
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 

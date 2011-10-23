@@ -68,7 +68,7 @@ public: // functions
 
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ( const mesh::Table<Uint>::ConstRow& nodes_idx );
+  void interpolate ( const common::Table<Uint>::ConstRow& nodes_idx );
 
   void sol_gradients_at_qdpoint(const Uint q);
 
@@ -253,7 +253,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate( const mesh::Table<Uint>::ConstRow& nodes_idx )
+void SchemeBase<SF, QD,PHYS>::interpolate( const common::Table<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be tested for 3D
 

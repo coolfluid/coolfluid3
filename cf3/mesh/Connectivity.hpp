@@ -9,7 +9,7 @@
 
 //#include "mesh/Elements.hpp"
 #include "mesh/UnifiedData.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "common/Group.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ namespace mesh {
 /// Stores connectivity data between faces and their adjacent elements
 /// and provides a convenient API to access the data
 /// @author Willem Deconinck
-class Mesh_API Connectivity : public mesh::Table<Uint>
+class Mesh_API Connectivity : public common::Table<Uint>
 {
 public:
 

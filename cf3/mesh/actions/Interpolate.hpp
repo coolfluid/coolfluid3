@@ -56,7 +56,7 @@ public: // functions
   /// @post target is resized: row-size from source, nb_rows from coordinates
   /// @note MPI communication is used if coordinates are not found on this rank. Other ranks
   ///       then interpolate and send result back
-  void interpolate(const Field& source, const Table<Real>& coordinates, Table<Real>& target);
+  void interpolate(const Field& source, const common::Table<Real>& coordinates, common::Table<Real>& target);
 
   void signal_interpolate ( common::SignalArgs& node);
   void signature_interpolate ( common::SignalArgs& node);

@@ -15,7 +15,7 @@
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -84,8 +84,8 @@ public: // functions
 
 protected: // functions
 
-  /// Map type from string to a Table<Uint>::Buffer
-  typedef std::map<std::string,Table<Uint>::Buffer::Ptr> BufferMap;
+  /// Map type from string to a common::Table<Uint>::Buffer
+  typedef std::map<std::string,common::Table<Uint>::Buffer::Ptr> BufferMap;
 
   /// Create element regions for each given type inside a given region
   /// @param [in] parent_region   Region in which the elementregions will be made
@@ -99,7 +99,7 @@ protected: // functions
   std::map<std::string,boost::shared_ptr<Elements> > create_faces_in_region(Region& parent_region, Geometry& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,Table<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<Elements> >& elems_map);
+  std::map<std::string,common::Table<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<Elements> >& elems_map);
 
 
   /// remove all regions with empty connectivity tables inside a given region

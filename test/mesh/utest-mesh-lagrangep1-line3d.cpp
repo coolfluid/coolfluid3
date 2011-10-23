@@ -16,7 +16,7 @@
 #include "math/Consts.hpp"
 
 #include "mesh/ElementType.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Line3D.hpp"
@@ -27,6 +27,7 @@
 
 using namespace boost::assign;
 using namespace cf3;
+using namespace cf3::common;
 using namespace cf3::math;
 using namespace cf3::mesh;
 using namespace cf3::mesh::Integrators;

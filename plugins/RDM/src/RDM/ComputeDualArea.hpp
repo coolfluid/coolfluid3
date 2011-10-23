@@ -11,7 +11,7 @@
 
 #include "math/Checks.hpp"
 
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"

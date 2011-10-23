@@ -11,9 +11,9 @@
 
 #include "common/PE/Buffer.hpp"
 
-#include "mesh/List.hpp"
-#include "mesh/Table.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/List.hpp"
+#include "common/Table.hpp"
+#include "common/DynTable.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -31,10 +31,10 @@ struct RemoveNodes
 
   void flush();
 
-  List<Uint>::Buffer       glb_idx;
-  List<Uint>::Buffer       rank;
-  Table<Real>::Buffer      coordinates;
-  DynTable<Uint>::Buffer   connected_elements;
+  common::List<Uint>::Buffer       glb_idx;
+  common::List<Uint>::Buffer       rank;
+  common::Table<Real>::Buffer      coordinates;
+  common::DynTable<Uint>::Buffer   connected_elements;
 };
 
 struct RemoveElements
@@ -45,9 +45,9 @@ struct RemoveElements
 
   void flush();
 
-  List<Uint>::Buffer       glb_idx;
-  List<Uint>::Buffer       rank;
-  Table<Uint>::Buffer      connected_nodes;
+  common::List<Uint>::Buffer       glb_idx;
+  common::List<Uint>::Buffer       rank;
+  common::Table<Uint>::Buffer      connected_nodes;
 };
 
 
@@ -70,9 +70,9 @@ struct PackUnpackElements: common::PE::PackedObject
   Elements& m_elements;
   Uint m_idx;
   bool m_remove_after_pack;
-  List<Uint>::Buffer       glb_idx;
-  List<Uint>::Buffer       rank;
-  Table<Uint>::Buffer      connected_nodes;
+  common::List<Uint>::Buffer       glb_idx;
+  common::List<Uint>::Buffer       rank;
+  common::Table<Uint>::Buffer      connected_nodes;
 };
 
 
@@ -95,10 +95,10 @@ struct PackUnpackNodes: common::PE::PackedObject
   Geometry& m_nodes;
   Uint m_idx;
   bool m_remove_after_pack;
-  List<Uint>::Buffer       glb_idx;
-  List<Uint>::Buffer       rank;
-  Table<Real>::Buffer      coordinates;
-  DynTable<Uint>::Buffer   connected_elements;
+  common::List<Uint>::Buffer       glb_idx;
+  common::List<Uint>::Buffer       rank;
+  common::Table<Real>::Buffer      coordinates;
+  common::DynTable<Uint>::Buffer   connected_elements;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

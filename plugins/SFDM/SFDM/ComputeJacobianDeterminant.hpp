@@ -9,7 +9,7 @@
 
 #include "solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "math/MatrixTypes.hpp"
 #include "mesh/CFieldView.hpp"
 

@@ -14,7 +14,7 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "solver/Actions/CComputeLNorm.hpp"
 

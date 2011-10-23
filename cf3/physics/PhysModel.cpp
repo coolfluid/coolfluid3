@@ -11,11 +11,11 @@
 
 #include "math/VariableManager.hpp"
 
+using namespace cf3::common;
+using namespace cf3::common::XML;
+
 namespace cf3 {
 namespace physics {
-
-using namespace common;
-using namespace cf3::common::XML;
 
 ////////////////////////////////////////////////////////////////////////////////
 

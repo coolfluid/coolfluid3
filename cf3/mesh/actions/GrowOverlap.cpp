@@ -22,9 +22,9 @@
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "mesh/DynTable.hpp"
-#include "mesh/Table.hpp"
-#include "mesh/List.hpp"
+#include "common/DynTable.hpp"
+#include "common/Table.hpp"
+#include "common/List.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshElements.hpp"
 

@@ -9,7 +9,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/ConnectivityData.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/ElementType.hpp"
 
 namespace cf3 {
@@ -229,7 +229,7 @@ void create_face_element_connectivity(const Elements& own_celements,
 }
 
 /// Gets a sorted list of face nodes
-void sorted_face_nodes(const Elements& celements, const Table<Uint>::ArrayT& connectivity_table, const Uint element_idx, const Uint face_idx, CFaceConnectivity::IndicesT& face_nodes)
+void sorted_face_nodes(const Elements& celements, const common::Table<Uint>::ArrayT& connectivity_table, const Uint element_idx, const Uint face_idx, CFaceConnectivity::IndicesT& face_nodes)
 {
   face_nodes.reserve(celements.element_type().faces().stride[face_idx]);
   BOOST_FOREACH(const Uint local_node, celements.element_type().faces().nodes_range(face_idx))

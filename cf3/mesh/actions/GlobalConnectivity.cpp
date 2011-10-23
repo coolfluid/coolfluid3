@@ -92,7 +92,7 @@ void GlobalConnectivity::execute()
   Mesh& mesh = *m_mesh.lock();
 
   Geometry& nodes = mesh.geometry();
-  List<Uint>& nodes_glb_idx = nodes.glb_idx();
+  common::List<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time
   //BOOST_STATIC_ASSERT(sizeof(std::size_t) == sizeof(Uint));

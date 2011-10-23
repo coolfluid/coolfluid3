@@ -23,7 +23,7 @@ cf3::common::ComponentBuilder < UnifiedData, cf3::common::Component, LibMesh > U
 
 UnifiedData::UnifiedData ( const std::string& name ) : common::Component(name)
 {
-  m_data_indices = create_static_component_ptr<List<Uint> >  ("data_indices");
+  m_data_indices = create_static_component_ptr<common::List<Uint> >  ("data_indices");
   m_data_links   = create_static_component_ptr<common::Group>("data_links");
   m_data_indices->resize(1);
   m_data_indices->array()[0]=0;

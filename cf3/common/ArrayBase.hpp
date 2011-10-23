@@ -4,18 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_ArrayBase_hpp
-#define cf3_mesh_ArrayBase_hpp
+#ifndef cf3_common_ArrayBase_hpp
+#define cf3_common_ArrayBase_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/BoostArray.hpp"
-
-#include "mesh/LibMesh.hpp"
-#include "mesh/ArrayBufferT.hpp"
+#include "common/ArrayBufferT.hpp"
 
 namespace cf3 {
-namespace mesh {
+namespace common {
   
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,9 +91,9 @@ private: // data
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_ArrayBase_hpp
+#endif // cf3_common_ArrayBase_hpp

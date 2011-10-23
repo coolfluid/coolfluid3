@@ -18,7 +18,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
@@ -34,10 +34,10 @@ namespace Actions {
 namespace Proto {
 
 /// Extract the coordinates, given a specific region
-inline const mesh::Table<Real>& extract_coordinates(const mesh::Region& region)
+inline const common::Table<Real>& extract_coordinates(const mesh::Region& region)
 {
-  const mesh::Table<Real>* coordinates = nullptr;
-  coordinates = common::find_component_ptr_with_tag<mesh::Table<Real> >(region, mesh::Tags::coordinates()).get();
+  const common::Table<Real>* coordinates = nullptr;
+  coordinates = common::find_component_ptr_with_tag<common::Table<Real> >(region, mesh::Tags::coordinates()).get();
   if(!coordinates)
   {
     BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
@@ -278,7 +278,7 @@ public:
   typedef Eigen::Matrix<Real, NbDims::value, 1> CoordsT;
 
   template<typename ExprT>
-  NodeData(VariablesT& variables, mesh::Region& region, const mesh::Table<Real>& coords, const ExprT& expr) :
+  NodeData(VariablesT& variables, mesh::Region& region, const common::Table<Real>& coords, const ExprT& expr) :
     m_variables(variables),
     m_region(region),
     m_coordinates(coords)
@@ -304,7 +304,7 @@ public:
   /// Access to the current coordinates
   const CoordsT& coordinates() const
   {
-    const mesh::Table<Real>::ConstRow row = m_coordinates[node_idx];
+    const common::Table<Real>::ConstRow row = m_coordinates[node_idx];
     for(Uint i = 0; i != NbDims::value; ++i)
     {
       m_position[i] = row[i];
@@ -320,7 +320,7 @@ private:
   mesh::Region& m_region;
 
   /// Aray holding the coordinate values
-  const mesh::Table<Real>& m_coordinates;
+  const common::Table<Real>& m_coordinates;
 
   /// Data associated with each numbered variable
   VariablesDataT m_variables_data;
@@ -401,7 +401,7 @@ private:
 };
 
 /// Creates a list of unique nodes in the region
-inline void make_node_list(const mesh::Region& region, const mesh::Table<Real>& coordinates, std::vector<Uint>& nodes)
+inline void make_node_list(const mesh::Region& region, const common::Table<Real>& coordinates, std::vector<Uint>& nodes)
 {
   std::vector<bool> node_is_used(coordinates.size(), false);
 
@@ -409,13 +409,13 @@ inline void make_node_list(const mesh::Region& region, const mesh::Table<Real>& 
   Uint nb_nodes = 0;
   BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
   {
-    const mesh::Table<Uint>& conn_tbl = elements.node_connectivity();
+    const common::Table<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_elem_nodes = conn_tbl.row_size();
 
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const mesh::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
+      const common::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_elem_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];
@@ -436,13 +436,13 @@ inline void make_node_list(const mesh::Region& region, const mesh::Table<Real>& 
   node_is_used.assign(coordinates.size(), false);
   BOOST_FOREACH(const mesh::Elements& elements, common::find_components_recursively<mesh::Elements>(region))
   {
-    const mesh::Table<Uint>& conn_tbl = elements.node_connectivity();
+    const common::Table<Uint>& conn_tbl = elements.node_connectivity();
     const Uint nb_elems = conn_tbl.size();
     const Uint nb_nodes = conn_tbl.row_size();
 
     for(Uint elem_idx = 0; elem_idx != nb_elems; ++elem_idx)
     {
-      const mesh::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
+      const common::Table<Uint>::ConstRow row = conn_tbl[elem_idx];
       for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
       {
         const Uint node = row[node_idx];

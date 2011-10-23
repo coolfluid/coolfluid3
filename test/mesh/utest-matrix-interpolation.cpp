@@ -17,10 +17,11 @@
 #include "mesh/LagrangeP1/Triag2D.hpp"
 
 #include "Tools/Testing/Difference.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
+using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::mesh::LagrangeP1;
 
@@ -69,11 +70,11 @@ struct MatrixInterpolationFixture
            ETYPE::SF::compute_value(ref_coord,values);
            V->set_row<RealVector>(iq,values);
 
-		 ETYPE::SF::compute_gradient(ref_coord,gradients);
-		 for(Uint i = 0; i<NDOF; ++i) {
-		dSFdxi[i]  = gradients(XX,i);
-		dSFdeta[i] = gradients(YY,i);
-		 }
+     ETYPE::SF::compute_gradient(ref_coord,gradients);
+     for(Uint i = 0; i<NDOF; ++i) {
+    dSFdxi[i]  = gradients(XX,i);
+    dSFdeta[i] = gradients(YY,i);
+     }
 
            dVdxi->set_row<RealVector>(iq,dSFdxi);
            dVdeta->set_row<RealVector>(iq,dSFdeta);

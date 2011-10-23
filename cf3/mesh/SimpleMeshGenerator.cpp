@@ -134,7 +134,7 @@ void SimpleMeshGenerator::create_line()
   cells.initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
   Connectivity& connectivity = cells.node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
-  List<Uint>& elem_rank = cells.rank();
+  common::List<Uint>& elem_rank = cells.rank();
   elem_rank.resize(connectivity.size());
   const Real x_step = x_len / static_cast<Real>(x_segments);
   Uint node_idx(0);
@@ -187,7 +187,7 @@ void SimpleMeshGenerator::create_line()
       Connectivity& xneg_connectivity = xneg.node_connectivity();
       xneg_connectivity.resize(1);
       xneg_connectivity[0][0] = 0;
-      List<Uint>& xneg_rank = xneg.rank();
+      common::List<Uint>& xneg_rank = xneg.rank();
       xneg_rank.resize(1);
       xneg_rank[0] = part;
     }
@@ -200,7 +200,7 @@ void SimpleMeshGenerator::create_line()
       Connectivity& xpos_connectivity = xpos.node_connectivity();
       xpos_connectivity.resize(1);
       xpos_connectivity[0][0] = connectivity[hash.subhash(ELEMS).nb_objects_in_part(part)-1][1];
-      List<Uint>& xpos_rank = xpos.rank();
+      common::List<Uint>& xpos_rank = xpos.rank();
       xpos_rank.resize(1);
       xpos_rank[0] = part;
     }
@@ -289,7 +289,7 @@ void SimpleMeshGenerator::create_rectangle()
       if (hash.subhash(NODES).part_owns(part,glb_node_idx))
       {
         cf3_assert(glb_node_idx-glb_node_start_idx < nodes.size());
-        Table<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
+        common::Table<Real>::Row row = nodes.coordinates()[glb_node_idx-glb_node_start_idx];
         row[XX] = static_cast<Real>(i) * x_step + x_offset;
         row[YY] = y + y_offset;
         nodes.rank()[glb_node_idx-glb_node_start_idx]=part;
@@ -307,7 +307,7 @@ void SimpleMeshGenerator::create_rectangle()
     Uint i = glb_ghost_node_idx - j*(x_segments+1);
     loc_ghost_node_idx = loc_node_idx++;
     cf3_assert(loc_ghost_node_idx < nodes.size());
-    Table<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
+    common::Table<Real>::Row row = nodes.coordinates()[loc_ghost_node_idx];
     row[XX] = static_cast<Real>(i) * x_step + x_offset;
     row[YY] = static_cast<Real>(j) * y_step + y_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
@@ -318,7 +318,7 @@ void SimpleMeshGenerator::create_rectangle()
   Connectivity& connectivity = cells->node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
 
-  List<Uint>& elem_rank = cells->rank();
+  common::List<Uint>& elem_rank = cells->rank();
   elem_rank.resize(connectivity.size());
 
   Uint glb_elem_start_idx = hash.subhash(ELEMS).start_idx_in_part(part);
@@ -369,7 +369,7 @@ void SimpleMeshGenerator::create_rectangle()
     Faces::Ptr left = mesh.topology().create_region("left").create_component_ptr<Faces>("Line");
     left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
-    List<Uint>::Buffer left_rank = left->rank().create_buffer();
+    common::List<Uint>::Buffer left_rank = left->rank().create_buffer();
     for(Uint j = 0; j < y_segments; ++j)
     {
       if (hash.subhash(ELEMS).part_owns(part,j*x_segments))
@@ -394,7 +394,7 @@ void SimpleMeshGenerator::create_rectangle()
     Faces::Ptr right = mesh.topology().create_region("right").create_component_ptr<Faces>("Line");
     right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
-    List<Uint>::Buffer right_rank = right->rank().create_buffer();
+    common::List<Uint>::Buffer right_rank = right->rank().create_buffer();
 
     for(Uint j = 0; j < y_segments; ++j)
     {
@@ -420,7 +420,7 @@ void SimpleMeshGenerator::create_rectangle()
     Faces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<Faces>("Line");
     bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
-    List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
+    common::List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
 
     for(Uint i = 0; i < x_segments; ++i)
     {
@@ -446,7 +446,7 @@ void SimpleMeshGenerator::create_rectangle()
     Faces::Ptr top = mesh.topology().create_region("top").create_component_ptr<Faces>("Line");
     top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
-    List<Uint>::Buffer top_rank = top->rank().create_buffer();
+    common::List<Uint>::Buffer top_rank = top->rank().create_buffer();
 
     for(Uint i = 0; i < x_segments; ++i)
     {

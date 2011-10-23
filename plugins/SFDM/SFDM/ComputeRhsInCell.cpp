@@ -427,7 +427,7 @@ void ComputeRhsInCell::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealRowVector ComputeRhsInCell::to_row_vector(mesh::Table<Real>::ConstRow row) const
+RealRowVector ComputeRhsInCell::to_row_vector(common::Table<Real>::ConstRow row) const
 {
   RealRowVector rowvec (row.size());
   for (Uint i=0; i<row.size(); ++i)

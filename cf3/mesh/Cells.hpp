@@ -34,7 +34,7 @@ public: // functions
   Cells ( const std::string& name );
   
   /// Initialize the Cells using the given type
-  //void initialize(const std::string& element_type_name, Table<Real>& coordinates);
+  //void initialize(const std::string& element_type_name, common::Table<Real>& coordinates);
 
   /// Initialize the Cells using the given type
   virtual void initialize(const std::string& element_type_name, Geometry& geometry);

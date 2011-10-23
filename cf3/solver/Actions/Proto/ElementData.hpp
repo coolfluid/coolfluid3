@@ -108,7 +108,7 @@ public:
   }
 
   /// Connectivity data for the current element
-  mesh::Table<Uint>::ConstRow element_connectivity() const
+  common::Table<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }
@@ -223,10 +223,10 @@ private:
   ValueT m_nodes;
 
   /// Coordinates table
-  const mesh::Table<Real>& m_coordinates;
+  const common::Table<Real>& m_coordinates;
 
   /// Connectivity table
-  const mesh::Table<Uint>& m_connectivity;
+  const common::Table<Uint>& m_connectivity;
 
   /// Index for the current element
   Uint m_element_idx;
@@ -346,7 +346,7 @@ public:
     mesh::fill(m_element_values, m_field, m_connectivity[element_idx], offset);
   }
 
-  const mesh::Table<Uint>::ConstRow element_connectivity() const
+  const common::Table<Uint>::ConstRow element_connectivity() const
   {
     return m_connectivity[m_element_idx];
   }

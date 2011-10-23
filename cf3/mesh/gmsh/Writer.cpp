@@ -17,7 +17,7 @@
 #include "mesh/gmsh/Writer.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Field.hpp"
@@ -173,7 +173,7 @@ void Writer::write_coordinates(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  const List<Uint>& used_nodes = Elements::used_nodes(*m_mesh->topology().as_non_const(),true);
+  const common::List<Uint>& used_nodes = Elements::used_nodes(*m_mesh->topology().as_non_const(),true);
   const Uint nb_nodes = used_nodes.size();
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
@@ -181,12 +181,12 @@ void Writer::write_coordinates(std::fstream& file)
   file << nb_nodes << "\n";
 
   Uint node_number=0;
-  const Table<Real>& coordinates = m_mesh->geometry().coordinates();
+  const common::Table<Real>& coordinates = m_mesh->geometry().coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
     to_gmsh_node.insert_blindly(node,gmsh_node++);
-    Table<Real>::ConstRow coord = coordinates[node];
+    common::Table<Real>::ConstRow coord = coordinates[node];
     file << ++node_number << " ";
     for (Uint d=0; d<3; d++)
     {

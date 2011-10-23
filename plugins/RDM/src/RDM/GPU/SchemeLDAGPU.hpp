@@ -96,15 +96,15 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::Table<Uint>::Ptr connectivity;
+  common::Table<Uint>::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  mesh::Table<Real>::Ptr coordinates;
+  common::Table<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr solution;
+  common::Table<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr residual;
+  common::Table<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr wave_speed;
+  common::Table<Real>::Ptr wave_speed;
 
   const QD& m_quadrature;
 

@@ -17,7 +17,7 @@
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
@@ -42,14 +42,14 @@ Entities::Entities ( const std::string& name ) :
       ->pretty_name("Element type")
       ->attach_trigger(boost::bind(&Entities::configure_element_type, this));
 
-  m_global_numbering = create_static_component_ptr<List<Uint> >(mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component_ptr<common::List<Uint> >(mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
   m_spaces_group = create_static_component_ptr<Group>("spaces");
   m_spaces_group->mark_basic();
 
-  m_rank = create_static_component_ptr< List<Uint> >("rank");
+  m_rank = create_static_component_ptr< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
   regist_signal ( "create_space" )
@@ -120,9 +120,9 @@ ElementType& Entities::element_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
+common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 {
-  List<Uint>::Ptr used_nodes = find_component_ptr_with_tag<List<Uint> >(parent,mesh::Tags::nodes_used());
+  common::List<Uint>::Ptr used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
   if (rebuild && is_not_null(used_nodes))
   {
     parent.remove_component(*used_nodes);
@@ -131,7 +131,7 @@ List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component_ptr<List<Uint> >(mesh::Tags::nodes_used());
+    used_nodes = parent.create_component_ptr<common::List<Uint> >(mesh::Tags::nodes_used());
     used_nodes->add_tag(mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
 
@@ -168,7 +168,7 @@ List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
     used_nodes->resize(node_set.size());
 
-    List<Uint>::ListT& nodes_array = used_nodes->array();
+    common::List<Uint>::ListT& nodes_array = used_nodes->array();
     Uint cnt=0;
     boost_foreach(const Uint node, node_set)
       nodes_array[cnt++] = node;
@@ -185,7 +185,7 @@ Uint Entities::size() const
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
 }
 
-Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
+common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
 {
   throw ShouldNotBeHere( FromHere(), " This virtual function has to be overloaded. ");
 }

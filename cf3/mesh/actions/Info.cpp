@@ -32,7 +32,7 @@ namespace actions {
 
     bool operator()(const Component& component)
     {
-      return !find_components<Table<Uint> >(component).empty() && !find_components<Entities>(component).empty();
+      return !find_components<common::Table<Uint> >(component).empty() && !find_components<Entities>(component).empty();
     }
 
   }; // IsElementRegion

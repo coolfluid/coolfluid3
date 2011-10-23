@@ -16,8 +16,8 @@
 #include "math/Consts.hpp"
 #include "math/Functions.hpp"
 
-#include "mesh/Table.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Quad3D.hpp"
 #include "mesh/ElementData.hpp"
@@ -27,6 +27,7 @@
 
 using namespace boost::assign;
 using namespace cf3;
+using namespace cf3::common;
 using namespace cf3::math;
 using namespace cf3::math::Consts;
 using namespace cf3::mesh;

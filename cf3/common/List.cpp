@@ -6,25 +6,23 @@
 
 #include "common/Builder.hpp"
 
-#include "mesh/LibMesh.hpp"
-#include "mesh/List.hpp"
+#include "common/LibCommon.hpp"
+#include "common/List.hpp"
 
 namespace cf3 {
-namespace mesh {
-
-using namespace common;
+namespace common {
 
 //////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < List<bool>, Component, LibMesh > List_bool_Builder;
+common::ComponentBuilder < List<bool>, Component, LibCommon > List_bool_Builder;
 
-common::ComponentBuilder < List<Uint>, Component, LibMesh > List_Uint_Builder;
+common::ComponentBuilder < List<Uint>, Component, LibCommon > List_Uint_Builder;
 
-common::ComponentBuilder < List<int>, Component, LibMesh >  List_int_Builder;
+common::ComponentBuilder < List<int>, Component, LibCommon >  List_int_Builder;
 
-common::ComponentBuilder < List<Real>, Component, LibMesh > List_Real_Builder;
+common::ComponentBuilder < List<Real>, Component, LibCommon > List_Real_Builder;
 
-common::ComponentBuilder < List<std::string>, Component, LibMesh > List_string_Builder;
+common::ComponentBuilder < List<std::string>, Component, LibCommon > List_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -85,5 +83,5 @@ std::ostream& operator<<(std::ostream& os, const List<std::string>& list)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3

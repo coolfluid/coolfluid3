@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_DynTable_hpp
-#define cf3_mesh_DynTable_hpp
+#ifndef cf3_common_DynTable_hpp
+#define cf3_common_DynTable_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,12 +13,11 @@
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Foreach.hpp"
-#include "mesh/LibMesh.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -28,7 +27,7 @@ class DynArrayBufferT;
 /// Component holding a connectivity table with variable row-size per row
 /// @author Willem Deconinck
 template<typename T>
-class Mesh_API DynTable : public common::Component {
+class DynTable : public common::Component {
 
 public:
   typedef boost::shared_ptr<DynTable> Ptr;
@@ -480,9 +479,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_DynTable_hpp
+#endif // cf3_common_DynTable_hpp

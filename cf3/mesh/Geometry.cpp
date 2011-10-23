@@ -8,7 +8,7 @@
 #include "common/Builder.hpp"
 
 #include "mesh/Geometry.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 
 namespace cf3 {
 namespace mesh {

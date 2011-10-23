@@ -12,7 +12,7 @@
 
 #include "mesh/CGNS/Writer.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 
@@ -93,7 +93,7 @@ void Writer::write_zone(const Region& region)
   m_zone.coord_dim = m_mesh->dimension();
 
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const Table<Real>& coordinates, find_components_recursively_with_tag<Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -123,7 +123,7 @@ void Writer::write_zone(const Region& region)
   }
 
   Uint idx=0;
-  BOOST_FOREACH(const Table<Real>& coordinates, find_components_recursively_with_tag<Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
   {
     m_global_start_idx[&coordinates] = idx;
 
@@ -131,7 +131,7 @@ void Writer::write_zone(const Region& region)
     {
       case 3:
       {
-        BOOST_FOREACH(Table<Real>::ConstRow node, coordinates.array())
+        BOOST_FOREACH(common::Table<Real>::ConstRow node, coordinates.array())
         {
           xCoord[idx] = node[XX];
           yCoord[idx] = node[YY];
@@ -142,7 +142,7 @@ void Writer::write_zone(const Region& region)
       }
       case 2:
       {
-        BOOST_FOREACH(Table<Real>::ConstRow node, coordinates.array())
+        BOOST_FOREACH(common::Table<Real>::ConstRow node, coordinates.array())
         {
           xCoord[idx] = node[XX];
           yCoord[idx] = node[YY];
@@ -152,7 +152,7 @@ void Writer::write_zone(const Region& region)
       }
       case 1:
       {
-        BOOST_FOREACH(Table<Real>::ConstRow node, coordinates.array())
+        BOOST_FOREACH(common::Table<Real>::ConstRow node, coordinates.array())
           xCoord[idx++] = node[XX];
         break;
       }

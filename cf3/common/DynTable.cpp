@@ -7,23 +7,21 @@
 #include "common/Builder.hpp"
 #include "common/StreamHelpers.hpp"
 
-#include "mesh/LibMesh.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/LibCommon.hpp"
+#include "common/DynTable.hpp"
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
-using namespace common;
+common::ComponentBuilder < DynTable<bool>, Component, LibCommon > DynTable_bool_Builder;
 
-common::ComponentBuilder < DynTable<bool>, Component, LibMesh > DynTable_bool_Builder;
+common::ComponentBuilder < DynTable<Uint>, Component, LibCommon > DynTable_Uint_Builder;
 
-common::ComponentBuilder < DynTable<Uint>, Component, LibMesh > DynTable_Uint_Builder;
+common::ComponentBuilder < DynTable<int>, Component, LibCommon >  DynTable_int_Builder;
 
-common::ComponentBuilder < DynTable<int>, Component, LibMesh >  DynTable_int_Builder;
+common::ComponentBuilder < DynTable<Real>, Component, LibCommon > DynTable_Real_Builder;
 
-common::ComponentBuilder < DynTable<Real>, Component, LibMesh > DynTable_Real_Builder;
-
-common::ComponentBuilder < DynTable<std::string>, Component, LibMesh > DynTable_string_Builder;
+common::ComponentBuilder < DynTable<std::string>, Component, LibCommon > DynTable_string_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -166,5 +164,5 @@ std::ostream& operator<<(std::ostream& os, const DynTable<std::string>& table)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3

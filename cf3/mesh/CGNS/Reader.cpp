@@ -280,9 +280,9 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
   m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
 
-  Table<Real>& coords = nodes.coordinates();
-  List<Uint>& rank = nodes.rank();
-  //  Table<Real>::Buffer buffer = nodes.coordinates().create_buffer();
+  common::Table<Real>& coords = nodes.coordinates();
+  common::List<Uint>& rank = nodes.rank();
+  //  common::Table<Real>::Buffer buffer = nodes.coordinates().create_buffer();
   //buffer.increase_array_size(m_zone.total_nbVertices);
   //std::vector<Real> row(m_zone.coord_dim);
   for (int i=0; i<m_zone.total_nbVertices; ++i)
@@ -341,7 +341,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, one, m_zone.nbVertices, xCoord));
   }
 
-  Table<Real>& coords = nodes.coordinates();
+  common::Table<Real>& coords = nodes.coordinates();
   m_mesh->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
   Uint n(0);
   switch (m_zone.coord_dim)
@@ -351,7 +351,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
         for (int j=0; j<m_zone.nbVertices[YY]; ++j)
           for (int i=0; i<m_zone.nbVertices[XX]; ++i)
           {
-            Table<Real>::Row row = coords[n++];
+            common::Table<Real>::Row row = coords[n++];
             row[0] = xCoord[structured_node_idx(i,j,k)];
             row[1] = yCoord[structured_node_idx(i,j,k)];
             row[2] = zCoord[structured_node_idx(i,j,k)];
@@ -361,7 +361,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
       for (int j=0; j<m_zone.nbVertices[YY]; ++j)
         for (int i=0; i<m_zone.nbVertices[XX]; ++i)
         {
-          Table<Real>::Row row = coords[n++];
+          common::Table<Real>::Row row = coords[n++];
           row[0] = xCoord[structured_node_idx(i,j,0)];
           row[1] = yCoord[structured_node_idx(i,j,0)];
         }
@@ -370,7 +370,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
     case 1:
       for (int i=0; i<m_zone.nbVertices[XX]; ++i)
       {
-        Table<Real>::Row row = coords[n++];
+        common::Table<Real>::Row row = coords[n++];
         row[0] = xCoord[i];
       }
       break;
@@ -421,7 +421,7 @@ void Reader::read_section(Region& parent_region)
   {
     // Create Elements component for each element type.
     std::map<std::string,Elements::Ptr> elements = create_cells_in_region(this_region,all_nodes,get_supported_element_types());
-    std::map<std::string,Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
     // Handle each element of this section separately to see in which Elements component it will be written
     for (int elem=m_section.eBegin;elem<=m_section.eEnd;++elem)
@@ -653,7 +653,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
       for (int global_element=boco_elems[0]-1;global_element<boco_elems[1];++global_element)
       {
@@ -701,7 +701,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
-      std::map<std::string,Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
+      std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffer = create_connectivity_buffermap(elements);
 
       for (int i=0; i<m_boco.nBC_elem; ++i)
       {
@@ -777,7 +777,7 @@ void Reader::read_boco_structured(Region& parent_region)
   }
 
   Elements& elements = this_region.create_elements(etypeBC_CF,nodes);
-  //Table<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->node_connectivity();
+  //common::Table<Uint>& source_elements = parent_region.get_child_ptr("Inner")->get_child_ptr<Elements>("elements_"+etype_CF)->node_connectivity();
   Connectivity& node_connectivity = elements.node_connectivity();
 
 

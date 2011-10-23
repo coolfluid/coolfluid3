@@ -26,7 +26,7 @@ common::ComponentBuilder < Connectivity , Component, LibMesh > Connectivity_Buil
 ////////////////////////////////////////////////////////////////////////////////
 
 Connectivity::Connectivity ( const std::string& name ) : 
-  Table<Uint>(name)
+  common::Table<Uint>(name)
 {
 }
 

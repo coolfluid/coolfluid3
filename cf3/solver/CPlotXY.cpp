@@ -11,8 +11,7 @@
 #include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/XML/MultiArray.hpp"
-
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "solver/LibSolver.hpp"
 
@@ -23,7 +22,6 @@
 using namespace boost::assign;
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::mesh;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
