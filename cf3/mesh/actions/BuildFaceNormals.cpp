@@ -94,7 +94,7 @@ void BuildFaceNormals::execute()
     if (is_not_null(face2cell_ptr))
     {
       FaceCellConnectivity& face2cell = *face2cell_ptr;
-      Table<Uint>& face_nb = face2cell.face_number();
+      common::Table<Uint>& face_nb = face2cell.face_number();
       RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
       for (Uint face=0; face<face2cell.size(); ++face)

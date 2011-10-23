@@ -11,7 +11,7 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/CField.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "solver/FlowSolver.hpp"
 #include "solver/CTime.hpp"

@@ -4,20 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_List_hpp
-#define cf3_mesh_List_hpp
+#ifndef cf3_common_List_hpp
+#define cf3_common_List_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Component.hpp"
-
-#include "mesh/LibMesh.hpp"
-#include "mesh/ListBufferT.hpp"
+#include "common/ListBufferT.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +37,7 @@ namespace mesh {
 /// @author Tiago Quintino
 
 template <typename ValueT>
-class Mesh_API List : public common::Component
+class List : public common::Component
 {
 public: // typedefs
 
@@ -135,9 +133,9 @@ std::ostream& operator<<(std::ostream& os, const List<std::string>& list);
 
 /////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_List_hpp
+#endif // cf3_common_List_hpp

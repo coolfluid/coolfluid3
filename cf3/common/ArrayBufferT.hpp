@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_ArrayBufferT_hpp
-#define cf3_mesh_ArrayBufferT_hpp
+#ifndef cf3_common_ArrayBufferT_hpp
+#define cf3_common_ArrayBufferT_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,12 +17,10 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
-#include "mesh/LibMesh.hpp"
-
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -534,9 +532,9 @@ inline std::string ArrayBufferT<T>::string()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Buffer_hpp
+#endif // cf3_common_ArrayBufferT_hpp

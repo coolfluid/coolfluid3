@@ -14,7 +14,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"

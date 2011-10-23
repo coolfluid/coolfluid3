@@ -13,13 +13,12 @@
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/LibMesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 namespace cf3 {
-namespace common { class Link; class Group;}
+namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  template <typename T> class List;
   class Geometry;
   class ElementType;
   class Space;
@@ -67,22 +66,22 @@ public: // functions
   Geometry& geometry() const { cf3_assert(!m_geometry.expired()); return *m_geometry.lock(); }
 
   /// Mutable access to the list of nodes
-  List<Uint>& glb_idx() { return *m_global_numbering; }
+  common::List<Uint>& glb_idx() { return *m_global_numbering; }
 
   /// Const access to the list of nodes
-  const List<Uint>& glb_idx() const { return *m_global_numbering; }
+  const common::List<Uint>& glb_idx() const { return *m_global_numbering; }
 
-  List<Uint>& rank() { return *m_rank; }
-  const List<Uint>& rank() const { return *m_rank; }
+  common::List<Uint>& rank() { return *m_rank; }
+  const common::List<Uint>& rank() const { return *m_rank; }
 
   bool is_ghost(const Uint idx) const;
 
   /// return the number of elements
   virtual Uint size() const;
 
-  static List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
+  static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
 
   Space& space (const std::string& space_name) const;
 
@@ -114,11 +113,11 @@ protected: // data
 
   boost::weak_ptr<Space> m_geometry_space;
 
-  boost::shared_ptr<List<Uint> > m_global_numbering;
+  boost::shared_ptr<common::List<Uint> > m_global_numbering;
 
   boost::shared_ptr<common::Group> m_spaces_group;
 
-  boost::shared_ptr<List<Uint> > m_rank;
+  boost::shared_ptr<common::List<Uint> > m_rank;
 
 };
 

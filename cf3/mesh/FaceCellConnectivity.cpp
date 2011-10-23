@@ -18,7 +18,7 @@
 
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
@@ -45,9 +45,9 @@ FaceCellConnectivity::FaceCellConnectivity ( const std::string& name ) :
       ->description("Improves efficiency for face building algorithm");
 
   m_used_components = create_static_component_ptr<Group>("used_components");
-  m_connectivity = create_static_component_ptr<Table<Uint> >(mesh::Tags::connectivity_table());
-  m_face_nb_in_elem = create_static_component_ptr<Table<Uint> >("face_number");
-  m_is_bdry_face = create_static_component_ptr<List<bool> >("is_bdry_face");
+  m_connectivity = create_static_component_ptr<common::Table<Uint> >(mesh::Tags::connectivity_table());
+  m_face_nb_in_elem = create_static_component_ptr<common::Table<Uint> >("face_number");
+  m_is_bdry_face = create_static_component_ptr<common::List<bool> >("is_bdry_face");
   m_connectivity->set_row_size(2);
   m_face_nb_in_elem->set_row_size(2);
 }
@@ -117,9 +117,9 @@ void FaceCellConnectivity::build_connectivity()
 
   // declartions
   m_connectivity->resize(0);
-  Table<Uint>::Buffer f2c = m_connectivity->create_buffer();
-  Table<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
-  List<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
+  common::Table<Uint>::Buffer f2c = m_connectivity->create_buffer();
+  common::Table<Uint>::Buffer face_number = m_face_nb_in_elem->create_buffer();
+  common::List<bool>::Buffer is_bdry_face = m_is_bdry_face->create_buffer();
   Geometry& nodes = find_parent_component<Mesh>(*used()[0]).geometry();
   Uint tot_nb_nodes = nodes.size();
   std::vector < std::vector<Uint> > mapNodeFace(tot_nb_nodes);
@@ -145,9 +145,9 @@ void FaceCellConnectivity::build_connectivity()
     {
       Elements& elements = elements_comp->as_type<Elements>();
       Component::Ptr comp = elements.get_child_ptr("is_bdry");
-      if ( is_null( comp ) || is_null(comp->as_ptr< List<bool> >()) )
+      if ( is_null( comp ) || is_null(comp->as_ptr< common::List<bool> >()) )
       {
-        List<bool>& is_bdry_elem = * elements.create_component_ptr< List<bool> >("is_bdry");
+        common::List<bool>& is_bdry_elem = * elements.create_component_ptr< common::List<bool> >("is_bdry");
 
         const Uint nb_elem = elements.size();
         is_bdry_elem.resize(nb_elem);
@@ -155,7 +155,7 @@ void FaceCellConnectivity::build_connectivity()
         for (Uint e=0; e<nb_elem; ++e)
           is_bdry_elem[e] = true;
       }
-      cf3_assert( elements.get_child_ptr("is_bdry")->as_ptr< List<bool> >() );
+      cf3_assert( elements.get_child_ptr("is_bdry")->as_ptr< common::List<bool> >() );
     }
   }
 
@@ -179,14 +179,14 @@ void FaceCellConnectivity::build_connectivity()
     Elements& elements = elements_comp->as_type<Elements>();
     const Uint nb_faces_in_elem = elements.element_type().nb_faces();
 
-    List<bool>::Ptr is_bdry_elem;
+    common::List<bool>::Ptr is_bdry_elem;
 
     if (m_face_building_algorithm)
-      is_bdry_elem = elements.get_child_ptr("is_bdry")->as_ptr< List<bool> >();
+      is_bdry_elem = elements.get_child_ptr("is_bdry")->as_ptr< common::List<bool> >();
 
     // loop over the elements of this type
     Uint loc_elem_idx=0;
-    boost_foreach(Table<Uint>::ConstRow elem, elements.node_connectivity().array() )
+    boost_foreach(common::Table<Uint>::ConstRow elem, elements.node_connectivity().array() )
     {
       if ( is_not_null(is_bdry_elem) )
         if ( (*is_bdry_elem)[loc_elem_idx] == false )
@@ -324,7 +324,7 @@ void FaceCellConnectivity::build_connectivity()
           boost::tie(elem_location_comp,elem_location_idx) = lookup().location(elem);
 
           Cells& elems = elem_location_comp->as_type<Cells>();
-          List<bool>& is_bdry_elem = elems.get_child("is_bdry").as_type< List<bool> >();
+          common::List<bool>& is_bdry_elem = elems.get_child("is_bdry").as_type< common::List<bool> >();
           is_bdry_elem[elem_location_idx] = is_bdry_elem[elem_location_idx] || is_bdry_face.get_row(f) ;
         }
       }

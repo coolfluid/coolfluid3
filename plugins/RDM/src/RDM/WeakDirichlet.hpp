@@ -202,7 +202,7 @@ public: // functions
     Component::Ptr neighbor_cells;
     Uint neighbor_cell_idx;
 
-    mesh::Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+    common::Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
     Uint unified_neighbor_cell_idx = connected_cells[LEFT]; // boundary faces store idx on LEFT face
 
     // lookup the neighbor_cell elements and the index in its connectivity
@@ -211,10 +211,10 @@ public: // functions
 
     std::cout << "neighbor_cells [" << neighbor_cells->uri().string() << "]" << std::endl;
 
-    mesh::Table<Uint>& connectivity =
+    common::Table<Uint>& connectivity =
         neighbor_cells->as_type<mesh::Elements>().node_connectivity();
 
-    const mesh::Table<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
+    const common::Table<Uint>::ConstRow cell_nodes_idx = connectivity[ neighbor_cell_idx ];
 
     // prints the neighbor cell nodes idx
 

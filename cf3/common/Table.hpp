@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_Table_hpp
-#define cf3_mesh_Table_hpp
+#ifndef cf3_common_Table_hpp
+#define cf3_common_Table_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,13 +16,13 @@
 #include "common/Signal.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "mesh/ArrayBufferT.hpp"
-#include "mesh/LibMesh.hpp"
+#include "common/ArrayBufferT.hpp"
+#include "common/LibCommon.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -424,9 +424,9 @@ std::vector<typename RowT::value_type> to_vector(RowT& table_row)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_Table_hpp
+#endif // cf3_common_Table_hpp

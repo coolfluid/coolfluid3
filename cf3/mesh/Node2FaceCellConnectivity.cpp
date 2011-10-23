@@ -9,7 +9,7 @@
 #include "common/Link.hpp"
 #include "common/Builder.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
 

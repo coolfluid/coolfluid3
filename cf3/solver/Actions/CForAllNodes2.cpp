@@ -9,7 +9,7 @@
 #include "common/Log.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 
 #include "solver/Actions/CForAllNodes2.hpp"
 

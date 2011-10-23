@@ -22,7 +22,7 @@
 #include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "mesh/Cells.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
@@ -95,7 +95,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   Geometry& block_nodes = mesh.geometry();
 
   // Fill the coordinates array
-  Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
+  common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
   coords_array.resize(boost::extents[nb_nodes][3]);
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
   {
@@ -108,7 +108,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // Define the volume cells, i.e. the blocks
   Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
   block_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D", block_nodes);
-  Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
+  common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][8]);
   for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
@@ -123,7 +123,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   {
     Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("cf3.mesh.LagrangeP1.Quad3D", block_nodes);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
-    Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
+    common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
     const Uint nb_patch_elements = patch_points.size() / 4;
     patch_connectivity.resize(boost::extents[nb_patch_elements][4]);
@@ -155,7 +155,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   Geometry& block_nodes = mesh.geometry();
 
   // Fill the coordinates array
-  Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
+  common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
   coords_array.resize(boost::extents[nb_nodes][block_data.dimension]);
   for(Uint node_idx = 0; node_idx != nb_nodes; ++node_idx)
   {
@@ -167,7 +167,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // Define the volume cells, i.e. the blocks
   Cells& block_elements = block_mesh_region.create_region("blocks").create_component<Cells>("interior");
   block_elements.initialize("cf3.mesh.LagrangeP1.Quad2D", block_nodes);
-  Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
+  common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
   const Uint nb_blocks = block_data.block_points.size();
   block_connectivity.resize(boost::extents[nb_blocks][4]);
   for(Uint block_idx = 0; block_idx != nb_blocks; ++block_idx)
@@ -182,7 +182,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   {
     Elements& patch_elements = block_mesh_region.create_region(block_data.patch_names[patch_idx]).create_elements("cf3.mesh.LagrangeP1.Line2D", block_nodes);
     patch_types[block_data.patch_names[patch_idx]] = block_data.patch_types[patch_idx];
-    Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
+    common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
     const BlockData::IndicesT patch_points = block_data.patch_points[patch_idx];
     const Uint nb_patch_elements = patch_points.size() / 2;
     patch_connectivity.resize(boost::extents[nb_patch_elements][2]);
@@ -758,7 +758,7 @@ private:
 };
 
 /// Create the first step length and expansion ratios in each direction
-void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterator gradings, Table<Real>::ArrayT& mapped_coords, const Uint nb_edges)
+void create_mapped_coords(const Uint segments, BlockData::GradingT::const_iterator gradings, common::Table<Real>::ArrayT& mapped_coords, const Uint nb_edges)
 {
   const Real eps = 150*std::numeric_limits<Real>::epsilon();
   mapped_coords.resize(boost::extents[segments+1][nb_edges]);
@@ -806,8 +806,8 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   detail::create_block_mesh_3d(block_data, block_mesh, patch_types);
 
   const Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  const Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
-  const Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
+  const common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
+  const common::Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
 
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices3D::IndicesT elements_dist;
@@ -844,7 +844,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
   volume_elements.initialize("cf3.mesh.LagrangeP1.Hexa3D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
-  Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
+  common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
   // Set the connectivity, this also updates ghost node indices
   Uint element_idx = 0; // global element index
@@ -858,7 +858,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
       {
         for(Uint i = 0; i != segments[XX]; ++i)
         {
-          Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
+          common::Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
           element_connectivity[0] = nodes(block, i  , j  , k  );
           element_connectivity[1] = nodes(block, i+1, j  , k  );
           element_connectivity[2] = nodes(block, i+1, j+1, k  );
@@ -878,7 +878,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   // Create the node coordinates
   Geometry& mesh_geo_comp = root_region.geometry();
-  Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
+  common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known
   volume_elements.assign_geometry(mesh_geo_comp);
@@ -892,7 +892,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
     const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
     const BlockData::GradingT& gradings = block_data.block_gradings[block];
 
-    Table<Real>::ArrayT ksi, eta, zta; // Mapped coordinates along each edge
+    common::Table<Real>::ArrayT ksi, eta, zta; // Mapped coordinates along each edge
     detail::create_mapped_coords(segments[XX], gradings.begin(), ksi, 4);
     detail::create_mapped_coords(segments[YY], gradings.begin() + 4, eta, 4);
     detail::create_mapped_coords(segments[ZZ], gradings.begin() + 8, zta, 4);
@@ -957,7 +957,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.parent().name();
     Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Quad3D", mesh_geo_comp);
-    Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
+    common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
     const Uint nb_patches = patch_block.node_connectivity().array().size();
     for(Uint patch_idx = 0; patch_idx != nb_patches; ++patch_idx)
@@ -979,7 +979,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
         {
           for(Uint j = 0; j != segments[YY]; ++j)
           {
-            Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[YY] + j];
+            common::Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[YY] + j];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa::KSI_NEG ? 1 : 3] = nodes(block.second, i  , j  , k+1);
             element_connectivity[2] = nodes(block.second, i  , j+1, k+1);
@@ -999,7 +999,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
         {
           for(Uint i = 0; i != segments[XX]; ++i)
           {
-            Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[XX] + i];
+            common::Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + k*segments[XX] + i];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa::ETA_NEG ? 3 : 1] = nodes(block.second, i  , j  , k+1);
             element_connectivity[2] = nodes(block.second, i+1, j  , k+1);
@@ -1019,7 +1019,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
         {
           for(Uint i = 0; i != segments[XX]; ++i)
           {
-            Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + j*segments[XX] + i];
+            common::Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + j*segments[XX] + i];
             element_connectivity[0] = nodes(block.second, i  , j  , k  );
             element_connectivity[adjacent_face == Hexa::ZTA_NEG ? 1 : 3] = nodes(block.second, i  , j+1, k  );
             element_connectivity[2] = nodes(block.second, i+1, j+1, k  );
@@ -1036,8 +1036,8 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   if(PE::Comm::instance().is_active())
   {
-    List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    common::List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    common::List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
@@ -1074,8 +1074,8 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   detail::create_block_mesh_2d(block_data, block_mesh, patch_types);
 
   const Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  const Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
-  const Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
+  const common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
+  const common::Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
 
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices2D::IndicesT elements_dist;
@@ -1112,7 +1112,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   Elements& volume_elements = root_region.create_region("volume").create_component<Cells>("interior");
   volume_elements.initialize("cf3.mesh.LagrangeP1.Quad2D");
   volume_elements.node_connectivity().resize(elements_dist[rank+1]-elements_dist[rank]);
-  Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
+  common::Table<Uint>::ArrayT& volume_connectivity = volume_elements.node_connectivity().array();
 
   // Set the connectivity, this also updates ghost node indices
   Uint element_idx = 0; // global element index
@@ -1124,7 +1124,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
     {
       for(Uint i = 0; i != segments[XX]; ++i)
       {
-        Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
+        common::Table<Uint>::Row element_connectivity = volume_connectivity[element_idx++];
         element_connectivity[0] = nodes(block, i  , j  );
         element_connectivity[1] = nodes(block, i+1, j  );
         element_connectivity[2] = nodes(block, i+1, j+1);
@@ -1139,7 +1139,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   // Create the node coordinates
   Geometry& mesh_geo_comp = root_region.geometry();
-  Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
+  common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known
   volume_elements.assign_geometry(mesh_geo_comp);
@@ -1153,7 +1153,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
     const BlockData::IndicesT& segments = block_data.block_subdivisions[block];
     const BlockData::GradingT& gradings = block_data.block_gradings[block];
 
-    Table<Real>::ArrayT ksi, eta; // Mapped coordinates along each edge
+    common::Table<Real>::ArrayT ksi, eta; // Mapped coordinates along each edge
     detail::create_mapped_coords(segments[XX], gradings.begin(), ksi, 2);
     detail::create_mapped_coords(segments[YY], gradings.begin() + 2, eta, 2);
 
@@ -1202,7 +1202,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
     // Create the volume cells connectivity
     const std::string& patch_name = patch_block.parent().name();
     Elements& patch_elements = root_region.create_region(patch_name).create_elements("cf3.mesh.LagrangeP1.Line2D", mesh_geo_comp);
-    Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
+    common::Table<Uint>::ArrayT& patch_connectivity = patch_elements.node_connectivity().array();
 
     // Numbering of the faces
     const Uint XNEG = 3;
@@ -1228,7 +1228,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
         const Uint i = adjacent_face == XNEG ? 0 : segments[XX];
         for(Uint j = 0; j != segments[YY]; ++j)
         {
-          Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + j];
+          common::Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + j];
           element_connectivity[adjacent_face == XNEG ? 0 : 1] = nodes(block.second, i  , j  );
           element_connectivity[adjacent_face == XNEG ? 1 : 0] = nodes(block.second, i  , j+1);
         }
@@ -1243,7 +1243,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
         const Uint j = adjacent_face == YNEG ? 0 : segments[YY];
           for(Uint i = 0; i != segments[XX]; ++i)
           {
-            Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + i];
+            common::Table<Uint>::Row element_connectivity = patch_connectivity[patch_begin + i];
             element_connectivity[adjacent_face == YNEG ? 0 : 1] = nodes(block.second, i  , j);
             element_connectivity[adjacent_face == YNEG ? 1 : 0] = nodes(block.second, i+1, j);
           }
@@ -1257,8 +1257,8 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   if(PE::Comm::instance().is_active())
   {
-    List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    common::List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
+    common::List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
@@ -1368,7 +1368,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   const Uint nb_blocks = blocks_in.block_points.size();
 
   Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
+  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
   // Direction to search from
@@ -1510,7 +1510,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
       {
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
-          Table<Real>::ArrayT mapped_coords;
+          common::Table<Real>::ArrayT mapped_coords;
           detail::create_mapped_coords(block_nb_slices, blocks_to_partition->block_gradings[block_idx].begin() + 4*direction, mapped_coords, 4);
 
           //Adjust gradings and nodes
@@ -1675,7 +1675,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   const Uint nb_blocks = blocks_in.block_points.size();
 
   Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
+  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
   // Numbering of the faces
@@ -1808,7 +1808,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
       {
         BOOST_FOREACH(const Uint block_idx, current_block_layer)
         {
-          Table<Real>::ArrayT mapped_coords;
+          common::Table<Real>::ArrayT mapped_coords;
           detail::create_mapped_coords(block_nb_slices, blocks_to_partition->block_gradings[block_idx].begin() + 2*direction, mapped_coords, 2);
 
           //Adjust gradings and nodes

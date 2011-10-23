@@ -13,10 +13,10 @@
 
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/Table.hpp"
-#include "mesh/Table.hpp"
-#include "mesh/List.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/Table.hpp"
+#include "common/Table.hpp"
+#include "common/List.hpp"
+#include "common/DynTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"
 

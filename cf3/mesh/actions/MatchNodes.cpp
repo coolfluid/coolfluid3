@@ -90,15 +90,15 @@ void MatchNodes::execute()
 
   Region& region_1 = *mesh.access_component_ptr(region_paths[0])->as_ptr<Region>();
   Region& region_2 = *mesh.access_component_ptr(region_paths[1])->as_ptr<Region>();
-  List<Uint>& used_nodes_region_1 = Entities::used_nodes(region_1);
-  List<Uint>& used_nodes_region_2 = Entities::used_nodes(region_2);
+  common::List<Uint>& used_nodes_region_1 = Entities::used_nodes(region_1);
+  common::List<Uint>& used_nodes_region_2 = Entities::used_nodes(region_2);
 
   // Check if regions have same number of used nodes
   if ( used_nodes_region_1.size() != used_nodes_region_2.size() )
     throw SetupError(FromHere(), "Number of used nodes in ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] are different.\n"
       "Nodes cannot be matched." );
 
-  Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry().coordinates();
 
 
   // find bounding box coordinates for region 1 and region 2
@@ -110,7 +110,7 @@ void MatchNodes::execute()
 
   boost_foreach(const Uint coord_idx , used_nodes_region_1.array() )
   {
-    Table<Real>::ConstRow coords = coordinates[coord_idx];
+    common::Table<Real>::ConstRow coords = coordinates[coord_idx];
     for (Uint d=0; d<m_dim; ++d)
     {
       bounding_1[MIN][d] = std::min(bounding_1[MIN][d],  coords[d]);
@@ -121,7 +121,7 @@ void MatchNodes::execute()
 
   boost_foreach(const Uint coord_idx , used_nodes_region_2.array() )
   {
-    Table<Real>::ConstRow coords = coordinates[coord_idx];
+    common::Table<Real>::ConstRow coords = coordinates[coord_idx];
     for (Uint d=0; d<m_dim; ++d)
     {
       bounding_2[MIN][d] = std::min(bounding_2[MIN][d],  coords[d]);
@@ -139,7 +139,7 @@ void MatchNodes::execute()
   // and as value the index of the node in the coordinates table
   boost_foreach(const Uint coords_idx , used_nodes_region_1.array() )
   {
-    Table<Real>::ConstRow row = coordinates[coords_idx];
+    common::Table<Real>::ConstRow row = coordinates[coords_idx];
     RealVector3 coords; coords.setZero();
     for (Uint d=0; d<row.size(); ++d)
       coords[d] = row[d] - bounding_1[MIN][d];
@@ -150,7 +150,7 @@ void MatchNodes::execute()
   std::map<std::size_t,Uint>::const_iterator not_found = hash_to_node_idx.end();
   boost_foreach(const Uint coords_idx , used_nodes_region_2.array() )
   {
-    Table<Real>::ConstRow row = coordinates[coords_idx];
+    common::Table<Real>::ConstRow row = coordinates[coords_idx];
     RealVector3 coords; coords.setZero();
     for (Uint d=0; d<row.size(); ++d)
       coords[d] = row[d] - bounding_2[MIN][d];

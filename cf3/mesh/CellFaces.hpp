@@ -43,7 +43,7 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const { return m_cell_connectivity->size(); }
 
-  virtual Table<Uint>::ConstRow get_nodes(const Uint face_idx) const;
+  virtual common::Table<Uint>::ConstRow get_nodes(const Uint face_idx) const;
 
   bool is_bdry(const Uint idx) { return m_cell_connectivity->is_bdry_face()[idx]; }
 
@@ -59,7 +59,7 @@ protected:
 
   FaceCellConnectivity::Ptr m_cell_connectivity;
 
-  mutable Table<Uint>::ArrayT m_proxy_nodes;
+  mutable common::Table<Uint>::ArrayT m_proxy_nodes;
 
 };
 

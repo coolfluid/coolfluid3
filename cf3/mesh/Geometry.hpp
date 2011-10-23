@@ -14,9 +14,9 @@
 #include "mesh/LibMesh.hpp"
 
 namespace cf3 {
+namespace common { template <typename T> class DynTable; }
 namespace mesh {
 
-template <typename T> class DynTable;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public: // functions
 
   Field& coordinates() const { return *m_coordinates; }
 
-  DynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
+  common::DynTable<Uint>& glb_elem_connectivity() const { return *m_glb_elem_connectivity; }
 
   /// The dimension for the coordinates of the mesh
   Uint dim() const { return coordinates().row_size(); }
@@ -53,7 +53,7 @@ public: // functions
 
 private: // data
 
-  boost::shared_ptr<DynTable<Uint> > m_glb_elem_connectivity;
+  boost::shared_ptr<common::DynTable<Uint> > m_glb_elem_connectivity;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

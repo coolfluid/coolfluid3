@@ -36,7 +36,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 #include "mesh/UnifiedData.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
@@ -119,10 +119,10 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   m_topology = create_static_component_ptr<Link>("topology");
   m_elements_lookup = create_static_component_ptr<UnifiedData>("elements_lookup");
 
-  m_rank = create_static_component_ptr< List<Uint> >("rank");
+  m_rank = create_static_component_ptr< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  m_glb_idx = create_static_component_ptr< List<Uint> >(mesh::Tags::global_indices());
+  m_glb_idx = create_static_component_ptr< common::List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
 
@@ -272,7 +272,7 @@ void FieldGroup::check_sanity()
       throw InvalidStructure(FromHere(),"field ["+field.uri().string()+"] has a size "+to_str(field.size())+" != supposed "+to_str(m_size));
   }
 
-  boost_foreach(List<Uint>& list, find_components<List<Uint> >(*this))
+  boost_foreach(common::List<Uint>& list, find_components<common::List<Uint> >(*this))
   {
     if (list.size() != m_size)
       throw InvalidStructure(FromHere(),"list ["+list.uri().string()+"] has a size "+to_str(list.size())+" != supposed "+to_str(m_size));
@@ -545,7 +545,7 @@ void FieldGroup::create_connectivity_in_space()
     {
       Geometry& geometry = entities.geometry();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
-      List<Uint>& geometry_rank = entities.geometry().rank();
+      common::List<Uint>& geometry_rank = entities.geometry().rank();
       entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       Connectivity& connectivity = entities.space(m_space).connectivity();
@@ -894,7 +894,7 @@ void FieldGroup::create_connectivity_in_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
+common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   Space& space = elements.space(m_space);
   cf3_assert_desc("space not bound to this field_group", &space.bound_fields() == this);
@@ -903,7 +903,7 @@ Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) const
+common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) const
 {
   Component::Ptr component;
   Uint elem_idx;

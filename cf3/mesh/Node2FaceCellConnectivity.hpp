@@ -9,7 +9,7 @@
 
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/UnifiedData.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,8 +62,8 @@ public:
   void build_connectivity();
 
   /// const access to the node to element connectivity table in unified indices
-  DynTable<Uint>& connectivity() { return *m_connectivity; }
-  const DynTable<Uint>& connectivity() const { return *m_connectivity; }
+  common::DynTable<Uint>& connectivity() { return *m_connectivity; }
+  const common::DynTable<Uint>& connectivity() const { return *m_connectivity; }
 
   Uint size() const { return connectivity().size(); }
 //private: //functions
@@ -81,7 +81,7 @@ private: // data
   UnifiedData::Ptr m_face_cell_connectivity;
 
   /// Actual connectivity table
-  DynTable<Uint>::Ptr m_connectivity;
+  common::DynTable<Uint>::Ptr m_connectivity;
 
 }; // Node2FaceCellConnectivity
 

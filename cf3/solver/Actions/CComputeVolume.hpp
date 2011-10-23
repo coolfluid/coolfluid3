@@ -13,7 +13,6 @@
 
 namespace cf3 {
 namespace mesh {
-  template <typename T> class Table;
   class Elements;
   class Field;
   class CScalarFieldView;

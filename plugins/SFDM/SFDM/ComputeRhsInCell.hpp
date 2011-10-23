@@ -9,7 +9,7 @@
 
 #include "solver/Actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "math/MatrixTypes.hpp"
 #include "mesh/CFieldView.hpp"
 #include "mesh/MeshElements.hpp"
@@ -67,7 +67,7 @@ private: // helper functions
 
   void build_riemann_solver();
 
-  RealRowVector    to_row_vector(mesh::Table<Real>::ConstRow row) const ;
+  RealRowVector    to_row_vector(common::Table<Real>::ConstRow row) const ;
   RealMatrix       to_matrix(mesh::CMultiStateFieldView::View data) const ;
 
 private: // data

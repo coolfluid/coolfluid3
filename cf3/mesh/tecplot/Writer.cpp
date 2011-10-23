@@ -18,7 +18,7 @@
 #include "mesh/tecplot/Writer.hpp"
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Space.hpp"
@@ -148,7 +148,7 @@ void Writer::write_file(std::fstream& file)
 
     zone_id[elements.self()] = zone_idx++;
 
-    List<Uint>& used_nodes = Entities::used_nodes(*elements.as_non_const(),true); // VERY DIRTY HACK to remove constness!!!
+    common::List<Uint>& used_nodes = Entities::used_nodes(*elements.as_non_const(),true); // VERY DIRTY HACK to remove constness!!!
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
       zone_node_idx[ used_nodes[n] ] = n+1;
@@ -184,7 +184,7 @@ void Writer::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    const Table<Real>& coordinates = m_mesh->geometry().coordinates();
+    const common::Table<Real>& coordinates = m_mesh->geometry().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment

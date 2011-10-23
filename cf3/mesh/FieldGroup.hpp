@@ -13,13 +13,14 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/LibMesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/UnifiedData.hpp"
 #include "mesh/Entities.hpp"
 
 namespace cf3 {
 namespace common {
   class Link;
+  template <typename T> class List;
   namespace PE { class CommPattern; }
 }
 namespace math { class VariablesDescriptor; }
@@ -29,8 +30,6 @@ namespace mesh {
   class Field;
   class Region;
   class Elements;
-
-  template <typename T> class List;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -106,10 +105,10 @@ public: // functions
   Space& space(const Entities& entities) const { return entities.space(m_space); }
 
   /// Return the global index of every field row
-  List<Uint>& glb_idx() const { return *m_glb_idx; }
+  common::List<Uint>& glb_idx() const { return *m_glb_idx; }
 
   /// Return the rank of every field row
-  List<Uint>& rank() const { return *m_rank; }
+  common::List<Uint>& rank() const { return *m_rank; }
 
   /// Return the comm pattern valid for this field group. Created based on the glb_idx and rank if it didn't exist already
   common::PE::CommPattern& comm_pattern();
@@ -133,9 +132,9 @@ public: // functions
   void create_connectivity_in_space();
   void bind_space();
 
-  Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
 
-  Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
   Field& create_coordinates();
 
@@ -171,8 +170,8 @@ protected:
   Uint m_size;
 
   boost::shared_ptr<common::Link> m_topology;
-  boost::shared_ptr<List<Uint> > m_glb_idx;
-  boost::shared_ptr<List<Uint> > m_rank;
+  boost::shared_ptr<common::List<Uint> > m_glb_idx;
+  boost::shared_ptr<common::List<Uint> > m_rank;
   boost::shared_ptr<UnifiedData> m_elements_lookup;
   boost::shared_ptr<Field> m_coordinates;
   boost::weak_ptr<common::PE::CommPattern> m_comm_pattern;

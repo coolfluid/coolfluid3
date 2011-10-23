@@ -40,7 +40,7 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Field::Field ( const std::string& name  ) :
-  Table<Real> ( name ),
+  common::Table<Real> ( name ),
   m_basis(FieldGroup::Basis::INVALID)
 {
   mark_basic();
@@ -171,18 +171,18 @@ FieldGroup& Field::field_group() const
 void Field::resize(const Uint size)
 {
   set_row_size(descriptor().size());
-  Table<Real>::resize(size);
+  common::Table<Real>::resize(size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
+common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   return field_group().indexes_for_element(elements,idx);
 }
 
 
-Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
+common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 {
   return field_group().indexes_for_element(unified_idx);
 }

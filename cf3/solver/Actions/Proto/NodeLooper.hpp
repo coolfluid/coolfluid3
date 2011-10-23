@@ -166,7 +166,7 @@ struct NodeLooper
   template<typename NbDimsT>
   void operator()(const NbDimsT&)
   {
-    mesh::Table<Real>& coords = m_region.geometry().coordinates();
+    common::Table<Real>& coords = m_region.geometry().coordinates();
     if(NbDimsT::value != coords.row_size())
       return;
   

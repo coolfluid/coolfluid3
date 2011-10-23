@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_ListBufferIterator_hpp
-#define cf3_mesh_ListBufferIterator_hpp
+#ifndef cf3_common_ListBufferIterator_hpp
+#define cf3_common_ListBufferIterator_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 #include "common/CF.hpp"
 
 namespace cf3 {
-namespace mesh {
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -101,4 +101,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_ListBufferIterator_hpp
+#endif // cf3_common_ListBufferIterator_hpp
