@@ -9,8 +9,8 @@
 
 #include "mesh/Field.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/FaceLoop.hpp"
@@ -80,7 +80,7 @@ ElementLoop& FaceTerm::access_element_loop( const std::string& type_name )
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<Physics::Variables>()
+                        .as_type<physics::Variables>()
                         .type();
 
     loop = build_component_abstract_type_reduced< FaceLoop >( "FaceLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");

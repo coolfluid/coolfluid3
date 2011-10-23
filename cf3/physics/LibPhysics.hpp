@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_LibPhysics_hpp
-#define cf3_LibPhysics_hpp
+#ifndef cf3_Libphysics_hpp
+#define cf3_Libphysics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -13,14 +13,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Define the macro Physics_API
+/// Define the macro physics_API
 /// @note build system defines COOLFLUID_SOLVER_EXPORTS when compiling MeshTools files
 #ifdef COOLFLUID_SOLVER_EXPORTS
-#   define Physics_API      CF3_EXPORT_API
-#   define Physics_TEMPLATE
+#   define physics_API      CF3_EXPORT_API
+#   define physics_TEMPLATE
 #else
-#   define Physics_API      CF3_IMPORT_API
-#   define Physics_TEMPLATE CF3_TEMPLATE_EXTERN
+#   define physics_API      CF3_IMPORT_API
+#   define physics_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -28,14 +28,14 @@
 namespace cf3 {
 
   /// Basic Classes for Physics applications used by CF
-  namespace Physics {
+  namespace physics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
   /// Class defines the initialization and termination of the library Physics
   /// @author Tiago Quintino
   /// @author Martin Vymazal
-  class Physics_API LibPhysics : public common::Library {
+  class physics_API LibPhysics : public common::Library {
 
   public:
 
@@ -48,7 +48,7 @@ namespace cf3 {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "cf3.Physics"; }
+    static std::string library_namespace() { return "cf3.physics"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for Library registration
@@ -79,9 +79,9 @@ namespace cf3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_LibPhysics_hpp
+#endif // cf3_Libphysics_hpp

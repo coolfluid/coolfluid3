@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_PhysModel_hpp
-#define cf3_Physics_PhysModel_hpp
+#ifndef cf3_physics_PhysModel_hpp
+#define cf3_physics_PhysModel_hpp
 
 #include "common/Component.hpp"
 
-#include "Physics/LibPhysics.hpp"
+#include "physics/LibPhysics.hpp"
 
 namespace cf3 {
 namespace math { class VariableManager; }
-namespace Physics {
+namespace physics {
 
   class Variables; // forward declaration
 
@@ -28,7 +28,7 @@ namespace Physics {
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 /// @author Bart Janssens
-class Physics_API PhysModel : public common::Component {
+class physics_API PhysModel : public common::Component {
 
 public: //typedefs
 
@@ -67,13 +67,13 @@ public: // functions
   virtual std::string type() const = 0;
 
   /// create a physical properties
-  virtual std::auto_ptr< Physics::Properties > create_properties() = 0;
+  virtual std::auto_ptr< physics::Properties > create_properties() = 0;
 
   /// Create a Variables component
   /// @param type is the name of the Variables
   /// @post the component will be a sub-component of this model but maybe be moved away
   /// @throws ValueNotFound if the type does not match a variable type this model supports
-  virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name ) = 0;
+  virtual boost::shared_ptr< physics::Variables > create_variables( const std::string type, const std::string name ) = 0;
 
   //@} END INTERFACE
 
@@ -89,7 +89,7 @@ private:
 ////////////////////////////////////////////////////////////////////////////////
 
 
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_PhysModel_hpp
+#endif // cf3_physics_PhysModel_hpp

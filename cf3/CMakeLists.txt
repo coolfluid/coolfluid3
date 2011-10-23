@@ -8,7 +8,7 @@ add_subdirectory( mesh )
 add_subdirectory( math )
 
 # physiscs library provides access to physical models
-add_subdirectory( Physics )
+add_subdirectory( physics )
 
 # solver library provides access to PDE solvers
 add_subdirectory( solver )

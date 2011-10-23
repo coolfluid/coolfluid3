@@ -11,7 +11,7 @@
 
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/Tags.hpp"
 
@@ -25,7 +25,7 @@ namespace Proto {
 
 using namespace common;
 using namespace mesh;
-using namespace Physics;
+using namespace physics;
 
 ComponentBuilder < CProtoAction, common::Action, LibSolver > CProtoAction_Builder;
 

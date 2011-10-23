@@ -17,7 +17,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 

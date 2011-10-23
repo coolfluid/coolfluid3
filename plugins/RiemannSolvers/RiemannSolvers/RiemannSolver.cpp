@@ -6,7 +6,7 @@
 
 #include "common/OptionComponent.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "RiemannSolvers/RiemannSolver.hpp"
 
@@ -23,11 +23,11 @@ RiemannSolver::RiemannSolver ( const std::string& name  )
   properties()["brief"] = std::string("Riemann Solver");
   properties()["description"] = std::string("Solves the Riemann problem");
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create("physical_model",&m_physical_model) )
+  m_options.add_option( OptionComponent<physics::PhysModel>::create("physical_model",&m_physical_model) )
       ->description("The component describing the physics")
       ->pretty_name("Physical Model");
 
-  m_options.add_option( OptionComponent<Physics::Variables>::create("solution_vars",&m_solution_vars) )
+  m_options.add_option( OptionComponent<physics::Variables>::create("solution_vars",&m_solution_vars) )
       ->description("The component describing the solution")
       ->pretty_name("Solution Variables");
 }

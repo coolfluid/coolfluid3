@@ -32,7 +32,7 @@ common::ComponentBuilder < SubsonicOutFlowWeakBc,
                            RDM::BoundaryTerm,
                            LibRDM > SubsonicOutFlowWeakBc_Builder;
 
-common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, Physics::NavierStokes::Cons2D>,
+common::ComponentBuilder < FaceLoopT< SubsonicOutFlowWeakBc, physics::NavierStokes::Cons2D>,
                            RDM::FaceLoop,
                            LibRDM > SubsonicOutFlowWeakBc_Euler2D_Builder;
 

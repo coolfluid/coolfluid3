@@ -15,7 +15,7 @@
 namespace cf3 {
 
 namespace mesh { class Mesh; }
-namespace Physics { class PhysModel; }
+namespace physics { class PhysModel; }
 
 namespace solver {
 
@@ -54,7 +54,7 @@ public: // functions
   mesh::Mesh& mesh();
 
   /// @returns the physical model this action relies on
-  Physics::PhysModel& physical_model();
+  physics::PhysModel& physical_model();
 
   /// @returns the time component
   /// @deprecated CTime makes no sense in certain simulations
@@ -75,7 +75,7 @@ protected: // data
   /// mesh where this action data resides
   boost::weak_ptr< mesh::Mesh > m_mesh;
   /// physical model used by this action
-  boost::weak_ptr< Physics::PhysModel > m_physical_model;
+  boost::weak_ptr< physics::PhysModel > m_physical_model;
 
   /// time used by this action
   /// @todo eventually removed time from Action

@@ -9,13 +9,13 @@
 #include "Roe1D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < NavierStokes::Roe1D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibNavierStokes >
                            Builder_Roe1D;
 
@@ -29,5 +29,5 @@ Roe1D::~Roe1D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3

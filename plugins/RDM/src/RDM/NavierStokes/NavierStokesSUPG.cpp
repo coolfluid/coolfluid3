@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<SUPG,Physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > SUPG_Euler2D_Builder;
+common::ComponentBuilder < CellLoopT<SUPG,physics::NavierStokes::Cons2D> , RDM::CellLoop, LibNavierStokes > SUPG_Euler2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

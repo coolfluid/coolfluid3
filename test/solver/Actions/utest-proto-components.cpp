@@ -25,7 +25,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CModel.hpp"
 #include "solver/CSimpleSolver.hpp"
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( UseConfigurableConstant )
 BOOST_AUTO_TEST_CASE( SetupModel )
 {
   CModel& model = Core::instance().root().create_component<CModel>("Model");
-  model.create_physics("cf3.Physics.DynamicModel");
+  model.create_physics("cf3.physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
   Mesh& mesh = dom.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_line(mesh, 1., 5);
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 
   BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
 
-  ComponentWrapper<Physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(solver::Tags::physical_model()));
+  ComponentWrapper<physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(solver::Tags::physical_model()));
 
   BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
 

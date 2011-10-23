@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
-  model.create_physics("cf3.Physics.DynamicModel");
+  model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
   Mesh& mesh = domain.create_component<Mesh>("Mesh");

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_Scalar_LibScalar_hpp
-#define cf3_Physics_Scalar_LibScalar_hpp
+#ifndef cf3_physics_Scalar_LibScalar_hpp
+#define cf3_physics_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 /// @brief %Scalar transport equations
 ///
@@ -52,7 +52,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.Physics.Scalar"; }
+  static std::string library_namespace() { return "cf3.physics.Scalar"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
@@ -84,10 +84,10 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Physics_Scalar_LibScalar_hpp
+#endif // cf3_physics_Scalar_LibScalar_hpp
 

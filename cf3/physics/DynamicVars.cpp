@@ -6,15 +6,15 @@
 
 #include "common/Builder.hpp"
 
-#include "Physics/DynamicVars.hpp"
+#include "physics/DynamicVars.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Physics::DynamicVars,
-                           Physics::Variables,
+common::ComponentBuilder < physics::DynamicVars,
+                           physics::Variables,
                            LibPhysics >
                            Builder_DynamicVars;
 
@@ -24,5 +24,5 @@ DynamicVars::~DynamicVars() {}
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3

@@ -38,7 +38,7 @@
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -467,7 +467,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
   Mesh& mesh = dom.create_component<Mesh>("QuadGrid2");
   Tools::MeshGeneration::create_rectangle(mesh, 1., 1., 1, 1);
 
-  Physics::PhysModel& physics = model.create_physics("cf3.Physics.DynamicModel");
+  physics::PhysModel& physics = model.create_physics("cf3.physics.DynamicModel");
   physics.configure_option(common::Tags::dimension(), 2u);
 
   // Create the initialization expression

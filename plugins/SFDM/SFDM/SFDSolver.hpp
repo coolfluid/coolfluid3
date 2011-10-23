@@ -104,7 +104,7 @@ private: // data
   boost::shared_ptr<common::Group>          m_actions;               ///< the group of shared actions
   boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
 
-  boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
+  boost::weak_ptr<physics::PhysModel>        m_physical_model;        ///< physical model
   boost::weak_ptr<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 
   boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields

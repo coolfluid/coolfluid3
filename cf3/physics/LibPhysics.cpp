@@ -4,31 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-////////////////////////////////////////////////////////////////////////////////
+#include "common/RegistLibrary.hpp"
 
-#include <boost/algorithm/string.hpp>
-
-#include "common/OptionT.hpp"
-
-#include "Physics/Variables.hpp"
+#include "physics/LibPhysics.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
-using namespace common;
-
-////////////////////////////////////////////////////////////////////////////////
-
-Variables::Variables( const std::string& name ) :
-  Component(name)
-{
-}
-
-Variables::~Variables()
-{
-}
+cf3::common::RegistLibrary<LibPhysics> libPhysics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+void LibPhysics::initiate_impl()
+{
+}
+
+void LibPhysics::terminate_impl()
+{
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // physics
 } // cf3

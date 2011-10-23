@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_Scalar_Scalar2D_hpp
-#define cf3_Physics_Scalar_Scalar2D_hpp
+#ifndef cf3_physics_Scalar_Scalar2D_hpp
+#define cf3_physics_Scalar_Scalar2D_hpp
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "math/Defs.hpp"
 #include "math/MatrixTypes.hpp"
@@ -15,12 +15,12 @@
 #include "LibScalar.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-class Scalar_API Scalar2D : public Physics::PhysModel {
+class Scalar_API Scalar2D : public physics::PhysModel {
 
 public: // typedefs
 
@@ -43,7 +43,7 @@ public: // functions
   static std::string type_name () { return "Scalar2D"; }
 
   /// physical properties
-  struct Properties : public Physics::Properties
+  struct Properties : public physics::Properties
   {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW  ///< storing fixed-sized Eigen structures
 
@@ -70,16 +70,16 @@ public: // functions
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
-  virtual std::auto_ptr<Physics::Properties> create_properties()
+  virtual std::auto_ptr<physics::Properties> create_properties()
   {
-    return std::auto_ptr<Physics::Properties>( new Scalar2D::Properties() );
+    return std::auto_ptr<physics::Properties>( new Scalar2D::Properties() );
   }
 
   /// Create a Variables component
   /// @param type is the name of the Variables
   /// @post the component will be a sub-component of this model but maybe be moved away
   /// @throws ValueNotFound if the type does not match a variable type this model supports
-  virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
+  virtual boost::shared_ptr< physics::Variables > create_variables( const std::string type, const std::string name );
 
   //@} END INTERFACE
 
@@ -88,7 +88,7 @@ public: // functions
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_Scalar_Scalar2D_hpp
+#endif // cf3_physics_Scalar_Scalar2D_hpp

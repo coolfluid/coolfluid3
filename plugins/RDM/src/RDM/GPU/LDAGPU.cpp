@@ -15,7 +15,7 @@
 
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/SupportedCells.hpp"    // supported elements
 
@@ -94,7 +94,7 @@ LDAGPU::~LDAGPU() {}
 void LDAGPU::execute()
 {
   /// @todo physical model should be a configuration option of the solver
-  Physics::PhysModel::Ptr pm = find_component_ptr_recursively<Physics::PhysModel>( Core::instance().root() );
+  physics::PhysModel::Ptr pm = find_component_ptr_recursively<physics::PhysModel>( Core::instance().root() );
   if( is_null(pm) )
     throw ValueNotFound(FromHere(), "could not found any physical model to use");
 
@@ -105,19 +105,19 @@ void LDAGPU::execute()
     if ( physics == "LinearAdv2D" )
     {
 
-      LDAGPU::ElementLoop< Physics::Scalar::LinearAdv2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::LinearAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "RotationAdv2D" )
     {
-      LDAGPU::ElementLoop< Physics::Scalar::RotationAdv2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::RotationAdv2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
 
     if ( physics == "Burgers2D" )
     {
-      LDAGPU::ElementLoop< Physics::Scalar::Burgers2D > loop( *this, *region );
+      LDAGPU::ElementLoop< physics::Scalar::Burgers2D > loop( *this, *region );
       boost::mpl::for_each< RDM::CellTypes2D >( loop );
     }
   }

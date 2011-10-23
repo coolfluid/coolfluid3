@@ -15,7 +15,7 @@
 
 namespace cf3 {
 namespace RiemannSolvers { class RiemannSolver; }
-namespace Physics        { class Variables; }
+namespace physics        { class Variables; }
 namespace SFDM {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -52,7 +52,7 @@ private:
   void trigger_physical_model();
   void build_riemann_solver();
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;
-  boost::weak_ptr<Physics::Variables> m_solution_vars;
+  boost::weak_ptr<physics::Variables> m_solution_vars;
 
 }; // end Convection
 

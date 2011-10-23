@@ -18,7 +18,7 @@
 
 //#include "mesh/actions/InitFieldFunction.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Init.hpp"

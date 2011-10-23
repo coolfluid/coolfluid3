@@ -14,8 +14,8 @@
 
 #include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "solver/Actions/CSynchronizeFields.hpp"
 
@@ -27,7 +27,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 using namespace cf3::solver::Actions;
 
@@ -167,7 +167,7 @@ void SFDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
-  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  physics::PhysModel& pm = physics(); // physcial model must have already been configured
   mesh::Mesh& mesh = *m_mesh.lock();
 
   if( physics().ndim() != mesh.dimension() )

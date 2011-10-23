@@ -14,8 +14,8 @@
 
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/GPU/CellLoopGPU.hpp"
@@ -50,7 +50,7 @@ void CSysLDAGPU::execute()
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<Physics::Variables>()
+                        .as_type<physics::Variables>()
                         .type();
 
       loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");

@@ -37,7 +37,7 @@
 
 #include "mesh/BlockMesh/BlockData.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CModel.hpp"
 #include "solver/CSolver.hpp"
@@ -88,7 +88,7 @@ struct ProtoParallelFixture :
   CModel& setup(const std::string& model_name)
   {
     CModel& model = Core::instance().root().create_component<CModel>(model_name);
-    Physics::PhysModel& phys_model = model.create_physics("cf3.Physics.DynamicModel");
+    physics::PhysModel& phys_model = model.create_physics("cf3.physics.DynamicModel");
     Domain& dom = model.create_domain("Domain");
     CSolver& solver = model.create_solver("cf3.solver.CSimpleSolver");
 

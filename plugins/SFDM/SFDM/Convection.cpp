@@ -22,8 +22,8 @@
 #include "mesh/Faces.hpp"
 #include "mesh/CellFaces.hpp"
 
-#include "Physics/Variables.hpp"
-#include "Physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
@@ -38,7 +38,7 @@ namespace SFDM {
 
   using namespace common;
   using namespace mesh;
-  using namespace Physics;
+  using namespace physics;
   using namespace RiemannSolvers;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ void Convection::compute_one_cell_at_a_time()
 
   const Uint nb_vars = solution_field.row_size();
 
-  std::auto_ptr<Physics::Properties> dummy_props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> dummy_props = physical_model().create_properties();
   RealMatrix dummy_flux( physical_model().neqs(), physical_model().ndim() );
   RealVector dummy_coords( physical_model().ndim() );
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
@@ -374,7 +374,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
   Variables& solution_vars = *m_solution_vars.lock();
   const Uint nb_vars = solution_field.row_size();
 
-  std::auto_ptr<Physics::Properties> phys_props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> phys_props = physical_model().create_properties();
   RealMatrix phys_flux( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_coords( physical_model().ndim() );
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
@@ -551,7 +551,7 @@ void Convection::compute_inner_face_flux_points_contribution()
   Variables& solution_vars = *m_solution_vars.lock();
   const Uint nb_vars = solution_field.row_size();
 
-  std::auto_ptr<Physics::Properties> phys_props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> phys_props = physical_model().create_properties();
   RealMatrix phys_flux( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_coords( physical_model().ndim() );
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );

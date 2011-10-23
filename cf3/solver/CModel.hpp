@@ -17,7 +17,7 @@ namespace cf3 {
 
   namespace common  { class Group; }
   namespace mesh    { class Domain; }
-  namespace Physics { class PhysModel; }
+  namespace physics { class PhysModel; }
 
   namespace solver {
 
@@ -55,7 +55,7 @@ public: // functions
 
   /// create physics
   /// @param builder name of the Builder of the physics
-  virtual Physics::PhysModel& create_physics( const std::string& builder );
+  virtual physics::PhysModel& create_physics( const std::string& builder );
 
   /// create solver
   /// @param builder_name name of the Builder of the solver
@@ -65,7 +65,7 @@ public: // functions
   virtual mesh::Domain& domain();
 
   /// gets the physics from this model
-  virtual Physics::PhysModel& physics();
+  virtual physics::PhysModel& physics();
 
   /// gets the solver from this model
   virtual CSolver& solver();

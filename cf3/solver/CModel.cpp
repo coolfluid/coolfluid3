@@ -28,7 +28,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CSolver.hpp"
 #include "solver/CModel.hpp"
@@ -57,7 +57,7 @@ struct CModel::Implementation
   Component& m_component;
   Group& m_tools;
   boost::weak_ptr<Domain> m_domain;
-  boost::weak_ptr<Physics::PhysModel> m_physics;
+  boost::weak_ptr<physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -142,9 +142,9 @@ void CModel::simulate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Physics::PhysModel& CModel::physics()
+physics::PhysModel& CModel::physics()
 {
-  return find_component<Physics::PhysModel>(*this);
+  return find_component<physics::PhysModel>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -170,13 +170,13 @@ Group& CModel::tools()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Physics::PhysModel& CModel::create_physics( const std::string& builder )
+physics::PhysModel& CModel::create_physics( const std::string& builder )
 {
   std::string pm_name = Builder::extract_reduced_name(builder);
 
-  Physics::PhysModel::Ptr pm = boost::algorithm::contains( builder, "." ) ?
-        build_component_abstract_type< Physics::PhysModel >( builder, pm_name ) :
-        build_component_abstract_type_reduced< Physics::PhysModel >( builder, pm_name );
+  physics::PhysModel::Ptr pm = boost::algorithm::contains( builder, "." ) ?
+        build_component_abstract_type< physics::PhysModel >( builder, pm_name ) :
+        build_component_abstract_type_reduced< physics::PhysModel >( builder, pm_name );
 
   add_component(pm);
   m_implementation->m_physics = pm;
@@ -220,7 +220,7 @@ void CModel::signature_create_physics ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  Factory::Ptr pm_factory = Core::instance().factories().get_factory<Physics::PhysModel>();
+  Factory::Ptr pm_factory = Core::instance().factories().get_factory<physics::PhysModel>();
   std::vector<boost::any> pms;
 
   // build the restricted list

@@ -9,14 +9,14 @@
 #include "common/OptionT.hpp"
 #include "common/Tags.hpp"
 
-#include "Physics/DynamicModel.hpp"
-#include "Physics/DynamicVars.hpp"
+#include "physics/DynamicModel.hpp"
+#include "physics/DynamicVars.hpp"
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 using namespace common;
 using namespace math;
@@ -50,13 +50,13 @@ struct DynamicModel::Implementation
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Physics::DynamicModel,
-                           Physics::PhysModel,
+common::ComponentBuilder < physics::DynamicModel,
+                           physics::PhysModel,
                            LibPhysics >
                            Builder_DynamicModel;
                            
 DynamicModel::DynamicModel( const std::string& name ) :
-  Physics::PhysModel(name),
+  physics::PhysModel(name),
   m_implementation(new Implementation(*this))
 {
 }
@@ -105,5 +105,5 @@ std::string DynamicModel::type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3

@@ -19,7 +19,7 @@ env.configure_option('regist_signal_handlers', False)
 
 wizard = root.create_component('Wizard',  'cf3.RDM.SteadyExplicit')
 
-wizard.create_model(model_name='Model', physical_model='cf3.Physics.Scalar.Scalar2D')
+wizard.create_model(model_name='Model', physical_model='cf3.physics.Scalar.Scalar2D')
 model = root.get_child('Model')
 
 

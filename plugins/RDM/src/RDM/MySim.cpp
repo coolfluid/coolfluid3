@@ -24,7 +24,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CModelSteady.hpp"
 #include "solver/CSolver.hpp"
@@ -43,7 +43,7 @@ namespace RDM {
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 
 common::ComponentBuilder < MySim, solver::CWizard, LibRDM > MySim_Builder;

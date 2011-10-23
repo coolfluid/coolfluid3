@@ -43,7 +43,7 @@ namespace RDM {
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 
 common::ComponentBuilder < SteadyExplicit, cf3::solver::CWizard, LibRDM > SteadyExplicit_Builder;

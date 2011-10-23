@@ -13,7 +13,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CSimpleSolver.hpp"
 #include "solver/Tags.hpp"

@@ -15,7 +15,7 @@ create Wizard cf3.RDM.UnsteadyExplicit
 configure Wizard  rkorder:unsigned=1
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=cf3.Physics.LinEuler.LinEuler2D
+                          physical_model:string=cf3.physics.LinEuler.LinEuler2D
 
 ### read mesh
 

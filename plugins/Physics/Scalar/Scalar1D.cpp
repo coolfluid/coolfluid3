@@ -9,12 +9,12 @@
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "Scalar1D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 using namespace common;
@@ -30,14 +30,14 @@ Scalar1D::Properties::Properties()
 ////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < Scalar::Scalar1D,
-                           Physics::PhysModel,
+                           physics::PhysModel,
                            LibScalar >
                            Builder_Scalar1D;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Scalar1D::Scalar1D( const std::string& name ) :
-  Physics::PhysModel(name),
+  physics::PhysModel(name),
   m_v (1.0),
   m_mu (1.0)
 {
@@ -64,11 +64,11 @@ void Scalar1D::set_constants(Scalar1D::Properties& props)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Physics::Variables > Scalar1D::create_variables( const std::string type, const std::string name )
+boost::shared_ptr< physics::Variables > Scalar1D::create_variables( const std::string type, const std::string name )
 {
-  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
-        build_component_abstract_type< Physics::Variables >( type, name ) :
-        build_component_abstract_type< Physics::Variables >( LibScalar::library_namespace() + "." + type, name );
+  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< physics::Variables >( type, name ) :
+        build_component_abstract_type< physics::Variables >( LibScalar::library_namespace() + "." + type, name );
 
   add_component( vars );
 
@@ -78,5 +78,5 @@ boost::shared_ptr< Physics::Variables > Scalar1D::create_variables( const std::s
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3

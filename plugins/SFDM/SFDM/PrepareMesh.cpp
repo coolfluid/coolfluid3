@@ -17,7 +17,7 @@
 #include "mesh/actions/BuildFaces.hpp"
 #include "mesh/actions/GlobalNumbering.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"

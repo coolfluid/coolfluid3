@@ -26,7 +26,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 
 namespace cf3 {

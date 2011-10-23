@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<N, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > N_Burgers2D_Builder;
+common::ComponentBuilder < CellLoopT<N, physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > N_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

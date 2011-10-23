@@ -9,7 +9,7 @@
 #include "NavierStokes/LibNavierStokes.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
   using namespace common;
@@ -29,5 +29,5 @@ void LibNavierStokes::terminate_impl()
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3

@@ -9,13 +9,13 @@
 #include "RotationAdv2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < Scalar::RotationAdv2D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibScalar >
                            Builder_RotationAdv2D;
 
@@ -29,5 +29,5 @@ RotationAdv2D::~RotationAdv2D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3

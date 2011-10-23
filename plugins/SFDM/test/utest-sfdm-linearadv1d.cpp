@@ -23,8 +23,8 @@
 #include "solver/CModel.hpp"
 #include "solver/Tags.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/Geometry.hpp"
@@ -63,7 +63,7 @@ using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 using namespace cf3::SFDM;
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   Uint dim=1;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("cf3.SFDM.SFDSolver","cf3.Physics.Scalar.Scalar1D");
+  model.setup("cf3.SFDM.SFDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   Domain&   domain  = model.domain();
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.Physics.Scalar.LinearAdv1D"));
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.configure_option(SFDM::Tags::solution_order(),order);
   solver.iterative_solver().configure_option("rk_order",order);
   solver.prepare_mesh().execute();

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_Variables_hpp
-#define cf3_Physics_Variables_hpp
+#ifndef cf3_physics_Variables_hpp
+#define cf3_physics_Variables_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,11 +16,11 @@
 #include "math/VariablesDescriptor.hpp"
 #include "math/MatrixTypes.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 namespace cf3 {
 
-namespace Physics {
+namespace physics {
 
   class Variables;
 
@@ -35,7 +35,7 @@ namespace Physics {
 
 /// Interface to a set of variables
 /// @author Tiago Quintino
-class Physics_API Variables : public common::Component {
+class physics_API Variables : public common::Component {
 
 public: //typedefs
 
@@ -64,36 +64,36 @@ public: // functions
   virtual void compute_properties (const RealVector& coord,
                                    const RealVector& vars,
                                    const RealMatrix& grad_vars,
-                                   Physics::Properties& physp) = 0;
+                                   physics::Properties& physp) = 0;
 
   /// compute variables from properties
-  virtual void compute_variables (const Physics::Properties& physp,
+  virtual void compute_variables (const physics::Properties& physp,
                                   RealVector& vars) = 0;
 
   /// compute the physical flux
-  virtual void flux (const Physics::Properties& p,
+  virtual void flux (const physics::Properties& p,
                      RealMatrix& flux) = 0;
 
   /// compute the eigen values of the flux jacobians
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues) = 0;
 
   /// compute the eigen values of the flux jacobians
   /// and apply a provided operator
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues,
                                            UnaryRealOp& op ) = 0;
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
-  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_structure (const physics::Properties& p,
                                               const RealVector& direction,
                                               RealMatrix& Rv,
                                               RealMatrix& Lv,
                                               RealVector& evalues) = 0;
   /// compute the PDE residual
-  virtual void residual(const Physics::Properties& p,
+  virtual void residual(const physics::Properties& p,
                         RealMatrix  flux_jacob[],
                         RealVector& res) = 0;
 
@@ -135,7 +135,7 @@ public:
   virtual void compute_properties(const RealVector& coord,
                                   const RealVector& sol,
                                   const RealMatrix& grad_sol,
-                                  Physics::Properties& p)
+                                  physics::Properties& p)
   {
     typename PHYS::MODEL::Properties& cp =
         static_cast<typename PHYS::MODEL::Properties&>( p );
@@ -143,7 +143,7 @@ public:
     PHYS::compute_properties( coord, sol, grad_sol, cp );
   }
 
-  virtual void compute_variables (const Physics::Properties& p,
+  virtual void compute_variables (const physics::Properties& p,
                                   RealVector& vars)
   {
     typename PHYS::MODEL::Properties const& cp =
@@ -153,7 +153,7 @@ public:
   }
 
   /// compute the physical flux
-  virtual void flux (const Physics::Properties& p,
+  virtual void flux (const physics::Properties& p,
                      RealMatrix& flux)
   {
     typename PHYS::MODEL::Properties const& cp =
@@ -163,7 +163,7 @@ public:
   }
 
   /// compute the eigen values of the flux jacobians
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues)
   {
@@ -175,7 +175,7 @@ public:
 
   /// compute the eigen values of the flux jacobians
   /// and apply a provided operator
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues,
                                            UnaryRealOp& op )
@@ -188,7 +188,7 @@ public:
 
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
-  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_structure (const physics::Properties& p,
                                               const RealVector& direction,
                                               RealMatrix& Rv,
                                               RealMatrix& Lv,
@@ -202,7 +202,7 @@ public:
   }
 
   /// compute the PDE residual
-  virtual void residual(const Physics::Properties& p,
+  virtual void residual(const physics::Properties& p,
                         RealMatrix  flux_jacob[],
                         RealVector& res)
   {
@@ -221,9 +221,9 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Physics_Variables_hpp
+#endif // cf3_physics_Variables_hpp

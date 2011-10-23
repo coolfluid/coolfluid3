@@ -5,7 +5,7 @@ configure //Root/Environment assertion_throws:bool=false assertion_backtrace:boo
 #############################################################################
 ### create model
 create HotModel cf3.solver.CModel
-call HotModel/setup solver_builder:string=cf3.UFEM.HeatConductionSteady physics_builder:string=cf3.Physics.DynamicModel
+call HotModel/setup solver_builder:string=cf3.UFEM.HeatConductionSteady physics_builder:string=cf3.physics.DynamicModel
 
 #############################################################################
 ### Read input

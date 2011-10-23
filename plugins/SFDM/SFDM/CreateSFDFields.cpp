@@ -29,8 +29,8 @@
 #include "mesh/Cells.hpp"
 #include "mesh/FieldManager.hpp"
 
-#include "Physics/Variables.hpp"
-#include "Physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "SFDM/CreateSFDFields.hpp"
 #include "SFDM/Tags.hpp"
@@ -44,7 +44,7 @@ namespace SFDM {
   using namespace mesh;
   using namespace solver::Actions;
   using namespace solver;
-  using namespace Physics;
+  using namespace physics;
 
 ////////////////////////////////////////////////////////////////////////////////
 

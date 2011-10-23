@@ -7,12 +7,12 @@
 #include "common/Signal.hpp"
 #include "common/OptionT.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "math/VariableManager.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 using namespace common;
 using namespace cf3::common::XML;
@@ -76,5 +76,5 @@ void PhysModel::signature_create_variables( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3

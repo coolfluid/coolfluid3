@@ -22,12 +22,12 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons2D> ,
+common::ComponentBuilder < CellLoopT<LDA,physics::NavierStokes::Cons2D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
                            LDA_Euler2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons3D> ,
+common::ComponentBuilder < CellLoopT<LDA,physics::NavierStokes::Cons3D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
                            LDA_Euler3D_Builder;

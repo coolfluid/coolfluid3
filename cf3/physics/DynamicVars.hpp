@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_DynamicVars_hpp
-#define cf3_Physics_DynamicVars_hpp
+#ifndef cf3_physics_DynamicVars_hpp
+#define cf3_physics_DynamicVars_hpp
 
-#include "Physics/DynamicModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/DynamicModel.hpp"
+#include "physics/Variables.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-class Physics_API DynamicVars : public Variables {
+class physics_API DynamicVars : public Variables {
 
 public: // functions
 
@@ -46,27 +46,27 @@ public: // functions
   virtual void compute_properties (const RealVector& coord,
                                    const RealVector& sol,
                                    const RealMatrix& grad_sol,
-                                   Physics::Properties& physp)
+                                   physics::Properties& physp)
   {
     /// @todo to be implemented in the .cpp
   }
 
   /// compute variables from properties
-  virtual void compute_variables (const Physics::Properties& physp,
+  virtual void compute_variables (const physics::Properties& physp,
                                   RealVector& vars)
   {
     /// @todo to be implemented in the .cpp
   }
 
   /// compute the physical flux
-  virtual void flux (const Physics::Properties& p,
+  virtual void flux (const physics::Properties& p,
                      RealMatrix& flux)
   {
     /// @todo to be implemented in the .cpp
   }
 
   /// compute the eigen values of the flux jacobians
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues)
   {
@@ -75,7 +75,7 @@ public: // functions
 
   /// compute the eigen values of the flux jacobians
   /// and apply a provided operator
-  virtual void flux_jacobian_eigen_values (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,
                                            RealVector& evalues,
                                            UnaryRealOp& op )
@@ -84,7 +84,7 @@ public: // functions
   }
 
   /// decompose the eigen structure of the flux jacobians projected on the gradients
-  virtual void flux_jacobian_eigen_structure (const Physics::Properties& p,
+  virtual void flux_jacobian_eigen_structure (const physics::Properties& p,
                                               const RealVector& direction,
                                               RealMatrix& Rv,
                                               RealMatrix& Lv,
@@ -94,7 +94,7 @@ public: // functions
   }
 
   /// compute the PDE residual
-  virtual void residual(const Physics::Properties& p,
+  virtual void residual(const physics::Properties& p,
                         RealMatrix  flux_jacob[],
                         RealVector& res)
   {
@@ -113,7 +113,7 @@ public: // functions
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_DynamicVars_hpp
+#endif // cf3_physics_DynamicVars_hpp

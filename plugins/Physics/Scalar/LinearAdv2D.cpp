@@ -9,13 +9,13 @@
 #include "LinearAdv2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < Scalar::LinearAdv2D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibScalar >
                            Builder_LinearAdv2D;
 
@@ -29,5 +29,5 @@ LinearAdv2D::~LinearAdv2D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3

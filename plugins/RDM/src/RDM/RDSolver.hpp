@@ -17,7 +17,7 @@
 namespace cf3 {
 
 namespace mesh    { class Field;    class Mesh; }
-namespace Physics { class PhysModel; class Variables; }
+namespace physics { class PhysModel; class Variables; }
 namespace solver  { namespace Actions { class CSynchronizeFields; } }
 
 namespace RDM {
@@ -114,7 +114,7 @@ private: // data
 
   boost::shared_ptr<ActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
 
-  boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
+  boost::weak_ptr< physics::PhysModel >   m_physical_model;        ///< physical model
 
   boost::weak_ptr<mesh::Mesh> m_mesh; ///< mesh which this solver operates
 

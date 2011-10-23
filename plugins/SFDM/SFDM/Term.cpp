@@ -13,8 +13,8 @@
 #include "mesh/FieldGroup.hpp"
 #include "mesh/FieldManager.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "solver/CSolver.hpp"
 #include "solver/Actions/CLoop.hpp"

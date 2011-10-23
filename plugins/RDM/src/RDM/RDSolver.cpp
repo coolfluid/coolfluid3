@@ -18,8 +18,8 @@
 
 #include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "solver/Actions/CSynchronizeFields.hpp"
 
@@ -35,7 +35,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 using namespace cf3::solver::Actions;
 
@@ -186,7 +186,7 @@ void RDSolver::config_mesh()
 
   Mesh& mesh = *(m_mesh.lock());
 
-  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  physics::PhysModel& pm = physics(); // physcial model must have already been configured
 
   if( pm.ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );

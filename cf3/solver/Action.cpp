@@ -11,7 +11,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CTime.hpp"
 #include "solver/Action.hpp"
@@ -42,7 +42,7 @@ Action::Action ( const std::string& name ) :
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( common::OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  m_options.add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
@@ -59,9 +59,9 @@ Action::Action ( const std::string& name ) :
 Action::~Action() {}
 
 
-Physics::PhysModel& Action::physical_model()
+physics::PhysModel& Action::physical_model()
 {
-  Physics::PhysModel::Ptr model = m_physical_model.lock();
+  physics::PhysModel::Ptr model = m_physical_model.lock();
   if( is_null(model) )
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );

@@ -13,7 +13,7 @@
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 /// @file
 /// Wraps Component classes for Proto

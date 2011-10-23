@@ -35,7 +35,7 @@
 
 #include "mesh/SF/Quad2DLagrangeP1.hpp"
 #include "solver/Physics.hpp"
-#include "Physics/src/Euler/Cons1D.hpp"
+#include "physics/src/Euler/Cons1D.hpp"
 
 using namespace cf3;
 using namespace cf3::mesh;

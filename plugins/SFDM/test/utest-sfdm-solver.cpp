@@ -21,8 +21,8 @@
 #include "solver/CModel.hpp"
 #include "solver/Tags.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/Geometry.hpp"
@@ -59,7 +59,7 @@ using namespace cf3;
 using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 using namespace cf3::solver;
 using namespace cf3::SFDM;
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   Uint dim=2;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("cf3.SFDM.SFDSolver","cf3.Physics.LinEuler.LinEuler2D");
+  model.setup("cf3.SFDM.SFDSolver","cf3.physics.LinEuler.LinEuler2D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
   Domain&   domain  = model.domain();
@@ -141,7 +141,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.Physics.LinEuler.Cons2D"));
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.LinEuler.Cons2D"));
   solver.configure_option(SFDM::Tags::solution_order(),order);
   solver.iterative_solver().configure_option("rk_order",3u);
   solver.prepare_mesh().execute();
@@ -162,7 +162,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   functions.push_back(c2 + "*" + rho);
 
   // Accoustic pulse Euler
-//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.Physics.LinEuler.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.LinEuler.Prim2D",SFDM::Tags::input_vars())->uri() );
 //  std::string rho_ac = "0.001*exp( -( (x-0.5)^2 + (y-0.5)^2 )/(0.05)^2 )";
 //  std::string c2 = "1.4*1/1";  // c = sqrt(gamma*P0*rho0)
 //  functions.push_back("1*(1+"+rho_ac+")");
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
 // Shocktube
-//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.Physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
+//  shocktube.configure_option(SFDM::Tags::input_vars(), physics.create_variables("cf3.physics.NavierStokes.Prim2D",SFDM::Tags::input_vars())->uri() );
 //  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 4.696  , 1.408  )"); // Prim2D[ Rho ]
 //  functions.push_back("if( x<="+to_str(lengths[XX]/2.)+"& y<="+to_str(lengths[YY]/2.)+" , 0      , 0      )"); // Prim2D[ U   ]
 //  if (dim>1)
@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
 
   // Discretization
-//  physics.create_variables("cf3.Physics.LinEuler.Roe2D","roe_vars");
+//  physics.create_variables("cf3.physics.LinEuler.Roe2D","roe_vars");
   solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 //  solver.domain_discretization().create_term("cf3.SFDM.DummyTerm","term_2",std::vector<URI>(1,mesh.topology().uri()));
 //  solver.domain_discretization().create_term("cf3.SFDM.DummyTerm","term_3",std::vector<URI>(1,mesh.topology().uri()));

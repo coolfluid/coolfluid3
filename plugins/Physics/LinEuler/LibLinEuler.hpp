@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_LinEuler_LibLinEuler_hpp
-#define cf3_Physics_LinEuler_LibLinEuler_hpp
+#ifndef cf3_physics_LinEuler_LibLinEuler_hpp
+#define cf3_physics_LinEuler_LibLinEuler_hpp
 
 
 #include "common/Library.hpp"
@@ -22,7 +22,7 @@
 
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 /// @brief %Linearized Euler equations for sound propagation
 ///
@@ -49,7 +49,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.Physics.LinEuler"; }
+  static std::string library_namespace() { return "cf3.physics.LinEuler"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
@@ -81,8 +81,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_LinEuler_LibLinEuler_hpp
+#endif // cf3_physics_LinEuler_LibLinEuler_hpp
 

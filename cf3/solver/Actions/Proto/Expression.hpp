@@ -25,7 +25,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/LagrangeP1/ElementTypes.hpp"
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "ConfigurableConstant.hpp"
 #include "ElementLooper.hpp"
@@ -56,7 +56,7 @@ public:
   virtual void add_options(common::OptionList& options) = 0;
 
   /// Register the variables that appear in the expression with a physical model
-  virtual void register_variables(Physics::PhysModel& physical_model) = 0;
+  virtual void register_variables(physics::PhysModel& physical_model) = 0;
 
   /// Append the field tags to the given vector
   virtual void insert_tags(std::set<std::string>& tags) const = 0;
@@ -111,7 +111,7 @@ public:
     }
   }
 
-  void register_variables(Physics::PhysModel& physical_model)
+  void register_variables(physics::PhysModel& physical_model)
   {
     boost::fusion::for_each(m_variables, RegisterVariables(physical_model));
   }
@@ -145,7 +145,7 @@ private:
   /// Functor to register variables in a physical model
   struct RegisterVariables
   {
-    RegisterVariables(Physics::PhysModel& physical_model) :
+    RegisterVariables(physics::PhysModel& physical_model) :
       m_physical_model(physical_model)
     {
     }
@@ -188,7 +188,7 @@ private:
       return *result;
     }
 
-    Physics::PhysModel& m_physical_model;
+    physics::PhysModel& m_physical_model;
   };
 
   /// Functor to store the tags used by a field

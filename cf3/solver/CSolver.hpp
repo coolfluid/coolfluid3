@@ -17,7 +17,7 @@
 namespace cf3 {
 
 namespace mesh { class Domain; class Mesh; class FieldManager; }
-namespace Physics { class PhysModel; }
+namespace physics { class PhysModel; }
 
 namespace solver {
 
@@ -65,7 +65,7 @@ protected:
   mesh::Domain& domain();
 
   /// Checked access to the physical model
-  Physics::PhysModel& physics();
+  physics::PhysModel& physics();
 
 private:
   class Implementation;

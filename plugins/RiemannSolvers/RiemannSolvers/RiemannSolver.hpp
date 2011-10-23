@@ -14,7 +14,7 @@
 #include "RiemannSolvers/RiemannSolvers/LibRiemannSolvers.hpp"
 
 namespace cf3 {
-namespace Physics { class Variables; class PhysModel;}
+namespace physics { class Variables; class PhysModel;}
 namespace RiemannSolvers {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -49,11 +49,11 @@ public: // functions
 
 protected:
 
-  Physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
-  Physics::PhysModel& physical_model() const { return *m_physical_model.lock(); }
+  physics::Variables& solution_vars() const { return *m_solution_vars.lock(); }
+  physics::PhysModel& physical_model() const { return *m_physical_model.lock(); }
 
-  boost::weak_ptr<Physics::PhysModel> m_physical_model;
-  boost::weak_ptr<Physics::Variables> m_solution_vars;
+  boost::weak_ptr<physics::PhysModel> m_physical_model;
+  boost::weak_ptr<physics::Variables> m_solution_vars;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

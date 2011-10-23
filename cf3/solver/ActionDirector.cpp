@@ -10,7 +10,7 @@
 
 #include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CTime.hpp"
 #include "solver/ActionDirector.hpp"
@@ -43,7 +43,7 @@ ActionDirector::ActionDirector ( const std::string& name ) :
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  m_options.add_option( OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
@@ -57,9 +57,9 @@ ActionDirector::ActionDirector ( const std::string& name ) :
 ActionDirector::~ActionDirector() {}
 
 
-Physics::PhysModel& ActionDirector::physical_model()
+physics::PhysModel& ActionDirector::physical_model()
 {
-  Physics::PhysModel::Ptr model = m_physical_model.lock();
+  physics::PhysModel::Ptr model = m_physical_model.lock();
   if( is_null(model) )
     throw common::SetupError( FromHere(),
                              "Physical Model not yet set for component " + uri().string() );

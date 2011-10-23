@@ -26,7 +26,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/Actions/CLoopOperation.hpp"
 

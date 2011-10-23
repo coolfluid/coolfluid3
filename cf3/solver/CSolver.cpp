@@ -15,7 +15,7 @@
 #include "mesh/Domain.hpp"
 #include "mesh/FieldManager.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CSolver.hpp"
 #include "solver/Tags.hpp"
@@ -34,7 +34,7 @@ struct CSolver::Implementation {
     m_component(component),
     m_field_manager(component.create_static_component<FieldManager>("FieldManager"))
   {
-    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(Tags::physical_model())
+    m_component.options().add_option< OptionComponent<physics::PhysModel> >(Tags::physical_model())
       ->pretty_name("Physical Model")
       ->description("Physical Model")
       ->link_to(&m_physics)
@@ -51,11 +51,11 @@ struct CSolver::Implementation {
 
   void trigger_physical_model()
   {
-    m_field_manager.configure_option("variable_manager", dynamic_cast< OptionComponent<Physics::PhysModel>& >(m_component.option("physical_model")).component().variable_manager().uri());
+    m_field_manager.configure_option("variable_manager", dynamic_cast< OptionComponent<physics::PhysModel>& >(m_component.option("physical_model")).component().variable_manager().uri());
   }
 
   // Checked access to the physics
-  Physics::PhysModel& physics()
+  physics::PhysModel& physics()
   {
     if(m_physics.expired())
       throw SetupError(FromHere(), "No physical model configured for " + m_component.uri().string());
@@ -87,7 +87,7 @@ struct CSolver::Implementation {
   boost::weak_ptr<Domain> m_domain;
   FieldManager& m_field_manager;
 
-  boost::weak_ptr<Physics::PhysModel> m_physics;
+  boost::weak_ptr<physics::PhysModel> m_physics;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +135,7 @@ Domain& CSolver::domain()
   return m_implementation->domain();
 }
 
-Physics::PhysModel& CSolver::physics()
+physics::PhysModel& CSolver::physics()
 {
   return m_implementation->physics();
 }

@@ -14,7 +14,7 @@ namespace cf3 {
 namespace RiemannSolvers {
 
 using namespace common;
-using namespace Physics;
+using namespace physics;
 
 common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
@@ -22,7 +22,7 @@ common::ComponentBuilder < Roe, RiemannSolver, LibRiemannSolvers > Roe_Builder;
 
 Roe::Roe ( const std::string& name ) : RiemannSolver(name)
 {
-  options().add_option( OptionComponent<Physics::Variables>::create("roe_vars",&m_roe_vars) )
+  options().add_option( OptionComponent<physics::Variables>::create("roe_vars",&m_roe_vars) )
       ->description("The component describing the Roe variables")
       ->pretty_name("Roe Variables");
 
@@ -103,8 +103,8 @@ void Roe::trigger_physical_model()
 void Roe::compute_interface_flux(const RealVector& left, const RealVector& right, const RealVector& normal,
                                  RealVector& flux)
 {
-  Physics::Variables& sol_vars = *m_solution_vars.lock();
-  Physics::Variables& roe_vars = *m_roe_vars.lock();
+  physics::Variables& sol_vars = *m_solution_vars.lock();
+  physics::Variables& roe_vars = *m_roe_vars.lock();
   // Compute left and right properties
   sol_vars.compute_properties(coord,left,grads,*p_left);
   sol_vars.compute_properties(coord,right,grads,*p_right);

@@ -14,7 +14,7 @@ env.configure_option('log_level', 4)
 
 # setup a model
 model = root.create_component('NavierStokes', 'cf3.solver.CModelUnsteady')
-model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.Physics.DynamicModel')
+model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.physics.DynamicModel')
 solver = model.get_child('NavierStokes')
 domain = model.get_child('Domain')
 domain.create_component('neuReader', 'cf3.mesh.neu.Reader')

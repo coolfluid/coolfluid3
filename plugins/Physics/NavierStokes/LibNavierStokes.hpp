@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 /// @brief %Physics %NavierStokes classes
 ///
@@ -53,7 +53,7 @@ public:
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "cf3.Physics.NavierStokes"; }
+  static std::string library_namespace() { return "cf3.physics.NavierStokes"; }
 
   /// Static function that returns the library name.
   /// Must be implemented for Library registration
@@ -85,7 +85,7 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

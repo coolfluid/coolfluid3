@@ -27,8 +27,8 @@
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::RiemannSolvers;
-using namespace cf3::Physics;
-using namespace cf3::Physics::NavierStokes;
+using namespace cf3::physics;
+using namespace cf3::physics::NavierStokes;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes1D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model1D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes1D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.physics.NavierStokes.NavierStokes1D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons1D","solution");
   Variables& roe_vars = *physics.create_variables("Roe1D","roe");
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes2D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model2D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.physics.NavierStokes.NavierStokes2D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons2D","solution");
   Variables& roe_vars = *physics.create_variables("Roe2D","roe");
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE( NavierStokes3D_Roe )
   Component& model =  Core::instance().root().create_component<Component>("model3D");
 
   // Creation of physics + variables
-  PhysModel& physics = model.create_component("navierstokes","cf3.Physics.NavierStokes.NavierStokes3D").as_type<PhysModel>();
+  PhysModel& physics = model.create_component("navierstokes","cf3.physics.NavierStokes.NavierStokes3D").as_type<PhysModel>();
   Variables& sol_vars = *physics.create_variables("Cons3D","solution");
   Variables& roe_vars = *physics.create_variables("Roe3D","roe");
 

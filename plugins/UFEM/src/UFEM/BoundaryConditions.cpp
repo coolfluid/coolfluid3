@@ -60,7 +60,7 @@ struct BoundaryConditions::Implementation
       ->pretty_name("Regions")
       ->description("Regions the boundary condition applies to")
       ->link_to(&m_region_uris);
-    m_component.options().add_option< OptionComponent<Physics::PhysModel> >(solver::Tags::physical_model())
+    m_component.options().add_option< OptionComponent<physics::PhysModel> >(solver::Tags::physical_model())
       ->pretty_name("Physical Model")
       ->description("Physical Model")
       ->link_to(&m_physical_model);
@@ -94,7 +94,7 @@ struct BoundaryConditions::Implementation
   }
 
   // Checked access to the physical model
-  Physics::PhysModel& physical_model()
+  physics::PhysModel& physical_model()
   {
     if(m_physical_model.expired())
       throw SetupError(FromHere(), "Error accessing physical_model from " + m_component.uri().string());
@@ -103,7 +103,7 @@ struct BoundaryConditions::Implementation
   }
 
   ActionDirector& m_component;
-  boost::weak_ptr<Physics::PhysModel> m_physical_model;
+  boost::weak_ptr<physics::PhysModel> m_physical_model;
   DirichletBC dirichlet;
   std::vector<URI> m_region_uris;
 };

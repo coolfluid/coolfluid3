@@ -23,7 +23,7 @@
 #include "solver/Actions/CSolveSystem.hpp"
 #include "solver/Actions/Proto/CProtoAction.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "LinearSolver.hpp"
 #include "SparsityBuilder.hpp"

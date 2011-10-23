@@ -13,7 +13,7 @@ configure //Root/Environment assertion_throws:bool=false   \
 create Wizard cf3.RDM.SteadyExplicit
 
 call Wizard/create_model  model_name:string=Model \
-                          physical_model:string=cf3.Physics.NavierStokes.NavierStokes2D
+                          physical_model:string=cf3.physics.NavierStokes.NavierStokes2D
 
 ### read mesh
 

@@ -10,7 +10,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
@@ -28,7 +28,7 @@
 
 using namespace cf3::common;
 using namespace cf3::mesh;
-using namespace cf3::Physics;
+using namespace cf3::physics;
 
 namespace cf3 {
 namespace SFDM {
@@ -91,7 +91,7 @@ void Init::execute()
   RealMatrix grad_vars( physical_model().neqs(), physical_model().ndim() );
   RealVector sol (physical_model().neqs() );
 
-  std::auto_ptr<Physics::Properties> props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> props = physical_model().create_properties();
 
   boost_foreach(Cells& elements, find_components_recursively<Cells>(solution.topology()))
   {

@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > LF_LinearAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<LF, physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > LF_LinearAdv2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > LF_LinearAdvSys2D_Builder;
+common::ComponentBuilder < CellLoopT<LF, physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > LF_LinearAdvSys2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LF, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > LF_RotationAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<LF, physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > LF_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

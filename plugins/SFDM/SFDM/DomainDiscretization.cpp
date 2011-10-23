@@ -15,7 +15,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "solver/CSolver.hpp"
 #include "solver/Actions/CForAllCells.hpp"
