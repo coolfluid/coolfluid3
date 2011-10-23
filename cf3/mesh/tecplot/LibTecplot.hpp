@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro tecplot_API
-/// @note build system defines COOLFLUID_GMSH_EXPORTS when compiling tecplot files
-#ifdef COOLFLUID_GMSH_EXPORTS
+/// @note build system defines COOLFLUID_TECPLOT_EXPORTS when compiling tecplot files
+#ifdef COOLFLUID_TECPLOT_EXPORTS
 #   define tecplot_API      CF3_EXPORT_API
 #   define tecplot_TEMPLATE
 #else
@@ -29,8 +29,8 @@
 
 namespace cf3 {
 namespace mesh {
-  
-/// @brief Library for I/O of the tecplot format 
+
+/// @brief Library for I/O of the tecplot format
 namespace tecplot {
 
 ////////////////////////////////////////////////////////////////////////////////
