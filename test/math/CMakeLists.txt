@@ -50,13 +50,15 @@ coolfluid_add_test( UTEST utest-lss-system-emptylss
 coolfluid_add_test( UTEST utest-lss-atomic
                     CPP   utest-lss-atomic.cpp
                     LIBS  coolfluid_math_lss
-                    MPI   2 )
+                    MPI   2
+                    CONDITION CF3_HAVE_TRILINOS )
 
 
 coolfluid_add_test( UTEST utest-lss-distributed-matrix
                     CPP   utest-lss-distributed-matrix.cpp utest-lss-test-matrix.hpp
                     LIBS  coolfluid_math_lss
-                    MPI   4 )
+                    MPI   4
+                    CONDITION CF3_HAVE_TRILINOS )
 
 
 ################################################################################
