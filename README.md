@@ -1,27 +1,7 @@
-COOLFluiD 3
-===========
+![coolfluid logo](http://coolfluidsrv.vki.ac.be/trac/coolfluid/chrome/site/images/coolbanner.png width=5)
 
-Download and installation
--------------------------
+  + [Installation from sources](http://coolfluidsrv.vki.ac.be/webfiles/coolfluid3/api/nightly/installation.html)
 
-  + To install from the Git repository
-  
-```
-  mkdir coolfluid3
-  cd coolfluid3
-  export CF3=$PWD
-  git clone https://github.com/coolfluid/coolfluid3 kernel
-  ./kernel/tools/install-deps.pl --install=basic,zoltan --install-dir=$CF3/deps
-  mkdir build
-  cd build
-  cmake $CF3/kernel -DDEPS_ROOT=$CF3/deps
-  make
-```
+  + [Nightly build documentation & tutorials](http://coolfluidsrv.vki.ac.be/webfiles/coolfluid3/api/nightly/index.html)
 
-  + For developers
-  
-    Create a github account and fork from coolfluid3 project.
-    Follow the same steps as described above, but use your own github fork instead.
-    Send pull-request when you are done developing.
-
-  + To install from sources see [[https://github.com/coolfluid/coolfluid3/wiki/Installation]]
+  + [Dashboard](http://coolfluidsrv.vki.ac.be/cdash/index.php?project=coolfluid)
