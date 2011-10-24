@@ -17,7 +17,7 @@
 #include "physics/Variables.hpp"
 
 #include "solver/CSolver.hpp"
-#include "solver/Actions/CLoop.hpp"
+#include "solver/actions/CLoop.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/Term.hpp"
@@ -25,7 +25,7 @@
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {

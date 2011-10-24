@@ -20,8 +20,8 @@
 #include "mesh/LagrangeP1/Line1D.hpp"
 #include "solver/CModel.hpp"
 
-#include "solver/Actions/Proto/CProtoAction.hpp"
-#include "solver/Actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -30,8 +30,8 @@
 
 using namespace cf3;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
-using namespace cf3::solver::Actions::Proto;
+using namespace cf3::solver::actions;
+using namespace cf3::solver::actions::Proto;
 using namespace cf3::common;
 using namespace cf3::math::Consts;
 using namespace cf3::mesh;

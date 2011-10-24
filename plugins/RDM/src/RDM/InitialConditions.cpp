@@ -71,7 +71,7 @@ void InitialConditions::execute()
   // synchronize fields to insure consistency of parallel data
 
   Action& synchronize =
-      access_component( "cpath:../Actions/Synchronize" ).as_type<Action>();
+      access_component( "cpath:../actions/Synchronize" ).as_type<Action>();
 
   synchronize.execute();
 }

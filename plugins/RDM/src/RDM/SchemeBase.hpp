@@ -28,7 +28,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/CellLoop.hpp"
@@ -44,7 +44,7 @@ namespace RDM {
 /// the physical variables
 /// @author Tiago Quintino
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public solver::Actions::CLoopOperation {
+class RDM_API SchemeBase : public solver::actions::CLoopOperation {
 
 public: // typedefs
 

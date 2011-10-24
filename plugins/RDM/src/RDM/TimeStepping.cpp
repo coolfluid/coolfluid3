@@ -14,9 +14,9 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "solver/CTime.hpp"
-#include "solver/Actions/CCriterionTime.hpp"
-#include "solver/Actions/CCriterionMaxIterations.hpp"
-#include "solver/Actions/CPeriodicWriteMesh.hpp"
+#include "solver/actions/CCriterionTime.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CPeriodicWriteMesh.hpp"
 
 #include "RDM/FaceTerm.hpp"
 
@@ -26,7 +26,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {

@@ -27,7 +27,7 @@
 #include "solver/CTime.hpp"
 #include "RDM/Tags.hpp"
 
-#include "solver/Actions/CCriterionTime.hpp"
+#include "solver/actions/CCriterionTime.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -48,7 +48,7 @@ using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::physics;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE( test_fields_lines )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function sin(2*pi*x)
-  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
+  actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<actions::InitFieldFunction>("init_field");
   init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x)"));
   init_field->configure_option("field",solution.uri());
   init_field->transform(*mesh);
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE( test_fields_quads )
   CFinfo << "solution_fieldsize = " << solution.size() << CFendl;
 
   /// Initialize solution field with the function exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )
-  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
+  actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<actions::InitFieldFunction>("init_field");
   std::string gaussian="sigma:="+to_str(0.1)+"; mu:="+to_str(0.5)+"; exp( -( (x-mu)^2+(y-mu)^2 )/(2*sigma^2) )";
   init_field->configure_option("functions",std::vector<std::string>(1,gaussian));
   init_field->configure_option("field",solution.uri());

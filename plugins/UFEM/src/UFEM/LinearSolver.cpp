@@ -20,8 +20,8 @@
 #include "mesh/Geometry.hpp"
 
 #include "solver/Tags.hpp"
-#include "solver/Actions/CSolveSystem.hpp"
-#include "solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/actions/CSolveSystem.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -36,8 +36,8 @@ using namespace common;
 using namespace math;
 using namespace mesh;
 using namespace solver;
-using namespace solver::Actions;
-using namespace solver::Actions::Proto;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
 class ZeroAction : public common::Action
 {

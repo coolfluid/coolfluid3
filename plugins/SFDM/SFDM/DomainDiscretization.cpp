@@ -18,8 +18,8 @@
 #include "physics/PhysModel.hpp"
 
 #include "solver/CSolver.hpp"
-#include "solver/Actions/CForAllCells.hpp"
-#include "solver/Actions/CForAllFaces.hpp"
+#include "solver/actions/CForAllCells.hpp"
+#include "solver/actions/CForAllFaces.hpp"
 
 #include "SFDM/DomainDiscretization.hpp"
 #include "SFDM/Term.hpp"
@@ -29,7 +29,7 @@ using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {

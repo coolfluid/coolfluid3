@@ -41,12 +41,12 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeRhsInCell, solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
+common::ComponentBuilder < ComputeRhsInCell, solver::actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
-  solver::Actions::CLoopOperation(name)
+  solver::actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))

@@ -21,7 +21,7 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
-#include "solver/Actions/CSynchronizeFields.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/InitialConditions.hpp"
@@ -37,7 +37,7 @@ using namespace cf3::common::XML;
 using namespace cf3::mesh;
 using namespace cf3::physics;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {

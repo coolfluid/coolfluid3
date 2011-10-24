@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_solver_Actions_ComputeRhsInCell_hpp
-#define CF_solver_Actions_ComputeRhsInCell_hpp
+#ifndef CF_solver_actions_ComputeRhsInCell_hpp
+#define CF_solver_actions_ComputeRhsInCell_hpp
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
 #include "common/Table.hpp"
 #include "math/MatrixTypes.hpp"
@@ -32,7 +32,7 @@ namespace SFDM {
 ///
 /// It is the workhorse of SFD Solver.
 
-class SFDM_API ComputeRhsInCell : public solver::Actions::CLoopOperation {
+class SFDM_API ComputeRhsInCell : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
@@ -110,4 +110,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_solver_Actions_ComputeRhsInCell_hpp
+#endif // CF_solver_actions_ComputeRhsInCell_hpp

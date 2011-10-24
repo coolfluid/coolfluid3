@@ -32,7 +32,7 @@ using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-//using namespace cf3::solver::Actions;
+//using namespace cf3::solver::actions;
 using namespace cf3::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -57,9 +57,9 @@ BOOST_AUTO_TEST_CASE( solver_1D )
   SimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
-  Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.Actions.Conditional");
-  if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneIteration");
+  Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.actions.Conditional");
+  if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneIteration");
 
   WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_option("mesh",mesh.uri());
@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( solver_2D )
   SimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
-  //Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.Actions.Conditional");
-  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","cf3.solver.Actions.CCriterionMilestoneIteration");
+  //Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.actions.Conditional");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneIteration");
 
   //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();

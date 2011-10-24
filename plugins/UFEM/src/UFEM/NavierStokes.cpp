@@ -7,8 +7,8 @@
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
 
-#include "solver/Actions/Proto/CProtoAction.hpp"
-#include "solver/Actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "NavierStokes.hpp"
 #include "Tags.hpp"
@@ -19,7 +19,7 @@ namespace UFEM {
 
 using namespace common;
 using namespace solver;
-using namespace solver::Actions::Proto;
+using namespace solver::actions::Proto;
 
 ComponentBuilder < NavierStokes, CSolver, LibUFEM > NavierStokes_builder;
 
