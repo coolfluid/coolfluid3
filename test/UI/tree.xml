@@ -1,4 +1,4 @@
-<node name="Root" atype="CRoot" mode="basic">
+<node name="Root" atype="Root" mode="basic">
   <map>
     <value key="properties">
       <map>
@@ -11,7 +11,7 @@
       </map>
     </value>
   </map>
-  <node name="Core" atype="CCore" mode="adv">
+  <node name="Core" atype="Core" mode="adv">
     <map>
       <value key="properties">
         <map>
@@ -25,7 +25,7 @@
       </value>
     </map>
   </node>
-  <node name="Environment" atype="CEnv" mode="basic">
+  <node name="Environment" atype="Env" mode="basic">
     <map>
       <value key="properties">
         <map>
@@ -66,7 +66,7 @@
       </value>
     </map>
   </node>
-  <node name="Tools" atype="CGroup" mode="basic">
+  <node name="Tools" atype="Group" mode="basic">
     <map>
       <value key="properties">
         <map>
@@ -97,7 +97,7 @@
         </map>
       </value>
     </map>
-    <node name="Journal" atype="CJournal" mode="basic">
+    <node name="Journal" atype="Journal" mode="basic">
       <map>
         <value key="properties">
           <map>
@@ -129,6 +129,6 @@ Recording replies will significantly increase the journal size and the memory us
         </value>
       </map>
     </node>-->
-    <node name="TheLink" atype="CLink" mode="basic">cpath://Root/Environment</node>
+    <node name="TheLink" atype="Link" mode="basic">cpath://Root/Environment</node>
   </node>
 </node>
