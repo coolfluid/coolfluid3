@@ -132,6 +132,10 @@ namespace Core {
     /// replaced when the corresponding child is built by @c getChild method.
     QList<TreeNode *> m_child_nodes;
 
+  private:
+
+    void remove_child( TreeNode * child );
+
   }; // class MyTreeItem
 
 ////////////////////////////////////////////////////////////////////////////

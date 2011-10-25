@@ -33,8 +33,11 @@ namespace Core {
 
 TreeNode::~TreeNode()
 {
+  if( is_not_null( m_parent ) )
+    m_parent->remove_child( this );
+
   while(!m_child_nodes.isEmpty())
-    delete m_child_nodes.takeFirst();
+    delete m_child_nodes.takeLast();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -146,6 +149,13 @@ void TreeNode::update_child_list()
 
   for(int i = 0 ; i < childCount ; i++)
     m_child_nodes << nullptr;
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+void TreeNode::remove_child( TreeNode *child )
+{
+  m_child_nodes.removeAll( child );
 }
 
 ////////////////////////////////////////////////////////////////////////////
