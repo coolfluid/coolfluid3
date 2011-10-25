@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   meshreader->configure_option("read_boundaries",false);
 
   // the file to read from
-  URI fp_in ("quadtriag.neu");
+  URI fp_in ("../../resources/quadtriag.neu");
 
   // the mesh to store in
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from(fp_in);

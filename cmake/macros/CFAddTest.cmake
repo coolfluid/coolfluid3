@@ -24,6 +24,8 @@
 #      option to indicate mpi-scaling is used (advanced, should not be used much)
 # - MOC
 #      list of QT moc files to be included
+# - DEPENDS
+#      list of targets this test depends on (LIBS are automatically a dependency already)
 #
 # After calling this function, the test is added to one of the following lists:
 #   - CF3_ENABLED_UTESTS
@@ -41,7 +43,7 @@ function( coolfluid_add_test )
 
   set( options SCALING)
   set( single_value_args UTEST ATEST PTEST)
-  set( multi_value_args  CPP PYTHON CFSCRIPT ARGUMENTS CONDITION MPI LIBS PLUGINS MOC)
+  set( multi_value_args  CPP PYTHON CFSCRIPT ARGUMENTS CONDITION MPI LIBS PLUGINS MOC DEPENDS)
 
   cmake_parse_arguments(_PAR "${options}" "${single_value_args}" "${multi_value_args}"  ${_FIRST_ARG} ${ARGN})
 
@@ -186,6 +188,9 @@ function( coolfluid_add_test )
         add_executable( ${_TEST_NAME} ${${_TEST_NAME}_sources} ${${_TEST_NAME}_headers})
       endif()
 
+      if( DEFINED _PAR_DEPENDS)
+        add_dependencies( ${_TEST_NAME} ${_PAR_DEPENDS} )
+      endif()
 
       # if mpi was found add it to the libraries
       if(CF3_HAVE_MPI AND NOT CF3_HAVE_MPI_COMPILER)

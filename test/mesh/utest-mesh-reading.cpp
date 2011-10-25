@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_readneu_writeGmsh_writeneu )
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag" );
 
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK(true);
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
@@ -155,7 +155,7 @@ BOOST_AUTO_TEST_CASE( hextet_readneu_writeGmsh_writeneu )
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextet" );
 
-  meshreader->read_mesh_into("hextet.neu",mesh);
+  meshreader->read_mesh_into("../../resources/hextet.neu",mesh);
 
   MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"hextet.msh");
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   // first file is wrong (exception and the mesh should be empty afterwards)
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
-  files.push_back( "file:hextet.neu" );
+  files.push_back( "file:../../resources/hextet.neu" );
   options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
@@ -268,9 +268,9 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
 
   // a file in the middle is wrong (exception and the mesh should be empty afterwards)
   std::vector<URI> files;
-  files.push_back( "file:hextet.neu" );
+  files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "http://www.google.com" );
-  files.push_back( "file:hextet.neu" );
+  files.push_back( "file:../../resources/hextet.neu" );
   options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
@@ -287,8 +287,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
 
   // everything is OK
   std::vector<URI> files;
-  files.push_back( "file:hextet.neu" );
-  files.push_back( "file:quadtriag.neu" );
+  files.push_back( "file:../../resources/hextet.neu" );
+  files.push_back( "file:../../resources/quadtriag.neu" );
   options.add_option<OptionURI>("location", URI("cpath://Root/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 

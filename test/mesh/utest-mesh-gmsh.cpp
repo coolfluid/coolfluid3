@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p1 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_triag_p1");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-tg-p1.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-tg-p1.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_triag_p2 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_triag_p2");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-tg-p2.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-tg-p2.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p1 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_quad_p1");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-qd-p2.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-qd-p2.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_quad_p2 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_quad_p2");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-qd-p2.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-qd-p2.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;
@@ -191,7 +191,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_mix_p1");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-mix-p1.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-mix-p1.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;
@@ -216,7 +216,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p2 )
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh_2d_mix_p2");
 
   // CFinfo.setFilterRankZero(false);
-  meshreader->read_mesh_into("rectangle-mix-p2.msh",mesh);
+  meshreader->read_mesh_into("../../resources/rectangle-mix-p2.msh",mesh);
   // CFinfo.setFilterRankZero(true);
 
   // CFinfo << mesh.tree() << CFendl;

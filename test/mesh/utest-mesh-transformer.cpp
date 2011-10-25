@@ -49,7 +49,7 @@ struct MeshTransformer_Fixture
     domain = root->create_component_ptr<Domain>("MyDom");
 
     root->add_component( reader );
-    
+
     ExceptionManager::instance().ExceptionOutputs = false;
     ExceptionManager::instance().ExceptionDumps = false;
   }
@@ -82,12 +82,12 @@ BOOST_FIXTURE_TEST_SUITE( MeshTransformer_TestSuite, MeshTransformer_Fixture )
 BOOST_AUTO_TEST_CASE( read_mesh )
 {
   // MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  // 
+  //
   // // the file to read from
-  // boost::filesystem::path fp_in ("quadtriag.neu");
-  // 
+  // boost::filesystem::path fp_in ("../../resources/quadtriag.neu");
+  //
   // // the mesh to store in
-  // 
+  //
   // meshreader->do_read_mesh_into(fp_in,mesh);
 
 }
@@ -97,14 +97,14 @@ BOOST_AUTO_TEST_CASE( read_mesh )
 BOOST_AUTO_TEST_CASE( test_arguments )
 {
   MeshTransformer::Ptr transformer = build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.Info","info");
-  
+
   std::vector<std::string> args;
   args.push_back("variable:bool=true");
   args.push_back("array_vars:array<bool>=true,false,true");
   //args.push_back("center:double=[x,y,z]");
-  
+
   //transformer->configure(args);
-  
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
