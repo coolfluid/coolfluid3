@@ -27,18 +27,18 @@ namespace Graphics {
 SignalInspectorDialog::SignalInspectorDialog(QWidget *parent) :
     QDialog(parent)
 {
-  m_textArea = new QTextEdit();
+  m_text_area = new QTextEdit();
   m_buttons = new QDialogButtonBox();
 
-  m_mainLayout = new QVBoxLayout(this);
+  m_main_layout = new QVBoxLayout(this);
 
   m_buttons->addButton(QDialogButtonBox::Ok);
 
-  m_textArea->setWordWrapMode(QTextOption::NoWrap);
-  m_textArea->setReadOnly(true);
+  m_text_area->setWordWrapMode(QTextOption::NoWrap);
+  m_text_area->setReadOnly(true);
 
-  m_mainLayout->addWidget(m_textArea);
-  m_mainLayout->addWidget(m_buttons);
+  m_main_layout->addWidget(m_text_area);
+  m_main_layout->addWidget(m_buttons);
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(close()));
 }
@@ -47,9 +47,9 @@ SignalInspectorDialog::SignalInspectorDialog(QWidget *parent) :
 
 SignalInspectorDialog::~SignalInspectorDialog()
 {
-  delete m_textArea;
+  delete m_text_area;
   delete m_buttons;
-  delete m_mainLayout;
+  delete m_main_layout;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -60,9 +60,9 @@ void SignalInspectorDialog::show(const common::XML::SignalFrame & signal)
 
   XML::to_string(signal.node, str);
 
-  m_textArea->setText(QString(str.c_str()).replace('\t', "  "));
+  m_text_area->setText(QString(str.c_str()).replace('\t', "  "));
 
-  m_textArea->updateGeometry();
+  m_text_area->updateGeometry();
   updateGeometry();
   adjustSize();
   resize(childrenRect().size());

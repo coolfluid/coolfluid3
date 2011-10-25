@@ -27,26 +27,26 @@ ModifiedOptionsDialog::ModifiedOptionsDialog(QWidget * parent)
 : QDialog(parent)
 {
   //CommitDetails details;
-  m_mainLayout = new QVBoxLayout(this);
-  m_buttonBox = new QDialogButtonBox(this);
+  m_main_layout = new QVBoxLayout(this);
+  m_button_box = new QDialogButtonBox(this);
   m_view = new QTableView(this);
 
-  m_buttonBox->addButton(QDialogButtonBox::Ok);
+  m_button_box->addButton(QDialogButtonBox::Ok);
 
   this->resize(this->width(), this->height());
 
-  m_mainLayout->addWidget(m_view, 0);
-  m_mainLayout->addWidget(m_buttonBox, 1);
+  m_main_layout->addWidget(m_view, 0);
+  m_main_layout->addWidget(m_button_box, 1);
 
-  connect(m_buttonBox, SIGNAL(accepted()), this, SLOT(close()));
+  connect(m_button_box, SIGNAL(accepted()), this, SLOT(close()));
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
 ModifiedOptionsDialog::~ModifiedOptionsDialog()
 {
- delete m_mainLayout;
- delete m_buttonBox;
+ delete m_main_layout;
+ delete m_button_box;
  delete m_view;
 }
 

@@ -48,35 +48,35 @@ namespace Graphics {
 
       /// Sets @c #m_okClicked to @c true and then sets
       /// the dialog to an invisible state.
-      void btOkClicked();
+      void bt_ok_clicked();
 
       /// @brief Slot called when "Cancel" button is clicked.
 
       /// Sets @c #m_okClicked to @c false and then sets the dialog to an
       /// invisible state.
-      void btCancelClicked();
+      void bt_cancel_clicked();
 
-      void itemClicked(const QModelIndex & index);
+      void item_clicked(const QModelIndex & index);
 
-      void pathChanged(const QString & index);
+      void path_changed(const QString & index);
 
   private:
 
-      QVBoxLayout * m_mainLayout;
+      QVBoxLayout * m_main_layout;
 
-      TreeView * m_treeView;
+      TreeView * m_tree_view;
 
-      QLineEdit * m_editPath;
+      QLineEdit * m_edit_path;
 
       QDialogButtonBox * m_buttons;
 
-      bool m_okClicked;
+      bool m_ok_clicked;
 
       QCompleter * m_completer;
 
       QStringListModel * m_model;
 
-      bool m_nodeClicked;
+      bool m_node_clicked;
 
   }; // class SelectPathDialog
 

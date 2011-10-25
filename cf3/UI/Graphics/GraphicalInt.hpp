@@ -31,17 +31,17 @@ public:
 
   ~GraphicalInt();
 
-  virtual bool setValue(const QVariant & value);
+  virtual bool set_value(const QVariant & value);
 
   virtual QVariant value() const;
 
 private slots:
 
-  void integerChanged(double value);
+  void integer_changed(double value);
 
 private:
 
-  QDoubleSpinBox * m_spinBox;
+  QDoubleSpinBox * m_spin_box;
 
   bool m_isUint;
 

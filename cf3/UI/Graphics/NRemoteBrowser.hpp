@@ -123,7 +123,7 @@ namespace Graphics {
 
     /// @param parent Parent window of the dialog. May be @c nullptr.
     /// @throw std::invalid_argument If a connection to the server does not exist.
-    NRemoteBrowser(const QString & componentType, QMainWindow * parent = nullptr);
+    NRemoteBrowser(const QString & component_type, QMainWindow * parent = nullptr);
 
     /// @brief Destructor.
 
@@ -168,13 +168,13 @@ namespace Graphics {
     /// @return Returns the absolute paths of the selected files to open or an
     /// empty list if user clicked on "Cancel" or closed the dialog.
     /// @see show
-    QStringList showMultipleSelect(const QString & startingDir = "");
+    QStringList show_multiple_select(const QString & startingDir = "");
 
     /// @brief Sets no extensions
 
     /// Old extensions are deleted.
     /// @param extensions New extensions
-    void setExtensions(const QStringList & extensions);
+    void set_extensions(const QStringList & extensions);
 
     /// @brief Sets whether files need to be shown or not
 
@@ -184,7 +184,7 @@ namespace Graphics {
     /// from which it is called. See @c #allowModifyBools for more information
     /// about this disabling feature. Read also the subclass documentation to
     /// see if it disables this method.
-    void setIncludeFiles(bool includeFiles);
+    void set_include_files(bool include_files);
 
     /// @brief Sets whether files without extension need to be shown or not
 
@@ -194,7 +194,7 @@ namespace Graphics {
     /// from which it is called. See @c #allowModifyBools for more information
     /// about this disabling feature. Read also the subclass documentation to
     /// see if it disables this method.
-    void setIncludeNoExtension(bool includeNoExtension);
+    void set_include_no_extension(bool include_no_extension);
 
     /// @brief Gives the current extensions
 
@@ -205,23 +205,23 @@ namespace Graphics {
 
     /// @return Returns @c true if files are included; otherwise, returns
     /// @c false.
-    bool includeFiles() const;
+    bool include_files() const;
 
     /// @brief Indicates whether files without extension are included.
 
     /// @return Returns @c true if files without extension are included;
     /// otherwise, returns @c false.
-    bool includeNoExtension() const;
+    bool include_no_extension() const;
 
     /// @brief Gives the current path
 
     /// @return Returns the current path, or an empty string if the dialog
     /// does not have any current path.
-    QString currentPath() const;
+    QString current_path() const;
 
     /// @brief Gives the node tooltip.
     /// @return Returns the tooltip text.
-    virtual QString toolTip() const = 0;
+    virtual QString tool_tip() const = 0;
 
   protected:
 
@@ -250,21 +250,21 @@ namespace Graphics {
     /// temporarily set back the value to @c true if needed. @n
     /// It is highly recommended to mention in the subclass documentation if
     /// these methods are disabled at a certain moment.
-    bool allowModifyBools;
+    bool allow_modify_bools;
 
     /// @brief Allows subclasses to disable @c show method.
 
     /// If this attribute is set to @c false and @c show is called, an
     /// error message will be displayed, then @c show returns. Default value
     /// is @c true.
-    bool allowSingleSelect;
+    bool allow_single_select;
 
     /// @brief Allows subclasses to disable @c showMultipleSelect method.
 
     /// If this attribute is set to @c false and @c showMultipleSelect is
     /// called, an error message will be displayed, then @c showMultipleSelect
     /// returns. Default value is @c true.
-    bool allowMultipleSelect;
+    bool allow_multiple_select;
 
     /// @brief Method called when user presses a key or a combination of keys
 
@@ -297,7 +297,7 @@ namespace Graphics {
     /// @param role Role of the new button.
     /// @return Returns a pointer to the newly created button, or a @c nullptr
     /// pointer if the text is empty/null or the role is invalid.
-    QPushButton * addButton(const QString & text,
+    QPushButton * add_button(const QString & text,
                             QDialogButtonBox::ButtonRole role);
 
     /// @brief Allows a subclass to check if a sub-directory or a file with
@@ -307,7 +307,7 @@ namespace Graphics {
     /// @return Returns @c true if a sub-directory or a file with the given
     /// name exists in the current directory; otherwise, returns
     /// @c false.
-    bool itemExists(const QString & name) const;
+    bool item_exists(const QString & name) const;
 
     /// @brief Checks if a given name names a directory.
 
@@ -317,7 +317,7 @@ namespace Graphics {
     /// @return Returns @c true if a directory of that name was found.
     /// Otherwise (including if a file of that name was found), returns
     /// @c false.
-    bool isDirectory(const QString & name) const;
+    bool is_directory(const QString & name) const;
 
     /// @brief Checks if a given name names a files.
 
@@ -327,7 +327,7 @@ namespace Graphics {
     /// @return Returns @c true if a file of that name was found.
     /// Otherwise (including if a directory of that name was found), returns
     /// @c false.
-    bool isFile(const QString & name) const;
+    bool is_file(const QString & name) const;
 
 
     /// @brief Checks if the selected items respect the policy.
@@ -343,7 +343,7 @@ namespace Graphics {
     /// @param isDir @c true if @c name is a path to a directory, @c false if
     /// it is a path to a file.
     /// @return Returns the validation.
-    virtual ValidationPolicy isAcceptable(const QString & name, bool isDir);
+    virtual ValidationPolicy is_acceptable(const QString & name, bool isDir);
 
     /// @brief Checks if the selected item respect the policy.
 
@@ -359,7 +359,7 @@ namespace Graphics {
     /// @param isDir @c true if @c name is a path to a directory, @c false if
     /// it is a path to a file.
     /// @return Returns the validation.
-    virtual ValidationPolicy isAcceptableList(const QStringList & names);
+    virtual ValidationPolicy is_acceptable_list(const QStringList & names);
 
     /// @brief Allows subclasses to reinitialize their environment before the
     /// dialog is showed again.
@@ -367,12 +367,12 @@ namespace Graphics {
     /// This method is called each time the dialog is showed. Subclasses may
     /// override this method to reset their internal data to default values,
     /// if needed. The default implementation does nothing.
-    virtual void reinitValues();
+    virtual void reinit_values();
 
     /// @brief Displays a message box with an error message
 
     /// @param message Message to display
-    void showError(const QString & message);
+    void show_error(const QString & message);
 
     /// @brief Cat two path strings.
 
@@ -382,7 +382,7 @@ namespace Graphics {
     /// @param part2 Second part
     /// @warning @c part1 parameter is modified: @c part2 is directly appended
     /// to it.
-    void assemblePath(QString & part1, const QString & part2) const;
+    void assemble_path(QString & part1, const QString & part2) const;
 
     /// @brief Gives the selected file or directory.
 
@@ -391,7 +391,7 @@ namespace Graphics {
     /// reimplement this method.
     /// @return Return the selected file directory, or an empty string if no
     /// item is selected.
-    virtual QString selectedFile() const;
+    virtual QString selected_file() const;
 
     /// @brief Gives the selected files and/or directories.
 
@@ -400,12 +400,12 @@ namespace Graphics {
     /// should reimplement this method.
     /// @return Return the selected file directory, or an empty string if no
     /// item is selected.
-    virtual void selectedFileList(QStringList & fileList) const;
+    virtual void selected_file_list(QStringList & fileList) const;
 
     /// @brief Allows a subclass to set text on the satus label.
 
     /// @param text Text for the status label
-    void setStatus(const QString & text);
+    void set_status(const QString & text);
 
   private slots:
 
@@ -413,25 +413,25 @@ namespace Graphics {
 
     /// Sets @c #m_okClicked to @c true and then sets
     /// the dialog to an invisible state.
-    void btOkClicked();
+    void bt_ok_clicked();
 
     /// @brief Slot called when "Cancel" button is clicked.
 
     /// Sets @c #m_okClicked to @c false and then sets the dialog to an
     /// invisible state.
-    void btCancelClicked();
+    void bt_cancel_clicked();
 
     /// @brief Slot called each time the text in the line edit is modified.
 
     /// The filter is modified according to this text and the list m_view is
     /// updated.
     /// @param text New text in the line edit.
-    void filterUpdated(const QString & text);
+    void filter_updated(const QString & text);
 
     /// @brief Slot called when path line edit has been modified
 
     /// @param text New text in the line edit.
-    void pathUpdated(const QString & text);
+    void path_updated(const QString & text);
 
     /// @brief Slot called when the server sends the contents of a directory
     /// to the client.
@@ -450,12 +450,12 @@ namespace Graphics {
     /// to the server. If the item is a file, the dialog reacts as if the
     /// user clicked on "OK" button with this item selected.
     /// @param index Clicked item index in the model filter.
-    void doubleClick(const QModelIndex & index);
+    void double_click(const QModelIndex & index);
 
     /// @brief Slot called if the completer has been activated
 
     /// @param text Text that activated the completer
-    void completerActivated(const QString & text);
+    void completer_activated(const QString & text);
 
     /// @brief Slot called if an ack comes from the server
 
@@ -466,40 +466,40 @@ namespace Graphics {
   private:
 
     /// @brief Label for the filter.
-    QLabel * m_labFilter;
+    QLabel * m_lab_filter;
 
     /// @brief Label for the files list.
-    QLabel * m_labFilesList;
+    QLabel * m_lab_files_list;
 
     /// @brief Text edit for the current directory path
-    QLineEdit * m_editPath;
+    QLineEdit * m_edit_path;
 
     /// @brief Layout for path widgets (label and text edit)
-    QHBoxLayout * m_pathLayout;
+    QHBoxLayout * m_path_layout;
 
     /// @brief Bottom m_layout (filter and m_buttons)
-    QHBoxLayout * m_bottomLayout;
+    QHBoxLayout * m_bottom_layout;
 
     /// @brief Line edit for the filter.
-    QLineEdit * m_editFilter;
+    QLineEdit * m_edit_filter;
 
     /// @brief Button box for "OK" and "Cancel" m_buttons.
     QDialogButtonBox * m_buttons;
 
     /// @brief List m_view used to display files list.
-    QListView * m_listView;
+    QListView * m_list_view;
 
     /// @brief Model for the list m_view
-    QStandardItemModel * m_viewModel;
+    QStandardItemModel * m_view_model;
 
     /// @brief Model for the completer
-    QStandardItemModel * m_completerModel;
+    QStandardItemModel * m_completer_model;
 
     /// @brief Automatic completion for path
-    QCompleter * m_pathCompleter;
+    QCompleter * m_path_completer;
 
     /// @brief Filter for the model.
-    QSortFilterProxyModel * m_filterModel;
+    QSortFilterProxyModel * m_filter_model;
 
     /// @brief Dialog m_layout.
     QVBoxLayout * m_layout;
@@ -509,23 +509,23 @@ namespace Graphics {
     /// If the user clicked on "OK" button, the attribute value is @c true,
     /// otherwise (if the user closed the window or clicked on "Cancel" button)
     /// it is @c false.
-    bool m_okClicked;
+    bool m_ok_clicked;
 
     /// @brief Path of the current directory.
-    QString m_currentPath;
+    QString m_current_path;
 
     /// @brief File selected by the user.
-    QString m_currentFile;
+    QString m_current_file;
 
     /// @brief Files selected by the user is @c showMultipleSelect() was called.
-    QStringList m_currentFilesList;
+    QStringList m_current_files_list;
 
     /// @brief Parent window
-    QMainWindow * m_parentWindow;
+    QMainWindow * m_parent_window;
 
     /// @brief Indicates whether user is able to select multiple item at the
     /// same time.
-    bool m_multipleSelectAllowed;
+    bool m_multiple_select_allowed;
 
     /// @brief Indicates whether files should be asked to the server.
 
@@ -542,28 +542,28 @@ namespace Graphics {
     /// the server.
 
     /// Note that this attribute is ignored if @c #includeFiles is @c false.
-    bool m_includeNoExtension;
+    bool m_include_no_extension;
 
     /// @brief Indicates wether the completer is being updated.
 
     /// This attribute is @c true if the completer is waiting for the server to
     /// send a directory content.
-    bool m_updatingCompleter;
+    bool m_updating_completer;
 
     /// @brief List of m_items in the list
     QList<FilesListItem *> m_items;
 
     /// @brief List of m_items in the completer
-    QList<FilesListItem *> m_itemsCompleter;
+    QList<FilesListItem *> m_items_completer;
 
     /// @brief Path separator
 
     /// This represents the path separator on the operating system on which
     /// the server is running.
-    QString m_pathSep;
+    QString m_path_sep;
 
     /// @brief Satus label
-    QLabel * m_labStatus;
+    QLabel * m_lab_status;
 
     /// @brief Applies new data to a standard item model.
 
@@ -574,17 +574,18 @@ namespace Graphics {
     /// @param files File list
     /// @param modelItems List where new items will be stored. This list
     /// is cleared before usage.
-    void updateModel(QStandardItemModel * model, const QString & path,
-                     const std::vector<std::string> & dirs,
-                     const std::vector<std::string> & files,
-                     QList<FilesListItem *> & modelItems);
+    void update_model( QStandardItemModel * model,
+                       const QString & path,
+                       const std::vector<std::string> & dirs,
+                       const std::vector<std::string> & files,
+                       QList<FilesListItem *> & modelItems);
 
     /// @brief Sends a request to the server to open a directory
 
     /// This methods change the mouse cursor to a "wait cursor" (usualy a
     /// hourglass).
     /// @param path Directory path to open
-    void openDir(const QString & path);
+    void open_dir(const QString & path);
 
     void read_dir(cf3::common::SignalArgs & node);
 

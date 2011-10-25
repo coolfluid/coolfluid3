@@ -31,24 +31,24 @@ namespace Graphics {
     Q_OBJECT
   public:
 
-    static GraphicalValue * createFromOption(cf3::common::Option::ConstPtr option,
-                                             QWidget * parent = nullptr);
+    static GraphicalValue * create_from_option( common::Option::ConstPtr option,
+                                              QWidget * parent = nullptr );
 
     GraphicalValue(QWidget * parent = 0);
 
     ~GraphicalValue();
 
-    virtual bool setValue(const QVariant & value) = 0;
+    virtual bool set_value(const QVariant & value) = 0;
 
     virtual QVariant value() const = 0;
 
-    QString valueString() const;
+    QString value_string() const;
 
-    QVariant originalValue() const;
+    QVariant original_value() const;
 
-    QString originalValueString() const;
+    QString original_value_string() const;
 
-    bool isModified() const;
+    bool is_modified() const;
 
     void commit();
 
@@ -56,11 +56,11 @@ namespace Graphics {
 
   signals:
 
-    void valueChanged();
+    void value_changed();
 
   protected:
 
-    QVariant m_originalValue;
+    QVariant m_original_value;
 
     QHBoxLayout * m_layout;
 

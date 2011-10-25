@@ -23,14 +23,14 @@ namespace Graphics {
 
 LoggingList::LoggingList(QWidget * parent, unsigned int maxLogLines)
   : QTextEdit(parent),
-    m_maxLogLines(maxLogLines)
+    m_max_log_lines(maxLogLines)
 {
   qRegisterMetaType<LogMessage::Type>("UICommon::LogMessage::Type");
   this->setWordWrapMode(QTextOption::NoWrap);
   this->setReadOnly(true);
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
-           this, SLOT(newMessage(QString, UICommon::LogMessage::Type)));
+  connect(NLog::global().get(), SIGNAL(new_message(QString, UICommon::LogMessage::Type)),
+           this, SLOT(new_message(QString, UICommon::LogMessage::Type)));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -42,36 +42,36 @@ LoggingList::~LoggingList()
 
 //////////////////////////////////////////////////////////////////////////
 
-void LoggingList::setMaxLogLines(unsigned int maxLogLines)
+void LoggingList::set_max_log_lines(unsigned int maxLogLines)
 {
-  m_maxLogLines = maxLogLines;
+  m_max_log_lines = maxLogLines;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-unsigned int LoggingList::maxLogLines() const
+unsigned int LoggingList::max_log_lines() const
 {
-  return m_maxLogLines;
+  return m_max_log_lines;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-unsigned int LoggingList::logLinesCount() const
+unsigned int LoggingList::log_lines_count() const
 {
-  return m_logLinesCounter;
+  return m_log_lines_count;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void LoggingList::clearLog()
+void LoggingList::clear_log()
 {
-  m_logLinesCounter = 0;
+  m_log_lines_count = 0;
   this->clear();
 }
 
  // PUBLIC SLOT
 
-void LoggingList::newMessage(const QString & message, LogMessage::Type type)
+void LoggingList::new_message(const QString & message, LogMessage::Type type)
 {
   QString msgToAppend = "<font face=\"monospace\" color=\"%1\">%2</font>";
   QString imgTag = "<img src=\":/Icons/%1.png\" height=\"%2\" width=\"%2\"> ";

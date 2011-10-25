@@ -42,9 +42,9 @@ QVariant FileFilter::data ( const QModelIndex &index, int role ) const
     {
       QModelIndex indexInModel = mapToSource(index);
 
-      if( m_model->isDirectory(indexInModel) )
+      if( m_model->is_directory(indexInModel) )
         value = provider.icon( QFileIconProvider::Folder );
-      else if( m_model->isFile(indexInModel) )
+      else if( m_model->is_file(indexInModel) )
         value = provider.icon( QFileIconProvider::File );
     }
     else

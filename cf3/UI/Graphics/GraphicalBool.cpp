@@ -24,37 +24,37 @@ namespace Graphics {
 GraphicalBool::GraphicalBool(bool value, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_checkBox = new QCheckBox(this);
+  m_check_box = new QCheckBox(this);
 
-  m_layout->addWidget(m_checkBox);
+  m_layout->addWidget(m_check_box);
 
-  this->setValue(value);
+  this->set_value(value);
 
-  connect(m_checkBox, SIGNAL(stateChanged(int)), this, SLOT(stateChanged(int)));
+  connect(m_check_box, SIGNAL(state_changed(int)), this, SLOT(state_changed(int)));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalBool::~GraphicalBool()
 {
-  delete m_checkBox;
+  delete m_check_box;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GraphicalBool::setValue(const QVariant & value)
+bool GraphicalBool::set_value(const QVariant & value)
 {
   bool valid = true;
 
   if(value.type() == QVariant::Bool)
-    m_checkBox->setChecked(value.toBool());
+    m_check_box->setChecked(value.toBool());
   else if(value.type() == QVariant::String)
-    m_checkBox->setChecked( from_str<bool>( value.toString().toStdString() ));
+    m_check_box->setChecked( from_str<bool>( value.toString().toStdString() ));
   else
     valid = false;
 
   if(valid)
-    m_originalValue = value;
+    m_original_value = value;
 
   return valid;
 }
@@ -63,14 +63,14 @@ bool GraphicalBool::setValue(const QVariant & value)
 
 QVariant GraphicalBool::value() const
 {
-  return m_checkBox->isChecked();
+  return m_check_box->isChecked();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void GraphicalBool::stateChanged(int state)
+void GraphicalBool::state_changed(int state)
 {
-  emit valueChanged();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////

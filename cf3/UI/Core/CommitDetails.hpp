@@ -41,8 +41,8 @@ namespace Core {
     /// @brief Constructor.
 
     /// @param parent The parent object. May be @c nullptr.
-    /// @param nodePath Path to the node the options belong to. May be empty.
-    CommitDetails(QObject * parent = nullptr, const QString & nodePath = QString());
+    /// @param node_path Path to the node the options belong to. May be empty.
+    CommitDetails(QObject * parent = nullptr, const QString & node_path = QString());
 
     /// @brief Implements QAbstractItemModel::data()
 
@@ -71,8 +71,8 @@ namespace Core {
     /// @c orientation is <code>Qt::Vertical</code>
     /// @li an invalid @c QVariant (built with default constructor) if
     /// section is less than 0 or bigger than the number of columns or rows.
-    QVariant headerData(int section, Qt::Orientation orientation,
-                        int role = Qt::DisplayRole) const;
+    QVariant headerData( int section, Qt::Orientation orientation,
+                         int role = Qt::DisplayRole) const;
 
     /// @brief Implements QAbstractItemModel::index()
 
@@ -115,22 +115,22 @@ namespace Core {
     /// @param optionName Option name
     /// @param oldValue Old Value. May be empty.
     /// @param currentValue Current value. May be empty.
-    void setOption(const QString & optionName, const QString & oldValue,
+    void set_option(const QString & optionName, const QString & oldValue,
                    const QString & currentValue);
 
     /// @brief Gives the node path
     /// @return Returns the node path. This string may be empty if it
     /// has never been set.
-    QString nodePath() const;
+    QString node_path() const;
 
     /// @brief Sets the node path
     /// @param nodePath Node path.
-    void setNodePath(const QString & nodePath);
+    void set_node_path(const QString & node_path);
 
     /// @brief Checks whether the internal container has options.
     /// @return Returns @c true if there is at least one option;
     /// otherwise returns @c false.
-    bool hasOptions() const;
+    bool has_options() const;
 
     /// @brief Removes all options and clears the node path
     /// @see clearOptions
@@ -139,7 +139,7 @@ namespace Core {
   private:
 
     /// @brief Node path
-    QString m_nodePath;
+    QString m_node_path;
 
     /// @brief Model items.
     QList<CommitDetailsItem *> m_items;

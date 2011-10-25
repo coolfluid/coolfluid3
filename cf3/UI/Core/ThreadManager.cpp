@@ -28,8 +28,8 @@ ThreadManager & ThreadManager::instance()
 ////////////////////////////////////////////////////////////////////////////////
 
 ThreadManager::ThreadManager() :
-    m_networkThread(new NetworkThread()),
-    m_treeThread(new TreeThread())
+    m_network_thread(new NetworkThread()),
+    m_tree_thread(new TreeThread())
 {
 }
 
@@ -37,34 +37,34 @@ ThreadManager::ThreadManager() :
 
 ThreadManager::~ThreadManager()
 {
-  delete m_networkThread;
-  delete m_treeThread;
+  delete m_network_thread;
+  delete m_tree_thread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 NetworkThread & ThreadManager::network()
 {
-  return *m_networkThread;
+  return *m_network_thread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 TreeThread & ThreadManager::tree()
 {
-  if(!m_treeThread->isRunning())
+  if(!m_tree_thread->isRunning())
   {
     QMutex mutex;
 
     mutex.lock();
 
-    m_treeThread->setMutex(&mutex);
-    m_treeThread->start();
+    m_tree_thread->set_mutex(&mutex);
+    m_tree_thread->start();
 
     mutex.lock();
   }
 
-  return *m_treeThread;
+  return *m_tree_thread;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

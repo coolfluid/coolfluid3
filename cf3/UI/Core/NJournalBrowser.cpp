@@ -38,9 +38,9 @@ namespace Core {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(NBrowser::globalBrowser()->generateName().toStdString(), "NJournalBrowser", CNode::STANDARD_NODE)
+    CNode(NBrowser::global()->generate_name().toStdString(), "NJournalBrowser", CNode::STANDARD_NODE)
 {
-  setRootNode(rootNode);
+  set_root_node(rootNode);
 
   regist_signal( "list_journal" )
     ->connect( boost::bind( &NJournalBrowser::list_journal, this, _1 ) )
@@ -58,27 +58,27 @@ QVariant NJournalBrowser::data(const QModelIndex & index, int role) const
 
   if(index.isValid() && role == Qt::DisplayRole)
   {
-    SignalArgs & node = *this->indexToXmlNode(index);
+    SignalArgs & node = *this->index_to_xml_node(index);
 
     switch(index.column())
     {
     case 0: // target
-      data = readAttribute(node, "target");
+      data = read_attribute(node, "target");
       break;
     case 1: // sender
-      data = readAttribute(node, "sender");
+      data = read_attribute(node, "sender");
       break;
     case 2: // receiver
-      data = readAttribute(node, "receiver");
+      data = read_attribute(node, "receiver");
       break;
     case 3: // type
-      data = readAttribute(node, "type");
+      data = read_attribute(node, "type");
       break;
     case 4: // direction
       data = QString("???");
       break;
     case 5: // time
-      data = readAttribute(node, "time");
+      data = read_attribute(node, "time");
       break;
     case 6: // status (inspect ?)
       data = QString("Inspect");
@@ -156,16 +156,16 @@ QVariant NJournalBrowser::headerData(int section, Qt::Orientation orientation,
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NJournalBrowser::toolTip() const
+QString NJournalBrowser::tool_tip() const
 {
-  return componentType();
+  return component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 const SignalArgs & NJournalBrowser::signal(const QModelIndex & index) const
 {
-  SignalArgs * signal = indexToXmlNode(index);
+  SignalArgs * signal = index_to_xml_node(index);
 
   cf3_assert(signal != nullptr);
 
@@ -174,23 +174,23 @@ const SignalArgs & NJournalBrowser::signal(const QModelIndex & index) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NJournalBrowser::setRootNode(const XmlNode * rootNode)
+void NJournalBrowser::set_root_node(const XmlNode * rootNode)
 {
   emit layoutAboutToBeChanged();
 
-  m_currentDoc = XmlDoc::Ptr(new XmlDoc());
-  m_rootNode = m_currentDoc->add_node("tmp");
+  m_current_doc = XmlDoc::Ptr(new XmlDoc());
+  m_root_node = m_current_doc->add_node("tmp");
 
   if(is_not_null(rootNode))
-    rootNode->deep_copy(m_rootNode);
+    rootNode->deep_copy(m_root_node);
 
   m_children.clear();
 
 
-  if(m_rootNode.is_valid())
+  if(m_root_node.is_valid())
   {
 
-    rapidxml::xml_node<> * currNode = m_rootNode.content->first_node("frame");
+    rapidxml::xml_node<> * currNode = m_root_node.content->first_node("frame");
 
     for( ; currNode != nullptr ; currNode = currNode->next_sibling() )
       m_children.append( new SignalArgs(currNode) );
@@ -202,11 +202,11 @@ void NJournalBrowser::setRootNode(const XmlNode * rootNode)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NJournalBrowser::requestJournal()
+void NJournalBrowser::request_journal()
 {
   SignalFrame frame("list_journal", uri(), SERVER_JOURNAL_PATH);
 
-  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -216,12 +216,12 @@ void NJournalBrowser::list_journal(SignalArgs & args)
 //  if(args.has_map(Protocol::Tags::key_signals()))
   //    setRootNode(&args.map(Protocol::Tags::key_signals()).node);
   XmlNode node = args.main_map.find_value(Protocol::Tags::key_signals());
-  setRootNode(&node);
+  set_root_node(&node);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NJournalBrowser::sendExecSignal(const QModelIndex & index)
+void NJournalBrowser::send_exec_signal(const QModelIndex & index)
 {
   if(!index.isValid())
     throw ValueNotFound(FromHere(), "Index is not valid.");
@@ -232,7 +232,7 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   std::stringstream ss;
   SignalFrame frame;
 
-  SignalArgs * signal_node = indexToXmlNode(index);
+  SignalArgs * signal_node = index_to_xml_node(index);
   signal_node->node.deep_copy(frame.node);
 
   rapidxml::xml_attribute<> * clientIdAttr;
@@ -248,12 +248,12 @@ void NJournalBrowser::sendExecSignal(const QModelIndex & index)
   ss << boost::uuids::random_generator()();
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
-  NetworkQueue::global_queue()->send( frame );
+  NetworkQueue::global()->send( frame );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NJournalBrowser::readAttribute(const SignalArgs &sig, const char *name) const
+QString NJournalBrowser::read_attribute(const SignalArgs &sig, const char *name) const
 {
   rapidxml::xml_attribute<>* attr = sig.node.content->first_attribute(name);
 

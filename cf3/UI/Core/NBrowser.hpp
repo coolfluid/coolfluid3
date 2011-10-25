@@ -43,20 +43,20 @@ namespace Core {
     /// The name has the format "Browser_i" where "i" is the value of an
     /// internal counter, incremented each a name is generated.
     /// @return Returns the  generated name.
-    QString generateName();
+    QString generate_name();
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
-    static Ptr globalBrowser();
+    static Ptr global();
 
   protected:
 
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
   private:
 

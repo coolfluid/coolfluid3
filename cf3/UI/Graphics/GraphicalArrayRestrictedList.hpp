@@ -33,49 +33,49 @@ namespace Graphics {
     Q_OBJECT
   public:
 
-    GraphicalArrayRestrictedList(cf3::common::Option::ConstPtr opt = cf3::common::Option::ConstPtr(),
-                                 QWidget * parent = 0);
+    GraphicalArrayRestrictedList( common::Option::ConstPtr opt = common::Option::ConstPtr(),
+                                  QWidget * parent = 0 );
 
     ~GraphicalArrayRestrictedList();
 
-    void setRestrictedList(const QStringList & list);
+    void set_restricted_list(const QStringList & list);
 
-    virtual bool setValue(const QVariant & value);
+    virtual bool set_value(const QVariant & value);
 
     virtual QVariant value() const;
 
   private slots:
 
-    void btAddClicked();
+    void bt_add_clicked();
 
-    void btRemoveClicked();
+    void bt_remove_clicked();
 
   private:
 
-    QListView * m_allowedListView;
+    QListView * m_allowed_list_view;
 
-    QListView * m_selectedListView;
+    QListView * m_selected_list_view;
 
-    QStringListModel * m_allowedModel;
+    QStringListModel * m_allowed_model;
 
-    QStringListModel * m_selectedModel;
+    QStringListModel * m_selected_model;
 
-    QGroupBox * m_groupBox;
+    QGroupBox * m_group_box;
 
-    QGridLayout * m_boxLayout;
+    QGridLayout * m_box_layout;
 
-    QVBoxLayout * m_buttonsLayout;
+    QVBoxLayout * m_buttons_layout;
 
-    QPushButton * m_btAdd;
+    QPushButton * m_bt_add;
 
-    QPushButton * m_btRemove;
-
-    template<typename TYPE>
-    void vectToStringList(const std::vector<boost::any> & vect,
-                          QStringList & list) const;
+    QPushButton * m_bt_remove;
 
     template<typename TYPE>
-    void anyToStringList(const boost::any & value, QStringList & list) const;
+    void vect_to_stringlist( const std::vector<boost::any> & vect,
+                             QStringList & list ) const;
+
+    template<typename TYPE>
+    void any_to_stringlist( const boost::any & value, QStringList & list ) const;
 
   }; // class GraphicalArrayRestrictedList
 

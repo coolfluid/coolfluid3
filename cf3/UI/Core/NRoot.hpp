@@ -51,7 +51,7 @@ namespace Core {
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
     /// @brief Gives the Root internal shared pointer
     /// @return Returns the Root internal shared pointer
@@ -64,7 +64,7 @@ namespace Core {
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::Ptr childFromRoot(cf3::Uint number) const;
+    CNode::Ptr child_from_root(cf3::Uint number) const;
 
     /// @brief Gives the client UUID
     /// @return Returns the Client UUID
@@ -96,12 +96,12 @@ namespace Core {
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const;
+    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const;
 
   private slots:
 
     /// @brief Slot called when the client is connected to the server.
-    void connectedToServer();
+    void connected_to_server();
 
   private :
 

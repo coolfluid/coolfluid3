@@ -80,11 +80,13 @@ XmlDoc::Ptr parse_file ( const boost::filesystem::path& path )
 
   fseek(filep, 0, SEEK_SET);                  // go to beginning
 
-  char* buffer = xmldoc->allocate_string( 0, length );  // allocate buffer directly inside the xmldoc
+  char* buffer = xmldoc->allocate_string( 0, length + 1 );  // allocate buffer directly inside the xmldoc
 
-  size_t rs = fread(buffer,length, 1, filep);           // read into buffer
+  size_t rs = fread(buffer, 1, length, filep);           // read into buffer
   if (!rs)
     throw FileSystemError(FromHere(), "Error while reading file [" + filepath + "]" );
+
+  buffer[rs] = '\0';
 
   fclose(filep);                             // close file
 

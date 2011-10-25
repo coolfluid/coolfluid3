@@ -33,7 +33,7 @@ NPlugin::~NPlugin()
 
 ////////////////////////////////////////////////////////////////////////////
 
-SignalPtr NPlugin::addSignal( const std::string& name,
+SignalPtr NPlugin::add_signal( const std::string& name,
                               const std::string& descr,
                               const std::string& readable_name )
 {
@@ -41,14 +41,14 @@ SignalPtr NPlugin::addSignal( const std::string& name,
       ->description(descr)
       ->pretty_name(readable_name);
 
-  m_localSignals << name.c_str();
+  m_local_signals << name.c_str();
 
   return signal;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NPlugin::toolTip() const
+QString NPlugin::tool_tip() const
 {
   return QString("%1 plugin").arg( name().c_str() );
 }

@@ -13,7 +13,7 @@
 
 #include "UI/Graphics/GraphicalRestrictedList.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalRestrictedListTest.hpp"
 
@@ -87,25 +87,25 @@ void GraphicalRestrictedListTest::test_setValue()
   //
   // 1. check with strings
   //
-  QVERIFY( value->setValue("Hello") );
+  QVERIFY( value->set_value("Hello") );
   QCOMPARE( comboBox->currentText(), QString("Hello") );
 
-  QVERIFY( value->setValue("World") );
+  QVERIFY( value->set_value("World") );
   QCOMPARE( comboBox->currentText(), QString("World") );
 
-  QVERIFY( !value->setValue("something") ); // value does not exist in the list
+  QVERIFY( !value->set_value("something") ); // value does not exist in the list
   QCOMPARE( comboBox->currentText(), QString("World") ); // current text should be the same
 
   //
   // 2. check with other types
   //
-  QVERIFY( !value->setValue(12) );
+  QVERIFY( !value->set_value(12) );
   QCOMPARE( comboBox->currentText(), QString("World") );
 
-  QVERIFY( !value->setValue(3.141592) );
+  QVERIFY( !value->set_value(3.141592) );
   QCOMPARE( comboBox->currentText(), QString("World") );
 
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( comboBox->currentText(), QString("World") );
 
   delete value;
@@ -153,8 +153,8 @@ void GraphicalRestrictedListTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue( QString("World") );
-  value->setValue( QString("Hello") );
+  value->set_value( QString("World") );
+  value->set_value( QString("Hello") );
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -194,11 +194,11 @@ void GraphicalRestrictedListTest::test_valueString()
 
   GraphicalRestrictedList * value = new GraphicalRestrictedList(opt);
 
-  value->setValue("Hello");
-  QCOMPARE( value->valueString(), QString("Hello") );
+  value->set_value("Hello");
+  QCOMPARE( value->value_string(), QString("Hello") );
 
-  value->setValue("World");
-  QCOMPARE( value->valueString(), QString("World") );
+  value->set_value("World");
+  QCOMPARE( value->value_string(), QString("World") );
 
   delete value;
 }
@@ -215,17 +215,17 @@ void GraphicalRestrictedListTest::test_isModified()
   QComboBox* comboBox = findComboBox(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   comboBox->setCurrentIndex(2);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   comboBox->setCurrentIndex(1);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }
@@ -246,7 +246,7 @@ void GraphicalRestrictedListTest::test_setRestrictedList()
 
   comboBox->setCurrentIndex(2);
 
-  value->setRestrictedList( newList );
+  value->set_restricted_list( newList );
 
   QCOMPARE( comboBox->count(), newList.count() );
   QCOMPARE( comboBox->itemText(0), newList.at(0) );

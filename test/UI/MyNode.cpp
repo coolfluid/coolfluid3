@@ -9,7 +9,7 @@
 
 #include "common/OptionT.hpp"
 
-#include "test/UI/Core/MyNode.hpp"
+#include "test/UI/MyNode.hpp"
 
 using namespace cf3::common;
 using namespace cf3::UI::Core;
@@ -29,14 +29,14 @@ MyNode::MyNode(const std::string & name)
 
   m_properties.add_property("someProp", Real(3.14));
 
-  m_contentListed = true;
+  m_content_listed = true;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString MyNode::toolTip() const
+QString MyNode::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////

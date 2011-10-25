@@ -66,113 +66,113 @@ namespace Graphics {
 ////////////////////////////////////////////////////////////////////////////
 
 MainWindow::MainWindow()
-  : m_logFile(new QFile(QString("coolfluid_client-") +
+  : m_log_file(new QFile(QString("coolfluid_client-") +
             QDateTime::currentDateTime().toString("yyyyMMdd_HHmmss") + ".log"))
 {
   this->setWindowTitle("COOLFluiD client");
 
   this->statusBar(); // has to be called to create the status bar
 
-  m_logFile.device()->open(QIODevice::WriteOnly);
+  m_log_file.device()->open(QIODevice::WriteOnly);
 
   // create the components
-  m_centralPanel = new CentralPanel(this);
-  m_treeView = new TreeView(m_centralPanel, this);
+  m_central_panel = new CentralPanel(this);
+  m_tree_view = new TreeView(m_central_panel, this);
   m_splitter = new QSplitter(/*Qt::Horizontal, this*/);
-  m_centralSplitter = new QSplitter(Qt::Vertical/*, this*/);
-  m_tabWindow = new QTabWidget(m_centralPanel);
-  m_logList = new LoggingList(m_tabWindow);
-  m_propertyModel = new PropertyModel();
-  m_propertyView = new QTableView(m_tabWindow);
-  m_labDescription = new QLabel(m_tabWindow);
-  m_treeBrowser = new TreeBrowser(m_treeView, this);
-  m_scrollDescription = new QScrollArea(this);
+  m_central_splitter = new QSplitter(Qt::Vertical/*, this*/);
+  m_tab_window = new QTabWidget(m_central_panel);
+  m_log_list = new LoggingList(m_tab_window);
+  m_property_model = new PropertyModel();
+  m_property_view = new QTableView(m_tab_window);
+  m_lab_description = new QLabel(m_tab_window);
+  m_tree_browser = new TreeBrowser(m_tree_view, this);
+  m_scroll_description = new QScrollArea(this);
 
-  m_aboutCFDialog = new AboutCFDialog(this);
+  m_about_cf_dialog = new AboutCFDialog(this);
 
   boost::program_options::options_description desc;
 
   desc.add( BasicCommands::description() );
 
-  m_scriptRunner = new Interpreter(desc);
+  m_script_runner = new Interpreter(desc);
 
   // configure components
 
-  m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  m_propertyView->horizontalHeader()->setStretchLastSection(true);
+  m_property_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  m_property_view->horizontalHeader()->setStretchLastSection(true);
 
-  m_propertyView->setModel(m_propertyModel);
+  m_property_view->setModel(m_property_model);
 
-  m_labDescription->setTextFormat(Qt::RichText);
-  m_labDescription->setAlignment(Qt::AlignTop);
-  m_labDescription->setWordWrap(true);
+  m_lab_description->setTextFormat(Qt::RichText);
+  m_lab_description->setAlignment(Qt::AlignTop);
+  m_lab_description->setWordWrap(true);
 
-  m_scrollDescription->setWidgetResizable(true);
-  m_scrollDescription->setWidget(m_labDescription);
+  m_scroll_description->setWidgetResizable(true);
+  m_scroll_description->setWidget(m_lab_description);
 
-  m_tabWindow->addTab(m_logList, "Log");
-  m_tabWindow->addTab(m_propertyView, "Properties");
-  m_tabWindow->addTab(m_scrollDescription, "Description");
+  m_tab_window->addTab(m_log_list, "Log");
+  m_tab_window->addTab(m_property_view, "Properties");
+  m_tab_window->addTab(m_scroll_description, "Description");
 
-  TabBuilder::instance()->addTab(m_centralPanel, "Options");
+  TabBuilder::instance()->addTab(m_central_panel, "Options");
 
 
   // add the components to the splitter
-  m_splitter->addWidget(m_treeBrowser);
+  m_splitter->addWidget(m_tree_browser);
 
-  m_centralSplitter->addWidget(TabBuilder::instance());
-  m_centralSplitter->addWidget(m_tabWindow);
+  m_central_splitter->addWidget(TabBuilder::instance());
+  m_central_splitter->addWidget(m_tab_window);
 
-  m_splitter->addWidget(m_centralSplitter);
+  m_splitter->addWidget(m_central_splitter);
 
-  m_centralSplitter->setStretchFactor(0, 10);
+  m_central_splitter->setStretchFactor(0, 10);
   m_splitter->setStretchFactor(1, 10);
 
   m_splitter->setHandleWidth(0);
 
   this->setCentralWidget(m_splitter);
 
-  this->buildMenus();
+  this->build_menus();
 
   NRoot* root = ThreadManager::instance().tree().root().get();
 
-  connect(NLog::globalLog().get(), SIGNAL(newException(QString)),
-          this, SLOT(newException(QString)));
+  connect(NLog::global().get(), SIGNAL(new_exception(QString)),
+          this, SLOT(new_exception(QString)));
 
-  connect(NLog::globalLog().get(),
-          SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
-          this, SLOT(newLogMessage(QString, UICommon::LogMessage::Type)));
+  connect(NLog::global().get(),
+          SIGNAL(new_message(QString, UICommon::LogMessage::Type)),
+          this, SLOT(new_log_message(QString, UICommon::LogMessage::Type)));
 
-  connect(root, SIGNAL(connected()), this, SLOT(connectedToServer()));
+  connect(root, SIGNAL(connected()), this, SLOT(connected_to_server()));
 
-  connect(&ThreadManager::instance().network(), SIGNAL(disconnectedFromServer(bool)),
-          this, SLOT(disconnectedFromServer(bool)));
+  connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
+          this, SLOT(disconnected_from_server(bool)));
 
-  connect(NTree::globalTree().get(),
-          SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
-          this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
+  connect(NTree::global().get(),
+          SIGNAL(current_index_changed(QModelIndex,QModelIndex)),
+          this, SLOT(current_index_changed(QModelIndex,QModelIndex)));
 
-  connect(m_tabWindow, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
+  connect(m_tab_window, SIGNAL(currentChanged(int)), this, SLOT(tab_clicked(int)));
 
-  this->setConnectedState(false);
+  this->set_connected_state(false);
 
-  NLog::globalLog()->addMessage("Client successfully launched.");
+  NLog::global()->add_message("Client successfully launched.");
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
 MainWindow::~MainWindow()
 {
-  m_logFile.flush();
+  m_log_file.flush();
 
-  delete m_treeView;
-  delete m_centralPanel;
+  delete m_tree_view;
+  delete m_central_panel;
 
-  delete m_logList;
-  delete m_mnuView;
-  delete m_mnuFile;
-  delete m_mnuHelp;
-  delete m_aboutCFDialog;
+  delete m_log_list;
+  delete m_mnu_view;
+  delete m_mnu_file;
+  delete m_mnu_help;
+  delete m_about_cf_dialog;
 
 //  m_logFile.close();
 }
@@ -182,138 +182,138 @@ MainWindow::~MainWindow()
 //                                PRIVATE METHODS
 //========================================================================
 
-void MainWindow::buildMenus()
+void MainWindow::build_menus()
 {
   QAction * action;
 
-  m_mnuFile = new QMenu("&File", this);
-  m_mnuOpenFile = new QMenu("&Open file", this);
-  m_mnuSaveFile = new QMenu("&Save file", this);
-  m_mnuView = new QMenu("&View", this);
-  m_mnuHelp = new QMenu("&Help", this);
+  m_mnu_file = new QMenu("&File", this);
+  m_mnu_open_file = new QMenu("&Open file", this);
+  m_mnu_save_file = new QMenu("&Save file", this);
+  m_mnu_view = new QMenu("&View", this);
+  m_mnu_help = new QMenu("&Help", this);
 
 
-  action = m_mnuFile->addAction("&Connect to server", this,
-                                SLOT(connectToServer()), tr("ctrl+shift+C"));
+  action = m_mnu_file->addAction("&Connect to server", this,
+                                SLOT(connect_to_server()), tr("ctrl+shift+C"));
   m_actions[ACTION_CONNECT_TO_SERVER] = action;
 
-  action = m_mnuFile->addAction("&Disconnect from server", this,
-                                SLOT(disconnectFromServer()), tr("ctrl+shift+x"));
+  action = m_mnu_file->addAction("&Disconnect from server", this,
+                                SLOT(disconnect_from_server()), tr("ctrl+shift+x"));
   m_actions[ACTION_DISCONNECT_FROM_SERVER] = action;
 
-  action = m_mnuFile->addAction("&Shutdown the server", this,
-                                SLOT(disconnectFromServer()), tr("ctrl+shift+K"));
+  action = m_mnu_file->addAction("&Shutdown the server", this,
+                                SLOT(disconnect_from_server()), tr("ctrl+shift+K"));
   m_actions[ACTION_SHUTDOWN_SERVER] = action;
 
-  m_mnuFile->addSeparator();
+  m_mnu_file->addSeparator();
 
-  action = m_mnuFile->addAction("&Run script", this,
-                                SLOT(runScript()), tr("ctrl+shift+R"));
+  action = m_mnu_file->addAction("&Run script", this,
+                                SLOT(run_script()), tr("ctrl+shift+R"));
   m_actions[ACTION_RUN_SCRIPT] = action;
 
-  m_mnuFile->addSeparator();
+  m_mnu_file->addSeparator();
 
   //-----------------------------------------------
 
-  action = m_mnuOpenFile->addAction("&Locally", this, SLOT(openFileLocally()), tr("ctrl+o"));
+  action = m_mnu_open_file->addAction("&Locally", this, SLOT(open_file_locally()), tr("ctrl+o"));
   m_actions[ACTION_OPEN_LOCALLY] = action;
 
-  action = m_mnuOpenFile->addAction("&Remotely", this, SLOT(openFileRemotely()), tr("ctrl+shift+o"));
+  action = m_mnu_open_file->addAction("&Remotely", this, SLOT(open_file_remotely()), tr("ctrl+shift+o"));
   m_actions[ACTION_OPEN_REMOTELY] = action;
 
-  action = m_mnuOpenFile->addAction("&Locally", this, SLOT(saveFileLocally()), tr("ctrl+s"));
+  action = m_mnu_open_file->addAction("&Locally", this, SLOT(save_file_locally()), tr("ctrl+s"));
   m_actions[ACTION_SAVE_LOCALLY] = action;
 
-  action = m_mnuOpenFile->addAction("&Remotely", this, SLOT(saveFileRemotely()), tr("ctrl+shift+s"));
+  action = m_mnu_open_file->addAction("&Remotely", this, SLOT(save_file_remotely()), tr("ctrl+shift+s"));
   m_actions[ACTION_SAVE_REMOTELY] = action;
 
-  m_mnuFile->addMenu(m_mnuOpenFile);
-  m_mnuFile->addMenu(m_mnuSaveFile);
-  m_mnuFile->addSeparator();
+  m_mnu_file->addMenu(m_mnu_open_file);
+  m_mnu_file->addMenu(m_mnu_save_file);
+  m_mnu_file->addSeparator();
 
   //-----------------------------------------------
 
-  action = m_mnuFile->addAction("&Update tree", NTree::globalTree().get(),
-                                SLOT(updateTree()), tr("ctrl+u") );
+  action = m_mnu_file->addAction("&Update tree", NTree::global().get(),
+                                SLOT(update_tree()), tr("ctrl+u") );
   m_actions[ACTION_UPDATE_TREE] = action;
 
   //-----------------------------------------------
   //-----------------------------------------------
 
-  action = m_mnuView->addAction("&Clear log messages", this->m_logList , SLOT(clearLog()));
+  action = m_mnu_view->addAction("&Clear log messages", this->m_log_list , SLOT(clear_log()));
   m_actions[ACTION_CLEAR_LOG] = action;
 
-  m_mnuView->addSeparator();
+  m_mnu_view->addSeparator();
 
   //-----------------------------------------------
 
-  m_mnuView->addAction("&Find component", m_treeBrowser, SLOT(focusFilter()), tr("ctrl+f") );
+  m_mnu_view->addAction("&Find component", m_tree_browser, SLOT(focus_filter()), tr("ctrl+f") );
 
-  action = m_mnuView->addAction("&Toggle information pane");
+  action = m_mnu_view->addAction("&Toggle information pane");
   action->setCheckable(true);
   action->setChecked(true);
   action->setShortcut( tr("ctrl+i") );
-  m_tabWindow->setVisible(true);
+  m_tab_window->setVisible(true);
   m_actions[ACTION_TOGGLE_INFO_PANE] = action;
 
   // QTabWidget overrides setVisible(bool) slot to hide/show the widget
   // contained in the tab. Since we want to hide/show the whole pane
   // (including tab bar), we need to cast the object to QWidget.
-  connect(action, SIGNAL(toggled(bool)), (QWidget*)this->m_tabWindow, SLOT(setVisible(bool)));
+  connect(action, SIGNAL(toggled(bool)), (QWidget*)this->m_tab_window, SLOT(setVisible(bool)));
 
   //-----------------------------------------------
 
-  action = m_mnuView->addAction("Toggle &advanced mode", this, SLOT(toggleAdvanced()), tr("ctrl+x"));
+  action = m_mnu_view->addAction("Toggle &advanced mode", this, SLOT(toggle_advanced()), tr("ctrl+x"));
   action->setCheckable(true);
   m_actions[ACTION_TOGGLE_ADVANCED_MODE] = action;
 
-  action = m_mnuView->addAction("Toggle &debug mode", this, SLOT(toggleDebugMode()), tr("ctrl+d"));
+  action = m_mnu_view->addAction("Toggle &debug mode", this, SLOT(toggle_debug_mode()), tr("ctrl+d"));
   action->setCheckable(true);
   m_actions[ACTION_TOGGLE_DEBUG_MODE] = action;
 
   //-----------------------------------------------
   //-----------------------------------------------
 
-  action = m_mnuHelp->addAction("&Help", this, SLOT(showHelp()), tr("F1"));
+  action = m_mnu_help->addAction("&Help", this, SLOT(show_help()), tr("F1"));
   m_actions[ACTION_HELP] = action;
 
-  m_mnuView->addSeparator();
+  m_mnu_view->addSeparator();
 
-  action = m_mnuHelp->addAction("&COOLFluiD Website", this, SLOT(goToWebSite()));
+  action = m_mnu_help->addAction("&COOLFluiD Website", this, SLOT(go_to_web_site()));
   m_actions[ACTION_GOTO_WEBSITE] = action;
 
-  action = m_mnuHelp->addAction("&COOLFluiD Wiki Page", this, SLOT(goToWebSite()));
+  action = m_mnu_help->addAction("&COOLFluiD Wiki Page", this, SLOT(go_to_web_site()));
   m_actions[ACTION_GOTO_WIKI] = action;
 
-  m_mnuView->addSeparator();
+  m_mnu_view->addSeparator();
 
-  action = m_mnuHelp->addAction("&About COOLFluiD", m_aboutCFDialog, SLOT(exec()));
+  action = m_mnu_help->addAction("&About COOLFluiD", m_about_cf_dialog, SLOT(exec()));
   m_actions[ACTION_ABOUT_COOLFLUID] = action;
 
-  action = m_mnuHelp->addAction("&About Qt", qApp, SLOT(aboutQt()));
+  action = m_mnu_help->addAction("&About Qt", qApp, SLOT(aboutQt()));
   m_actions[ACTION_ABOUT_QT] = action;
 
   //----------------------------------------------------
   //----------------------------------------------------
 
-  this->menuBar()->addMenu(m_mnuFile);
-  this->menuBar()->addMenu(m_mnuView);
-  this->menuBar()->addMenu(m_mnuHelp);
+  this->menuBar()->addMenu(m_mnu_file);
+  this->menuBar()->addMenu(m_mnu_view);
+  this->menuBar()->addMenu(m_mnu_help);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::setFileOpen(bool fileOpen)
+void MainWindow::set_file_open(bool fileOpen)
 {
-  m_mnuSaveFile->setEnabled(fileOpen);
-  m_centralPanel->setVisible(fileOpen);
+  m_mnu_save_file->setEnabled(fileOpen);
+  m_central_panel->setVisible(fileOpen);
 
 //  m_treeView->setVisible(fileOpen);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-int MainWindow::confirmClose()
+int MainWindow::confirm_close()
 {
   int answer = CLOSE_DISC;
   QMessageBox discBox(this);
@@ -321,7 +321,7 @@ int MainWindow::confirmClose()
   QPushButton * btCancel = nullptr;
   QPushButton * btShutServer = nullptr;
 
-  if(m_treeView->tryToCommit())
+  if(m_tree_view->try_commit())
   {
     btDisc = discBox.addButton("Disconnect", QMessageBox::NoRole);
     btCancel = discBox.addButton(QMessageBox::Cancel);
@@ -332,7 +332,7 @@ int MainWindow::confirmClose()
     discBox.setInformativeText("What do you want to do ?");
 
     // show the message box
-    if(ThreadManager::instance().network().isConnected())
+    if(ThreadManager::instance().network().is_connected())
     {
       discBox.exec();
 
@@ -356,7 +356,7 @@ int MainWindow::confirmClose()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::showError(const QString & errorMessage)
+void MainWindow::show_error(const QString & errorMessage)
 {
   QMessageBox::critical(this, "Error", errorMessage);
 }
@@ -369,14 +369,14 @@ void MainWindow::showError(const QString & errorMessage)
 
 void MainWindow::closeEvent(QCloseEvent * event)
 {
-  int answer = confirmClose();
+  int answer = confirm_close();
 
   if( answer == CLOSE_CANCEL )
     event->ignore();
   else
   {
     event->accept();
-    ThreadManager::instance().network().disconnectFromServer( answer == CLOSE_SHUTDOWN );
+    ThreadManager::instance().network().disconnect_from_server( answer == CLOSE_SHUTDOWN );
   }
 
   // if the event is accepted, we write the current workspace to the disk
@@ -412,30 +412,30 @@ void MainWindow::quit()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::toggleAdvanced()
+void MainWindow::toggle_advanced()
 {
   bool advanced = m_actions[ ACTION_TOGGLE_ADVANCED_MODE ]->isChecked();
-  NTree::globalTree()->setAdvancedMode(advanced);
+  NTree::global()->set_advanced_mode(advanced);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::toggleDebugMode()
+void MainWindow::toggle_debug_mode()
 {
   bool debug = m_actions[ ACTION_TOGGLE_DEBUG_MODE ]->isChecked();
-  NTree::globalTree()->setDebugModeEnabled(debug);
+  NTree::global()->set_debug_mode_enabled(debug);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::showHelp()
+void MainWindow::show_help()
 {
-  this->showError("There is no help for now!");
+  this->show_error("There is no help for now!");
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::goToWebSite()
+void MainWindow::go_to_web_site()
 {
   QUrl url;
   if(sender() == m_actions[ACTION_GOTO_WIKI])
@@ -448,14 +448,14 @@ void MainWindow::goToWebSite()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::newException(const QString & msg)
+void MainWindow::new_exception(const QString & msg)
 {
-  this->showError(msg);
+  this->show_error(msg);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::connectToServer()
+void MainWindow::connect_to_server()
 {
   SignalFrame frame("connect", "", "");
   SignatureDialog dlg(this);
@@ -471,35 +471,35 @@ void MainWindow::connectToServer()
     quint16 port = frame.get_option<cf3::Uint>("Port number");
 
 
-    ThreadManager::instance().network().connectToHost(hostname, port);
+    ThreadManager::instance().network().connect_to_host(hostname, port);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnectFromServer()
+void MainWindow::disconnect_from_server()
 {
-  ThreadManager::instance().network().disconnectFromServer(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
+  ThreadManager::instance().network().disconnect_from_server(sender() == m_actions[ACTION_SHUTDOWN_SERVER]);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::connectedToServer()
+void MainWindow::connected_to_server()
 {
-  this->setConnectedState(true);
+  this->set_connected_state(true);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::disconnectedFromServer(bool requested)
+void MainWindow::disconnected_from_server(bool requested)
 {
-  this->setConnectedState(false);
-  NTree::globalTree()->clearTree();
+  this->set_connected_state(false);
+  NTree::global()->clear_tree();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::setConnectedState(bool connected)
+void MainWindow::set_connected_state(bool connected)
 {
   m_actions[ACTION_CONNECT_TO_SERVER]->setEnabled(!connected);
   m_actions[ACTION_DISCONNECT_FROM_SERVER]->setEnabled(connected);
@@ -509,14 +509,14 @@ void MainWindow::setConnectedState(bool connected)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::setRunningScriptState(bool running)
+void MainWindow::set_running_script_state(bool running)
 {
   m_actions[ACTION_RUN_SCRIPT]->setEnabled(running);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::saveFileLocally()
+void MainWindow::save_file_locally()
 {
   QFileDialog dlg;
 
@@ -526,7 +526,7 @@ void MainWindow::saveFileLocally()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::saveFileRemotely()
+void MainWindow::save_file_remotely()
 {
 //  NRemoteSave::Ptr flg;
 
@@ -535,7 +535,7 @@ void MainWindow::saveFileRemotely()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::openFileLocally()
+void MainWindow::open_file_locally()
 {
   QFileDialog dlg;
 
@@ -545,7 +545,7 @@ void MainWindow::openFileLocally()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::openFileRemotely()
+void MainWindow::open_file_remotely()
 {
   NRemoteOpen::Ptr rop = NRemoteOpen::create();
   rop->show();
@@ -553,7 +553,7 @@ void MainWindow::openFileRemotely()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::runScript()
+void MainWindow::run_script()
 {
   QFileDialog dlg;
 
@@ -568,48 +568,48 @@ void MainWindow::runScript()
   try
   {
     if( dlg.exec() == QFileDialog::Accepted )
-      NetworkQueue::global_queue()->execute_script( dlg.selectedFiles().first() );
+      NetworkQueue::global()->execute_script( dlg.selectedFiles().first() );
   }
   catch( Exception & e)
   {
-    NLog::globalLog()->addException( e.what() );
+    NLog::global()->add_exception( e.what() );
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::newLogMessage(const QString & message, cf3::UI::UICommon::LogMessage::Type type)
+void MainWindow::new_log_message(const QString & message, LogMessage::Type type)
 {
-  m_logFile << message << '\n';
+  m_log_file << message << '\n';
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::tabClicked(int num)
+void MainWindow::tab_clicked(int num)
 {
-  if( m_tabWindow->currentWidget() == m_propertyView )
-    m_propertyView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+  if( m_tab_window->currentWidget() == m_property_view )
+    m_property_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::currentIndexChanged(const QModelIndex & newIndex,
+void MainWindow::current_index_changed(const QModelIndex & newIndex,
                                      const QModelIndex & oldIndex)
 {
   QString text = "<b>%1</b><br><br>%2";
   QMap<QString, QString> data;
 
-  NTree::globalTree()->listNodeProperties(newIndex, data);
+  NTree::global()->list_node_properties(newIndex, data);
 
   text = text.arg(data["brief"]).arg(data["description"]);
-  m_labDescription->setText(text.replace("\n","<br>"));
+  m_lab_description->setText(text.replace("\n","<br>"));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void MainWindow::scriptFinished()
+void MainWindow::script_finished()
 {
-  setRunningScriptState(false);
+  set_running_script_state(false);
 }
 
 //////////////////////////////////////////////////////////////////////////////

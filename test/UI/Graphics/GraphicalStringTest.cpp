@@ -11,7 +11,7 @@
 
 #include "UI/Graphics/GraphicalString.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalStringTest.hpp"
 
@@ -69,23 +69,23 @@ void GraphicalStringTest::test_setValue()
   //
   // 1. check with strings
   //
-  QVERIFY( value->setValue("Hello") );
+  QVERIFY( value->set_value("Hello") );
   QCOMPARE( lineEdit->text(), QString("Hello") );
 
-  QVERIFY( value->setValue("World") );
+  QVERIFY( value->set_value("World") );
   QCOMPARE( lineEdit->text(), QString("World") );
 
   //
   // 2. check with other types (this works since all primitive
   // types can be implicitly converted to QString by Qt)
   //
-  QVERIFY( value->setValue(12) );
+  QVERIFY( value->set_value(12) );
   QCOMPARE( lineEdit->text(), QString("12") );
 
-  QVERIFY( value->setValue(3.141592) );
+  QVERIFY( value->set_value(3.141592) );
   QCOMPARE( lineEdit->text(), QString("3.141592") );
 
-  QVERIFY( value->setValue(true) );
+  QVERIFY( value->set_value(true) );
   QCOMPARE( lineEdit->text(), QString("true") );
 
   delete value;
@@ -124,8 +124,8 @@ void GraphicalStringTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue("Hello");
-  value->setValue("World!");
+  value->set_value("Hello");
+  value->set_value("World!");
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -161,11 +161,11 @@ void GraphicalStringTest::test_valueString()
 {
   GraphicalString * value = new GraphicalString();
 
-  value->setValue("Hello");
-  QCOMPARE( value->valueString(), QString("Hello") );
+  value->set_value("Hello");
+  QCOMPARE( value->value_string(), QString("Hello") );
 
-  value->setValue("World");
-  QCOMPARE( value->valueString(), QString("World") );
+  value->set_value("World");
+  QCOMPARE( value->value_string(), QString("World") );
 
   delete value;
 }
@@ -178,17 +178,17 @@ void GraphicalStringTest::test_isModified()
   QLineEdit* lineEdit = findLineEdit(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   lineEdit->setText("This is a sample text.");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   lineEdit->setText("This is another one.");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }

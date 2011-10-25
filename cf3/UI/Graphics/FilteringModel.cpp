@@ -60,7 +60,7 @@ bool FilteringModel::filterAcceptsRow(int row, const QModelIndex & parent) const
   QModelIndex index = sourceModel()->index(row, 0, parent);
 
   if(tree != nullptr)
-    return sourceModel()->data(index).isValid() && tree->nodeMatches(index, filterRegExp());
+    return sourceModel()->data(index).isValid() && tree->node_matches(index, filterRegExp());
   else
     return QSortFilterProxyModel::filterAcceptsRow(row, parent);
 

@@ -43,36 +43,36 @@ namespace Graphics {
 
 BrowserDialog::BrowserDialog(QWidget *parent) :
   QDialog(parent),
-  m_updatingCompleter(false)
+  m_updating_completer(false)
 {
   m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser("MyBrowser"));
-  m_filterModel = new FileFilter(m_model.get(), this);
+  m_filter_model = new FileFilter(m_model.get(), this);
   m_view = new QListView( this );
-  m_favoritesView = new QListView( this );
-  m_labPath = new QLabel("Path:");
-  m_labFilter = new QLabel("Filter:");
-  m_editFilter = new QLineEdit();
-  m_editPath = new QLineEdit("/Users/qt/workspace/coolfluid3/Builds/Dev/src/UI/");
-  m_comboFilter = new QComboBox();
-  m_btAddFav = new QPushButton("Add");
-  m_btRemoveFav = new QPushButton("Remove");
+  m_favorites_view = new QListView( this );
+  m_lab_path = new QLabel("Path:");
+  m_lab_filter = new QLabel("Filter:");
+  m_edit_filter = new QLineEdit();
+  m_edit_path = new QLineEdit("/Users/qt/workspace/coolfluid3/Builds/Dev/src/UI/");
+  m_combo_filter = new QComboBox();
+  m_bt_add_fav = new QPushButton("Add");
+  m_bt_remove_fav = new QPushButton("Remove");
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  m_completer = new QCompleter(m_model->completionModel(), this);
+  m_completer = new QCompleter(m_model->completion_model(), this);
 
-  m_pathLayout = new QHBoxLayout();
-  m_favButtonsLayout = new QHBoxLayout();
-  m_filterLayout = new QHBoxLayout();
+  m_path_layout = new QHBoxLayout();
+  m_fav_buttons_layout = new QHBoxLayout();
+  m_filter_layout = new QHBoxLayout();
 
-  m_mainLayout = new QGridLayout(this);
+  m_main_layout = new QGridLayout(this);
 
-  m_view->setModel( m_filterModel );
-  m_editPath->setCompleter( m_completer );
+  m_view->setModel( m_filter_model );
+  m_edit_path->setCompleter( m_completer );
 
-  m_filterModel->setDynamicSortFilter(true);
+  m_filter_model->setDynamicSortFilter(true);
 
-  m_comboFilter->addItems( QStringList() << "Exact Match" << "Wildcards" << "Regular Expression");
+  m_combo_filter->addItems( QStringList() << "Exact Match" << "Wildcards" << "Regular Expression");
 
-  m_mainLayout->setSpacing(5);
+  m_main_layout->setSpacing(5);
 
 //  m_view->setSortingEnabled(true);
 //  m_view->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
@@ -81,46 +81,46 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 //  m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
 //  m_view->horizontalHeader()->setStretchLastSection(true);
 
-  m_labPath->setBuddy(m_editPath);
-  m_labFilter->setBuddy(m_editFilter);
+  m_lab_path->setBuddy(m_edit_path);
+  m_lab_filter->setBuddy(m_edit_filter);
 
-  m_pathLayout->addWidget(m_labPath);
-  m_pathLayout->addWidget(m_editPath);
+  m_path_layout->addWidget(m_lab_path);
+  m_path_layout->addWidget(m_edit_path);
 
-  m_favButtonsLayout->addWidget(m_btAddFav);
-  m_favButtonsLayout->addWidget(m_btRemoveFav);
+  m_fav_buttons_layout->addWidget(m_bt_add_fav);
+  m_fav_buttons_layout->addWidget(m_bt_remove_fav);
 
-  m_filterLayout->addWidget(m_labFilter);
-  m_filterLayout->addWidget(m_editFilter);
-  m_filterLayout->addWidget(m_comboFilter);
+  m_filter_layout->addWidget(m_lab_filter);
+  m_filter_layout->addWidget(m_edit_filter);
+  m_filter_layout->addWidget(m_combo_filter);
 
-  m_mainLayout->addLayout(m_pathLayout,       0, 0, 1, -1); // span: 1 row, all cols
-  m_mainLayout->addWidget(m_favoritesView,    1, 0);
-  m_mainLayout->addWidget(m_view,             1, 1, 2, -1); // span: 2 rows, all cols
-  m_mainLayout->addLayout(m_favButtonsLayout, 2, 0);
-  m_mainLayout->addLayout(m_filterLayout,     3, 0, 1, 2);  // span: 1 row, 2 cols
-  m_mainLayout->addWidget(m_buttons,          3, 3);
+  m_main_layout->addLayout(m_path_layout,        0, 0, 1, -1); // span: 1 row, all cols
+  m_main_layout->addWidget(m_favorites_view,     1, 0);
+  m_main_layout->addWidget(m_view,               1, 1, 2, -1); // span: 2 rows, all cols
+  m_main_layout->addLayout(m_fav_buttons_layout, 2, 0);
+  m_main_layout->addLayout(m_filter_layout,      3, 0, 1, 2);  // span: 1 row, 2 cols
+  m_main_layout->addWidget(m_buttons,            3, 3);
 
-  m_mainLayout->setColumnStretch(0, 1);
-  m_mainLayout->setColumnStretch(1, 2);
-  m_mainLayout->setColumnStretch(2, 0);
-  m_mainLayout->setColumnStretch(3, 2);
+  m_main_layout->setColumnStretch(0, 1);
+  m_main_layout->setColumnStretch(1, 2);
+  m_main_layout->setColumnStretch(2, 0);
+  m_main_layout->setColumnStretch(3, 2);
 
-  ThreadManager::instance().tree().root()->addNode(m_model);
+  ThreadManager::instance().tree().root()->add_node(m_model);
 
-  connect(m_comboFilter, SIGNAL(currentIndexChanged(int)),
-          this, SLOT(filterTypeChanged(int)));
+  connect(m_combo_filter, SIGNAL(current_index_changed(int)),
+          this, SLOT(filter_type_changed(int)));
 
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
-          this, SLOT(doubleClicked(QModelIndex)));
+          this, SLOT(double_clicked(QModelIndex)));
 
-  connect(m_model.get(), SIGNAL(currentPathChanged(QString)),
-          this, SLOT(currentPathChanged(QString)));
+  connect(m_model.get(), SIGNAL(current_path_changed(QString)),
+          this, SLOT(current_path_changed(QString)));
 
   connect(m_completer, SIGNAL(activated(QString)),
-          this, SLOT(completerActivated(QString)));
+          this, SLOT(completer_activated(QString)));
 
-  connect(m_editPath, SIGNAL(textEdited(QString)), this, SLOT(pathEdited(QString)) );
+  connect(m_edit_path, SIGNAL(textEdited(QString)), this, SLOT(path_edited(QString)) );
 
   connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
 
@@ -129,54 +129,54 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 //  this->resize(QSize(this->width() /** 1.25*/, this->height() /** 1.25*/) );
   m_view->adjustSize();
   this->adjustSize();
-  m_model->openDir("");
+  m_model->open_dir("");
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::filterTypeChanged(int index)
+void BrowserDialog::filter_type_changed(int index)
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::doubleClicked(const QModelIndex &index)
+void BrowserDialog::double_clicked(const QModelIndex &index)
 {
-  QModelIndex indexInModel = m_filterModel->mapToSource( index );
+  QModelIndex index_in_model = m_filter_model->mapToSource( index );
 
-  if( m_model->isDirectory( indexInModel ) )
+  if( m_model->is_directory( index_in_model ) )
   {
-    m_model->openDir( m_model->retrieveFullPath( indexInModel ) );
+    m_model->open_dir( m_model->retrieve_full_path( index_in_model ) );
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::currentPathChanged( const QString & path )
+void BrowserDialog::current_path_changed( const QString & path )
 {
-  if( !m_updatingCompleter )
+  if( !m_updating_completer )
   {
-    m_editPath->setText( path );
+    m_edit_path->setText( path );
 
-    if(m_editPath->hasFocus())
+    if(m_edit_path->hasFocus())
       m_completer->popup()->show();
   }
   else
-    m_updatingCompleter = false;
+    m_updating_completer = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::completerActivated( const QString & text )
+void BrowserDialog::completer_activated( const QString & text )
 {
-  m_model->openDir( text );
+  m_model->open_dir( text );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::pathEdited( const QString & text )
+void BrowserDialog::path_edited( const QString & text )
 {
   QString path;
   bool send = false;
@@ -192,17 +192,17 @@ void BrowserDialog::pathEdited( const QString & text )
   // character (this may happen if user pasted a path or delete more than
   // one character at a time), the path to explore is the parent directory of
   // the path in the field
-  else if(m_oldPath.endsWith("/") || std::abs(m_oldPath.length() - text.length()) > 1)
+  else if(m_old_path.endsWith("/") || std::abs(m_old_path.length() - text.length()) > 1)
   {
-    m_updatingCompleter = true;
+    m_updating_completer = true;
     send = true;
     path = QFileInfo(text).path();
   }
 
   if(send)
-    m_model->openDir(path);
+    m_model->open_dir(path);
 
-  m_oldPath = text;
+  m_old_path = text;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -210,19 +210,19 @@ void BrowserDialog::pathEdited( const QString & text )
 void BrowserDialog::keyPressEvent(QKeyEvent * event)
 {
   // key code for the pressed key
-  int pressedKey = event->key();
+  int pressed_key = event->key();
   // modifiers keys pressed (ctrl, shift, alt, etc...)
   Qt::KeyboardModifiers modifiers = event->modifiers();
 
   QDialog::keyPressEvent(event);
 
   // if the path line edit has the focus
-  if(m_editPath->hasFocus())
+  if(m_edit_path->hasFocus())
   {
     // Qt::Key_Enter : enter key located on the keypad
     // Qt::Key_Return : return key
-    if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
-      m_editPath->setText(m_editPath->text());
+    if(pressed_key == Qt::Key_Enter || pressed_key == Qt::Key_Return)
+      m_edit_path->setText(m_edit_path->text());
 
     return;
   }
@@ -232,7 +232,7 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
   // taken (this is managed by QDialogButtonBox class)
   // Qt::Key_Enter : enter key located on the keypad
   // Qt::Key_Return : return key
-  if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
+  if(pressed_key == Qt::Key_Enter || pressed_key == Qt::Key_Return)
   {
 //    if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
 //      this->btOkClicked();
@@ -241,8 +241,8 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
 //      this->btCancelClicked();
   }
 
-  else if(pressedKey == Qt::Key_Backspace)
-    m_model->openDir(m_model->currentPath() + ".."); // back to the parent directory
+  else if(pressed_key == Qt::Key_Backspace)
+    m_model->open_dir(m_model->current_path() + ".."); // back to the parent directory
 
   // if user pressed either no modifier key or Shift key *and* another key,
   // the filter line edit takes the focus
@@ -251,9 +251,9 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
   {
     m_view->clearFocus();
 
-    m_editFilter->setText(m_editFilter->text() + event->text());
-    pathEdited(m_editFilter->text());
-    m_editFilter->setFocus(Qt::NoFocusReason);
+    m_edit_filter->setText(m_edit_filter->text() + event->text());
+    path_edited(m_edit_filter->text());
+    m_edit_filter->setFocus(Qt::NoFocusReason);
   }
 }
 
@@ -261,11 +261,11 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
 
 bool BrowserDialog::focusNextPrevChild(bool next)
 {
-  if(m_editPath->hasFocus() && m_completer->popup()->isVisible())
+  if(m_edit_path->hasFocus() && m_completer->popup()->isVisible())
   {
     m_completer->setCurrentRow(0);
-    m_editPath->setText(m_completer->currentCompletion());
-    pathEdited(m_completer->currentCompletion());
+    m_edit_path->setText(m_completer->currentCompletion());
+    path_edited(m_completer->currentCompletion());
     m_completer->popup()->setCurrentIndex(m_completer->currentIndex());
     return true;
   }
@@ -276,48 +276,48 @@ bool BrowserDialog::focusNextPrevChild(bool next)
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool BrowserDialog::show( bool multiSelect, QVariant & selected )
+bool BrowserDialog::show( bool multi_select, QVariant & selected )
 {
-  if( multiSelect )
+  if( multi_select )
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection); // allow multi-selection
   else
     m_view->setSelectionMode(QAbstractItemView::SingleSelection);   // mono-selection
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
-  bool okClicked = exec() == Accepted;
-  QString path = m_model->currentPath();
+  bool ok_clicked = exec() == Accepted;
+  QString path = m_model->current_path();
 
   // if user clicked on "OK"
-  if(okClicked)
+  if(ok_clicked)
   {
-    QModelIndexList selectedIndexes = m_view->selectionModel()->selectedIndexes();
+    QModelIndexList selected_indexes = m_view->selectionModel()->selectedIndexes();
 
-    if( !multiSelect && selectedIndexes.count() == 1 )
+    if( !multi_select && selected_indexes.count() == 1 )
     {
-      QModelIndex indexInModel = m_filterModel->mapToSource( selectedIndexes.at(0) );
-      selected = path + m_model->data( indexInModel, Qt::DisplayRole ).toString();
+      QModelIndex index_in_model = m_filter_model->mapToSource( selected_indexes.at(0) );
+      selected = path + m_model->data( index_in_model, Qt::DisplayRole ).toString();
     }
-    else if( multiSelect )
+    else if( multi_select )
     {
-      QModelIndexList::iterator it = selectedIndexes.begin();
+      QModelIndexList::iterator it = selected_indexes.begin();
       QStringList list;
 
-      for( ; it != selectedIndexes.end() ; ++it )
+      for( ; it != selected_indexes.end() ; ++it )
       {
-        QModelIndex indexInModel = m_filterModel->mapToSource( *it );
+        QModelIndex index_in_model = m_filter_model->mapToSource( *it );
 
-        list << path + m_model->data( indexInModel, Qt::DisplayRole ).toString();
+        list << path + m_model->data( index_in_model, Qt::DisplayRole ).toString();
       }
 
       selected = list;
     }
   }
 
-  disconnect(NLog::globalLog().get());
+  disconnect(NLog::global().get());
 
-  return okClicked;
+  return ok_clicked;
 }
 
 //////////////////////////////////////////////////////////////////////////////

@@ -28,7 +28,7 @@ FilesListItem::FilesListItem(const QIcon & icon, const QString & text,
 
 //////////////////////////////////////////////////////////////////////////
 
-FilesListItemType FilesListItem::getType() const
+FilesListItemType FilesListItem::get_type() const
 {
   return m_type;
 }

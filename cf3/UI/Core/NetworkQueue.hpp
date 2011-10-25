@@ -83,11 +83,11 @@ public:
 
   void insert_transaction( const QString & uuid, Priority priority = MEDIUM );
 
-  virtual QString toolTip() const;
+  virtual QString tool_tip() const;
 
-  static NetworkQueue::Ptr global_queue();
+  static NetworkQueue::Ptr global();
 
-  inline bool isRunning() const { return m_currentIndex != -1; }
+  inline bool is_running() const { return m_current_index != -1; }
 
   void start();
 
@@ -102,25 +102,25 @@ public:
 
 protected:
 
-  virtual void disableLocalSignals(QMap<QString, bool> &localSignals) const {}
+  virtual void disable_local_signals(QMap<QString, bool> &local_signals) const {}
 
 private: // data
 
-  QMap<QString, Transaction * > m_newTransactions;
+  QMap<QString, Transaction * > m_new_transactions;
 
   QList< Transaction * > m_transactions;
 
-  int m_currentIndex;
+  int m_current_index;
 
-  std::string m_currentFrameID;
+  std::string m_current_frame_id;
 
   void send_next_frame();
 
   void send_next_command();
 
-  QFile * m_scriptFile;
+  QFile * m_script_file;
 
-  QTextStream * m_scriptStream;
+  QTextStream * m_script_stream;
 
   Tools::Shell::Interpreter * m_interpreter;
 

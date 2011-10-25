@@ -82,7 +82,7 @@ namespace Graphics {
   private slots:
 
     /// @brief Slot called when a button is clicked.
-    void buttonClicked();
+    void button_clicked();
 
   private: // methods
 
@@ -90,22 +90,22 @@ namespace Graphics {
     /// @param text Button text.
     /// @param commConf Confimation type.
     /// @param role Button role.
-    void createButton(const QString & text, CommitConfirmation commConf,
+    void create_button(const QString & text, CommitConfirmation commConf,
                       QDialogButtonBox::ButtonRole role);
 
   private: // data
 
     /// @brief Button box
-    QDialogButtonBox * m_buttonBox;
+    QDialogButtonBox * m_button_box;
 
     /// @brief Main layout.
-    QVBoxLayout * m_mainLayout;
+    QVBoxLayout * m_main_layout;
 
     /// @brief View to show the commit details.
-    QTableView * m_detailsView;
+    QTableView * m_details_view;
 
     /// @brief Label for the text
-    QLabel * m_labText;
+    QLabel * m_lab_text;
 
     /// @brief User answer
     CommitConfirmation m_answer;
