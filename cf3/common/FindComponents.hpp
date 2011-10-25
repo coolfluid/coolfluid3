@@ -248,10 +248,10 @@ make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predic
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
 struct ComponentIteratorRangeSelector {
-
+  
   template<typename IsAbstractT, int dummy = 0>
   struct impl;
-
+  
   template<int dummy>
   struct impl<boost::true_type, dummy>
   {
@@ -260,7 +260,7 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            IsComponentTrue>::type type;
   };
-
+  
   template<int dummy>
   struct impl<boost::false_type, dummy>
   {
@@ -269,7 +269,7 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            Predicate>::type type;
   };
-
+  
   typedef typename impl< typename boost::is_abstract<Predicate>::type >::type type;
 };
 
@@ -1100,19 +1100,17 @@ template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent;
-  if ( comp.has_parent() )
-    parent = comp.parent().template as_ptr<Component>();
-  else
+  typename ComponentPtr<ComponentT>::type parent = comp.parent().self() ;
+  if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
+  while (not_found)
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
       not_found = false;
     else
     {
-      if ( parent->has_parent() )
-        parent = parent->parent().template as_ptr<Component>();
-      else
+      parent = parent->parent().self();
+      if ( is_null(parent) )
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
     }
   }
@@ -1123,10 +1121,8 @@ template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent;
-  if ( comp.has_parent() )
-    parent = comp.parent().template as_ptr<Component>();
-  else
+  typename ComponentPtr<ComponentT>::type parent = comp.parent().self() ;
+  if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 
   while (not_found)
@@ -1135,9 +1131,8 @@ typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_f
       not_found = false;
     else
     {
-      if ( parent->has_parent() )
-        parent = parent->parent().template as_ptr<Component>();
-      else
+      parent = parent->parent().self();
+      if ( is_null(parent) )
         throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
     }
   }
