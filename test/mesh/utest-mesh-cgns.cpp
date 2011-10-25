@@ -771,7 +771,7 @@ BOOST_AUTO_TEST_CASE( WriteCNGS_mixed )
 
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag_mixed");
-  neu_reader->read_mesh_into("quadtriag.neu",mesh);
+  neu_reader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.CGNS.Writer","meshwriter");
 

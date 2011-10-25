@@ -365,16 +365,16 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
       build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 //  meshreader->configure_option("read_boundaries",false);
   Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rotation-tg-p1.neu");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.neu");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.neu");
   Mesh& mesh = *mesh_ptr;
 #endif
 
 #ifdef GMSH
   MeshReader::Ptr meshreader =
       build_component_abstract_type<MeshReader>("cf3.mesh.gmsh.Reader","meshreader");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("sinusbump-tg-p1.msh");
-  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("quadtriag.msh");
-//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("rectangle-tg-p1.msh");
+  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/sinusbump-tg-p1.msh");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/quadtriag.msh");
+//  Mesh::Ptr mesh_ptr = meshreader->create_mesh_from("../../resources/rectangle-tg-p1.msh");
   Mesh& mesh = *mesh_ptr;
 #endif
 

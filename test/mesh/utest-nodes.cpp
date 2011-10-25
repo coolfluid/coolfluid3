@@ -52,7 +52,7 @@ struct Nodes_Fixture
     MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
     // Read the mesh
-    meshreader->read_mesh_into("quadtriag.neu",*mesh2d);
+    meshreader->read_mesh_into("../../resources/quadtriag.neu",*mesh2d);
   }
 
   /// common tear-down for each test case
