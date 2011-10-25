@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( data )
 {
   CommitDetails cd;
-  Qt::ItemDataRole role = role;
+  Qt::ItemDataRole role = Qt::DisplayRole;
 
   cd.set_option("Option1", "OldVal1", "NewVal1");
   cd.set_option("Option2", "OldVal2", "");
@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( data )
 BOOST_AUTO_TEST_CASE( header_data )
 {
   CommitDetails cd;
-  Qt::ItemDataRole role = role;
+  Qt::ItemDataRole role = Qt::DisplayRole;
 
   // 1. check column headers
   BOOST_CHECK_EQUAL( cd.headerData(0, Qt::Horizontal, role).toString().toStdString(), std::string("Name") );
