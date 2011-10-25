@@ -81,9 +81,9 @@ public:
 
   std::vector<Uint> face_nodes(const Uint face) const;
 
-  MeshElements& lookup() { cf3_assert_desc("Must build connectivity first", !m_mesh_elements.expired()); return *m_mesh_elements.lock(); }
+  MeshElements& lookup() { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
-  const MeshElements& lookup() const { cf3_assert_desc("Must build connectivity first", !m_mesh_elements.expired()); return *m_mesh_elements.lock(); }
+  const MeshElements& lookup() const { cf3_assert_desc("Must build connectivity first", is_not_null(m_mesh_elements)); return *m_mesh_elements; }
 
   std::vector<Component::Ptr> used();
 
@@ -105,7 +105,7 @@ private: // data
   // @todo make a common::List<bool> (some bug prevents using common::List<bool>::Buffer with common::List<bool> )
   common::List<bool>::Ptr m_is_bdry_face;
 
-  boost::weak_ptr<MeshElements> m_mesh_elements;
+  MeshElements::Ptr m_mesh_elements;
 
   bool m_face_building_algorithm;
 

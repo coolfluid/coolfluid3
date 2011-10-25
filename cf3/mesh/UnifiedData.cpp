@@ -87,7 +87,7 @@ boost::tuple<common::Component::ConstPtr,Uint> UnifiedData::location(const Uint 
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::make_tuple(m_data_vector[data_vector_idx]->as_const(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::make_tuple(m_data_vector[data_vector_idx].lock()->as_const(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ boost::tuple<common::Component&,Uint> UnifiedData::location_v2(const Uint data_g
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::tuple<common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::tuple<common::Component&,Uint>(*m_data_vector[data_vector_idx].lock(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -107,7 +107,7 @@ boost::tuple<const common::Component&,Uint> UnifiedData::location_v2(const Uint 
   cf3_assert(data_glb_idx<m_size);
   const Uint data_vector_idx = std::upper_bound(m_data_indices->array().begin(), m_data_indices->array().end(), data_glb_idx) - 1 -  m_data_indices->array().begin();
   cf3_assert(m_data_indices->array()[data_vector_idx] <= data_glb_idx );
-  return boost::tuple<const common::Component&,Uint>(*m_data_vector[data_vector_idx], data_glb_idx - m_data_indices->array()[data_vector_idx]);
+  return boost::tuple<const common::Component&,Uint>(*m_data_vector[data_vector_idx].lock(), data_glb_idx - m_data_indices->array()[data_vector_idx]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -144,7 +144,7 @@ Uint UnifiedData::size() const
 
 /// non-const access to the unified data components
 /// @return vector of data components
-std::vector< common::Component* >& UnifiedData::components()
+std::vector< boost::weak_ptr<common::Component> >& UnifiedData::components()
 {
   return m_data_vector;
 }
@@ -153,7 +153,7 @@ std::vector< common::Component* >& UnifiedData::components()
 
 /// const access to the unified data components
 /// @return vector of data components
-const std::vector< common::Component* >& UnifiedData::components() const
+const std::vector< boost::weak_ptr<common::Component> >& UnifiedData::components() const
 {
   return m_data_vector;
 }
