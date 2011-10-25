@@ -56,13 +56,13 @@ private:
   QTableView * m_view;
 
   /// @brief Button box
-  QDialogButtonBox * m_buttonBox;
+  QDialogButtonBox * m_button_box;
 
   /// @brief Main layout
-  QVBoxLayout * m_mainLayout;
+  QVBoxLayout * m_main_layout;
 
   /// @brief "OK" button
-  QPushButton * m_btOk;
+  QPushButton * m_bt_ok;
 
 }; // class ModifiedOptionsDialog
 

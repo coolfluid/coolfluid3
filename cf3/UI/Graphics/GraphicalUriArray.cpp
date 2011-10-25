@@ -38,89 +38,89 @@ namespace Graphics {
 GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_groupBox = new QGroupBox(parent);
-  m_editAdd = new QLineEdit(m_groupBox);
-  m_model = new QStringListModel(m_groupBox);
-  m_listView = new QListView(m_groupBox);
-  m_btAdd = new QPushButton("+", m_groupBox);
-  m_btRemove = new QPushButton("-", m_groupBox);
-  m_btUp = new QPushButton("Up", m_groupBox);
-  m_btDown = new QPushButton("Down", m_groupBox);
-  m_comboType = new QComboBox(m_groupBox);
+  m_group_box = new QGroupBox(parent);
+  m_edit_add = new QLineEdit(m_group_box);
+  m_model = new QStringListModel(m_group_box);
+  m_list_view = new QListView(m_group_box);
+  m_bt_add = new QPushButton("+", m_group_box);
+  m_bt_remove = new QPushButton("-", m_group_box);
+  m_bt_up = new QPushButton("Up", m_group_box);
+  m_bt_down = new QPushButton("Down", m_group_box);
+  m_combo_type = new QComboBox(m_group_box);
   m_separator = sep;
 
-  m_buttonsLayout = new QVBoxLayout();
-  m_boxLayout = new QGridLayout(m_groupBox);
+  m_buttons_layout = new QVBoxLayout();
+  m_box_layout = new QGridLayout(m_group_box);
 
-  m_listView->setModel(m_model);
-  m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  m_list_view->setModel(m_model);
+  m_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 //  m_listView->setDragDropMode(QAbstractItemView::InternalMove);
 //  m_listView->setDragEnabled(true);
 //  m_listView->setAcceptDrops(true);
 
-  setProtocols(std::vector<std::string>());
+  set_protocols(std::vector<std::string>());
 
-  m_buttonsLayout->addWidget(m_btUp);
-  m_buttonsLayout->addWidget(m_btDown);
+  m_buttons_layout->addWidget(m_bt_up);
+  m_buttons_layout->addWidget(m_bt_down);
 
-  m_boxLayout->addWidget(m_comboType, 0, 0);
-  m_boxLayout->addWidget(m_editAdd, 0, 1);
-  m_boxLayout->addWidget(m_btAdd, 0, 2);
-  m_boxLayout->addWidget(m_btRemove, 0, 3);
-  m_boxLayout->addWidget(m_listView, 1, 0, 1, 4);
-  m_boxLayout->addLayout(m_buttonsLayout, 1, 4);
+  m_box_layout->addWidget(m_combo_type, 0, 0);
+  m_box_layout->addWidget(m_edit_add, 0, 1);
+  m_box_layout->addWidget(m_bt_add, 0, 2);
+  m_box_layout->addWidget(m_bt_remove, 0, 3);
+  m_box_layout->addWidget(m_list_view, 1, 0, 1, 4);
+  m_box_layout->addLayout(m_buttons_layout, 1, 4);
 
-  m_layout->addWidget(m_groupBox);
+  m_layout->addWidget(m_group_box);
 
-  selectionChanged(QItemSelection(), QItemSelection());
+  selection_changed(QItemSelection(), QItemSelection());
 
-  connect(m_btAdd, SIGNAL(clicked()), this, SLOT(btAddClicked()));
-  connect(m_btRemove, SIGNAL(clicked()), this, SLOT(btRemoveClicked()));
-  connect(m_comboType, SIGNAL(activated(QString)), this, SLOT(changeType(QString)));
-  connect(m_btUp, SIGNAL(clicked()), this, SLOT(moveUp()));
-  connect(m_btDown, SIGNAL(clicked()), this, SLOT(moveDown()));
-  connect(m_listView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-          this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+  connect(m_bt_add, SIGNAL(clicked()), this, SLOT(bt_add_clicked()));
+  connect(m_bt_remove, SIGNAL(clicked()), this, SLOT(bt_remove_clicked()));
+  connect(m_combo_type, SIGNAL(activated(QString)), this, SLOT(scheme_changed(QString)));
+  connect(m_bt_up, SIGNAL(clicked()), this, SLOT(move_up()));
+  connect(m_bt_down, SIGNAL(clicked()), this, SLOT(move_down()));
+  connect(m_list_view->selectionModel(), SIGNAL(selection_changed(QItemSelection,QItemSelection)),
+          this, SLOT(selection_changed(QItemSelection,QItemSelection)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 GraphicalUriArray::~GraphicalUriArray()
 {
-  delete m_editAdd;
+  delete m_edit_add;
   delete m_model;
-  delete m_listView;
-  delete m_btAdd;
-  delete m_btRemove;
-  delete m_buttonsLayout;
-  delete m_groupBox;
+  delete m_list_view;
+  delete m_bt_add;
+  delete m_bt_remove;
+  delete m_buttons_layout;
+  delete m_group_box;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::setProtocols(const std::vector<std::string> & protocols)
+void GraphicalUriArray::set_protocols(const std::vector<std::string> & protocols)
 {
-  m_comboType->clear();
+  m_combo_type->clear();
 
   if(protocols.empty())
   {
-    m_comboType->addItem("cpath");
-    m_comboType->addItem("file");
-    m_comboType->addItem("http");
+    m_combo_type->addItem("cpath");
+    m_combo_type->addItem("file");
+    m_combo_type->addItem("http");
   }
   else
   {
     std::vector<std::string>::const_iterator it;
     for(it = protocols.begin() ; it != protocols.end() ; it++)
-      m_comboType->addItem(it->c_str());
+      m_combo_type->addItem(it->c_str());
   }
 
-  changeType(m_comboType->currentText());
+  scheme_changed(m_combo_type->currentText());
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool GraphicalUriArray::setValue(const QVariant & value)
+bool GraphicalUriArray::set_value(const QVariant & value)
 {
   QStringList list;
   bool success = false;
@@ -129,7 +129,7 @@ bool GraphicalUriArray::setValue(const QVariant & value)
   {
     list = value.toString().split(m_separator);
     list.removeAll(QString());
-    m_originalValue = list;
+    m_original_value = list;
     m_model->setStringList(list);
     success = true;
   }
@@ -146,7 +146,7 @@ bool GraphicalUriArray::setValue(const QVariant & value)
         list << *it;
     }
 
-    m_originalValue = values;
+    m_original_value = values;
 
     list.removeDuplicates();
     m_model->setStringList(list);
@@ -164,31 +164,31 @@ QVariant GraphicalUriArray::value() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::btAddClicked()
+void GraphicalUriArray::bt_add_clicked()
 {
 
-  if(m_editAdd->text().isEmpty())
+  if(m_edit_add->text().isEmpty())
   {
-    if(m_comboType->currentText() == "cpath")
+    if(m_combo_type->currentText() == "cpath")
     {
       SelectPathDialog spd;
-      QString modified_path = m_editAdd->text();
+      QString modified_path = m_edit_add->text();
 
       URI path = spd.show(modified_path.toStdString());
 
       if(!path.empty())
-        m_editAdd->setText( path.string().c_str() );
+        m_edit_add->setText( path.string().c_str() );
     }
-    else if(m_comboType->currentText() == "file")
+    else if(m_combo_type->currentText() == "file")
     {
       NRemoteOpen::Ptr nro = NRemoteOpen::create();
 
-      QStringList fileList = nro->showMultipleSelect("");
+      QStringList fileList = nro->show_multiple_select("");
       QStringList::iterator file = fileList.begin();
 
       for( ; file != fileList.end() ; ++ file)
       {
-        file->prepend( m_comboType->currentText() + ':' );
+        file->prepend( m_combo_type->currentText() + ':' );
       }
 
       if(!fileList.isEmpty())
@@ -196,27 +196,27 @@ void GraphicalUriArray::btAddClicked()
     }
   }
 
-  if(!m_editAdd->text().isEmpty())
+  if(!m_edit_add->text().isEmpty())
   {
-    QString pathStr = m_editAdd->text();
+    QString pathStr = m_edit_add->text();
 
-    if( !pathStr.startsWith(m_comboType->currentText()) )
-      pathStr.prepend(m_comboType->currentText() + ':');
+    if( !pathStr.startsWith(m_combo_type->currentText()) )
+      pathStr.prepend(m_combo_type->currentText() + ':');
 
     m_model->setStringList( m_model->stringList() << pathStr );
-    m_editAdd->clear();
+    m_edit_add->clear();
   }
 
-  emit valueChanged();
+  emit value_changed();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::btRemoveClicked()
+void GraphicalUriArray::bt_remove_clicked()
 {
   QModelIndexList selectedItems;
 
-  selectedItems = m_listView->selectionModel()->selectedIndexes();
+  selectedItems = m_list_view->selectionModel()->selectedIndexes();
 
   for(int i = selectedItems.size() - 1 ; i >= 0 ; i--)
   {
@@ -225,36 +225,36 @@ void GraphicalUriArray::btRemoveClicked()
     m_model->removeRow(index.row(), index.parent());
   }
 
-  emit valueChanged();
+  emit value_changed();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::changeType(const QString & type)
+void GraphicalUriArray::scheme_changed(const QString & type)
 {
 //  m_btBrowse->setVisible(type == "cpath" || type == "file");
-  m_editAdd->setVisible(!type.isEmpty());
+  m_edit_add->setVisible(!type.isEmpty());
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::moveUp()
+void GraphicalUriArray::move_up()
 {
-  moveItems(-1);
+  move_items(-1);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::moveDown()
+void GraphicalUriArray::move_down()
 {
-  moveItems(1);
+  move_items(1);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::moveItems( int step )
+void GraphicalUriArray::move_items( int step )
 {
-  QModelIndexList selected = m_listView->selectionModel()->selectedRows();
+  QModelIndexList selected = m_list_view->selectionModel()->selectedRows();
   QModelIndexList::iterator it = selected.begin();
   QStringList items = m_model->stringList();
   QList<int> newSelection;
@@ -275,23 +275,23 @@ void GraphicalUriArray::moveItems( int step )
   // select items that were just moved
   QList<int>::iterator itNewSelect = newSelection.begin();
   for( ; itNewSelect != newSelection.end(); ++ itNewSelect)
-    m_listView->selectionModel()->select( m_model->index(*itNewSelect), QItemSelectionModel::Select );
+    m_list_view->selectionModel()->select( m_model->index(*itNewSelect), QItemSelectionModel::Select );
 
   // update buttons enabled states
-  selectionChanged(QItemSelection(), QItemSelection());
+  selection_changed(QItemSelection(), QItemSelection());
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalUriArray::selectionChanged(const QItemSelection &, const QItemSelection & )
+void GraphicalUriArray::selection_changed(const QItemSelection &, const QItemSelection & )
 {
-  QModelIndexList selected = m_listView->selectionModel()->selectedRows();
+  QModelIndexList selected = m_list_view->selectionModel()->selectedRows();
 
   // we enable the "Up" button if exactly one item is selected, but not the first one
-  m_btUp->setEnabled( selected.size() == 1 && selected.first().row() != 0 );
+  m_bt_up->setEnabled( selected.size() == 1 && selected.first().row() != 0 );
 
   // we enable the "Down" button if exactly one item is selected, but not the last one
-  m_btDown->setEnabled( selected.size() == 1 && selected.last().row() != m_model->rowCount() - 1 );
+  m_bt_down->setEnabled( selected.size() == 1 && selected.last().row() != m_model->rowCount() - 1 );
 
 }
 

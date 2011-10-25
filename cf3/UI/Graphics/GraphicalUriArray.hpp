@@ -42,53 +42,53 @@ namespace Graphics {
 
     ~GraphicalUriArray();
 
-    void setProtocols(const std::vector<std::string> & protocols);
+    void set_protocols(const std::vector<std::string> & protocols);
 
-    virtual bool setValue(const QVariant & path);
+    virtual bool set_value(const QVariant & path);
 
     virtual QVariant value() const;
 
   private slots:
 
-    void btAddClicked();
+    void bt_add_clicked();
 
-    void btRemoveClicked();
+    void bt_remove_clicked();
 
-    void changeType(const QString & type);
+    void scheme_changed(const QString & type);
 
-    void moveUp();
+    void move_up();
 
-    void moveDown();
+    void move_down();
 
-    void selectionChanged(const QItemSelection& selected, const QItemSelection & delected);
+    void selection_changed(const QItemSelection& selected, const QItemSelection & delected);
 
   private: // functions
 
-    void moveItems( int step );
+    void move_items( int step );
 
   private:
 
-    QLineEdit * m_editAdd;
+    QLineEdit * m_edit_add;
 
     QStringListModel * m_model;
 
-    QListView * m_listView;
+    QListView * m_list_view;
 
-    QPushButton * m_btAdd;
+    QPushButton * m_bt_add;
 
-    QPushButton * m_btRemove;
+    QPushButton * m_bt_remove;
 
-    QPushButton * m_btUp;
+    QPushButton * m_bt_up;
 
-    QPushButton * m_btDown;
+    QPushButton * m_bt_down;
 
-    QVBoxLayout * m_buttonsLayout;
+    QVBoxLayout * m_buttons_layout;
 
-    QComboBox * m_comboType;
+    QComboBox * m_combo_type;
 
-    QGridLayout * m_boxLayout;
+    QGridLayout * m_box_layout;
 
-    QGroupBox * m_groupBox;
+    QGroupBox * m_group_box;
 
   }; // class GraphicalArray
 

@@ -31,17 +31,17 @@ namespace Graphics {
 
     ~GraphicalString();
 
-    virtual bool setValue(const QVariant & value);
+    virtual bool set_value(const QVariant & value);
 
     virtual QVariant value() const;
 
   private slots:
 
-    void textUpdated(const QString & text);
+    void text_updated(const QString & text);
 
   private:
 
-    QLineEdit * m_lineEdit;
+    QLineEdit * m_line_edit;
 
   }; // class GraphicalDouble
 

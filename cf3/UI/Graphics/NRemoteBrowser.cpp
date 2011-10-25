@@ -55,7 +55,7 @@ namespace Graphics {
 
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
-    CNode(NBrowser::globalBrowser()->generateName().toStdString(), componentType, CNode::DEBUG_NODE)
+    CNode(NBrowser::global()->generate_name().toStdString(), componentType, CNode::DEBUG_NODE)
 {
 
   regist_signal( "read_dir" )
@@ -65,86 +65,86 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
   this->setWindowTitle("Open file");
 
   // create the components
-  m_labFilter = new QLabel("Filter (wildcards allowed) :", this);
-  m_labFilesList = new QLabel("Files in", this);
-  m_viewModel = new QStandardItemModel();
-  m_listView = new QListView(this);
-  m_editFilter = new QLineEdit(this);
-  m_editPath = new QLineEdit(this);
-  m_labStatus = new QLabel(this);
-  m_filterModel = new QSortFilterProxyModel();
-  m_completerModel = new QStandardItemModel();
-  m_pathCompleter = new QCompleter(m_completerModel, this);
+  m_lab_filter = new QLabel("Filter (wildcards allowed) :", this);
+  m_lab_files_list = new QLabel("Files in", this);
+  m_view_model = new QStandardItemModel();
+  m_list_view = new QListView(this);
+  m_edit_filter = new QLineEdit(this);
+  m_edit_path = new QLineEdit(this);
+  m_lab_status = new QLabel(this);
+  m_filter_model = new QSortFilterProxyModel();
+  m_completer_model = new QStandardItemModel();
+  m_path_completer = new QCompleter(m_completer_model, this);
 
-  m_parentWindow = parent;
+  m_parent_window = parent;
 
   m_layout = new QVBoxLayout(this);
-  m_pathLayout = new QHBoxLayout();
-  m_bottomLayout = new QHBoxLayout();
+  m_path_layout = new QHBoxLayout();
+  m_bottom_layout = new QHBoxLayout();
 
   // create 2 buttons : "Ok" and "Cancel"
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok
                                    | QDialogButtonBox::Cancel);
 
-  m_okClicked = false;
-  m_multipleSelectAllowed = false;
-  m_updatingCompleter = false;
+  m_ok_clicked = false;
+  m_multiple_select_allowed = false;
+  m_updating_completer = false;
 
-  m_pathSep = "/";
+  m_path_sep = "/";
 
   this->setModal(true);
 
-  m_filterModel->setDynamicSortFilter(true);
+  m_filter_model->setDynamicSortFilter(true);
 
-  m_filterModel->setSourceModel(m_viewModel);
-  m_listView->setModel(m_filterModel);
+  m_filter_model->setSourceModel(m_view_model);
+  m_list_view->setModel(m_filter_model);
 
-  m_listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-  m_listView->setAlternatingRowColors(true);
+  m_list_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  m_list_view->setAlternatingRowColors(true);
 
-  m_editPath->setCompleter(m_pathCompleter);
+  m_edit_path->setCompleter(m_path_completer);
 
-  m_labFilter->setBuddy(m_editFilter);
-  m_labFilesList->setBuddy(m_editPath);
+  m_lab_filter->setBuddy(m_edit_filter);
+  m_lab_files_list->setBuddy(m_edit_path);
 
   // add the components to the layouts
-  m_pathLayout->addWidget(m_labFilesList);
-  m_pathLayout->addWidget(m_editPath);
+  m_path_layout->addWidget(m_lab_files_list);
+  m_path_layout->addWidget(m_edit_path);
 
-  m_bottomLayout->addWidget(m_labFilter);
-  m_bottomLayout->addWidget(m_editFilter);
-  m_bottomLayout->addWidget(m_buttons);
+  m_bottom_layout->addWidget(m_lab_filter);
+  m_bottom_layout->addWidget(m_edit_filter);
+  m_bottom_layout->addWidget(m_buttons);
 
-  m_layout->addLayout(m_pathLayout);
-  m_layout->addWidget(m_listView);
-  m_layout->addWidget(m_labStatus);
-  m_layout->addLayout(m_bottomLayout);
+  m_layout->addLayout(m_path_layout);
+  m_layout->addWidget(m_list_view);
+  m_layout->addWidget(m_lab_status);
+  m_layout->addLayout(m_bottom_layout);
 
   // set "Ok" button as default when user presses enter
   m_buttons->button(QDialogButtonBox::Ok)->setDefault(true);
   m_buttons->button(QDialogButtonBox::Cancel)->setAutoDefault(false);
 
   // connect useful signals to slots
-  connect(m_buttons, SIGNAL(accepted()), this, SLOT(btOkClicked()));
-  connect(m_buttons, SIGNAL(rejected()), this, SLOT(btCancelClicked()));
+  connect(m_buttons, SIGNAL(accepted()), this, SLOT(bt_ok_clicked()));
+  connect(m_buttons, SIGNAL(rejected()), this, SLOT(bt_cancel_clicked()));
 
-  connect(m_editFilter, SIGNAL(textEdited(QString)),
-          this, SLOT(filterUpdated(QString)));
+  connect(m_edit_filter, SIGNAL(textEdited(QString)),
+          this, SLOT(filter_updated(QString)));
 
-  connect(m_editPath, SIGNAL(textEdited(QString)),
-          this, SLOT(pathUpdated(QString)));
+  connect(m_edit_path, SIGNAL(textEdited(QString)),
+          this, SLOT(path_updated(QString)));
 
-  connect(m_listView, SIGNAL(doubleClicked(QModelIndex)),
-          this, SLOT(doubleClick(QModelIndex)));
+  connect(m_list_view, SIGNAL(doubleClicked(QModelIndex)),
+          this, SLOT(double_click(QModelIndex)));
 
-  connect(m_pathCompleter, SIGNAL(activated(QString)),
-          this, SLOT(completerActivated(QString)));
+  connect(m_path_completer, SIGNAL(activated(QString)),
+          this, SLOT(completer_activated(QString)));
 
   m_includeFiles = true;
-  m_includeNoExtension = true;
-  this->allowModifyBools = true;
-  this->allowSingleSelect = true;
-  this->allowMultipleSelect = true;
+  m_include_no_extension = true;
+  this->allow_modify_bools = true;
+  this->allow_single_select = true;
+  this->allow_multiple_select = true;
 
   this->resize(this->height() * 2, this->height());
 }
@@ -154,19 +154,19 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
 NRemoteBrowser::~NRemoteBrowser()
 {
   delete m_buttons;
-  delete m_editFilter;
-  delete m_filterModel;
-  delete m_labFilter;
-  delete m_labFilesList;
-  delete m_labStatus;
-  delete m_pathLayout;
-  delete m_bottomLayout;
+  delete m_edit_filter;
+  delete m_filter_model;
+  delete m_lab_filter;
+  delete m_lab_files_list;
+  delete m_lab_status;
+  delete m_path_layout;
+  delete m_bottom_layout;
   delete m_layout;
-  delete m_listView;
-  delete m_editPath;
-  delete m_pathCompleter;
-  delete m_viewModel;
-  delete m_completerModel;
+  delete m_list_view;
+  delete m_edit_path;
+  delete m_path_completer;
+  delete m_view_model;
+  delete m_completer_model;
 
   // disconnecting the signals connected by the constructor
   // (normally, this is automatically done when the object is destroyed,
@@ -178,39 +178,39 @@ NRemoteBrowser::~NRemoteBrowser()
 
 QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
 {
-  if(!this->allowSingleSelect)
+  if(!this->allow_single_select)
   {
-    this->showError("This dialog can not be used to select a single file");
+    this->show_error("This dialog can not be used to select a single file");
     return QString();
   }
 
   if(startingDir.isEmpty())
-    this->openDir(m_currentPath);
+    this->open_dir(m_current_path);
 
   else
-    this->openDir(startingDir);
+    this->open_dir(startingDir);
 
-  m_multipleSelectAllowed = false;
-  m_currentFile = "";
-  m_currentFilesList.clear();
+  m_multiple_select_allowed = false;
+  m_current_file = "";
+  m_current_files_list.clear();
 
-  m_listView->setSelectionMode(QAbstractItemView::SingleSelection);
-  m_listView->clearSelection();
+  m_list_view->setSelectionMode(QAbstractItemView::SingleSelection);
+  m_list_view->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
-  this->reinitValues();
+  this->reinit_values();
 
   this->exec();
 
-  this->disconnect(NLog::globalLog().get());
+  this->disconnect(NLog::global().get());
 
   if(canceled != nullptr)
-    *canceled = !m_okClicked;
+    *canceled = !m_ok_clicked;
 
-  if(m_okClicked)
-    return this->selectedFile();
+  if(m_ok_clicked)
+    return this->selected_file();
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -220,40 +220,40 @@ QString NRemoteBrowser::show(const QString & startingDir, bool * canceled)
 
 ////////////////////////////////////////////////////////////////////////////
 
-QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
+QStringList NRemoteBrowser::show_multiple_select(const QString & startingDir)
 {
   QStringList list;
 
-  if(!this->allowMultipleSelect)
+  if(!this->allow_multiple_select)
   {
-    this->showError("This dialog can not be used to select multiple files");
+    this->show_error("This dialog can not be used to select multiple files");
     return QStringList();
   }
 
   if(startingDir.isEmpty())
-    this->openDir(m_currentPath);
+    this->open_dir(m_current_path);
 
   else
-    this->openDir(startingDir);
+    this->open_dir(startingDir);
 
-  m_multipleSelectAllowed = true;
-  m_currentFile = "";
-  m_currentFilesList.clear();
+  m_multiple_select_allowed = true;
+  m_current_file = "";
+  m_current_files_list.clear();
 
-  m_listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-  m_listView->clearSelection();
+  m_list_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+  m_list_view->clearSelection();
 
-  connect(NLog::globalLog().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(newMessage(QString, UICommon::LogMessage::Type)),
           this, SLOT(message(QString, UICommon::LogMessage::Type)));
 
-  this->reinitValues();
+  this->reinit_values();
 
   this->exec();
 
-  this->disconnect(NLog::globalLog().get());
+  this->disconnect(NLog::global().get());
 
-  if(m_okClicked)
-    selectedFileList(list);
+  if(m_ok_clicked)
+    selected_file_list(list);
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -263,18 +263,18 @@ QStringList NRemoteBrowser::showMultipleSelect(const QString & startingDir)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::setIncludeFiles(bool includeFiles)
+void NRemoteBrowser::set_include_files(bool includeFiles)
 {
-  if(this->allowModifyBools)
+  if(this->allow_modify_bools)
     m_includeFiles = includeFiles;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::setIncludeNoExtension(bool includeNoExtension)
+void NRemoteBrowser::set_include_no_extension(bool includeNoExtension)
 {
-  if(this->allowModifyBools)
-    m_includeNoExtension = includeNoExtension;
+  if(this->allow_modify_bools)
+    m_include_no_extension = includeNoExtension;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -286,20 +286,20 @@ QStringList NRemoteBrowser::extensions() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NRemoteBrowser::includeFiles() const
+bool NRemoteBrowser::include_files() const
 {
   return m_includeFiles;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NRemoteBrowser::includeNoExtension() const
+bool NRemoteBrowser::include_no_extension() const
 {
-  return m_includeNoExtension;
+  return m_include_no_extension;
 }
 ////////////////////////////////////////////////////////////////////////////
 
-bool NRemoteBrowser::itemExists(const QString & name) const
+bool NRemoteBrowser::item_exists(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -315,7 +315,7 @@ bool NRemoteBrowser::itemExists(const QString & name) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NRemoteBrowser::isDirectory(const QString & name) const
+bool NRemoteBrowser::is_directory(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -323,10 +323,10 @@ bool NRemoteBrowser::isDirectory(const QString & name) const
   while(it != m_items.end() && !found)
   {
     FilesListItem * item = *it;
-    QString path = m_currentPath;
-    this->assemblePath(path, item->text());
+    QString path = m_current_path;
+    this->assemble_path(path, item->text());
 
-    found = item->getType() == DIRECTORY && name == path;
+    found = item->get_type() == DIRECTORY && name == path;
     it++;
   }
 
@@ -335,7 +335,7 @@ bool NRemoteBrowser::isDirectory(const QString & name) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool NRemoteBrowser::isFile(const QString & name) const
+bool NRemoteBrowser::is_file(const QString & name) const
 {
   QList<FilesListItem *>::const_iterator it = m_items.begin();
   bool found = false;
@@ -343,7 +343,7 @@ bool NRemoteBrowser::isFile(const QString & name) const
   while(it != m_items.end() && !found)
   {
     FilesListItem * item = *it;
-    found = item->getType() == FILE && item->text() == name;
+    found = item->get_type() == FILE && item->text() == name;
     it++;
   }
 
@@ -352,21 +352,21 @@ bool NRemoteBrowser::isFile(const QString & name) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-ValidationPolicy NRemoteBrowser::isAcceptable(const QString & name, bool isDir)
+ValidationPolicy NRemoteBrowser::is_acceptable(const QString & name, bool isDir)
 {
   return POLICY_VALID;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-ValidationPolicy NRemoteBrowser::isAcceptableList(const QStringList & names)
+ValidationPolicy NRemoteBrowser::is_acceptable_list(const QStringList & names)
 {
   return POLICY_VALID;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::showError(const QString & message)
+void NRemoteBrowser::show_error(const QString & message)
 {
   QMessageBox::critical(this, "Error", message);
 }
@@ -374,35 +374,35 @@ void NRemoteBrowser::showError(const QString & message)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-void NRemoteBrowser::reinitValues()
+void NRemoteBrowser::reinit_values()
 {
   // do nothing (see doc)
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::assemblePath(QString & part1, const QString & part2) const
+void NRemoteBrowser::assemble_path(QString & part1, const QString & part2) const
 {
   // if part1 ends with pathSep XOR part2 starts with pathSep,
   // we can append part2 to part1
-  if(part1.endsWith(m_pathSep) ^ part2.startsWith(m_pathSep))
+  if(part1.endsWith(m_path_sep) ^ part2.startsWith(m_path_sep))
     part1.append(part2);
 
   // if part1 ends with pathSep AND part2 starts with pathSep,
   // we can append part2 to part1 from which the tailing pathSep has been removed
-  else if(part1.endsWith(m_pathSep) && part2.startsWith(m_pathSep))
-    part1.remove(0, part1.length() - m_pathSep.length() - 1).append(part2);
+  else if(part1.endsWith(m_path_sep) && part2.startsWith(m_path_sep))
+    part1.remove(0, part1.length() - m_path_sep.length() - 1).append(part2);
 
   else
-    part1.append(m_pathSep).append(part2);
+    part1.append(m_path_sep).append(part2);
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::selectedFileList(QStringList & fileList) const
+void NRemoteBrowser::selected_file_list(QStringList & fileList) const
 {
-  QModelIndexList selectedItems = m_listView->selectionModel()->selectedIndexes();
+  QModelIndexList selectedItems = m_list_view->selectionModel()->selectedIndexes();
   QModelIndexList::iterator it = selectedItems.begin();
 
   fileList.clear();
@@ -410,13 +410,13 @@ void NRemoteBrowser::selectedFileList(QStringList & fileList) const
   while(it != selectedItems.end())
   {
     QModelIndex index = *it;
-    QModelIndex indexInModel = m_filterModel->mapToSource(index);
+    QModelIndex indexInModel = m_filter_model->mapToSource(index);
 
     FilesListItem * item;
-    item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
+    item = static_cast<FilesListItem *>(m_view_model->itemFromIndex(indexInModel));
 
     if(item != nullptr)
-      fileList << m_currentPath + item->text();
+      fileList << m_current_path + item->text();
 
     it++;
   }
@@ -424,63 +424,63 @@ void NRemoteBrowser::selectedFileList(QStringList & fileList) const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::setStatus(const QString & text)
+void NRemoteBrowser::set_status(const QString & text)
 {
-  m_labStatus->setText(text);
+  m_lab_status->setText(text);
 }
 
 
 // SLOTS
 
 
-void NRemoteBrowser::btOkClicked()
+void NRemoteBrowser::bt_ok_clicked()
 {
-  QModelIndexList indexes = m_listView->selectionModel()->selectedIndexes();
-  QString name = m_currentPath;
+  QModelIndexList indexes = m_list_view->selectionModel()->selectedIndexes();
+  QString name = m_current_path;
   ValidationPolicy validation;
 
-  if(!m_multipleSelectAllowed) // if show() was called
+  if(!m_multiple_select_allowed) // if show() was called
   {
     bool isDir = true;
 
     if(!indexes.isEmpty())
     {
-      QModelIndex indexInModel = m_filterModel->mapToSource(indexes.at(0));
+      QModelIndex indexInModel = m_filter_model->mapToSource(indexes.at(0));
       FilesListItem * item;
 
-      item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
+      item = static_cast<FilesListItem *>(m_view_model->itemFromIndex(indexInModel));
 
       if(item != nullptr) // if an item is selected
       {
-        this->assemblePath(name, item->text());
-        isDir = item->getType() == DIRECTORY;
+        this->assemble_path(name, item->text());
+        isDir = item->get_type() == DIRECTORY;
       }
     }
 
-    validation = this->isAcceptable(name, isDir);
+    validation = this->is_acceptable(name, isDir);
 
     if(validation == POLICY_VALID)
     {
-      m_okClicked = true;
+      m_ok_clicked = true;
       this->setVisible(false);
     }
     else if(validation == POLICY_ENTER_DIRECTORY && isDir)
-      this->openDir(name);
+      this->open_dir(name);
 
   } // for "if(!this->multipleSelectAllowed)"
   else // if showMultipleSelect() was called
   {
     QStringList list;
 
-    NRemoteBrowser::selectedFileList(list);
+    NRemoteBrowser::selected_file_list(list);
 
-    validation = this->isAcceptableList(list);
+    validation = this->is_acceptable_list(list);
 
     if(validation == POLICY_VALID)
     {
-      disconnect(NLog::globalLog().get());
+      disconnect(NLog::global().get());
 
-      m_okClicked = true;
+      m_ok_clicked = true;
       this->setVisible(false);
     }
 
@@ -489,32 +489,32 @@ void NRemoteBrowser::btOkClicked()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::btCancelClicked()
+void NRemoteBrowser::bt_cancel_clicked()
 {
-  disconnect(NLog::globalLog().get());
+  disconnect(NLog::global().get());
 
-  m_okClicked = false;
+  m_ok_clicked = false;
   this->setVisible(false);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::filterUpdated(const QString & text)
+void NRemoteBrowser::filter_updated(const QString & text)
 {
   QRegExp regex(text, Qt::CaseInsensitive, QRegExp::Wildcard);
-  m_filterModel->setFilterRegExp(regex);
+  m_filter_model->setFilterRegExp(regex);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::pathUpdated(const QString & text)
+void NRemoteBrowser::path_updated(const QString & text)
 {
   static QString oldText;
   QString path;
   bool send = false;
 
   // if user just typed a '/', the path to explore is the current path in the field
-  if(text.endsWith(m_pathSep))
+  if(text.endsWith(m_path_sep))
   {
     send = true;
     path = text;
@@ -524,15 +524,15 @@ void NRemoteBrowser::pathUpdated(const QString & text)
   // character (this may happen if user pasted a path or delete more than
   // one character at a time), the path to explore is the parent directory of
   // the path in the field
-  else if(oldText.endsWith(m_pathSep) || std::abs(oldText.length() - text.length()) > 1)
+  else if(oldText.endsWith(m_path_sep) || std::abs(oldText.length() - text.length()) > 1)
   {
-    m_updatingCompleter = true;
+    m_updating_completer = true;
     send = true;
     path = QFileInfo(text).path();
   }
 
   if(send)
-    this->openDir(path);
+    this->open_dir(path);
 
   oldText = text;
 }
@@ -552,27 +552,27 @@ void NRemoteBrowser::message(const QString &error, LogMessage::Type type)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::doubleClick(const QModelIndex & index)
+void NRemoteBrowser::double_click(const QModelIndex & index)
 {
-  QModelIndex indexInModel = m_filterModel->mapToSource(index);
+  QModelIndex indexInModel = m_filter_model->mapToSource(index);
   FilesListItem * item;
-  item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
+  item = static_cast<FilesListItem *>(m_view_model->itemFromIndex(indexInModel));
 
   if(item == nullptr)
     return;
 
-  if(item->getType() == DIRECTORY)
-    this->openDir(m_currentPath + item->text());
+  if(item->get_type() == DIRECTORY)
+    this->open_dir(m_current_path + item->text());
 
   else
-    this->btOkClicked();
+    this->bt_ok_clicked();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::completerActivated(const QString & text)
+void NRemoteBrowser::completer_activated(const QString & text)
 {
-  this->openDir(text);
+  this->open_dir(text);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -587,12 +587,12 @@ void NRemoteBrowser::keyPressEvent(QKeyEvent * event)
   QDialog::keyPressEvent(event);
 
   // if the path line edit has the focus
-  if(m_editPath->hasFocus())
+  if(m_edit_path->hasFocus())
   {
     // Qt::Key_Enter : enter key located on the keypad
     // Qt::Key_Return : return key
     if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
-      m_editPath->setText(m_editPath->text());
+      m_edit_path->setText(m_edit_path->text());
 
     return;
   }
@@ -605,25 +605,25 @@ void NRemoteBrowser::keyPressEvent(QKeyEvent * event)
   if(pressedKey == Qt::Key_Enter || pressedKey == Qt::Key_Return)
   {
     if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
-      this->btOkClicked();
+      this->bt_ok_clicked();
 
     else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
-      this->btCancelClicked();
+      this->bt_cancel_clicked();
   }
 
   else if(pressedKey == Qt::Key_Backspace)
-    this->openDir(m_currentPath + ".."); // back to the parent directory
+    this->open_dir(m_current_path + ".."); // back to the parent directory
 
   // if user pressed either no modifier key or Shift key *and* another key,
   // the filter line edit takes the focus
   else if(modifiers == Qt::NoModifier ||
           (modifiers == Qt::ShiftModifier && !event->text().isEmpty()))
   {
-    m_listView->clearFocus();
+    m_list_view->clearFocus();
 
-    m_editFilter->setText(m_editFilter->text() + event->text());
-    this->filterUpdated(m_editFilter->text());
-    m_editFilter->setFocus(Qt::NoFocusReason);
+    m_edit_filter->setText(m_edit_filter->text() + event->text());
+    this->filter_updated(m_edit_filter->text());
+    m_edit_filter->setFocus(Qt::NoFocusReason);
   }
 }
 
@@ -631,12 +631,12 @@ void NRemoteBrowser::keyPressEvent(QKeyEvent * event)
 
 bool NRemoteBrowser::focusNextPrevChild(bool next)
 {
-  if(m_editPath->hasFocus() && m_pathCompleter->popup()->isVisible())
+  if(m_edit_path->hasFocus() && m_path_completer->popup()->isVisible())
   {
-    m_pathCompleter->setCurrentRow(0);
-    m_editPath->setText(m_pathCompleter->currentCompletion());
-    this->pathUpdated(m_pathCompleter->currentCompletion());
-    m_pathCompleter->popup()->setCurrentIndex(m_pathCompleter->currentIndex());
+    m_path_completer->setCurrentRow(0);
+    m_edit_path->setText(m_path_completer->currentCompletion());
+    this->path_updated(m_path_completer->currentCompletion());
+    m_path_completer->popup()->setCurrentIndex(m_path_completer->currentIndex());
     return true;
   }
 
@@ -647,7 +647,7 @@ bool NRemoteBrowser::focusNextPrevChild(bool next)
 
 ////////////////////////////////////////////////////////////////////////////
 
-QPushButton * NRemoteBrowser::addButton(const QString & text,
+QPushButton * NRemoteBrowser::add_button(const QString & text,
                                          QDialogButtonBox::ButtonRole role)
 {
   if(!text.isEmpty())
@@ -658,21 +658,21 @@ QPushButton * NRemoteBrowser::addButton(const QString & text,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::setExtensions(const QStringList & newExtensions)
+void NRemoteBrowser::set_extensions(const QStringList & newExtensions)
 {
   m_extensions = newExtensions;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NRemoteBrowser::currentPath() const
+QString NRemoteBrowser::current_path() const
 {
-  return m_currentPath;
+  return m_current_path;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::updateModel(QStandardItemModel * model,
+void NRemoteBrowser::update_model(QStandardItemModel * model,
                                   const QString & path,
                                   const std::vector<std::string> & dirs,
                                   const std::vector<std::string> & files,
@@ -705,9 +705,9 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
     QString name = itDirs->c_str();
 
     if(!path.isEmpty() && name != "..")
-      name.prepend(path + (path.endsWith(m_pathSep) ? "" : m_pathSep));
+      name.prepend(path + (path.endsWith(m_path_sep) ? "" : m_path_sep));
 
-    item = new FilesListItem(dirIcon, name + m_pathSep, DIRECTORY);
+    item = new FilesListItem(dirIcon, name + m_path_sep, DIRECTORY);
     modelItems.append(item);
     model->appendRow(item);
     itDirs++;
@@ -725,7 +725,7 @@ void NRemoteBrowser::updateModel(QStandardItemModel * model,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NRemoteBrowser::openDir(const QString & path)
+void NRemoteBrowser::open_dir(const QString & path)
 {
   SignalFrame frame("read_dir", uri(), SERVER_CORE_PATH);
   SignalOptions options( frame );
@@ -741,12 +741,12 @@ void NRemoteBrowser::openDir(const QString & path)
 
   options.add_option< OptionT<std::string> >("dirPath", path.toStdString());
   options.add_option< OptionT<bool> >("includeFiles", m_includeFiles);
-  options.add_option< OptionT<bool> >("includeNoExtensions", m_includeNoExtension);
+  options.add_option< OptionT<bool> >("includeNoExtensions", m_include_no_extension);
   options.add_option< OptionArrayT<std::string> >("extensions", vect);
 
   options.flush();
 
-  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -758,27 +758,27 @@ void NRemoteBrowser::read_dir(SignalArgs & args)
   std::vector<std::string> dirs;
   std::vector<std::string> files;
 
-  m_currentPath = options.value<std::string>("dirPath").c_str();
+  m_current_path = options.value<std::string>("dirPath").c_str();
 
   // add an ending '/' if the string does not have any
-  if(!m_currentPath.endsWith(m_pathSep))
-    m_currentPath += m_pathSep;
+  if(!m_current_path.endsWith(m_path_sep))
+    m_current_path += m_path_sep;
 
   // clear the filter
-  m_editFilter->setText("");
-  this->filterUpdated("");
+  m_edit_filter->setText("");
+  this->filter_updated("");
 
-  if(!m_updatingCompleter)
-    m_editPath->setText(m_currentPath);
+  if(!m_updating_completer)
+    m_edit_path->setText(m_current_path);
   else
-    m_updatingCompleter = false;
+    m_updating_completer = false;
 
   dirs = options.array<std::string>("dirs");
   files = options.array<std::string>("files");
 
-  this->updateModel(m_viewModel, "", dirs, files, m_items);
-  this->updateModel(m_completerModel, m_currentPath, dirs,
-                    std::vector<std::string>(), m_itemsCompleter);
+  this->update_model(m_view_model, "", dirs, files, m_items);
+  this->update_model(m_completer_model, m_current_path, dirs,
+                    std::vector<std::string>(), m_items_completer);
 
   // restore mouse cursor
   QApplication::restoreOverrideCursor();
@@ -786,16 +786,16 @@ void NRemoteBrowser::read_dir(SignalArgs & args)
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NRemoteBrowser::selectedFile() const
+QString NRemoteBrowser::selected_file() const
 {
-  QModelIndex index = m_listView->currentIndex();
-  QModelIndex indexInModel = m_filterModel->mapToSource(index);
+  QModelIndex index = m_list_view->currentIndex();
+  QModelIndex indexInModel = m_filter_model->mapToSource(index);
   FilesListItem * item;
 
-  item = static_cast<FilesListItem *>(m_viewModel->itemFromIndex(indexInModel));
+  item = static_cast<FilesListItem *>(m_view_model->itemFromIndex(indexInModel));
 
-  if(item != nullptr && item->getType() == FILE)
-    return m_currentPath + item->text();
+  if(item != nullptr && item->get_type() == FILE)
+    return m_current_path + item->text();
 
   return QString();
 }

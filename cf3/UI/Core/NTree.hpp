@@ -58,22 +58,22 @@ namespace Core {
     /// The old tree is destroyed (regarding to @c boost::shared_ptr delete
     /// rules).
     /// @param node The new root. May be @c nullptr.
-    void setRoot(NRoot::Ptr node);
+    void set_tree_root(NRoot::Ptr node);
 
     /// @brief Gives the current root
     /// @return Returns the current root
-    NRoot::Ptr treeRoot() const;
+    NRoot::Ptr tree_root() const;
 
     /// @brief Sets the current index.
 
     /// If @c newIndex is valid and different from the current index, the
-    /// current index is changed and #currentIndexChanged signal is emitted.
+    /// current index is changed and #current_index_changed signal is emitted.
     /// If @c newIndex is either not valid or the same as the current index,
     /// nothing is done.
     /// @param newIndex The new index.
     /// @see getCurrentIndex
-    /// @see currentIndexChanged
-    void setCurrentIndex(const QModelIndex & newIndex);
+    /// @see current_index_changed
+    void set_current_index(const QModelIndex & newIndex);
 
     /// @brief Gives the current index
 
@@ -81,12 +81,12 @@ namespace Core {
     /// never called.
     /// @return Returns the current index.
     /// @see setCurrentIndex.
-    QModelIndex currentIndex() const;
+    QModelIndex current_index() const;
 
     /// @brief Gives the path of the current index.
     /// @return Returns the path of the index returned by @c #getCurrentIndex()
     /// or an empty path if not valid current index is set.
-    cf3::common::URI currentPath() const;
+    cf3::common::URI current_path() const;
 
     /// @brief Gets node options
 
@@ -94,7 +94,7 @@ namespace Core {
     /// @param options List where options will be stored
     /// @param ok If not @c nullptr, used to strore whether the option
     /// gathering succeded or not.
-    void listNodeOptions(const QModelIndex & index,
+    void list_node_options(const QModelIndex & index,
                          QList<cf3::common::Option::ConstPtr> & options,
                          bool * ok = nullptr) const;
 
@@ -105,7 +105,7 @@ namespace Core {
     /// property name, the value is the property value.
     /// @param ok If not @c nullptr, used to store whether the property
     /// gathering succeeded or not.
-    void listNodeProperties(const QModelIndex & index,
+    void list_node_properties(const QModelIndex & index,
                             QMap<QString, QString> & params,
                             bool * ok = nullptr) const;
 
@@ -115,25 +115,25 @@ namespace Core {
     /// @param actions List where action will be stored.
     /// @param ok If not @c nullptr, used to store whether the action
     /// gathering succeeded or not (i.e. it fails if the index is not valid).
-    void listNodeActions(const QModelIndex & index, QList<ActionInfo> & actions,
+    void list_node_actions(const QModelIndex & index, QList<ActionInfo> & actions,
                          bool * ok = nullptr) const;
 
     /// @brief Retrieves a node path.
 
     /// @param index Node index
     /// @return Returns the node path
-    QString nodePath(const QModelIndex & index) const;
+    QString node_path(const QModelIndex & index) const;
 
     /// @brief Set advanced mode
 
     /// @param advancedMode If @c true, advanced mode is activated.
-    void setAdvancedMode(bool advanceMode);
+    void set_advanced_mode(bool advanceMode);
 
     /// @brief Indicates whether advanced mode is activated or not.
 
     /// @return Returns @c true if advanced mode is activated, otherwise,
     /// returns @c false.
-    bool isAdvancedMode() const;
+    bool is_advanced_mode() const;
 
     /// @brief Checks whether two indexes point to the same node.
 
@@ -143,28 +143,28 @@ namespace Core {
     /// @param right Right node
     /// @return Returns @c true if both indexes point to the same node.
     /// Otherwise returns @c false.
-    bool areFromSameNode(const QModelIndex & left, const QModelIndex & right) const;
+    bool are_from_same_node(const QModelIndex & left, const QModelIndex & right) const;
 
     /// @brief Retrieves a node from its path.
 
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::ConstPtr nodeByPath(const cf3::common::URI & path) const;
+    CNode::ConstPtr node_by_path(const cf3::common::URI & path) const;
 
     /// @brief Retrieves a node from its path.
 
     /// @param path The node path
     /// @return Returns the found node, or a null shared pointer if
     /// the node does not exist.
-    CNode::Ptr nodeByPath(const cf3::common::URI & path);
+    CNode::Ptr node_by_path(const cf3::common::URI & path);
 
     /// @brief Retrieves a node index from its path.
 
     /// @param path The node index path
     /// @return Returns the found node index, or a invalid index if
     /// it does not exist.
-    QModelIndex indexFromPath(const cf3::common::URI & path) const;
+    QModelIndex index_from_path(const cf3::common::URI & path) const;
 
     /// @brief Gives the path of the provided index.
     /// @param index Index of which we want to know the path.
@@ -179,7 +179,7 @@ namespace Core {
     /// @param index Node index
     /// @param options Options to modify. The key is the option name and
     /// the value is the option value to set.
-    void modifyOptions(const QModelIndex & index,
+    void modify_options(const QModelIndex & index,
                        const QMap<QString, QString> & options);
 
     /// @name VIRTUAL FUNCTIONS
@@ -241,7 +241,7 @@ namespace Core {
 
     /// @brief Gives the tool tip text
     /// @return Returns The class name
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
     //@} END VIRTUAL FUNCTIONS
 
@@ -250,21 +250,21 @@ namespace Core {
     /// In debug mode, client components are showed.
     /// @param debugMode If @c true, the debug mode is activated. Otherwise,
     /// it is deactivated.
-    void setDebugModeEnabled(bool debugMode);
+    void set_debug_mode_enabled(bool debugMode);
 
     /// @brief Indicates whether the debug mode is activated or not.
 
     /// @return Returns @c true if the debug mode is activated; otherwise,
     /// returns @c false.
-    bool isDebugModeEnabled() const;
+    bool is_debug_mode_enabled() const;
 
     /// @brief Updates the children row counts, starting from the root.
     /// @note This method emits a @c layoutChanged() signal, causing the
     /// view(s) to be completely updated. Calling this method too often might
     /// decrease the program performances.
-    void updateRootChildren();
+    void update_root_children();
 
-    void optionsChanged(const cf3::common::URI & path);
+    void options_changed(const cf3::common::URI & path);
 
     /// @brief Checks whether a node name or one of its children matches a
     /// provided regular expression.
@@ -272,7 +272,7 @@ namespace Core {
     /// @param regex Regular expression to match.
     /// @return Returns @c true if the node or at least one of its children
     /// matches the regular expression.
-    bool nodeMatches(const QModelIndex & index, const QRegExp & regex) const;
+    bool node_matches(const QModelIndex & index, const QRegExp & regex) const;
 
     /// @brief Checks whether a nodeis visible or not.
 
@@ -283,14 +283,14 @@ namespace Core {
     /// @param index Index of the node to check
     /// @return Returns @c true if the node is visible. Otherwise, returns
     /// @c false (i.e. the index is not valid).
-    bool isIndexVisible(const QModelIndex & index) const;
+    bool check_index_visible(const QModelIndex & index) const;
 
     /// @brief Resolves the provided URI from the current index path.
 
     /// The current index must be a valid index.
     /// @param uri The URI to resolve. Must of scheme @c URI::Scheme::CPATH.
     /// @return Returns the complete path.
-    common::URI completeRelativePath(const common::URI & uri) const;
+    common::URI complete_relativepath(const common::URI & uri) const;
 
     /// @name Signals
     /// @{
@@ -302,18 +302,18 @@ namespace Core {
 
     /// @} END Signals
 
-    void contentListed(Component::Ptr node);
+    void content_listed(Component::Ptr node);
 
-    static Ptr globalTree();
+    static Ptr global();
 
   public slots:
 
     /// @brief Clears the tree.
     /// Deletes all component that are not client component.
-    void clearTree();
+    void clear_tree();
 
     /// @brief Sends a request to update de tree
-    void updateTree();
+    void update_tree();
 
   signals:
 
@@ -322,24 +322,24 @@ namespace Core {
     /// @param newIndex The new current index
     /// @param oldIndex The old current index
     /// @see setCurrentIndex
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     /// @brief Signal emitted when advanced mode changed
 
     /// @param advanced New advanced mode status
     /// @see setAdvancedMode
-    void advancedModeChanged(bool advanced);
+    void advanced_mode_changed(bool advanced);
 
-    void beginUpdateTree();
+    void begin_update_tree();
 
-    void endUpdateTree();
+    void end_update_tree();
 
   protected:
 
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
   private:
 
@@ -347,16 +347,16 @@ namespace Core {
     QStringList m_columns;
 
     /// @brief The root node
-    TreeNode * m_rootNode;
+    TreeNode * m_root_node;
 
     /// @brief Current index
-    QModelIndex m_currentIndex;
+    QModelIndex m_current_index;
 
     /// @brief Indicates whether we are in advanced mode or not
-    bool m_advancedMode;
+    bool m_advanced_mode;
 
     /// @brief Indicates whether we are in debug mode or not
-    bool m_debugModeEnabled;
+    bool m_debug_mode_enabled;
 
     /// @brief Mutex to control concurrent access.
     QMutex * m_mutex;
@@ -366,21 +366,21 @@ namespace Core {
     /// @param index Node index to convert
     /// @return Returns the tree node, or @c nullptr if the index could
     /// not be converted (i.e. index is invalid)
-    TreeNode * indexToTreeNode(const QModelIndex & index) const;
+    TreeNode * index_to_tree_node(const QModelIndex & index) const;
 
     /// @brief Converts an index to a node
 
     /// @param index Node index to convert
     /// @return Returns the node, or a null shared pointer if the index could
     /// not be converted (i.e. index is invalid)
-    CNode::Ptr indexToNode(const QModelIndex & index) const;
+    CNode::Ptr index_to_node(const QModelIndex & index) const;
 
     /// @brief Retrieves a node path from its index.
 
     /// This is a recursive method.
     /// @param index Node index.
     /// @param path Intermediate retrieved path
-    void buildNodePathRec(const QModelIndex & index, QString & path) const;
+    void build_node_path_recursive(const QModelIndex & index, QString & path) const;
 
     /// @brief Recursively checks whether a node name or one of its children
     /// matches a provided regular expression.
@@ -389,7 +389,7 @@ namespace Core {
     /// @param regex Regular expression to match.
     /// @return Returns @c true if the node or at least one of its children
     /// matches the regular expression.
-    bool nodeMatchesRec(Component::Ptr node, const QRegExp regex) const;
+    bool node_matches_recursive(Component::Ptr node, const QRegExp regex) const;
 
   }; // class NTree
 

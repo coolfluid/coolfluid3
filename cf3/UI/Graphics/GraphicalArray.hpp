@@ -41,9 +41,9 @@ namespace Graphics {
 
     ~GraphicalArray();
 
-    void setValidator(QValidator * validator);
+    void set_validator(QValidator * validator);
 
-    virtual bool setValue(const QVariant & path);
+    virtual bool set_value(const QVariant & path);
 
     virtual QVariant value() const;
 
@@ -53,21 +53,21 @@ namespace Graphics {
 
   private slots:
 
-    void btRemoveClicked();
+    void bt_remove_clicked();
 
   private:
 
-    QLineEdit * m_editAdd;
+    QLineEdit * m_edit_add;
 
     QStringListModel * m_model;
 
-    QListView * m_listView;
+    QListView * m_list_view;
 
-    QPushButton * m_btRemove;
+    QPushButton * m_bt_remove;
 
-    QGridLayout * m_boxLayout;
+    QGridLayout * m_box_layout;
 
-    QGroupBox * m_groupBox;
+    QGroupBox * m_group_box;
 
   }; // class GraphicalArray
 

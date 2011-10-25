@@ -57,15 +57,15 @@ protected:
 
 private slots:
 
-  void filterTypeChanged( int index );
+  void filter_type_changed( int index );
 
-  void doubleClicked( const QModelIndex & index );
+  void double_clicked( const QModelIndex & index );
 
-  void currentPathChanged( const QString & path );
+  void current_path_changed( const QString & path );
 
-  void completerActivated ( const QString & text );
+  void completer_activated ( const QString & text );
 
-  void pathEdited( const QString & text );
+  void path_edited( const QString & text );
 
   void message( const QString& message , UICommon::LogMessage::Type);
 
@@ -73,41 +73,41 @@ private:
 
   boost::shared_ptr<Core::NRemoteFSBrowser> m_model;
 
-  FileFilter * m_filterModel;
+  FileFilter * m_filter_model;
 
   QListView * m_view;
 
   QDialogButtonBox * m_buttons;
 
-  QGridLayout * m_mainLayout;
+  QGridLayout * m_main_layout;
 
-  QListView * m_favoritesView;
+  QListView * m_favorites_view;
 
-  QHBoxLayout * m_pathLayout;
+  QHBoxLayout * m_path_layout;
 
-  QLabel * m_labPath;
+  QLabel * m_lab_path;
 
-  QLineEdit * m_editPath;
+  QLineEdit * m_edit_path;
 
-  QHBoxLayout * m_favButtonsLayout;
+  QHBoxLayout * m_fav_buttons_layout;
 
-  QPushButton * m_btAddFav;
+  QPushButton * m_bt_add_fav;
 
-  QPushButton * m_btRemoveFav;
+  QPushButton * m_bt_remove_fav;
 
-  QHBoxLayout * m_filterLayout;
+  QHBoxLayout * m_filter_layout;
 
-  QLabel * m_labFilter;
+  QLabel * m_lab_filter;
 
-  QLineEdit * m_editFilter;
+  QLineEdit * m_edit_filter;
 
-  QComboBox * m_comboFilter;
+  QComboBox * m_combo_filter;
 
   QCompleter * m_completer;
 
-  QString m_oldPath;
+  QString m_old_path;
 
-  bool m_updatingCompleter;
+  bool m_updating_completer;
 
 }; // BrowserDialog
 

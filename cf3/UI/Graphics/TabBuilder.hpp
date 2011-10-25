@@ -44,7 +44,7 @@ public:
   static TabBuilder * instance();
 
   template<typename TYPE>
-  TYPE * getWidget( Core::CNode::ConstPtr node )
+  TYPE * widget( Core::CNode::ConstPtr node )
   {
     TYPE * widget = nullptr;
     std::string key = node->properties().value_str("uuid"); //node->uri().path();
@@ -61,7 +61,7 @@ public:
     else
     {
       setTabText( m_tabs[key].tabIndex, node->uri().path().c_str() );
-      m_newTabs.append( key );
+      m_new_tabs.append( key );
     }
 
     widget = static_cast<TYPE*>(m_tabs[key].widget);
@@ -70,17 +70,17 @@ public:
     return widget;
   }
 
-  void showTab( Core::CNode::ConstPtr node );
+  void show_tab( Core::CNode::ConstPtr node );
 
-  void queueTab( Core::CNode::ConstPtr node);
+  void queue_tab( Core::CNode::ConstPtr node);
 
 private slots:
 
-  void tabClicked(int index);
+  void tab_clicked(int index);
 
-  void beginModelReset();
+  void begin_model_reset();
 
-  void endModelReset();
+  void end_model_reset();
 
 private: // functions
 
@@ -92,9 +92,9 @@ private : // data
 
   QMap<std::string, TabInfo> m_tabs;
 
-  QMap<std::string, int> m_lastTabs;
+  QMap<std::string, int> m_last_tabs;
 
-  QList<std::string> m_newTabs;
+  QList<std::string> m_new_tabs;
 
 }; // TabManager
 

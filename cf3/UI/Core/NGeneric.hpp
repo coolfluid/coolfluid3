@@ -37,20 +37,22 @@ namespace Core {
 
     /// @brief Constructor
     /// @param name Group name
-    /// @param The component type
-    NGeneric(const std::string & name, const QString & type,
-             CNode::Type nodeType = CNode::STANDARD_NODE);
+    /// @param type The component type
+    /// @param node_type The type of the node
+    NGeneric( const std::string & name,
+              const QString & type,
+              CNode::Type node_type = CNode::STANDARD_NODE);
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
   protected:
 
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & local_signals) const {}
 
   }; // class NGeneric
 

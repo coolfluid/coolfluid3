@@ -44,7 +44,7 @@ public: //function
     virtual ~N3DView();
 
     /// toolTip
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
     /// This function send paraview server information to the 3D View.
     /// @param node
@@ -54,18 +54,18 @@ public: //function
     /// @param node
     void send_server_info_to_client( common::SignalArgs& node );
 
-    virtual void aboutToBeRemoved();
+    virtual void about_to_be_removed();
 
 protected:
 
   /// Disables the local signals that need to.
   /// @param localSignals Map of local signals. All values are set to true
   /// by default.
-  virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+  virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
   void reload_client_view();
 
-  virtual void setUpFinished();
+  virtual void setup_finished();
 
 private :
 

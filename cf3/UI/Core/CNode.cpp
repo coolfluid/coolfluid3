@@ -1,3 +1,4 @@
+
 // Copyright (C) 2010-2011 von Karman Institute for Fluid Dynamics, Belgium
 //
 // This software is distributed under the terms of the
@@ -55,74 +56,74 @@ namespace Core {
 
 /////////////////////////////////////////////////////////////////////////////
 
-CNodeNotifier::CNodeNotifier(CNode * parent)
-  : m_parent(parent)
+CNodeNotifier::CNodeNotifier( CNode * parent )
+  : m_parent( parent )
 {
 
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNodeNotifier::notifyChildCountChanged()
+void CNodeNotifier::notify_child_count_changed()
 {
-  emit childCountChanged();
+  emit child_count_changed();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNodeNotifier::notifySignalSignature(SignalArgs * node)
+void CNodeNotifier::notify_signal_signature( SignalArgs * node )
 {
-  emit signalSignature(node);
+  emit signal_signature( node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::CNode(const std::string & name, const QString & componentType, Type type)
-  : Component(name),
-    m_notifier(new CNodeNotifier(this)),
-    m_componentType(componentType),
-    m_type(type),
-    m_listingContent(false),
-    m_isRoot(false)
+CNode::CNode( const std::string & name, const QString & component_type, Type type )
+  : Component( name ),
+    m_notifier( new CNodeNotifier( this ) ),
+    m_component_type( component_type ),
+    m_type( type ),
+    m_listing_content( false ),
+    m_is_root( false )
 {
-  m_contentListed = isLocalComponent();
+  m_content_listed = is_local_component();
   m_mutex = new QMutex();
 
   // unregister some base class signals
 
-  unregist_signal("signal_signature");
-  unregist_signal("configure");
+  unregist_signal( "signal_signature" );
+  unregist_signal( "configure" );
 
   regist_signal( "configure" )
     ->description("Update component options")
-    ->connect(boost::bind(&CNode::configure_reply, this, _1));
+    ->connect(boost::bind(&CNode::reply_configure, this, _1));
 
   regist_signal( "tree_updated" )
     ->description("Event that notifies a path has changed")
-    ->connect(boost::bind(&CNode::update_tree, this, _1));
+    ->connect(boost::bind(&CNode::reply_update_tree, this, _1));
 
   regist_signal( "list_content" )
     ->description("Updates node contents")
-    ->connect(boost::bind(&CNode::list_content_reply, this, _1));
+    ->connect(boost::bind(&CNode::reply_list_content, this, _1));
 
   regist_signal("signal_signature")
       ->hidden(true);
 
-  m_properties.add_property("original_component_type", m_componentType.toStdString());
+  m_properties.add_property( "original_component_type", m_component_type.toStdString() );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString CNode::componentType() const
+QString CNode::component_type() const
 {
-  return m_componentType;
+  return m_component_type;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr CNode::realComponent()
+Component::Ptr CNode::real_component()
 {
-  if( m_isRoot )
+  if( m_is_root )
     return castTo<NRoot>()->root();
 
   return as_ptr<Component>();
@@ -130,9 +131,9 @@ Component::Ptr CNode::realComponent()
 
 ////////////////////////////////////////////////////////////////////////////
 
-Component::ConstPtr CNode::realComponent() const
+Component::ConstPtr CNode::real_component() const
 {
-  if( m_isRoot )
+  if( m_is_root )
     return castTo<const NRoot>()->root();
 
   return as_ptr<const Component>();
@@ -140,7 +141,7 @@ Component::ConstPtr CNode::realComponent() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::setProperties(const SignalArgs & options)
+void CNode::set_properties( const SignalArgs & options )
 {
   QMutexLocker locker(m_mutex);
 
@@ -162,54 +163,54 @@ void CNode::setProperties(const SignalArgs & options)
       }
       else // it is a property
       {
-        rapidxml::xml_attribute<> * keyAttr = node->first_attribute( Protocol::Tags::attr_key() );
+        rapidxml::xml_attribute<> * key_attr = node->first_attribute( Protocol::Tags::attr_key() );
 
-        if ( keyAttr != nullptr )
+        if ( key_attr != nullptr )
         {
-          const char * keyVal = keyAttr->value();
-          std::string typeVal = Map::get_value_type(curr_node); // type name
-          rapidxml::xml_node<>* firstNode = curr_node.content->first_node();
+          const char * key_val = key_attr->value();
+          std::string typ_val = Map::get_value_type(curr_node); // type name
+          rapidxml::xml_node<>* first_node = curr_node.content->first_node();
 
-          if( is_not_null(firstNode) )
+          if( is_not_null(first_node) )
           {
-            const char * value = firstNode->value();
+            const char * value = first_node->value();
 
-            if(m_properties.check(keyVal))
+            if(m_properties.check(key_val))
             {
-              if( typeVal == Protocol::Tags::type<bool>() )
-                configure_property(keyVal, from_str<bool>(value));
-              else if( typeVal == Protocol::Tags::type<int>() )
-                configure_property(keyVal, from_str<int>(value));
-              else if( typeVal == Protocol::Tags::type<cf3::Uint>() )
-                configure_property(keyVal, from_str<cf3::Uint>(value));
-              else if( typeVal == Protocol::Tags::type<cf3::Real>() )
-                configure_property(keyVal, from_str<cf3::Real>(value));
-              else if( typeVal == Protocol::Tags::type<std::string>() )
-                configure_property(keyVal, std::string(value));
-              else if( typeVal == Protocol::Tags::type<URI>() )
-                configure_property(keyVal, from_str<URI>(value));
+              if( typ_val == Protocol::Tags::type<bool>() )
+                configure_property(key_val, from_str<bool>(value));
+              else if( typ_val == Protocol::Tags::type<int>() )
+                configure_property(key_val, from_str<int>(value));
+              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
+                configure_property(key_val, from_str<cf3::Uint>(value));
+              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
+                configure_property(key_val, from_str<cf3::Real>(value));
+              else if( typ_val == Protocol::Tags::type<std::string>() )
+                configure_property(key_val, std::string(value));
+              else if( typ_val == Protocol::Tags::type<URI>() )
+                configure_property(key_val, from_str<URI>(value));
               else
-                throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+                throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
             else
             {
 
-              if( typeVal == Protocol::Tags::type<bool>() )
-                m_properties.add_property(keyVal, from_str<bool>(value));
-              else if( typeVal == Protocol::Tags::type<int>() )
-                m_properties.add_property(keyVal, from_str<int>(value));
-              else if( typeVal == Protocol::Tags::type<cf3::Uint>() )
-                m_properties.add_property(keyVal, from_str<cf3::Uint>(value));
-              else if( typeVal == Protocol::Tags::type<cf3::Real>() )
-                m_properties.add_property(keyVal, from_str<cf3::Real>(value));
-              else if( typeVal == Protocol::Tags::type<std::string>() )
-                m_properties.add_property(keyVal, std::string(value));
-              else if( typeVal == Protocol::Tags::type<URI>() )
-                m_properties.add_property(keyVal, from_str<URI>(value));
+              if( typ_val == Protocol::Tags::type<bool>() )
+                m_properties.add_property(key_val, from_str<bool>(value));
+              else if( typ_val == Protocol::Tags::type<int>() )
+                m_properties.add_property(key_val, from_str<int>(value));
+              else if( typ_val == Protocol::Tags::type<cf3::Uint>() )
+                m_properties.add_property(key_val, from_str<cf3::Uint>(value));
+              else if( typ_val == Protocol::Tags::type<cf3::Real>() )
+                m_properties.add_property(key_val, from_str<cf3::Real>(value));
+              else if( typ_val == Protocol::Tags::type<std::string>() )
+                m_properties.add_property(key_val, std::string(value));
+              else if( typ_val == Protocol::Tags::type<URI>() )
+                m_properties.add_property(key_val, from_str<URI>(value));
               else
-                throw ShouldNotBeHere(FromHere(), typeVal + ": Unknown type.");
+                throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
-          } // end of "it( is_not_null(firstNode) )"
+          } // end of "it( is_not_null(first_node) )"
         }
       } // end of "else"
     }
@@ -218,7 +219,7 @@ void CNode::setProperties(const SignalArgs & options)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::setSignals(const SignalArgs & args)
+void CNode::set_signals( const SignalArgs & args )
 {
   QMutexLocker locker(m_mutex);
 
@@ -226,7 +227,7 @@ void CNode::setSignals(const SignalArgs & args)
   {
     Map sig_map = args.map( Protocol::Tags::key_signals() ).main_map;
 
-    m_actionSigs.clear();
+    m_action_sigs.clear();
 
     while( sig_map.content.is_valid() )
     {
@@ -243,12 +244,12 @@ void CNode::setSignals(const SignalArgs & args)
         cf3_assert( key_attr->value()[0] != '\0');
 
         si.name = key_attr->value();
-        si.readableName = name_attr != nullptr ? name_attr->value() : si.name;
+        si.readable_name = name_attr != nullptr ? name_attr->value() : si.name;
         si.description = desc_attr != nullptr ? desc_attr->value() : "";
-        si.isLocal = false;
-        si.isEnabled = true;
+        si.is_local = false;
+        si.is_enabled = true;
 
-        m_actionSigs.append(si);
+        m_action_sigs.append(si);
 
       }
 
@@ -261,8 +262,10 @@ void CNode::setSignals(const SignalArgs & args)
 ////////////////////////////////////////////////////////////////////////////
 
 template<typename TYPE>
-void addValueToXml(const std::string& name, const std::string& value,
-                   const std::string& sep, SignalOptions& options)
+void addValueToXml( const std::string& name,
+                    const std::string& value,
+                    const std::string& sep,
+                    SignalOptions& options )
 {
   // if it is an array, the separator is not empty
   if( !sep.empty() )
@@ -288,7 +291,7 @@ void addValueToXml(const std::string& name, const std::string& value,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::modifyOptions(const QMap<QString, QString> & opts)
+void CNode::modify_options( const QMap<QString, QString> & opts )
 {
   QMutexLocker locker(m_mutex);
 
@@ -320,14 +323,14 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
     // if it is an array, we need to get the element type
     if(is_array)
     {
-      OptionArray * optArray;
+      OptionArray * opt_array;
 
-      optArray = static_cast<OptionArray*>(&option);
+      opt_array = static_cast<OptionArray*>(&option);
 
-      cf3_assert(optArray != nullptr);
+      cf3_assert(opt_array != nullptr);
 
-      type = optArray->elem_type();
-      sep = optArray->separator();
+      type = opt_array->elem_type();
+      sep = opt_array->separator();
     }
 
     if(type == Protocol::Tags::type<bool>())              // bool
@@ -362,16 +365,16 @@ void CNode::modifyOptions(const QMap<QString, QString> & opts)
   {
     SignalFrame frame = options.create_frame("configure", uri(), uri());
 
-    if( isLocalComponent() )
+    if( is_local_component() )
       signal_configure( frame );
     else
-      NetworkQueue::global_queue()->send( frame );
+      NetworkQueue::global()->send( frame );
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::localSignature(const QString & name, SignalArgs& node )
+void CNode::local_signature( const QString & name, SignalArgs& node )
 {
   std::string sname = name.toStdString();
   ( * signal( sname )->signature() ) ( node );
@@ -379,7 +382,7 @@ void CNode::localSignature(const QString & name, SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::finishSetUp()
+void CNode::finish_setup()
 {
   SignalFrame frame;
   call_signal("setUpFinished", frame);
@@ -387,20 +390,20 @@ void CNode::finishSetUp()
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::createFromXml(XmlNode args)
+CNode::Ptr CNode::create_from_xml( XmlNode args )
 {
-  QMap<NLink::Ptr, URI> linkTargets;
+  QMap<NLink::Ptr, URI> link_targets;
   QMap<NLink::Ptr, URI>::iterator it;
-  CNode::Ptr rootNode;
+  CNode::Ptr root_node;
 
-  rootNode = createFromXmlRec(args, linkTargets);
+  root_node = create_from_xml_recursive(args, link_targets);
 
-  it = linkTargets.begin();
+  it = link_targets.begin();
 
-  for( ; it != linkTargets.end() ; it++)
-    it.key()->setTargetPath(it.value());
+  for( ; it != link_targets.end() ; it++)
+    it.key()->set_target_path(it.value());
 
-  return rootNode;
+  return root_node;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -409,7 +412,7 @@ CNode::Ptr CNode::child(cf3::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
-  Component::Ptr compo = realComponent();
+  Component::Ptr compo = real_component();
   cf3::Uint i;
 
   ComponentIterator<CNode> it = compo->begin<CNode>();
@@ -424,9 +427,11 @@ CNode::Ptr CNode::child(cf3::Uint index)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::connectNotifier(QObject * reciever, const char * signal, const char * slot)
+void CNode::connect_notifier( QObject * reciever,
+                              const char * signal,
+                              const char * slot )
 {
-  QObject::connect(m_notifier, signal, reciever, slot, Qt::DirectConnection);
+  QObject::connect( m_notifier, signal, reciever, slot, Qt::DirectConnection );
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -438,26 +443,28 @@ CNodeNotifier * CNode::notifier() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes) const
+void CNode::list_child_paths( QStringList & list,
+                              bool recursive,
+                              bool client_nodes ) const
 {
   QMutexLocker locker(m_mutex);
-  Component::ConstPtr comp = realComponent();
+  Component::ConstPtr comp = real_component();
 
-  ComponentIterator<const CNode> itBegin = comp->begin<const CNode>();
-  ComponentIterator<const CNode> itEnd = comp->end<const CNode>();
+  ComponentIterator<const CNode> it_begin = comp->begin<const CNode>();
+  ComponentIterator<const CNode> it_end = comp->end<const CNode>();
 
   // add the current path
   if(list.isEmpty())
     list << comp->uri().path().c_str();
 
-  for( ; itBegin != itEnd ; itBegin++)
+  for( ; it_begin != it_end ; it_begin++)
   {
-    if(!itBegin->isLocalComponent() || clientNodes)
+    if(!it_begin->is_local_component() || client_nodes)
     {
-      list << itBegin->uri().path().c_str();
+      list << it_begin->uri().path().c_str();
 
       if(recursive)
-        itBegin->listChildPaths(list, recursive, clientNodes);
+        it_begin->list_child_paths(list, recursive, client_nodes);
     }
 
   }
@@ -465,67 +472,67 @@ void CNode::listChildPaths(QStringList & list, bool recursive, bool clientNodes)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::addNode(CNode::Ptr node)
+void CNode::add_node(CNode::Ptr node)
 {
   QMutexLocker locker(m_mutex);
 
-  realComponent()->add_component(node);
+  real_component()->add_component(node);
 
-  m_notifier->notifyChildCountChanged();
+  m_notifier->notify_child_count_changed();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::removeNode(const QString & nodeName)
+void CNode::remove_node(const QString & nodeName)
 {
   QMutexLocker locker(m_mutex);
 
-  realComponent()->remove_component( nodeName.toStdString() );
+  real_component()->remove_component( nodeName.toStdString() );
 
-  m_notifier->notifyChildCountChanged();
+  m_notifier->notify_child_count_changed();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::configure_reply(SignalArgs & args)
+void CNode::reply_configure(SignalArgs & args)
 {
   URI path = uri();
   QString msg("Node \"%1\" options updated.");
 
   signal_configure(args);
 
-  NTree::globalTree()->optionsChanged(path);
-  NLog::globalLog()->addMessage(msg.arg(path.string().c_str()));
+  NTree::global()->options_changed( path );
+  NLog::global()->add_message( msg.arg(path.string().c_str()) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::list_content_reply( SignalArgs & node )
+void CNode::reply_list_content( SignalArgs & node )
 {
-  setProperties(node);
-  setSignals(node);
+  set_properties(node);
+  set_signals(node);
 
-  m_contentListed = true;
-  m_listingContent = false;
+  m_content_listed = true;
+  m_listing_content = false;
 
-  NTree::globalTree()->contentListed( boost::dynamic_pointer_cast<CNode>(self()) );
+  NTree::global()->content_listed( boost::dynamic_pointer_cast<CNode>(self()) );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::signal_signature_reply( SignalArgs & node )
+void CNode::reply_signal_signature( SignalArgs & node )
 {
-  m_notifier->notifySignalSignature(&node);
+  m_notifier->notify_signal_signature( &node );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::listOptions(QList<Option::ConstPtr> & list)
+void CNode::list_options(QList<Option::ConstPtr> & list)
 {
   QMutexLocker locker( m_mutex );
 
- if( !m_contentListed )
-   fetchContent();
+ if( !m_content_listed )
+   fetch_content();
  else
  {
    OptionList::const_iterator it = m_options.begin();
@@ -537,15 +544,15 @@ void CNode::listOptions(QList<Option::ConstPtr> & list)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::listProperties(QMap<QString, QString> & props)
+void CNode::list_properties(QMap<QString, QString> & props)
 {
   QMutexLocker locker( m_mutex );
 
-  if( !m_contentListed )
-    fetchContent();
+  if( !m_content_listed )
+    fetch_content();
   else
   {
-    Component::Ptr comp = realComponent();
+    Component::Ptr comp = real_component();
     PropertyList::const_iterator it_prop = comp->properties().begin();
     OptionList::const_iterator it_opt = comp->options().begin();
 
@@ -564,22 +571,22 @@ void CNode::listProperties(QMap<QString, QString> & props)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::listSignals(QList<ActionInfo> & actions)
+void CNode::list_signals(QList<ActionInfo> & actions)
 {
   QMutexLocker locker( m_mutex );
 
-  QStringList::const_iterator it = m_localSignals.begin();
-  QMap<QString, bool> availableLocalSignals;
+  QStringList::const_iterator it = m_local_signals.begin();
+  QMap<QString, bool> available_local_signals;
 
-  for( ; it != m_localSignals.end() ; it++)
-    availableLocalSignals[*it] = true;
+  for( ; it != m_local_signals.end() ; it++)
+    available_local_signals[*it] = true;
 
-  this->disableLocalSignals(availableLocalSignals);
+  this->disable_local_signals(available_local_signals);
 
-  it = m_localSignals.begin();
+  it = m_local_signals.begin();
 
   // put the local signals
-  for( ; it != m_localSignals.end() ; it++)
+  for( ; it != m_local_signals.end() ; it++)
   {
 
     std::string sname = it->toStdString();
@@ -591,130 +598,131 @@ void CNode::listSignals(QList<ActionInfo> & actions)
 
       ai.name = sname.c_str();
       ai.description = sig->description().c_str();
-      ai.readableName = sig->pretty_name().c_str();
-      ai.isLocal = true;
-      ai.isEnabled = availableLocalSignals[*it];
+      ai.readable_name = sig->pretty_name().c_str();
+      ai.is_local = true;
+      ai.is_enabled = available_local_signals[*it];
 
       actions.append(ai);
     }
     else
-      NLog::globalLog()->addError(*it + ": local signal not found");
+      NLog::global()->add_error(*it + ": local signal not found");
   }
 
   // if content has not been listed yet, we fetch
-  if(!m_contentListed)
-    fetchContent();
+  if(!m_content_listed)
+    fetch_content();
   else
-    actions.append(m_actionSigs); // copy the "remote signals"
+    actions.append(m_action_sigs); // copy the "remote signals"
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNode::createFromXmlRec(XmlNode & node, QMap<NLink::Ptr, URI> & linkTargets)
+CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
+                                             QMap<NLink::Ptr, URI> & link_targets )
 {
   rapidxml::xml_attribute<>* typeAttr = node.content->first_attribute("atype");
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
-  rapidxml::xml_attribute<>* modeAttr = node.content->first_attribute("mode");
+  rapidxml::xml_attribute<>* mode_attr = node.content->first_attribute("mode");
 
   std::string uuid = node.attribute_value( "uuid" );
 
   cf3_assert(typeAttr != nullptr);
   cf3_assert(nameAttr != nullptr);
 
-  QString typeName = typeAttr->value();
-  char * nodeName = nameAttr->value();
+  QString type_name = typeAttr->value();
+  char * node_name = nameAttr->value();
   XmlNode child( node.content->first_node() );
 
-  cf3_assert( !typeName.isEmpty() );
-  cf3_assert(nodeName != nullptr);
-  cf3_assert( typeName.length() > 0);
-  cf3_assert(std::strlen(nodeName) > 0);
+  cf3_assert( !type_name.isEmpty() );
+  cf3_assert( node_name != nullptr );
+  cf3_assert( type_name.length() > 0 );
+  cf3_assert( std::strlen(node_name) > 0 );
 
-  CNode::Ptr rootNode;
+  CNode::Ptr root_node;
 
-  if( typeName == "CCore" )
-    return rootNode;
+  if( type_name == "CCore" )
+    return root_node;
 
-  if( typeName == "Link" )
+  if( type_name == "Link" )
   {
-    NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(nodeName));
-    rootNode = link;
-    linkTargets[link] = node.content->value();
+    NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(node_name));
+    root_node = link;
+    link_targets[link] = node.content->value();
   }
-  else if( CNodeBuilders::instance().hasBuilder( typeName ) )
-    rootNode = CNodeBuilders::instance().buildCNode(typeName, nodeName);
-  else if( typeName == "Journal" )
-    rootNode = boost::shared_ptr<NJournal>(new NJournal(nodeName));
-  else if( typeName == "Root" )
-    rootNode = boost::shared_ptr<NRoot>(new NRoot(nodeName));
+  else if( CNodeBuilders::instance().has_builder( type_name ) )
+    root_node = CNodeBuilders::instance().build_cnode(type_name, node_name);
+  else if( type_name == "Journal" )
+    root_node = boost::shared_ptr<NJournal>(new NJournal(node_name));
+  else if( type_name == "Root" )
+    root_node = boost::shared_ptr<NRoot>(new NRoot(node_name));
   else
-    rootNode = boost::shared_ptr<NGeneric>(new NGeneric(nodeName, typeName));
+    root_node = boost::shared_ptr<NGeneric>(new NGeneric(node_name, type_name));
 
-  if(modeAttr != nullptr && std::strcmp(modeAttr->value(), "basic") == 0)
-    rootNode->mark_basic();
+  if(mode_attr != nullptr && std::strcmp(mode_attr->value(), "basic") == 0)
+    root_node->mark_basic();
 
   if( !uuid.empty() )
-    rootNode->configure_property( "uuid", uuid );
+    root_node->configure_property( "uuid", uuid );
   else
-    NLog::globalLog()->addWarning( "Found a Component without no UUID." );
+    NLog::global()->add_warning( "Found a Component without no UUID." );
 
   while( child.is_valid() )
   {
     try
     {
-      CNode::Ptr node = createFromXmlRec(child, linkTargets);
+      CNode::Ptr node = create_from_xml_recursive(child, link_targets);
 
       if(node.get() != nullptr)
       {
-        rootNode->addNode(node);
-        node->setUpFinished();
+        root_node->add_node(node);
+        node->setup_finished();
       }
     }
     catch (Exception & e)
     {
-      NLog::globalLog()->addException(e.msg().c_str());
+      NLog::global()->add_exception(e.msg().c_str());
     }
 
     child.content = child.content->next_sibling();
   }
 
-  return rootNode;
+  return root_node;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::requestSignalSignature(const QString & name)
+void CNode::request_signal_signature(const QString & name)
 {
-  URI path = realComponent()->uri();
+  URI path = real_component()->uri();
   XmlNode * node;
 
   SignalFrame frame("signal_signature", path, path);
 
   frame.map( Protocol::Tags::key_options() ).set_option("name", name.toStdString());
 
-  NetworkQueue::global_queue()->send( frame, NetworkQueue::IMMEDIATE );
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::update_tree(SignalArgs & node)
+void CNode::reply_update_tree(SignalArgs & node)
 {
-  NTree::globalTree()->updateTree();
+  NTree::global()->update_tree();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void CNode::fetchContent()
+void CNode::fetch_content()
 {
   NetworkThread& network = ThreadManager::instance().network();
-  if(!m_contentListed && !m_listingContent && network.isConnected())
+  if(!m_content_listed && !m_listing_content && network.is_connected())
   {
-    URI path = realComponent()->uri();
+    URI path = real_component()->uri();
 
     SignalFrame frame("list_content", path, path);
 
     network.send(frame);
-    m_listingContent = true;
+    m_listing_content = true;
   }
 }
 

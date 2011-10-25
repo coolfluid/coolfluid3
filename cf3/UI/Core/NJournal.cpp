@@ -40,7 +40,7 @@ void JournalNotifier::regist(const NJournal * journal)
 {
   cf3_assert(journal != nullptr);
 
-  connect(journal, SIGNAL(journalRequest(bool)), this, SIGNAL(journalRequest(bool)));
+  connect(journal, SIGNAL(journal_request(bool)), this, SIGNAL(journal_request(bool)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ NJournal::NJournal(const std::string & name)
     ->description("List journal")
     ->pretty_name("List journal");
 
-  m_localSignals << "list_journal";
+  m_local_signals << "list_journal";
 
   JournalNotifier::instance().regist(this);
 }
@@ -61,9 +61,9 @@ NJournal::NJournal(const std::string & name)
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QString NJournal::toolTip() const
+QString NJournal::tool_tip() const
 {
-  return componentType();
+  return component_type();
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -71,7 +71,7 @@ QString NJournal::toolTip() const
 
 void NJournal::list_journal(SignalArgs &)
 {
-  emit journalRequest(false);
+  emit journal_request(false);
 }
 
 /////////////////////////////////////////////////////////////////////////////

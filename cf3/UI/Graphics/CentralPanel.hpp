@@ -64,7 +64,7 @@ namespace Graphics {
     /// Indicates wether at least one option has been modified.
 
     /// @return Returns @c true if at least one option has been modified.
-    bool isModified() const;
+    bool is_modified() const;
 
     /// Build containers with modified options.
 
@@ -74,12 +74,12 @@ namespace Graphics {
     /// values (i.e. : if user modified several times the same option) are
     /// ignored.
     /// @param commitDetails The object where values will be stored.
-    void modifiedOptions(Core::CommitDetails & commitDetails) const;
+    void list_modified_options(Core::CommitDetails & commitDetails) const;
 
     /// Gives the current path.
 
     /// @return Returns the current path.
-    QString currentPath() const;
+    QString current_path() const;
 
   public slots:
 
@@ -87,7 +87,7 @@ namespace Graphics {
 
     /// If at least one option has been modified, @c changesMade signal is
     /// emitted.
-    void btApplyClicked();
+    void bt_apply_clicked();
 
   private slots:
 
@@ -96,7 +96,7 @@ namespace Graphics {
     /// Options are replaced by the new ones.
     /// @param newIndex The new current index.
     /// @param oldIndex The old current index. This parameter is not used.
-    void currentIndexChanged(const QModelIndex & newIndex, const QModelIndex & oldIndex);
+    void current_index_changed(const QModelIndex & newIndex, const QModelIndex & oldIndex);
 
     /// Slot called when the model advanced status has changed.
 
@@ -105,7 +105,7 @@ namespace Graphics {
     /// the current option has no advanced option, the advanced option
     /// layout remains hidden.
     /// @param advanced If @c true, advanced options are showed up.
-    void advancedModeChanged(bool advanced);
+    void advanced_mode_changed(bool advanced);
 
     /// Slot called when data changed in the underlying model.
 
@@ -114,85 +114,86 @@ namespace Graphics {
     /// same and valid, the option layouts are updated with the new options.
     /// @param first The first index of the range.
     /// @param last The last index of the range.
-    void dataChanged(const QModelIndex & first, const QModelIndex & last);
+    void data_changed(const QModelIndex & first, const QModelIndex & last);
 
     /// Slot called when user wants to see what options have been modified.
-    void btSeeChangesClicked();
+    void bt_see_changes_clicked();
 
     /// Slot called when user wants to clear all the changes.
-    void btForgetClicked();
+    void bt_forget_clicked();
 
     /// Slot called when an option value has been modified.
-    void valueChanged();
+    void value_changed();
 
   private:
 
     /// Scroll area for basic options
-    QScrollArea * m_scrollBasicOptions;
+    QScrollArea * m_scroll_basic_options;
 
     /// Scroll area for advanced options
-    QScrollArea * m_scrollAdvancedOptions;
+    QScrollArea * m_scroll_advanced_options;
 
     /// List containing basic options components.
-    OptionLayout * m_basicOptionLayout;
+    OptionLayout * m_basic_option_layout;
 
     /// List containing advanced options components.
-    OptionLayout * m_advancedOptionLayout;
+    OptionLayout * m_advanced_option_layout;
 
     /// Button used to commit changes made.
-    QPushButton * m_btApply;
+    QPushButton * m_bt_apply;
 
     /// Button used to reset changes.
-    QPushButton * m_btForget;
+    QPushButton * m_bt_forget;
 
     /// Button used to see changes made.
-    QPushButton * m_btSeeChanges;
+    QPushButton * m_bt_see_changes;
 
     /// Main layout containing basic and advanced option panels.
 
     /// This layout is composed of three lines and one column.
-    QGridLayout * m_mainLayout;
+    QGridLayout * m_main_layout;
 
     /// Groupbox used to display basic m_options components
     /// with a titled border.
 
     ///  Its layout is @c #m_basicOptionsLayout.
-    QGroupBox * m_gbBasicOptions;
+    QGroupBox * m_gbox_basic_options;
 
     /// Groupbox used to display advanced m_options components
     /// with a titled border.
 
     ///  Its layout is @c #m_advancedOptionsLayout.
-    QGroupBox * m_gbAdvancedOptions;
+    QGroupBox * m_gbox_advanced_options;
 
     /// Indicates if the panel is in advanced mode or not.
 
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
-    bool m_advancedMode;
+    bool m_advanced_mode;
 
     /// The path of the component of which options are currently displayed.
-    QString m_currentPath;
+    QString m_current_path;
 
     /// Splitter between basic and advanced options.
     QSplitter * m_splitter;
 
+  private: // functions
     /// Sets new graphical options.
 
     /// All existing options in the layouts are removed.
     /// @param list The list of options to set. Can be empty.
     /// @todo why don't we use PropertyList?
-    void setOptions(const QList<cf3::common::Option::ConstPtr> & list);
+    void set_options(const QList<cf3::common::Option::ConstPtr> & list);
 
     /// Set the buttons to a visible/invisible state.
 
     /// @param visible If @c true, buttons are set to visible.
-    void setButtonsVisible(bool visible);
+    void set_buttons_visible(bool visible);
 
     /// Set the buttons to a enabled/disabled state.
 
     /// @param enabled If @c true, buttons are set to enabled.
-    void setButtonsEnabled(bool enabled);
+    void set_buttons_enabled(bool enabled);
 
   }; // CentralPanel
 

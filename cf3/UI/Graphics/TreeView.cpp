@@ -41,22 +41,22 @@ namespace Graphics {
 TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
                    bool contextMenuAllowed)
 : QTreeView(parent),
-  m_contextMenuAllowed(contextMenuAllowed)
+  m_context_menu_allowed(contextMenuAllowed)
 {
-  if(m_contextMenuAllowed && optionsPanel == nullptr)
+  if(m_context_menu_allowed && optionsPanel == nullptr)
     throw BadValue(FromHere(), "Options panel is a nullptr pointer");
 
   // instantiate class attributes
-  m_modelFilter = new FilteringModel(this);
-  m_centralPanel = optionsPanel;
-  m_signalManager = new SignalManager(parent);
+  m_model_filter = new FilteringModel(this);
+  m_central_panel = optionsPanel;
+  m_signal_manager = new SignalManager(parent);
 
-  m_modelFilter->setSourceModel(NTree::globalTree().get());
-  m_modelFilter->setDynamicSortFilter(true);
+  m_model_filter->setSourceModel(NTree::global().get());
+  m_model_filter->setDynamicSortFilter(true);
 
-  this->setModel(m_modelFilter);
+  this->setModel(m_model_filter);
 
-  this->setReadOnly(false);
+  this->set_read_only(false);
 
   // when right clicking on the Client,
   // a "Context menu event" must be generated
@@ -65,12 +65,12 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
   this->header()->setResizeMode(QHeaderView::ResizeToContents);
   this->header()->setStretchLastSection(true);
 
-  if(m_contextMenuAllowed)
+  if(m_context_menu_allowed)
   {
-    connect(NTree::globalTree().get(),
-            SIGNAL(currentIndexChanged(QModelIndex, QModelIndex)),
+    connect(NTree::global().get(),
+            SIGNAL(current_index_changed(QModelIndex, QModelIndex)),
             this,
-            SLOT(currentIndexChanged(QModelIndex, QModelIndex)));
+            SLOT(current_index_changed(QModelIndex, QModelIndex)));
   }
 }
 
@@ -78,35 +78,35 @@ TreeView::TreeView(CentralPanel * optionsPanel, QMainWindow * parent,
 
 TreeView::~TreeView()
 {
-  delete m_modelFilter;
+  delete m_model_filter;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeView::setReadOnly(bool readOnly)
+void TreeView::set_read_only(bool readOnly)
 {
-  m_readOnly = readOnly;
+  m_read_only = readOnly;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool TreeView::isReadOnly() const
+bool TreeView::is_read_only() const
 {
-  return m_readOnly;
+  return m_read_only;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-URI TreeView::selectedPath() const
+URI TreeView::selected_path() const
 {
   QModelIndex currentPath = this->selectionModel()->currentIndex();
   URI path;
 
   if(currentPath.isValid())
   {
-    QModelIndex indexInModel = m_modelFilter->mapToSource(currentPath);
+    QModelIndex indexInModel = m_model_filter->mapToSource(currentPath);
 
-    path = NTree::globalTree()->pathFromIndex(indexInModel);
+    path = NTree::global()->pathFromIndex(indexInModel);
   }
 
   return path;
@@ -114,29 +114,29 @@ URI TreeView::selectedPath() const
 
 //////////////////////////////////////////////////////////////////////////
 
-URI TreeView::pathFromIndex(const QModelIndex & index)
+URI TreeView::path_from_index(const QModelIndex & index)
 {
-  return NTree::globalTree()->pathFromIndex(m_modelFilter->mapToSource(index));
+  return NTree::global()->pathFromIndex(m_model_filter->mapToSource(index));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-QIcon TreeView::iconFromIndex(const QModelIndex & index)
+QIcon TreeView::icon_from_index(const QModelIndex & index)
 {
-  QModelIndex indexInModel = m_modelFilter->mapToSource(index);
-  return NTree::globalTree()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
+  QModelIndex indexInModel = m_model_filter->mapToSource(index);
+  return NTree::global()->data(indexInModel, Qt::DecorationRole).value<QIcon>();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeView::selectItem(const URI & path)
+void TreeView::select_item(const URI & path)
 {
-  QModelIndex index = NTree::globalTree()->indexFromPath(path);
+  QModelIndex index = NTree::global()->index_from_path(path);
 
   if(index.isValid())
   {
     QItemSelectionModel::SelectionFlags flags;
-    QModelIndex indexInFilter = m_modelFilter->mapFromSource(index);
+    QModelIndex indexInFilter = m_model_filter->mapFromSource(index);
 
     flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 
@@ -148,23 +148,23 @@ void TreeView::selectItem(const URI & path)
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeView::setFilter(const QString & pattern)
+void TreeView::set_filter(const QString & pattern)
 {
   QRegExp regex(pattern, Qt::CaseInsensitive, QRegExp::Wildcard);
-  m_modelFilter->setFilterRegExp(regex);
+  m_model_filter->setFilterRegExp(regex);
   this->expandAll();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool TreeView::tryToCommit()
+bool TreeView::try_commit()
 {
   bool committed = true;
-  QModelIndex currentIndex = NTree::globalTree()->currentIndex();
+  QModelIndex currentIndex = NTree::global()->current_index();
 
   if(currentIndex.isValid())
   {
-    committed = confirmChangeOptions(currentIndex, true);
+    committed = confirm_change_options(currentIndex, true);
   }
 
   return committed;
@@ -178,39 +178,39 @@ void TreeView::mousePressEvent(QMouseEvent * event)
   QPoint mousePosition = event->pos() + this->geometry().topLeft();
 
   QModelIndex index = this->indexAt(mousePosition);
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
 
-  QModelIndex indexInModel = m_modelFilter->mapToSource(this->currentIndex());
+  QModelIndex indexInModel = m_model_filter->mapToSource(this->currentIndex());
 
   Qt::MouseButton button = event->button();
 
   try
   {
-    if(m_contextMenuAllowed && indexInModel.isValid())
+    if(m_context_menu_allowed && indexInModel.isValid())
     {
-      if(button == Qt::RightButton && this->confirmChangeOptions(index))
+      if(button == Qt::RightButton && this->confirm_change_options(index))
       {
         QList<ActionInfo> actions;
         URI path;
 
-        tree->setCurrentIndex(indexInModel);
-        tree->listNodeActions(indexInModel, actions);
-        path =  tree->currentPath();
+        tree->set_current_index(indexInModel);
+        tree->list_node_actions(indexInModel, actions);
+        path =  tree->current_path();
 
-        m_signalManager->showMenu(QCursor::pos(), tree->nodeByPath(path), actions);
+        m_signal_manager->show_menu(QCursor::pos(), tree->node_by_path(path), actions);
       }
-      else if(!tree->areFromSameNode(indexInModel, tree->currentIndex()))
+      else if(!tree->are_from_same_node(indexInModel, tree->current_index()))
       {
-        if(this->confirmChangeOptions(index))
-          tree->setCurrentIndex(indexInModel);
+        if(this->confirm_change_options(index))
+          tree->set_current_index(indexInModel);
         else
-          this->currentIndexChanged(tree->currentIndex(), tree->currentIndex());
+          this->current_index_changed(tree->current_index(), tree->current_index());
       }
     }
   }
   catch(Exception & e)
   {
-    NLog::globalLog()->addException(e.what());
+    NLog::global()->add_exception(e.what());
   }
 }
 
@@ -219,36 +219,36 @@ void TreeView::mousePressEvent(QMouseEvent * event)
 void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
 {
   if(event->button() == Qt::LeftButton)
-    emit itemDoubleClicked(this->currentIndex());
+    emit item_double_clicked(this->currentIndex());
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 void TreeView::keyPressEvent(QKeyEvent * event)
 {
-  NTree::Ptr tree= NTree::globalTree();
-  QModelIndex currentIndex = m_modelFilter->mapFromSource(tree->currentIndex());
+  NTree::Ptr tree= NTree::global();
+  QModelIndex currentIndex = m_model_filter->mapFromSource(tree->current_index());
 
-  if(m_contextMenuAllowed)
+  if(m_context_menu_allowed)
   {
     if(event->key() == Qt::Key_Up)
     {
-      if(this->confirmChangeOptions(currentIndex, true))
+      if(this->confirm_change_options(currentIndex, true))
       {
         QModelIndex above = this->indexAbove(currentIndex);
 
         if(above.isValid())
-          tree->setCurrentIndex(m_modelFilter->mapToSource(above));
+          tree->set_current_index(m_model_filter->mapToSource(above));
       }
     }
     else if(event->key() == Qt::Key_Down)
     {
-      if(this->confirmChangeOptions(currentIndex, true))
+      if(this->confirm_change_options(currentIndex, true))
       {
         QModelIndex below = this->indexBelow(currentIndex);
 
         if(below.isValid())
-          tree->setCurrentIndex(m_modelFilter->mapToSource(below));
+          tree->set_current_index(m_model_filter->mapToSource(below));
       }
     }
     else
@@ -263,26 +263,26 @@ void TreeView::keyPressEvent(QKeyEvent * event)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameIndex)
+bool TreeView::confirm_change_options(const QModelIndex & index, bool okIfSameIndex)
 {
   bool confirmed = true;
-  NTree::Ptr tree = NTree::globalTree();
+  NTree::Ptr tree = NTree::global();
 
-  if(!okIfSameIndex &&  tree->areFromSameNode(tree->currentIndex(), index))
+  if(!okIfSameIndex &&  tree->are_from_same_node(tree->current_index(), index))
     return confirmed;
 
-  if(m_centralPanel->isModified())
+  if(m_central_panel->is_modified())
   {
     CommitDetails commitDetails;
 
     ConfirmCommitDialog dlg;
 
-    m_centralPanel->modifiedOptions(commitDetails);
+    m_central_panel->list_modified_options(commitDetails);
 
     ConfirmCommitDialog::CommitConfirmation answer = dlg.show(commitDetails);
 
     if(answer == ConfirmCommitDialog::COMMIT)
-      m_centralPanel->btApplyClicked();
+      m_central_panel->bt_apply_clicked();
 
     confirmed = answer != ConfirmCommitDialog::CANCEL;
   }
@@ -292,13 +292,13 @@ bool TreeView::confirmChangeOptions(const QModelIndex & index, bool okIfSameInde
 
 //////////////////////////////////////////////////////////////////////////
 
-void TreeView::currentIndexChanged(const QModelIndex & newIndex,
+void TreeView::current_index_changed(const QModelIndex & newIndex,
                                    const QModelIndex & oldIndex)
 {
-  if(m_contextMenuAllowed)
+  if(m_context_menu_allowed)
   {
     QItemSelectionModel::SelectionFlags flags;
-    QModelIndex indexInFilter = m_modelFilter->mapFromSource(newIndex);
+    QModelIndex indexInFilter = m_model_filter->mapFromSource(newIndex);
 
     flags = QItemSelectionModel::Select | QItemSelectionModel::Rows;
 

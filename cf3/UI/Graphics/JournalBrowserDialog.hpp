@@ -44,7 +44,7 @@ public:
 
 private slots:
 
-  void journalRequest(bool local);
+  void journal_request(bool local);
 
 private:
 
@@ -70,19 +70,19 @@ public:
 
 private slots:
 
-  void doubleClicked(const QModelIndex & index);
+  void double_clicked(const QModelIndex & index);
 
-  void btClicked(QAbstractButton * button);
+  void bt_clicked(QAbstractButton * button);
 
 private:
 
   QTableView * m_view;
 
-  QVBoxLayout * m_mainLayout;
+  QVBoxLayout * m_main_layout;
 
   QDialogButtonBox * m_buttons;
 
-  QPushButton * m_btExecute;
+  QPushButton * m_bt_execute;
 
   Core::NJournalBrowser::Ptr m_model;
 

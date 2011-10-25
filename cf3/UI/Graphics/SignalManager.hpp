@@ -41,18 +41,18 @@ namespace Graphics {
 
     ~SignalManager();
 
-    void showMenu(const QPoint & pos, Core::CNode::Ptr node,
+    void show_menu(const QPoint & pos, Core::CNode::Ptr node,
                   const QList<cf3::UI::Core::ActionInfo> & sigs);
 
   private slots:
 
-    void actionTriggered();
+    void action_triggered();
 
-    void actionHovered();
+    void action_hovered();
 
-    void signalSignature(common::SignalArgs & node);
+    void signal_signature(common::SignalArgs & node);
 
-    void dialogFinished(int result);
+    void dialog_finished(int result);
 
   private:
 
@@ -62,11 +62,11 @@ namespace Graphics {
 
     QMap<QAction *, Core::ActionInfo> m_signals;
 
-    QMap<QAction *, bool> m_localStatus;
+    QMap<QAction *, bool> m_local_status;
 
-    QAction * m_currentAction;
+    QAction * m_current_action;
 
-    bool m_waitingForSignature;
+    bool m_waiting_for_signature;
 
     common::XML::SignalFrame m_frame;
 

@@ -61,7 +61,7 @@ namespace Graphics {
 
     /// @return Returns @c DIRECTORY if this item is a directory, otherwise
     /// returns @c FILE.
-    FilesListItemType getType() const;
+    FilesListItemType get_type() const;
 
   private:
 

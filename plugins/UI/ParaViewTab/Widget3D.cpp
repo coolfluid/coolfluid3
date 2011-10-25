@@ -144,9 +144,9 @@ Widget3D::Widget3D(QWidget *parent) :
   /// Options
   //Server Options
   m_action_connect = tool_bar->addAction(QIcon(":/paraview_icons/pqConnect24.png"),
-                                         "Connect", this, SLOT(showConnectDialog()));
+                                         "Connect", this, SLOT(show_connect_dialog()));
   m_action_disconnect = tool_bar->addAction(QIcon(":/paraview_icons/pqDisconnect24.png"),
-                                            "Disconnect", this, SLOT(disconnectFromServer()));
+                                            "Disconnect", this, SLOT(disconnect_from_server()));
 
   m_action_load_file = tool_bar->addAction(QIcon(":/paraview_icons/pqOpen24.png"),
                                            "Load File", this, SLOT(showLoadFileDialog()));
@@ -193,7 +193,7 @@ Widget3D::Widget3D(QWidget *parent) :
   this->m_gen_adv_opt_button = new QPushButton("General Adv. Settings");
   this->m_serv_adv_opt_button = new QPushButton("Server Adv. Settings");
 
-  showAdvOptions(NTree::globalTree().get()->isAdvancedMode());
+  show_advanced_options(NTree::global().get()-> is_advanced_mode());
 
   //Mesh Options
   m_show_color_palette = new QPushButton(QIcon(":/paraview_icons/pqScalarBar24.png"),"Show Color Palette",this);
@@ -222,7 +222,7 @@ Widget3D::Widget3D(QWidget *parent) :
   m_actor_list = new QListWidget(this);
 
   //Create "force render" button and "Auto Render" checkbox
-  m_action_force_rendering = tool_bar->addAction(QIcon(":/paraview_icons/render_region.png"), "Render", this, SLOT(forceRendering()));
+  m_action_force_rendering = tool_bar->addAction(QIcon(":/paraview_icons/render_region.png"), "Render", this, SLOT(force_rendering()));
 
   m_checkbox_enable_rendering = new QCheckBox("Auto Render"); //QIcon(":/paraview_icons/pqVcrLoop24.png")
   tool_bar->addWidget(m_checkbox_enable_rendering);
@@ -238,11 +238,11 @@ Widget3D::Widget3D(QWidget *parent) :
 
   if(m_server){
     //create the builtin server view
-    createView();
+    create_view();
     //disable instant rendering
-    enableRendering(false);
+    enable_rendering(false);
   }else{
-    NLog::globalLog()->addError("Error while creating 'builtin server'");
+    NLog::global()->add_error("Error while creating 'builtin server'");
   }
 
   //Group Box creation
@@ -300,19 +300,19 @@ Widget3D::Widget3D(QWidget *parent) :
   connect(m_disp_adv_opt_button,SIGNAL(released()),this,SLOT(show_disp_adv_settings()));
   connect(m_gen_adv_opt_button,SIGNAL(released()),this,SLOT(show_gen_adv_settings()));
   connect(m_serv_adv_opt_button,SIGNAL(released()),this,SLOT(show_serv_adv_settings()));
-  connect(m_checkbox_enable_rendering,SIGNAL(toggled(bool)),this,SLOT(enableRendering(bool)));
-  connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(setActorListSelectionMode(int)));
-  connect(NTree::globalTree().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(showAdvOptions(bool)));
+  connect(m_checkbox_enable_rendering,SIGNAL(toggled(bool)),this,SLOT(enable_rendering(bool)));
+  connect(m_list_selection,SIGNAL(activated(int)),this,SLOT(set_actor_list_selection_mode(int)));
+  connect(NTree::global().get(),SIGNAL(advancedModeChanged(bool)),this,SLOT(show_advanced_options(bool)));
 
 //  qDebug() << "widget built";
 
 }
 
-void Widget3D::connectToServer(QString given_host,QString port)
+void Widget3D::connect_to_server(QString given_host,QString port)
 {
 
   //Be sure we are not connected yet and all widget are in a correct state
-  disconnectFromServer();
+  disconnect_from_server();
 
   //pqServerResource configuration
   QString host = "cs://"; //cs:// =>client-server    rc:// => remote server connection (not implemented yet by paraview)
@@ -326,7 +326,7 @@ void Widget3D::connectToServer(QString given_host,QString port)
   //if the server is remote then :
   if(m_server && m_server->isRemote()){
     //show user info
-    NLog::globalLog()->addMessage("Connected to paraview server");
+    NLog::global()->add_message("Connected to paraview server");
 
     //show the "load file" button
     m_action_load_file->setEnabled(true);
@@ -336,27 +336,27 @@ void Widget3D::connectToServer(QString given_host,QString port)
     m_action_disconnect->setEnabled(true);
 
     //create server view
-    createView();
+    create_view();
   }else{
-    NLog::globalLog()->addError("Error while connecting to paraview server");
+    NLog::global()->add_error("Error while connecting to paraview server");
     //Set Server to a stable state
     m_server = m_object_builder->createServer(pqServerResource("builtin:"));
-    createView();
+    create_view();
   }
 
 }
 
-void Widget3D::openFile(QString file_path,QString file_name)
+void Widget3D::open_file(QString file_path,QString file_name)
 {
   std::vector<QString> paths;
   paths.push_back(file_path);
   std::vector<QString> names;
   names.push_back(file_name);
 
-  loadPaths(paths,names);
+  load_paths(paths,names);
 }
 
-void Widget3D::createView(){
+void Widget3D::create_view(){
   if(m_server){
     // create a graphics window and put it in our main window
     this->m_RenderView = qobject_cast<pqRenderView*>(
@@ -368,20 +368,20 @@ void Widget3D::createView(){
       m_layout_h->insertWidget(0,this->m_RenderView->getWidget());
       m_layout_h->setStretchFactor(this->m_RenderView->getWidget(), 10);
     }else{
-      NLog::globalLog()->addError("Problem when creating a RenderView.");
+      NLog::global()->add_error("Problem when creating a RenderView.");
     }
   }else{
-    NLog::globalLog()->addError("Cannot create RenderView if no paraview server connection is set.");
+    NLog::global()->add_error("Cannot create RenderView if no paraview server connection is set.");
   }
 }
 
-void Widget3D::disconnectFromServer(){
+void Widget3D::disconnect_from_server(){
 
   //remove server if any (will remove all object on the server)
   if(m_server)
     //show user info
     if(m_server->isRemote()){
-      NLog::globalLog()->addMessage("Disconnected from paraview server");
+      NLog::global()->add_message("Disconnected from paraview server");
     }
     m_object_builder->removeServer(m_server);
 
@@ -408,7 +408,7 @@ void Widget3D::disconnectFromServer(){
 
   if(m_server){
     //create the builtin server view
-    createView();
+    create_view();
   }
 
   //hide mesh and region options
@@ -424,11 +424,11 @@ void Widget3D::disconnectFromServer(){
 
 }
 
-void Widget3D::showLoadFileDialog(){
+void Widget3D::show_load_file_dialog(){
   // Create a Server file browser Dialog
   NRemoteOpen::Ptr loadFileDialog = NRemoteOpen::create();
 
-  QStringList path_list = loadFileDialog->showMultipleSelect();
+  QStringList path_list = loadFileDialog->show_multiple_select();
 
   for(int i=0;i<path_list.size();++i)
   {
@@ -437,19 +437,19 @@ void Widget3D::showLoadFileDialog(){
 
     if(!fileinfo->filePath().isEmpty())
     {
-      NLog::globalLog()->addMessage("Loading file");
+      NLog::global()->add_message("Loading file");
       //open this file
-      openFile(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
+      open_file(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
     }
     else
     {
       //error
-      NLog::globalLog()->addError("Cannot Load file !");
+      NLog::global()->add_error("Cannot Load file !");
     }
   }
 }
 
-void Widget3D::showConnectDialog(){
+void Widget3D::show_connect_dialog(){
   //the popup dialog box
   QPointer<QDialog> connectFileDialog = new QDialog(this);
 
@@ -489,7 +489,7 @@ void Widget3D::showConnectDialog(){
 
   //connect them to their actions
   connect(btn_exit, SIGNAL(released()),connectFileDialog,SLOT(close()));
-  connect(btn_connect, SIGNAL(released()),this,SLOT(connectToServer()));
+  connect(btn_connect, SIGNAL(released()),this,SLOT(connect_to_server()));
   connect(btn_connect, SIGNAL(released()),connectFileDialog,SLOT(close()));
 
   //set popup visiblem modal and 100 * 80 tall
@@ -573,14 +573,14 @@ void Widget3D::show_color_editor(){
   }
 }
 
-void Widget3D::connectToServer(){
+void Widget3D::connect_to_server(){
   QString given_host = m_host_line->text();
   QString port = m_port_line->text();
   //connect to the chosen server
-  connectToServer(given_host,port);
+  connect_to_server(given_host,port);
 }
 
-void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
+void Widget3D::load_paths(std::vector<QString> paths,std::vector<QString> names){
 
 
   m_actor_list->selectionModel()->clearSelection();
@@ -648,7 +648,7 @@ void Widget3D::loadPaths(std::vector<QString> paths,std::vector<QString> names){
   }else{
     if(!m_server->isRemote())
     {
-      NLog::globalLog()->addError("You must be connected to a ParaView server.");
+      NLog::global()->add_error("You must be connected to a ParaView server.");
     }
   }
 
@@ -678,12 +678,12 @@ void Widget3D::create_source(QString path){
     }else{
       m_mesh_options->setVisible(false);
       m_regions_box->setVisible(false);
-      NLog::globalLog()->addError("Source of this file path don't exist.");
+      NLog::global()->add_error("Source of this file path don't exist.");
     }
   }else{
     m_mesh_options->setVisible(false);
     m_regions_box->setVisible(false);
-    NLog::globalLog()->addError("Cannot load a file if no paraview server connection is set.");
+    NLog::global()->add_error("Cannot load a file if no paraview server connection is set.");
   }
 }
 
@@ -738,9 +738,9 @@ void Widget3D::actor_changed(){
                           ->getRepresentation(m_RenderView));
 
       //Set the opacity spin box
-      disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+      disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacity_change(double)));
       m_spin_opacity->setValue(representation->getOpacity());
-      connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+      connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacity_change(double)));
 
       this->m_mesh_solid_color_set->setEnabled(this->m_dataSet_selector->getCurrentText() == "Solid Color");
       this->m_show_color_palette->setEnabled(this->m_dataSet_selector->getCurrentText() != "Solid Color");
@@ -751,7 +751,7 @@ void Widget3D::actor_changed(){
       this->m_dataSet_selector->setRepresentation(0);
       this->m_mesh_style->setRepresentation(0);
       if(m_actor_list->selectedItems().size() > 1){
-        //NLog::globalLog()->addError("One row selection maximum.");
+        //NLog::global()->add_error("One row selection maximum.");
       }
     }
   }
@@ -810,8 +810,8 @@ void Widget3D::set_solid_color(){
     }
 }
 
-void Widget3D::opacityChange(double value){
-  disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+void Widget3D::opacity_change(double value){
+  disconnect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacity_change(double)));
   QPointer<pqPipelineRepresentation> representation = qobject_cast<pqPipelineRepresentation*>
                      (m_source_list.at(m_actor_list->row(m_actor_list->selectedItems().at(0)))
                       ->getRepresentation(m_RenderView));
@@ -819,7 +819,7 @@ void Widget3D::opacityChange(double value){
     vtkSMProxy *proxy = representation->getProxy();
     vtkSMPropertyHelper(proxy, "Opacity").Set(value);
     proxy->UpdateVTKObjects();
-  connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacityChange(double)));
+  connect(m_spin_opacity,SIGNAL(valueChanged(double)),this,SLOT(opacity_change(double)));
   m_RenderView->getWidget()->update();
 }
 
@@ -944,7 +944,7 @@ void Widget3D::show_serv_adv_settings(){
   OptionDialog->show();
 }
 
-void Widget3D::enableRendering(bool enable){
+void Widget3D::enable_rendering(bool enable){
 
   //disable auto rendering
   m_action_force_rendering->setEnabled(!enable);
@@ -987,26 +987,26 @@ void Widget3D::enableRendering(bool enable){
 
 }
 
-void Widget3D::forceRendering(){
+void Widget3D::force_rendering(){
 //  m_RenderView->forceRender();
-  NLog::globalLog()->addMessage("Rendering in progress");
-  connect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
+  NLog::global()->add_message("Rendering in progress");
+  connect(m_RenderView,SIGNAL(endRender()),this,SLOT(rendering_progress()));
   m_RenderView->render();
 }
 
-void Widget3D::setActorListSelectionMode(int mode){
+void Widget3D::set_actor_list_selection_mode(int mode){
   m_actor_list->setSelectionMode(QAbstractItemView::SelectionMode((m_list_selection->itemData(mode)).toInt()));
 }
 
-void Widget3D::showAdvOptions(bool showAdv){
+void Widget3D::show_advanced_options(bool showAdv){
   this->m_disp_adv_opt_button->setVisible(showAdv);
   this->m_gen_adv_opt_button->setVisible(showAdv);
   this->m_serv_adv_opt_button->setVisible(showAdv);
 }
 
-void Widget3D::renderingProgress(){
-  NLog::globalLog()->addMessage("Rendering finished");
-  disconnect(m_RenderView,SIGNAL(endRender()),this,SLOT(renderingProgress()));
+void Widget3D::rendering_progress(){
+  NLog::global()->add_message("Rendering finished");
+  disconnect(m_RenderView,SIGNAL(endRender()),this,SLOT(rendering_progress()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

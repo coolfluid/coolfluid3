@@ -24,30 +24,30 @@ namespace Graphics {
 GraphicalDouble::GraphicalDouble(Real value, QWidget * parent)
   : GraphicalValue(parent)
 {
-  m_lineEdit = new QLineEdit(this);
+  m_line_edit = new QLineEdit(this);
   m_validator = new QDoubleValidator(this);
 
   m_validator->setNotation(QDoubleValidator::ScientificNotation);
-  m_lineEdit->setValidator(m_validator);
+  m_line_edit->setValidator(m_validator);
 
-  m_layout->addWidget(m_lineEdit);
+  m_layout->addWidget(m_line_edit);
 
-  this->setValue(value);
+  this->set_value(value);
 
-  connect(m_lineEdit, SIGNAL(textChanged(QString)), this, SLOT(textUpdated(QString)));
+  connect(m_line_edit, SIGNAL(textChanged(QString)), this, SLOT(text_updated(QString)));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 GraphicalDouble::~GraphicalDouble()
 {
-  delete m_lineEdit;
+  delete m_line_edit;
   delete m_validator;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GraphicalDouble::setValue(const QVariant & value)
+bool GraphicalDouble::set_value(const QVariant & value)
 {
   QString valueString = value.toString();
   int pos;
@@ -56,8 +56,8 @@ bool GraphicalDouble::setValue(const QVariant & value)
   if(value.canConvert(QVariant::Double) &&
      m_validator->validate(valueString, pos) == QValidator::Acceptable)
   {
-    m_originalValue = value;
-    m_lineEdit->setText(valueString);
+    m_original_value = value;
+    m_line_edit->setText(valueString);
     return true;
   }
 
@@ -68,14 +68,14 @@ bool GraphicalDouble::setValue(const QVariant & value)
 
 QVariant GraphicalDouble::value() const
 {
-  return m_lineEdit->text().toDouble();
+  return m_line_edit->text().toDouble();
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void GraphicalDouble::textUpdated(const QString & text)
+void GraphicalDouble::text_updated(const QString & text)
 {
-  emit valueChanged();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -64,22 +64,22 @@ namespace Graphics {
     ~OptionLayout();
 
     /// @brief Destroys all graphical values.
-    void clearOptions();
+    void clear_options();
 
     /// @brief Indicates wether at least on option has been modified.
 
     /// @return Returns @c true if at least one option has been modified.
-    bool isModified() const;
+    bool is_modified() const;
 
     /// @brief Gathers modified options.
 
     /// @param commitDetails Object where modified values will be stored. The
     /// object is not cleared.
-    void modifiedOptions(Core::CommitDetails & commitDetails) const;
+    void modified_options(Core::CommitDetails & commitDetails) const;
 
-    void addOption(cf3::common::Option::ConstPtr option);
+    void add_option(cf3::common::Option::ConstPtr option);
 
-    bool hasOptions() const;
+    bool has_options() const;
 
     /// @brief Puts options in a provided map.
 
@@ -93,11 +93,11 @@ namespace Graphics {
 
     /// Calls GraphicalOption::commit() for each graphical option the layout
     /// contains.
-    void commitOpions();
+    void commit_options();
 
   signals:
 
-    void valueChanged();
+    void value_changed();
 
   private:
 
@@ -108,9 +108,9 @@ namespace Graphics {
 
     /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
     /// are displayed. Otherwise, they are m_hidden.
-    bool m_advancedMode;
+    bool m_advanced_mode;
 
-    void setOptions(const QList<cf3::common::Option::ConstPtr> & list);
+    void set_options(const QList<cf3::common::Option::ConstPtr> & list);
 
   }; // class OptionPanel
 

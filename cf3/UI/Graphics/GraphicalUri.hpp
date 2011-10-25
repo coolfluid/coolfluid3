@@ -39,33 +39,33 @@ namespace Graphics {
 
     ~GraphicalUri();
 
-    virtual bool setValue(const QVariant & path);
+    virtual bool set_value(const QVariant & path);
 
     virtual QVariant value() const;
 
-    void setSchemes(const std::vector<common::URI::Scheme::Type> & list);
+    void set_schemes(const std::vector<common::URI::Scheme::Type> & list);
 
   private slots:
 
-    void btBrowseClicked();
+    void bt_browse_clicked();
 
-    void updateModel(const QString & path);
+    void update_model(const QString & path);
 
-    void changeType(const QString & type);
+    void scheme_changed(const QString & type);
 
   private:
 
-    QLineEdit * m_editPath;
+    QLineEdit * m_edit_path;
 
-    QPushButton * m_btBrowse;
+    QPushButton * m_bt_browse;
 
-    QComboBox * m_comboType;
+    QComboBox * m_combo_schemes;
 
     QCompleter * m_completer;
 
-    QStringListModel * m_completerModel;
+    QStringListModel * m_completer_model;
 
-    QString m_currentType;
+    QString m_current_type;
 
   }; // class GraphicalUrl
 

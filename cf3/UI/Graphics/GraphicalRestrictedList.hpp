@@ -32,22 +32,22 @@ namespace Graphics {
 
     ~GraphicalRestrictedList();
 
-    void setRestrictedList(const QStringList & list);
+    void set_restricted_list(const QStringList & list);
 
-    virtual bool setValue(const QVariant & value);
+    virtual bool set_value(const QVariant & value);
 
     virtual QVariant value() const;
 
   private slots:
 
-    void currentIndexChanged(int);
+    void current_index_changed(int);
 
   private:
 
     QComboBox * m_comboChoices;
 
     template<typename TYPE>
-    void vectToStringList(const std::vector<boost::any> & vect,
+    void vect_to_stringlist(const std::vector<boost::any> & vect,
                           QStringList & list) const;
   }; // class GraphicalRestrictedList
 

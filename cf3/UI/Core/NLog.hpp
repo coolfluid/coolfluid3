@@ -56,32 +56,32 @@ namespace Core {
     /// If the message contains '<' or '>' characters, they will replaced
     /// respectively by '&lt;' and '&gt;'.
     /// @param message The message to add.
-    void addMessage(const QString & message);
+    void add_message(const QString & message);
 
     /// @brief Adds an error message to the log.
 
     /// If the message contains '<' or '>' characters, they will replaced
     /// respectively by '&lt;' and '&gt;'.
     /// @param message The error message to add.
-    void addError(const QString & message);
+    void add_error(const QString & message);
 
     /// @brief Adds a warning message to the log.
 
     /// If the message contains '<' or '>' characters, they will replaced
     /// respectively by '&lt;' and '&gt;'.
     /// @param message The warning message to add.
-    void addWarning(const QString & message);
+    void add_warning(const QString & message);
 
     /// @brief Adds an exception message to the log.
 
     /// @param message The exception message to add.
-    void addException(const QString & message);
+    void add_exception(const QString & message);
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
-    static Ptr globalLog();
+    static Ptr global();
 
   signals:
 
@@ -89,18 +89,18 @@ namespace Core {
     /// @param message Message text
     /// @param isError If @c true it is an error message; otherwise it is
     /// a "normal" message.
-    void newMessage(const QString & message, UICommon::LogMessage::Type type);
+    void new_message(const QString & message, UICommon::LogMessage::Type type);
 
     /// @brief Signal emitted when an exception arrives
     /// @param message Exception message
-    void newException(const QString & message);
+    void new_exception(const QString & message);
 
   protected:
 
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
     virtual void message ( const std::string & data );
 
@@ -110,7 +110,7 @@ namespace Core {
     /// string format.
 
     /// The key is the type. The value is the name.
-    QHash<cf3::UI::UICommon::LogMessage::Type, QString> m_typeNames;
+    QHash<UICommon::LogMessage::Type, QString> m_typeNames;
 
     /// @brief Boost slot called when a message comes from the server
     /// @param node Signal node
@@ -124,8 +124,9 @@ namespace Core {
     /// @param fromServer If @c true, the message comes from the server;
     /// otherwise it comes from the client.
     /// @param message Message
-    void appendToLog(cf3::UI::UICommon::LogMessage::Type type, bool fromServer,
-                     const QString & message);
+    void append_to_log( UICommon::LogMessage::Type type,
+                        bool fromServer,
+                        const QString & message );
 
   }; // class NLog
 

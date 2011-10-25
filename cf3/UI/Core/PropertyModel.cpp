@@ -19,12 +19,12 @@ namespace Core {
 PropertyModel::PropertyModel()
   : QAbstractItemModel()
 {
-  currentIndexChanged(NTree::globalTree()->currentIndex(), QModelIndex());
+  current_index_changed(NTree::global()->current_index(), QModelIndex());
 
   m_columns << "Name" << "Value";
 
-  connect(NTree::globalTree().get(), SIGNAL(currentIndexChanged(QModelIndex,QModelIndex)),
-          this, SLOT(currentIndexChanged(QModelIndex,QModelIndex)));
+  connect(NTree::global().get(), SIGNAL(current_index_changed(QModelIndex,QModelIndex)),
+          this, SLOT(current_index_changed(QModelIndex,QModelIndex)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ QVariant PropertyModel::headerData(int section, Qt::Orientation orientation,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
+void PropertyModel::current_index_changed(const QModelIndex & newIndex,
                                         const QModelIndex & oldIndex)
 {
   QMap<QString, QString> props;
@@ -124,9 +124,9 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
   emit layoutAboutToBeChanged();
 
-  NTree::globalTree()->listNodeProperties(newIndex, props);
+  NTree::global()->list_node_properties(newIndex, props);
 
-  this->emptyList();
+  this->empty_list();
 
   for(i = 0, it = props.begin() ; it != props.end() ; it++, i++)
   {
@@ -138,7 +138,7 @@ void PropertyModel::currentIndexChanged(const QModelIndex & newIndex,
 
 ////////////////////////////////////////////////////////////////////////////
 
-void PropertyModel::emptyList()
+void PropertyModel::empty_list()
 {
   while(!m_data.isEmpty())
     delete m_data.takeFirst();

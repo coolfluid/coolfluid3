@@ -11,7 +11,7 @@
 
 #include "UI/Graphics/GraphicalBool.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalBoolTest.hpp"
 
@@ -69,48 +69,48 @@ void GraphicalBoolTest::test_setValue()
   //
   // 1. check with bool values
   //
-  QVERIFY( value->setValue(true) );
+  QVERIFY( value->set_value(true) );
   QVERIFY( checkbox->isChecked() );
-  QVERIFY( value->originalValue().toBool() );
+  QVERIFY( value->original_value().toBool() );
 
-  QVERIFY( value->setValue(false) );
+  QVERIFY( value->set_value(false) );
   QVERIFY( !checkbox->isChecked() );
-  QVERIFY( !value->originalValue().toBool() );
+  QVERIFY( !value->original_value().toBool() );
 
   //
   // 2. check with strings (those supported by cf3::common::from_str<bool>())
   //
-  QVERIFY( value->setValue("true") );
+  QVERIFY( value->set_value("true") );
   QVERIFY( checkbox->isChecked() );
 
-  QVERIFY( value->setValue("false") );
+  QVERIFY( value->set_value("false") );
   QVERIFY( !checkbox->isChecked() );
 
-  QVERIFY( value->setValue("on") );
+  QVERIFY( value->set_value("on") );
   QVERIFY( checkbox->isChecked() );
 
-  QVERIFY( value->setValue("off") );
+  QVERIFY( value->set_value("off") );
   QVERIFY( !checkbox->isChecked() );
 
-  QVERIFY( value->setValue("1") );
+  QVERIFY( value->set_value("1") );
   QVERIFY( checkbox->isChecked() );
 
-  QVERIFY( value->setValue("0") );
+  QVERIFY( value->set_value("0") );
   QVERIFY( !checkbox->isChecked() );
 
-  GUI_CHECK_THROW( value->setValue("ThisIsNotABoolValue"), ParsingFailed );
+  GUI_CHECK_THROW( value->set_value("ThisIsNotABoolValue"), ParsingFailed );
   QVERIFY( !checkbox->isChecked() ); // state should not have changed
 
   //
   // 3. check with other types
   //
-  QVERIFY( !value->setValue(12) );
+  QVERIFY( !value->set_value(12) );
   QVERIFY( !checkbox->isChecked() );
 
-  QVERIFY( !value->setValue(3.141592) );
+  QVERIFY( !value->set_value(3.141592) );
   QVERIFY( !checkbox->isChecked() );
 
-  QVERIFY( !value->setValue(-456) );
+  QVERIFY( !value->set_value(-456) );
   QVERIFY( !checkbox->isChecked() );
 
   delete value;
@@ -150,8 +150,8 @@ void GraphicalBoolTest::test_signalEmmitting()
   //
   // 1. check/uncheck through setValue()
   //
-  value->setValue(true);
-  value->setValue(false);
+  value->set_value(true);
+  value->set_value(false);
 
   // 2 signal should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -186,11 +186,11 @@ void GraphicalBoolTest::test_valueString()
 {
   GraphicalBool * value = new GraphicalBool(false);
 
-  value->setValue(true);
-  QCOMPARE( value->valueString(), QString("true") );
+  value->set_value(true);
+  QCOMPARE( value->value_string(), QString("true") );
 
-  value->setValue(false);
-  QCOMPARE( value->valueString(), QString("false") );
+  value->set_value(false);
+  QCOMPARE( value->value_string(), QString("false") );
 
   delete value;
 }
@@ -203,21 +203,21 @@ void GraphicalBoolTest::test_isModified()
   QCheckBox * checkbox = findCheckBox(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   checkbox->setChecked(true);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. set the same value again
-  value->setValue(true);
-  QVERIFY( !value->isModified() );
+  value->set_value(true);
+  QVERIFY( !value->is_modified() );
 
   // 4. change the value and commit
   checkbox->setChecked(false);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }
