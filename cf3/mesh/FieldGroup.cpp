@@ -285,7 +285,7 @@ boost::iterator_range< common::ComponentIterator<Entities> > FieldGroup::entitie
 {
   std::vector<Entities::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c]->as_ptr<Entities>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Entities>();
 
   ComponentIterator<Entities> begin_iter(elements_vec,0);
   ComponentIterator<Entities> end_iter(elements_vec,elements_vec.size());
@@ -298,7 +298,7 @@ boost::iterator_range< common::ComponentIterator<Elements> > FieldGroup::element
 {
   std::vector<Elements::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c]->as_ptr<Elements>();
+    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Elements>();
 
   ComponentIterator<Elements> begin_iter(elements_vec,0);
   ComponentIterator<Elements> end_iter(elements_vec,elements_vec.size());
@@ -331,11 +331,11 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
   {
     throw InvalidURI(FromHere(),"URI "+to_str(mesh_uri)+" should be absolute");
   }
-  boost::shared_ptr<Mesh> mesh_arg = access_component(mesh_uri).as_ptr_checked<Mesh>();
+  Mesh& mesh_arg = access_component(mesh_uri).as_type<Mesh>();
 
-  boost::shared_ptr<Mesh> this_mesh = parent().as_ptr_checked<Mesh>();
+  Mesh& this_mesh = parent().as_type<Mesh>();
 
-  if (this_mesh == mesh_arg)
+  if (&this_mesh == &mesh_arg)
   {
     if (m_topology->is_linked() == false)
       throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
@@ -346,7 +346,6 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
 
     update();
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
