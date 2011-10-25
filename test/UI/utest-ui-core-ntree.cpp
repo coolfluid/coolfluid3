@@ -12,8 +12,8 @@
 
 #include "rapidxml/rapidxml.hpp"
 
-#include "common/CGroup.hpp"
-#include "common/CLink.hpp"
+#include "common/Group.hpp"
+#include "common/Link.hpp"
 #include "common/OptionT.hpp"
 
 #include "common/XML/FileOperations.hpp"
@@ -88,11 +88,11 @@ BOOST_AUTO_TEST_CASE( set_root )
   NRoot::Ptr newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->root()->create_component_ptr<CLink>("link");
-  newRoot->root()->create_component_ptr<CGroup>("Group1");
-  newRoot->root()->create_component_ptr<CGroup>("Group2");
-  newRoot->root()->create_component_ptr<CGroup>("Group3");
-  newRoot->root()->create_component_ptr<CGroup>("Group4");
+  newRoot->root()->create_component_ptr<Link>("link");
+  newRoot->root()->create_component_ptr<Group>("Group1");
+  newRoot->root()->create_component_ptr<Group>("Group2");
+  newRoot->root()->create_component_ptr<Group>("Group3");
+  newRoot->root()->create_component_ptr<Group>("Group4");
 
   t.set_tree_root(newRoot);
 
@@ -480,10 +480,10 @@ BOOST_AUTO_TEST_CASE( options_changed )
   XmlDoc::Ptr doc;
   SignalFrame frame;
   NRoot::Ptr root = t->tree_root();
-  CRoot::Ptr newRoot = CRoot::create("Root");
+  Root::Ptr newRoot = Root::create("Root");
 
-  newRoot->create_component_ptr<CLink>("Environment");
-  newRoot->create_component_ptr<CGroup>("Tools");
+  newRoot->create_component_ptr<Link>("Environment");
+  newRoot->create_component_ptr<Group>("Tools");
 
   newRoot->signal_list_tree( frame );
 
