@@ -75,15 +75,15 @@ public:
 
   /// non-const access to the unified data components
   /// @return vector of data components
-  std::vector< boost::weak_ptr<common::Component> >& components();
+  std::vector< common::Component* >& components();
 
   /// const access to the unified data components
   /// @return vector of data components
-  const std::vector< boost::weak_ptr<common::Component> >& components() const;
+  const std::vector< common::Component* >& components() const;
 
-  Component& component(const Uint idx) { return *m_data_vector[idx].lock(); }
+  Component& component(const Uint idx) { return *m_data_vector[idx]; }
 
-  const Component& component(const Uint idx) const { return *m_data_vector[idx].lock(); }
+  const Component& component(const Uint idx) const { return *m_data_vector[idx]; }
 
   Uint unified_idx(const common::Component& component, const Uint local_idx) const;
 
@@ -96,7 +96,7 @@ public:
 private: // data
 
   /// vector of components to view as continuous
-  std::vector< boost::weak_ptr<common::Component> > m_data_vector;
+  std::vector<common::Component*> m_data_vector;
 
   /// start index for each component in the continous view
   boost::shared_ptr<common::List<Uint> > m_data_indices;
@@ -124,9 +124,9 @@ inline void UnifiedData::add(DATA& data)
   {
     m_start_idx[actual_data.get()] = m_size;
 
-    m_data_links->create_component_ptr<common::Link>("data_component_"+common::to_str(m_data_vector.size()))->link_to(*actual_data);
+    //m_data_links->create_component_ptr<common::Link>("data_component_"+common::to_str(m_data_vector.size()))->link_to(*actual_data);
 
-    m_data_vector.push_back(actual_data->as_non_const());
+    m_data_vector.push_back(actual_data->as_non_const().get());
     m_size += actual_data->size();
 
     common::List<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();

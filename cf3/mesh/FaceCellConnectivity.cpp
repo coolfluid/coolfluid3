@@ -105,14 +105,16 @@ void FaceCellConnectivity::build_connectivity()
     return;
   }
 
-  cf3_assert(is_not_null(m_mesh_elements));
+  cf3_assert( !m_mesh_elements.expired() );
+  MeshElements& mesh_elements  = *m_mesh_elements.lock();
+
   // sanity check
   //CFinfo << "building face_cell connectivity using " << CFendl;
   boost_foreach(Component::Ptr cells, used() )
   {
     //CFinfo << "  " << cells->uri().path() << CFendl;
     cf3_assert_desc("Must call Mesh::elements().update() to add the elements ["+cells->uri().path()+"] in the elements registry",
-      m_mesh_elements->contains(*cells));
+        mesh_elements.contains(*cells));
   }
 
   // declartions
@@ -192,7 +194,7 @@ void FaceCellConnectivity::build_connectivity()
         if ( (*is_bdry_elem)[loc_elem_idx] == false )
           continue;
 
-      Uint mesh_elements_idx = m_mesh_elements->unified_idx(elements,loc_elem_idx);
+      Uint mesh_elements_idx = mesh_elements.unified_idx(elements,loc_elem_idx);
 
 
       cf3_assert(lookup().location(mesh_elements_idx).get<0>() == elements_comp);

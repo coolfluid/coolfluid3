@@ -1,76 +1,64 @@
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-hash
                     CPP   utest-mesh-hash.cpp
                     LIBS  coolfluid_mesh )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-octtree
                     CPP   utest-mesh-octtree.cpp
                     LIBS  coolfluid_mesh_lagrangep1
                     MPI   2 )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-stencilcomputerrings
                     CPP   utest-mesh-stencilcomputerrings.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-interpolation
                     CPP   utest-mesh-interpolation.cpp
                     LIBS  coolfluid_mesh_actions coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-unified-data
                     CPP   utest-mesh-unified-data.cpp
                     LIBS  coolfluid_mesh_neu coolfluid_mesh_lagrangep1 
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-node-element-connectivity
                     CPP   utest-mesh-node-element-connectivity.cpp
                     LIBS  coolfluid_mesh_neu coolfluid_mesh_lagrangep1 
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-face-cell-connectivity
                     CPP   utest-mesh-face-cell-connectivity.cpp
                     LIBS  coolfluid_testing coolfluid_mesh_generation coolfluid_mesh_neu coolfluid_mesh_lagrangep1
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-construction
                     CPP   utest-mesh-construction.cpp
                     LIBS  coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 )
 
-################################################################################
 
 coolfluid_add_test( UTEST   utest-mesh-reading
                     CPP     utest-mesh-reading.cpp
                     LIBS    coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST   utest-mesh-transformer
                     CPP     utest-mesh-transformer.cpp
                     LIBS    coolfluid_mesh_neu coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_actions
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-components
                     CPP   utest-mesh-components.cpp
                     LIBS  coolfluid_mesh )
 
-################################################################################
 
 coolfluid_add_test( UTEST     utest-mesh-cgns
                     CPP       utest-mesh-cgns.cpp
@@ -78,7 +66,6 @@ coolfluid_add_test( UTEST     utest-mesh-cgns
                     DEPENDS   copy-resources
                     CONDITION coolfluid_mesh_cgns3_builds)
 
-################################################################################
 
 coolfluid_add_test( UTEST   utest-mesh-neu
                     CPP     utest-mesh-neu.cpp
@@ -86,53 +73,45 @@ coolfluid_add_test( UTEST   utest-mesh-neu
                     DEPENDS copy-resources
                     MPI     3)
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-gmsh
                     CPP   utest-mesh-gmsh.cpp
                     LIBS  coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-tecplot
                     CPP   utest-mesh-tecplot.cpp
                     LIBS  coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_lagrangep1 
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-writemesh
                     CPP   utest-mesh-writemesh.cpp
                     LIBS  coolfluid_mesh_neu coolfluid_mesh_tecplot coolfluid_mesh_gmsh coolfluid_mesh_lagrangep1 
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-vtklegacy
                     CPP   utest-vtklegacy-writer.cpp
                     LIBS  coolfluid_mesh_vtklegacy coolfluid_mesh_lagrangep1 coolfluid_mesh_generation )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-vtkxml
                     CPP   utest-vtkxml-writer.cpp
                     LIBS  coolfluid_mesh_vtkxml coolfluid_mesh_lagrangep1 coolfluid_mesh_generation )
 
-################################################################################
 
 coolfluid_add_test( UTEST   utest-mesh-connectivity-data
                     CPP     utest-connectivity-data.cpp
                     LIBS    coolfluid_mesh_neu coolfluid_mesh_generation coolfluid_mesh_lagrangep1 
                     DEPENDS copy-resources )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-lagrangep1-hexa3d
                     CPP   utest-mesh-lagrangep1-hexa3d.cpp
                     LIBS  coolfluid_mesh_lagrangep1 )
 
-################################################################################
 
 coolfluid_add_test( UTEST utest-mesh-lagrangep1-tetra3d
                     CPP   utest-mesh-lagrangep1-tetra3d.cpp
