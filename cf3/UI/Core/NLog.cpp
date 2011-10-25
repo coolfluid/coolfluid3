@@ -52,43 +52,43 @@ NLog::~NLog()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::addMessage(const QString & message)
+void NLog::add_message(const QString & message)
 {
   cf3_assert(!message.isEmpty());
 
-  this->appendToLog(LogMessage::INFO, false, message);
+  this->append_to_log(LogMessage::INFO, false, message);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::addError(const QString & message)
+void NLog::add_error(const QString & message)
 {
   cf3_assert(!message.isEmpty());
 
-  this->appendToLog(LogMessage::ERROR, false, message);
+  this->append_to_log(LogMessage::ERROR, false, message);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::addWarning(const QString & message)
+void NLog::add_warning(const QString & message)
 {
   cf3_assert(!message.isEmpty());
 
-  this->appendToLog(LogMessage::WARNING, false, message);
+  this->append_to_log(LogMessage::WARNING, false, message);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::addException(const QString & message)
+void NLog::add_exception(const QString & message)
 {
   cf3_assert(!message.isEmpty());
 
-  this->appendToLog(LogMessage::EXCEPTION, false, message);
+  this->append_to_log(LogMessage::EXCEPTION, false, message);
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void NLog::appendToLog(LogMessage::Type type, bool fromServer,
+void NLog::append_to_log(LogMessage::Type type, bool fromServer,
                        const QString & message)
 {
   QString header = "[ %1 ][ %2 ] ";
@@ -101,10 +101,10 @@ void NLog::appendToLog(LogMessage::Type type, bool fromServer,
   msg.replace('\n', QString("\n%1").arg(header));
   msg.prepend(header);
 
-  emit newMessage(msg, type);
+  emit new_message(msg, type);
 
   if(type == LogMessage::EXCEPTION)
-    emit newException(message);
+    emit new_exception(message);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -113,20 +113,20 @@ void NLog::signal_message(SignalArgs & node)
 {
   SignalOptions options( node );
 
-  std::string typeStr = options.value<std::string>("type");
+  std::string type_str = options.value<std::string>("type");
   std::string message = options.value<std::string>("text");
-  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr);
+  LogMessage::Type type = LogMessage::Convert::instance().to_enum(type_str);
 
   cf3_assert(type != LogMessage::INVALID);
 
-  this->appendToLog(type, true, message.c_str());
+  this->append_to_log(type, true, message.c_str());
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NLog::toolTip() const
+QString NLog::tool_tip() const
 {
-  return this->componentType();
+  return this->component_type();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -143,9 +143,9 @@ void NLog::message (const std::string & data )
 
 ////////////////////////////////////////////////////////////////////////////
 
-NLog::Ptr NLog::globalLog()
+NLog::Ptr NLog::global()
 {
-  static NLog::Ptr log = ThreadManager::instance().tree().rootChild<NLog>(CLIENT_LOG);
+  static NLog::Ptr log = ThreadManager::instance().tree().root_child<NLog>(CLIENT_LOG);
   cf3_assert( is_not_null(log.get()) );
   return log;
 }

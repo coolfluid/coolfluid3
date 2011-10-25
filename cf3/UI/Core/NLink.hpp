@@ -42,31 +42,31 @@ namespace Core {
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.
-    virtual QString toolTip() const;
+    virtual QString tool_tip() const;
 
     /// @brief Gives the target path
     /// @return Returns the target path.
-    cf3::common::URI targetPath() const;
+    cf3::common::URI target_path() const;
 
     /// @brief Sets new target from its path.
     /// @param path New target path.
     /// @throw InvalidPath If the path does exist.
-    void setTargetPath(const cf3::common::URI & path);
+    void set_target_path(const cf3::common::URI & path);
 
     /// @brief Sets new target.
     /// If the node is null, nothing is done.
     /// @param path New target path.
-    void setTargetNode(const CNode::Ptr & node);
+    void set_target_node(const CNode::Ptr & node);
 
     /// @brief Slot called when user wants to switch to the target
-    void goToTarget(common::SignalArgs & node);
+    void go_to_target(common::SignalArgs & node);
 
   protected:
 
     /// Disables the local signals that need to.
     /// @param localSignals Map of local signals. All values are set to true
     /// by default.
-    virtual void disableLocalSignals(QMap<QString, bool> & localSignals) const {}
+    virtual void disable_local_signals(QMap<QString, bool> & localSignals) const {}
 
   private :
 

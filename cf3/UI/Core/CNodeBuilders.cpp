@@ -38,19 +38,19 @@ CNodeBuilders & CNodeBuilders::instance()
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool CNodeBuilders::hasBuilder(const QString & componentType) const
+bool CNodeBuilders::has_builder(const QString & component_type) const
 {
-  return m_builders.contains( componentType );
+  return m_builders.contains( component_type );
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr CNodeBuilders::buildCNode( const QString & componentType,
-                                      const std::string & name ) const
+CNode::Ptr CNodeBuilders::build_cnode( const QString & component_type,
+                                       const std::string & name ) const
 {
-  cf3_assert( m_builders.contains( componentType ) );
+  cf3_assert( m_builders.contains( component_type ) );
 
-  Builder & builder = m_builders[componentType]->as_type<Builder>();
+  Builder & builder = m_builders[component_type]->as_type<Builder>();
 
   return builder.build( name )->as_ptr_checked<CNode>();
 }

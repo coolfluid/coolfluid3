@@ -50,9 +50,9 @@ public:
 
     FileType type;
 
-    QString dateModified;
+    QString date_modified;
 
-    Uint fileSize;
+    Uint file_size;
 
   }; // FileInfo
 
@@ -62,25 +62,25 @@ public:
 
   static std::string type_name() { return "NRemoteFSBrowser"; }
 
-  QStringListModel * completionModel() const;
+  QStringListModel * completion_model() const;
 
-  QString currentPath() const;
+  QString current_path() const;
 
-  void openDir ( const QString & path );
+  void open_dir ( const QString & path );
 
-  void setExtensions( const QStringList & list );
+  void set_extensions( const QStringList & list );
 
-  void addExtension( const QString & extension );
+  void add_extension( const QString & extension );
 
   QStringList extensions() const;
 
-  void setIncludeNoExtensions ( bool include );
+  void set_include_no_extensions ( bool include );
 
-  bool includeNoExtensions () const;
+  bool include_no_extensions () const;
 
-  void setIncludeFiles ( bool includeFiles );
+  void set_include_files ( bool include_files );
 
-  bool includeFiles () const;
+  bool include_files () const;
 
   virtual QVariant data ( const QModelIndex & index, int role ) const;
 
@@ -92,18 +92,18 @@ public:
 
   virtual int columnCount ( const QModelIndex &parent ) const;
 
-  virtual QString toolTip() const {return componentType(); }
+  virtual QString tool_tip() const {return component_type(); }
 
   virtual QVariant headerData ( int section, Qt::Orientation orientation, int role  = Qt::DisplayRole ) const;
 
 
-  virtual void disableLocalSignals(QMap<QString, bool>&) const {}
+  virtual void disable_local_signals(QMap<QString, bool>&) const {}
 
-  QString retrieveFullPath( const QModelIndex & index ) const;
+  QString retrieve_full_path( const QModelIndex & index ) const;
 
-  bool isFile( const QModelIndex & index ) const;
+  bool is_file( const QModelIndex & index ) const;
 
-  bool isDirectory( const QModelIndex & index ) const;
+  bool is_directory( const QModelIndex & index ) const;
 
   /// @name Signals
   //@{
@@ -114,29 +114,29 @@ public:
 
 signals:
 
-  void currentPathChanged( const QString & newPath );
+  void current_path_changed( const QString & newPath );
 
 private: // functions
 
-  QString sizeToString( Uint size ) const;
+  QString size_to_string( Uint size ) const;
 
 private: // data
 
   QList<FileInfo*> m_data;
 
-  QString m_currentPath;
+  QString m_current_path;
 
-  QStringListModel * m_completionModel;
+  QStringListModel * m_completion_model;
 
   QStringList m_extensions;
 
   QStringList m_headers;
 
-  bool m_includeNoExtensions;
+  bool m_include_no_extensions;
 
-  bool m_includeFiles;
+  bool m_include_files;
 
-  bool m_updatingCompletion;
+  bool m_updating_completion;
 
 }; // NRemoteFSBrowser
 

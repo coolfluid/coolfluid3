@@ -26,40 +26,40 @@ GraphicalInt::GraphicalInt(bool isUint, QVariant value, QWidget * parent)
   : GraphicalValue(parent),
     m_isUint(isUint)
 {
-  m_spinBox = new QDoubleSpinBox(/*isUint, */this);
+  m_spin_box = new QDoubleSpinBox(/*isUint, */this);
 
   if(m_isUint)
-    m_spinBox->setRange(Consts::uint_min(), Consts::uint_max());
+    m_spin_box->setRange(Consts::uint_min(), Consts::uint_max());
   else
-    m_spinBox->setRange(Consts::int_min(), Consts::int_max());
+    m_spin_box->setRange(Consts::int_min(), Consts::int_max());
 
-  m_layout->addWidget(m_spinBox);
+  m_layout->addWidget(m_spin_box);
 
-  m_spinBox->setDecimals(0);
+  m_spin_box->setDecimals(0);
 
   if(isUint)
-    this->setValue(value.toUInt());
+    this->set_value(value.toUInt());
   else
-    this->setValue(value.toInt());
+    this->set_value(value.toInt());
 
-  connect(m_spinBox, SIGNAL(valueChanged(double)), this, SLOT(integerChanged(double)));
+  connect(m_spin_box, SIGNAL(value_changed(double)), this, SLOT(integer_changed(double)));
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
 GraphicalInt::~GraphicalInt()
 {
-  delete m_spinBox;
+  delete m_spin_box;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-bool GraphicalInt::setValue(const QVariant & value)
+bool GraphicalInt::set_value(const QVariant & value)
 {
   if(value.type() == (m_isUint ? QVariant::UInt : QVariant::Int))
   {
-    m_originalValue = value;
-    m_spinBox->setValue(value.toDouble());
+    m_original_value = value;
+    m_spin_box->setValue(value.toDouble());
     return true;
   }
 
@@ -71,16 +71,16 @@ bool GraphicalInt::setValue(const QVariant & value)
 QVariant GraphicalInt::value() const
 {
   if(m_isUint)
-    return (Uint) m_spinBox->value();
+    return (Uint) m_spin_box->value();
 
-  return (int) m_spinBox->value();
+  return (int) m_spin_box->value();
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void GraphicalInt::integerChanged(double value)
+void GraphicalInt::integer_changed(double value)
 {
-  emit valueChanged();
+  emit value_changed();
 }
 
 //////////////////////////////////////////////////////////////////////////

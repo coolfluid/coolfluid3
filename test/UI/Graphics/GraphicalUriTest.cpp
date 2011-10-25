@@ -12,7 +12,7 @@
 
 #include "UI/Graphics/GraphicalUri.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
 
@@ -81,7 +81,7 @@ void GraphicalUriTest::test_setSchemes()
   schemes.push_back(URI::Scheme::CPATH);
   schemes.push_back(URI::Scheme::FILE);
 
-  value->setSchemes(schemes);
+  value->set_schemes(schemes);
   QCOMPARE( comboBox->count(), 2);
   QCOMPARE( comboBox->itemText(0), QString("cpath") );
   QCOMPARE( comboBox->itemText(1), QString("file") );
@@ -92,14 +92,14 @@ void GraphicalUriTest::test_setSchemes()
   schemes.push_back(URI::Scheme::FILE);
   schemes.push_back(URI::Scheme::CPATH);
 
-  value->setSchemes(schemes);
+  value->set_schemes(schemes);
   QCOMPARE( comboBox->count(), 2);
   QCOMPARE( comboBox->itemText(0), QString("cpath") );
   QCOMPARE( comboBox->itemText(1), QString("file") );
 
   // 4. giving an empty vector should enable all schemes
   schemes.clear();
-  value->setSchemes(schemes);
+  value->set_schemes(schemes);
 
   QCOMPARE( comboBox->count(), 3);
   QCOMPARE( comboBox->itemText(0), QString("cpath") );
@@ -122,25 +122,25 @@ void GraphicalUriTest::test_setValue()
   //
   // 1. check with strings
   //
-  QVERIFY( value->setValue("cpath://Root/Component") );
+  QVERIFY( value->set_value("cpath://Root/Component") );
   QCOMPARE( lineEdit->text(), QString("cpath://Root/Component") );
 
-  QVERIFY( value->setValue("coolfluidsrv.vki.ac.be") );
+  QVERIFY( value->set_value("coolfluidsrv.vki.ac.be") );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
 
   //
   // 2. check with other types
   //
-  QVERIFY( !value->setValue(12) );
+  QVERIFY( !value->set_value(12) );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
 
-  QVERIFY( !value->setValue(-421) );
+  QVERIFY( !value->set_value(-421) );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
 
-  QVERIFY( !value->setValue(3.141592) );
+  QVERIFY( !value->set_value(3.141592) );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
 
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
 
   delete value;
@@ -200,9 +200,9 @@ void GraphicalUriTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue("cpath://Root");
-  value->setValue("file:/etc/fstab");
-  value->setValue(12);
+  value->set_value("cpath://Root");
+  value->set_value("file:/etc/fstab");
+  value->set_value(12);
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -239,11 +239,11 @@ void GraphicalUriTest::test_valueString()
 {
   GraphicalUri * value = new GraphicalUri();
 
-  value->setValue("cpath://Root");
-  QCOMPARE( value->valueString(), QString("cpath://Root") );
+  value->set_value("cpath://Root");
+  QCOMPARE( value->value_string(), QString("cpath://Root") );
 
-  value->setValue("http://coolfluidsrv.vki.ac.be");
-  QCOMPARE( value->valueString(), QString("http://coolfluidsrv.vki.ac.be") );
+  value->set_value("http://coolfluidsrv.vki.ac.be");
+  QCOMPARE( value->value_string(), QString("http://coolfluidsrv.vki.ac.be") );
 
   delete value;
 }
@@ -256,21 +256,21 @@ void GraphicalUriTest::test_isModified()
   QLineEdit* lineEdit = findLineEdit(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   lineEdit->setText("cpath://Root");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   lineEdit->setText("cpath://Root/Component");
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 4. set the same value
   lineEdit->setText("cpath://Root/Component");
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }

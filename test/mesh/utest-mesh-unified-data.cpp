@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   BOOST_CHECK( true );
 
   Mesh& mesh = Core::instance().root().create_component<Mesh>("mesh");
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 

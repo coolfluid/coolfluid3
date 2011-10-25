@@ -1,4 +1,4 @@
-set( CF3_RESOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Dir for resources" )
+set( CF3_RESOURCES_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE INTERNAL "Dir for resources" )
 
 list( APPEND resources_files
    hextet.neu
@@ -14,4 +14,13 @@ list( APPEND resources_files
    sinusbump-tg-p1.msh
 )
 
-coolfluid_add_resources( resources_files )
+set( CF3_RESOURCES_BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} CACHE INTERNAL "build dir" )
+
+# copy files to test dir in build tree
+foreach( rfile ${resources_files} )
+  add_custom_command( OUTPUT  ${rfile}
+                      COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/${rfile} ${CF3_RESOURCES_BINARY_DIR} )
+                      #COMMENT "Copying file ${rfile} to ${CF3_RESOURCES_BINARY_DIR}")
+endforeach()
+
+add_custom_target( copy-resources ALL DEPENDS ${resources_files} )

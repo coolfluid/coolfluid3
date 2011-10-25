@@ -87,13 +87,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   Mesh& source = Core::instance().root().create_component<Mesh>("hextet");
-  meshreader->read_mesh_into("hextet.neu",source);
+  meshreader->read_mesh_into("../../resources/hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
   BOOST_CHECK_EQUAL( source.geometry().coordinates().row_size() , (Uint)DIM_3D );
 
   Mesh& target = Core::instance().root().create_component<Mesh>("quadtriag");
-  meshreader->read_mesh_into("quadtriag.neu",target);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
   BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );

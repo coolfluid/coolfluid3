@@ -36,9 +36,9 @@ namespace Core {
 NetworkThread::NetworkThread(QObject *parent) :
     QThread(parent),
     m_socket(new QTcpSocket()),
-    m_blockSize(0),
+    m_block_size(0),
     m_port(0),
-    m_requestDisc(false)
+    m_request_disc(false)
 {
   qRegisterMetaType<QAbstractSocket::SocketError>("QAbstractSocket::SocketError");
 }
@@ -47,7 +47,7 @@ NetworkThread::NetworkThread(QObject *parent) :
 
 NetworkThread::~NetworkThread()
 {
-  m_requestDisc = false;
+  m_request_disc = false;
   m_socket->disconnectFromHost();
 
   if(isRunning())
@@ -59,7 +59,7 @@ NetworkThread::~NetworkThread()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
+bool NetworkThread::connect_to_host(const QString &hostAddress, quint16 port)
 {
   if(!isRunning())
   {
@@ -74,7 +74,7 @@ bool NetworkThread::connectToHost(const QString &hostAddress, quint16 port)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool NetworkThread::isConnected() const
+bool NetworkThread::is_connected() const
 {
   if( is_null(m_socket) )
     return false;
@@ -84,12 +84,12 @@ bool NetworkThread::isConnected() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NetworkThread::disconnectFromServer(bool shutServer)
+void NetworkThread::disconnect_from_server(bool shutServer)
 {
 //  QMutexLocker locker(&m_mutex);
 
 
-  if(isConnected())
+  if(is_connected())
   {
     if(shutServer)
     {
@@ -98,7 +98,7 @@ void NetworkThread::disconnectFromServer(bool shutServer)
       this->send(frame);
     }
 
-    m_requestDisc = true;
+    m_request_disc = true;
 
     // close the socket
 //    m_socket->abort();
@@ -110,7 +110,7 @@ void NetworkThread::disconnectFromServer(bool shutServer)
 
 int NetworkThread::send(common::SignalArgs& signal)
 {
-  if(!isConnected())
+  if(!is_connected())
     throw IllegalCall(FromHere(), "There is no active connection.");
 
   int charsWritten;
@@ -121,7 +121,7 @@ int NetworkThread::send(common::SignalArgs& signal)
 
   out.setVersion(QDataStream::Qt_4_6); // set stream version
 
-  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().getUUID() );
+  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid() );
 
   to_string(*signal.xml_doc, str);
 
@@ -138,7 +138,7 @@ int NetworkThread::send(common::SignalArgs& signal)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NetworkThread::newData()
+void NetworkThread::new_data()
 {
   char * frame = nullptr;
   QDataStream in(m_socket);
@@ -150,29 +150,29 @@ void NetworkThread::newData()
   // So, it is useful to explicitly read the socket until the end is reached.
   while(!m_socket->atEnd())
   {
-    in.readBytes(frame, m_blockSize);
+    in.readBytes(frame, m_block_size);
     
     std::string frame_str;
-    frame_str.reserve(m_blockSize);
+    frame_str.reserve(m_block_size);
     
     char* frame_part = frame;
     quint32 offset = frame_part - frame;
 
-    while(offset < m_blockSize)
+    while(offset < m_block_size)
     {
       frame_str += frame_part;
       frame_part += strlen(frame_part)+1;
       offset = frame_part - frame;
     }
-    cf3_assert(offset == m_blockSize);
+    cf3_assert(offset == m_block_size);
 
-    if(NTree::globalTree()->isDebugModeEnabled())
+    if(NTree::global()->is_debug_mode_enabled())
       CFinfo << frame_str << CFendl;
 
     // parse the frame and call the boost signal
     try
     {
-      if( m_blockSize > 0 )
+      if( m_block_size > 0 )
       {
         XmlDoc::Ptr doc = XML::parse_string(frame_str);
         newSignal(doc);
@@ -180,14 +180,14 @@ void NetworkThread::newData()
     }
     catch(XmlError & e)
     {
-      NLog::globalLog()->addException(e.what());
+      NLog::global()->add_exception(e.what());
     }
 
     // free the buffer
     delete[] frame;
     frame = nullptr;
 
-    m_blockSize = 0;
+    m_block_size = 0;
   }
 }
  
@@ -198,10 +198,10 @@ void NetworkThread::run()
   delete m_socket;
   m_socket = new QTcpSocket();
 
-  connect(m_socket, SIGNAL(readyRead()), this, SLOT(newData()));
+  connect(m_socket, SIGNAL(readyRead()), this, SLOT(new_data()));
   connect(m_socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
   connect(m_socket, SIGNAL(error(QAbstractSocket::SocketError)), this,
-          SLOT(socketError(QAbstractSocket::SocketError)));
+          SLOT(socket_error(QAbstractSocket::SocketError)));
 
   connect(m_socket, SIGNAL(connected()), this, SIGNAL(connected()));
 
@@ -209,7 +209,7 @@ void NetworkThread::run()
 
   if (!m_socket->waitForConnected())
   {
-    socketError(m_socket->error());
+    socket_error(m_socket->error());
     return;
   }
 
@@ -224,31 +224,31 @@ void NetworkThread::run()
 
 void NetworkThread::disconnected()
 {
-  if(!m_requestDisc)
-    NLog::globalLog()->addError("The connection has been closed.");
+  if(!m_request_disc)
+    NLog::global()->add_error("The connection has been closed.");
   else
-    NLog::globalLog()->addMessage("Disconnected from the server.");
+    NLog::global()->add_message("Disconnected from the server.");
 
   if(isRunning())
-    exit( m_requestDisc ? 0 : 1 );
+    exit( m_request_disc ? 0 : 1 );
 
-  emit disconnectedFromServer(m_requestDisc);
+  emit disconnected_from_server(m_request_disc);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NetworkThread::socketError(QAbstractSocket::SocketError err)
+void NetworkThread::socket_error(QAbstractSocket::SocketError err)
 {
-  if(m_requestDisc)
+  if(m_request_disc)
     return;
 
-  if( isConnected() )
+  if( is_connected() )
   {
-    m_requestDisc = true;
+    m_request_disc = true;
     m_socket->disconnectFromHost();
   }
 
-  NLog::globalLog()->addError(QString("Network error: %1").arg(m_socket->errorString()));
+  NLog::global()->add_error(QString("Network error: %1").arg(m_socket->errorString()));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

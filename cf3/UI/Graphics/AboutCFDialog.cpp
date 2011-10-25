@@ -28,41 +28,41 @@ AboutCFDialog::AboutCFDialog(QWidget * parent)
   this->setWindowTitle("About CF");
   QString os = QString("%1 [%2bits]").arg(CF3_OS_LONGNAME).arg(CF3_OS_BITS);
 
-  m_mainLayout = new QVBoxLayout(this);
-  m_infoLayout = new QFormLayout();
+  m_main_layout = new QVBoxLayout(this);
+  m_info_layout = new QFormLayout();
 
-  m_btOK = new QPushButton("OK");
+  m_bt_ok = new QPushButton("OK");
 
-  m_labQwt = new QLabel("COOLFluiD client is based in part on the "
+  m_lab_qwt = new QLabel("COOLFluiD client is based in part on the "
                         "work of the Qwt project "
                         "(<a href=\"http://qwt.sf.net\">http://qwt.sf.net</a>).", this);
 
-  m_labQwt->setTextFormat(Qt::RichText);
-  m_labQwt->setWordWrap(true);
-  m_labQwt->setOpenExternalLinks(true);
+  m_lab_qwt->setTextFormat(Qt::RichText);
+  m_lab_qwt->setWordWrap(true);
+  m_lab_qwt->setOpenExternalLinks(true);
 
-  m_infoLayout->addRow( "CF version:", new QLabel(CF3_VERSION_STR) );
-  m_infoLayout->addRow( "Kernel version:", new QLabel(CF3_KERNEL_VERSION_STR) );
-  m_infoLayout->addRow( "Build operating system:", new QLabel(os) );
-  m_infoLayout->addRow( "Build processor:", new QLabel(CF3_BUILD_PROCESSOR) );
-  m_infoLayout->addRow( "Qt version:", new QLabel(QT_VERSION_STR) );
-  m_infoLayout->addRow( "Build time:", new QLabel(__DATE__ " - " __TIME__) );
+  m_info_layout->addRow( "CF version:", new QLabel(CF3_VERSION_STR) );
+  m_info_layout->addRow( "Kernel version:", new QLabel(CF3_KERNEL_VERSION_STR) );
+  m_info_layout->addRow( "Build operating system:", new QLabel(os) );
+  m_info_layout->addRow( "Build processor:", new QLabel(CF3_BUILD_PROCESSOR) );
+  m_info_layout->addRow( "Qt version:", new QLabel(QT_VERSION_STR) );
+  m_info_layout->addRow( "Build time:", new QLabel(__DATE__ " - " __TIME__) );
 
-  m_mainLayout->addLayout(m_infoLayout);
-  m_mainLayout->addWidget(m_labQwt);
-  m_mainLayout->addWidget(m_btOK);
+  m_main_layout->addLayout(m_info_layout);
+  m_main_layout->addWidget(m_lab_qwt);
+  m_main_layout->addWidget(m_bt_ok);
 
-  connect(m_btOK, SIGNAL(clicked()), this, SLOT(accept()));
+  connect(m_bt_ok, SIGNAL(clicked()), this, SLOT(accept()));
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 AboutCFDialog::~AboutCFDialog()
 {
-  delete m_btOK;
-  delete m_labQwt;
-  delete m_infoLayout;
-  delete m_mainLayout;
+  delete m_bt_ok;
+  delete m_lab_qwt;
+  delete m_info_layout;
+  delete m_main_layout;
 }
 
 //////////////////////////////////////////////////////////////////////////

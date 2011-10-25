@@ -29,18 +29,18 @@ public:
   static CNodeBuilders & instance();
 
   template<typename TYPE>
-  void registerBuilder(const QString & componentType)
+  void register_builder(const QString & component_type)
   {
     typedef typename common::BuilderT<CNode, TYPE> BuilderType;
 
-    cf3_assert( !m_builders.contains(componentType) );
+    cf3_assert( !m_builders.contains(component_type) );
 
-    m_builders[componentType] = common::allocate_component< typename common::BuilderT<CNode, TYPE> >( componentType.toStdString() );
+    m_builders[component_type] = common::allocate_component< typename common::BuilderT<CNode, TYPE> >( component_type.toStdString() );
   }
 
-  bool hasBuilder(const QString & componentType) const;
+  bool has_builder(const QString & component_type) const;
 
-  CNode::Ptr buildCNode( const QString & componentType, const std::string & name ) const;
+  CNode::Ptr build_cnode( const QString & component_type, const std::string & name ) const;
 
 private:
 

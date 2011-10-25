@@ -35,18 +35,18 @@ namespace Graphics {
 
 SignatureDialog::SignatureDialog(QWidget *parent) :
     QDialog(parent),
-    m_okClicked(false),
-    m_isBlocking(false)
+    m_ok_clicked(false),
+    m_is_blocking(false)
 {
   m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  m_dataLayout = new OptionLayout();
-  m_mainLayout = new QVBoxLayout(this);
+  m_data_layout = new OptionLayout();
+  m_main_layout = new QVBoxLayout(this);
 
-  m_mainLayout->addLayout(m_dataLayout);
-  m_mainLayout->addWidget(m_buttons);
+  m_main_layout->addLayout(m_data_layout);
+  m_main_layout->addWidget(m_buttons);
 
-  connect(m_buttons, SIGNAL(accepted()), this, SLOT(btOkClicked()));
-  connect(m_buttons, SIGNAL(rejected()), this, SLOT(btCancelClicked()));
+  connect(m_buttons, SIGNAL(accepted()), this, SLOT(bt_ok_clicked()));
+  connect(m_buttons, SIGNAL(rejected()), this, SLOT(bt_cancel_clicked()));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -65,53 +65,53 @@ bool SignatureDialog::show(XmlNode & sig, const QString & title, bool block)
   XmlNode node = sig.content->first_node();
   QString name;
 
-  m_okClicked = false;
+  m_ok_clicked = false;
 
   this->setWindowTitle(title);
 
-  m_dataLayout->clearOptions();
+  m_data_layout->clear_options();
 
   for( ; node.is_valid() ; node.content = node.content->next_sibling())
   {
-    m_dataLayout->addOption( SignalOptions::xml_to_option(node) );
+    m_data_layout->add_option( SignalOptions::xml_to_option(node) );
 
     name = node.content->first_attribute( Protocol::Tags::attr_key() )->value();
 
     m_nodes[name] = node;
   }
 
- if( m_dataLayout->hasOptions() )
+ if( m_data_layout->has_options() )
   {
    if(block)
    {
-     m_isBlocking = true;
+     m_is_blocking = true;
      this->exec();
    }
    else
    {
-     m_isBlocking = false;
+     m_is_blocking = false;
      this->setModal(true);
      this->setVisible(true);
    }
   }
   else
   {
-    m_okClicked = true;
+    m_ok_clicked = true;
     emit finished(QDialog::Accepted);
   }
 
-  return m_okClicked;
+  return m_ok_clicked;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void SignatureDialog::btOkClicked()
+void SignatureDialog::bt_ok_clicked()
 {
-  m_okClicked = true;
+  m_ok_clicked = true;
 
   QMap<QString, QString> options;
 
-  m_dataLayout->options(options, true);
+  m_data_layout->options(options, true);
 
   QMap<QString, XmlNode>::iterator it = m_nodes.begin();
 
@@ -149,15 +149,15 @@ void SignatureDialog::btOkClicked()
 
   emit finished(QDialog::Accepted);
 
-  if(m_isBlocking)
+  if(m_is_blocking)
     this->setVisible(false);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void SignatureDialog::btCancelClicked()
+void SignatureDialog::bt_cancel_clicked()
 {
-  m_okClicked = false;
+  m_ok_clicked = false;
   emit finished(QDialog::Rejected);
 
   this->setVisible(false);

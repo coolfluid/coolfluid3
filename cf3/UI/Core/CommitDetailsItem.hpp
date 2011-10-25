@@ -30,34 +30,35 @@ namespace Core {
 
     /// @brief Constructor
 
-    /// @param optionName Option name.
-    /// @param oldValue Old value. May be empty.
-    /// @param currentValue Current value. May be empty.
-    CommitDetailsItem(const QString & optionName, const QString & oldValue,
-                      const QString & currentValue);
+    /// @param option_name Option name.
+    /// @param old_value Old value. May be empty.
+    /// @param current_value Current value. May be empty.
+    CommitDetailsItem( const QString & option_name,
+                       const QString & old_value,
+                       const QString & current_value );
 
     /// @brief Gives the current value.
     /// @return Returns the current value.
-    QString currentValue() const;
+    QString current_value() const;
 
     /// @brief Give the old value.
     /// @return Returns the old value
-    QString oldValue() const;
+    QString old_value() const;
 
     /// @brief Gives the option name
     /// @return Returns the option name
-    QString optionName() const;
+    QString option_name() const;
 
   private:
 
     /// @brief Option name
-    QString m_optionName;
+    QString m_option_name;
 
     /// @brief Old value
-    QString m_oldValue;
+    QString m_old_value;
 
     /// @brief Current value
-    QString m_currentValue;
+    QString m_current_value;
 
 
   }; // class CommitDetailsItem

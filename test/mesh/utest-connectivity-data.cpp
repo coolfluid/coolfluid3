@@ -53,8 +53,8 @@ struct neuFixture
     MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
     // Read the mesh
-    meshreader->read_mesh_into("quadtriag.neu",*mesh2d);
-    meshreader->read_mesh_into("hextet.neu",*mesh3d);
+    meshreader->read_mesh_into("../../resources/quadtriag.neu",*mesh2d);
+    meshreader->read_mesh_into("../../resources/hextet.neu",*mesh3d);
   }
 
   boost::shared_ptr<Mesh> mesh2d;

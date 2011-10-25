@@ -33,16 +33,16 @@ NLink::NLink(const std::string & name)
   : CNode(name, "Link", CNode::STANDARD_NODE)
 {
   regist_signal( "goToTarget" )
-    ->connect( boost::bind( &NLink::goToTarget, this, _1 ) )
+    ->connect( boost::bind( &NLink::go_to_target, this, _1 ) )
     ->description("Switch to the target node")
     ->pretty_name("Go to target node");
 
-  m_localSignals << "goToTarget";
+  m_local_signals << "goToTarget";
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-QString NLink::toolTip() const
+QString NLink::tool_tip() const
 {
   QString path = "<No target>";
 
@@ -54,7 +54,7 @@ QString NLink::toolTip() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-URI NLink::targetPath() const
+URI NLink::target_path() const
 {
   if(m_target.get() == nullptr)
     return URI();
@@ -64,19 +64,19 @@ URI NLink::targetPath() const
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NLink::setTargetPath(const URI & path)
+void NLink::set_target_path(const URI & path)
 {
   if(!path.empty())
   {
     CNode::Ptr target = access_component(path).as_ptr<CNode>();
     cf3_assert( is_not_null(target.get()) );
-    this->setTargetNode(target);
+    this->set_target_node(target);
   }
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NLink::setTargetNode(const CNode::Ptr & node)
+void NLink::set_target_node(const CNode::Ptr & node)
 {
   cf3_assert( is_not_null(node.get()) );
 
@@ -85,15 +85,15 @@ void NLink::setTargetNode(const CNode::Ptr & node)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void NLink::goToTarget(SignalArgs & )
+void NLink::go_to_target(SignalArgs & )
 {
   if ( is_null(m_target) )
     throw ValueNotFound (FromHere(), "Target of this link is not set or not valid");
 
-  QModelIndex index = NTree::globalTree()->indexFromPath(m_target->uri());
+  QModelIndex index = NTree::global()->index_from_path(m_target->uri());
 
   if(index.isValid())
-    NTree::globalTree()->setCurrentIndex(index);
+    NTree::global()->set_current_index(index);
   else
     throw ValueNotFound (FromHere(), m_target->uri().string() + ": path does not exist");
 }
@@ -108,15 +108,15 @@ void NLink::change_link(SignalArgs & args)
   {
     std::string path = options.value<std::string>("target_path");
 
-    this->setTargetPath(path);
+    this->set_target_path(path);
 
-    NLog::globalLog()->addMessage(QString("Link '%1' now points to '%2'.")
+    NLog::global()->add_message(QString("Link '%1' now points to '%2'.")
                                      .arg(uri().path().c_str()).arg(path.c_str()));
 
   }
   catch(InvalidURI & ip)
   {
-    NLog::globalLog()->addError(ip.msg().c_str());
+    NLog::global()->add_error(ip.msg().c_str());
   }
 }
 

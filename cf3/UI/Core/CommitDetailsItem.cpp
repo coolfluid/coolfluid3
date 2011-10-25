@@ -16,34 +16,34 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////
 
-CommitDetailsItem::CommitDetailsItem(const QString & optionName,
-                                     const QString & oldValue,
-                                     const QString & currentValue)
+CommitDetailsItem::CommitDetailsItem(const QString & option_name,
+                                     const QString & old_value,
+                                     const QString & current_value)
 {
-  m_optionName = optionName;
-  m_oldValue = oldValue;
-  m_currentValue = currentValue;
+  m_option_name = option_name;
+  m_old_value = old_value;
+  m_current_value = current_value;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString CommitDetailsItem::currentValue() const
+QString CommitDetailsItem::current_value() const
 {
-  return m_currentValue;
+  return m_current_value;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString CommitDetailsItem::oldValue() const
+QString CommitDetailsItem::old_value() const
 {
-  return m_oldValue;
+  return m_old_value;
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString CommitDetailsItem::optionName() const
+QString CommitDetailsItem::option_name() const
 {
-  return m_optionName;
+  return m_option_name;
 }
 
 //////////////////////////////////////////////////////////////////////////////

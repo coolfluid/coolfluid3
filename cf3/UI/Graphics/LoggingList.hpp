@@ -36,7 +36,7 @@ namespace Graphics {
     /// @param parent Parent. May be @c nullptr.
     /// @param maxLogLines Number of lines before the log must be cleared. If 0,
     /// the log is never cleared.
-    LoggingList(QWidget * parent = nullptr, unsigned int maxLogLines = 100000);
+    LoggingList(QWidget * parent = nullptr, unsigned int max_log_lines = 100000);
 
     /// @brief Destructor
 
@@ -49,17 +49,17 @@ namespace Graphics {
     /// cleared.
     /// @warning Be careful when modifying this value. The more lines the log
     /// contains, the more it takes memory to store its content.
-    void setMaxLogLines(unsigned int maxLogLines = 100000);
+    void set_max_log_lines(unsigned int max_log_lines = 100000);
 
     /// @brief Gives the maximum number of lines before the log is cleared.
 
     /// @return Returns the maximum number of lines before the log is cleared.
-    unsigned int maxLogLines() const;
+    unsigned int max_log_lines() const;
 
     /// @brief Gives the number of lines the log contains.
 
     /// @return Returns the number of lines the log contains.
-    unsigned int logLinesCount() const;
+    unsigned int log_lines_count() const;
 
   public slots:
 
@@ -67,21 +67,21 @@ namespace Graphics {
 
     /// Use this method instead of the base class method @c clear() to ensure
     /// that the line counter is reset.
-    void clearLog();
+    void clear_log();
 
   private slots:
 
-    void newMessage(const QString & message, UICommon::LogMessage::Type type);
+    void new_message(const QString & message, UICommon::LogMessage::Type type);
 
   private:
 
     /// @brief Number of lines in the log.
-    unsigned int m_logLinesCounter;
+    unsigned int m_log_lines_count;
 
     /// @brief Number of lines before the log must be cleared.
 
     /// If 0, the log is never cleared.
-    unsigned int m_maxLogLines;
+    unsigned int m_max_log_lines;
 
   }; // class LoggingList
 

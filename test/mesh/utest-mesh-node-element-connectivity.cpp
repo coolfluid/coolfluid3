@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( node_elem_connectivity )
   MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   Mesh& mesh = Core::instance().root().create_component<Mesh>("quadtriag");
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK( true );
 

@@ -37,7 +37,7 @@ public:
   virtual ~NPlugins();
 
   template<typename LIB>
-  NPlugin::Ptr registerPlugin()
+  NPlugin::Ptr register_plugin()
   {
     // a plugin cannot be registered twice
     cf3_assert( is_null(get_child_ptr(LIB::library_name())) );
@@ -50,7 +50,7 @@ public:
   }
 
   template<typename LIB>
-  bool isRegisteredPlugin()
+  bool is_registered_plugin()
   {
     return is_not_null(get_child_ptr(LIB::library_name()));
   }
@@ -61,13 +61,13 @@ public:
     return get_child_ptr_checked( LIB::library_name() )->as_ptr_checked<NPlugin>();
   }
 
-  virtual QString toolTip() const;
+  virtual QString tool_tip() const;
 
-  static Ptr globalPlugins();
+  static Ptr global();
 
 protected:
 
-  virtual void disableLocalSignals(QMap<QString, bool> &localSignals) const {}
+  virtual void disable_local_signals(QMap<QString, bool> &localSignals) const {}
 
 }; // NPlugins
 

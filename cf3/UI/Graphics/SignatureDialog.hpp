@@ -45,23 +45,23 @@ namespace Graphics {
 
   private slots:
 
-    void btOkClicked();
+    void bt_ok_clicked();
 
-    void btCancelClicked();
+    void bt_cancel_clicked();
 
   private:
 
     QDialogButtonBox * m_buttons;
 
-    OptionLayout * m_dataLayout;
+    OptionLayout * m_data_layout;
 
-    QVBoxLayout * m_mainLayout;
+    QVBoxLayout * m_main_layout;
 
     QMap<QString, common::XML::XmlNode> m_nodes;
 
-    bool m_okClicked;
+    bool m_ok_clicked;
 
-    bool m_isBlocking;
+    bool m_is_blocking;
 
   }; // class SignatureDialog
 

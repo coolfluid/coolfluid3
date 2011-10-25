@@ -84,36 +84,36 @@ namespace Graphics {
 
   public slots:
 
-    void focusFilter();
+    void focus_filter();
 
   private slots:
 
     /// @brief Slot called when user clicks on the @e previous button.
     /// The current index is decreased by one and the treeview is updated.
-    void previousClicked();
+    void previous_clicked();
 
     /// @brief Slot called when user clicks on the @e next button.
     /// The current index is increased by one and the treeview is updated.
-    void nextClicked();
+    void next_clicked();
 
     /// @brief Slot called when user double-clicks on a node.
-    void doubleClicked(const QModelIndex & index);
+    void double_clicked(const QModelIndex & index);
 
     /// @brief Slot called when a menu item is clicked.
-    void actionTriggered();
+    void action_triggered();
 
-    void filterUpdated(const QString & text);
+    void filter_updated(const QString & text);
 
-  private:
+  private: // data
 
     /// @brief The observed treeview.
-    TreeView * m_treeView;
+    TreeView * m_tree_view;
 
     /// @brief Previous button
-    QToolButton * m_btPrevious;
+    QToolButton * m_bt_previous;
 
     /// @brief Next button
-    QToolButton * m_btNext;
+    QToolButton * m_bt_next;
 
     /// @brief The history
     QList<QPersistentModelIndex> m_history;
@@ -127,22 +127,25 @@ namespace Graphics {
     QMap<QAction *, int> m_actions;
 
     /// @brief The current index.
-    int m_currentIndex;
-
-    /// @brief Updates buttons "enabled" state and rebuilds the menus.
-    void updateButtons();
+    int m_current_index;
 
     /// @brief Buttons layout.
-    QGridLayout * m_buttonsLayout;
+
+    QGridLayout * m_buttons_layout;
 
     /// @brief Main layout.
-    QVBoxLayout * m_mainLayout;
+    QVBoxLayout * m_main_layout;
 
     /// @brief The menu for the previous button
-    QMenu * m_menuPrevious;
+    QMenu * m_menu_previous;
 
     /// @brief The menu for the next button
-    QMenu * m_menuNext;
+    QMenu * m_menu_next;
+
+  private: // functions
+
+    /// @brief Updates buttons "enabled" state and rebuilds the menus.
+    void update_buttons();
   }; // class TreeBrowser
 
   ///////////////////////////////////////////////////////////////////////////

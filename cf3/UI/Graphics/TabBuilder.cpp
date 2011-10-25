@@ -30,13 +30,13 @@ TabBuilder * TabBuilder::instance()
 TabBuilder::TabBuilder(QWidget * parent)
   : QTabWidget(parent)
 {
-  connect(this, SIGNAL(currentChanged(int)), this, SLOT(tabClicked(int)));
+  connect(this, SIGNAL(currentChanged(int)), this, SLOT(tab_clicked(int)));
 
-  connect( NTree::globalTree().get(), SIGNAL(beginUpdateTree()),
-           this, SLOT(beginModelReset()) );
+  connect( NTree::global().get(), SIGNAL(begin_update_tree()),
+           this, SLOT(begin_model_reset()) );
 
-  connect( NTree::globalTree().get(), SIGNAL(endUpdateTree()),
-           this, SLOT(endModelReset()) );
+  connect( NTree::global().get(), SIGNAL(end_update_tree()),
+           this, SLOT(end_model_reset()) );
 
 }
 
@@ -49,7 +49,7 @@ TabBuilder::~TabBuilder()
 
 ///////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::beginModelReset()
+void TabBuilder::begin_model_reset()
 {
 //  QMap<std::string, TabInfo>::iterator it = m_tabs.begin();
 
@@ -65,13 +65,13 @@ void TabBuilder::beginModelReset()
 
 ///////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::endModelReset()
+void TabBuilder::end_model_reset()
 {
-  QMap<std::string, int>::iterator it = m_lastTabs.begin();
+  QMap<std::string, int>::iterator it = m_last_tabs.begin();
 
-  while( it != m_lastTabs.end() )
+  while( it != m_last_tabs.end() )
   {
-    if( !m_newTabs.contains(it.key()) )
+    if( !m_new_tabs.contains(it.key()) )
     {
       m_tabs.remove( it.key() );
       removeTab( it.value() );
@@ -79,8 +79,8 @@ void TabBuilder::endModelReset()
     it++;
   }
 
-  m_lastTabs.clear();
-  m_newTabs.clear();
+  m_last_tabs.clear();
+  m_new_tabs.clear();
 
   QMap<std::string, TabInfo>::iterator itTabs = m_tabs.begin();
 
@@ -93,7 +93,7 @@ void TabBuilder::endModelReset()
 
 ///////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::showTab( CNode::ConstPtr node )
+void TabBuilder::show_tab( CNode::ConstPtr node )
 {
   std::string key = node->properties().value_str("uuid"); //node->uri().path();
 
@@ -106,24 +106,24 @@ void TabBuilder::showTab( CNode::ConstPtr node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::queueTab(Core::CNode::ConstPtr node)
+void TabBuilder::queue_tab(Core::CNode::ConstPtr node)
 {
   std::string uuid = node->properties().value_str("uuid");
 
   if( m_tabs.contains( uuid ) )
-     m_lastTabs[uuid] = m_tabs[uuid].tabIndex;
+     m_last_tabs[uuid] = m_tabs[uuid].tabIndex;
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::tabClicked(int index)
+void TabBuilder::tab_clicked(int index)
 {
   if(index > 0)
   {
-    QModelIndex newIndex = NTree::globalTree()->indexFromPath(tabText(index).toStdString());
+    QModelIndex newIndex = NTree::global()->index_from_path(tabText(index).toStdString());
 
     if( newIndex.isValid() )
-      NTree::globalTree()->setCurrentIndex( newIndex );
+      NTree::global()->set_current_index( newIndex );
   }
 }
 

@@ -44,16 +44,25 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   // Setup a domain
   Domain& domain = root.create_component<Domain>("Domain");
 
+  boost::weak_ptr<Mesh> mesh;
   // Setup mesh
-  Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh"), length, height, x_segments, y_segments);
+  {
+    Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh"), length, height, x_segments, y_segments);
+    mesh = domain.get_child("Mesh").as_ptr<Mesh>();
+  }
+  BOOST_CHECK(mesh.expired() == false);
 
   // Remove mesh
   domain.remove_component("Mesh");
+  BOOST_CHECK(mesh.expired() == true);
 
-  // Setup a new mesh
-  Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh2"), length, height, x_segments, y_segments);
+  if (mesh.expired())
+  {
+    // Setup a new mesh
+    Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh2"), length, height, x_segments, y_segments);
+    domain.remove_component("Mesh2");
+  }
 
-  domain.remove_component("Mesh2");
   root.remove_component("Libraries");
   root.remove_component("Factories");
 

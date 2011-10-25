@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   // the mesh to store in
   Mesh& mesh = domain.create_component<Mesh>( "mesh" );
 
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
   Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
@@ -125,7 +125,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   meshreader->configure_option("OutputRank",(Uint) 2);
 
   // the file to read from
-  boost::filesystem::path fp_in ("hextet.neu");
+  boost::filesystem::path fp_in ("../../resources/hextet.neu");
 
   // the mesh to store in
   Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );

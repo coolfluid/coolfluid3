@@ -13,7 +13,7 @@
 
 #include "math/Consts.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalUintTest.hpp"
 
@@ -76,25 +76,25 @@ void GraphicalUintTest::test_setValue()
   //
   // 1. check with Uints
   //
-  QVERIFY( value->setValue(Uint(1456)) );
+  QVERIFY( value->set_value(Uint(1456)) );
   QCOMPARE( Uint(spinBox->value()), Uint(1456) );
 
-  QVERIFY( value->setValue(Uint(215468)) );
+  QVERIFY( value->set_value(Uint(215468)) );
   QCOMPARE( Uint(spinBox->value()), Uint(215468) );
 
   //
   // 2. check with other types
   //
-  QVERIFY( !value->setValue(-3592) );
+  QVERIFY( !value->set_value(-3592) );
   QCOMPARE( Uint(spinBox->value()), Uint(215468) );
 
-  QVERIFY( !value->setValue(3.141592) );
+  QVERIFY( !value->set_value(3.141592) );
   QCOMPARE( Uint(spinBox->value()), Uint(215468) );
 
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( Uint(spinBox->value()), Uint(215468) );
 
-  QVERIFY( !value->setValue("789654123") );
+  QVERIFY( !value->set_value("789654123") );
   QCOMPARE( Uint(spinBox->value()), Uint(215468) );
 
   delete value;
@@ -131,8 +131,8 @@ void GraphicalUintTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue(Uint(125464));
-  value->setValue(-876541);
+  value->set_value(Uint(125464));
+  value->set_value(-876541);
 
   // 1 signals should have been emitted (the second value is not a Uint)
   QCOMPARE( spy.count(), 1 );
@@ -170,11 +170,11 @@ void GraphicalUintTest::test_valueString()
 {
   GraphicalInt * value = new GraphicalInt(true);
 
-  value->setValue(Uint(78646));
-  QCOMPARE( value->valueString(), QString("78646") );
+  value->set_value(Uint(78646));
+  QCOMPARE( value->value_string(), QString("78646") );
 
-  value->setValue(Uint(165464));
-  QCOMPARE( value->valueString(), QString("165464") );
+  value->set_value(Uint(165464));
+  QCOMPARE( value->value_string(), QString("165464") );
 
   delete value;
 }
@@ -187,21 +187,21 @@ void GraphicalUintTest::test_isModified()
   QDoubleSpinBox* spinBox = findSpinBox(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   spinBox->setValue(123464);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   spinBox->setValue(65454354);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 4. put the same value
   spinBox->setValue(65454354);
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }

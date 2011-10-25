@@ -13,7 +13,7 @@
 
 #include "math/Consts.hpp"
 
-#include "test/UI/Core/ExceptionThrowHandler.hpp"
+#include "test/UI/ExceptionThrowHandler.hpp"
 
 #include "test/UI/Graphics/GraphicalIntTest.hpp"
 
@@ -76,22 +76,22 @@ void GraphicalIntTest::test_setValue()
   //
   // 1. check with ints
   //
-  QVERIFY( value->setValue(-1456) );
+  QVERIFY( value->set_value(-1456) );
   QCOMPARE( int(spinBox->value()), -1456 );
 
-  QVERIFY( value->setValue(215468548) );
+  QVERIFY( value->set_value(215468548) );
   QCOMPARE( int(spinBox->value()), 215468548 );
 
   //
   // 2. check with other types
   //
-  QVERIFY( !value->setValue(3.141592) );
+  QVERIFY( !value->set_value(3.141592) );
   QCOMPARE( int(spinBox->value()), 215468548 );
 
-  QVERIFY( !value->setValue(true) );
+  QVERIFY( !value->set_value(true) );
   QCOMPARE( int(spinBox->value()), 215468548 );
 
-  QVERIFY( !value->setValue("789654123") );
+  QVERIFY( !value->set_value("789654123") );
   QCOMPARE( int(spinBox->value()), 215468548 );
 
   delete value;
@@ -130,8 +130,8 @@ void GraphicalIntTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->setValue(125464);
-  value->setValue(-876541);
+  value->set_value(125464);
+  value->set_value(-876541);
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );
@@ -169,11 +169,11 @@ void GraphicalIntTest::test_valueString()
 {
   GraphicalInt * value = new GraphicalInt(false);
 
-  value->setValue(78646);
-  QCOMPARE( value->valueString(), QString("78646") );
+  value->set_value(78646);
+  QCOMPARE( value->value_string(), QString("78646") );
 
-  value->setValue(165464);
-  QCOMPARE( value->valueString(), QString("165464") );
+  value->set_value(165464);
+  QCOMPARE( value->value_string(), QString("165464") );
 
   delete value;
 }
@@ -186,21 +186,21 @@ void GraphicalIntTest::test_isModified()
   QDoubleSpinBox* spinBox = findSpinBox(value);
 
   // 1. initially, it's not modified
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 2. change the value
   spinBox->setValue(123464);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
   spinBox->setValue(65454354);
-  QVERIFY( value->isModified() );
+  QVERIFY( value->is_modified() );
   value->commit();
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   // 4. put the same value
   spinBox->setValue(65454354);
-  QVERIFY( !value->isModified() );
+  QVERIFY( !value->is_modified() );
 
   delete value;
 }
