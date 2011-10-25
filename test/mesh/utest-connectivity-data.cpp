@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE( CreateNodeElementLink, neuFixture )
     CFinfo << "(" << node_elements[i] << ")";
   CFinfo << CFendl;
 
-  CFaceConnectivity::IndicesT reference = boost::assign::list_of(0)(1)(0)(1)(1)(4)(5)(0)(3)(0)(1)(2)(3)(5)(2)(3)(10)(11)(4)(6)(7)(2)(4)(5)(6)(10)(15)(11)(12)(7)(8)(12)(13)(9)(13)(14)(8)(9)(6)(7)(8)(9)(14)(15)(10)(11)(12)(13)(14)(15);
+  CFaceConnectivity::IndicesT reference = boost::assign::list_of(10)(11)(10)(11)(11)(14)(15)(10)(13)(10)(11)(12)(13)(15)(4)(5)(12)(13)(0)(1)(14)(0)(4)(9)(12)(14)(15)(5)(6)(1)(2)(6)(7)(3)(7)(8)(2)(3)(0)(1)(2)(3)(8)(9)(4)(5)(6)(7)(8)(9);
   Accumulator accumulator;
   vector_test(node_elements, reference, accumulator);
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE( CreateFaceConnectivity, neuFixture )
   CFinfo << CFendl;
 
   // Check result
-  CFaceConnectivity::IndicesT reference = boost::assign::list_of(15)(4)(7)(8)(6)(0)(9)(7)(0)(14)(8)(0)(11)(2)(15)(0)(10)(12)(0)(11)(13)(0)(12)(14)(9)(13)(15)(10)(6)(14);
+  CFaceConnectivity::IndicesT reference = boost::assign::list_of(15)(4)(13)(12)(0)(10)(0)(0)(15)(14)(12)(11);
   Accumulator accumulator;
   vector_test(face_element_connectivity, reference, accumulator);
   BOOST_CHECK_EQUAL(boost::accumulators::min(accumulator.exact), true);

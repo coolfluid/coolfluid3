@@ -132,15 +132,12 @@ void NLinkTest::test_setTargetPath()
   NTree::Ptr tree = NTree::globalTree();
   NLink::Ptr link(new NLink("link"));
 
-  // 1. link has no root, assertion should fail
-  GUI_CHECK_THROW( link->setTargetPath(""), FailedAssertion );
-
   tree->treeRoot()->addNode(link);
 
-  // 2. path does not exist, assertion should fail
-  GUI_CHECK_THROW( link->setTargetPath("cpath://Root/Unexisting/Component"), FailedAssertion );
+  // 1. path does not exist, assertion should fail
+  GUI_CHECK_THROW( link->setTargetPath("cpath://Root/Unexisting/Component"), InvalidURI );
 
-  // 3. everything is ok
+  // 2. everything is ok
   GUI_CHECK_NO_THROW( link->setTargetPath("cpath://Root/UI/Log") );
   QCOMPARE( QString(link->targetPath().string().c_str()), QString("cpath://Root/UI/Log") );
 

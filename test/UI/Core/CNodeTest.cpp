@@ -465,15 +465,14 @@ void CNodeTest::test_listChildPaths()
   // should have 8 strings
   QCOMPARE( list.count(), 8);
   // check the strings
-  // note: Tree is after Node4 (although it was added before), because nodes
-  // are read in alphabetical order
+  // Nodes should be in the order they were added
   QCOMPARE( list.at(0), QString("//Root")             );
   QCOMPARE( list.at(1), QString("//Root/Log")         );
   QCOMPARE( list.at(2), QString("//Root/Log/Node1")   );
   QCOMPARE( list.at(3), QString("//Root/Node2")       );
   QCOMPARE( list.at(4), QString("//Root/Node2/Node3") );
-  QCOMPARE( list.at(5), QString("//Root/Node2/Node4") );
-  QCOMPARE( list.at(6), QString("//Root/Node2/Tree")  );
+  QCOMPARE( list.at(5), QString("//Root/Node2/Tree") );
+  QCOMPARE( list.at(6), QString("//Root/Node2/Node4")  );
   QCOMPARE( list.at(7), QString("//Root/Node5")       );
 
   list.clear();
@@ -528,12 +527,11 @@ void CNodeTest::test_listChildPaths()
   // should have 4 strings
   QCOMPARE( list.count(), 4);
   // check the strings
-  // note: Tree is after Node4 (although it was added before), because nodes
-  // are read in alphabetical order
+  // Nodes should be in the order they were added
   QCOMPARE( list.at(0), QString("//Root/Node2")       );
   QCOMPARE( list.at(1), QString("//Root/Node2/Node3") );
-  QCOMPARE( list.at(2), QString("//Root/Node2/Node4") );
-  QCOMPARE( list.at(3), QString("//Root/Node2/Tree")  );
+  QCOMPARE( list.at(2), QString("//Root/Node2/Tree") );
+  QCOMPARE( list.at(3), QString("//Root/Node2/Node4")  );
 }
 
 //////////////////////////////////////////////////////////////////////////
