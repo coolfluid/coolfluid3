@@ -40,7 +40,7 @@ namespace FUNCTIONPARSERTYPES
 {
 
 //==========================================================================
-// Math funcs declarations
+// math funcs declarations
 //==========================================================================
 
     template<typename Value_t>

@@ -7,7 +7,7 @@
 #include <boost/python.hpp>
 #include <boost/weak_ptr.hpp>
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 #include "Python/MatrixTypes.hpp"
 
 namespace cf3 {

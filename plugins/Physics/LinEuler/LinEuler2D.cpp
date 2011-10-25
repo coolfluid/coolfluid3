@@ -6,16 +6,16 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "LinEuler/LinEuler2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace LinEuler {
 
 using namespace common;
@@ -38,12 +38,12 @@ LinEuler2D::Properties::Properties()
 ////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < LinEuler::LinEuler2D,
-                           Physics::PhysModel,
+                           physics::PhysModel,
                            LibLinEuler >
                            Builder_LinEuler2D;
 
 LinEuler2D::LinEuler2D( const std::string& name ) :
-  Physics::PhysModel(name),
+  physics::PhysModel(name),
   m_gamma(1.), /// @todo this value is set for atest-rdm-rklineuler
   m_rho0(1.),
   m_u0( (LinEuler2D::GeoV() << 0.5 , 0.).finished() ),  /// @todo this value is set for atest-rdm-rklineuler
@@ -93,11 +93,11 @@ LinEuler2D::~LinEuler2D()
 {
 }
 
-boost::shared_ptr< Physics::Variables > LinEuler2D::create_variables( const std::string type, const std::string name )
+boost::shared_ptr< physics::Variables > LinEuler2D::create_variables( const std::string type, const std::string name )
 {
-  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
-        build_component_abstract_type< Physics::Variables >( type, name ) :
-        build_component_abstract_type< Physics::Variables >( LibLinEuler::library_namespace() + "." + type, name );
+  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< physics::Variables >( type, name ) :
+        build_component_abstract_type< physics::Variables >( LibLinEuler::library_namespace() + "." + type, name );
 
   add_component( vars );
 
@@ -107,5 +107,5 @@ boost::shared_ptr< Physics::Variables > LinEuler2D::create_variables( const std:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
+} // physics
 } // cf3

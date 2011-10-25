@@ -17,7 +17,7 @@
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"

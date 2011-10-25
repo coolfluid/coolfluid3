@@ -16,11 +16,11 @@
 #include "common/NetworkInfo.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OSystem.hpp"
-#include "common/CGroup.hpp"
-#include "common/CLibraries.hpp"
-#include "common/CFactories.hpp"
-#include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Group.hpp"
+#include "common/Libraries.hpp"
+#include "common/Factories.hpp"
+#include "common/Root.hpp"
+#include "common/Environment.hpp"
 
 #include "common/BuildInfo.hpp"
 #include "common/CodeProfiler.hpp"
@@ -55,37 +55,38 @@ Core::Core()
   AssertionManager::instance();
   OSystem::instance().layer()->platform_name();
   PE::Comm::instance();
+  EventHandler::instance();
 
   // create singleton objects inside core
-  m_event_handler.reset ( new EventHandler() );
   m_build_info.reset    ( new BuildInfo()    );
   m_network_info.reset  ( new NetworkInfo()  );
 
   // create singleton components inside core
   // these are critical to library object registration
 
-  m_environment   = allocate_component<CEnv>( "Environment" );
-  m_libraries     = allocate_component<CLibraries>( "Libraries" );
-  m_factories     = allocate_component<CFactories>( "Factories" );
+  m_environment   = allocate_component<Environment>( "Environment" );
 
   // this types must be registered immedietly on creation,
   // registration could be defered to after the Core has been inialized.
-  RegistTypeInfo<CEnv,LibCommon>();
-  RegistTypeInfo<CLibraries,LibCommon>();
-  RegistTypeInfo<CFactories,LibCommon>();
+  RegistTypeInfo<Environment,LibCommon>();
+  RegistTypeInfo<Libraries,LibCommon>();
+  RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
-  m_root = CRoot::create("Root");
+  m_root = Root::create("Root");
   m_root->mark_basic();
+  
+  m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
+  m_factories = m_root->create_component_ptr<Factories>("Factories");
+  libraries().mark_basic();
+  factories().mark_basic();
 
   // these components are placed on the root structure
   // but ownership is shared with Core, so they get destroyed in ~Core()
   /// @todo should these be static components?
   m_root->add_component( m_environment ).mark_basic();
-  m_root->add_component( m_libraries ).mark_basic();
-  m_root->add_component( m_factories ).mark_basic();
 
-  CGroup::Ptr tools = m_root->create_component_ptr<CGroup>("Tools");
+  Group::Ptr tools = m_root->create_component_ptr<Group>("Tools");
   tools->mark_basic();
   tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");
@@ -122,7 +123,7 @@ void Core::initiate ( int argc, char** argv )
 
   // initiate here all the libraries which the kernel was linked to
 
-  m_libraries->initiate_all_libraries();
+  libraries().initiate_all_libraries();
 
 }
 
@@ -132,12 +133,12 @@ void Core::terminate()
 {
   // terminate all
 
-  m_libraries->terminate_all_libraries();
+  libraries().terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CRoot& Core::root() const
+Root& Core::root() const
 {
   cf3_assert( is_not_null(m_root) );
   return *m_root;
@@ -147,8 +148,7 @@ CRoot& Core::root() const
 
 common::EventHandler& Core::event_handler() const
 {
-  cf3_assert(m_event_handler != nullptr);
-  return *m_event_handler;
+  return EventHandler::instance();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -161,7 +161,7 @@ common::BuildInfo& Core::build_info() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CEnv& Core::environment() const
+common::Environment& Core::environment() const
 {
   cf3_assert(m_environment != nullptr);
   return *m_environment;
@@ -169,25 +169,25 @@ common::CEnv& Core::environment() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CLibraries&  Core::libraries() const
+common::Libraries&  Core::libraries() const
 {
-  cf3_assert(m_libraries != nullptr);
-  return *m_libraries;
+  cf3_assert(!m_libraries.expired());
+  return *m_libraries.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CFactories& Core::factories() const
+common::Factories& Core::factories() const
 {
-  cf3_assert(m_factories != nullptr);
-  return *m_factories;
+  cf3_assert(!m_factories.expired());
+  return *m_factories.lock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::CGroup& Core::tools() const
+common::Group& Core::tools() const
 {
-  return root().get_child("Tools").as_type<CGroup>();
+  return root().get_child("Tools").as_type<Group>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

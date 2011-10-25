@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Burgers2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < Scalar::Burgers2D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibScalar >
                            Variables_Burgers2D;
 
@@ -30,5 +30,5 @@ Burgers2D::~Burgers2D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3

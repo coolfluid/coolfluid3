@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -45,7 +45,7 @@ namespace RiemannSolvers {
 /// Class defines the RiemannSolvers library
 /// @author Willem Deconinck
 class RiemannSolvers_API LibRiemannSolvers :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -53,22 +53,22 @@ public:
   typedef boost::shared_ptr<LibRiemannSolvers const> ConstPtr;
 
   /// Constructor
-  LibRiemannSolvers ( const std::string& name) : common::CLibrary(name) { }
+  LibRiemannSolvers ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibRiemannSolvers() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RiemannSolvers"; }
+  static std::string library_namespace() { return "cf3.RiemannSolvers"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "RiemannSolvers"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

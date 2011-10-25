@@ -7,7 +7,7 @@
 #include <QHBoxLayout>
 #include <QRegExpValidator>
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "common/OptionArray.hpp"
 
@@ -29,7 +29,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::UI::Core;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////
 

@@ -4,23 +4,23 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_NavierStokes_NavierStokes2D_hpp
-#define cf3_Physics_NavierStokes_NavierStokes2D_hpp
+#ifndef cf3_physics_NavierStokes_NavierStokes2D_hpp
+#define cf3_physics_NavierStokes_NavierStokes2D_hpp
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Math/Defs.hpp"
-#include "Math/MatrixTypes.hpp"
+#include "math/Defs.hpp"
+#include "math/MatrixTypes.hpp"
 
 #include "LibNavierStokes.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
 //////////////////////////////////////////////////////////////////////////////////////////////
 
-class NavierStokes_API NavierStokes2D : public Physics::PhysModel {
+class NavierStokes_API NavierStokes2D : public physics::PhysModel {
 
 public: // typedefs
 
@@ -43,7 +43,7 @@ public: // functions
   static std::string type_name () { return "NavierStokes2D"; }
 
   /// physical properties
-  struct Properties : public Physics::Properties
+  struct Properties : public physics::Properties
   {
 
     Properties()
@@ -100,9 +100,9 @@ public: // functions
   /// @return the physical model type
   virtual std::string type() const { return type_name(); }
   /// create a physical properties
-  virtual std::auto_ptr<Physics::Properties> create_properties()
+  virtual std::auto_ptr<physics::Properties> create_properties()
   {
-    std::auto_ptr<Physics::Properties> props( new NavierStokes2D::Properties() );
+    std::auto_ptr<physics::Properties> props( new NavierStokes2D::Properties() );
     set_constants( static_cast<NavierStokes2D::Properties&>( *props ) );
     return props;
   }
@@ -111,7 +111,7 @@ public: // functions
   /// @param type is the name of the Variables
   /// @post the component will be a sub-component of this model but maybe be moved away
   /// @throws ValueNotFound if the type does not match a variable type this model supports
-  virtual boost::shared_ptr< Physics::Variables > create_variables( const std::string type, const std::string name );
+  virtual boost::shared_ptr< physics::Variables > create_variables( const std::string type, const std::string name );
   //@} END INTERFACE
 
 private:
@@ -131,7 +131,7 @@ private:
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_NavierStokes_NavierStokes2D_hpp
+#endif // cf3_physics_NavierStokes_NavierStokes2D_hpp

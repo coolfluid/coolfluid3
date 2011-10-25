@@ -7,17 +7,17 @@
 #include <boost/assign/list_of.hpp>
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/WriteMesh.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModelSteady.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/RDSolver.hpp"
@@ -42,16 +42,16 @@ namespace RDM {
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 
-common::ComponentBuilder < SteadyExplicit, cf3::Solver::CWizard, LibRDM > SteadyExplicit_Builder;
+common::ComponentBuilder < SteadyExplicit, cf3::solver::CWizard, LibRDM > SteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 SteadyExplicit::SteadyExplicit ( const std::string& name  ) :
-  cf3::Solver::CWizard ( name )
+  cf3::solver::CWizard ( name )
 {
   // signals
 
@@ -80,7 +80,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (2) create the domain
 
-  CDomain& domain = model.create_domain( "Domain" );
+  Domain& domain = model.create_domain( "Domain" );
 
   // (3) create the Physical Model
 
@@ -90,7 +90,7 @@ CModel& SteadyExplicit::create_model( const std::string& model_name, const std::
 
   // (4) setup solver
 
-  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = model.create_solver( "cf3.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
 
   solver.mark_basic();
 

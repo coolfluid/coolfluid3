@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Mesh/CMeshTransformer.hpp"
+#include "mesh/MeshTransformer.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,7 +24,7 @@ namespace SFDM {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_API CreateSpace : public Mesh::CMeshTransformer
+class SFDM_API CreateSpace : public mesh::MeshTransformer
 {
 public: // typedefs
 

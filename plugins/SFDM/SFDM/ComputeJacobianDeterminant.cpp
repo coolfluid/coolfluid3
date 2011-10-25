@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Entities.hpp"
 
 #include "SFDM/ComputeJacobianDeterminant.hpp"
 #include "SFDM/ShapeFunction.hpp"
@@ -17,19 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeJacobianDeterminant, Solver::Actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
+common::ComponentBuilder < ComputeJacobianDeterminant, solver::actions::CLoopOperation, LibSFDM > ComputeJacobianDeterminant_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  solver::actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))

@@ -50,7 +50,7 @@ CNode::Ptr CNodeBuilders::build_cnode( const QString & component_type,
 {
   cf3_assert( m_builders.contains( component_type ) );
 
-  CBuilder & builder = m_builders[component_type]->as_type<CBuilder>();
+  Builder & builder = m_builders[component_type]->as_type<Builder>();
 
   return builder.build( name )->as_ptr_checked<CNode>();
 }

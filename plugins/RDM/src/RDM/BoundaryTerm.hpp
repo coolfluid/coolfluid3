@@ -7,14 +7,14 @@
 #ifndef cf3_RDM_BoundaryTerm_hpp
 #define cf3_RDM_BoundaryTerm_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 
 namespace cf3 {
 
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 
 namespace RDM {
 
@@ -22,7 +22,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BoundaryTerm : public cf3::Solver::Action {
+class RDM_API BoundaryTerm : public cf3::solver::Action {
 
 public: // typedefs
 
@@ -54,11 +54,11 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  Mesh::Field& solution()    { return *m_solution.lock(); }
+  mesh::Field& solution()    { return *m_solution.lock(); }
 
-  Mesh::Field& residual()    { return *m_residual.lock(); }
+  mesh::Field& residual()    { return *m_residual.lock(); }
 
-  Mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
+  mesh::Field& wave_speed()  { return *m_wave_speed.lock(); }
 
   //@} END ACCESSORS
 
@@ -68,11 +68,11 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<Mesh::Field> m_solution;     ///< access to the solution field
+  boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
 
-  boost::weak_ptr<Mesh::Field> m_residual;     ///< access to the residual field
+  boost::weak_ptr<mesh::Field> m_residual;     ///< access to the residual field
 
-  boost::weak_ptr<Mesh::Field> m_wave_speed;   ///< access to the wave_speed field
+  boost::weak_ptr<mesh::Field> m_wave_speed;   ///< access to the wave_speed field
 
 };
 

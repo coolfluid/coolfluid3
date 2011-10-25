@@ -4,43 +4,43 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CList.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/ElementType.hpp"
+#include "common/List.hpp"
+#include "mesh/Space.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Init.hpp"
 #include "SFDM/Tags.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
+using namespace cf3::mesh;
+using namespace cf3::physics;
 
 namespace cf3 {
 namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Init, cf3::Solver::Action, LibSFDM > Init_Builder;
+common::ComponentBuilder < Init, common::Action, LibSFDM > Init_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 Init::Init ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
@@ -54,7 +54,7 @@ Init::Init ( const std::string& name ) :
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->pretty_name("Functions")
-      ->description("Math function applied as initial condition using Input Variables (vars x,y)")
+      ->description("math function applied as initial condition using Input Variables (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
 
@@ -91,11 +91,11 @@ void Init::execute()
   RealMatrix grad_vars( physical_model().neqs(), physical_model().ndim() );
   RealVector sol (physical_model().neqs() );
 
-  std::auto_ptr<Physics::Properties> props = physical_model().create_properties();
+  std::auto_ptr<physics::Properties> props = physical_model().create_properties();
 
-  boost_foreach(CCells& elements, find_components_recursively<CCells>(solution.topology()))
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(solution.topology()))
   {
-    CSpace& space = solution.space(elements);
+    Space& space = solution.space(elements);
 
     const RealMatrix& local_coords = space.shape_function().local_coordinates();
 
@@ -112,7 +112,7 @@ void Init::execute()
     {
       elements.put_coordinates(geometry_coords,elem);
 
-      CConnectivity::ConstRow field_idx = space.indexes_for_element(elem);
+      Connectivity::ConstRow field_idx = space.indexes_for_element(elem);
 
       for (Uint node=0; node<space.nb_states();++node)
       {

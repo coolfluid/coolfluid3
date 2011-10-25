@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_SCHEMES_API LibSchemes : public common::CLibrary {
+class RDM_SCHEMES_API LibSchemes : public common::Library {
 
 public:
 
@@ -39,20 +39,20 @@ public:
   typedef boost::shared_ptr<LibSchemes const> ConstPtr;
 
   /// Constructor
-  LibSchemes ( const std::string& name) : common::CLibrary(name) {   }
+  LibSchemes ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RDM.Schemes"; }
+  static std::string library_namespace() { return "cf3.RDM.Schemes"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Schemes"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/RegistLibrary.hpp"
 
 #include "Python/LibPython.hpp"
@@ -18,8 +18,8 @@ cf3::common::RegistLibrary<LibPython> libPython;
 
 void LibPython::initiate_impl()
 {
-  common::Component& group = common::Core::instance().tools().create_component("Python", "CF.Common.CGroup");
-  group.create_component("ScriptEngine", "CF.Python.ScriptEngine");
+  common::Component& group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
+  group.create_component("ScriptEngine", "cf3.Python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()

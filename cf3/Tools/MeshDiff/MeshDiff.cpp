@@ -11,15 +11,15 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CTable.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Elements.hpp"
+#include "common/Table.hpp"
+#include "common/Table.hpp"
 
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace Tools::Testing;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +30,7 @@ namespace Tools {
 namespace Testing {
 
 /// Compare 2D arrays
-void array2d_test(const CTable<Real>::ArrayT& a, const CTable<Real>::ArrayT& b, Accumulator& result, const std::string& context)
+void array2d_test(const Table<Real>::ArrayT& a, const Table<Real>::ArrayT& b, Accumulator& result, const std::string& context)
 {
   const Uint size_a = a.size();
   const Uint size_b = b.size();
@@ -65,7 +65,7 @@ void array2d_test(const CTable<Real>::ArrayT& a, const CTable<Real>::ArrayT& b, 
 }
 
 /// Compare 2D arrays
-void array2d_test(const CTable<Uint>::ArrayT& a, const CTable<Uint>::ArrayT& b, Accumulator& result, const std::string& context)
+void array2d_test(const Table<Uint>::ArrayT& a, const Table<Uint>::ArrayT& b, Accumulator& result, const std::string& context)
 {
   const Uint size_a = a.size();
   const Uint size_b = b.size();
@@ -95,20 +95,20 @@ void array2d_test(const CTable<Uint>::ArrayT& a, const CTable<Uint>::ArrayT& b, 
     CFerror << "Size difference in " << context << ": " << size_a << " != " << size_b << CFendl;
 }
 
-/// Compares CElements
-void test(const CElements& a, const CElements& b, Accumulator& result)
+/// Compares Elements
+void test(const Elements& a, const Elements& b, Accumulator& result)
 {
-  const CTable<Uint>::ArrayT& table_a = a.node_connectivity().array();
-  const CTable<Uint>::ArrayT& table_b = b.node_connectivity().array();
+  const Table<Uint>::ArrayT& table_a = a.node_connectivity().array();
+  const Table<Uint>::ArrayT& table_b = b.node_connectivity().array();
 
   array2d_test(table_a, table_b, result, "comparing " + a.uri().path() + " and " + b.uri().path());
 }
 
 /// Compares Arrays
-void test(const CTable<Real>& a, const CTable<Real>& b, Accumulator& result)
+void test(const Table<Real>& a, const Table<Real>& b, Accumulator& result)
 {
-  const CTable<Real>::ArrayT& array_a = a.array();
-  const CTable<Real>::ArrayT& array_b = b.array();
+  const Table<Real>::ArrayT& array_a = a.array();
+  const Table<Real>::ArrayT& array_b = b.array();
 
   array2d_test(array_a, array_b, result, "comparing " + a.uri().path() + " and " + b.uri().path());
 }
@@ -126,14 +126,14 @@ void compare_ranges(const RangeT& a, const RangeT& b, Accumulator& accumulator)
   range_test(a.begin(), a.end(), b.begin(), b.end(), accumulator);
 }
 
-bool diff(const Mesh::CMesh& a, const Mesh::CMesh& b, const Uint max_ulps)
+bool diff(const mesh::Mesh& a, const mesh::Mesh& b, const Uint max_ulps)
 {
   Accumulator accumulator;
   accumulator.max_ulps = max_ulps;
   // Compare Array data TODO: filtered out only coords, because the neu reader always adds a global_indices table
-  compare_ranges(find_components_recursively_with_name<CTable<Real> >(a, Mesh::Tags::coordinates()), find_components_recursively_with_name<CTable<Real> >(b, Mesh::Tags::coordinates()), accumulator);
+  compare_ranges(find_components_recursively_with_name<Table<Real> >(a, mesh::Tags::coordinates()), find_components_recursively_with_name<Table<Real> >(b, mesh::Tags::coordinates()), accumulator);
   // Compare connectivity
-  compare_ranges(find_components_recursively<CElements>(a), find_components_recursively<CElements>(b), accumulator);
+  compare_ranges(find_components_recursively<Elements>(a), find_components_recursively<Elements>(b), accumulator);
 
   /// @todo change this to a comparison field per field
 

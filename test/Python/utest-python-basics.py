@@ -11,10 +11,10 @@ env.configure_option('exception_log_level', 0)
 env.configure_option('log_level', 4)
 env.configure_option('exception_outputs', False)
 
-journal = root.create_component("journal", "CF.Common.CJournal")
+journal = root.create_component("journal", "cf3.common.Journal")
 print journal.option_value_str("RecordReplies")
 
-group = root.create_component("group", "CF.Common.CGroup")
+group = root.create_component("group", "cf3.common.Group")
 print "Before move",journal.uri()
 journal.move_component(group.uri())
 print "After move",journal.uri()
@@ -24,5 +24,5 @@ a[0] = 1.
 a[1] = 2.
 print len(a), a[0], a[1]
 
-action_director = root.create_component('director', 'CF.Common.CActionDirector')
+action_director = root.create_component('director', 'cf3.common.ActionDirector')
 action_director.configure_option('action_order', ['a', 'b', 'c'])

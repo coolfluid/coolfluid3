@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/WeakDirichlet.hpp"
 
@@ -25,9 +25,9 @@
 #include "Physics/NavierStokes/Cons2D.hpp"   // to remove
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {
@@ -53,7 +53,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
   // options
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
+      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
       ->mark_basic();
 
@@ -74,7 +74,7 @@ void WeakDirichlet::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
 
 //    std::cout << "REGION [" << region->uri().string() << "]" << std::endl;

@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 
@@ -25,18 +25,18 @@
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < SetupSingleSolution, CAction, LibRDM > SetupSingleSolution_Builder;
+common::ComponentBuilder < SetupSingleSolution, common::Action, LibRDM > SetupSingleSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::Solver::Action(name)
+SetupSingleSolution::SetupSingleSolution ( const std::string& name ) : cf3::solver::Action(name)
 {
 }
 
@@ -47,9 +47,9 @@ void SetupSingleSolution::execute()
   if(m_mesh.expired())
     throw SetupError(FromHere(), "SetupSingleSolution has no configured mesh in [" + uri().string() + "]" );
 
-  CMesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh.lock();
 
-  CGroup& fields = mysolver.fields();
+  Group& fields = mysolver.fields();
 
   const Uint nbdofs = physical_model().neqs();
 
@@ -71,7 +71,7 @@ void SetupSingleSolution::execute()
     solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "CF.Mesh."+solution_space).as_ptr<FieldGroup>();
+      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "cf3.mesh."+solution_space).as_ptr<FieldGroup>();
     }
     else // not null so check that space is what user wants
     {
@@ -124,11 +124,11 @@ void SetupSingleSolution::execute()
   // place link to the fields in the Fields group
 
   if( ! fields.get_child_ptr( RDM::Tags::solution() ) )
-    fields.create_component<CLink>( RDM::Tags::solution()   ).link_to(solution).add_tag(RDM::Tags::solution());
+    fields.create_component<Link>( RDM::Tags::solution()   ).link_to(solution).add_tag(RDM::Tags::solution());
   if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
+    fields.create_component<Link>( RDM::Tags::residual()   ).link_to(residual).add_tag(RDM::Tags::residual());
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+    fields.create_component<Link>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
 
   /// @todo apply here the bubble insertion if needed

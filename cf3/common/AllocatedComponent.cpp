@@ -12,7 +12,7 @@
 #include <boost/accumulators/statistics/variance.hpp>
 
 #include "common/AllocatedComponent.hpp"
-#include "common/CAction.hpp"
+#include "common/Action.hpp"
 #include "common/Timer.hpp"
 
 namespace cf3 {
@@ -24,7 +24,7 @@ namespace common {
 
 struct TimedActionImpl::Implementation
 {
-  Implementation(CAction& timed_action) : m_timed_component(timed_action)
+  Implementation(Action& timed_action) : m_timed_component(timed_action)
   {
     m_timed_component.properties().add_property("timer_count", Uint(0));
     m_timed_component.properties().add_property("timer_minimum", Real(0.));
@@ -48,12 +48,12 @@ struct TimedActionImpl::Implementation
     >
   > m_timing_stats;
   
-  CAction& m_timed_component;
+  Action& m_timed_component;
 };
   
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-TimedActionImpl::TimedActionImpl(IAction& action) : m_implementation(new Implementation(dynamic_cast<CAction&>(action)))
+TimedActionImpl::TimedActionImpl(IAction& action) : m_implementation(new Implementation(dynamic_cast<Action&>(action)))
 {
 }
 
@@ -85,5 +85,5 @@ void TimedActionImpl::store_timings()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-} // Actions
+} // common
 } // cf3

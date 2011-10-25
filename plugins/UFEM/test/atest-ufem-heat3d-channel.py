@@ -13,20 +13,20 @@ env.configure_option('regist_signal_handlers', False)
 env.configure_option('log_level', 1)
 
 # setup a model
-model = root.create_component('HotModel', 'CF.Solver.CModel')
-model.setup(solver_builder = 'CF.UFEM.HeatConductionSteady', physics_builder = 'CF.Physics.DynamicModel')
+model = root.create_component('HotModel', 'cf3.solver.CModel')
+model.setup(solver_builder = 'cf3.UFEM.HeatConductionSteady', physics_builder = 'cf3.physics.DynamicModel')
 solver = model.get_child('HeatConductionSteady')
 domain = model.get_child('Domain')
 
 # Generate a channel mesh
-generator = domain.create_component('generator', 'CF.Mesh.BlockMesh.ChannelGenerator')
+generator = domain.create_component('generator', 'cf3.mesh.BlockMesh.ChannelGenerator')
 generator.configure_option('mesh', cf.URI('//Root/HotModel/Domain/mesh'))
 generator.configure_option('x_segments', 64)
 generator.configure_option('cell_overlap', 1)
 generator.execute()
 
 # lss setup
-lss = model.create_component('LSS', 'CF.Math.LSS.System')
+lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.configure_option('solver', 'Trilinos');
 solver.configure_option('lss', lss.uri())
 lss.get_child('Matrix').configure_option('settings_file', sys.argv[1]);
@@ -45,5 +45,5 @@ model.simulate()
 model.print_timing_tree()
 
 # Write result
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter');
+domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer');
 domain.write_mesh(cf.URI('atest-ufem-heat3d-channel_output.pvtu'))

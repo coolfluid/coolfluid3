@@ -12,27 +12,27 @@
 #include <boost/algorithm/string.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Root.hpp"
+#include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/WriteMesh.hpp"
-#include "Mesh/CDomain.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+#include "mesh/Entities.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/WriteMesh.hpp"
+#include "mesh/Domain.hpp"
 #include "SFDM/SFDWizard.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModel.hpp"
+#include "solver/CSolver.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-//using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+//using namespace cf3::solver::actions;
 using namespace cf3::SFDM;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,27 +41,27 @@ BOOST_AUTO_TEST_SUITE( SFDM_Spaces_Suite )
 
 //////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver_1D )
+BOOST_AUTO_TEST_CASE( solver_1D )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_option("model",std::string("gaussian_1D"));
-  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State1D"));
-  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State1D"));
+  wizard.configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State1D"));
+  wizard.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State1D"));
   wizard.configure_option("dim",1u);
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  CMesh& mesh = model.domain().create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_line(mesh, 10., 100);
+  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
+  SimpleMeshGenerator::create_line(mesh, 10., 100);
 
   Component& iterate = model.solver().access_component("iterate");
-  Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
-  if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
+  Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.actions.Conditional");
+  if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneIteration");
 
-  WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
+  WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_option("mesh",mesh.uri());
   gmsh_writer.configure_option("file",URI("file:line_${date}_iter${iter}_time${time}.msh"));
 
@@ -90,14 +90,14 @@ BOOST_AUTO_TEST_CASE( Solver_1D )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver_2D )
+BOOST_AUTO_TEST_CASE( solver_2D )
 {
   //Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
 
   SFDWizard& wizard = Core::instance().root().create_component<SFDWizard>("wizard");
   wizard.configure_option("model",std::string("gaussian_2D"));
-  wizard.configure_option("solution_state",std::string("CF.AdvectionDiffusion.State2D"));
-  wizard.configure_option("roe_state",std::string("CF.AdvectionDiffusion.State2D"));
+  wizard.configure_option("solution_state",std::string("cf3.AdvectionDiffusion.State2D"));
+  wizard.configure_option("roe_state",std::string("cf3.AdvectionDiffusion.State2D"));
   wizard.configure_option("dim",2u);
   wizard.configure_option("P",1u);
   wizard.configure_option("RK_stages",3u);
@@ -105,16 +105,16 @@ BOOST_AUTO_TEST_CASE( Solver_2D )
   wizard.create_simulation();
 
   CModel& model = wizard.model();
-  CMesh& mesh = model.domain().create_component<CMesh>("mesh");
-  CSimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
+  Mesh& mesh = model.domain().create_component<Mesh>("mesh");
+  SimpleMeshGenerator::create_rectangle(mesh, 80., 80., 20, 20);
 
   Component& iterate = model.solver().access_component("iterate");
-  //Component& if_milestone = iterate.create_component("7_if_milestone","CF.Solver.Actions.Conditional");
-  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneTime");
-  //if_milestone.create_component("milestone_time_criterion","CF.Solver.Actions.CCriterionMilestoneIteration");
+  //Component& if_milestone = iterate.create_component("7_if_milestone","cf3.solver.actions.Conditional");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneTime");
+  //if_milestone.create_component("milestone_time_criterion","cf3.solver.actions.CCriterionMilestoneIteration");
 
-  //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
-  WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","CF.Mesh.WriteMesh").as_type<WriteMesh>();
+  //WriteMesh& gmsh_writer = if_milestone.create_component("gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
+  WriteMesh& gmsh_writer = iterate.create_component("4_gmsh_writer","cf3.mesh.WriteMesh").as_type<WriteMesh>();
   gmsh_writer.configure_option("mesh",mesh.uri());
   gmsh_writer.configure_option("file",URI("file:gaussian_iter${iter}_time${time}.msh"));
 

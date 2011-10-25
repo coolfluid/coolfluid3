@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_IterativeSolver_hpp
 #define cf3_RDM_IterativeSolver_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -17,7 +17,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API IterativeSolver : public cf3::Solver::ActionDirector {
+class RDM_API IterativeSolver : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
@@ -39,9 +39,9 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  common::CActionDirector& pre_actions()  { return *m_pre_actions; }
-  common::CActionDirector& update()       { return *m_update; }
-  common::CActionDirector& post_actions() { return *m_post_actions; }
+  common::ActionDirector& pre_actions()  { return *m_pre_actions; }
+  common::ActionDirector& update()       { return *m_update; }
+  common::ActionDirector& post_actions() { return *m_post_actions; }
 
   /// @name SIGNALS
   //@{
@@ -58,11 +58,11 @@ private: // functions
 private: // data
 
   /// set of actions called every iteration before non-linear solve
-  common::CActionDirector::Ptr m_pre_actions;
+  common::ActionDirector::Ptr m_pre_actions;
   /// set of actions called every iteration to update the solution
-  common::CActionDirector::Ptr m_update;
+  common::ActionDirector::Ptr m_update;
   /// set of actions called every iteration after non-linear solve
-  common::CActionDirector::Ptr m_post_actions;
+  common::ActionDirector::Ptr m_post_actions;
 
 };
 

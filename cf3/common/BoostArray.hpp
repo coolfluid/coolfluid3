@@ -10,7 +10,7 @@
 #include "CF.hpp" // for more defined macros
 
 #define BOOST_MULTI_ARRAY_NO_GENERATORS 0
-#include <boost/multi_array.hpp> 
+#include <boost/multi_array.hpp>
 #undef BOOST_MULTI_ARRAY_NO_GENERATORS
 
 #endif // cf3_common_BOOSTARRAY_hpp

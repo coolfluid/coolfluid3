@@ -193,12 +193,12 @@ namespace Core {
 
     /// Gives the real component.
     /// @return Returns this component cast to Component, execpt if this node
-    /// is a NRoot, in which case the internal CRoot is returned.
+    /// is a NRoot, in which case the internal Root is returned.
     Component::Ptr real_component();
 
     /// Gives the real component.
     /// @return Returns this component cast to Component, execpt if this node
-    /// is a NRoot, in which case the internal CRoot is returned.
+    /// is a NRoot, in which case the internal Root is returned.
     Component::ConstPtr real_component() const;
 
     /// Sets node properties

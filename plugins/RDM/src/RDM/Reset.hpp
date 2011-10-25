@@ -7,18 +7,18 @@
 #ifndef cf3_RDM_Reset_hpp
 #define cf3_RDM_Reset_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh { class Field; }
+namespace mesh { class Field; }
 namespace RDM {
 
 
-class RDM_API Reset : public cf3::Solver::Action {
+class RDM_API Reset : public cf3::solver::Action {
 
 public: // typedefs
 
@@ -47,7 +47,7 @@ private: // helper functions
 
 private: // data
 
-  std::vector< boost::weak_ptr<Mesh::Field> > m_fields;
+  std::vector< boost::weak_ptr<mesh::Field> > m_fields;
 
 };
 

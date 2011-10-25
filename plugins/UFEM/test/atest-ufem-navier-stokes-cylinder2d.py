@@ -13,27 +13,22 @@ env.configure_option('regist_signal_handlers', False)
 env.configure_option('log_level', 4)
 
 # setup a model
-model = root.create_component('NavierStokes', 'CF.Solver.CModelUnsteady')
-model.setup(solver_builder = 'CF.UFEM.NavierStokes', physics_builder = 'CF.Physics.DynamicModel')
+model = root.create_component('NavierStokes', 'cf3.solver.CModelUnsteady')
+model.setup(solver_builder = 'cf3.UFEM.NavierStokes', physics_builder = 'cf3.physics.DynamicModel')
 solver = model.get_child('NavierStokes')
 domain = model.get_child('Domain')
+domain.create_component('neuReader', 'cf3.mesh.neu.Reader')
 
 # Generate a channel mesh
 domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 
 # lss setup
-lss = model.create_component('LSS', 'CF.Math.LSS.System')
+lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.configure_option('solver', 'Trilinos')
 solver.configure_option('lss', lss.uri())
 lss.get_child('Matrix').configure_option('settings_file', sys.argv[2])
 
-u_in = cf.RealVector(2)
-u_in[0] = 2.
-u_in[1] = 0.
-
-u_wall = cf.RealVector(2)
-u_wall[0] = 0.
-u_wall[1] = 0.
+u_in = [2., 0.]
 
 #initial conditions and properties
 solver.configure_option('density', 1000.)
@@ -49,7 +44,7 @@ bc.add_constant_bc(region_name = 'wall', variable_name = 'Velocity')
 bc.add_constant_bc(region_name = 'out', variable_name = 'Pressure')
 bc.get_child('BCinVelocity').configure_option('value', u_in)
 bc.get_child('BCsymmVelocity').configure_option('value', u_in)
-bc.get_child('BCwallVelocity').configure_option('value', u_wall)
+bc.get_child('BCwallVelocity').configure_option('value', [0., 0.])
 bc.get_child('BCoutPressure').configure_option('value', 0.)
 
 # Time setup
@@ -57,7 +52,7 @@ time = model.get_child('Time')
 time.configure_option('time_step', 0.1)
 
 # dummy writer (to load the library)
-domain.create_component('VTKwriter', 'CF.Mesh.VTKXML.CWriter')
+domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer')
 
 # Setup a time series write
 final_end_time = 10.

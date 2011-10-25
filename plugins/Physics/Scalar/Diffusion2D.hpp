@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_Scalar_Diffusion2D_hpp
-#define cf3_Physics_Scalar_Diffusion2D_hpp
+#ifndef cf3_physics_Scalar_Diffusion2D_hpp
+#define cf3_physics_Scalar_Diffusion2D_hpp
 
 #include "common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "Scalar2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace Scalar {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_Scalar_Diffusion2D_hpp
+#endif // cf3_physics_Scalar_Diffusion2D_hpp

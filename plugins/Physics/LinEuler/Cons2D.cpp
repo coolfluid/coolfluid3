@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Cons2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace LinEuler {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < LinEuler::Cons2D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibLinEuler >
                            Builder_Cons2D;
 
@@ -29,5 +29,5 @@ Cons2D::~Cons2D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
+} // physics
 } // cf3

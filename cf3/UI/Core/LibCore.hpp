@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace Core {
   /// Class defines the initialization and termination of the library ClientCore
   /// @author Tiago Quintino
   class Core_API LibCore :
-      public common::CLibrary
+      public common::Library
   {
   public:
 
@@ -44,21 +44,21 @@ namespace Core {
     typedef boost::shared_ptr<LibCore const> ConstPtr;
 
     /// Constructor
-    LibCore ( const std::string& name) : common::CLibrary(name) {   }
+    LibCore ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.Core"; }
+    static std::string library_namespace() { return "cf3.UI.Core"; }
 
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "Core"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

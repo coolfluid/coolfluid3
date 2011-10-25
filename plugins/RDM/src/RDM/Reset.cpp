@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 
@@ -18,7 +18,7 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
@@ -26,11 +26,11 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Reset, CAction, LibRDM > Reset_Builder;
+common::ComponentBuilder < Reset, common::Action, LibRDM > Reset_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-Reset::Reset ( const std::string& name ) : Solver::Action(name)
+Reset::Reset ( const std::string& name ) : solver::Action(name)
 {
   mark_basic();
 
@@ -76,7 +76,7 @@ void Reset::config_field_tags()
   RDSolver& mysolver = solver().as_type<RDSolver>();
 
   boost_foreach(const std::string tag, vec)
-    boost_foreach( CLink& link, find_components_with_tag<CLink>( mysolver.fields(), tag ) )
+    boost_foreach( Link& link, find_components_with_tag<Link>( mysolver.fields(), tag ) )
     {
       if( Field::Ptr field = link.follow()->as_ptr<Field>() )
       {
@@ -95,7 +95,7 @@ void Reset::execute()
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 
-    CTable<Real>& field = *ptr.lock();
+    Table<Real>& field = *ptr.lock();
 
     field = 0.; // set all entries to zero
   }

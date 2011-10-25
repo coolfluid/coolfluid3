@@ -15,10 +15,10 @@
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
 #include "common/Log.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/Core.hpp"
-#include "common/CBuilder.hpp"
-#include "common/CFactories.hpp"
+#include "common/Builder.hpp"
+#include "common/Factories.hpp"
 #include "common/FindComponents.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -42,7 +42,7 @@ ProfiledTestFixture::ProfiledTestFixture() :
     Core::instance().environment().configure_option("exception_aborts",false);
     Core::instance().environment().configure_option("exception_backtrace",false);
     Core::instance().environment().configure_option("exception_outputs",false);
-    const std::string prof_name ( "CF.Tools.GooglePerfTools.GooglePerfProfiling" );
+    const std::string prof_name ( "cf3.Tools.GooglePerfTools.GooglePerfProfiling" );
     try
     {
       Core::instance().set_profiler( prof_name );

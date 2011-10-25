@@ -9,11 +9,11 @@ call //Root/Libraries/load_libraries "libs:array[uri]=\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_advectiondiffusion"
 
-create wizard CF.SFDM.SFDWizard
+create wizard cf3SFDM.SFDWizard
 configure wizard \
    model:string=SFD_simulation \
-   solution_state:string=CF.Euler.Cons2D \
-   roe_state:string=CF.Euler.Roe2D \
+   solution_state:string=cf3Euler.Cons2D \
+   roe_state:string=cf3Euler.Roe2D \
    P:unsigned=0 \
    cfl:real=0.5 \
    RK_stages:unsigned=2
@@ -23,7 +23,7 @@ call wizard/create_simulation
 export length:real=10
 export nb_cells:unsigned=40
 
-create SFD_simulation/tools/meshgen CF.Mesh.CSimpleMeshGenerator
+create SFD_simulation/tools/meshgen cf3Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=${length},${length} \
   nb_cells:array[unsigned]=${nb_cells},${nb_cells} \
@@ -41,7 +41,7 @@ SFD_simulation/tools/initialize_solution
 
 call SFD_simulation/Domain/mesh/write_mesh file:string=initial_condition${length}x${length}.msh solution:bool=true
 
-#configure SFD_simulation/FlowSolver/iterate max_iter:unsigned=100
+#configure SFD_simulation/Flowsolver/iterate max_iter:unsigned=100
 call wizard/start_simulation end_time:real=0.008
 
 call SFD_simulation/Domain/mesh/write_mesh file:string=final${nb_cells}x${nb_cells}.msh solution:bool=true

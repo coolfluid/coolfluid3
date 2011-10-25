@@ -38,7 +38,7 @@ namespace Core {
 
 
 NRoot::NRoot(const std::string & name)
-  : CNode(name, "CRoot", CNode::STANDARD_NODE)
+  : CNode(name, "Root", CNode::STANDARD_NODE)
 {
   m_is_root = true;
   m_uuid = boost::uuids::random_generator()();
@@ -71,7 +71,7 @@ NRoot::NRoot(const std::string & name)
   signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
   signal("disconnect_server")->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
-  m_root = CRoot::create(name);
+  m_root = Root::create(name);
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connected_to_server()));

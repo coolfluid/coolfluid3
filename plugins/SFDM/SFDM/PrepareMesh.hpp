@@ -7,7 +7,7 @@
 #ifndef cf3_SFDM_PrepareMesh_hpp
 #define cf3_SFDM_PrepareMesh_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
@@ -18,7 +18,7 @@ class CellTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API PrepareMesh : public cf3::Solver::ActionDirector {
+class SFDM_API PrepareMesh : public cf3::solver::ActionDirector {
 
 public: // typedefs
 

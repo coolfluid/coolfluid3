@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/CommonAPI.hpp"
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -20,9 +20,9 @@ namespace cf3 {
 /// Common Classes for Component Environment
 namespace common {
 
-/// Class defines the initialization and termination of the library Mesh
+/// Class defines the initialization and termination of the library mesh
 /// @author Tiago Quintino
-class Common_API LibCommon : public common::CLibrary
+class Common_API LibCommon : public common::Library
 {
 public:
 
@@ -30,24 +30,24 @@ public:
   typedef boost::shared_ptr<LibCommon const> ConstPtr;
 
   /// Constructor
-  LibCommon ( const std::string& name) : common::CLibrary(name) {   }
+  LibCommon ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Common"; }
+  static std::string library_namespace() { return "cf3.common"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary rCFegistration
+  /// Must be implemented for Library rCFegistration
   /// @return name of the library
-  static std::string library_name() { return "Common"; }
+  static std::string library_name() { return "common"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
   static std::string library_description()
   {
-    return "This library implements the Common API.";
+    return "This library implements the common API.";
   }
 
   /// Gets the Class name

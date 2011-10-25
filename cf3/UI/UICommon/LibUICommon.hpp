@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace UICommon {
   /// Class defines the initialization and termination of the library Network
   /// @author Tiago Quintino
   class UICommon_API LibUICommon :
-      public common::CLibrary
+      public common::Library
   {
   public:
 
@@ -44,20 +44,20 @@ namespace UICommon {
     typedef boost::shared_ptr<LibUICommon const> ConstPtr;
 
     /// Constructor
-    LibUICommon ( const std::string& name) : common::CLibrary(name) {   }
+    LibUICommon ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.UICommon"; }
+    static std::string library_namespace() { return "cf3.UI.UICommon"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "LibUICommon"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

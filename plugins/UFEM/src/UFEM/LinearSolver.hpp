@@ -7,14 +7,14 @@
 #ifndef cf3_UFEM_LinearSolver_hpp
 #define cf3_UFEM_LinearSolver_hpp
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "Solver/CSimpleSolver.hpp"
+#include "solver/CSimpleSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
-#include "Solver/Actions/Proto/SolutionVector.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/SolutionVector.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "LibUFEM.hpp"
@@ -28,7 +28,7 @@ namespace UFEM {
 /// * Physical model
 /// * Mesh used
 /// * Region to loop over
-class UFEM_API LinearSolver : public Solver::CSimpleSolver
+class UFEM_API LinearSolver : public solver::CSimpleSolver
 {
 public: // typedefs
 
@@ -48,14 +48,14 @@ public: // functions
 
   virtual void execute();
 
-  virtual void mesh_loaded(Mesh::CMesh& mesh);
-  virtual void mesh_changed(Mesh::CMesh& mesh);
+  virtual void mesh_loaded(mesh::Mesh& mesh);
+  virtual void mesh_changed(mesh::Mesh& mesh);
 
   /// Return an action that resets the LSS to zero
-  common::CAction& zero_action();
+  common::Action& zero_action();
 
   /// Return the action used for solving the system
-  common::CAction& solve_action();
+  common::Action& solve_action();
 
   /// Get the component that manages boundary conditions
   BoundaryConditions& boundary_conditions();
@@ -70,13 +70,13 @@ private:
 
 public:
   /// Proto placeholder for the system matrix
-  const Solver::Actions::Proto::SystemMatrix& system_matrix;
+  const solver::actions::Proto::SystemMatrix& system_matrix;
   /// Proto placeholder for the right hand side of the system
-  const Solver::Actions::Proto::SystemRHS& system_rhs;
+  const solver::actions::Proto::SystemRHS& system_rhs;
   /// Proto placeholder for dirichlet boundary conditions
-  const Solver::Actions::Proto::DirichletBC& dirichlet;
+  const solver::actions::Proto::DirichletBC& dirichlet;
   /// Proto placeholder for the solution vector
-  const Solver::Actions::Proto::SolutionVector& solution;
+  const solver::actions::Proto::SolutionVector& solution;
 };
 
 } // UFEM

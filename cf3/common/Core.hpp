@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
 #include "common/CommonAPI.hpp"
 
@@ -21,11 +22,11 @@ namespace common {
   class EventHandler;
   class BuildInfo;
   class CodeProfiler;
-  class CRoot;
-  class CEnv;
-  class CGroup;
-  class CLibraries;
-  class CFactories;
+  class Root;
+  class Environment;
+  class Group;
+  class Libraries;
+  class Factories;
   class NetworkInfo;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ public: // methods
 
   /// @brief Gives the root component.
   /// @return Returns the root component.
-  common::CRoot& root() const;
+  common::Root& root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
@@ -63,21 +64,21 @@ public: // methods
   /// @pre Core does not need to be initialized before
   common::BuildInfo& build_info() const;
 
-  /// Gets the CEnv
+  /// Gets the Environment
   /// @pre Core does not need to be initialized before
-  common::CEnv& environment() const;
+  common::Environment& environment() const;
 
-  /// Gets the CLibraries
+  /// Gets the Libraries
   /// @pre Core does not need to be initialized before
-  common::CLibraries& libraries() const;
+  common::Libraries& libraries() const;
 
-  /// Gets the CFactories
+  /// Gets the Factories
   /// @pre Core does not need to be initialized before
-  common::CFactories& factories() const;
+  common::Factories& factories() const;
 
   /// Gets the tools
   /// @pre Core does not need to be initialized before
-  common::CGroup& tools() const;
+  common::Group& tools() const;
 
   /// @brief Sets the profiler.
   /// @param profiler_name Profiler name
@@ -110,18 +111,16 @@ private: // methods
 
 private: // data
 
-  /// the EventHandler unique object
-  boost::shared_ptr< common::EventHandler > m_event_handler;
   /// the BuildInfo unique object
   boost::shared_ptr< common::BuildInfo >    m_build_info;
-  /// the CEnv unique object
-  boost::shared_ptr< common::CEnv >         m_environment;
-  /// the CLibraries unique object
-  boost::shared_ptr< common::CLibraries >   m_libraries;
-  /// the CFactories unique object
-  boost::shared_ptr< common::CFactories >   m_factories;
+  /// the Environment unique object
+  boost::shared_ptr< common::Environment >         m_environment;
+  /// the Libraries unique object
+  boost::weak_ptr< common::Libraries >   m_libraries;
+  /// the Factories unique object
+  boost::weak_ptr< common::Factories >   m_factories;
   /// @brief The component tree root
-  boost::shared_ptr< common::CRoot >        m_root;
+  boost::shared_ptr< common::Root >        m_root;
   /// The network information
   boost::shared_ptr< common::NetworkInfo >   m_network_info;
 

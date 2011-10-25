@@ -9,7 +9,7 @@
 
 using namespace cf3::common;
 
-NotificationQueue::NotificationQueue(CRoot::Ptr root)
+NotificationQueue::NotificationQueue(Root::Ptr root)
 : m_sig_begin_flush(new SignalTypeFlush_t()),
 m_event_signals()
 {

@@ -7,21 +7,21 @@
 #ifndef cf3_RDM_Init_hpp
 #define cf3_RDM_Init_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API Init : public cf3::Solver::Action {
+class RDM_API Init : public cf3::solver::Action {
 
 public: // typedefs
 
@@ -49,9 +49,9 @@ private: // helper functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_field;  ///< access to the field to initialize
+  boost::weak_ptr<mesh::Field> m_field;  ///< access to the field to initialize
 
-  Math::VectorialFunction  m_function;    ///< function parser for the math formula
+  math::VectorialFunction  m_function;    ///< function parser for the math formula
 
 };
 

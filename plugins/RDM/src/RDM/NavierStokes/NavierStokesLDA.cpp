@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/Schemes/LDA.hpp"
 
@@ -22,12 +22,12 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons2D> ,
+common::ComponentBuilder < CellLoopT<LDA,physics::NavierStokes::Cons2D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
                            LDA_Euler2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LDA,Physics::NavierStokes::Cons3D> ,
+common::ComponentBuilder < CellLoopT<LDA,physics::NavierStokes::Cons3D> ,
                            RDM::CellLoop,
                            LibNavierStokes >
                            LDA_Euler3D_Builder;

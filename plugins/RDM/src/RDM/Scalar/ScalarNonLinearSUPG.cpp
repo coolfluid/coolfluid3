@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/Schemes/SUPG.hpp"
 
@@ -21,7 +21,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<SUPG, Physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > SUPG_Burgers2D_Builder;
+common::ComponentBuilder < CellLoopT<SUPG, physics::Scalar::Burgers2D> , RDM::CellLoop, LibScalar > SUPG_Burgers2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

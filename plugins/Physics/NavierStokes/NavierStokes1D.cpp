@@ -6,15 +6,15 @@
 
 #include <boost/algorithm/string/predicate.hpp>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "NavierStokes1D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
 using namespace common;
@@ -22,14 +22,14 @@ using namespace common;
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < NavierStokes::NavierStokes1D,
-                           Physics::PhysModel,
+                           physics::PhysModel,
                            LibNavierStokes >
                            Builder_NavierStokes1D;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 NavierStokes1D::NavierStokes1D( const std::string& name ) :
-  Physics::PhysModel(name),
+  physics::PhysModel(name),
   m_gamma(1.4),
   m_R(287.05)
 {
@@ -50,11 +50,11 @@ NavierStokes1D::~NavierStokes1D()
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr< Physics::Variables > NavierStokes1D::create_variables( const std::string type, const std::string name )
+boost::shared_ptr< physics::Variables > NavierStokes1D::create_variables( const std::string type, const std::string name )
 {
-  Physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
-        build_component_abstract_type< Physics::Variables >( type, name ) :
-        build_component_abstract_type< Physics::Variables >( LibNavierStokes::library_namespace() + "." + type, name );
+  physics::Variables::Ptr vars = boost::algorithm::contains( type, "." ) ?
+        build_component_abstract_type< physics::Variables >( type, name ) :
+        build_component_abstract_type< physics::Variables >( LibNavierStokes::library_namespace() + "." + type, name );
 
   add_component( vars );
 
@@ -64,5 +64,5 @@ boost::shared_ptr< Physics::Variables > NavierStokes1D::create_variables( const 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3

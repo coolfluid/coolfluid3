@@ -11,17 +11,17 @@
 
 #include "common/Signal.hpp"
 #include "common/Log.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/NotificationQueue.hpp"
-#include "common/PE/CPEManager.hpp"
+#include "common/PE/Manager.hpp"
 //#include "common/XML/SignalFrame.hpp"
 #include "common/XML/Protocol.hpp"
 
-#include "Mesh/CTable.hpp"
+#include "common/Table.hpp"
 
-#include "Solver/CPlotter.hpp"
+#include "solver/CPlotter.hpp"
 
 #include "UI/UICommon/ComponentNames.hpp"
 
@@ -33,8 +33,7 @@
 using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
+using namespace cf3::solver;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -48,10 +47,10 @@ ServerRoot::ServerRoot()
   : m_queue(nullptr),
     m_notifier(nullptr),
     m_thread(nullptr),
-    m_root( Core::instance().root().as_ptr<CRoot>() ),
+    m_root( Core::instance().root().as_ptr<Root>() ),
     m_core( new CCore() ),
-    m_journal( common::allocate_component<CJournal>("Journal") ),
-    m_manager( common::allocate_component<CPEManager>("PEManager") ),
+    m_journal( common::allocate_component<Journal>("Journal") ),
+    m_manager( common::allocate_component<Manager>("PEManager") ),
     m_plotter( common::allocate_component<CPlotter>("Plotter") )
 {
   m_root->add_component(m_core);
@@ -67,9 +66,9 @@ ServerRoot::ServerRoot()
   m_manager->mark_basic();
   m_plotter->mark_basic();
 
-  CTable<Real>::Ptr table = tools->create_component_ptr< CTable<Real> >("MyTable");
+  Table<Real>::Ptr table = tools->create_component_ptr< Table<Real> >("MyTable");
   table->set_row_size(8); // reserve 8 columns
-  CTable<Real>::Buffer buffer = table->create_buffer(8000);
+  Table<Real>::Buffer buffer = table->create_buffer(8000);
 
   table->mark_basic();
   m_plotter->set_data_set( table->uri() );

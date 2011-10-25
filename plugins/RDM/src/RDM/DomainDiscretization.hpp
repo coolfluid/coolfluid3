@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_DomainDiscretization_hpp
 #define cf3_RDM_DomainDiscretization_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -19,7 +19,7 @@ class FaceTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API DomainDiscretization : public cf3::Solver::ActionDirector {
+class RDM_API DomainDiscretization : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
@@ -66,9 +66,9 @@ public: // functions
 
 private:
 
-  common::CActionDirector::Ptr m_face_terms;   ///< set of face terms
+  common::ActionDirector::Ptr m_face_terms;   ///< set of face terms
 
-  common::CActionDirector::Ptr m_cell_terms;   ///< set of cell terms
+  common::ActionDirector::Ptr m_cell_terms;   ///< set of cell terms
 
 };
 

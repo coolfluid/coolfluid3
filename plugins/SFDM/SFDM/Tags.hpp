@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/Tags.hpp"
+#include "solver/Tags.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 namespace cf3 {
@@ -17,7 +17,7 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SFDM_API Tags : public Solver::Tags
+struct SFDM_API Tags : public solver::Tags
 {
   static const char * fields();
   static const char * actions();

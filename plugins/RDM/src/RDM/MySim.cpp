@@ -7,7 +7,7 @@
 #include "boost/assign/list_of.hpp"
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
@@ -17,17 +17,17 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/LoadMesh.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/LoadMesh.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CModelSteady.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CModelSteady.hpp"
+#include "solver/CSolver.hpp"
 
 #include "RDM/SteadyExplicit.hpp"
 #include "RDM/MySim.hpp"
@@ -42,16 +42,16 @@ namespace RDM {
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 
-common::ComponentBuilder < MySim, Solver::CWizard, LibRDM > MySim_Builder;
+common::ComponentBuilder < MySim, solver::CWizard, LibRDM > MySim_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 MySim::MySim ( const std::string& name  ) :
-  Solver::CWizard ( name )
+  solver::CWizard ( name )
 {
   // signals
 
@@ -86,7 +86,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
   CModel& model = wizard.create_model(name, "Scalar2D");
 
-  CDomain&     domain = model.get_child("Domain").as_type<CDomain>();
+  Domain&     domain = model.get_child("Domain").as_type<Domain>();
   RDM::RDSolver& solver = model.get_child("Solver").as_type<RDM::RDSolver>();
 
   // load the mesh
@@ -119,9 +119,9 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"bottom"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"bottom"))
       regions.push_back( region.uri() );
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(domain,"left"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(domain,"left"))
       regions.push_back( region.uri() );
 
     cf3_assert( regions.size() == 2u);
@@ -129,7 +129,7 @@ void MySim::signal_create_model ( common::SignalArgs& node )
     std::string name ("WEAK_INLET");
 
     options.add_option< OptionT<std::string> >("Name",name);
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.BcDirichlet");
+    options.add_option< OptionT<std::string> >("Type","cf3.RDM.BcDirichlet");
     options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
     solver.boundary_conditions().signal_create_boundary_condition(frame);
@@ -169,19 +169,19 @@ void MySim::signal_create_model ( common::SignalArgs& node )
 
     cf3_assert( domain_terms.count_children() == 0 );
 
-    CMesh& mesh = find_component<CMesh>(domain);
+    Mesh& mesh = find_component<Mesh>(domain);
 
     SignalFrame frame;
     SignalOptions options( frame );
 
     std::vector<URI> regions;
-    boost_foreach( const CRegion& region, find_components_recursively_with_name<CRegion>(mesh,"topology"))
+    boost_foreach( const Region& region, find_components_recursively_with_name<Region>(mesh,"topology"))
       regions.push_back( region.uri() );
 
     cf3_assert( regions.size() == 1u);
 
     options.add_option< OptionT<std::string> >("Name","INTERNAL");
-    options.add_option< OptionT<std::string> >("Type","CF.RDM.Schemes.LDA");
+    options.add_option< OptionT<std::string> >("Type","cf3.RDM.Schemes.LDA");
     options.add_option< OptionArrayT<URI> >   ("Regions", regions);
 
     solver.domain_discretization().signal_create_cell_term(frame);

@@ -7,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OSystem.hpp"
@@ -16,12 +16,12 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
-#include "Solver/Actions/CSynchronizeFields.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/InitialConditions.hpp"
@@ -34,10 +34,10 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {
@@ -45,7 +45,7 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > Solver_Builder;
+common::ComponentBuilder < RDM::RDSolver, CSolver, LibRDM > solver_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -62,11 +62,11 @@ RDSolver::RDSolver ( const std::string& name  ) :
   options().add_option< OptionT<std::string> >( RDM::Tags::update_vars(), "")
       ->attach_trigger ( boost::bind ( &RDSolver::config_physics, this ) );
 
-  options().add_option< OptionT<std::string> >( "solution_space", Mesh::Tags::geometry() )
+  options().add_option< OptionT<std::string> >( "solution_space", mesh::Tags::geometry() )
       ->pretty_name("Solution Space")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
 
-  options().add_option(OptionComponent<CMesh>::create( RDM::Tags::mesh(), &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create( RDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &RDSolver::config_mesh,   this ) );
@@ -93,13 +93,13 @@ RDSolver::RDSolver ( const std::string& name  ) :
   m_time_stepping->append( *m_iterative_solver );
 
   m_prepare_mesh =
-      create_static_component_ptr< CActionDirector >( "SetupMesh" );
+      create_static_component_ptr< common::ActionDirector >( "SetupMesh" );
 
   // for storing links to fields
 
-  m_fields  = create_static_component_ptr< CGroup >( RDM::Tags::fields()  );
+  m_fields  = create_static_component_ptr< Group >( RDM::Tags::fields()  );
 
-  m_actions = create_static_component_ptr< CGroup >( RDM::Tags::actions() );
+  m_actions = create_static_component_ptr< Group >( RDM::Tags::actions() );
 
   // create the parallel synchronization action
 
@@ -124,11 +124,11 @@ IterativeSolver&      RDSolver::iterative_solver()       { return *m_iterative_s
 
 TimeStepping&         RDSolver::time_stepping()          { return *m_time_stepping; }
 
-CActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
+common::ActionDirector&      RDSolver::prepare_mesh()           { return *m_prepare_mesh; }
 
-common::CGroup& RDSolver::actions() { return *m_actions; }
+common::Group& RDSolver::actions() { return *m_actions; }
 
-common::CGroup& RDSolver::fields()  { return *m_fields; }
+common::Group& RDSolver::fields()  { return *m_fields; }
 
 
 
@@ -184,9 +184,9 @@ void RDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
-  CMesh& mesh = *(m_mesh.lock());
+  Mesh& mesh = *(m_mesh.lock());
 
-  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  physics::PhysModel& pm = physics(); // physcial model must have already been configured
 
   if( pm.ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );

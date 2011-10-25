@@ -643,7 +643,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   if( type_name == "CCore" )
     return root_node;
 
-  if( type_name == "CLink" )
+  if( type_name == "Link" )
   {
     NLink::Ptr link = boost::shared_ptr<NLink>(new NLink(node_name));
     root_node = link;
@@ -651,9 +651,9 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   }
   else if( CNodeBuilders::instance().has_builder( type_name ) )
     root_node = CNodeBuilders::instance().build_cnode(type_name, node_name);
-  else if( type_name == "CJournal" )
+  else if( type_name == "Journal" )
     root_node = boost::shared_ptr<NJournal>(new NJournal(node_name));
-  else if( type_name == "CRoot" )
+  else if( type_name == "Root" )
     root_node = boost::shared_ptr<NRoot>(new NRoot(node_name));
   else
     root_node = boost::shared_ptr<NGeneric>(new NGeneric(node_name, type_name));

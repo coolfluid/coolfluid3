@@ -7,13 +7,13 @@
 #ifndef cf3_RDM_BcDirichlet_hpp
 #define cf3_RDM_BcDirichlet_hpp
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 
 namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -50,9 +50,9 @@ private: // helper functions
 private: // data
 
   /// access to the solution field on the mesh
-  boost::weak_ptr<Mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_solution;
   /// function parser for the math formula of the dirichlet condition
-  Math::VectorialFunction  m_function;
+  math::VectorialFunction  m_function;
 
 };
 

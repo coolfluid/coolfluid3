@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -36,7 +36,7 @@ namespace BlockMeshReader {
 /// Class defines the BlockMeshReadertral mesh format operations
 /// @author Willem Deconinck
 class BlockMeshReader_API LibBlockMeshReader :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -44,20 +44,20 @@ public:
   typedef boost::shared_ptr<LibBlockMeshReader const> ConstPtr;
 
   /// Constructor
-  LibBlockMeshReader ( const std::string& name) : common::CLibrary(name) {   }
+  LibBlockMeshReader ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.BlockMeshReader"; }
+  static std::string library_namespace() { return "cf3.BlockMeshReader"; }
 
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "BlockMeshReader"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

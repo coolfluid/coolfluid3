@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/Schemes/N.hpp"
 
@@ -23,11 +23,11 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<N, Physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > N_LinearAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<N, physics::Scalar::LinearAdv2D> , RDM::CellLoop, LibScalar > N_LinearAdv2D_Builder;
 
-common::ComponentBuilder < CellLoopT<N, Physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > N_LinearAdvSys2D_Builder;
+common::ComponentBuilder < CellLoopT<N, physics::Scalar::LinearAdvSys2D> , RDM::CellLoop, LibScalar > N_LinearAdvSys2D_Builder;
 
-common::ComponentBuilder < CellLoopT<N, Physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > N_RotationAdv2D_Builder;
+common::ComponentBuilder < CellLoopT<N, physics::Scalar::RotationAdv2D> , RDM::CellLoop, LibScalar > N_RotationAdv2D_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 

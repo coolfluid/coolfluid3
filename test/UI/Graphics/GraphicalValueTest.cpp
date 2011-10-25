@@ -14,7 +14,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 #include "UI/Graphics/GraphicalArray.hpp"
 #include "UI/Graphics/GraphicalArrayRestrictedList.hpp"
@@ -34,7 +34,7 @@
 using namespace boost::assign;
 using namespace cf3::common;
 using namespace cf3::UI::Graphics;
-using namespace cf3::Math;
+using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////
 

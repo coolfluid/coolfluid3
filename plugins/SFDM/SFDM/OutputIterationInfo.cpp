@@ -6,37 +6,37 @@
 #include <iomanip>
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/Foreach.hpp"
 
-#include "Mesh/CField.hpp"
-#include "Mesh/CTable.hpp"
+#include "mesh/CField.hpp"
+#include "common/Table.hpp"
 
-#include "Solver/FlowSolver.hpp"
-#include "Solver/CTime.hpp"
-#include "Solver/Actions/CIterate.hpp"
+#include "solver/FlowSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/actions/CIterate.hpp"
 
 #include "SFDM/OutputIterationInfo.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < OutputIterationInfo, CAction, LibSFDM > OutputIterationInfo_Builder;
+common::ComponentBuilder < OutputIterationInfo, Action, LibSFDM > OutputIterationInfo_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 OutputIterationInfo::OutputIterationInfo ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 
@@ -55,7 +55,7 @@ void OutputIterationInfo::execute()
 
   // compute norm
   Real rhs_L2=0;
-  boost_foreach(CTable<Real>::ConstRow rhs , m_residual.lock()->data().array())
+  boost_foreach(Table<Real>::ConstRow rhs , m_residual.lock()->data().array())
     rhs_L2 += rhs[0]*rhs[0];
   rhs_L2 = sqrt(rhs_L2) / m_residual.lock()->data().size();
 

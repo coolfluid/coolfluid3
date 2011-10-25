@@ -4,16 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
 
 #include "RDM/FaceLoop.hpp"
 
@@ -24,8 +24,8 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {
@@ -34,7 +34,7 @@ namespace RDM {
 
 common::ComponentBuilder < WallEdwinBc, RDM::BoundaryTerm, LibRDM > WallEdwinBc_Builder;
 
-common::ComponentBuilder < FaceLoopT< WallEdwinBc, Physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallEdwinBc_Euler2D_Builder;
+common::ComponentBuilder < FaceLoopT< WallEdwinBc, physics::NavierStokes::Cons2D>, RDM::FaceLoop, LibRDM > WallEdwinBc_Euler2D_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
@@ -53,7 +53,7 @@ void WallEdwinBc::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     loop.select_region( region );
 

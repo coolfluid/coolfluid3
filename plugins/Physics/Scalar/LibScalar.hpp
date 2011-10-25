@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Physics_Scalar_LibScalar_hpp
-#define cf3_Physics_Scalar_LibScalar_hpp
+#ifndef cf3_physics_Scalar_LibScalar_hpp
+#define cf3_physics_Scalar_LibScalar_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 
 /// @brief %Scalar transport equations
 ///
@@ -37,7 +37,7 @@ namespace Scalar {
 
 /// Class defines the Scalar library
 /// @author Tiago Quintino
-class Scalar_API LibScalar : public common::CLibrary
+class Scalar_API LibScalar : public common::Library
 {
 public:
 
@@ -45,22 +45,22 @@ public:
   typedef boost::shared_ptr<LibScalar const> ConstPtr;
 
   /// Constructor
-  LibScalar ( const std::string& name) : common::CLibrary(name) { }
+  LibScalar ( const std::string& name) : common::Library(name) { }
 
   virtual ~LibScalar() { }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Physics.Scalar"; }
+  static std::string library_namespace() { return "cf3.physics.Scalar"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "Scalar"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()
@@ -84,10 +84,10 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 } // Scalar
-} // Physics
+} // physics
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Physics_Scalar_LibScalar_hpp
+#endif // cf3_physics_Scalar_LibScalar_hpp
 

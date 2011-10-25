@@ -9,7 +9,7 @@
 
 #include <iostream> // to remove
 
-#include "Math/VectorialFunction.hpp"
+#include "math/VectorialFunction.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
 #include "RDM/BcBase.hpp"
@@ -18,7 +18,7 @@
 
 namespace cf3 {
 
-namespace Mesh { class CMesh; class Field; }
+namespace mesh { class Mesh; class Field; }
 
 namespace RDM {
 
@@ -59,9 +59,9 @@ private: // helper functions
 public: // data
 
   /// function parser to set the value of density
-  Math::VectorialFunction  density_function;
+  math::VectorialFunction  density_function;
   /// function parser to set the value of velocity
-  Math::VectorialFunction  velocity_function;
+  math::VectorialFunction  velocity_function;
 
 }; // !SubsonicInFlowWeakBc
 
@@ -195,11 +195,11 @@ public: // functions
 
    // get face connectivity
 
-   const Mesh::CConnectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
+   const mesh::Connectivity::ConstRow nodes_idx = (*B::connectivity)[B::idx()];
 
    // copy the coordinates from the large array to a small
 
-   Mesh::fill(X_n, *B::coordinates, nodes_idx );
+   mesh::fill(X_n, *B::coordinates, nodes_idx );
 
    // copy the solution from the large array to a small
 

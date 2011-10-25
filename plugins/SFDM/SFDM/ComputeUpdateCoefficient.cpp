@@ -4,41 +4,41 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/CModel.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/CModel.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/ComputeUpdateCoefficient.hpp"
-#include "Math/Consts.hpp"
+#include "math/Consts.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-using namespace cf3::Math::Consts;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::math::Consts;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeUpdateCoefficient, CAction, LibSFDM > ComputeUpdateCoefficient_Builder;
+common::ComponentBuilder < ComputeUpdateCoefficient, common::Action, LibSFDM > ComputeUpdateCoefficient_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
-  Solver::Action(name),
+  solver::Action(name),
   m_freeze(false),
   m_tolerance(1e-12)
 {

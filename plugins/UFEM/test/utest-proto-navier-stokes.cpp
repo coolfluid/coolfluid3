@@ -10,17 +10,17 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
-#include "common/CRoot.hpp"
+#include "common/Environment.hpp"
+#include "common/Root.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -32,12 +32,12 @@
 #include "NavierStokes.hpp"
 
 using namespace cf3;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
+using namespace cf3::solver::actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::math::Consts;
+using namespace cf3::mesh;
 using namespace cf3::UFEM;
 
 using namespace boost;
@@ -106,11 +106,11 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     std::cout << "\n################################## Running test for model " << names[i] << "##################################\n" << std::endl;
     // Setup a model
     CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>(names[i]);
-    CDomain& domain = model.create_domain("Domain");
+    Domain& domain = model.create_domain("Domain");
     LinearSolverUnsteady& solver = model.create_component<LinearSolverUnsteady>("Solver");
 
     // Linear system setup (TODO: sane default config for this, so this can be skipped)
-    Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+    math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
     lss.configure_option("solver", std::string("Trilinos"));
     solver.configure_option("lss", lss.uri());
 
@@ -137,10 +137,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
       << create_proto_action("CheckV", nodes_expression(_check_close(u[1], 0., 6e-3)));
 
     // Setup physics
-    model.create_physics("CF.Physics.DynamicModel");
+    model.create_physics("cf3.physics.DynamicModel");
 
     // Setup mesh
-    CMesh& mesh = domain.create_component<CMesh>("Mesh");
+    Mesh& mesh = domain.create_component<Mesh>("Mesh");
     Tools::MeshGeneration::create_rectangle(mesh, length, height, x_segments, y_segments);
 
     lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
@@ -152,10 +152,10 @@ BOOST_AUTO_TEST_CASE( ProtoNavierStokes )
     solver.boundary_conditions() << create_proto_action("ParabolicBC", parabolic_dirichlet(solver, u_max, height));
 
     // Set the region of the parabolic inlet and outlet
-    const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<CRegion>(mesh.topology(), "left").uri())
-                                                          (find_component_recursively_with_name<CRegion>(mesh.topology(), "right").uri());
+    const std::vector<URI> in_out = boost::assign::list_of(find_component_recursively_with_name<Region>(mesh.topology(), "left").uri())
+                                                          (find_component_recursively_with_name<Region>(mesh.topology(), "right").uri());
 
-    solver.boundary_conditions().get_child("ParabolicBC").configure_option(Solver::Tags::regions(), in_out);
+    solver.boundary_conditions().get_child("ParabolicBC").configure_option(solver::Tags::regions(), in_out);
 
     // Configure timings
     CTime& time = model.create_time();

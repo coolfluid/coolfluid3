@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ namespace Testing {
 
   /// Class defines the initialization and termination of the library Testing
   /// @author Tiago Quintino
-  class Testing_API LibTesting : public common::CLibrary
+  class Testing_API LibTesting : public common::Library
   {
   public:
 
@@ -42,20 +42,20 @@ namespace Testing {
     typedef boost::shared_ptr<LibTesting const> ConstPtr;
 
     /// Constructor
-    LibTesting ( const std::string& name) : common::CLibrary(name) {   }
+    LibTesting ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Tools.Testing"; }
+    static std::string library_namespace() { return "cf3.Tools.Testing"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "Testing"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

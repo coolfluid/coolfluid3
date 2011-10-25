@@ -8,10 +8,10 @@
 
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CCells.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Cells.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Geometry.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 
@@ -19,20 +19,20 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Mesh;
+using namespace mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void build_sparsity(const CMesh& mesh, std::vector< Uint >& node_connectivity, std::vector< Uint >& start_indices)
+void build_sparsity(const Mesh& mesh, std::vector< Uint >& node_connectivity, std::vector< Uint >& start_indices)
 {
   const Uint nb_nodes = mesh.geometry().coordinates().size();
   std::vector< std::set<Uint> > connectivity_sets(nb_nodes);
   start_indices.assign(nb_nodes+1, 0);
 
   // Determine the number of connected nodes for each element
-  BOOST_FOREACH(const CElements& elements, find_components_recursively<CCells>(mesh.topology()))
+  BOOST_FOREACH(const Elements& elements, find_components_recursively<Cells>(mesh.topology()))
   {
-    const CConnectivity& connectivity = elements.node_connectivity();
+    const Connectivity& connectivity = elements.node_connectivity();
     const Uint nb_elems = connectivity.size();
     const Uint nb_elem_nodes = connectivity.row_size();
     for(Uint elem = 0; elem != nb_elems; ++elem)

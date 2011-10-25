@@ -73,13 +73,13 @@ void TreeThread::run()
 {
   m_root = NRoot::Ptr(new NRoot(CLIENT_ROOT));
 
-  CRoot::Ptr realRoot = m_root->root();
+  Root::Ptr realRoot = m_root->root();
 
   NLog::Ptr log(new NLog());
   NBrowser::Ptr browser(new NBrowser());
   NTree::Ptr tree(new NTree(m_root));
   NPlugins::Ptr plugins(new NPlugins(CLIENT_PLUGINS));
-  NGeneric::Ptr uidir( new NGeneric("UI", "CF.Common.CGroup", CNode::LOCAL_NODE ) );
+  NGeneric::Ptr uidir( new NGeneric("UI", "cf3.common.Group", CNode::LOCAL_NODE ) );
   NetworkQueue::Ptr networkQueue( new NetworkQueue() );
 
   Logger::instance().getStream(WARNING).addStringForwarder( log.get() );
@@ -142,7 +142,7 @@ void TreeThread::new_signal(common::XML::XmlDoc::Ptr doc)
 
     try
     {
-      CRoot::Ptr realRoot = root()->root();
+      Root::Ptr realRoot = root()->root();
       SignalFrame frame(nodeToProcess);
 
       if(realRoot->uri().path() == URI(receiver).path())

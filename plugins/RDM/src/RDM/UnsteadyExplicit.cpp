@@ -7,14 +7,14 @@
 #include <boost/assign/list_of.hpp>
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CDomain.hpp"
-#include "Mesh/WriteMesh.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/WriteMesh.hpp"
 
 // supported physical models
 
@@ -23,11 +23,11 @@
 #include "Physics/Scalar/Scalar3D.hpp"
 #include "Physics/NavierStokes/NavierStokes2D.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
 #include "RDM/Tags.hpp"
 
-#include "Solver/Actions/CCriterionTime.hpp"
+#include "solver/actions/CCriterionTime.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -45,19 +45,19 @@ namespace RDM {
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < UnsteadyExplicit, cf3::Solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
+common::ComponentBuilder < UnsteadyExplicit, cf3::solver::CWizard, LibRDM > UnsteadyExplicit_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
-  cf3::Solver::CWizard ( name )
+  cf3::solver::CWizard ( name )
 {
   // options
 
@@ -95,7 +95,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (2) create the domain
 
-  CDomain& domain = model.create_domain( "Domain" );
+  Domain& domain = model.create_domain( "Domain" );
 
   // (3) create the Physical Model
 
@@ -105,7 +105,7 @@ CModel& UnsteadyExplicit::create_model( const std::string& model_name, const std
 
   // (4) setup solver
 
-  cf3::RDM::RDSolver& solver = model.create_solver( "CF.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
+  cf3::RDM::RDSolver& solver = model.create_solver( "cf3.RDM.RDSolver" ).as_type< cf3::RDM::RDSolver >();
 
   solver.mark_basic();
 

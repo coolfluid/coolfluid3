@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 // header
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Signal.hpp"
 #include "common/XML/SignalOptions.hpp"
 #include "UI/ParaView/LibParaView.hpp"

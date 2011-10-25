@@ -7,16 +7,16 @@
 #include <iostream>
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/IterativeSolver.hpp"
@@ -25,31 +25,31 @@
 
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Math::Checks;
+using namespace cf3::mesh;
+using namespace cf3::math::Checks;
 
 namespace cf3 {
 namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < RK, CAction, LibRDM > RK_Builder;
+common::ComponentBuilder < RK, common::Action, LibRDM > RK_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 RK::RK ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
   // options
 
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::solution(), &m_solution));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &m_solution));
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::dual_area(), &m_dual_area));
   options().add_option(
-        common::OptionComponent<Mesh::Field>::create( RDM::Tags::residual(), &m_residual));
+        common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &m_residual));
 
   options().add_option< OptionT<Real> >( "cfl", 1.0 )
       ->pretty_name("CFL")

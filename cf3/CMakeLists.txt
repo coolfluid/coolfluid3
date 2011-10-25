@@ -2,16 +2,16 @@
 add_subdirectory( common )
 
 # mesh library provides the mesh database handling
-add_subdirectory( Mesh )
+add_subdirectory( mesh )
 
 # math library provides mathematical operations
-add_subdirectory( Math )
+add_subdirectory( math )
 
 # physiscs library provides access to physical models
-add_subdirectory( Physics )
+add_subdirectory( physics )
 
 # solver library provides access to PDE solvers
-add_subdirectory( Solver )
+add_subdirectory( solver )
 
 # UI provides the user interface
 add_subdirectory( UI )

@@ -6,17 +6,17 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/EventHandler.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Actions/CCriterionTime.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
-#include "Solver/Actions/CPeriodicWriteMesh.hpp"
+#include "solver/CTime.hpp"
+#include "solver/actions/CCriterionTime.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CPeriodicWriteMesh.hpp"
 
 #include "RDM/FaceTerm.hpp"
 
@@ -24,9 +24,9 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {
@@ -34,12 +34,12 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < TimeStepping, CAction, LibRDM > TimeStepping_Builder;
+common::ComponentBuilder < TimeStepping, common::Action, LibRDM > TimeStepping_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 TimeStepping::TimeStepping ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -51,9 +51,9 @@ TimeStepping::TimeStepping ( const std::string& name ) :
 
   m_time  = create_static_component_ptr<CTime>("Time");
 
-  m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
+  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
 
-  m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
+  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
 
   CPeriodicWriteMesh& cwriter = post_actions().create_component<CPeriodicWriteMesh>( "PeriodicWriter" );
   post_actions().append( cwriter );
@@ -98,7 +98,7 @@ void TimeStepping::execute()
 
     // (2) the registered actions that solve one time step
 
-    CActionDirector::execute();
+    ActionDirector::execute();
 
     // (3) the post actions - compute norm, post-process something, etc
 

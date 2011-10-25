@@ -15,9 +15,9 @@
 namespace cf3 {
 namespace UFEM {
 
-using namespace Solver::Actions::Proto;
+using namespace solver::actions::Proto;
 
-typedef boost::mpl::vector1<Mesh::LagrangeP1::Quad2D> AllowedElmsT;
+typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 
 Expression::Ptr parabolic_dirichlet(LinearSolverUnsteady& solver, const RealVector2& u_ref, const Real height)
 {

@@ -4,24 +4,24 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/Geometry.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CList.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
+#include "common/List.hpp"
 
 #include "RDM/BcDirichlet.hpp"
 #include "RDM/RDSolver.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
@@ -38,7 +38,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
   // options
 
   m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("Math function applied as Dirichlet boundary condition (vars x,y)")
+      ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
       ->mark_basic();
 
@@ -72,7 +72,7 @@ void BcDirichlet::execute()
 
   RealVector return_val( solution_field.row_size() );
 
-  boost_foreach(CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(Region::Ptr& region, m_loop_regions)
   {
 
     /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry()
@@ -80,18 +80,18 @@ void BcDirichlet::execute()
     Geometry& nodes = mesh().geometry();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
-    boost_foreach(const Uint node, CElements::used_nodes(*region).array())
+    boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {
       cf3_assert(node < solution_field.size());
 
-      CTable<Real>::ConstRow coords = nodes.coordinates()[node];
+      Table<Real>::ConstRow coords = nodes.coordinates()[node];
 
       for (Uint i=0; i<coords.size(); ++i)
         vars[i] = coords[i];
 
       m_function.evaluate(vars,return_val);
 
-      CTable<Real>::Row data_row = solution_field[node];
+      Table<Real>::Row data_row = solution_field[node];
       for (Uint i=0; i<data_row.size(); ++i)
         data_row[i] = return_val[i];
     }

@@ -7,20 +7,20 @@
 #ifndef cf3_SFDM_IterativeSolver_hpp
 #define cf3_SFDM_IterativeSolver_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
 namespace cf3 {
-namespace common { class CActionDirector; }
-namespace Solver { class CTime; }
-namespace Mesh   { class Field; }
+namespace common { class ActionDirector; }
+namespace solver { class CTime; }
+namespace mesh   { class Field; }
 namespace SFDM {
 
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class SFDM_API IterativeSolver : public Solver::Action {
+class SFDM_API IterativeSolver : public solver::Action {
 
 public: // typedefs
 
@@ -42,8 +42,8 @@ public: // functions
   /// execute the action
   virtual void execute ();
 
-  common::CActionDirector& pre_update()    { return *m_pre_update; }
-  common::CActionDirector& post_update()   { return *m_post_update; }
+  common::ActionDirector& pre_update()    { return *m_pre_update; }
+  common::ActionDirector& post_update()   { return *m_post_update; }
 
   /// @name SIGNALS
   //@{
@@ -65,17 +65,17 @@ private: // data
   std::vector<Real> m_beta;
   std::vector<Real> m_gamma;
 
-  boost::weak_ptr<Mesh::Field> m_solution;
-  boost::weak_ptr<Mesh::Field> m_solution_backup;
-  boost::weak_ptr<Mesh::Field> m_residual;
-  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_solution_backup;
+  boost::weak_ptr<mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_update_coeff;
 
-  boost::weak_ptr<Solver::CTime> m_time;
+  boost::weak_ptr<solver::CTime> m_time;
 
   /// set of actions called every iteration before non-linear solve
-  boost::shared_ptr<common::CActionDirector> m_pre_update;
+  boost::shared_ptr<common::ActionDirector> m_pre_update;
   /// set of actions called every iteration after non-linear solve
-  boost::shared_ptr<common::CActionDirector> m_post_update;
+  boost::shared_ptr<common::ActionDirector> m_post_update;
 
 };
 

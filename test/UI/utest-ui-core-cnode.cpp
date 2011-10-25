@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE( add_node )
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(child_count_changed()));
 
   BOOST_REQUIRE_NO_THROW( root->add_node(node));
-  // the component should have been added to the *real* root (CRoot)
+  // the component should have been added to the *real* root (Root)
   BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath://Root/Node")->as_ptr<NGeneric>() );
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( remove_node )
   QSignalSpy nodeSpy(node->notifier(), SIGNAL(child_count_changed()));
 
   BOOST_REQUIRE_NO_THROW( root->remove_node("Node"));
-  // the component should have been removed from the REAL root (CRoot)
+  // the component should have been removed from the REAL root (Root)
   BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath://Root/Node").get(), nullComp);
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);

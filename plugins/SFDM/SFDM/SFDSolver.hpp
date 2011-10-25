@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/PrepareMesh.hpp"
 #include "SFDM/TimeStepping.hpp"
@@ -19,8 +19,8 @@
 
 namespace cf3 {
 
-namespace common    { class CGroup; }
-namespace Solver    { namespace Actions { class CSynchronizeFields; } }
+namespace common    { class Group; }
+namespace solver    { namespace actions { class CSynchronizeFields; } }
 
 namespace SFDM {
 
@@ -40,7 +40,7 @@ class TimeStepping;
 /// combining a forward euler time marching scheme with
 /// a high-order spectral finite difference spatial scheme
 /// @author Willem Deconinck
-class SFDM_API SFDSolver : public Solver::CSolver {
+class SFDM_API SFDSolver : public solver::CSolver {
 
 public: // typedefs
 
@@ -80,11 +80,11 @@ public: // functions
   /// @return subcomponent to prepare mesh for solving
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
-  common::CGroup&       actions()                { return *m_actions; }
+  common::Group&       actions()                { return *m_actions; }
   /// @returns the group of shared fields
-  common::CGroup&       fields()                 { return *m_fields; }
+  common::Group&       fields()                 { return *m_fields; }
 
-  Mesh::CMesh& mesh() { return *m_mesh.lock(); }
+  mesh::Mesh& mesh() { return *m_mesh.lock(); }
 
 private: // functions
 
@@ -101,11 +101,11 @@ private: // data
 
   bool m_mesh_configured;
 
-  boost::shared_ptr<common::CGroup>          m_actions;               ///< the group of shared actions
-  boost::shared_ptr<common::CGroup>          m_fields;                ///< the group of fields
+  boost::shared_ptr<common::Group>          m_actions;               ///< the group of shared actions
+  boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
 
-  boost::weak_ptr<Physics::PhysModel>        m_physical_model;        ///< physical model
-  boost::weak_ptr<Mesh::CMesh>               m_mesh;                  ///< mesh which this solver operates
+  boost::weak_ptr<physics::PhysModel>        m_physical_model;        ///< physical model
+  boost::weak_ptr<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
 
   boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
   boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping

@@ -11,7 +11,7 @@
 #include "common/BoostAssertions.hpp"
 #include "common/LibCommon.hpp"
 #include "common/FindComponents.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 
 #include "common/PE/Comm.hpp"

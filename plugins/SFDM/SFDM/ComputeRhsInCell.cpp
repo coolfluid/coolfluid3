@@ -6,22 +6,22 @@
 
 #include "common/Log.hpp"
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Math/MathConsts.hpp"
+#include "math/MathConsts.hpp"
 
-#include "Mesh/CField.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CEntities.hpp"
-#include "Mesh/CConnectivity.hpp"
-#include "Mesh/CFaceCellConnectivity.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Entities.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
-#include "Solver/State.hpp"
+#include "solver/State.hpp"
 
 #include "RiemannSolvers/src/RiemannSolvers/RiemannSolver.hpp"
 
@@ -32,21 +32,21 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 using namespace cf3::RiemannSolvers;
-using namespace cf3::Math::MathConsts;
+using namespace cf3::math::MathConsts;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeRhsInCell, Solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
+common::ComponentBuilder < ComputeRhsInCell, solver::actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
-  Solver::Actions::CLoopOperation(name)
+  solver::actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
@@ -73,13 +73,13 @@ ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::config_jacobian_determinant,   this ) );
 
-  m_options.add_option( OptionT<std::string>::create("riemann_solver", "CF.RiemannSolvers.Roe") )
+  m_options.add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
     ->description("The component to solve the Rieman Problem on cell-faces")
     ->pretty_name("Riemann Solver")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeRhsInCell::build_riemann_solver, this) );
 
-  m_options.add_option( OptionComponent<Solver::State>::create("solution_state", &m_sol_state) )
+  m_options.add_option( OptionComponent<solver::State>::create("solution_state", &m_sol_state) )
     ->description("The component describing the solution state")
     ->pretty_name("Solution State")
     ->attach_trigger (boost::bind ( &ComputeRhsInCell::config_solution_physics, this) );
@@ -108,7 +108,7 @@ void ComputeRhsInCell::config_solution()
     throw CastingFailed (FromHere(), "Field must be of a CField or derived type");
   m_solution->set_field(comp);
 
-  m_mesh_elements = m_solution->field().parent().as_type<CMesh>().elements().as_ptr<CMeshElements>();
+  m_mesh_elements = m_solution->field().parent().as_type<Mesh>().elements().as_ptr<MeshElements>();
   m_nb_vars = m_solution->field().data().row_size();
 
 }
@@ -260,8 +260,8 @@ void ComputeRhsInCell::execute()
   Reconstruct& reconstruct_solution_in_all_flux_points = *m_reconstruct_solution;
   Reconstruct& reconstruct_flux_in_solution_points_in_line = *m_reconstruct_flux;
 
-  Solver::State& sol_state = *m_sol_state.lock();
-  Solver::Physics& sol_vars = *m_sol_vars;
+  solver::State& sol_state = *m_sol_state.lock();
+  solver::Physics& sol_vars = *m_sol_vars;
 
   const SFDM::ShapeFunction& solution_sf = *m_solution_sf;
   const SFDM::ShapeFunction& flux_sf     = *m_flux_sf;
@@ -278,7 +278,7 @@ void ComputeRhsInCell::execute()
 
   Real& wave_speed = (*m_wave_speed)[idx()];
 
-  CConnectivity& c2f = elements().get_child("face_connectivity").as_type<CConnectivity>();
+  Connectivity& c2f = elements().get_child("face_connectivity").as_type<Connectivity>();
   Component::Ptr faces;
   Uint face_idx;
   Component::Ptr neighbor_cells;
@@ -311,7 +311,7 @@ void ComputeRhsInCell::execute()
     { /// <ul>
       //CFdebug << "  line = " << line << CFendl;
       /// <li> Compute analytical flux in the flux points of the line, excluding begin and end point
-      ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see Solver::State::compute_flux())
+      ///      @f[ \mathbf{\tilde{F}}_{f,line} = \mathrm{flux}(\mathbf{\tilde{Q}}_{f, line}) @f] (see solver::State::compute_flux())
 
       for (Uint sol_pt=0; sol_pt<solution_sf.nb_nodes_per_line(); ++sol_pt)
       {
@@ -340,7 +340,7 @@ void ComputeRhsInCell::execute()
         boost::tie(faces,face_idx) = c2f.lookup().location( c2f[idx()][flux_sf.face_number()[orientation][side]] );
 
         // Find neighbor cell
-        CFaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<CFaceCellConnectivity>();
+        FaceCellConnectivity& f2c = faces->get_child("cell_connectivity").as_type<FaceCellConnectivity>();
         if (f2c.is_bdry_face()[face_idx])
         {
           //CFdebug << "    must implement a boundary condition on face " << faces->parent().name() << "["<<face_idx<<"]" << CFendl;
@@ -360,7 +360,7 @@ void ComputeRhsInCell::execute()
         }
         else
         {
-          CTable<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
+          Table<Uint>::ConstRow connected_cells = f2c.connectivity()[face_idx];
           Uint unified_neighbor_cell_idx = connected_cells[LEFT] != this_cell_idx ? connected_cells[LEFT] : connected_cells[RIGHT];
           boost::tie(neighbor_cells,neighbor_cell_idx) = f2c.lookup().location( unified_neighbor_cell_idx );
 
@@ -427,7 +427,7 @@ void ComputeRhsInCell::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealRowVector ComputeRhsInCell::to_row_vector(Mesh::CTable<Real>::ConstRow row) const
+RealRowVector ComputeRhsInCell::to_row_vector(common::Table<Real>::ConstRow row) const
 {
   RealRowVector rowvec (row.size());
   for (Uint i=0; i<row.size(); ++i)
@@ -439,7 +439,7 @@ RealRowVector ComputeRhsInCell::to_row_vector(Mesh::CTable<Real>::ConstRow row) 
 
 ////////////////////////////////////////////////////////////////////////////////////
 
-RealMatrix ComputeRhsInCell::to_matrix(Mesh::CMultiStateFieldView::View data) const
+RealMatrix ComputeRhsInCell::to_matrix(mesh::CMultiStateFieldView::View data) const
 {
   RealMatrix m (data.shape()[0] , data.shape()[1]);
   for (Uint i=0; i<m.rows(); ++i)

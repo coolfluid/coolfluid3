@@ -7,16 +7,16 @@
 #ifndef cf3_SFDM_UpdateSolution_hpp
 #define cf3_SFDM_UpdateSolution_hpp
 
-#include "Solver/Action.hpp"
+#include "solver/Action.hpp"
 #include "SFDM/LibSFDM.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace Mesh   { class Field; }
+namespace mesh   { class Field; }
 namespace SFDM {
 
-class SFDM_API UpdateSolution : public Solver::Action
+class SFDM_API UpdateSolution : public solver::Action
 {
 public: // typedefs
 
@@ -44,9 +44,9 @@ private: // functions
 
 private: // data
 
-  boost::weak_ptr<Mesh::Field> m_solution;
-  boost::weak_ptr<Mesh::Field> m_residual;
-  boost::weak_ptr<Mesh::Field> m_update_coeff;
+  boost::weak_ptr<mesh::Field> m_solution;
+  boost::weak_ptr<mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_update_coeff;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -20,7 +20,7 @@
 #include <cstdio>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 

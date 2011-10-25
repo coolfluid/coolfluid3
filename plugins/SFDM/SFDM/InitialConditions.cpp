@@ -5,19 +5,19 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Field.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/Init.hpp"
@@ -26,7 +26,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {
@@ -34,12 +34,12 @@ namespace SFDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < InitialConditions, CAction, LibSFDM > InitialConditions_Builder;
+common::ComponentBuilder < InitialConditions, Action, LibSFDM > InitialConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 InitialConditions::InitialConditions ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -58,26 +58,26 @@ void InitialConditions::execute()
 {
   // apply all registered actions
 
-  CActionDirector::execute();
+  ActionDirector::execute();
 
   /// @todo apply all strong BCs
 
-//  CAction& strong_bcs =
-//      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<CAction>();
+//  Action& strong_bcs =
+//      access_component( "cpath:../BoundaryConditions/StrongBCs" ).as_type<Action>();
 
 //  strong_bcs.execute();
 
   // synchronize fields to insure consistency of parallel data
 
-//  CAction& synchronize =
-//      access_component( "cpath:../Actions/Synchronize" ).as_type<CAction>();
+//  Action& synchronize =
+//      access_component( "cpath:../actions/Synchronize" ).as_type<Action>();
 
 //  synchronize.execute();
 }
 
-Solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
+solver::Action& InitialConditions::create_initial_condition(const std::string& name, const std::vector<URI>& regions)
 {
-  Solver::Action::Ptr ic = allocate_component< SFDM::Init >(name);
+  solver::Action::Ptr ic = allocate_component< SFDM::Init >(name);
   append( ic );
 
   /// @todo find the field through solver links

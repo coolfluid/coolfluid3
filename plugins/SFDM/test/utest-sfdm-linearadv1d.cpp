@@ -11,29 +11,29 @@
 #include <boost/assign/list_of.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Root.hpp"
+#include "common/Environment.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
 
 #include "common/PE/Comm.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Solver/CModel.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CModel.hpp"
+#include "solver/Tags.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/Geometry.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CSimpleMeshGenerator.hpp"
-#include "Mesh/CMeshTransformer.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CLinearInterpolator.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/SimpleMeshGenerator.hpp"
+#include "mesh/MeshTransformer.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/LinearInterpolator.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/Term.hpp"
@@ -41,30 +41,30 @@
 
 #include "Tools/Gnuplot/Gnuplot.hpp"
 
-//#include "Mesh/CMesh.hpp"
-//#include "Mesh/CField.hpp"
-//#include "Mesh/CEntities.hpp"
-//#include "Mesh/ElementType.hpp"
-//#include "Mesh/CMeshWriter.hpp"
-//#include "Mesh/CDomain.hpp"
-//#include "Mesh/Actions/CInitFieldFunction.hpp"
-//#include "Mesh/Actions/CreateSpaceP0.hpp"
-//#include "Solver/CModelUnsteady.hpp"
-//#include "Solver/CSolver.hpp"
-//#include "Solver/CPhysicalModel.hpp"
-//#include "Mesh/Actions/CBuildFaces.hpp"
-//#include "Mesh/Actions/CBuildVolume.hpp"
-//#include "Mesh/Actions/CreateSpaceP0.hpp"
+//#include "mesh/Mesh.hpp"
+//#include "mesh/CField.hpp"
+//#include "mesh/Entities.hpp"
+//#include "mesh/ElementType.hpp"
+//#include "mesh/MeshWriter.hpp"
+//#include "mesh/Domain.hpp"
+//#include "mesh/actions/InitFieldFunction.hpp"
+//#include "mesh/actions/CreateSpaceP0.hpp"
+//#include "solver/CModelUnsteady.hpp"
+//#include "solver/CSolver.hpp"
+//#include "solver/CPhysicalModel.hpp"
+//#include "mesh/actions/BuildFaces.hpp"
+//#include "mesh/actions/BuildVolume.hpp"
+//#include "mesh/actions/CreateSpaceP0.hpp"
 //#include "SFDM/CreateSpace.hpp"
 
 using namespace boost::assign;
 using namespace cf3;
-using namespace cf3::Math;
+using namespace cf3::math;
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
 using namespace cf3::SFDM;
 
 std::map<Real,Real> xy(const Field& field)
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( Solver_test )
+BOOST_AUTO_TEST_CASE( solver_test )
 {
   Core::instance().environment().configure_option("log_level", (Uint)INFO);
 
@@ -119,10 +119,10 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   Uint dim=1;
 
   CModel& model   = Core::instance().root().create_component<CModel>("model");
-  model.setup("CF.SFDM.SFDSolver","CF.Physics.Scalar.Scalar1D");
+  model.setup("cf3.SFDM.SFDSolver","cf3.physics.Scalar.Scalar1D");
   PhysModel& physics = model.physics();
   SFDSolver& solver  = model.solver().as_type<SFDSolver>();
-  CDomain&   domain  = model.domain();
+  Domain&   domain  = model.domain();
 
   physics.configure_option("v",1.);
 
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   // create and configure mesh
 
   // Create a 2D rectangular mesh
-  CMesh& mesh = domain.create_component<CMesh>("mesh");
+  Mesh& mesh = domain.create_component<Mesh>("mesh");
 
   Uint res = 20;
   Uint order = 3;
@@ -138,20 +138,20 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   std::vector<Real> lengths  = list_of(  10.  );
   std::vector<Real> offsets  = list_of(  0.  );
 
-  CSimpleMeshGenerator& generate_mesh = domain.create_component<CSimpleMeshGenerator>("generate_mesh");
+  SimpleMeshGenerator& generate_mesh = domain.create_component<SimpleMeshGenerator>("generate_mesh");
   generate_mesh.configure_option("mesh",mesh.uri());
   generate_mesh.configure_option("nb_cells",nb_cells);
   generate_mesh.configure_option("lengths",lengths);
   generate_mesh.configure_option("offsets",offsets);
   generate_mesh.configure_option("bdry",false);
   generate_mesh.execute();
-  build_component_abstract_type<CMeshTransformer>("CF.Mesh.Actions.LoadBalance","load_balance")->transform(mesh);
+  build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","load_balance")->transform(mesh);
   solver.configure_option(SFDM::Tags::mesh(),mesh.uri());
 
   //////////////////////////////////////////////////////////////////////////////
   // Prepare the mesh
 
-  solver.configure_option(SFDM::Tags::solution_vars(),std::string("CF.Physics.Scalar.LinearAdv1D"));
+  solver.configure_option(SFDM::Tags::solution_vars(),std::string("cf3.physics.Scalar.LinearAdv1D"));
   solver.configure_option(SFDM::Tags::solution_order(),order);
   solver.iterative_solver().configure_option("rk_order",order);
   solver.prepare_mesh().execute();
@@ -161,7 +161,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
 
 
   // Initial condition
-  Solver::Action& init_gauss = solver.initial_conditions().create_initial_condition("gaussian");
+  solver::Action& init_gauss = solver.initial_conditions().create_initial_condition("gaussian");
   std::vector<std::string> functions;
   // Gaussian wave
   functions.push_back("sigma:=0.5;mu:=5;exp(-(x-mu)^2/(2*sigma^2))");
@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( Solver_test )
   solution_field.field_group().create_coordinates();
 
   // Discretization
-  solver.domain_discretization().create_term("CF.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
+  solver.domain_discretization().create_term("cf3.SFDM.Convection","convection",std::vector<URI>(1,mesh.topology().uri()));
 
   // Time stepping
   solver.time_stepping().time().configure_option("time_step",100.);

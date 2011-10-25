@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -17,11 +17,11 @@
 /// @note build system defines COOLFLUID_GOOGLEPERFTOOLS_EXPORTS when compiling
 /// GooglePerfTools files
 #ifdef COOLFLUID_GOOGLEPERFTOOLS_EXPORTS
-#   define GooglePerfTools_API      CF_EXPORT_API
+#   define GooglePerfTools_API      CF3_EXPORT_API
 #   define GooglePerfTools_TEMPLATE
 #else
-#   define GooglePerfTools_API      CF_IMPORT_API
-#   define GooglePerfTools_TEMPLATE CF_TEMPLATE_EXTERN
+#   define GooglePerfTools_API      CF3_IMPORT_API
+#   define GooglePerfTools_TEMPLATE CF3_TEMPLATE_EXTERN
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -43,7 +43,7 @@ namespace GooglePerfTools {
 /// More examples are given on the google perftools website:
 /// http://google-perftools.googlecode.com/svn/trunk/doc/cpuprofile.html
 /// @author Bart Janssens
-class GooglePerfTools_API LibGooglePerfTools : public common::CLibrary
+class GooglePerfTools_API LibGooglePerfTools : public common::Library
 {
 public:
 
@@ -51,20 +51,20 @@ public:
   typedef boost::shared_ptr<LibGooglePerfTools const> ConstPtr;
 
   /// Constructor
-  LibGooglePerfTools ( const std::string& name) : common::CLibrary(name) {   }
+  LibGooglePerfTools ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.Tools.GooglePerfTools"; }
+  static std::string library_namespace() { return "cf3.Tools.GooglePerfTools"; }
 
   /// Static function that returns the library name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() {  return "GooglePerfTools"; }
 
   /// Static function that returns the description of the library.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

@@ -6,18 +6,18 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/EventHandler.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Solver/Actions/CPeriodicWriteMesh.hpp"
-#include "Solver/Actions/CSynchronizeFields.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
-#include "Solver/Actions/CComputeLNorm.hpp"
-#include "Solver/Actions/CPrintIterationSummary.hpp"
+#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CComputeLNorm.hpp"
+#include "solver/actions/CPrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
@@ -26,8 +26,8 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {
@@ -35,12 +35,12 @@ namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < IterativeSolver, CAction, LibRDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, common::Action, LibRDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -50,11 +50,11 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_actions  = create_static_component_ptr<CActionDirector>("PreActions");
+  m_pre_actions  = create_static_component_ptr<ActionDirector>("PreActions");
 
-  m_update = create_static_component_ptr<CActionDirector>("Update");
+  m_update = create_static_component_ptr<ActionDirector>("Update");
 
-  m_post_actions = create_static_component_ptr<CActionDirector>("PostActions");
+  m_post_actions = create_static_component_ptr<ActionDirector>("PostActions");
 
   // dynamic components
 
@@ -92,13 +92,13 @@ void IterativeSolver::execute()
 
   // access components (out of loop)
 
-  CActionDirector& boundary_conditions =
-      access_component( "cpath:../BoundaryConditions" ).as_type<CActionDirector>();
+  ActionDirector& boundary_conditions =
+      access_component( "cpath:../BoundaryConditions" ).as_type<ActionDirector>();
 
-  CActionDirector& domain_discretization =
-      access_component( "cpath:../DomainDiscretization" ).as_type<CActionDirector>();
+  ActionDirector& domain_discretization =
+      access_component( "cpath:../DomainDiscretization" ).as_type<ActionDirector>();
 
-  CAction& synchronize = mysolver.actions().get_child("Synchronize").as_type<CAction>();
+  Action& synchronize = mysolver.actions().get_child("Synchronize").as_type<Action>();
 
   Component& cnorm = post_actions().get_child("ComputeNorm");
   cnorm.configure_option("Field", mysolver.fields().get_child( RDM::Tags::residual() ).follow()->uri() );

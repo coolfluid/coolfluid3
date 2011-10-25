@@ -10,16 +10,16 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
-#include "common/CRoot.hpp"
+#include "common/Environment.hpp"
+#include "common/Root.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/CTime.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -29,12 +29,12 @@
 
 
 using namespace cf3;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
+using namespace cf3::solver::actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::math::Consts;
+using namespace cf3::mesh;
 
 using namespace boost;
 
@@ -68,7 +68,7 @@ struct ProtoUnsteadyFixture
   }
 
   /// Write the analytical solution, according to "A Heat transfer textbook", section 5.3
-  void set_analytical_solution(CRegion& region, const std::string& field_name, const std::string& var_name)
+  void set_analytical_solution(Region& region, const std::string& field_name, const std::string& var_name)
   {
     MeshTerm<0, ScalarField > T(field_name, var_name);
 
@@ -137,11 +137,11 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
 
   // Setup a model
   CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
   lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
   MeshTerm<1, ScalarField> temperature_analytical("TemperatureAnalytical", UFEM::Tags::source_terms());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -185,10 +185,10 @@ BOOST_AUTO_TEST_CASE( Heat1DUnsteady )
     );
 
   // Setup physics
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
   
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

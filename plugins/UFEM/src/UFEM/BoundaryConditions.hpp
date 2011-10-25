@@ -7,13 +7,13 @@
 #ifndef cf3_UFEM_BoundaryConditions_hpp
 #define cf3_UFEM_BoundaryConditions_hpp
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/OptionURI.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
-#include "Solver/Actions/Proto/BlockAccumulator.hpp"
-#include "Solver/Actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
 
 #include "LibUFEM.hpp"
 
@@ -22,7 +22,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// BoundaryConditions for UFEM problems
-class UFEM_API BoundaryConditions : public common::CActionDirector
+class UFEM_API BoundaryConditions : public common::ActionDirector
 {
 public: // typedefs
 

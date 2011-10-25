@@ -17,13 +17,13 @@
 #include "common/BasicExceptions.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/ElementData.hpp"
-#include "Mesh/CField.hpp"
-#include "Mesh/CFieldView.hpp"
-#include "Mesh/CNodes.hpp"
-#include "Mesh/ElementType.hpp"
+#include "mesh/ElementData.hpp"
+#include "mesh/CField.hpp"
+#include "mesh/CFieldView.hpp"
+#include "mesh/CNodes.hpp"
+#include "mesh/ElementType.hpp"
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -36,7 +36,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public Solver::Actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::actions::CLoopOperation
 {
 public: // typedefs
 
@@ -72,22 +72,22 @@ private: // helper functions
   {
     /// @todo improve this (ugly)
 
-    connectivity = elements().as_ptr<Mesh::CElements>()->node_connectivity().as_ptr< Mesh::CConnectivity >();
-    coordinates = elements().nodes().coordinates().as_ptr< Mesh::Field >();
+    connectivity = elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
+    coordinates = elements().nodes().coordinates().as_ptr< mesh::Field >();
 
     cf_assert( is_not_null(connectivity) );
 
     /// @todo modify these to option components configured from
 
-    Mesh::CField::Ptr csolution = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "solution" );
+    mesh::CField::Ptr csolution = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "solution" );
     cf_assert( is_not_null( csolution ) );
     solution = csolution->data_ptr();
 
-    Mesh::CField::Ptr cresidual = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "residual" );
+    mesh::CField::Ptr cresidual = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "residual" );
     cf_assert( is_not_null( cresidual ) );
     residual = cresidual->data_ptr();
 
-    Mesh::CField::Ptr cwave_speed = common::find_component_ptr_recursively_with_tag<Mesh::CField>( common::Core::instance().root(), "wave_speed" );
+    mesh::CField::Ptr cwave_speed = common::find_component_ptr_recursively_with_tag<mesh::CField>( common::Core::instance().root(), "wave_speed" );
     cf_assert( is_not_null( cwave_speed ) );
     wave_speed = cwave_speed->data_ptr();
   }
@@ -96,15 +96,15 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  Mesh::CTable<Uint>::Ptr connectivity;
+  common::Table<Uint>::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr coordinates;
+  common::Table<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr solution;
+  common::Table<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr residual;
+  common::Table<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  Mesh::CTable<Real>::Ptr wave_speed;
+  common::Table<Real>::Ptr wave_speed;
 
   const QD& m_quadrature;
 

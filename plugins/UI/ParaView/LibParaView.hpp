@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // header
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace ParaView {
 ///////////////////////////////////////////////////////////////////////////////
 
 class ParaView_API LibParaView :
-    public common::CLibrary
+    public common::Library
 {
 public:
 
@@ -41,20 +41,20 @@ public:
   typedef boost::shared_ptr<LibParaView const> ConstPtr;
 
   /// Constructor
-  LibParaView ( const std::string& name) : common::CLibrary(name) {   }
+  LibParaView ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.UI.ParaView"; }
+  static std::string library_namespace() { return "cf3.UI.ParaView"; }
 
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "ParaView"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

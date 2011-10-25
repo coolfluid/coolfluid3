@@ -6,7 +6,7 @@
 
 #include <QModelIndex>
 
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/Protocol.hpp"
@@ -30,7 +30,7 @@ namespace Core {
 ////////////////////////////////////////////////////////////////////////////
 
 NLink::NLink(const std::string & name)
-  : CNode(name, "CLink", CNode::STANDARD_NODE)
+  : CNode(name, "Link", CNode::STANDARD_NODE)
 {
   regist_signal( "goToTarget" )
     ->connect( boost::bind( &NLink::go_to_target, this, _1 ) )
@@ -70,7 +70,7 @@ void NLink::set_target_path(const URI & path)
 
   if(!path.empty())
   {
-    CNode::Ptr target = boost::dynamic_pointer_cast<CRoot>(m_root.lock())->retrieve_component<CNode>(path);
+    CNode::Ptr target = boost::dynamic_pointer_cast<Root>(m_root.lock())->retrieve_component<CNode>(path);
     cf3_assert( is_not_null(target.get()) );
     this->set_target_node(target);
   }

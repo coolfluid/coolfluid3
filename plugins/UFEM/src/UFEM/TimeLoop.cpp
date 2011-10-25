@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/Tags.hpp"
+#include "solver/CTime.hpp"
+#include "solver/Tags.hpp"
 
 #include "TimeLoop.hpp"
 
@@ -19,14 +19,14 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Solver;
+using namespace solver;
 
 struct TimeLoop::Implementation
 {
   Implementation(Component& comp) :
    m_component(comp)
   {
-    m_component.options().add_option( OptionComponent<CTime>::create(Solver::Tags::time(), &m_time))
+    m_component.options().add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_time))
     ->pretty_name("Time")
     ->description("Component that keeps track of time for this simulation");
   }
@@ -36,7 +36,7 @@ struct TimeLoop::Implementation
 };
 
 TimeLoop::TimeLoop(const std::string& name) :
-  CActionDirector(name),
+  ActionDirector(name),
   m_implementation(new Implementation(*this))
 {
 }
@@ -51,13 +51,13 @@ void TimeLoop::execute()
   if(m_implementation->m_time.expired())
     throw common::SetupError(FromHere(), "Error executing TimeLoop " + uri().string() + ": Time is invalid");
 
-  Solver::CTime& time = *m_implementation->m_time.lock();
+  solver::CTime& time = *m_implementation->m_time.lock();
   const Real& t = time.current_time();
   const Real dt = time.dt();
   Uint iter = time.iter();
   while(t < time.end_time())
   {
-    CActionDirector::execute();
+    ActionDirector::execute();
     time.configure_option("iteration", ++iter);
     time.configure_option("time", dt * static_cast<Real>(iter));
   }

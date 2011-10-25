@@ -9,7 +9,7 @@
 
 #include <QMap>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "UI/Core/CNode.hpp"
 #include "UI/Core/LibCore.hpp"
@@ -31,11 +31,11 @@ public:
   template<typename TYPE>
   void register_builder(const QString & component_type)
   {
-    typedef typename common::CBuilderT<CNode, TYPE> BuilderType;
+    typedef typename common::BuilderT<CNode, TYPE> BuilderType;
 
     cf3_assert( !m_builders.contains(component_type) );
 
-    m_builders[component_type] = common::allocate_component< typename common::CBuilderT<CNode, TYPE> >( component_type.toStdString() );
+    m_builders[component_type] = common::allocate_component< typename common::BuilderT<CNode, TYPE> >( component_type.toStdString() );
   }
 
   bool has_builder(const QString & component_type) const;

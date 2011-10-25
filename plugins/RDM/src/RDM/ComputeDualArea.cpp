@@ -4,22 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
-#include "common/CLink.hpp"
+#include "common/Builder.hpp"
+#include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Field.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/ComputeDualArea.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {
@@ -28,7 +28,7 @@ namespace RDM {
 
 common::ComponentBuilder < CellLoopT1< ComputeDualArea >, RDM::CellLoop, LibRDM > ComputeDualArea_CellLoop_Builder;
 
-common::ComponentBuilder < ComputeDualArea, Solver::Action, LibRDM > ComputeDualArea_Builder;
+common::ComponentBuilder < ComputeDualArea, common::Action, LibRDM > ComputeDualArea_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ ComputeDualArea::~ComputeDualArea() {}
 void ComputeDualArea::create_dual_area_field()
 {
   RDM::RDSolver& rdsolver = solver().as_type< RDM::RDSolver >();
-  CMesh& mymesh = mesh();
+  Mesh& mymesh = mesh();
 
   const std::string solution_space = rdsolver.option("solution_space").value<std::string>();
 
@@ -57,17 +57,17 @@ void ComputeDualArea::create_dual_area_field()
     field = comp->as_ptr_checked<Field>();
   else
   {
-    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<Mesh::Field>();
+    field = solution_grp.create_field( Tags::dual_area(), "dual_area" ).as_ptr<mesh::Field>();
     field->add_tag(Tags::dual_area());
   }
 
   cdual_area = field;
 
   RDM::RDSolver& mysolver = solver().as_type< RDM::RDSolver >();
-  CGroup& fields = mysolver.fields();
+  Group& fields = mysolver.fields();
 
   if( ! fields.get_child_ptr( Tags::dual_area() ) )
-    fields.create_component<CLink>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
+    fields.create_component<Link>( Tags::dual_area() ).link_to(field).add_tag( Tags::dual_area() );
 }
 
 void ComputeDualArea::execute()
@@ -82,7 +82,7 @@ void ComputeDualArea::execute()
   create_dual_area_field();
 
   if( m_loop_regions.empty() )
-    m_loop_regions.push_back( mesh().topology().as_ptr<CRegion>() );
+    m_loop_regions.push_back( mesh().topology().as_ptr<Region>() );
 
   // get the element loop or create it if does not exist
 
@@ -98,7 +98,7 @@ void ComputeDualArea::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     std::cout << "       -> Compute dual area in region [" << region->uri().string() << "]" << std::endl;
 

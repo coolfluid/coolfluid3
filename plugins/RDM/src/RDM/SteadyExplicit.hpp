@@ -9,13 +9,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Solver/CWizard.hpp"
+#include "solver/CWizard.hpp"
 
 #include "RDM/LibRDM.hpp"
 
 namespace cf3 {
 
- namespace Solver { class CModel; }
+ namespace solver { class CModel; }
 
 namespace RDM {
 
@@ -23,7 +23,7 @@ namespace RDM {
 
 /// Wizard to setup a scalar advection simulation
 /// @author Tiago Quintino
-class RDM_API SteadyExplicit : public Solver::CWizard {
+class RDM_API SteadyExplicit : public solver::CWizard {
 
 public: // typedefs
 
@@ -44,7 +44,7 @@ public: // functions
 
   // functions specific to the SteadyExplicit component
 
-  cf3::Solver::CModel& create_model( const std::string& model_name,
+  cf3::solver::CModel& create_model( const std::string& model_name,
                                     const std::string& physics_builder );
 
   /// @name SIGNALS

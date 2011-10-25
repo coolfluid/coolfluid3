@@ -5,20 +5,20 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::Physics::NavierStokes::Cons2D"
+#define BOOST_TEST_MODULE "Test module for cf3::physics::NavierStokes::Cons2D"
 
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
-#include "common/CEnv.hpp"
+#include "common/Root.hpp"
+#include "common/Environment.hpp"
 
 #include "NavierStokes/Cons2D.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Physics::NavierStokes;
+using namespace cf3::physics::NavierStokes;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( compute_properties )
 #if 0 // work in progress
   // create the model
 
-  Physics::PhysModel& pmodel =
+  physics::PhysModel& pmodel =
       Core::instance().root().create_component<NavierStokes2D>( "pmodel" );
 
   // values for testing

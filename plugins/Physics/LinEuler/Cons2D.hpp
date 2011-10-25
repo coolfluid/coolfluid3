@@ -6,19 +6,19 @@
 
 #include <iostream>
 
-#ifndef cf3_Physics_LinEuler_Cons2D_hpp
-#define cf3_Physics_LinEuler_Cons2D_hpp
+#ifndef cf3_physics_LinEuler_Cons2D_hpp
+#define cf3_physics_LinEuler_Cons2D_hpp
 
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "LinEuler2D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace LinEuler {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -282,7 +282,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // LinEuler
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_LinEuler_Cons2D_hpp
+#endif // cf3_physics_LinEuler_Cons2D_hpp

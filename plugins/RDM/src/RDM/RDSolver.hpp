@@ -4,21 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_RDM_Solver_hpp
-#define cf3_RDM_Solver_hpp
+#ifndef cf3_RDM_solver_hpp
+#define cf3_RDM_solver_hpp
 
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Action.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/Action.hpp"
 
 #include "RDM/Tags.hpp"
 
 namespace cf3 {
 
-namespace Mesh    { class Field;    class CMesh; }
-namespace Physics { class PhysModel; class Variables; }
-namespace Solver  { namespace Actions { class CSynchronizeFields; } }
+namespace mesh    { class Field;    class Mesh; }
+namespace physics { class PhysModel; class Variables; }
+namespace solver  { namespace actions { class CSynchronizeFields; } }
 
 namespace RDM {
 
@@ -38,7 +38,7 @@ class TimeStepping;
 /// @author Mario Ricchiuto
 /// @author Willem Deconinck
 
-class RDM_API RDSolver : public cf3::Solver::CSolver {
+class RDM_API RDSolver : public cf3::solver::CSolver {
 
 public: // typedefs
 
@@ -73,12 +73,12 @@ public: // functions
   /// @return subcomponent for time stepping
   TimeStepping&         time_stepping();
   /// @return subcomponent to prepare mesh for solving
-  CActionDirector&      prepare_mesh();
+  common::ActionDirector&      prepare_mesh();
 
   /// @returns the group of shared actions
-  common::CGroup& actions();
+  common::Group& actions();
   /// @returns the group of shared fields
-  common::CGroup& fields();
+  common::Group& fields();
 
   /// @name SIGNALS
   //@{
@@ -98,9 +98,9 @@ private: // helper functions
 
 private: // data
 
-  common::CGroup::Ptr m_actions;  ///< the group of shared actions
+  common::Group::Ptr m_actions;  ///< the group of shared actions
 
-  common::CGroup::Ptr m_fields;   ///< the group of fields
+  common::Group::Ptr m_fields;   ///< the group of fields
 
   boost::shared_ptr<InitialConditions>    m_initial_conditions;    ///< subcomponent for initial conditions
 
@@ -112,11 +112,11 @@ private: // data
 
   boost::shared_ptr<TimeStepping>         m_time_stepping;         ///< subcomponent for time stepping
 
-  boost::shared_ptr<CActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
+  boost::shared_ptr<ActionDirector>      m_prepare_mesh;          ///< subcomponent that setups the fields
 
-  boost::weak_ptr< Physics::PhysModel >   m_physical_model;        ///< physical model
+  boost::weak_ptr< physics::PhysModel >   m_physical_model;        ///< physical model
 
-  boost::weak_ptr<Mesh::CMesh> m_mesh; ///< mesh which this solver operates
+  boost::weak_ptr<mesh::Mesh> m_mesh; ///< mesh which this solver operates
 
 };
 
@@ -126,4 +126,4 @@ private: // data
 } // RDM
 } // cf3
 
-#endif // cf3_RDM_Solver_hpp
+#endif // cf3_RDM_solver_hpp

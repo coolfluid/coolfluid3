@@ -10,18 +10,18 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
-#include "common/CRoot.hpp"
+#include "common/Environment.hpp"
+#include "common/Root.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
-#include "Mesh/CDomain.hpp"
+#include "mesh/Domain.hpp"
 
-#include "Mesh/LagrangeP1/Line1D.hpp"
-#include "Solver/CModel.hpp"
+#include "mesh/LagrangeP1/Line1D.hpp"
+#include "solver/CModel.hpp"
 
-#include "Solver/Actions/Proto/CProtoAction.hpp"
-#include "Solver/Actions/Proto/Expression.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
+#include "solver/actions/Proto/Expression.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -29,12 +29,12 @@
 #include "UFEM/Tags.hpp"
 
 using namespace cf3;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Solver::Actions::Proto;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
+using namespace cf3::solver::actions::Proto;
 using namespace cf3::common;
-using namespace cf3::Math::Consts;
-using namespace cf3::Mesh;
+using namespace cf3::math::Consts;
+using namespace cf3::mesh;
 
 using namespace boost;
 
@@ -59,7 +59,7 @@ struct ProtoHeatFixture
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
-  CRoot& root;
+  Root& root;
   std::string solver_config;
 
 };
@@ -82,10 +82,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
 
   // Setup a model
   CModel& model = root.create_component<CModel>("Model");
-  CDomain& domain = model.create_domain("Domain");
+  Domain& domain = model.create_domain("Domain");
   UFEM::LinearSolver& solver = model.create_component<UFEM::LinearSolver>("Solver");
 
-  Math::LSS::System& lss = model.create_component<Math::LSS::System>("LSS");
+  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
   lss.configure_option("solver", std::string("Trilinos"));
   solver.configure_option("lss", lss.uri());
 
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
   MeshTerm<0, ScalarField> temperature("Temperature", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
-  boost::mpl::vector1<Mesh::LagrangeP1::Line1D> allowed_elements;
+  boost::mpl::vector1<mesh::LagrangeP1::Line1D> allowed_elements;
 
   // add the top-level actions (assembly, BC and solve)
   solver
@@ -118,10 +118,10 @@ BOOST_AUTO_TEST_CASE( Heat1DComponent )
     << create_proto_action("CheckResult", nodes_expression(_check_close(temperature, 10. + 25.*(coordinates(0,0) / length), 1e-6)));
 
   // Setup physics
-  model.create_physics("CF.Physics.DynamicModel");
+  model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  CMesh& mesh = domain.create_component<CMesh>("Mesh");
+  Mesh& mesh = domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_line(mesh, length, nb_segments);
 
   lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));

@@ -5,39 +5,39 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
-#include "common/CGroupActions.hpp"
+#include "common/GroupActions.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Solver/CModelUnsteady.hpp"
-#include "Solver/FlowSolver.hpp"
-#include "Solver/CPhysicalModel.hpp"
-#include "Solver/CTime.hpp"
+#include "solver/CModelUnsteady.hpp"
+#include "solver/FlowSolver.hpp"
+#include "solver/CPhysicalModel.hpp"
+#include "solver/CTime.hpp"
 
-#include "Solver/Actions/CAdvanceTime.hpp"
-#include "Solver/Actions/CCriterionTime.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
+#include "solver/actions/CAdvanceTime.hpp"
+#include "solver/actions/CCriterionTime.hpp"
+#include "solver/actions/CForAllCells.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CElements.hpp"
-#include "Mesh/CSpace.hpp"
-#include "Mesh/ElementType.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Elements.hpp"
+#include "mesh/Space.hpp"
+#include "mesh/ElementType.hpp"
+#include "mesh/Region.hpp"
 
-#include "Mesh/Actions/CInitFieldConstant.hpp"
-#include "Mesh/Actions/CInitFieldFunction.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CBuildVolume.hpp"
-#include "Mesh/Actions/CreateSpaceP0.hpp"
+#include "mesh/actions/InitFieldConstant.hpp"
+#include "mesh/actions/InitFieldFunction.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/BuildVolume.hpp"
+#include "mesh/actions/CreateSpaceP0.hpp"
 
 #include "SFDM/SFDWizard.hpp"
 #include "SFDM/UpdateSolution.hpp"
@@ -55,10 +55,10 @@ namespace SFDM {
   using namespace common;
   using namespace common::XML;
 
-  using namespace Mesh;
-  using namespace Solver;
-  using namespace Solver::Actions;
-  using namespace Mesh::Actions;
+  using namespace mesh;
+  using namespace solver;
+  using namespace solver::actions;
+  using namespace mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,17 +83,17 @@ SFDWizard::SFDWizard( const std::string& name )
     ->pretty_name("Dimension")
     ->mark_basic();
 
-  //options().add_option( OptionT<std::string>::create("physics", "CF.") )
+  //options().add_option( OptionT<std::string>::create("physics", "cf3.") )
   //  ->description("Builder name for the physical model")
   //  ->pretty_name("Physics")
   //  ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("solution_state", "CF.Euler.Cons1D") )
+  m_options.add_option( OptionT<std::string>::create("solution_state", "cf3.Euler.Cons1D") )
     ->description("Solution state builder")
     ->pretty_name("Solution State")
     ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("roe_state", "CF.Euler.Roe1D") )
+  m_options.add_option( OptionT<std::string>::create("roe_state", "cf3.Euler.Roe1D") )
     ->description("Roe state builder")
     ->pretty_name("Roe State")
     ->mark_basic();
@@ -147,7 +147,7 @@ SFDWizard::SFDWizard( const std::string& name )
     ->connect ( boost::bind ( &SFDWizard::signal_start_simulation, this, _1 ) )
     ->signature( boost::bind ( &SFDWizard::signature_start_simulation, this, _1) );
 
-  m_model_link = create_static_component_ptr<CLink>("current_model");
+  m_model_link = create_static_component_ptr<Link>("current_model");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -169,9 +169,9 @@ void SFDWizard::create_simulation()
   /// @todo should be setup differently
   physical_model.configure_option("solution_state",option("solution_state").value_str());
 
-  CDomain& domain                = model.create_domain("Domain");
+  Domain& domain                = model.create_domain("Domain");
   CTime& time                    = model.create_time("Time");
-  CSolver& solver                = model.create_solver("CF.Solver.FlowSolver");
+  CSolver& solver                = model.create_solver("cf3.solver.FlowSolver");
 
   // These 2 functions are the only specific ones to SFDM (together with some configuration options)
   // -------------------------
@@ -182,7 +182,7 @@ void SFDWizard::create_simulation()
   solver.configure_option(FlowSolver::Tags::physical_model(),physical_model.uri());
   solver.configure_option(FlowSolver::Tags::time(),time.uri());
 
-  model.tools().create_component_ptr<CInitFieldFunction>("initialize_solution");
+  model.tools().create_component_ptr<InitFieldFunction>("initialize_solution");
 
   CFinfo << "\nCreate the mesh in ["<<domain.uri().path()<<"] and call \""<<uri().path()<<"/prepare\"" << CFendl;
 }
@@ -194,7 +194,7 @@ void SFDWizard::prepare_simulation()
 
   CModel& model = m_model_link->follow()->as_type<CModel>();
 
-  std::vector<CMesh::Ptr> meshes = find_components<CMesh>(model.domain()).as_vector();
+  std::vector<Mesh::Ptr> meshes = find_components<Mesh>(model.domain()).as_vector();
   if (meshes.size() == 0)
     throw SetupError(FromHere(),"Mesh was not added to the domain");
 
@@ -249,7 +249,7 @@ void SFDWizard::start_simulation(const Real& end_time, const Real& time_step)
 
 void SFDWizard::initialize_solution(const std::vector<std::string>& functions)
 {
-  CAction& init_solution = model().tools().get_child("initialize_solution").as_type<CAction>();
+  Action& init_solution = model().tools().get_child("initialize_solution").as_type<Action>();
   init_solution.configure_option("functions",functions);
   init_solution.execute();
 }
@@ -353,17 +353,17 @@ void SFDWizard::build_solve()
 {
   FlowSolver& solver = m_model_link->follow()->as_type<CModel>().solver().as_type<FlowSolver>();
 
-  Component& iterate = solver.create_solve("iterate","CF.Solver.Actions.CIterate");
-  Component& RK = iterate.create_component("1_RK_stages","CF.RungeKutta.RK");
+  Component& iterate = solver.create_solve("iterate","cf3.solver.actions.CIterate");
+  Component& RK = iterate.create_component("1_RK_stages","cf3.RungeKutta.RK");
   RK.configure_option("stages",option("RK_stages").value<Uint>());
-  Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<CGroupActions>("1_compute_rhs").mark_basic();
+  Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();
   compute_rhs.add_tag(FlowSolver::Tags::inner());
-  compute_rhs.create_component <CInitFieldConstant>("1.1_init_residual")
+  compute_rhs.create_component <InitFieldConstant>("1.1_init_residual")
     .mark_basic()
     .configure_option("constant",0.)
     .option("field").add_tag(FlowSolver::Tags::residual());
 
-  compute_rhs.create_static_component<CInitFieldConstant>("1.2_init_wave_speed")
+  compute_rhs.create_static_component<InitFieldConstant>("1.2_init_wave_speed")
     .mark_basic()
     .configure_option("constant",0.)
     .option("field").add_tag(FlowSolver::Tags::wave_speed());
@@ -376,7 +376,7 @@ void SFDWizard::build_solve()
   iterate.create_component<OutputIterationInfo>("2_output_info").mark_basic();
   iterate.create_component<CCriterionTime>("time_stop_criterion").mark_basic();
 
-  solver.configure_option_recursively("riemann_solver",std::string("CF.RiemannSolvers.Roe"));
+  solver.configure_option_recursively("riemann_solver",std::string("cf3.RiemannSolvers.Roe"));
   solver.configure_option_recursively("roe_state",option("roe_state").value_str());
 
   solver.configure_option_recursively("solution_state",m_model_link->follow()->as_type<CModel>().physics().solution_state().uri());
@@ -387,21 +387,21 @@ void SFDWizard::build_solve()
 
 void SFDWizard::build_setup()
 {
-  /// Create a Solver::Action that gets executed automatically when the FlowSolver
+  /// Create a solver::Action that gets executed automatically when the FlowSolver
   /// has been configured with ALL of the following:
   /// - physical_model
   /// - mesh
   /// - time
 
   FlowSolver& solver = model().solver().as_type<FlowSolver>();
-  CAction& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"CF.SFDM.SFDSetup");
+  Action& setup = solver.as_type<FlowSolver>().create_setup(FlowSolver::Tags::setup(),"cf3.SFDM.SFDSetup");
 
   /// Create a mesh transformer to adapt the mesh for SFDM
-  CMeshTransformer& transform_mesh = setup.create_component<CMeshTransformer>("1_transform_mesh").mark_basic().as_type<CMeshTransformer>();
-  transform_mesh.create_component<CBuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
+  MeshTransformer& transform_mesh = setup.create_component<MeshTransformer>("1_transform_mesh").mark_basic().as_type<MeshTransformer>();
+  transform_mesh.create_component<BuildFaces>       ("1_build_faces").mark_basic().configure_option("store_cell2face",true);
   transform_mesh.create_component<CreateSpaceP0>     ("2_create_space_P0").mark_basic();
   transform_mesh.create_component<SFDM::CreateSpace> ("3_create_sfd_spaces").mark_basic().configure_option("P",option("P").value<Uint>());
-  transform_mesh.create_component<CBuildVolume>      ("4_build_volume_field").mark_basic();
+  transform_mesh.create_component<BuildVolume>      ("4_build_volume_field").mark_basic();
 
   /// Create an action that creates all fields used for SFDM
   setup.create_component<CreateSFDFields>("2_create_sfd_fields");
@@ -409,7 +409,7 @@ void SFDWizard::build_setup()
 
 //////////////////////////////////////////////////////////////////////////////
 
-ComponentBuilder<SFDSetup,CAction,LibSFDM> SFDSetup_builder;
+ComponentBuilder<SFDSetup,Action,LibSFDM> SFDSetup_builder;
 
 void SFDSetup::execute()
 {
@@ -419,7 +419,7 @@ void SFDSetup::execute()
   /// - time
 
   /// 1) execute all mesh transforming actions, and field creation (added in SFDWizard::build_setup())
-  boost_foreach(CAction& action, find_components<CAction>(*this))
+  boost_foreach(Action& action, find_components<Action>(*this))
     action.execute();
 
   /// @todo configure this differently perhaps

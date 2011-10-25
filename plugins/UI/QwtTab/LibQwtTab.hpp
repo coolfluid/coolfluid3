@@ -8,7 +8,7 @@
 #define cf3_UI_QwtTab_LibQwtTab_hpp
 
 //header
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace QwtTab {
 /// Class defines the initialization and termination of the library QwtTab
 /// @author Tiago Quintino
 class QwtTab_API LibQwtTab :
-        public common::CLibrary
+        public common::Library
 {
 public:
 
@@ -41,22 +41,22 @@ public:
     typedef boost::shared_ptr<LibQwtTab const> ConstPtr;
 
     /// Constructor
-    LibQwtTab ( const std::string& name) : common::CLibrary(name) {   }
+    LibQwtTab ( const std::string& name) : common::Library(name) {   }
 
     void new_plot_signature( common::SignalArgs & args );
 
 public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.QwtTab"; }
+    static std::string library_namespace() { return "cf3.UI.QwtTab"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "QwtTab"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -33,7 +33,7 @@ namespace RDM {
 
 /// Class defines the RDM finite elment method library
 /// @author Tiago Quintino
-class RDM_GPU_API LibGPU : public common::CLibrary {
+class RDM_GPU_API LibGPU : public common::Library {
 
 public:
 
@@ -41,20 +41,20 @@ public:
   typedef boost::shared_ptr<LibGPU const> ConstPtr;
 
   /// Constructor
-  LibGPU ( const std::string& name) : common::CLibrary(name) {   }
+  LibGPU ( const std::string& name) : common::Library(name) {   }
 
 public: // functions
 
   /// @return string of the library namespace
-  static std::string library_namespace() { return "CF.RDM.GPU"; }
+  static std::string library_namespace() { return "cf3.RDM.GPU"; }
 
   /// Static function that returns the module name.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return name of the library
   static std::string library_name() { return "GPU"; }
 
   /// Static function that returns the description of the module.
-  /// Must be implemented for CLibrary registration
+  /// Must be implemented for Library registration
   /// @return description of the library
 
   static std::string library_description()

@@ -11,7 +11,7 @@
 #include "common/Exception.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 
 #include "Tools/Shell/Interpreter.hpp"
 #include "Tools/Shell/BasicCommands.hpp"

@@ -11,15 +11,15 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/CRoot.hpp"
+#include "common/Root.hpp"
 #include "common/Log.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CMeshReader.hpp"
-#include "Mesh/CMeshWriter.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/MeshReader.hpp"
+#include "mesh/MeshWriter.hpp"
 
-#include "Mesh/BlockMesh/BlockData.hpp"
-#include "Mesh/BlockMesh/WriteDict.hpp"
+#include "mesh/BlockMesh/BlockData.hpp"
+#include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "Tools/MeshDiff/MeshDiff.hpp"
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
@@ -29,8 +29,8 @@
 
 using namespace cf3;
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::BlockMesh;
+using namespace cf3::mesh;
+using namespace cf3::mesh::BlockMesh;
 using namespace cf3::BlockMeshReader;
 
 //////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ struct BlockMeshReaderFixture
     base_dir = URI(argv[1], cf3::common::URI::Scheme::FILE);
   }
   URI base_dir;
-  common::CRoot& root;
+  common::Root& root;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,20 +61,20 @@ BOOST_AUTO_TEST_CASE( Channel3D )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("channel3d.dict");
-  CMeshReader::Ptr dict_reader = root.create_component("meshreader", "CF.BlockMeshReader.BlockMeshReader").as_ptr<CMeshReader>();
+  MeshReader::Ptr dict_reader = root.create_component("meshreader", "cf3.BlockMeshReader.BlockMeshReader").as_ptr<MeshReader>();
 
   // Read the dict mesh
-  CMesh& dict_mesh = root.create_component< CMesh >("dict_mesh");
+  Mesh& dict_mesh = root.create_component< Mesh >("dict_mesh");
   dict_reader->read_mesh_into(dict_path, dict_mesh);
 
   // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Channel3D-reference.neu");
-  CMeshReader::Ptr ref_reader = root.create_component("meshreader", "CF.Mesh.Neu.CReader").as_ptr<CMeshReader>();
-  CMesh& ref_mesh = root.create_component< CMesh >("ref_mesh");
+  MeshReader::Ptr ref_reader = root.create_component("meshreader", "cf3.mesh.neu.Reader").as_ptr<MeshReader>();
+  Mesh& ref_mesh = root.create_component< Mesh >("ref_mesh");
   ref_reader->read_mesh_into(ref_path, ref_mesh);
 
   // Write output
-  CMeshWriter& writer = root.create_component("meshwriter", "CF.Mesh.Gmsh.CWriter").as_type<CMeshWriter>();
+  MeshWriter& writer = root.create_component("meshwriter", "cf3.mesh.gmsh.Writer").as_type<MeshWriter>();
   writer.write_from_to(dict_mesh, URI("channel3d-output.msh"));
 
   // Check if they are equal
@@ -87,16 +87,16 @@ BOOST_AUTO_TEST_CASE( Cavity2D )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("cavity2d.dict");
-  CMeshReader::Ptr dict_reader = root.create_component_ptr<CMeshReader>("meshreader");
+  MeshReader::Ptr dict_reader = root.create_component_ptr<MeshReader>("meshreader");
 
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(allocate_component<CMesh>("dict_mesh"));
+  Mesh::Ptr dict_mesh(allocate_component<Mesh>("dict_mesh"));
   dict_reader->do_read_mesh_into(dict_path, dict_mesh);
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-Cavity2D-reference.neu");
-  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr ref_mesh(allocate_component<CMesh>("reference"));
+  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
   CFinfo << dict_mesh->tree() << CFendl;
@@ -112,16 +112,16 @@ BOOST_AUTO_TEST_CASE( PitzDaily )
 
   // files should be in current working directory
   URI dict_path = base_dir / URI("pitzdaily.dict");
-  CMeshReader::Ptr dict_reader = root.create_component_ptr<CMeshReader>("meshreader");
+  MeshReader::Ptr dict_reader = root.create_component_ptr<MeshReader>("meshreader");
 
   // Read the dict mesh
-  CMesh::Ptr dict_mesh(allocate_component<CMesh>("dict_mesh"));
+  Mesh::Ptr dict_mesh(allocate_component<Mesh>("dict_mesh"));
   dict_reader->do_read_mesh_into(dict_path, dict_mesh);
 
     // Read the reference mesh
   URI ref_path = base_dir / URI("uTestBlockMeshReader-PitzDaily-reference.neu");
-  CMeshReader::Ptr ref_reader = create_component_abstract_type<CMeshReader>("CF.Mesh.Neu.CReader","meshreader");
-  CMesh::Ptr ref_mesh(allocate_component<CMesh>("reference"));
+  MeshReader::Ptr ref_reader = create_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  Mesh::Ptr ref_mesh(allocate_component<Mesh>("reference"));
   ref_reader->do_read_mesh_into(ref_path, ref_mesh);
 
   // Check if they are equal

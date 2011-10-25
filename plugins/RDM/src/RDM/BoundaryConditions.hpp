@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_BoundaryConditions_hpp
 #define cf3_RDM_BoundaryConditions_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -18,7 +18,7 @@ class BoundaryTerm;
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API BoundaryConditions : public cf3::Solver::ActionDirector {
+class RDM_API BoundaryConditions : public cf3::solver::ActionDirector {
 
 public: // typedefs
 
@@ -55,9 +55,9 @@ public: // functions
 
 private:
 
-  common::CActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
+  common::ActionDirector::Ptr m_weak_bcs;   ///< set of weak bcs
 
-  common::CActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
+  common::ActionDirector::Ptr m_strong_bcs; ///< set of strong bcs
 
 };
 

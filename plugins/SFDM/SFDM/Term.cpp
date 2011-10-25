@@ -9,23 +9,23 @@
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldGroup.hpp"
-#include "Mesh/FieldManager.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/FieldManager.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Actions/CLoop.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/actions/CLoop.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/Term.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {
@@ -33,7 +33,7 @@ namespace SFDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 Term::Term ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

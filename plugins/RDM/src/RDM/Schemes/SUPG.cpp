@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
 #include "RDM/CellLoop.hpp"
 #include "RDM/Schemes/SUPG.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {
@@ -41,7 +41,7 @@ void SUPG::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     loop.select_region( region );
 

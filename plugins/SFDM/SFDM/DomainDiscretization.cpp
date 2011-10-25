@@ -6,20 +6,20 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/CRegion.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
-#include "Solver/Actions/CForAllCells.hpp"
-#include "Solver/Actions/CForAllFaces.hpp"
+#include "solver/CSolver.hpp"
+#include "solver/actions/CForAllCells.hpp"
+#include "solver/actions/CForAllFaces.hpp"
 
 #include "SFDM/DomainDiscretization.hpp"
 #include "SFDM/Term.hpp"
@@ -27,9 +27,9 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {
@@ -37,12 +37,12 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < DomainDiscretization, CAction, LibSFDM > DomainDiscretization_Builder;
+common::ComponentBuilder < DomainDiscretization, common::Action, LibSFDM > DomainDiscretization_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 DomainDiscretization::DomainDiscretization ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
@@ -54,7 +54,7 @@ DomainDiscretization::DomainDiscretization ( const std::string& name ) :
       ->description("creates a discretization term for cells")
       ->pretty_name("Create Cell Term");
 
-  m_terms = create_static_component_ptr<CActionDirector>("Terms");
+  m_terms = create_static_component_ptr<ActionDirector>("Terms");
 }
 
 
@@ -121,7 +121,7 @@ void DomainDiscretization::signature_signal_create_term( SignalArgs& args )
 
   /// @todo loop over the existing CellTerm providers to provide the available list
 
-  options.add_option< OptionT<std::string> >("type", std::string("CF.SFDM.Convection"))
+  options.add_option< OptionT<std::string> >("type", std::string("cf3.SFDM.Convection"))
       ->description("Type for created term");
 
   // regions

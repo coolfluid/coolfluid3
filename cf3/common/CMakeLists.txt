@@ -1,8 +1,14 @@
 coolfluid_find_orphan_files()
 
 list( APPEND coolfluid_common_files
+    Action.hpp
+    Action.cpp
+    ActionDirector.hpp
+    ActionDirector.cpp
     AllocatedComponent.hpp
     AllocatedComponent.cpp
+    ArrayBase.hpp
+    ArrayBufferT.hpp
     Assertions.cpp
     Assertions.hpp
     BasicExceptions.cpp
@@ -14,17 +20,11 @@ list( APPEND coolfluid_common_files
     BoostAssertions.hpp
     BoostAssertions.cpp
     BoostArray.hpp
+    Builder.hpp
+    Builder.cpp
     BuildInfo.hpp
     BuildInfo.cpp
     CF.hpp
-    CAction.hpp
-    CAction.cpp
-    CActionDirector.hpp
-    CActionDirector.cpp
-    CGroupActions.hpp
-    CGroupActions.cpp
-    CBuilder.hpp
-    CBuilder.cpp
     CodeLocation.cpp
     CodeLocation.hpp
     CodeProfiler.cpp
@@ -32,43 +32,48 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
-    FindComponents.hpp
-    CEnv.cpp
-    CEnv.hpp
-    CFactory.hpp
-    CFactory.cpp
-    CFactories.hpp
-    CFactories.cpp
-    CRoot.hpp
-    CRoot.cpp
-    CGroup.hpp
-    CGroup.cpp
-    CJournal.cpp
-    CJournal.hpp
-    CLibraries.cpp
-    CLibraries.hpp
-    CLibrary.cpp
-    CLibrary.hpp
-    CLink.hpp
-    CLink.cpp
-    CMap.hpp
+    ConnectionManager.hpp
+    ConnectionManager.cpp
     Core.hpp
     Core.cpp
     CreateComponentDataType.hpp
+    DynTable.hpp
+    DynTable.cpp
     EigenAssertions.hpp
     EnumT.hpp
+    Environment.cpp
+    Environment.hpp
     EventHandler.hpp
     EventHandler.cpp
-    ConnectionManager.hpp
-    ConnectionManager.cpp
     Exception.cpp
     Exception.hpp
+    Factory.hpp
+    Factory.cpp
+    Factories.hpp
+    Factories.cpp
+    FindComponents.hpp
     Foreach.hpp
+    GroupActions.hpp
+    GroupActions.cpp
+    Group.hpp
+    Group.cpp
     IAction.hpp
+    Journal.cpp
+    Journal.hpp
     LibCommon.cpp
     LibCommon.hpp
     LibLoader.cpp
     LibLoader.hpp
+    Libraries.cpp
+    Libraries.hpp
+    Library.cpp
+    Library.hpp
+    Link.hpp
+    Link.cpp
+    List.hpp
+    List.cpp
+    ListBufferT.hpp
+    ListBufferIterator.hpp
     LocalDispatcher.cpp
     LocalDispatcher.hpp
     Log.cpp
@@ -82,6 +87,7 @@ list( APPEND coolfluid_common_files
     LogStream.hpp
     LogStringForwarder.hpp
     LogStringForwarder.cpp
+    Map.hpp
     NetworkInfo.cpp
     NetworkInfo.hpp
     NoProfiling.cpp
@@ -106,6 +112,8 @@ list( APPEND coolfluid_common_files
     OSystemLayer.cpp
     OSystemLayer.hpp
     RegistLibrary.hpp
+    Root.hpp
+    Root.cpp
     StreamHelpers.hpp
     StringConversion.hpp
     StringConversion.cpp
@@ -115,6 +123,8 @@ list( APPEND coolfluid_common_files
     SignalDispatcher.hpp
     SignalHandler.hpp
     SignalHandler.cpp
+    Table.hpp
+    Table.cpp
     TaggedObject.hpp
     TaggedObject.cpp
     Tags.hpp
@@ -155,10 +165,10 @@ list( APPEND coolfluid_common_files
 if(CF3_HAVE_MPI)
 list( APPEND coolfluid_common_files
       PE/Buffer.hpp
-      PE/CPEManager.cpp
-      PE/CPEManager.hpp
-      PE/CWorkerGroup.cpp
-      PE/CWorkerGroup.hpp
+      PE/Manager.cpp
+      PE/Manager.hpp
+      PE/WorkerGroup.cpp
+      PE/WorkerGroup.hpp
       PE/ListeningInfo.cpp
       PE/ListeningInfo.hpp
       PE/ListeningThread.cpp

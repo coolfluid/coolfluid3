@@ -6,46 +6,46 @@
 
 #include "common/Signal.hpp"
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Solver/CTime.hpp"
-#include "Solver/CSolver.hpp"
+#include "solver/CTime.hpp"
+#include "solver/CSolver.hpp"
 
-#include "Solver/Actions/CCriterion.hpp"
-#include "Solver/Actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CCriterion.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CSpace.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Space.hpp"
 
 #include "SFDM/IterativeSolver.hpp"
 #include "SFDM/Tags.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
-using namespace cf3::Mesh;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < IterativeSolver, CAction, LibSFDM > IterativeSolver_Builder;
+common::ComponentBuilder < IterativeSolver, common::Action, LibSFDM > IterativeSolver_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 IterativeSolver::IterativeSolver ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 
@@ -55,9 +55,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_update = create_static_component_ptr<CActionDirector>("PreUpdate");
+  m_pre_update = create_static_component_ptr<ActionDirector>("PreUpdate");
 
-  m_post_update = create_static_component_ptr<CActionDirector>("PostUpdate");
+  m_post_update = create_static_component_ptr<ActionDirector>("PostUpdate");
 
   m_options.add_option< OptionT<Uint> >("rk_order", 1u)
       ->description("Order of the Runge-Kutta integration")
@@ -191,14 +191,14 @@ void IterativeSolver::link_fields()
     }
     else if ( Component::Ptr found_solution_backup = m_solution.lock()->field_group().get_child_ptr( "solution_backup" ) )
     {
-      solver().field_manager().create_component<CLink>("solution_backup").link_to(found_solution_backup);
+      solver().field_manager().create_component<Link>("solution_backup").link_to(found_solution_backup);
       m_solution_backup = found_solution_backup->as_ptr<Field>();
     }
     else
     {
       m_solution_backup = m_solution.lock()->field_group().create_field("solution_backup", m_solution.lock()->descriptor().description()).as_ptr<Field>();
       m_solution_backup.lock()->descriptor().prefix_variable_names("backup_");
-      solver().field_manager().create_component<CLink>("solution_backup").link_to(*m_solution_backup.lock());
+      solver().field_manager().create_component<Link>("solution_backup").link_to(*m_solution_backup.lock());
     }
   }
 }
@@ -226,7 +226,7 @@ void IterativeSolver::execute()
   if (m_time.expired())        throw SetupError(FromHere(), "Time was not set");
   CTime& time = *m_time.lock();
 
-  U0.as_type< CTable<Real> >() = U.as_type< CTable<Real> >();
+  U0.as_type< Table<Real> >() = U.as_type< Table<Real> >();
 
   const Real T0 = time.current_time();
   Real dt = 0;
@@ -247,9 +247,9 @@ void IterativeSolver::execute()
     // - time.dt()
     // Runge-Kutta UPDATE
     const Real one_minus_alpha = 1. - alpha[stage];
-    boost_foreach(const CEntities& elements, U.entities_range())
+    boost_foreach(const Entities& elements, U.entities_range())
     {
-      CSpace& solution_space = U.space(elements);
+      Space& solution_space = U.space(elements);
       for (Uint e=0; e<elements.size(); ++e)
       {
         boost_foreach(const Uint state, solution_space.indexes_for_element(e))

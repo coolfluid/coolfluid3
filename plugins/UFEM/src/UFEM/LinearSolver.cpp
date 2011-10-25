@@ -7,23 +7,23 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
-#include "Math/VariableManager.hpp"
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariableManager.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Math/LSS/System.hpp"
+#include "math/LSS/System.hpp"
 
-#include "Mesh/CDomain.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Domain.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Solver/Tags.hpp"
-#include "Solver/Actions/CSolveSystem.hpp"
-#include "Solver/Actions/Proto/CProtoAction.hpp"
+#include "solver/Tags.hpp"
+#include "solver/actions/CSolveSystem.hpp"
+#include "solver/actions/Proto/CProtoAction.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "LinearSolver.hpp"
 #include "SparsityBuilder.hpp"
@@ -33,20 +33,20 @@ namespace cf3 {
 namespace UFEM {
 
 using namespace common;
-using namespace Math;
-using namespace Mesh;
-using namespace Solver;
-using namespace Solver::Actions;
-using namespace Solver::Actions::Proto;
+using namespace math;
+using namespace mesh;
+using namespace solver;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
-class ZeroAction : public common::CAction
+class ZeroAction : public common::Action
 {
 public:
 
   typedef boost::shared_ptr<ZeroAction> Ptr;
   typedef boost::shared_ptr<ZeroAction const> ConstPtr;
 
-  ZeroAction(const std::string& name) : CAction(name)
+  ZeroAction(const std::string& name) : common::Action(name)
   {
   }
 
@@ -65,7 +65,7 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ZeroAction, CAction, LibUFEM > ZeroAction_Builder;
+common::ComponentBuilder < ZeroAction, common::Action, LibUFEM > ZeroAction_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -122,13 +122,13 @@ void LinearSolver::execute()
   CSimpleSolver::execute();
 }
 
-void LinearSolver::mesh_loaded(CMesh& mesh)
+void LinearSolver::mesh_loaded(Mesh& mesh)
 {
   CSimpleSolver::mesh_loaded(mesh);
   mesh_changed(mesh);
 }
 
-void LinearSolver::mesh_changed(CMesh& mesh)
+void LinearSolver::mesh_changed(Mesh& mesh)
 {
   CFdebug << "UFEM::LinearSolver: Reacting to mesh_changed signal" << CFendl;
 
@@ -175,18 +175,18 @@ void LinearSolver::mesh_changed(CMesh& mesh)
   // Set the region of all children to the root region of the mesh
   std::vector<URI> root_regions;
   root_regions.push_back(mesh.topology().uri());
-  configure_option_recursively(Solver::Tags::regions(), root_regions);
+  configure_option_recursively(solver::Tags::regions(), root_regions);
 
   trigger_lss();
 }
 
 
-CAction& LinearSolver::zero_action()
+common::Action& LinearSolver::zero_action()
 {
   return m_implementation->m_zero_action;
 }
 
-CAction& LinearSolver::solve_action()
+common::Action& LinearSolver::solve_action()
 {
   return m_implementation->m_solver;
 }

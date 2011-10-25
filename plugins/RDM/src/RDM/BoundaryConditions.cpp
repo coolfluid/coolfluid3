@@ -5,18 +5,18 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 #include "RDM/Tags.hpp"
 
 #include "RDM/BoundaryTerm.hpp"
@@ -25,7 +25,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
@@ -33,19 +33,19 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < BoundaryConditions, CAction, LibRDM > BoundaryConditions_Builder;
+common::ComponentBuilder < BoundaryConditions, common::Action, LibRDM > BoundaryConditions_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 BoundaryConditions::BoundaryConditions ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
   // subcomponents
 
-  m_weak_bcs   = create_static_component_ptr<CActionDirector>("WeakBCs");
-  m_strong_bcs = create_static_component_ptr<CActionDirector>("StrongBCs");
+  m_weak_bcs   = create_static_component_ptr<ActionDirector>("WeakBCs");
+  m_strong_bcs = create_static_component_ptr<ActionDirector>("StrongBCs");
 
   // signals
 
@@ -125,8 +125,8 @@ void BoundaryConditions::signature_signal_create_boundary_condition ( SignalArgs
   // type
 
   std::vector< boost::any > restricted;
-//  restricted.push_back( std::string("CF.RDM.BcDirichlet") );
-  options.add_option< OptionT<std::string> >("type", std::string("CF.RDM.BcDirichlet") )
+//  restricted.push_back( std::string("cf3.RDM.BcDirichlet") );
+  options.add_option< OptionT<std::string> >("type", std::string("cf3.RDM.BcDirichlet") )
       ->description("Type for created boundary")
       ->restricted_list() = restricted;
 

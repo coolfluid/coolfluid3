@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 // header
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +39,7 @@ namespace ParaViewTab {
 /// Class defines the initialization and termination of the library ParaViewTab
 /// @author Tiago Quintino
 class ParaViewTab_API LibParaViewTab :
-        public common::CLibrary
+        public common::Library
 {
 public:
 
@@ -47,20 +47,20 @@ public:
     typedef boost::shared_ptr<LibParaViewTab const> ConstPtr;
 
     /// Constructor
-    LibParaViewTab ( const std::string& name) : common::CLibrary(name), m_appCore(nullptr) {   }
+    LibParaViewTab ( const std::string& name) : common::Library(name), m_appCore(nullptr) {   }
 
 public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.UI.ParaViewTab"; }
+    static std::string library_namespace() { return "cf3.UI.ParaViewTab"; }
 
     /// Static function that returns the module name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "ParaViewTab"; }
 
     /// Static function that returns the description of the module.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

@@ -17,7 +17,7 @@ namespace cf3 {
 
 namespace UFEM {
 
-/// Solver for the incompressible Navier-Stokes equations
+/// solver for the incompressible Navier-Stokes equations
 class UFEM_API NavierStokes : public LinearSolverUnsteady
 {
 public: // typedefs
@@ -37,15 +37,18 @@ public: // functions
 private:
   /// Storage for stabilization coefficients
   SUPGCoeffs m_coeffs;
-  
+
   /// Initial condition for p
   Real m_p0;
-  
+
   /// Initial condition for v
   RealVector m_u0;
-  
+
   /// Trigger for rho
   void trigger_rho();
+
+  /// Trigger on initial condition for velocity
+  void trigger_u();
 };
 
 } // UFEM

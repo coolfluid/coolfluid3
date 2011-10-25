@@ -8,8 +8,8 @@
 #include <boost/weak_ptr.hpp>
 
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
-#include "common/CRoot.hpp"
+#include "common/Environment.hpp"
+#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "Python/Core.hpp"

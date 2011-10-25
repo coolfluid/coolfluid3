@@ -17,11 +17,11 @@ public:
 //------------------------------------------------------------------------------------------
 
 struct LibCommon {
-    static std::string library_namespace() { return "CF.Common"; }
+    static std::string library_namespace() { return "cf3.common"; }
 };
 
 struct LibCore {
-    static std::string library_namespace() { return "CF.Common.Core"; }
+    static std::string library_namespace() { return "cf3.common.Core"; }
 };
 
 //------------------------------------------------------------------------------------------

@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/Schemes/LDA.hpp"
 
@@ -24,19 +24,19 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdv2D>,
+common::ComponentBuilder < CellLoopT<LDA, physics::Scalar::LinearAdv2D>,
                            RDM::CellLoop,
                            LibScalar > LDA_LinearAdv2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdv3D>,
+common::ComponentBuilder < CellLoopT<LDA, physics::Scalar::LinearAdv3D>,
                            RDM::CellLoop,
                            LibScalar > LDA_LinearAdv3D_Builder;
 
-common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::LinearAdvSys2D>,
+common::ComponentBuilder < CellLoopT<LDA, physics::Scalar::LinearAdvSys2D>,
                            RDM::CellLoop,
                            LibScalar > LDA_LinearAdvSys2D_Builder;
 
-common::ComponentBuilder < CellLoopT<LDA, Physics::Scalar::RotationAdv2D>,
+common::ComponentBuilder < CellLoopT<LDA, physics::Scalar::RotationAdv2D>,
                            RDM::CellLoop,
                            LibScalar > LDA_RotationAdv2D_Builder;
 

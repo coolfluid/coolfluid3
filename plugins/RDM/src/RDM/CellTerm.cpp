@@ -7,17 +7,17 @@
 #include "common/Signal.hpp"
 #include "common/OptionComponent.hpp"
 
-#include "Mesh/Field.hpp"
+#include "mesh/Field.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
 #include "RDM/CellTerm.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
@@ -25,7 +25,7 @@ namespace RDM {
 /////////////////////////////////////////////////////////////////////////////////////
 
 CellTerm::CellTerm ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 
@@ -80,7 +80,7 @@ ElementLoop& CellTerm::access_element_loop( const std::string& type_name )
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<Physics::Variables>()
+                        .as_type<physics::Variables>()
                         .type();
 
     loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopT<" + type_name + "," + update_vars_type + ">" , "LOOP");

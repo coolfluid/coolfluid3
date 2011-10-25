@@ -7,7 +7,7 @@
 #ifndef cf3_RDM_InitialConditions_hpp
 #define cf3_RDM_InitialConditions_hpp
 
-#include "Solver/ActionDirector.hpp"
+#include "solver/ActionDirector.hpp"
 
 #include "RDM/LibRDM.hpp"
 
@@ -17,7 +17,7 @@ namespace RDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-class RDM_API InitialConditions : public cf3::Solver::ActionDirector {
+class RDM_API InitialConditions : public cf3::solver::ActionDirector {
 
 public: // typedefs
 

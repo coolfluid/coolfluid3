@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "RDM/GPU/CellLoopGPU.hpp"
 
@@ -19,12 +19,12 @@ namespace RDM {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Physics::Scalar::RotationAdv2D>,
+common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,physics::Scalar::RotationAdv2D>,
                            RDM::CellLoop,
                            LibRDM >
                            CSysLDAGPU_LinearAdv2D_Builder;
 
-common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,Physics::NavierStokes::Cons2D>,
+common::ComponentBuilder < CellLoopGPU<CSysLDAGPU,physics::NavierStokes::Cons2D>,
                            RDM::CellLoop,
                            LibRDM >
                            CSysLDAGPU_Euler2D_Builder;

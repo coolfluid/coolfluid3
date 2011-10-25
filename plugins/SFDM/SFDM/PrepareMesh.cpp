@@ -6,18 +6,18 @@
 
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "Mesh/CMesh.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/Actions/CBuildFaces.hpp"
-#include "Mesh/Actions/CGlobalNumbering.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/actions/BuildFaces.hpp"
+#include "mesh/actions/GlobalNumbering.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "SFDM/SFDSolver.hpp"
 #include "SFDM/PrepareMesh.hpp"
@@ -26,9 +26,9 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::Mesh;
-using namespace cf3::Mesh::Actions;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::mesh::actions;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace SFDM {
@@ -36,22 +36,22 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < PrepareMesh, CAction, LibSFDM > PrepareMesh_Builder;
+common::ComponentBuilder < PrepareMesh, common::Action, LibSFDM > PrepareMesh_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 PrepareMesh::PrepareMesh ( const std::string& name ) :
-  cf3::Solver::ActionDirector(name)
+  cf3::solver::ActionDirector(name)
 {
   mark_basic();
 
-  CBuildFaces::Ptr build_faces ( allocate_component<CBuildFaces>("build_inner_faces") );
+  BuildFaces::Ptr build_faces ( allocate_component<BuildFaces>("build_inner_faces") );
   build_faces->configure_option("store_cell2face",true);
 
   append( build_faces );
 
   // renumber elements because of the faces (not strictly necessary)
-  // append( allocate_component<CGlobalNumbering>("glb_numbering") );
+  // append( allocate_component<GlobalNumbering>("glb_numbering") );
 
   append( allocate_component<CreateSFDFields>("create_sfd_fields") );
 }

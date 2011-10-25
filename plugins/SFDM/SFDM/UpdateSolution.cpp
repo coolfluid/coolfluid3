@@ -5,13 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Foreach.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
-#include "Mesh/Field.hpp"
-#include "Mesh/FieldManager.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/FieldManager.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Solver/CSolver.hpp"
+#include "solver/CSolver.hpp"
 
 #include "SFDM/UpdateSolution.hpp"
 #include "SFDM/Tags.hpp"
@@ -19,19 +19,19 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < UpdateSolution, CAction, LibSFDM > UpdateSolution_Builder;
+common::ComponentBuilder < UpdateSolution, Action, LibSFDM > UpdateSolution_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 UpdateSolution::UpdateSolution ( const std::string& name ) :
-  Solver::Action(name)
+  solver::Action(name)
 {
   mark_basic();
 

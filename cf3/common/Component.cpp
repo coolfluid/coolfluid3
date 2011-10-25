@@ -18,8 +18,9 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Foreach.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/BasicExceptions.hpp"
+#include "common/EventHandler.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -141,6 +142,8 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("brief", std::string("No brief description available"));
   m_properties.add_property("description", std::string("This component has not a long description"));
   m_properties.add_property("uuid", boost::lexical_cast<std::string>(boost::uuids::random_generator()()));
+  // events
+  EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);
 }
 
 
@@ -482,7 +485,7 @@ void Component::change_parent ( Component* new_parent )
 {
   if( !m_root.expired() )   // get the root and remove the current path
   {
-   CRoot::Ptr root = m_root.lock();
+   Root::Ptr root = m_root.lock();
     root->remove_component_path(uri());
   }
 
@@ -767,7 +770,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
     this_node.set_attribute( "uuid", m_properties.value_str("uuid") );
 
-    CLink::Ptr lnk = boost::dynamic_pointer_cast<CLink>(shared_from_this());//this->as_ptr<CLink>();
+    Link::Ptr lnk = boost::dynamic_pointer_cast<Link>(shared_from_this());//this->as_ptr<Link>();
 
     if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
     {
@@ -1040,7 +1043,7 @@ void Component::raise_event ( const std::string & name )
 {
   if( !m_root.expired() )
   {
-   CRoot::Ptr root = m_root.lock();
+   Root::Ptr root = m_root.lock();
 
     root->raise_new_event(name, uri());
   }
@@ -1062,7 +1065,7 @@ void Component::signature_create_component( SignalArgs& args )
 
   options.add_option< OptionT<std::string> >("name", std::string("untitled") )
       ->description("Name for created component.");
-  options.add_option< OptionT<std::string> >("type", std::string("CF.Common.CGroup") )
+  options.add_option< OptionT<std::string> >("type", std::string("cf3.common.Group") )
       ->description("Concrete type of the component.");
   options.add_option< OptionT<bool> >("basic_mode", true )
       ->description("Component will be visible in basic mode.");
@@ -1389,7 +1392,7 @@ Component::Ptr build_component(const std::string& builder_name,
 
   Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
   if ( is_null(factories) )
-    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+    throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
@@ -1400,7 +1403,7 @@ Component::Ptr build_component(const std::string& builder_name,
   Component::Ptr factory = factories->get_child_ptr( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
-                        "CFactory \'" + factory_type_name
+                        "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
   // get the builder
@@ -1412,7 +1415,7 @@ Component::Ptr build_component(const std::string& builder_name,
   if ( is_null(builder) )
   {
     std::string msg =
-        "CBuilder \'" + builder_name + "\' not found in factory \'"
+        "Builder \'" + builder_name + "\' not found in factory \'"
         + factory_type_name + "\'. Probably forgot to load a library.\n"
         + "Possible builders:";
     boost_foreach(Component& comp, factory->children())
@@ -1423,10 +1426,10 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // build the component
 
-  Component::Ptr comp = builder->as_type<CBuilder>().build ( name );
+  Component::Ptr comp = builder->as_type<Builder>().build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
-                           "CBuilder \'" + builder_name
+                           "Builder \'" + builder_name
                            + "\' failed to allocate component with name \'" + name + "\'" );
 
 
@@ -1443,7 +1446,7 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 
   Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
   if ( is_null(factories) )
-    throw ValueNotFound( FromHere(), "CFactories \'Factories\' not found in "
+    throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
@@ -1451,10 +1454,10 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
   Component::Ptr factory = factories->get_child_ptr( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
-                        "CFactory \'" + factory_type_name
+                        "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
-  CFactory& cfactory = factory->as_type<CFactory>();
+  Factory& cfactory = factory->as_type<Factory>();
 
   // get the builder
 
@@ -1462,10 +1465,10 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 
   // build the component
 
-  Component::Ptr comp = cbuilder.as_type<CBuilder>().build ( name );
+  Component::Ptr comp = cbuilder.as_type<Builder>().build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
-                           "CBuilder \'" + builder_name
+                           "Builder \'" + builder_name
                            + "\' failed to allocate component with name \'" + name + "\'" );
 
 
@@ -1477,7 +1480,7 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 Component::Ptr build_component(const std::string& builder_name,
                                const std::string& name )
 {
-  std::string libnamespace = CBuilder::extract_namespace(builder_name);
+  std::string libnamespace = Builder::extract_namespace(builder_name);
 
   URI builder_path = Core::instance().libraries().uri()
                    / URI(libnamespace)
@@ -1497,11 +1500,18 @@ Component::Ptr build_component(const std::string& builder_name,
     throw ValueNotFound( FromHere(), "Could not find builder \'" + builder_name + "\'"
                                      " neither a plugin library that contains it." );
 
-  const CBuilder& builder = cbuilder->follow()->as_type<CBuilder const>();
+  const Builder& builder = cbuilder->follow()->as_type<Builder const>();
 
   Component::Ptr comp = builder.build( name );
 
   return comp;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+void Component::on_ping_event(SignalArgs& args)
+{
+  CFdebug << "Ping response: " << uri().path() << " of type " << derived_type_name() << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

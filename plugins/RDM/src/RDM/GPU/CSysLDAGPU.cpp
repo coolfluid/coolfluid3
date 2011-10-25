@@ -6,24 +6,24 @@
 
 #include <iostream>
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 //#include "common/CreateComponent.hpp"
 
-#include "Mesh/CRegion.hpp"
+#include "mesh/Region.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
 #include "RDM/Tags.hpp"
 #include "RDM/GPU/CellLoopGPU.hpp"
 #include "RDM/GPU/CSysLDAGPU.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Solver;
+using namespace cf3::mesh;
+using namespace cf3::solver;
 
 namespace cf3 {
 namespace RDM {
@@ -50,7 +50,7 @@ void CSysLDAGPU::execute()
   {
     const std::string update_vars_type =
         physical_model().get_child( RDM::Tags::update_vars() )
-                        .as_type<Physics::Variables>()
+                        .as_type<physics::Variables>()
                         .type();
 
       loop = build_component_abstract_type_reduced< CellLoop >( "CellLoopGPU<" + type_name() + "," + update_vars_type + ">" , "LOOP");
@@ -61,7 +61,7 @@ void CSysLDAGPU::execute()
 
   // loop on all regions configured by the user
 
-  boost_foreach(Mesh::CRegion::Ptr& region, m_loop_regions)
+  boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
   {
     std::cout << "looping on region " << region->name() << std::endl;
 

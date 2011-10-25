@@ -4,18 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "Roe1D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
 ////////////////////////////////////////////////////////////////////////////////////
 
 common::ComponentBuilder < NavierStokes::Roe1D,
-                           Physics::Variables,
+                           physics::Variables,
                            LibNavierStokes >
                            Builder_Roe1D;
 
@@ -29,5 +29,5 @@ Roe1D::~Roe1D() {}
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3

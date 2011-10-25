@@ -7,10 +7,10 @@
 #ifndef cf3_UFEM_NavierStokesOps_hpp
 #define cf3_UFEM_NavierStokesOps_hpp
 
-#include "Math/MatrixTypes.hpp"
+#include "math/MatrixTypes.hpp"
 
-#include "Solver/Actions/Proto/ElementOperations.hpp"
-#include "Solver/Actions/Proto/Terminals.hpp"
+#include "solver/actions/Proto/ElementOperations.hpp"
+#include "solver/actions/Proto/Terminals.hpp"
 
 namespace cf3 {
 namespace UFEM {
@@ -84,7 +84,7 @@ struct ComputeTau
 };
 
 /// Placeholder for the compute_tau operation
-static Solver::Actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
+static solver::actions::Proto::MakeSFOp<ComputeTau>::type const compute_tau = {};
 
 } // UFEM
 } // cf3

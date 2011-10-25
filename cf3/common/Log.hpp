@@ -45,7 +45,7 @@ class Common_API Logger : public boost::noncopyable {
   /// @return Returns the current instance.
   static Logger& instance();
 
-  /// @brief Initiates the log environment base on the CEnv component
+  /// @brief Initiates the log environment base on the Environment component
   /// maintained by the Core.
   void initiate();
 

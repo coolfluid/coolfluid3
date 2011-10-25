@@ -11,7 +11,7 @@
 #include "common/CF.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Core.hpp"
-#include "common/CEnv.hpp"
+#include "common/Environment.hpp"
 #include "common/NetworkInfo.hpp"
 #include "common/Exception.hpp"
 

@@ -9,7 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/CLibrary.hpp"
+#include "common/Library.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,7 +34,7 @@ namespace cf3 {
 
   /// Class defines the initialization and termination of the library Python
   /// @author Bart Janssens
-  class Python_API LibPython : public common::CLibrary {
+  class Python_API LibPython : public common::Library {
 
   public:
 
@@ -42,20 +42,20 @@ namespace cf3 {
     typedef boost::shared_ptr<LibPython const> ConstPtr;
 
     /// Constructor
-    LibPython ( const std::string& name) : common::CLibrary(name) {   }
+    LibPython ( const std::string& name) : common::Library(name) {   }
 
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "CF.Python"; }
+    static std::string library_namespace() { return "cf3.Python"; }
 
     /// Static function that returns the library name.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return name of the library
     static std::string library_name() { return "Python"; }
 
     /// Static function that returns the description of the library.
-    /// Must be implemented for CLibrary registration
+    /// Must be implemented for Library registration
     /// @return description of the library
 
     static std::string library_description()

@@ -4,20 +4,20 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/EventHandler.hpp"
-#include "common/CGroup.hpp"
+#include "common/Group.hpp"
 #include "common/Core.hpp"
 
-#include "Mesh/CMesh.hpp"
+#include "mesh/Mesh.hpp"
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 
-#include "Solver/Actions/CSynchronizeFields.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/SFDSolver.hpp"
@@ -26,10 +26,10 @@
 #include "SFDM/ComputeUpdateCoefficient.hpp"
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Physics;
-using namespace cf3::Solver;
-using namespace cf3::Solver::Actions;
+using namespace cf3::mesh;
+using namespace cf3::physics;
+using namespace cf3::solver;
+using namespace cf3::solver::actions;
 
 
 namespace cf3 {
@@ -60,7 +60,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
       ->description("Setting this will create the appropriate spaces in the mesh")
       ->mark_basic();
 
-  options().add_option(OptionComponent<CMesh>::create( SFDM::Tags::mesh(), &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create( SFDM::Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) )
@@ -69,10 +69,10 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
   // for storing links to fields
-  m_fields  = create_static_component_ptr< CGroup >( SFDM::Tags::fields()  );
+  m_fields  = create_static_component_ptr< Group >( SFDM::Tags::fields()  );
 
   // Shared actions by the solver
-  m_actions = create_static_component_ptr< CGroup >( SFDM::Tags::actions() );
+  m_actions = create_static_component_ptr< Group >( SFDM::Tags::actions() );
 
   // create the parallel synchronization action
   CSynchronizeFields& synchronize = m_actions->create_component<CSynchronizeFields>("Synchronize");
@@ -89,10 +89,10 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   m_iterative_solver = allocate_component< IterativeSolver >( IterativeSolver::type_name() );
   m_time_stepping->append(m_iterative_solver);
 
-  CAction::Ptr conditional ( build_component("CF.Solver.Actions.Conditional","Periodic")->as_ptr<CAction>() );
+  Action::Ptr conditional ( build_component("cf3.solver.actions.Conditional","Periodic")->as_ptr<Action>() );
   m_time_stepping->post_actions().append(conditional);
-  conditional->create_component("milestone_dt","CF.Solver.Actions.CCriterionMilestoneTime");
-  conditional->create_component("write_mesh","CF.Mesh.WriteMesh");
+  conditional->create_component("milestone_dt","cf3.solver.actions.CCriterionMilestoneTime");
+  conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
 
   m_domain_discretization= create_static_component_ptr< DomainDiscretization > ( DomainDiscretization::type_name() );
   m_iterative_solver->pre_update().append(m_domain_discretization);
@@ -167,8 +167,8 @@ void SFDSolver::config_mesh()
 {
   if( is_null(m_mesh.lock()) ) return;
 
-  Physics::PhysModel& pm = physics(); // physcial model must have already been configured
-  Mesh::CMesh& mesh = *m_mesh.lock();
+  physics::PhysModel& pm = physics(); // physcial model must have already been configured
+  mesh::Mesh& mesh = *m_mesh.lock();
 
   if( physics().ndim() != mesh.dimension() )
     throw SetupError( FromHere(), "Dimensionality mismatch. Loaded mesh ndim " + to_str(mesh.dimension()) + " and physical model dimension " + to_str(pm.ndim()) );

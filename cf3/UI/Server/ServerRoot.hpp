@@ -11,8 +11,8 @@
 
 #include <QMutex>
 
-#include "common/CRoot.hpp"
-#include "common/CJournal.hpp"
+#include "common/Root.hpp"
+#include "common/Journal.hpp"
 
 #include "UI/Server/ServerRoot.hpp"
 
@@ -25,8 +25,8 @@ template<typename T> class QList;
 
 namespace cf3 {
 
-namespace common { namespace PE { class CPEManager; } }
-namespace Solver { class CPlotter; }
+namespace common { namespace PE { class Manager; } }
+namespace solver { class CPlotter; }
 
 namespace UI {
 namespace Server {
@@ -45,21 +45,21 @@ namespace Server {
 
     static ServerRoot & instance();
 
-    common::CRoot::Ptr root() { return m_root; }
+    common::Root::Ptr root() { return m_root; }
 
-    common::CRoot::ConstPtr root() const { return m_root; }
+    common::Root::ConstPtr root() const { return m_root; }
 
     CCore::Ptr core() { return m_core; }
 
     CCore::ConstPtr core() const { return m_core; }
 
-    common::CJournal::Ptr journal() { return m_journal; }
+    common::Journal::Ptr journal() { return m_journal; }
 
-    common::CJournal::ConstPtr journal() const { return m_journal; }
+    common::Journal::ConstPtr journal() const { return m_journal; }
 
-    boost::shared_ptr<common::PE::CPEManager> manager() { return m_manager; }
+    boost::shared_ptr<common::PE::Manager> manager() { return m_manager; }
 
-    boost::shared_ptr<common::PE::CPEManager const> manager() const { return m_manager; }
+    boost::shared_ptr<common::PE::Manager const> manager() const { return m_manager; }
 
     void process_signal(const std::string & target,
                        const common::URI & receiver,
@@ -89,11 +89,11 @@ namespace Server {
 
     ProcessingThread * m_thread;
 
-    common::CRoot::Ptr m_root;
+    common::Root::Ptr m_root;
 
     CCore::Ptr m_core;
 
-    common::CJournal::Ptr m_journal;
+    common::Journal::Ptr m_journal;
 
     QMutex m_mutex;
 
@@ -107,9 +107,9 @@ namespace Server {
 
     QList< common::URI > m_local_components;
 
-    boost::shared_ptr<common::PE::CPEManager> m_manager;
+    boost::shared_ptr<common::PE::Manager> m_manager;
 
-    boost::shared_ptr<Solver::CPlotter> m_plotter;
+    boost::shared_ptr<solver::CPlotter> m_plotter;
 
   }; // class ServerRoot
 

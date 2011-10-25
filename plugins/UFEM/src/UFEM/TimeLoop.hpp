@@ -9,7 +9,7 @@
 
 #include <boost/scoped_ptr.hpp>
 
-#include "common/CActionDirector.hpp"
+#include "common/ActionDirector.hpp"
 
 #include "LibUFEM.hpp"
 
@@ -18,7 +18,7 @@ namespace cf3 {
 namespace UFEM {
 
 /// Executes the added actions in a time loop.
-class UFEM_API TimeLoop : public common::CActionDirector
+class UFEM_API TimeLoop : public common::ActionDirector
 {
 public: // typedefs
 

@@ -6,22 +6,22 @@
 
 #include <iostream>
 
-#ifndef cf3_Physics_NavierStokes_Cons3D_hpp
-#define cf3_Physics_NavierStokes_Cons3D_hpp
+#ifndef cf3_physics_NavierStokes_Cons3D_hpp
+#define cf3_physics_NavierStokes_Cons3D_hpp
 
 #include <iostream>
 
 #include "common/StringConversion.hpp"
 #include "common/BasicExceptions.hpp"
 
-#include "Math/Defs.hpp"
+#include "math/Defs.hpp"
 
-#include "Physics/Variables.hpp"
+#include "physics/Variables.hpp"
 
 #include "NavierStokes3D.hpp"
 
 namespace cf3 {
-namespace Physics {
+namespace physics {
 namespace NavierStokes {
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -394,7 +394,7 @@ public: // functions
 ////////////////////////////////////////////////////////////////////////////////////
 
 } // NavierStokes
-} // Physics
+} // physics
 } // cf3
 
-#endif // cf3_Physics_NavierStokes_Cons3D_hpp
+#endif // cf3_physics_NavierStokes_Cons3D_hpp

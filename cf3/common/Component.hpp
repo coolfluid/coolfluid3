@@ -28,7 +28,7 @@
 namespace cf3 {
 namespace common {
 
-  class CRoot;
+  class Root;
 
   template<class T> class ComponentIterator;
 
@@ -498,6 +498,9 @@ private: // helper functions
   template<typename ComponentT>
   ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
+  /// Triggered when the "ping" event is raised. Useful to find out what components still exist
+  void on_ping_event( SignalArgs& args );
+
 protected: // data
 
   /// component name (stored as path to ensure validity)
@@ -513,7 +516,7 @@ protected: // data
   /// list of dynamic sub-components
   CompStorage_t m_dynamic_components;
   /// pointer to the root of this tree
-  boost::weak_ptr<CRoot> m_root;
+  boost::weak_ptr<Root> m_root;
   /// pointer to parent, naked pointer because of static components
   Component * m_raw_parent;
   /// is this a link component
@@ -926,7 +929,7 @@ typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_nam
   typename ATYPE::Ptr ccomp = comp->as_ptr_checked<ATYPE>();
   if ( is_null(ccomp) )
     throw CastingFailed(FromHere(),
-                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
   return ccomp;
@@ -948,7 +951,7 @@ typename ATYPE::Ptr build_component_abstract_type_reduced(const std::string& bui
   typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
   if ( is_null(ccomp) )
     throw CastingFailed(FromHere(),
-                        "Pointer created by CBuilder \'" + builder_name + "\'"
+                        "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
   return ccomp;

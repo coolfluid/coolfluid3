@@ -9,8 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "Physics/PhysModel.hpp"
-#include "Physics/Variables.hpp"
+#include "physics/PhysModel.hpp"
+#include "physics/Variables.hpp"
 #include "RiemannSolvers/RiemannSolver.hpp"
 
 namespace cf3 {
@@ -48,14 +48,14 @@ public:
 private:
 
   void trigger_physical_model();
-  Physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
+  physics::Variables& roe_vars() { return *m_roe_vars.lock(); }
 
 private:
 
-  boost::weak_ptr<Physics::Variables> m_roe_vars;
-  std::auto_ptr<Physics::Properties> p_left;
-  std::auto_ptr<Physics::Properties> p_right;
-  std::auto_ptr<Physics::Properties> p_avg;
+  boost::weak_ptr<physics::Variables> m_roe_vars;
+  std::auto_ptr<physics::Properties> p_left;
+  std::auto_ptr<physics::Properties> p_right;
+  std::auto_ptr<physics::Properties> p_avg;
   RealVector coord;
   RealMatrix grads;
   RealMatrix f_left;
@@ -72,7 +72,7 @@ private:
   RealVector upwind_flux;
 
   // Operator to calculate the absolute value
-  struct Abs : public Physics::UnaryRealOp
+  struct Abs : public physics::UnaryRealOp
   {
     virtual Real operator() ( const Real& r ) const { return std::abs(r); };
   } abs;

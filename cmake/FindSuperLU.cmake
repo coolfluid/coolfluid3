@@ -1,4 +1,4 @@
-# this module looks for Zoltan library
+# this module looks for zoltan library
 # it will define the following values
 #
 # Needs environmental variables

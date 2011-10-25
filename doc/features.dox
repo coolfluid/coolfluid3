@@ -1,0 +1,273 @@
+namespace cf3{
+/**
+@page mesh_datastructure Flexible mesh data structure
+
+@section mesh_features Features
+- Built on the Component environment
+- Unlimited nesting of regions to allow complex topologies.
+- Unstructured meshes for complex geometries
+- Support for both Continuous/Discontinuous fields
+- Support for fields based on arbitrary shape-function
+
+@section mesh_description Description
+The mesh is assembled from specialized components. The two most important components are the topology and the geometry.
+- Topology is a component describing the physical structure of the mesh. A plane is constructed out of a body and wings.
+  The wings itself can be constructed out of different patches. An infinite nesting is possible.
+- Geometry is a component that stores all the fields that are defined on the mesh-nodes.
+  The mesh coordinates are for instance a vector-field defined in the nodes.
+  
+An example mesh tree of a plane:
+@verbatim
+tree                                                  |  type
+-------------------------------------------------------------------------------
+mesh                                                  |  cf3::mesh::Mesh
+                                                      |
+    topology                                          |  cf3::mesh::Region
+        surrounding                                   |  cf3::mesh::Region
+        body                                          |  cf3::mesh::Region
+        wings                                         |  cf3::mesh::Region
+            wing_1                                    |  cf3::mesh::Region
+            wing_2                                    |  cf3::mesh::Region
+                patch_1                               |  cf3::mesh::Region
+                patch_2                               |  cf3::mesh::Region
+        tail                                          |  cf3::mesh::Region
+                                                      |
+    geometry                                          |  cf3::mesh::FieldGroup
+        coordinates                                   |  cf3::mesh::Field
+@endverbatim
+
+@subsection Elements
+
+Inside the regions there exist more nested components of the type Entities, defining elements. Every element type is grouped separately. Looking at the region "body" more deeply:
+@verbatim
+tree                                                  |  type
+-------------------------------------------------------------------------------
+...                                                   |
+    body                                              |  cf3::mesh::Mesh
+                                                      |
+        quads                                         |  cf3::mesh::Entities
+            element_type                              |  cf3::mesh::ElementType
+            spaces                                    |  cf3::common::Group
+                geometry                              |  cf3::mesh::Space
+                    shape_function                    |  cf3::mesh::ShapeFunction
+                    connectivity                      |  cf3::mesh::Connectivity
+                    bound_fields --> mesh/geometry    |  cf3::common::Link
+                                                      |
+        triags                                        |  cf3::mesh::Entities
+            element_type                              |  cf3::mesh::ElementType
+            spaces                                    |  cf3::common::Group
+                geometry                              |  cf3::mesh::Space
+                    shape_function                    |  cf3::mesh::ShapeFunction
+                    connectivity                      |  cf3::mesh::Connectivity
+                    bound_fields --> mesh/geometry    |  cf3::common::Link
+...                                                   |
+@endverbatim
+
+In this tree you can see that the body of the plane is constructed out of quadrilaterals and triangles.
+The element type of each is defined in the component "element_type". 
+The element_type provides all information needed to describe the element and transformations of a physical space to a mapped space.
+
+The connectivity-table of the elements, which for each element describes which nodes it connects, is stored in the component "connectivity".
+It is essentially a table where each row describes one element, and the values of each row point to indexes in the geometry field-group at "mesh/geometry".
+
+@subsection spaces Spaces and FieldGroups
+The concept of "space" is here introduced as an invisible mesh completely overlapping the original mesh. 
+It has exactly the same elements as the original mesh, but every element is defined by a different set of nodes.
+
+One "space" that is always there is called "geometry". This name is not by coincidence the same as the FieldGroup "geometry", as this space and FieldGroup together describe the actual mesh geometry.
+
+When a mesh is defined with Lagrange-P1 elements (nodes in vertices), but a field of a higher order P2 is desired, another "space" can be created a posteriori.
+Let's create the space "P2" in the same tree:
+@verbatim
+tree                                                  |  type
+-------------------------------------------------------------------------------
+...                                                   | 
+    body                                              |  cf3::mesh::Mesh
+        quads                                         |  cf3::mesh::Entities
+            element_type                              |  cf3::mesh::ElementType
+            spaces                                    |  cf3::common::Group
+                geometry                              |  cf3::mesh::Space
+                    ...                               |
+                P2                                    |  cf3::mesh::Space
+                    shape_function                    |  cf3::mesh::ShapeFunction
+                    connectivity                      |  cf3::mesh::Connectivity
+                    bound_fields -->  ?               |  cf3::common::Link
+        triags                                        |  cf3::mesh::Entities
+            ...                                       |
+...                                                   |
+@endverbatim
+
+The shape_function here describes Lagrange-P2 quadrilateral elements with 9 nodes. This space has therefore a connectivity-table with 9 columns instead of 4 for the (Lagrange-P1) geometry space.
+What is evident now is that the entries of this connectivity table are indexes to something that does not exist yet: another FieldGroup.
+
+A FieldGroup is characterized by 2 things:
+- Region it is applied to:
+  By default a field is applied to the entire topology. It is however possible to select a more specific region.
+- Space it is linked to.
+  A field group is closely linked to a space. It is therefore common practice to name both the space and the FieldGroup similarly. 
+
+Fields that share the same space and region are grouped together inside the FieldGroup. Hence its name.
+
+The mesh tree now has to contain the FieldGroup as well.
+@verbatim
+tree                                                  |  type
+-------------------------------------------------------------------------------
+mesh                                                  |  cf3::mesh::Mesh
+                                                      |
+    topology                                          |  cf3::mesh::Region
+        surrounding                                   |  cf3::mesh::Region
+        body                                          |  cf3::mesh::Region
+        wings                                         |  cf3::mesh::Region
+            ...                                       |
+        tail                                          |  cf3::mesh::Region
+                                                      |
+    geometry                                          |  cf3::mesh::FieldGroup
+        coordinates                                   |  cf3::mesh::Field
+                                                      |
+    P2                                                |  cf3::mesh::FieldGroup
+        pressure                                      |  cf3::mesh::Field
+        velocity                                      |  cf3::mesh::Field
+@endverbatim
+
+@subsection _mesh_remarks Remarks
+
+It can be noticed that the coordinates Field is not strictly necessary in the P2 FieldGroup, as it can be computed on the fly through the information from the P2 and geometry shape functions, and the geometry coordinates.
+
+The creation of the P2 space and FieldGroup is completely optional and for demonstration purposes only. It is perfectly possible to create all desired fields in the geometry space and fieldgroup. Note however that the geometry fieldgroup only supports continuous fields.
+
+Discontinuous fields require a separate space.
+
+@note Following should go to different page for developers
+@section _mesh_elements Elements
+The component grouping elements of the same type and region are of the abstract type cf3::mesh::Entities.
+There is a further distinction between "cf3::mesh::Elements" and "ProxyElements".
+- cf3::mesh::Elements are fully defined by a node-connectivity table.\n
+  Derived types: 
+  - cf3::mesh::Cells
+  - cf3::mesh::Faces
+- ProxyElements are defined only as a connectivity with other elements, and don't store a node-connectivity table.\n
+  Derived types:
+  - cf3::mesh::CellFaces defined by a Cell and a face-number
+
+The distinction is made between cf3::mesh::Cells and cf3::mesh::Faces for the purpose of identification only. It is easier in algorithms to identify
+what is a cell or a face:
+@code
+boost_foreach( const cf3::mesh::Cells& cells, find_components_recursively<cf3::mesh::Cells>(mesh) )
+{
+  // only volume elements are looped over.
+}
+boost_foreach( const cf3::mesh::Faces& faces, find_components_recursively<cf3::mesh::Faces>(mesh) )
+{
+  // only face elements are looped over.
+}
+boost_foreach( const cf3::mesh::Elements& elements, find_components_recursively<cf3::mesh::Elements>(mesh) )
+{
+  // both face and volume elements are looped over.
+}
+boost_foreach( const cf3::mesh::Entities& entities, find_components_recursively<cf3::mesh::Entities>(mesh) )
+{
+  // both face and volume elements are looped over, as well as proxy-elements
+}
+@endcode
+
+@section _working_with_fields Working with fields
+Often one wants to loop over fields through the use of the elements:
+@code
+// Assume we have a cf3::mesh::Field "mesh/P2/velocity" called velocity
+boost_foreach( const cf3::mesh::Entities& entities, velocity.entities_range() )
+{
+  // access to e.g. mesh/topology/body/spaces/P2
+  const cf3::mesh::Space& space = velocity.space(entities);
+  
+  // get the number of points per element
+  const Uint nb_points_per_element = space.nb_states();
+  
+  // Loop over every element of this type
+  for (Uint elem=0; elem<entities.size(); ++elem)
+  {
+    // find the indexes in the field (through the connectivity table)
+    cf3::mesh::Connectivity::ConstRow field_indexes = space.indexes_for_element(elem);
+    
+    // loop over every point of this element
+    for (Uint point=0; point<nb_states(); ++point)
+    {
+      velocity[field_indexes[point]][XX] = 1.5;
+      velocity[field_indexes[point]][YY] = 0.1;
+    }
+  }
+}
+@endcode
+
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page mesh_operations Mesh transformations and IO
+
+@section _mesh_operations_reading Mesh Reading
+The following mesh-formats are supported for reading:
+ - Gmsh (extension .msh)
+ - Neutral (extension .neu)
+ - CGNS (extension .cgns)
+ - OpenFOAM BlockMesh dictionary files (extension .dict)
+ 
+ @section _mesh_operations_writing Mesh Writing
+ The following mesh-formats are supported for writing:
+  - Gmsh (extension .msh)
+  - Neutral (extension .neu)
+  - CGNS (extension .cgns)
+  - Tecplot (extension .plt or .dat)
+  - VTK-Legacy (extension .vtk)
+  - VTK-XML (extension .pvtu)
+
+ @section _mesh_operations_generation Mesh Generation
+ Some simple mesh generation capabilities are provided:
+   - Cartesian Line
+   - Cartesian Rectangle using quadrilaterals, only uniform
+   - Cartesian Box using hexahedrals, with grading
+  
+ @section _mesh_operations_transformations Mesh Transformations
+  - Growth of overlap in parallel distributed meshes
+  - Load balancing of parallel distributed meshes
+  - Accurate interpolation of fields between different meshes
+  - Initialize a field with analytical functions f(x,y,z)
+ 
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page parallelization Large Scale Parallelization
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page multiphysics Multi-physics
+
+COOLFluiD is designed for multi physics. Several physical models have been implemented at the moment, and the list is growing:
+ - Linear Scalar Advection
+ - Navier-Stokes
+ - Linearized Euler
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page sfdm Spectral Finite Difference Solver
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page rdm Residual Distribution Solver
+*/
+
+// ----------------------------------------------------------------------------------
+
+/**
+@page ufem Finite Element Solver
+*/
+
+}

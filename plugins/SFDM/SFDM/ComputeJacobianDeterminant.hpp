@@ -4,14 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_Solver_Actions_ComputeJacobianDeterminant_hpp
-#define CF_Solver_Actions_ComputeJacobianDeterminant_hpp
+#ifndef CF_solver_actions_ComputeJacobianDeterminant_hpp
+#define CF_solver_actions_ComputeJacobianDeterminant_hpp
 
-#include "Solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "Mesh/CTable.hpp"
-#include "Math/MatrixTypes.hpp"
-#include "Mesh/CFieldView.hpp"
+#include "common/Table.hpp"
+#include "math/MatrixTypes.hpp"
+#include "mesh/CFieldView.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +22,7 @@ namespace SFDM {
 
 /// @class ComputeJacobianDeterminant
 /// @brief Computes the Jacobian determinant in every solution point in one cell.
-class SFDM_API ComputeJacobianDeterminant : public Solver::Actions::CLoopOperation {
+class SFDM_API ComputeJacobianDeterminant : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
@@ -52,7 +52,7 @@ private: // helper functions
   
 private: // data
   
-  boost::shared_ptr<Mesh::CMultiStateFieldView> m_jacobian_determinant;
+  boost::shared_ptr<mesh::CMultiStateFieldView> m_jacobian_determinant;
 };
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -62,4 +62,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_Solver_Actions_ComputeJacobianDeterminant_hpp
+#endif // CF_solver_actions_ComputeJacobianDeterminant_hpp

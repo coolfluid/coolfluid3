@@ -5,21 +5,21 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
-#include "common/CLink.hpp"
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 
-#include "Math/VariablesDescriptor.hpp"
+#include "math/VariablesDescriptor.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CRegion.hpp"
-#include "Mesh/CMesh.hpp"
-#include "Mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/Mesh.hpp"
+#include "mesh/Geometry.hpp"
 
-#include "Physics/PhysModel.hpp"
+#include "physics/PhysModel.hpp"
 
 #include "RDM/RDSolver.hpp"
 
@@ -28,18 +28,18 @@
 
 using namespace cf3::common;
 using namespace cf3::common::PE;
-using namespace cf3::Mesh;
+using namespace cf3::mesh;
 
 namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < SetupMultipleSolutions, CAction, LibRDM > SetupMultipleSolutions_Builder;
+common::ComponentBuilder < SetupMultipleSolutions, common::Action, LibRDM > SetupMultipleSolutions_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::Solver::Action(name)
+SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3::solver::Action(name)
 {
   // options
 
@@ -56,8 +56,8 @@ void SetupMultipleSolutions::execute()
 
   const Uint nb_levels = option("nb_levels").value<Uint>();
 
-  CMesh&  mesh = *m_mesh.lock();
-  CGroup& fields = mysolver.fields();
+  Mesh&  mesh = *m_mesh.lock();
+  Group& fields = mysolver.fields();
 
   // get the geometry field group
 
@@ -77,7 +77,7 @@ void SetupMultipleSolutions::execute()
     solution_group = find_component_ptr_with_name<FieldGroup>( mesh, RDM::Tags::solution() );
     if ( is_null(solution_group) )
     {
-      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "CF.Mesh."+solution_space).as_ptr<FieldGroup>();
+      solution_group = mesh.create_space_and_field_group( RDM::Tags::solution(), FieldGroup::Basis::POINT_BASED, "cf3.mesh."+solution_space).as_ptr<FieldGroup>();
     }
     else // not null so check that space is what user wants
     {
@@ -154,16 +154,16 @@ void SetupMultipleSolutions::execute()
   // create links
 
   if( ! fields.get_child_ptr( solution->name() ) )
-    fields.create_component<CLink>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
+    fields.create_component<Link>( solution->name() ).link_to(solution).add_tag(RDM::Tags::solution());
   if( ! fields.get_child_ptr( RDM::Tags::residual() ) )
-    fields.create_component<CLink>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
+    fields.create_component<Link>( RDM::Tags::residual() ).link_to(residual).add_tag(RDM::Tags::residual());
   if( ! fields.get_child_ptr( RDM::Tags::wave_speed() ) )
-    fields.create_component<CLink>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
+    fields.create_component<Link>( RDM::Tags::wave_speed() ).link_to(wave_speed).add_tag(RDM::Tags::wave_speed());
 
   for( Uint step = 1; step < rk_steps.size(); ++step)
   {
     if( ! fields.get_child_ptr( rk_steps[step]->name() ) )
-      fields.create_component<CLink>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
+      fields.create_component<Link>( rk_steps[step]->name() ).link_to( rk_steps[step] ).add_tag("rksteps");
   }
 
 

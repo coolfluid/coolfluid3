@@ -5,15 +5,15 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Log.hpp"
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
 #include "common/Foreach.hpp"
 
-#include "Math/Checks.hpp"
+#include "math/Checks.hpp"
 
-#include "Mesh/Field.hpp"
-#include "Mesh/CMesh.hpp"
+#include "mesh/Field.hpp"
+#include "mesh/Mesh.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/FwdEuler.hpp"
@@ -21,20 +21,20 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3::common;
-using namespace cf3::Mesh;
-using namespace cf3::Math::Checks;
+using namespace cf3::mesh;
+using namespace cf3::math::Checks;
 
 namespace cf3 {
 namespace RDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < FwdEuler, CAction, LibRDM > FwdEuler_Builder;
+common::ComponentBuilder < FwdEuler, common::Action, LibRDM > FwdEuler_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 FwdEuler::FwdEuler ( const std::string& name ) :
-  cf3::Solver::Action(name)
+  cf3::solver::Action(name)
 {
   mark_basic();
 

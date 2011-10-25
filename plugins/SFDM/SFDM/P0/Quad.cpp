@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/CBuilder.hpp"
+#include "common/Builder.hpp"
 
 #include "SFDM/P0/Quad.hpp"
 #include "SFDM/P0/Line.hpp"
@@ -16,7 +16,7 @@ namespace P0 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < Quad, Mesh::ShapeFunction, LibSFDM >
+common::ComponentBuilder < Quad, mesh::ShapeFunction, LibSFDM >
   Quad_Builder(LibSFDM::library_namespace()+".P0."+Quad::type_name());
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -103,7 +103,7 @@ const RealMatrix& Quad::local_coordinates() const
 const Uint Quad::nb_nodes;
 const Uint Quad::dimensionality;
 const Uint Quad::order;
-const Mesh::GeoShape::Type Quad::shape;
+const mesh::GeoShape::Type Quad::shape;
 
 ////////////////////////////////////////////////////////////////////////////////
 
