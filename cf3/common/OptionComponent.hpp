@@ -46,7 +46,8 @@ public:
   OptionComponent(const std::string & name, const URI & def)
     : OptionURI(name, def)
   {
-    typename T::Ptr component = Core::instance().root().access_component_ptr(def)->as_ptr<T>();
+    Component::Ptr comp_ptr = Core::instance().root().access_component_ptr(def);
+    typename T::Ptr component = boost::dynamic_pointer_cast<T>(comp_ptr);
     m_default = data_t(component);
     m_value = m_default;
     supported_protocol(URI::Scheme::CPATH);

@@ -132,7 +132,7 @@ void ServerRoot::process_signal( const std::string & target,
       m_doc.swap(signal.xml_doc);
       m_current_client_id = clientid;
       m_current_frame_id = frameid;
-      Component::Ptr receivingCompo = m_root->retrieve_component_checked(receiver);
+      Component::Ptr receivingCompo = m_root->access_component_ptr_checked(receiver);
 
       m_thread = new ProcessingThread(signal, target, receivingCompo);
       QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
@@ -147,7 +147,7 @@ void ServerRoot::process_signal( const std::string & target,
 
       try
       {
-        Component::Ptr comp = m_root->retrieve_component_checked(receiver);
+        Component::Ptr comp = m_root->access_component_ptr_checked(receiver);
 
         if( comp->signal(target)->is_read_only() )
         {

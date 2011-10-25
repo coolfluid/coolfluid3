@@ -186,7 +186,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
       try
       {
         SignalFrame sf(node);
-        root.retrieve_component(receiver)->call_signal(target, sf);
+        root.access_component(receiver).call_signal(target, sf);
       }
       catch(Exception & e)
       {

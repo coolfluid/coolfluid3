@@ -40,7 +40,7 @@ public:
   NPlugin::Ptr registerPlugin()
   {
     // a plugin cannot be registered twice
-    cf3_assert( m_components.find(LIB::library_name()) == m_components.end() );
+    cf3_assert( is_null(get_child_ptr(LIB::library_name())) );
 
     NPlugin::Ptr plugin = create_component_ptr<NPlugin>( LIB::library_name() );
 
@@ -52,7 +52,7 @@ public:
   template<typename LIB>
   bool isRegisteredPlugin()
   {
-    return m_components.find(LIB::library_name()) != m_components.end();
+    return is_not_null(get_child_ptr(LIB::library_name()));
   }
 
   template<typename LIB>
