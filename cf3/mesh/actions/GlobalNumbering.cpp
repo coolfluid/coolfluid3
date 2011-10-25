@@ -99,14 +99,14 @@ void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry().coordinates();
 
   if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
     mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
   CVector_size_t& glb_node_hash = mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
-  boost_foreach(Table<Real>::ConstRow coords, coordinates.array() )
+  boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
@@ -177,7 +177,7 @@ void GlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  List<Uint>& nodes_rank = mesh.geometry().rank();
+  common::List<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -191,7 +191,7 @@ void GlobalNumbering::execute()
   Uint nb_owned_elems(0);
   boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
-    List<Uint>& elem_rank = elements.rank();
+    common::List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
     for (Uint e=0; e<elements.size(); ++e)
@@ -222,7 +222,7 @@ void GlobalNumbering::execute()
   std::vector<size_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
-  List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  common::List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
@@ -293,7 +293,7 @@ void GlobalNumbering::execute()
   boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
-    List<Uint>& elem_rank = elements.rank();
+    common::List<Uint>& elem_rank = elements.rank();
     elem_rank.resize(elements.size());
 
     //------------------------------------------------------------------------------
@@ -314,7 +314,7 @@ void GlobalNumbering::execute()
     std::vector<size_t> send_hash(nb_owned_elems);
     std::vector<Uint>   send_id(nb_owned_elems);
 
-    List<Uint>& elements_glb_idx = elements.glb_idx();
+    common::List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
     cf3_assert(glb_elem_hash.size() == elements.size());
 
@@ -387,7 +387,7 @@ void GlobalNumbering::execute()
 
     boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
     {
-      List<Uint>& elements_glb_idx = elements.glb_idx();
+      common::List<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
       {
         if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set

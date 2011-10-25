@@ -25,9 +25,9 @@
 #include "mesh/Field.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/DynTable.hpp"
-#include "mesh/List.hpp"
-#include "mesh/Table.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 using namespace std;

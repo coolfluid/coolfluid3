@@ -4,12 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_solver_Actions_ComputeRhsInCell_hpp
-#define CF_solver_Actions_ComputeRhsInCell_hpp
+#ifndef CF_solver_actions_ComputeRhsInCell_hpp
+#define CF_solver_actions_ComputeRhsInCell_hpp
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 #include "SFDM/LibSFDM.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "math/MatrixTypes.hpp"
 #include "mesh/CFieldView.hpp"
 #include "mesh/MeshElements.hpp"
@@ -32,7 +32,7 @@ namespace SFDM {
 ///
 /// It is the workhorse of SFD Solver.
 
-class SFDM_API ComputeRhsInCell : public solver::Actions::CLoopOperation {
+class SFDM_API ComputeRhsInCell : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
@@ -67,7 +67,7 @@ private: // helper functions
 
   void build_riemann_solver();
 
-  RealRowVector    to_row_vector(mesh::Table<Real>::ConstRow row) const ;
+  RealRowVector    to_row_vector(common::Table<Real>::ConstRow row) const ;
   RealMatrix       to_matrix(mesh::CMultiStateFieldView::View data) const ;
 
 private: // data
@@ -110,4 +110,4 @@ private: // data
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_solver_Actions_ComputeRhsInCell_hpp
+#endif // CF_solver_actions_ComputeRhsInCell_hpp

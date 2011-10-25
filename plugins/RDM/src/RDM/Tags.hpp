@@ -22,7 +22,7 @@ class RDM_API Tags : public solver::Tags {
 public:
 
   static const char * fields()         { return "Fields";  }
-  static const char * actions()        { return "Actions"; }
+  static const char * actions()        { return "actions"; }
 
   static const char * solution()      { return "solution"; }
   static const char * residual()      { return "residual"; }

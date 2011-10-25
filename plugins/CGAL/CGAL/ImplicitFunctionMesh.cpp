@@ -17,7 +17,7 @@
 
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
@@ -25,6 +25,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 using namespace cf3;
+using namespace cf3::common;
 using namespace cf3::mesh;
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -12,8 +12,8 @@
 
 #include "solver/CSolver.hpp"
 
-#include "solver/Actions/Proto/BlockAccumulator.hpp"
-#include "solver/Actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
 
 #include "LibUFEM.hpp"
 

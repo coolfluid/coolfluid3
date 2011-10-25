@@ -19,7 +19,7 @@
 //#include "common/XML/SignalFrame.hpp"
 #include "common/XML/Protocol.hpp"
 
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "solver/CPlotter.hpp"
 
@@ -33,7 +33,6 @@
 using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::common::XML;
-using namespace cf3::mesh;
 using namespace cf3::solver;
 
 //////////////////////////////////////////////////////////////////////////////

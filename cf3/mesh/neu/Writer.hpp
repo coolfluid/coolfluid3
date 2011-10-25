@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "mesh/MeshWriter.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/neu/LibNeu.hpp"
 #include "mesh/neu/Shared.hpp"

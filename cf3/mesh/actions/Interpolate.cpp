@@ -132,7 +132,7 @@ void Interpolate::execute()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Interpolate::interpolate(const Field& source, const Table<Real>& coordinates, Table<Real>& target)
+void Interpolate::interpolate(const Field& source, const common::Table<Real>& coordinates, common::Table<Real>& target)
 {
 
   if (Field::Ptr target_field = target.as_ptr<Field>())
@@ -300,7 +300,7 @@ void Interpolate::interpolate(const Field& source, const Table<Real>& coordinate
     for(Uint i=0; i<missing_cells.size(); ++i)
     {
       for(Uint d=0; d<target_dim; ++d)
-        std::cout << coordinates[missing_cells[i]] << "  ";
+        std::cout << coordinates[missing_cells[i]][d] << "  ";
     }
     std::cout << std::endl;
   }
@@ -345,16 +345,16 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   URI coordinates_uri = options.value<URI>("coordinates");
 
   Field& source = access_component(source_uri).as_type<Field>();
-  Table<Real>& target = access_component(target_uri).as_type< Table<Real> >();
+  common::Table<Real>& target = access_component(target_uri).as_type< common::Table<Real> >();
 
-  Table<Real>::Ptr coordinates;
+  common::Table<Real>::Ptr coordinates;
   if (coordinates_uri.string() == URI().string())
   {
     if ( Field::Ptr target_field = target.as_ptr<Field>() )
     {
       if (target_field->field_group().has_coordinates() == false)
         target_field->field_group().create_coordinates();
-      coordinates = target_field->field_group().coordinates().as_ptr< Table<Real> >();
+      coordinates = target_field->field_group().coordinates().as_ptr< common::Table<Real> >();
     }
     else
     {
@@ -363,7 +363,7 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   }
   else
   {
-    coordinates = access_component(coordinates_uri).as_ptr< Table<Real> >();
+    coordinates = access_component(coordinates_uri).as_ptr< common::Table<Real> >();
   }
 
   interpolate(source,*coordinates,target);

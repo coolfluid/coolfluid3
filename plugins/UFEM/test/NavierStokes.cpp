@@ -15,7 +15,7 @@
 namespace cf3 {
 namespace UFEM {
 
-using namespace solver::Actions::Proto;
+using namespace solver::actions::Proto;
 
 typedef boost::mpl::vector1<mesh::LagrangeP1::Quad2D> AllowedElmsT;
 

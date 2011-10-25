@@ -18,7 +18,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/CSolver.hpp"

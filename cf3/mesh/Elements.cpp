@@ -13,7 +13,7 @@
 
 #include "mesh/Elements.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Space.hpp"
@@ -77,7 +77,7 @@ Connectivity& Elements::node_connectivity() const
 
 RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 {
-  const Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
@@ -93,7 +93,7 @@ RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 
 void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
-  const Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   fill(elem_coords, coords_table, elem_nodes);
@@ -101,11 +101,11 @@ void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) con
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Table<Uint>::ConstRow Elements::get_nodes(const Uint elem_idx) const
+common::Table<Uint>::ConstRow Elements::get_nodes(const Uint elem_idx) const
 {
   cf3_assert_desc( to_str(elem_idx)+ ">="+to_str(node_connectivity().size()) , elem_idx < node_connectivity().size() );
   return node_connectivity()[elem_idx];
-//  Table<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
+//  common::Table<Uint>::ConstRow elem_nodes = connectivity_table(space)[elem_idx];
 //  return std::vector<Uint> (elem_nodes.begin(),elem_nodes.end());
 }
 

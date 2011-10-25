@@ -168,11 +168,11 @@ std::map<std::string,Elements::Ptr>
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::map<std::string,Table<Uint>::Buffer::Ptr>
+std::map<std::string,common::Table<Uint>::Buffer::Ptr>
   MeshReader::create_connectivity_buffermap (std::map<std::string,Elements::Ptr>& elems_map)
 {
   // Create regions for each element type
-  std::map<std::string,Table<Uint>::Buffer::Ptr> buffermap;
+  std::map<std::string,common::Table<Uint>::Buffer::Ptr> buffermap;
   foreach_container((const std::string& etype)(Elements::Ptr elements), elems_map)
   {
     buffermap[etype] = elements->node_connectivity().create_buffer_ptr();

@@ -19,8 +19,8 @@
 #include "solver/CTime.hpp"
 #include "solver/CSolver.hpp"
 
-#include "solver/Actions/CCriterion.hpp"
-#include "solver/Actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CCriterion.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -32,7 +32,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 using namespace cf3::mesh;
 
 namespace cf3 {

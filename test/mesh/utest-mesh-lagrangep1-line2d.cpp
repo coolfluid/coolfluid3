@@ -17,7 +17,7 @@
 
 #include "math/Consts.hpp"
 
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Elements.hpp"

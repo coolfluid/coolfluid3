@@ -16,13 +16,13 @@
 
 
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
-#include "mesh/List.hpp"
+#include "common/Table.hpp"
+#include "common/List.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Field.hpp"

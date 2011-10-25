@@ -15,7 +15,7 @@
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 namespace cf3 {
 namespace mesh {

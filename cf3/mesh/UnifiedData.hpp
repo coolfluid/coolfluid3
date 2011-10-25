@@ -13,8 +13,9 @@
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 #include "common/StringConversion.hpp"
+#include "common/List.hpp"
 
-#include "mesh/List.hpp"
+#include "mesh/LibMesh.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -98,7 +99,7 @@ private: // data
   std::vector< boost::weak_ptr<common::Component> > m_data_vector;
 
   /// start index for each component in the continous view
-  boost::shared_ptr<List<Uint> > m_data_indices;
+  boost::shared_ptr<common::List<Uint> > m_data_indices;
 
   /// group with links to data components (links to elements of m_data_vector)
   boost::shared_ptr<common::Group> m_data_links;
@@ -128,7 +129,7 @@ inline void UnifiedData::add(DATA& data)
     m_data_vector.push_back(actual_data->as_non_const());
     m_size += actual_data->size();
 
-    List<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
+    common::List<Uint>::Buffer data_start_indices = m_data_indices->create_buffer();
     data_start_indices.add_row(m_size);
     data_start_indices.flush();
   }

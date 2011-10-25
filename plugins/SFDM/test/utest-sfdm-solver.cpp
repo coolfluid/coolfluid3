@@ -302,7 +302,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 //  model.time().configure_option("time_step",5.);
 
 //  /// Initialize solution field with the function sin(2*pi*x)
-//  Actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<Actions::InitFieldFunction>("init_field");
+//  actions::InitFieldFunction::Ptr init_field = common::Core::instance().root().create_component_ptr<actions::InitFieldFunction>("init_field");
 //  //init_field->configure_option("functions",std::vector<std::string>(1,"sin(2*pi*x/10)"));
 
 //  std::string gaussian="sigma:=1; mu:=5.; exp(-(x-mu)^2/(2*sigma^2)) / exp(-(mu-mu)^2/(2*sigma^2))";

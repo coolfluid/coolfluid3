@@ -15,7 +15,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/Integrators/GaussImplementation.hpp"
 

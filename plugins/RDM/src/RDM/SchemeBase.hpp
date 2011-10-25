@@ -28,7 +28,7 @@
 
 #include "physics/PhysModel.hpp"
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/CellLoop.hpp"
@@ -44,7 +44,7 @@ namespace RDM {
 /// the physical variables
 /// @author Tiago Quintino
 template < typename SF, typename QD, typename PHYS >
-class RDM_API SchemeBase : public solver::Actions::CLoopOperation {
+class RDM_API SchemeBase : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
@@ -68,7 +68,7 @@ public: // functions
 
   /// interpolates the shape functions and gradient values
   /// @post zeros the local residual matrix
-  void interpolate ( const mesh::Table<Uint>::ConstRow& nodes_idx );
+  void interpolate ( const common::Table<Uint>::ConstRow& nodes_idx );
 
   void sol_gradients_at_qdpoint(const Uint q);
 
@@ -253,7 +253,7 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
 
 template<typename SF,typename QD, typename PHYS>
-void SchemeBase<SF, QD,PHYS>::interpolate( const mesh::Table<Uint>::ConstRow& nodes_idx )
+void SchemeBase<SF, QD,PHYS>::interpolate( const common::Table<Uint>::ConstRow& nodes_idx )
 {
   /// @todo must be tested for 3D
 

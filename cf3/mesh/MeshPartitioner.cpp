@@ -21,9 +21,9 @@
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/List.hpp"
+#include "common/List.hpp"
 #include "mesh/MeshPartitioner.hpp"
-#include "mesh/DynTable.hpp"
+#include "common/DynTable.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Manipulations.hpp"
@@ -173,7 +173,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
     m_lookup->add(elements);
 
   m_nb_owned_obj = 0;
-  List<Uint>& node_glb_idx = nodes.glb_idx();
+  common::List<Uint>& node_glb_idx = nodes.glb_idx();
   for (Uint i=0; i<nodes.size(); ++i)
   {
     if (!nodes.is_ghost(i))
@@ -479,10 +479,10 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
-  const List<Uint>& global_node_indices = mesh.geometry().glb_idx();
+  const common::List<Uint>& global_node_indices = mesh.geometry().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -676,7 +676,7 @@ void MeshPartitioner::migrate()
   }
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {

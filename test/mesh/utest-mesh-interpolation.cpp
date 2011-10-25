@@ -23,7 +23,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"

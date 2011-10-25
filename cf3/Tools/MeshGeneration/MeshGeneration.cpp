@@ -18,7 +18,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 using namespace cf3::common;

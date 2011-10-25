@@ -20,8 +20,8 @@ namespace UFEM {
 using namespace common;
 using namespace mesh;
 using namespace solver;
-using namespace solver::Actions;
-using namespace solver::Actions::Proto;
+using namespace solver::actions;
+using namespace solver::actions::Proto;
 
 
 

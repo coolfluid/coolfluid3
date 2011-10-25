@@ -369,7 +369,7 @@ coolfluid_add_test( UTEST utest-mesh-deletion
                     LIBS  coolfluid_mesh coolfluid_mesh_generation )
 
 ##########################################################################
-# test Actions
+# test actions
 add_subdirectory( actions )
 
 ##########################################################################

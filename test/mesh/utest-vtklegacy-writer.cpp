@@ -17,8 +17,8 @@
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
-#include "mesh/List.hpp"
-#include "mesh/Table.hpp"
+#include "common/List.hpp"
+#include "common/Table.hpp"
 #include "mesh/Geometry.hpp"
 
 using namespace cf3;

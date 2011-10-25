@@ -18,7 +18,7 @@
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/LibRDM.hpp"
 #include "RDM/FaceLoop.hpp"
@@ -31,7 +31,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_API BcBase : public solver::Actions::CLoopOperation {
+class RDM_API BcBase : public solver::actions::CLoopOperation {
 
 public: // typedefs
 
@@ -104,13 +104,13 @@ protected: // data
   /// pointer to connectivity table, may reset when iterating over element types
   mesh::Connectivity::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  mesh::Table<Real>::Ptr coordinates;
+  common::Table<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr solution;
+  common::Table<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr residual;
+  common::Table<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr wave_speed;
+  common::Table<Real>::Ptr wave_speed;
 
   typename PHYS::MODEL::Properties phys_props; ///< physical properties
 
@@ -120,7 +120,7 @@ protected: // data
 
 template<typename SF, typename QD, typename PHYS>
 BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
-  solver::Actions::CLoopOperation(name)
+  solver::actions::CLoopOperation(name)
 {
   regist_typeinfo(this);
 

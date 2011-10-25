@@ -17,7 +17,7 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "solver/CSolver.hpp"
-#include "solver/Actions/CForAllCells.hpp"
+#include "solver/actions/CForAllCells.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
@@ -42,7 +42,7 @@ namespace SFDM {
 
   using namespace common;
   using namespace mesh;
-  using namespace solver::Actions;
+  using namespace solver::actions;
   using namespace solver;
   using namespace physics;
 

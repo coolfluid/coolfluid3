@@ -12,9 +12,9 @@
 
 #include "solver/CSimpleSolver.hpp"
 
-#include "solver/Actions/Proto/BlockAccumulator.hpp"
-#include "solver/Actions/Proto/DirichletBC.hpp"
-#include "solver/Actions/Proto/SolutionVector.hpp"
+#include "solver/actions/Proto/BlockAccumulator.hpp"
+#include "solver/actions/Proto/DirichletBC.hpp"
+#include "solver/actions/Proto/SolutionVector.hpp"
 
 #include "BoundaryConditions.hpp"
 #include "LibUFEM.hpp"
@@ -70,13 +70,13 @@ private:
 
 public:
   /// Proto placeholder for the system matrix
-  const solver::Actions::Proto::SystemMatrix& system_matrix;
+  const solver::actions::Proto::SystemMatrix& system_matrix;
   /// Proto placeholder for the right hand side of the system
-  const solver::Actions::Proto::SystemRHS& system_rhs;
+  const solver::actions::Proto::SystemRHS& system_rhs;
   /// Proto placeholder for dirichlet boundary conditions
-  const solver::Actions::Proto::DirichletBC& dirichlet;
+  const solver::actions::Proto::DirichletBC& dirichlet;
   /// Proto placeholder for the solution vector
-  const solver::Actions::Proto::SolutionVector& solution;
+  const solver::actions::Proto::SolutionVector& solution;
 };
 
 } // UFEM

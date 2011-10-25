@@ -18,7 +18,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Geometry.hpp"

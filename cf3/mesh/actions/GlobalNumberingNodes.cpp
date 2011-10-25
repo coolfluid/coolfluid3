@@ -99,7 +99,7 @@ void GlobalNumberingNodes::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry().coordinates();
 
   if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
     mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
@@ -111,7 +111,7 @@ void GlobalNumberingNodes::execute()
 
 
   Uint i(0);
-  boost_foreach(Table<Real>::ConstRow coords, coordinates.array() )
+  boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
   {
     glb_node_hash.data()[i]=hash_value(to_vector(coords));
     if (m_debug)
@@ -149,7 +149,7 @@ void GlobalNumberingNodes::execute()
 
   Uint nb_ghost(0);
   Geometry& nodes = mesh.geometry();
-  List<Uint>& nodes_rank = mesh.geometry().rank();
+  common::List<Uint>& nodes_rank = mesh.geometry().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -189,7 +189,7 @@ void GlobalNumberingNodes::execute()
   std::vector<size_t> node_from(nodes.size()-nb_ghost);
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
 
-  List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  common::List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;

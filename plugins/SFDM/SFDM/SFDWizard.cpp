@@ -22,9 +22,9 @@
 #include "solver/CPhysicalModel.hpp"
 #include "solver/CTime.hpp"
 
-#include "solver/Actions/CAdvanceTime.hpp"
-#include "solver/Actions/CCriterionTime.hpp"
-#include "solver/Actions/CForAllCells.hpp"
+#include "solver/actions/CAdvanceTime.hpp"
+#include "solver/actions/CCriterionTime.hpp"
+#include "solver/actions/CForAllCells.hpp"
 
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
@@ -57,7 +57,7 @@ namespace SFDM {
 
   using namespace mesh;
   using namespace solver;
-  using namespace solver::Actions;
+  using namespace solver::actions;
   using namespace mesh::actions;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -353,7 +353,7 @@ void SFDWizard::build_solve()
 {
   FlowSolver& solver = m_model_link->follow()->as_type<CModel>().solver().as_type<FlowSolver>();
 
-  Component& iterate = solver.create_solve("iterate","cf3.solver.Actions.CIterate");
+  Component& iterate = solver.create_solve("iterate","cf3.solver.actions.CIterate");
   Component& RK = iterate.create_component("1_RK_stages","cf3.RungeKutta.RK");
   RK.configure_option("stages",option("RK_stages").value<Uint>());
   Component& compute_rhs = RK.access_component("1_for_each_stage/1_pre_update_actions").create_component<GroupActions>("1_compute_rhs").mark_basic();

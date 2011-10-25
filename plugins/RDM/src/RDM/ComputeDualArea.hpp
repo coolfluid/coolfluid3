@@ -11,12 +11,12 @@
 
 #include "math/Checks.hpp"
 
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Geometry.hpp"
 #include "mesh/ElementType.hpp"
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/CellTerm.hpp"
 
@@ -69,7 +69,7 @@ private: // data
 
 
 template < typename SF, typename QD >
-class RDM_API ComputeDualArea::Term : public solver::Actions::CLoopOperation {
+class RDM_API ComputeDualArea::Term : public solver::actions::CLoopOperation {
 
 public: // typedefs
 

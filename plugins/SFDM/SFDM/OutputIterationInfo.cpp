@@ -11,11 +11,11 @@
 #include "common/Foreach.hpp"
 
 #include "mesh/CField.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 #include "solver/FlowSolver.hpp"
 #include "solver/CTime.hpp"
-#include "solver/Actions/CIterate.hpp"
+#include "solver/actions/CIterate.hpp"
 
 #include "SFDM/OutputIterationInfo.hpp"
 
@@ -24,7 +24,7 @@
 using namespace cf3::common;
 using namespace cf3::mesh;
 using namespace cf3::solver;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace SFDM {

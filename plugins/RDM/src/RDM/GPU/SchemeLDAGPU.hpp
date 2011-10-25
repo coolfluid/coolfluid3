@@ -23,7 +23,7 @@
 #include "mesh/CNodes.hpp"
 #include "mesh/ElementType.hpp"
 
-#include "solver/Actions/CLoopOperation.hpp"
+#include "solver/actions/CLoopOperation.hpp"
 
 #include "RDM/GPU/CLdeclaration.hpp"
 #include "RDM/GPU/LibGPU.hpp"
@@ -36,7 +36,7 @@ namespace RDM {
 ///////////////////////////////////////////////////////////////////////////////////////
 
 template < typename SF, typename QD, typename PHYS >
-class RDM_GPU_API SchemeLDAGPU : public solver::Actions::CLoopOperation
+class RDM_GPU_API SchemeLDAGPU : public solver::actions::CLoopOperation
 {
 public: // typedefs
 
@@ -96,15 +96,15 @@ private: // helper functions
 private: // data
 
   /// pointer to connectivity table, may reset when iterating over element types
-  mesh::Table<Uint>::Ptr connectivity;
+  common::Table<Uint>::Ptr connectivity;
   /// pointer to nodes coordinates, may reset when iterating over element types
-  mesh::Table<Real>::Ptr coordinates;
+  common::Table<Real>::Ptr coordinates;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr solution;
+  common::Table<Real>::Ptr solution;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr residual;
+  common::Table<Real>::Ptr residual;
   /// pointer to solution table, may reset when iterating over element types
-  mesh::Table<Real>::Ptr wave_speed;
+  common::Table<Real>::Ptr wave_speed;
 
   const QD& m_quadrature;
 

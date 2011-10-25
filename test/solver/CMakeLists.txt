@@ -9,4 +9,4 @@ coolfluid_add_test( UTEST utest-solver-physics-static2dynamic
 
 ########################################################################
 # action tests
-add_subdirectory( Actions )
+add_subdirectory( actions )

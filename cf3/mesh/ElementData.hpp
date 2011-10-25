@@ -14,7 +14,7 @@
 #include "math/MatrixTypes.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,14 +25,14 @@ namespace mesh {
 
 /// Fill STL-vector like per-node data storage
 template<typename NodeValuesT, typename RowT>
-void fill(NodeValuesT& to_fill, const Table<Real>& data_array, const RowT& element_row, const Uint start=0)
+void fill(NodeValuesT& to_fill, const common::Table<Real>& data_array, const RowT& element_row, const Uint start=0)
 {
   const Uint nb_nodes = element_row.size();
   const Uint dim = data_array.row_size();
   const Uint end = start+dim;
   for(Uint node = 0; node != nb_nodes; ++node)
   {
-    const Table<Real>::ConstRow data_row = data_array[element_row[node]];
+    const common::Table<Real>::ConstRow data_row = data_array[element_row[node]];
     for(Uint j = start; j != end; ++j)
       to_fill[node][j-start] = data_row[j];
   }
@@ -40,11 +40,11 @@ void fill(NodeValuesT& to_fill, const Table<Real>& data_array, const RowT& eleme
 
 /// Fill static sized matrices
 template<typename RowT, int NbRows, int NbCols>
-void fill(Eigen::Matrix<Real, NbRows, NbCols>& to_fill, const Table<Real>& data_array, const RowT& element_row, const Uint start=0)
+void fill(Eigen::Matrix<Real, NbRows, NbCols>& to_fill, const common::Table<Real>& data_array, const RowT& element_row, const Uint start=0)
 {
   for(int node = 0; node != NbRows; ++node)
   {
-    const Table<Real>::ConstRow data_row = data_array[element_row[node]];
+    const common::Table<Real>::ConstRow data_row = data_array[element_row[node]];
     for(Uint j = 0; j != NbCols; ++j)
       to_fill(node, j) = data_row[j+start];
   }
@@ -52,14 +52,14 @@ void fill(Eigen::Matrix<Real, NbRows, NbCols>& to_fill, const Table<Real>& data_
 
 /// Fill dynamic matrices
 template<typename RowT>
-void fill(RealMatrix& to_fill, const Table<Real>& data_array, const RowT& element_row, const Uint start=0)
+void fill(RealMatrix& to_fill, const common::Table<Real>& data_array, const RowT& element_row, const Uint start=0)
 {
   const Uint nb_nodes = element_row.size();
   const Uint dim = data_array.row_size();
   const Uint end = start+dim;
   for(Uint node = 0; node != nb_nodes; ++node)
   {
-    const Table<Real>::ConstRow data_row = data_array[element_row[node]];
+    const common::Table<Real>::ConstRow data_row = data_array[element_row[node]];
     for(Uint j = start; j != end; ++j)
       to_fill(node, j-start) = data_row[j];
   }
@@ -91,13 +91,13 @@ void fill(RealMatrix& to_fill, const Table<Real>& data_array, const RowT& elemen
 //   }
 //
 //   template<typename RowT>
-//   void fill(const Table<Real>& data_array, const RowT& element_row, const Uint start=0)
+//   void fill(const common::Table<Real>& data_array, const RowT& element_row, const Uint start=0)
 //   {
 //     static const Uint end = start+node_size;
 //     for(Uint node = 0; node != nb_nodes; ++node)
 //     {
 //       ValueT& mat = m_data[node];
-//       const Table<Real>::ConstRow data_row = data_array[element_row[node]];
+//       const common::Table<Real>::ConstRow data_row = data_array[element_row[node]];
 //       for(Uint j = 0; j != NbCols; ++j)
 //       {
 //         const Uint offset = start + j*NbRows;
@@ -145,7 +145,7 @@ struct ElementNodeView<NbNodes, 1, 1>
   }
 
   template<typename RowT>
-  void fill(Table<Real>& data_array, const RowT& element_row, const Uint start=0)
+  void fill(common::Table<Real>& data_array, const RowT& element_row, const Uint start=0)
   {
     for(Uint i = 0; i != nb_nodes; ++i)
     {

@@ -99,7 +99,7 @@ void GlobalNumberingElements::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry().coordinates();
 
 
   boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
@@ -169,7 +169,7 @@ void GlobalNumberingElements::execute()
   Uint glb_id=start_id_per_proc[PE::Comm::instance().rank()];
   boost_foreach( Entities& elements, find_components_recursively<Elements>(mesh) )
   {
-    List<Uint>& elements_glb_idx = elements.glb_idx();
+    common::List<Uint>& elements_glb_idx = elements.glb_idx();
     elements_glb_idx.resize(elements.size());
     std::vector<std::size_t>& glb_elem_hash = elements.get_child("glb_elem_hash").as_type<CVector_size_t>().data();
     cf3_assert(glb_elem_hash.size() == elements.size());
@@ -190,7 +190,7 @@ void GlobalNumberingElements::execute()
 
     boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )
     {
-      List<Uint>& elements_glb_idx = elements.glb_idx();
+      common::List<Uint>& elements_glb_idx = elements.glb_idx();
       for (Uint i=0; i<elements.size(); ++i)
       {
         if (glb_set.insert(elements_glb_idx[i]).second == false)  // it was already in the set

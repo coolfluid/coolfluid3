@@ -8,7 +8,7 @@
 #define cf3_mesh_Field_hpp
 
 #include "mesh/FieldGroup.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
 
@@ -32,7 +32,7 @@ namespace mesh {
 /// This class stores fields which can be applied
 /// to fields (Field)
 /// @author Willem Deconinck, Tiago Quintino
-class Mesh_API Field : public Table<Real> {
+class Mesh_API Field : public common::Table<Real> {
 
 public: // typedefs
 
@@ -89,13 +89,13 @@ public: // functions
 
   virtual void resize(const Uint size);
 
-  Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
 
-  Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
 
-  List<Uint>& glb_idx() const { return field_group().glb_idx(); }
+  common::List<Uint>& glb_idx() const { return field_group().glb_idx(); }
 
-  List<Uint>& rank() const { return field_group().rank(); }
+  common::List<Uint>& rank() const { return field_group().rank(); }
 
   bool is_ghost(const Uint idx) const { return field_group().is_ghost(idx); }
 

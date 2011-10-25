@@ -20,7 +20,7 @@
 namespace cf3 {
 
 namespace common    { class Group; }
-namespace solver    { namespace Actions { class CSynchronizeFields; } }
+namespace solver    { namespace actions { class CSynchronizeFields; } }
 
 namespace SFDM {
 

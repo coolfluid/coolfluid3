@@ -13,11 +13,11 @@
 
 #include "common/XML/SignalOptions.hpp"
 
-#include "solver/Actions/CPeriodicWriteMesh.hpp"
-#include "solver/Actions/CSynchronizeFields.hpp"
-#include "solver/Actions/CCriterionMaxIterations.hpp"
-#include "solver/Actions/CComputeLNorm.hpp"
-#include "solver/Actions/CPrintIterationSummary.hpp"
+#include "solver/actions/CPeriodicWriteMesh.hpp"
+#include "solver/actions/CSynchronizeFields.hpp"
+#include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CComputeLNorm.hpp"
+#include "solver/actions/CPrintIterationSummary.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/Reset.hpp"
@@ -27,7 +27,7 @@
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::mesh;
-using namespace cf3::solver::Actions;
+using namespace cf3::solver::actions;
 
 namespace cf3 {
 namespace RDM {

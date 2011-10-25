@@ -41,12 +41,12 @@ namespace SFDM {
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentBuilder < ComputeRhsInCell, solver::Actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
+common::ComponentBuilder < ComputeRhsInCell, solver::actions::CLoopOperation, LibSFDM > ComputeRhsInCell_Builder;
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
 ComputeRhsInCell::ComputeRhsInCell ( const std::string& name ) :
-  solver::Actions::CLoopOperation(name)
+  solver::actions::CLoopOperation(name)
 {
   // options
   m_options.add_option(OptionURI::create("solution", URI("cpath:"), URI::Scheme::CPATH))
@@ -427,7 +427,7 @@ void ComputeRhsInCell::execute()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RealRowVector ComputeRhsInCell::to_row_vector(mesh::Table<Real>::ConstRow row) const
+RealRowVector ComputeRhsInCell::to_row_vector(common::Table<Real>::ConstRow row) const
 {
   RealRowVector rowvec (row.size());
   for (Uint i=0; i<row.size(); ++i)

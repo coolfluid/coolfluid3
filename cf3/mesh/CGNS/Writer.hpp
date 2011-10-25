@@ -69,7 +69,7 @@ private: // data
 
   std::string m_fileBasename;
 
-  std::map<const Table<Real>*, Uint> m_global_start_idx;
+  std::map<const common::Table<Real>*, Uint> m_global_start_idx;
 
 }; // end Writer
 

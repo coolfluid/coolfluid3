@@ -9,7 +9,7 @@
 
 //#include "mesh/Elements.hpp"
 #include "mesh/UnifiedData.hpp"
-#include "mesh/Table.hpp"
+#include "common/Table.hpp"
 #include "mesh/MeshElements.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,18 +64,18 @@ public:
   void build_connectivity();
 
   /// const access to the node to element connectivity table in unified indices
-  Table<Uint>& connectivity() { return *m_connectivity; }
+  common::Table<Uint>& connectivity() { return *m_connectivity; }
 
-  const Table<Uint>& connectivity() const { return *m_connectivity; }
+  const common::Table<Uint>& connectivity() const { return *m_connectivity; }
 
   /// access to see if the face is a bdry face
-  List<bool>& is_bdry_face() { cf3_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  common::List<bool>& is_bdry_face() { cf3_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
 
-  const List<bool>& is_bdry_face() const { cf3_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
+  const common::List<bool>& is_bdry_face() const { cf3_assert( is_not_null(m_is_bdry_face) ); return *m_is_bdry_face; }
 
-  Table<Uint>& face_number() { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
+  common::Table<Uint>& face_number() { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
-  const Table<Uint>& face_number() const { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
+  const common::Table<Uint>& face_number() const { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
   Uint size() const { return connectivity().size(); }
 
@@ -98,12 +98,12 @@ private: // data
   boost::shared_ptr<common::Group> m_used_components;
 
   /// Actual connectivity table
-  Table<Uint>::Ptr m_connectivity;
+  common::Table<Uint>::Ptr m_connectivity;
 
-  Table<Uint>::Ptr m_face_nb_in_elem;
+  common::Table<Uint>::Ptr m_face_nb_in_elem;
 
-  // @todo make a List<bool> (some bug prevents using List<bool>::Buffer with List<bool> )
-  List<bool>::Ptr m_is_bdry_face;
+  // @todo make a common::List<bool> (some bug prevents using common::List<bool>::Buffer with common::List<bool> )
+  common::List<bool>::Ptr m_is_bdry_face;
 
   MeshElements::Ptr m_mesh_elements;
 

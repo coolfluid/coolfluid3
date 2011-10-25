@@ -18,7 +18,7 @@ namespace cf3 {
 
 namespace mesh    { class Field;    class Mesh; }
 namespace physics { class PhysModel; class Variables; }
-namespace solver  { namespace Actions { class CSynchronizeFields; } }
+namespace solver  { namespace actions { class CSynchronizeFields; } }
 
 namespace RDM {
 
