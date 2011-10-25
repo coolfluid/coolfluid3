@@ -7,11 +7,13 @@
 #include <boost/python.hpp>
 #include <boost/weak_ptr.hpp>
 
+#include "common/BasicExceptions.hpp"
+
 #include "math/MatrixTypes.hpp"
-#include "Python/MatrixTypes.hpp"
+#include "python/MatrixWrappers.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
@@ -43,5 +45,5 @@ void def_matrix_types()
     .def("__len__", get_size);
 }
 
-} // Python
+} // python
 } // cf3

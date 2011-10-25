@@ -12,15 +12,15 @@
 #include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
-#include "Python/Core.hpp"
-#include "Python/Component.hpp"
+#include "python/CoreWrapper.hpp"
+#include "python/ComponentWrapper.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
-struct Core
+struct CoreWrapper
 {
   static object root()
   {
@@ -54,14 +54,14 @@ struct Core
 
 void def_core()
 {
-  class_<Core>("Core", "Core class, the entry point to coolfluid", no_init)
-    .def("root", Core::root, "Access to the root of the component tree")
+  class_<CoreWrapper>("Core", "Core class, the entry point to coolfluid", no_init)
+    .def("root", CoreWrapper::root, "Access to the root of the component tree")
     .staticmethod("root")
-    .def("environment", Core::environment, "Access to the environment for setting global options")
+    .def("environment", CoreWrapper::environment, "Access to the environment for setting global options")
     .staticmethod("environment")
-    .def("initiate", Core::initiate)
+    .def("initiate", CoreWrapper::initiate)
     .staticmethod("initiate");
 }
 
-} // Python
+} // python
 } // cf3

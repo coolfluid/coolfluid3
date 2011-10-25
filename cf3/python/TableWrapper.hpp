@@ -11,7 +11,7 @@
 
 namespace cf3 {
 namespace common { class Component; }
-namespace Python {
+namespace python {
 
 class ComponentWrapper;
 
@@ -20,7 +20,7 @@ void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& p
 
 void def_ctable_types();
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

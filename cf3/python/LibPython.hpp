@@ -28,7 +28,7 @@
 namespace cf3 {
 
   /// Basic Classes for Python wrapper classes used by CF
-  namespace Python {
+  namespace python {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -47,12 +47,12 @@ namespace cf3 {
   public: // functions
 
     /// @return string of the library namespace
-    static std::string library_namespace() { return "cf3.Python"; }
+    static std::string library_namespace() { return "cf3.python"; }
 
     /// Static function that returns the library name.
     /// Must be implemented for Library registration
     /// @return name of the library
-    static std::string library_name() { return "Python"; }
+    static std::string library_name() { return "python"; }
 
     /// Static function that returns the description of the library.
     /// Must be implemented for Library registration
@@ -78,7 +78,7 @@ namespace cf3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
