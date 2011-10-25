@@ -489,7 +489,7 @@ void Component::change_parent ( Component* new_parent )
     root->remove_component_path(uri());
   }
 
-  if( new_parent ) // valid ?
+  if( is_not_null(new_parent) ) // valid ?
   {
     m_path = new_parent->uri(); // modify the path
     m_root = new_parent->m_root;      // modify the root
