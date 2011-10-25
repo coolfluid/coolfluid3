@@ -17,7 +17,11 @@ namespace common {
 class Common_API Tags : public NonInstantiable<Tags> {
 public:
   
-  static const char * dimension ();
+  /// Tag for options related to the dimension of something
+  static const char * dimension();
+  
+  /// Tag to indicate that a component is static
+  static const char * static_component();
 
 }; // Tags
 

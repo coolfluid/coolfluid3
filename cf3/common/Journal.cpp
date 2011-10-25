@@ -134,7 +134,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
 {
 
 
-  if (m_root.expired())
+  if (!has_parent())
     throw IllegalCall(FromHere(), "Component \'" + name() + "\' has no root");
 
   boost::shared_ptr<XmlDoc> xmldoc = XML::parse_file(filename);

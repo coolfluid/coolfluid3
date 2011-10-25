@@ -121,9 +121,8 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
     SignalFrame frame( sig );
     call_signal( "signal_to_forward", frame );
   }
-  else if( !m_root.expired() )
+  else
   {
-    Root::Ptr root = m_root.lock();
     SignalFrame signal_frame( sig );
     bool success = false;
     std::string message;
@@ -143,7 +142,7 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       std::string str;
       to_string( signal_frame.node, str);
 
-      Component::Ptr comp = root->retrieve_component_checked( receiver );
+      Component::Ptr comp = access_component_ptr_checked( receiver );
 
       comp->call_signal(target, signal_frame);
 

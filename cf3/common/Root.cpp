@@ -23,11 +23,6 @@ namespace common {
   Root::Ptr Root::create ( const std::string& name )
   {
     boost::shared_ptr<Root> root(new AllocatedComponent<Root>(name), Deleter< AllocatedComponent<Root> >());
-    Root* raw_root = root.get();
-
-    // point root's parent and root to himself
-    root->m_root = root;
-    root->m_raw_parent = raw_root;
 
     // put himself in the database
     root->m_toc[root->uri().path()] = root;
@@ -45,8 +40,6 @@ namespace common {
 
     regist_signal("new_event")
         ->description( "Notifies new events." );
-
-    m_path = "/";
   }
 
   Root::~Root()
@@ -143,7 +136,7 @@ namespace common {
   void Root::raise_new_event ( const std::string & event_name,
                                 const URI & raiser_path )
   {
-    cf3_assert( exists_component_path(raiser_path) );
+    cf3_assert( is_not_null(access_component_ptr(raiser_path)) );
 
     std::vector<NotificationQueue*>::iterator it;
 
