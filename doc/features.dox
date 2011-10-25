@@ -174,7 +174,7 @@ boost_foreach( const cf3::mesh::Entities& entities, find_components_recursively<
 Often one wants to loop over fields through the use of the elements:
 @code
 // Assume we have a cf3::mesh::Field "mesh/P2/velocity" called velocity
-boost_foreach( const cf3::mesh::CEntities& entities, velocity.entities_range() )
+boost_foreach( const cf3::mesh::Entities& entities, velocity.entities_range() )
 {
   // access to e.g. mesh/topology/body/spaces/P2
   const cf3::mesh::Space& space = velocity.space(entities);
