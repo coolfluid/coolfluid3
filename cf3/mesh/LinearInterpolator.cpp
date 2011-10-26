@@ -285,7 +285,7 @@ void LinearInterpolator::create_bounding_box()
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(common::Table<Real>::ConstRow coords, m_source_mesh->geometry().coordinates().array())
+  boost_foreach(common::Table<Real>::ConstRow coords, m_source_mesh->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {

@@ -127,7 +127,7 @@ void SimpleMeshGenerator::create_line()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("fluid");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   Cells& cells = region.create_component<Cells>("Line");
@@ -234,7 +234,7 @@ void SimpleMeshGenerator::create_rectangle()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
 
   // find ghost nodes

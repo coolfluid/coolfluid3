@@ -82,7 +82,7 @@ void Entities::initialize(const std::string& element_type_name, Geometry& geomet
 
 void Entities::assign_geometry(Geometry& geometry)
 {
-  m_geometry = geometry.as_ptr<Geometry>();
+  m_geometry_fields = geometry.as_ptr<Geometry>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

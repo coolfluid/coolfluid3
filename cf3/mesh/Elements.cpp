@@ -77,7 +77,7 @@ Connectivity& Elements::node_connectivity() const
 
 RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 {
-  const common::Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry_fields().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
@@ -93,7 +93,7 @@ RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 
 void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
-  const common::Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry_fields().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   fill(elem_coords, coords_table, elem_nodes);

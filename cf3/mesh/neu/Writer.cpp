@@ -99,7 +99,7 @@ void Writer::write_headerData(std::fstream& file)
   Uint element_counter(0);
   Uint bc_counter(0);
 
-  const Uint node_counter = m_mesh->geometry().size();
+  const Uint node_counter = m_mesh->geometry_fields().size();
 
 
   boost_foreach(const Region& group, find_components_recursively_with_filter<Region>(*m_mesh,IsGroup()))
@@ -156,7 +156,7 @@ void Writer::write_coordinates(std::fstream& file)
   file << "   NODAL COORDINATES 2.3.16" << std::endl;
   file.setf(std::ios::fixed);
   Uint node_number = 0;
-  boost_foreach(common::Table<Real>::ConstRow row, m_mesh->geometry().coordinates().array())
+  boost_foreach(common::Table<Real>::ConstRow row, m_mesh->geometry_fields().coordinates().array())
   {
     ++node_number;
     file << std::setw(10) << node_number;

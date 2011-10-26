@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   Uint nb_ghosts=0;
 
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
+  Field& nodal = mesh.geometry_fields().create_field("nodal","nodal[vector]");
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)

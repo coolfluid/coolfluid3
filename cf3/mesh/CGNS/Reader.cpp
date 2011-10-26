@@ -256,7 +256,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
 
-  Geometry& nodes = m_mesh.lock()->geometry();
+  Geometry& nodes = m_mesh.lock()->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -315,7 +315,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
 void Reader::read_coordinates_structured(Region& parent_region)
 {
-  Geometry& nodes = m_mesh.lock()->geometry();
+  Geometry& nodes = m_mesh.lock()->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 

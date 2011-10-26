@@ -692,11 +692,11 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   Root::Ptr root = Root::create("root");
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(2,DIM_3D);
-  BOOST_CHECK_EQUAL(mesh.geometry().coordinates().row_size() , (Uint) DIM_3D);
+  BOOST_CHECK_EQUAL(mesh.geometry_fields().coordinates().row_size() , (Uint) DIM_3D);
 
-  BOOST_CHECK_EQUAL(&mesh.geometry(), &region.geometry() );
+  BOOST_CHECK_EQUAL(&mesh.geometry_fields(), &region.geometry_fields() );
 
 }
 

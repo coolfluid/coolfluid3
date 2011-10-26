@@ -54,7 +54,7 @@ void NodeElementConnectivity::set_nodes(Geometry& nodes)
 
 void NodeElementConnectivity::build_connectivity()
 {
-  set_nodes(elements().components()[0].lock()->as_type<Elements>().geometry());
+  set_nodes(elements().components()[0].lock()->as_type<Elements>().geometry_fields());
   Geometry const& nodes = *m_nodes->follow()->as_ptr<Geometry>();
 
   // Reserve memory in m_connectivity->array()

@@ -93,7 +93,7 @@ void Writer::write_zone(const Region& region)
   m_zone.coord_dim = m_mesh->dimension();
 
   m_zone.total_nbVertices = 0;
-  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry_fields(),mesh::Tags::coordinates()))
     m_zone.total_nbVertices += coordinates.size();
 
   m_zone.nbElements = region.recursive_elements_count();
@@ -123,7 +123,7 @@ void Writer::write_zone(const Region& region)
   }
 
   Uint idx=0;
-  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry(),mesh::Tags::coordinates()))
+  BOOST_FOREACH(const common::Table<Real>& coordinates, find_components_recursively_with_tag<common::Table<Real> >(m_mesh->geometry_fields(),mesh::Tags::coordinates()))
   {
     m_global_start_idx[&coordinates] = idx;
 
@@ -254,7 +254,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
 
         ElementType_t type = m_elemtype_CF3_to_CGNS[builder_name[elements->element_type().derived_type_name()]];
         const Connectivity::ArrayT& connectivity_table = elements->node_connectivity().array();
-        int start_idx = m_global_start_idx[&elements->geometry().coordinates()];
+        int start_idx = m_global_start_idx[&elements->geometry_fields().coordinates()];
 
         int* elemNodes = new int [nbElems*(m_section.elemNodeCount+1)];
         for (int iElem=0; iElem<nbElems; ++iElem)
@@ -282,7 +282,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
       m_section.nbBdry = 0; // unsorted boundary
 
       const Connectivity::ArrayT& connectivity_table = elements.node_connectivity().array();
-      int start_idx = m_global_start_idx[&elements.geometry().coordinates()];
+      int start_idx = m_global_start_idx[&elements.geometry_fields().coordinates()];
 
       int* elemNodes = new int [nbElems*m_section.elemNodeCount];
       for (int iElem=0; iElem<nbElems; ++iElem)

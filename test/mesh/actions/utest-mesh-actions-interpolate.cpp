@@ -95,8 +95,8 @@ BOOST_AUTO_TEST_CASE( build )
 
   Mesh& line = mesh_generator->generate();
 
-  Field& source = rect.geometry().create_field("solution");
-  Field& target = line.geometry().create_field("solution");
+  Field& source = rect.geometry_fields().create_field("solution");
+  Field& target = line.geometry_fields().create_field("solution");
 
 
   for(Uint i=0; i<source.size();++i)

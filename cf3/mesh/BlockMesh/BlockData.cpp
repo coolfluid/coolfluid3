@@ -92,7 +92,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // root region and coordinates
   Region& block_mesh_region = mesh.topology().create_region("block_mesh_region");
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
-  Geometry& block_nodes = mesh.geometry();
+  Geometry& block_nodes = mesh.geometry_fields();
 
   // Fill the coordinates array
   common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
@@ -152,7 +152,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // root region and coordinates
   Region& block_mesh_region = mesh.topology().create_region("block_mesh_region");
   mesh.initialize_nodes(nb_nodes, block_data.dimension);
-  Geometry& block_nodes = mesh.geometry();
+  Geometry& block_nodes = mesh.geometry_fields();
 
   // Fill the coordinates array
   common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
@@ -807,7 +807,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   const Elements& block_elements = find_component_recursively<Cells>(block_mesh);
   const common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
-  const common::Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
+  const common::Table<Real>& block_coordinates = block_mesh.geometry_fields().coordinates();
 
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices3D::IndicesT elements_dist;
@@ -877,7 +877,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
 
   // Create the node coordinates
-  Geometry& mesh_geo_comp = root_region.geometry();
+  Geometry& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known
@@ -1036,8 +1036,8 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
 
   if(PE::Comm::instance().is_active())
   {
-    common::List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    common::List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    common::List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_nodes);
+    common::List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
@@ -1055,8 +1055,8 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
 
-    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
-    mesh.geometry().coordinates().synchronize();
+    mesh.geometry_fields().coordinates().parallelize_with(mesh.geometry_fields().comm_pattern());
+    mesh.geometry_fields().coordinates().synchronize();
   }
 }
 
@@ -1075,7 +1075,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   const Elements& block_elements = find_component_recursively<Cells>(block_mesh);
   const common::Table<Uint>::ArrayT& block_connectivity = block_elements.node_connectivity().array();
-  const common::Table<Real>& block_coordinates = block_mesh.geometry().coordinates();
+  const common::Table<Real>& block_coordinates = block_mesh.geometry_fields().coordinates();
 
   // Get the distribution of the elements across the CPUs
   detail::NodeIndices2D::IndicesT elements_dist;
@@ -1138,7 +1138,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_2D));
 
   // Create the node coordinates
-  Geometry& mesh_geo_comp = root_region.geometry();
+  Geometry& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known
@@ -1257,8 +1257,8 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
 
   if(PE::Comm::instance().is_active())
   {
-    common::List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-    common::List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+    common::List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_nodes);
+    common::List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(nb_nodes);
 
     // Local nodes
     for(Uint i = 0; i != nb_nodes_local; ++i)
@@ -1276,8 +1276,8 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
       ranks[local_id] = std::upper_bound(nodes.nodes_dist.begin(), nodes.nodes_dist.end(), global_id) - 1 - nodes.nodes_dist.begin();
     }
 
-    mesh.geometry().coordinates().parallelize_with(mesh.geometry().comm_pattern());
-    mesh.geometry().coordinates().synchronize();
+    mesh.geometry_fields().coordinates().parallelize_with(mesh.geometry_fields().comm_pattern());
+    mesh.geometry_fields().coordinates().synchronize();
   }
 }
 
@@ -1348,7 +1348,7 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
-    mesh.geometry().remove_component("CommPattern");
+    mesh.geometry_fields().remove_component("CommPattern");
   }
 
   // Raise an event to indicate that a mesh was loaded happened
@@ -1368,7 +1368,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   const Uint nb_blocks = blocks_in.block_points.size();
 
   Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
+  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry_fields().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
   // Direction to search from
@@ -1675,7 +1675,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   const Uint nb_blocks = blocks_in.block_points.size();
 
   Elements& block_elements = find_component_recursively<Cells>(block_mesh);
-  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry().coordinates().array();
+  common::Table<Real>::ArrayT& block_coordinates = block_elements.geometry_fields().coordinates().array();
   const CFaceConnectivity& volume_to_face_connectivity = find_component<CFaceConnectivity>(block_elements);
 
   // Numbering of the faces

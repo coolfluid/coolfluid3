@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_SUITE( Nodes, Nodes_Fixture )
 BOOST_AUTO_TEST_CASE( FillVector )
 {
   const Elements& firstRegion = get_first_region();
-  const Table<Real>& coords = firstRegion.geometry().coordinates();
+  const Table<Real>& coords = firstRegion.geometry_fields().coordinates();
   const Table<Uint>& conn = firstRegion.node_connectivity();
   const Uint element_count = conn.size();
   std::vector<RealVector> node_vector(conn.row_size(), RealVector(coords.row_size()));
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE( FillVector )
 BOOST_AUTO_TEST_CASE( FillMatrix )
 {
   const Elements& firstRegion = get_first_region();
-  const Table<Real>& coords = firstRegion.geometry().coordinates();
+  const Table<Real>& coords = firstRegion.geometry_fields().coordinates();
   const Table<Uint>& conn = firstRegion.node_connectivity();
   const Uint element_count = conn.size();
   RealMatrix node_matrix(conn.row_size(), coords.row_size());

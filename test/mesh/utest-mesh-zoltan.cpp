@@ -165,8 +165,8 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank  = "  << Comm::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh.geometry().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh.geometry().rank() << std::endl;
+      std::cout << "nodes = " << mesh.geometry_fields().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh.geometry_fields().rank() << std::endl;
       boost_foreach(const Entities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;
@@ -226,8 +226,8 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
 
   PEProcessSortedExecute(-1,
-      std::cout << PERank << "nodes = " << mesh.geometry().coordinates() << std::endl;
-      std::cout << PERank << "ranks = " << mesh.geometry().rank() << std::endl;
+      std::cout << PERank << "nodes = " << mesh.geometry_fields().coordinates() << std::endl;
+      std::cout << PERank << "ranks = " << mesh.geometry_fields().rank() << std::endl;
       boost_foreach(const Entities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;

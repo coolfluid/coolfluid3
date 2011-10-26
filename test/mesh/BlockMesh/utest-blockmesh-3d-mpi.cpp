@@ -227,7 +227,7 @@ BOOST_AUTO_TEST_CASE( RankField )
 
   // setup fields to write
   std::vector<Field::Ptr> fields;
-  fields.push_back(mesh().geometry().coordinates().as_ptr<Field>());
+  fields.push_back(mesh().geometry_fields().coordinates().as_ptr<Field>());
   fields.push_back(elem_rank.as_ptr<Field>());
   writer().set_fields(fields);
 }

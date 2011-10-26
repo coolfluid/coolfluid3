@@ -74,8 +74,8 @@ Mesh::Mesh ( const std::string& name  ) :
       ->connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       ->signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_nodes = create_static_component_ptr<Geometry>(mesh::Tags::nodes());
-  m_nodes->add_tag(mesh::Tags::nodes());
+  m_geometry_fields = create_static_component_ptr<Geometry>("geometry_fields");
+  m_geometry_fields->add_tag(mesh::Tags::geometry());
 
 }
 
@@ -91,28 +91,28 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf3_assert(dimension > 0);
 
-  geometry().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
-  geometry().configure_option("space",   std::string(Tags::geometry()));
-  geometry().configure_option("topology",topology().uri());
+  geometry_fields().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
+  geometry_fields().configure_option("space",   std::string(Tags::geometry()));
+  geometry_fields().configure_option("topology",topology().uri());
 
-  geometry().coordinates().set_field_group(geometry());
-  geometry().coordinates().set_topology(geometry().topology());
-  geometry().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
-  geometry().coordinates().descriptor().configure_option(common::Tags::dimension(),dimension);
-  geometry().resize(nb_nodes);
+  geometry_fields().coordinates().set_field_group(geometry_fields());
+  geometry_fields().coordinates().set_topology(geometry_fields().topology());
+  geometry_fields().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
+  geometry_fields().coordinates().descriptor().configure_option(common::Tags::dimension(),dimension);
+  geometry_fields().resize(nb_nodes);
 
-  cf3_assert(geometry().size() == nb_nodes);
-  cf3_assert(geometry().coordinates().row_size() == dimension);
+  cf3_assert(geometry_fields().size() == nb_nodes);
+  cf3_assert(geometry_fields().coordinates().row_size() == dimension);
   m_dimension = dimension;
   property(common::Tags::dimension()) = m_dimension;
-  property("nb_nodes")  = geometry().size();
+  property("nb_nodes")  = geometry_fields().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Mesh::update_statistics()
 {
-  cf3_assert(m_dimension == geometry().coordinates().row_size() );
+  cf3_assert(m_dimension == geometry_fields().coordinates().row_size() );
   boost_foreach ( Entities& elements, find_components_recursively<Entities>(topology()) )
     m_dimensionality = std::max(m_dimensionality,elements.element_type().dimensionality());
 
@@ -128,7 +128,7 @@ void Mesh::update_statistics()
   property("dimensionality")= m_dimensionality;
   property("nb_cells") = nb_cells;
   property("nb_faces") = nb_faces;
-  property("nb_nodes") = geometry().size();
+  property("nb_nodes") = geometry_fields().size();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -216,9 +216,9 @@ FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Geometry& Mesh::geometry() const
+Geometry& Mesh::geometry_fields() const
 {
-  return *m_nodes;
+  return *m_geometry_fields;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -300,7 +300,7 @@ void Mesh::check_sanity() const
   if (dimensionality() > dimension())
     message << "- dimensionality ["<< dimensionality()<<"]  >  dimension ["<<dimension()<<"]" << std::endl;
 
-  if(geometry().coordinates().row_size() != dimension())
+  if(geometry_fields().coordinates().row_size() != dimension())
     message << "- coordinates dimension does not match mesh.dimension" << std::endl;
 
   boost_foreach(const FieldGroup& field_group, find_components_recursively<FieldGroup>(*this))
@@ -321,12 +321,12 @@ void Mesh::check_sanity() const
   if (Comm::instance().is_active())
   {
     std::set<Uint> unique_node_gids;
-    boost_foreach(const Uint gid, geometry().glb_idx().array())
+    boost_foreach(const Uint gid, geometry_fields().glb_idx().array())
     {
       std::pair<std::set<Uint>::iterator, bool > inserted = unique_node_gids.insert(gid);
       if (inserted.second == false)
       {
-        message << "- " << geometry().glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
+        message << "- " << geometry_fields().glb_idx().uri().string() << " has non-unique entries.  (entry "<<gid<<" exists more than once, no further checks)" << std::endl;
         break;
       }
     }

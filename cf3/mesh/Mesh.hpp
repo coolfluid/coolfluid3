@@ -81,7 +81,7 @@ public: // functions
   void update_statistics();
 
   /// @return the nodes of the mesh
-  Geometry& geometry() const;
+  Geometry& geometry_fields() const;
 
   /// @return linearized view of all the entities in the mesh
   MeshElements& elements() const;
@@ -119,7 +119,7 @@ private: // data
 
   boost::shared_ptr<Region> m_topology;
 
-  boost::shared_ptr<Geometry> m_nodes;
+  boost::shared_ptr<Geometry> m_geometry_fields;
 
 };
 

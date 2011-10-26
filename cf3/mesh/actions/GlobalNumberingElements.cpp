@@ -99,7 +99,7 @@ void GlobalNumberingElements::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  common::Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
 
   boost_foreach( Elements& elements, find_components_recursively<Elements>(mesh) )

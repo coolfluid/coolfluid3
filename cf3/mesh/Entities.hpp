@@ -63,7 +63,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  Geometry& geometry() const { cf3_assert(!m_geometry.expired()); return *m_geometry.lock(); }
+  Geometry& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -109,7 +109,7 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::weak_ptr<Geometry> m_geometry;
+  boost::weak_ptr<Geometry> m_geometry_fields;
 
   boost::weak_ptr<Space> m_geometry_space;
 

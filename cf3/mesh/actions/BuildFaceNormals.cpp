@@ -80,7 +80,7 @@ void BuildFaceNormals::execute()
 
   Mesh& mesh = *m_mesh.lock();
 
-  const Uint dimension = mesh.geometry().coordinates().row_size();
+  const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
   FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
@@ -107,7 +107,7 @@ void BuildFaceNormals::execute()
         boost_foreach(Uint node_id, cells.element_type().faces().nodes_range(face_nb[face][0]) )
         {
           Uint j(0);
-          boost_foreach(const Real& coord, mesh.geometry().coordinates()[cell_nodes[node_id]])
+          boost_foreach(const Real& coord, mesh.geometry_fields().coordinates()[cell_nodes[node_id]])
           {
             face_coordinates(i,j) = coord;
             ++j;

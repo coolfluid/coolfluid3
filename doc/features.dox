@@ -10,11 +10,11 @@ namespace cf3{
 - Support for fields based on arbitrary shape-function
 
 @section mesh_description Description
-The mesh is assembled from specialized components. The two most important components are the topology and the geometry.
-- Topology is a component describing the physical structure of the mesh. A plane is constructed out of a body and wings.
+The mesh is assembled from specialized components. The two most important components are the topology and the geometry_fields.
+- topology is a component describing the physical structure of the mesh. A plane is constructed out of a body and wings.
   The wings itself can be constructed out of different patches. An infinite nesting is possible.
-- Geometry is a component that stores all the fields that are defined on the mesh-nodes.
-  The mesh coordinates are for instance a vector-field defined in the nodes.
+- geometry_fields is a component that stores all the fields that are defined in the vertices of the whole mesh.
+  The mesh coordinates are for instance a vector-field defined in here-in .
   
 An example mesh tree of a plane:
 @verbatim
@@ -32,7 +32,7 @@ mesh                                                  |  cf3::mesh::Mesh
                 patch_2                               |  cf3::mesh::Region
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry                                          |  cf3::mesh::FieldGroup
+    geometry_fields                                   |  cf3::mesh::FieldGroup
         coordinates                                   |  cf3::mesh::Field
 @endverbatim
 
@@ -51,7 +51,7 @@ tree                                                  |  type
                 geometry                              |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    bound_fields --> mesh/geometry    |  cf3::common::Link
+                    fields --> mesh/geometry_fields   |  cf3::common::Link
                                                       |
         triags                                        |  cf3::mesh::Entities
             element_type                              |  cf3::mesh::ElementType
@@ -59,7 +59,7 @@ tree                                                  |  type
                 geometry                              |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    bound_fields --> mesh/geometry    |  cf3::common::Link
+                    fields --> mesh/geometry_fields   |  cf3::common::Link
 ...                                                   |
 @endverbatim
 
@@ -91,7 +91,7 @@ tree                                                  |  type
                 P2                                    |  cf3::mesh::Space
                     shape_function                    |  cf3::mesh::ShapeFunction
                     connectivity                      |  cf3::mesh::Connectivity
-                    bound_fields -->  ?               |  cf3::common::Link
+                    fields -->  ?                     |  cf3::common::Link
         triags                                        |  cf3::mesh::Entities
             ...                                       |
 ...                                                   |
@@ -121,7 +121,7 @@ mesh                                                  |  cf3::mesh::Mesh
             ...                                       |
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry                                          |  cf3::mesh::FieldGroup
+    geometry_fields                                   |  cf3::mesh::FieldGroup
         coordinates                                   |  cf3::mesh::Field
                                                       |
     P2                                                |  cf3::mesh::FieldGroup

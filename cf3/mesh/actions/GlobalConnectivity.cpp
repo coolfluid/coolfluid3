@@ -91,7 +91,7 @@ void GlobalConnectivity::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   common::List<Uint>& nodes_glb_idx = nodes.glb_idx();
   // Undefined behavior if sizeof(Uint) != sizeof(std::size_t)
   // Assert at compile time
@@ -111,7 +111,7 @@ void GlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  NodeElementConnectivity& node2elem = *mesh.geometry().create_component_ptr<NodeElementConnectivity>("node2elem");
+  NodeElementConnectivity& node2elem = *mesh.geometry_fields().create_component_ptr<NodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
 
   // 3)
@@ -128,9 +128,9 @@ void GlobalConnectivity::execute()
   Uint elem_idx;
 
   Uint cnt(0);
-  for (Uint i=0; i<mesh.geometry().size(); ++i)
+  for (Uint i=0; i<mesh.geometry_fields().size(); ++i)
   {
-    if (mesh.geometry().is_ghost(i))
+    if (mesh.geometry_fields().is_ghost(i))
     {
       ghostnode_glb_idx[cnt] = nodes_glb_idx[i];
 
@@ -148,7 +148,7 @@ void GlobalConnectivity::execute()
 
   // 4)
   std::vector<std::vector<Uint> > glb_elem_connectivity(nodes.size());
-  nodes_glb_idx.resize(mesh.geometry().size());
+  nodes_glb_idx.resize(mesh.geometry_fields().size());
 
   for (Uint root=0; root<PE::Comm::instance().size(); ++root)
   {
@@ -184,7 +184,7 @@ void GlobalConnectivity::execute()
   }
 
 
-  DynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry().glb_elem_connectivity();
+  DynTable<Uint>& nodes_glb_elem_connectivity = mesh.geometry_fields().glb_elem_connectivity();
   nodes_glb_elem_connectivity.resize(glb_elem_connectivity.size());
   for (Uint i=0; i<glb_elem_connectivity.size(); ++i)
   {

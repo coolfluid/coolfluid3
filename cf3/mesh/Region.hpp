@@ -87,7 +87,7 @@ public: // functions
   Elements& elements (const std::string& element_type_name);
 
   /// @return nodes of the mesh
-  Geometry& geometry() const;
+  Geometry& geometry_fields() const;
 
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const Elements& elements, region.elements_range() )

@@ -237,7 +237,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
-  const Field& coords = mesh.topology().geometry().coordinates();
+  const Field& coords = mesh.topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 

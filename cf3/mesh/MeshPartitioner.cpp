@@ -109,7 +109,7 @@ void MeshPartitioner::initialize(Mesh& mesh)
 {
   m_mesh = mesh.as_ptr<Mesh>();
 
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -166,7 +166,7 @@ void MeshPartitioner::build_global_to_local_index(Mesh& mesh)
 {
 
 
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
   m_lookup->add(nodes);
   boost_foreach ( Entities& elements, mesh.topology().elements_range() )
@@ -440,7 +440,7 @@ void MeshPartitioner::migrate()
 
 
   Mesh& mesh = *m_mesh.lock();
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
   // ----------------------------------------------------------------------------
   // ----------------------------------------------------------------------------
@@ -479,7 +479,7 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
 
-  const common::List<Uint>& global_node_indices = mesh.geometry().glb_idx();
+  const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
     boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )

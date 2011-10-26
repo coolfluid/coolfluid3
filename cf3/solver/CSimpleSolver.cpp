@@ -43,7 +43,7 @@ void CSimpleSolver::mesh_loaded(Mesh& mesh)
   m_mesh = mesh.as_ptr<Mesh>();
 
   // Update the dimensions on the physics
-  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry().dim());
+  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry_fields().dim());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -44,10 +44,10 @@ inline const common::Table<Real>& extract_coordinates(const mesh::Region& region
     {
       if(coordinates)
       {
-        cf3_assert(coordinates == &elements.geometry().coordinates());
+        cf3_assert(coordinates == &elements.geometry_fields().coordinates());
         continue;
       }
-      coordinates = &elements.geometry().coordinates();
+      coordinates = &elements.geometry_fields().coordinates();
     }
   }
 
@@ -84,7 +84,7 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::FieldGroup& field_group =  mesh.geometry();
+  mesh::FieldGroup& field_group =  mesh.geometry_fields();
   return common::find_component_with_tag<mesh::Field>(field_group, tag);
 }
 

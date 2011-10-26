@@ -210,7 +210,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 
   boost_foreach( Entities& entities, mesh.topology().elements_range())
   {
-    Uint max_node_idx = entities.geometry().size();
+    Uint max_node_idx = entities.geometry_fields().size();
 
     for (Uint e=0; e<entities.size(); ++e)
     {
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
   MeshWriter::Ptr tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
@@ -847,7 +847,7 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  Field& glb_node = mesh.geometry().create_field("glb_node");
+  Field& glb_node = mesh.geometry_fields().create_field("glb_node");
   boost_foreach(const Uint node, debug_nodes)
       glb_node[node][0] = 1.;
 

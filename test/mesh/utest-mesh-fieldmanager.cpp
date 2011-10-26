@@ -65,18 +65,18 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   field_manager.configure_option("variable_manager", var_manager.uri());
 
   // Do this twice, to ensure the second run does nothing
-  field_manager.create_field(tag, mesh.geometry());
-  field_manager.create_field(tag, mesh.geometry());
+  field_manager.create_field(tag, mesh.geometry_fields());
+  field_manager.create_field(tag, mesh.geometry_fields());
 
-  BOOST_CHECK(is_not_null(mesh.geometry().get_child_ptr(tag)));
-  Field& field = mesh.geometry().field(tag);
+  BOOST_CHECK(is_not_null(mesh.geometry_fields().get_child_ptr(tag)));
+  Field& field = mesh.geometry_fields().field(tag);
   BOOST_CHECK(field.has_variable("a"));
   BOOST_CHECK(field.row_size() == 7);
   
   // Now change the descriptor and ensure there is an error
   var_manager.get_child(tag).remove_tag(tag);
   var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 3u);
-  BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry()), SetupError);
+  BOOST_CHECK_THROW(field_manager.create_field(tag, mesh.geometry_fields()), SetupError);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

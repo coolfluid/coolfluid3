@@ -152,13 +152,13 @@ BOOST_AUTO_TEST_CASE( Heat2DParallel)
   model.simulate();
   
   // Write data pertaining to communication
-  Field& comm_field = mesh.geometry().create_field("comm", "ghosts, updatable, rank");
-  const Uint nb_nodes = mesh.geometry().size();
+  Field& comm_field = mesh.geometry_fields().create_field("comm", "ghosts, updatable, rank");
+  const Uint nb_nodes = mesh.geometry_fields().size();
   for(Uint node = 0; node != nb_nodes; ++node)
   {
-    comm_field[node][0] = mesh.geometry().is_ghost(node) ? 1. : 0.;
-    comm_field[node][1] = mesh.geometry().comm_pattern().isUpdatable()[node];
-    comm_field[node][2] = mesh.geometry().rank()[node];
+    comm_field[node][0] = mesh.geometry_fields().is_ghost(node) ? 1. : 0.;
+    comm_field[node][1] = mesh.geometry_fields().comm_pattern().isUpdatable()[node];
+    comm_field[node][2] = mesh.geometry_fields().rank()[node];
   }
 
   // Save

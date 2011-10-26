@@ -129,9 +129,9 @@ Elements& Region::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Geometry& Region::geometry() const
+Geometry& Region::geometry_fields() const
 {
-  return find_parent_component<Mesh>(*this).geometry();
+  return find_parent_component<Mesh>(*this).geometry_fields();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

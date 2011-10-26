@@ -80,13 +80,13 @@ void Octtree::create_bounding_box()
   if (m_mesh.expired())
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
-  m_dim = m_mesh.lock()->geometry().coordinates().row_size();
+  m_dim = m_mesh.lock()->geometry_fields().coordinates().row_size();
 
   // find bounding box coordinates for region 1 and region 2
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(common::Table<Real>::ConstRow coords, m_mesh.lock()->geometry().coordinates().array())
+  boost_foreach(common::Table<Real>::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {

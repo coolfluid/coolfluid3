@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector2D, VectorBenchmarkFixture )
   RealVector c3(2);
   RealVector result(2);
 
-  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry_fields().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -158,7 +158,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 2> c3(2);
   boost::numeric::ublas::c_vector<Real, 2> result(2);
 
-  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry_fields().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -172,7 +172,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector2DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> c3(2);
   boost::numeric::ublas::vector<Real> result(2);
 
-  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry_fields().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE( RealVector3D, VectorBenchmarkFixture )
   RealVector result(3);
 
   const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.SF.LagrangeP1.Hexa3D");
-  const Table<Real>& coords = elems.geometry().coordinates();
+  const Table<Real>& coords = elems.geometry_fields().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DStatic, VectorBenchmarkFixture )
   boost::numeric::ublas::c_vector<Real, 3> result(3);
 
   const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
-  const Table<Real>& coords = elems.geometry().coordinates();
+  const Table<Real>& coords = elems.geometry_fields().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -235,7 +235,7 @@ BOOST_FIXTURE_TEST_CASE( UblasVector3DDynamic, VectorBenchmarkFixture )
   boost::numeric::ublas::vector<Real> result(3);
 
   const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
-  const Table<Real>& coords = elems.geometry().coordinates();
+  const Table<Real>& coords = elems.geometry_fields().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DStatic, VectorBenchmarkFixture )
   Eigen::Vector2d c3(2);
   Eigen::Vector2d result(2);
 
-  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry_fields().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -266,7 +266,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector2DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd c3(2);
   Eigen::VectorXd result(2);
 
-  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry().coordinates().array(), c0, c1, c2, c3, result);
+  centroid_2d( find_component_recursively_with_filter<Elements>( *grid_2d, IsElementsVolume() ).node_connectivity().array(), grid_2d->geometry_fields().coordinates().array(), c0, c1, c2, c3, result);
 
   BOOST_CHECK_CLOSE(result[XX], 0.5, 1e-6);
   BOOST_CHECK_CLOSE(result[YY], 0.5, 1e-6);
@@ -285,7 +285,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DStatic, VectorBenchmarkFixture )
   Eigen::Vector3d result(3);
 
   const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
-  const Table<Real>& coords = elems.geometry().coordinates();
+  const Table<Real>& coords = elems.geometry_fields().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 
@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE( EigenVector3DDynamic, VectorBenchmarkFixture )
   Eigen::VectorXd result(3);
 
   const Elements& elems = find_component_recursively_with_name<Elements>(*channel_3d, "cf3.mesh.LagrangeP1.Hexa3D");
-  const Table<Real>& coords = elems.geometry().coordinates();
+  const Table<Real>& coords = elems.geometry_fields().coordinates();
 
   centroid_3d(elems.node_connectivity().array(), coords.array(), c0, c1, c2, c3, c4, c5, c6, c7, result);
 

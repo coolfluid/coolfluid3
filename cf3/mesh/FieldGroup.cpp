@@ -543,9 +543,9 @@ void FieldGroup::create_connectivity_in_space()
     // ------------------------------
     boost_foreach(Entities& entities, entities_range())
     {
-      Geometry& geometry = entities.geometry();
+      Geometry& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
-      common::List<Uint>& geometry_rank = entities.geometry().rank();
+      common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
       entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       Connectivity& connectivity = entities.space(m_space).connectivity();

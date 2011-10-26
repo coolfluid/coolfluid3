@@ -93,7 +93,7 @@ void Writer::write_file(std::fstream& file)
   file << "TITLE      = COOLFluiD Mesh Data" << "\n";
   file << "VARIABLES  = ";
 
-  Uint dimension = m_mesh->geometry().coordinates().row_size();
+  Uint dimension = m_mesh->geometry_fields().coordinates().row_size();
   // write the coordinate variable names
   for (Uint i = 0; i < dimension ; ++i)
   {
@@ -184,7 +184,7 @@ void Writer::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    const common::Table<Real>& coordinates = m_mesh->geometry().coordinates();
+    const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment
@@ -212,7 +212,7 @@ void Writer::write_file(std::fstream& file)
         {
           if (field.basis() == FieldGroup::Basis::POINT_BASED)
           {
-            if ( &field.field_group() == &m_mesh->geometry() )
+            if ( &field.field_group() == &m_mesh->geometry_fields() )
             {
               boost_foreach(Uint n, used_nodes.array())
               {

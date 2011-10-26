@@ -181,7 +181,7 @@ void Writer::write_coordinates(std::fstream& file)
   file << nb_nodes << "\n";
 
   Uint node_number=0;
-  const common::Table<Real>& coordinates = m_mesh->geometry().coordinates();
+  const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {

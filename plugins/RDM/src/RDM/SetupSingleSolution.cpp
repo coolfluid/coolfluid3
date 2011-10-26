@@ -55,7 +55,7 @@ void SetupSingleSolution::execute()
 
   // get the geometry field group
 
-  Geometry& geometry = mesh.geometry();
+  Geometry& geometry = mesh.geometry_fields();
 
   const std::string solution_space = mysolver.option("solution_space").value<std::string>();
 

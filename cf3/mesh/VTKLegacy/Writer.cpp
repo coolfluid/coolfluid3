@@ -79,7 +79,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     << "ASCII\n"
     << "DATASET UNSTRUCTURED_GRID\n";
 
-  const Field& coords = mesh.topology().geometry().coordinates();
+  const Field& coords = mesh.topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 

@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
+  Field& nodal = mesh.geometry_fields().create_field("nodal","nodal[vector]");
   nodal.descriptor().configure_option(common::Tags::dimension(),mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   std::vector<URI> fields;
   fields.push_back(nodal.uri());
   fields.push_back(cell_centred.uri());
-  fields.push_back(mesh.geometry().coordinates().uri());
+  fields.push_back(mesh.geometry_fields().coordinates().uri());
 
   WriteMesh& write_mesh = Core::instance().root().create_component<WriteMesh>("write_mesh");
   write_mesh.write_mesh(mesh,"quadtriag.plt",fields);

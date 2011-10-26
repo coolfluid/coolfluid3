@@ -51,7 +51,7 @@ struct Mesh_API MeshEntity
   ElementType& element_type() const { return comp->element_type(); }
 
   /// Const access to the coordinates
-  Geometry& geometry() const { return comp->geometry(); }
+  Geometry& geometry_fields() const { return comp->geometry_fields(); }
 
   Uint glb_idx() const { return comp->glb_idx()[idx]; }
   Uint rank() const { return comp->rank()[idx]; }
@@ -148,7 +148,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -204,7 +204,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Uint node=2;
 
   Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Real>::Row coordRef = triagRegion.geometry_fields().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.node_connectivity().size();
     std::vector<Real> volumes(nbRows);
-    const Table<Real>& region_coordinates = region.geometry().coordinates();
+    const Table<Real>& region_coordinates = region.geometry_fields().coordinates();
     const Table<Uint>& region_connTable = region.node_connectivity();
 
     // the loop
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);
@@ -352,7 +352,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Uint node=2;
 
   Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Real>::Row coordRef = triagRegion.geometry_fields().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 

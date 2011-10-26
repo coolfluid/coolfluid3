@@ -70,7 +70,7 @@ void Init::execute()
   Field& field = *m_field.lock();
 
   //  std::cout << "   field.size() == " << field.size() << std::endl;
-  //  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
+  //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
@@ -78,9 +78,9 @@ void Init::execute()
 
   boost_foreach(Region::Ptr& region, m_loop_regions)
   {
-    /// @warning assumes that field maps one to one with mesh.geometry()
+    /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    Geometry& nodes = mesh().geometry();
+    Geometry& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

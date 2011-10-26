@@ -54,10 +54,10 @@ void mesh_loaded(Mesh& mesh)
 /// Helper function to build the GIDS in a serial mesh
 void build_serial_gids(Mesh& mesh)
 {
-  const Uint nb_nodes = mesh.geometry().size();
+  const Uint nb_nodes = mesh.geometry_fields().size();
 
-  List<Uint>& gids = mesh.geometry().glb_idx(); gids.resize(nb_nodes);
-  List<Uint>& ranks = mesh.geometry().rank(); ranks.resize(nb_nodes);
+  List<Uint>& gids = mesh.geometry_fields().glb_idx(); gids.resize(nb_nodes);
+  List<Uint>& ranks = mesh.geometry_fields().rank(); ranks.resize(nb_nodes);
   for(Uint i = 0; i != nb_nodes; ++i)
   {
     ranks[i] = 0;
@@ -70,7 +70,7 @@ void build_serial_gids(Mesh& mesh)
 void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 {
   Region& region = mesh.topology().create_region("fluid");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -111,7 +111,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -218,7 +218,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
 void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -375,7 +375,7 @@ void create_circle_2d(Table<Real>& coordinates, Table<Uint>& connectivity, const
 void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  Geometry& nodes = mesh.geometry_fields();
 
   Faces::Ptr cells = region.create_component_ptr<Faces>("Faces");
   cells->initialize("cf3.mesh.LagrangeP1.Line2D",nodes);
