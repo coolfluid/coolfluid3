@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -80,7 +80,7 @@ void Init::execute()
   {
     /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    Geometry& nodes = mesh().geometry_fields();
+    FieldGroup& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

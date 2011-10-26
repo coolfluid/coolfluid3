@@ -175,7 +175,7 @@ bool TreeView::try_commit()
 void TreeView::mousePressEvent(QMouseEvent * event)
 {
   QTreeView::mousePressEvent(event);
-  QPoint mousePosition = event->pos() + this->geometry_fields().topLeft();
+  QPoint mousePosition = event->pos() + this->geometry().topLeft();
 
   QModelIndex index = this->indexAt(mousePosition);
   NTree::Ptr tree = NTree::global();

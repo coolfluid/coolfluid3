@@ -18,6 +18,7 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -121,7 +122,7 @@ Mesh& Domain::load_mesh( const URI& file, const std::string& name )
   Mesh::Ptr mesh = create_component_ptr<Mesh>(name);
 
   mesh_loader.load_mesh_into(file, *mesh);
-  
+
   CFdebug << "Loaded mesh " << file.string() << " into mesh " << name << CFendl;
 
   // rebalance the mesh if necessary and create global idx and ranks

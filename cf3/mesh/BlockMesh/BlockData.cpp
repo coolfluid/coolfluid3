@@ -15,6 +15,7 @@
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
 #include "common/Timer.hpp"
+#include "common/Table.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -22,12 +23,12 @@
 #include "mesh/BlockMesh/WriteDict.hpp"
 
 #include "mesh/Cells.hpp"
-#include "common/Table.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/MeshTransformer.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/ElementData.hpp"
@@ -92,7 +93,7 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // root region and coordinates
   Region& block_mesh_region = mesh.topology().create_region("block_mesh_region");
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
-  Geometry& block_nodes = mesh.geometry_fields();
+  FieldGroup& block_nodes = mesh.geometry_fields();
 
   // Fill the coordinates array
   common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
@@ -152,7 +153,7 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   // root region and coordinates
   Region& block_mesh_region = mesh.topology().create_region("block_mesh_region");
   mesh.initialize_nodes(nb_nodes, block_data.dimension);
-  Geometry& block_nodes = mesh.geometry_fields();
+  FieldGroup& block_nodes = mesh.geometry_fields();
 
   // Fill the coordinates array
   common::Table<Real>::ArrayT& coords_array = block_nodes.coordinates().array();
@@ -877,7 +878,7 @@ void build_mesh_3d(BlockData& block_data, Mesh& mesh)
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_3D));
 
   // Create the node coordinates
-  Geometry& mesh_geo_comp = root_region.geometry_fields();
+  FieldGroup& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known
@@ -1138,7 +1139,7 @@ void build_mesh_2d(BlockData& block_data, Mesh& mesh)
   mesh.initialize_nodes(nb_nodes, static_cast<Uint>(DIM_2D));
 
   // Create the node coordinates
-  Geometry& mesh_geo_comp = root_region.geometry_fields();
+  FieldGroup& mesh_geo_comp = root_region.geometry_fields();
   common::Table<Real>::ArrayT& mesh_coords = mesh_geo_comp.coordinates().array();
 
   // Set the nodes, now the number of nodes is known

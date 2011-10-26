@@ -28,7 +28,8 @@
 #include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -162,7 +163,7 @@ void GlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
-  Geometry& nodes = mesh.geometry_fields();
+  FieldGroup& nodes = mesh.geometry_fields();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())

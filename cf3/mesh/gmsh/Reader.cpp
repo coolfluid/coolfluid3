@@ -19,7 +19,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -380,7 +380,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  Geometry& nodes = m_mesh.lock()->geometry_fields();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  Geometry& nodes = m_mesh.lock()->geometry_fields();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
 
   Uint part = option("part").value<Uint>();

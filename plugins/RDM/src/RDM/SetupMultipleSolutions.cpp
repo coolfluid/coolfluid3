@@ -17,7 +17,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -61,7 +61,7 @@ void SetupMultipleSolutions::execute()
 
   // get the geometry field group
 
-  Geometry& geometry = mesh.geometry_fields();
+  FieldGroup& geometry = mesh.geometry_fields();
 
   const std::string solution_space = mysolver.option("solution_space").value<std::string>();
 

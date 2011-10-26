@@ -25,7 +25,8 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 
@@ -123,16 +124,24 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  Geometry::Ptr geometry = allocate_component<Geometry>("geometry");
+  FieldGroup::Ptr geometry = allocate_component<FieldGroup>("geometry_fieds");
   BOOST_CHECK( is_not_null(geometry) );
 
-  geometry->coordinates().descriptor().configure_option(common::Tags::dimension(),2u);
+  Field::Ptr coords = geometry->create_component_ptr<Field>("coordinates");
+  coords->create_descriptor("coords[vec]",2u);
+
+  // Tagging this component will cache it to geometry->coordinates()
+  coords->add_tag(mesh::Tags::coordinates());
+
+
   geometry->resize(10);
   BOOST_CHECK_EQUAL(geometry->coordinates().size() , 10u);
   BOOST_CHECK_EQUAL(geometry->coordinates().row_size() , 2u);
   BOOST_CHECK_EQUAL(geometry->rank().size() , 10u);
   BOOST_CHECK_EQUAL(geometry->glb_idx().size() , 10u);
-  BOOST_CHECK_EQUAL(geometry->glb_elem_connectivity().size() , 0u);
+
+  // created on demand
+  BOOST_CHECK_EQUAL(geometry->glb_elem_connectivity().size() , 10u);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

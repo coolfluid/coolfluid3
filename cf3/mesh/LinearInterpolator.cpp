@@ -26,7 +26,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

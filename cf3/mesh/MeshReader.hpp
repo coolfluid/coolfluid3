@@ -93,10 +93,10 @@ protected: // functions
   /// @param [in] etypes          List of element type names that will be used
   /// @return a BufferMap with key an etype name and value a buffer for the region
   ///         with name of the etype
-  std::map<std::string,boost::shared_ptr<Elements> > create_cells_in_region(Region& parent_region, Geometry& nodes,
+  std::map<std::string,boost::shared_ptr<Elements> > create_cells_in_region(Region& parent_region, FieldGroup& nodes,
                                    const std::vector<std::string>& etypes);
 
-  std::map<std::string,boost::shared_ptr<Elements> > create_faces_in_region(Region& parent_region, Geometry& nodes,
+  std::map<std::string,boost::shared_ptr<Elements> > create_faces_in_region(Region& parent_region, FieldGroup& nodes,
                                    const std::vector<std::string>& etypes);
 
   std::map<std::string,common::Table<Uint>::Buffer::Ptr> create_connectivity_buffermap (std::map<std::string,boost::shared_ptr<Elements> >& elems_map);

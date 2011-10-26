@@ -25,7 +25,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/WriteMesh.hpp"
 
 using namespace std;

@@ -17,7 +17,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Mesh.hpp"
 
 namespace cf3 {
@@ -51,7 +51,7 @@ Region& Region::create_region( const std::string& name )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Elements& Region::create_elements(const std::string& element_type_name, Geometry& nodes)
+Elements& Region::create_elements(const std::string& element_type_name, FieldGroup& nodes)
 {
   std::string name = "elements_" + element_type_name;
 
@@ -74,7 +74,7 @@ Elements& Region::create_elements(const std::string& element_type_name)
   if ( is_null(celems) )
   {
     Elements::Ptr elements = create_component_ptr<Elements>(name);
-    elements->add_tag("GeometryElements");
+    elements->add_tag("FieldGroupElements");
     elements->initialize(element_type_name);
     return *elements;
   }
@@ -129,7 +129,7 @@ Elements& Region::elements(const std::string& name)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Geometry& Region::geometry_fields() const
+FieldGroup& Region::geometry_fields() const
 {
   return find_parent_component<Mesh>(*this).geometry_fields();
 }

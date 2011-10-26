@@ -19,6 +19,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/actions/Extract.hpp"
 

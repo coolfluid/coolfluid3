@@ -28,7 +28,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"

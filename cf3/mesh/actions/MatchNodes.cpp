@@ -19,13 +19,15 @@
 #include "mesh/actions/MatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
+
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 

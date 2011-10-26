@@ -23,11 +23,12 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/FieldManager.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -72,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   Field& field = mesh.geometry_fields().field(tag);
   BOOST_CHECK(field.has_variable("a"));
   BOOST_CHECK(field.row_size() == 7);
-  
+
   // Now change the descriptor and ensure there is an error
   var_manager.get_child(tag).remove_tag(tag);
   var_manager.create_descriptor(tag, "a, b[v], c[t]").configure_option(common::Tags::dimension(), 3u);

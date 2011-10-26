@@ -17,7 +17,8 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 #include "solver/Tags.hpp"
 #include "solver/actions/CSolveSystem.hpp"

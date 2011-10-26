@@ -23,6 +23,7 @@
 #include "common/StringConversion.hpp"
 #include "common/Link.hpp"
 #include "common/Tags.hpp"
+#include "common/DynTable.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/PE/Comm.hpp"
@@ -33,7 +34,7 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "common/List.hpp"
@@ -543,7 +544,7 @@ void FieldGroup::create_connectivity_in_space()
     // ------------------------------
     boost_foreach(Entities& entities, entities_range())
     {
-      Geometry& geometry = entities.geometry_fields();
+      FieldGroup& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
       entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
@@ -920,11 +921,28 @@ bool FieldGroup::has_coordinates() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::coordinates() const
+Field& FieldGroup::coordinates()
+{
+  if (is_null(m_coordinates))
+  {
+    if (Field::Ptr found = find_component_ptr_with_tag<Field>(*this,mesh::Tags::coordinates()))
+    {
+      m_coordinates = found;
+    }
+    else
+    {
+      throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+    }
+  }
+  return *m_coordinates;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Field& FieldGroup::coordinates() const
 {
   if (is_null(m_coordinates))
     throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
-
   return *m_coordinates;
 }
 
@@ -972,6 +990,21 @@ Field& FieldGroup::create_coordinates()
   m_coordinates = coordinates.as_ptr<Field>();
   return coordinates;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+DynTable<Uint>& FieldGroup::glb_elem_connectivity()
+{
+  if (is_null(m_glb_elem_connectivity))
+  {
+    m_glb_elem_connectivity = create_static_component_ptr< DynTable<Uint> >("glb_elem_connectivity");
+    m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
+    m_glb_elem_connectivity->resize(size());
+  }
+  return *m_glb_elem_connectivity;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

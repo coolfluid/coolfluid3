@@ -27,6 +27,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Domain.hpp"
 #include "mesh/MeshMetadata.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/WriteMesh.hpp"
 

@@ -23,7 +23,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"

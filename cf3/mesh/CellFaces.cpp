@@ -7,7 +7,8 @@
 #include "common/Builder.hpp"
 
 #include "mesh/CellFaces.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 
 namespace cf3 {
@@ -53,7 +54,7 @@ common::Table<Uint>::ConstRow CellFaces::get_nodes(const Uint face_idx) const
 
 RealMatrix CellFaces::get_coordinates(const Uint face_idx) const
 {
-  const common::Table<Real>& coords_table = geometry_fields().coordinates();
+  const Field& coords_table = geometry_fields().coordinates();
   std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
 
   const Uint nb_nodes=face_nodes.size();
@@ -72,7 +73,7 @@ RealMatrix CellFaces::get_coordinates(const Uint face_idx) const
 
 void CellFaces::put_coordinates(RealMatrix& elem_coords, const Uint face_idx) const
 {
-  const common::Table<Real>& coords_table = geometry_fields().coordinates();
+  const Field& coords_table = geometry_fields().coordinates();
   std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
 
   const Uint nb_nodes=elem_coords.rows();

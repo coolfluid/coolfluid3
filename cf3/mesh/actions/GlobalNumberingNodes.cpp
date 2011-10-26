@@ -28,7 +28,7 @@
 #include "mesh/actions/GlobalNumberingNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -38,6 +38,7 @@
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +149,7 @@ void GlobalNumberingNodes::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_ghost(0);
-  Geometry& nodes = mesh.geometry_fields();
+  FieldGroup& nodes = mesh.geometry_fields();
   common::List<Uint>& nodes_rank = mesh.geometry_fields().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)

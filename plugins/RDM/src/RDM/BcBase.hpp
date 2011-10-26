@@ -15,7 +15,7 @@
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "solver/actions/CLoopOperation.hpp"

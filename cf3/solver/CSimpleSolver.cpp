@@ -10,7 +10,8 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -43,7 +44,7 @@ void CSimpleSolver::mesh_loaded(Mesh& mesh)
   m_mesh = mesh.as_ptr<Mesh>();
 
   // Update the dimensions on the physics
-  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry_fields().dim());
+  physics().configure_option(common::Tags::dimension(), mesh.topology().geometry_fields().coordinates().row_size());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -25,7 +25,7 @@
 #include "common/DynTable.hpp"
 #include "common/Table.hpp"
 #include "common/List.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 
 #include "mesh/actions/GrowOverlap.hpp"
@@ -188,7 +188,7 @@ void GrowOverlap::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();
-  Geometry& nodes = mesh.geometry_fields();
+  FieldGroup& nodes = mesh.geometry_fields();
 
   const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
 

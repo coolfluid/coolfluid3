@@ -31,8 +31,8 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
 #include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/WriteMesh.hpp"
@@ -74,8 +74,12 @@ Mesh::Mesh ( const std::string& name  ) :
       ->connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       ->signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_geometry_fields = create_static_component_ptr<Geometry>("geometry_fields");
+  m_geometry_fields = create_static_component_ptr<FieldGroup>("geometry_fields");
   m_geometry_fields->add_tag(mesh::Tags::geometry());
+  Field::Ptr coord_field = m_geometry_fields->create_static_component_ptr< Field >(mesh::Tags::coordinates());
+  coord_field->add_tag(mesh::Tags::coordinates());
+  coord_field->create_descriptor("coord[vector]");
+
 
 }
 
@@ -94,7 +98,6 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
   geometry_fields().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
   geometry_fields().configure_option("space",   std::string(Tags::geometry()));
   geometry_fields().configure_option("topology",topology().uri());
-
   geometry_fields().coordinates().set_field_group(geometry_fields());
   geometry_fields().coordinates().set_topology(geometry_fields().topology());
   geometry_fields().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
@@ -216,7 +219,7 @@ FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Geometry& Mesh::geometry_fields() const
+FieldGroup& Mesh::geometry_fields() const
 {
   return *m_geometry_fields;
 }

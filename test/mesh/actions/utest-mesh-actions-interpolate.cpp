@@ -20,7 +20,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;

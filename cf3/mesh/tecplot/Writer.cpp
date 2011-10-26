@@ -20,7 +20,7 @@
 #include "mesh/Mesh.hpp"
 #include "common/Table.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 

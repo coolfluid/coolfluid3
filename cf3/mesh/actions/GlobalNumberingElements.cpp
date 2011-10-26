@@ -28,7 +28,7 @@
 #include "mesh/actions/GlobalNumberingElements.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -38,6 +38,7 @@
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

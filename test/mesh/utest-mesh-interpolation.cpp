@@ -24,11 +24,12 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/actions/CreateSpaceP0.hpp"
 

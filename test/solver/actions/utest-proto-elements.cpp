@@ -25,7 +25,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"

@@ -30,7 +30,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"
