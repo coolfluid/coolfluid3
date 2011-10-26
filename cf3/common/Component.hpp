@@ -196,8 +196,8 @@ public: // functions
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
-  /// This is strictly a path operation so the path may not actually point anywhere
   /// @param path to a component
+  /// @pre path must point to an existing component
   /// @post path statisfies URI::is_complete()
   /// @post path statisfies URI::is_absolute()
   void complete_path ( URI& path ) const;

@@ -172,9 +172,9 @@ BOOST_AUTO_TEST_CASE( complete_path )
   BOOST_CHECK_EQUAL ( p2.string(), "cpath://root/dir1/dir2" );
 
   // test absolute & multiple incomplete path
-  URI p3 ( "cpath://root/dir1/../dir2/../dir1/../dir2/dir3" );
+  URI p3 ( "cpath://root/dir1/../dir1/../dir1/dir2/../../dir1/dir2" );
   dir2->complete_path( p3 );
-  BOOST_CHECK_EQUAL ( p3.string(), "cpath://root/dir2/dir3" );
+  BOOST_CHECK_EQUAL ( p3.string(), "cpath://root/dir1/dir2" );
 
   // test absolute & multiple incomplete path at end
   URI p4 ( "cpath://root/dir1/dir2/dir3/../../" );

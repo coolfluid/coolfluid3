@@ -389,64 +389,9 @@ Component::Ptr Component::remove_component ( Component& subcomp )
 
 void Component::complete_path ( URI& path ) const
 {
-  using namespace boost::algorithm;
-
-//  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
-
   cf3_assert( path.scheme() == URI::Scheme::CPATH );
 
-  if(path.empty())
-    path = "./";
-
-  std::string sp = path.path();
-
-  if ( path.is_relative() ) // transform it to absolute
-  {
-    if ( starts_with(sp,"/") ) // remove leading "/" if any
-      boost::algorithm::replace_first(sp, "/", "" );
-
-    // substitute leading "../" for uri() of parent
-    if (starts_with(sp,".."))
-    {
-      if(!has_parent())
-        throw InvalidURI(FromHere(), "No parent in " + uri().string() + " when evaluating relative path " + path.string());
-      std::string pfp = parent().uri().path();
-      boost::algorithm::replace_first(sp, "..", pfp);
-    }
-    // substitute leading "./" for uri() of this component
-    else if (starts_with(sp,"."))
-    {
-      boost::algorithm::replace_first(sp, ".", uri().path());
-    }
-    else
-    {
-      sp = uri().path()+"/"+sp;
-    }
-
-  }
-
-  cf3_assert ( URI(sp).is_absolute() );
-
-  // break path in tokens and loop on them, while concatenaitng to a new path
-  boost::char_separator<char> sep("/");
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  tokenizer tok (sp,sep);
-
-  path = "/" ;
-  std::string last;
-  for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
-  {
-    if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-
-    if ( equals (*el, "..") )              // substitute any "../" for base path
-      path = path.base_path();
-    else
-      path /= *el;
-  }
-
-//  CFinfo << "FINAL PATH: [" << path.string() << "]\n" << CFflush;
-
-  cf3_assert ( path.is_complete() );
+  path = access_component(path).uri();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
