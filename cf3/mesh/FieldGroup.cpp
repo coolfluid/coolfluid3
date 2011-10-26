@@ -409,7 +409,7 @@ void FieldGroup::bind_space()
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
   boost_foreach(Entities& entities, entities_range())
-    entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
+    entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
 }
 
 std::size_t hash_value(const RealMatrix& coords)
@@ -546,7 +546,7 @@ void FieldGroup::create_connectivity_in_space()
       Geometry& geometry = entities.geometry();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       common::List<Uint>& geometry_rank = entities.geometry().rank();
-      entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
+      entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       Connectivity& connectivity = entities.space(m_space).connectivity();
       connectivity.set_row_size(shape_function.nb_nodes());
@@ -736,7 +736,7 @@ void FieldGroup::create_connectivity_in_space()
     {
       if (entities.space(m_space).is_bound_to_fields() > 0)
         throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
-                         "fields ["+entities.space(m_space).bound_fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
+                         "fields ["+entities.space(m_space).fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
     }
 
     // Assign the space connectivity table
@@ -744,7 +744,7 @@ void FieldGroup::create_connectivity_in_space()
     boost_foreach(Entities& entities, entities_range())
     {
       Space& space = entities.space(m_space);
-      space.get_child("bound_fields").as_type<Link>().link_to(*this);
+      space.get_child("fields").as_type<Link>().link_to(*this);
       space.make_proxy(field_idx);
       field_idx += entities.size()*space.nb_states();
     }
@@ -897,7 +897,7 @@ void FieldGroup::create_connectivity_in_space()
 common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   Space& space = elements.space(m_space);
-  cf3_assert_desc("space not bound to this field_group", &space.bound_fields() == this);
+  cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
   return space.indexes_for_element(idx);
 }
 
