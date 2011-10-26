@@ -83,9 +83,8 @@ private: // data
   std::map<Uint, Uint> m_node_idx_gmsh_to_cf;
 
   boost::filesystem::fstream m_file;
-  boost::shared_ptr<Mesh> m_mesh;
-  boost::shared_ptr<Region> m_region;
-  boost::shared_ptr<Region> m_tmp;
+  boost::weak_ptr<Mesh> m_mesh;
+  boost::weak_ptr<Region> m_region;
 
   std::string m_file_basename;
 
@@ -94,7 +93,7 @@ private: // data
     Uint dim;
     Uint index;
     std::string name;
-    boost::shared_ptr<Region> region;
+    boost::weak_ptr<Region> region;
     std::set<Uint> element_types;
   };
 

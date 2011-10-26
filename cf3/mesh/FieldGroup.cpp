@@ -324,7 +324,7 @@ Field& FieldGroup::field(const std::string& name) const
 void FieldGroup::on_mesh_changed_event( SignalArgs& args )
 {
   common::XML::SignalOptions options( args );
-  
+
 
   URI mesh_uri = options.value<URI>("mesh_uri");
   if (mesh_uri.is_relative())
@@ -333,7 +333,7 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
   }
   Mesh& mesh_arg = access_component(mesh_uri).as_type<Mesh>();
 
-  Mesh& this_mesh = find_parent_component<Mesh>(*this);
+  Mesh& this_mesh = parent().as_type<Mesh>();
 
   if (&this_mesh == &mesh_arg)
   {

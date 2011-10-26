@@ -74,7 +74,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>( "mesh" );
 
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
   Uint nb_ghosts=0;
