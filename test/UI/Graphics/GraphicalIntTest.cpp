@@ -125,7 +125,7 @@ void GraphicalIntTest::test_signalEmmitting()
 {
   GraphicalInt * value = new GraphicalInt(false);
   QDoubleSpinBox * spinBox = findSpinBox(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()

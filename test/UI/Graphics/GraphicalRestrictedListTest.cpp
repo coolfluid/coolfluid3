@@ -148,7 +148,7 @@ void GraphicalRestrictedListTest::test_signalEmmitting()
 
   GraphicalRestrictedList * value = new GraphicalRestrictedList(opt);
   QComboBox * comboBox = findComboBox(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()
