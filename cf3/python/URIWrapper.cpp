@@ -8,10 +8,10 @@
 #include <boost/weak_ptr.hpp>
 
 #include "common/URI.hpp"
-#include "Python/URI.hpp"
+#include "python/URIWrapper.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
@@ -29,5 +29,5 @@ void def_uri()
     .value(common::URI::Scheme::Convert::instance().to_str(common::URI::Scheme::FILE).c_str(), common::URI::Scheme::FILE);
 }
 
-} // Python
+} // python
 } // cf3

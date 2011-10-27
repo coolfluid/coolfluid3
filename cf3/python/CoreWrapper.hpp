@@ -7,15 +7,13 @@
 #ifndef cf3_Python_Core_hpp
 #define cf3_Python_Core_hpp
 
-#include "Python/LibPython.hpp"
-
 namespace cf3 {
-namespace Python {
+namespace python {
 
 /// Python wrapping for the Core class
-void Python_API def_core();
+void def_core();
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

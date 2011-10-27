@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( constructor )
 
   // everything is OK
   std::vector<URI> files;
-  files.push_back( "file:rotation-tg-p1.neu" );
+  files.push_back( "file:../../resources/rotation-tg-p1.neu" );
   options.add_option< OptionURI >("location", URI( domain->uri().string()) );
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
   options.add_option< OptionArrayT<URI> >("files", files);

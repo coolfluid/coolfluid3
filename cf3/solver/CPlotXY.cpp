@@ -90,9 +90,7 @@ void CPlotXY::convergence_history( SignalArgs & args )
 
 void CPlotXY::set_data(const URI &uri)
 {
-  cf3_assert( !m_root.expired() );
-
-  m_data = m_root.lock()->access_component(uri).as_ptr< Table<Real> >();
+  m_data = access_component(uri).as_ptr< Table<Real> >();
 }
 
 /////////////////////////////////////////////////////////////////////////////////

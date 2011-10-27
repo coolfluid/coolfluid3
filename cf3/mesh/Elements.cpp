@@ -15,7 +15,8 @@
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 
 namespace cf3 {
@@ -53,13 +54,13 @@ void Elements::initialize(const std::string& element_type_name)
   geometry.connectivity().set_row_size(geometry.nb_states());
 }
 
-void Elements::initialize(const std::string& element_type_name, Geometry& geo)
+void Elements::initialize(const std::string& element_type_name, FieldGroup& geo)
 {
   initialize(element_type_name);
   assign_geometry(geo);
 }
 
-void Elements::assign_geometry(Geometry& geo)
+void Elements::assign_geometry(FieldGroup& geo)
 {
   Entities::assign_geometry(geo);
   node_connectivity().create_lookup().add(geo);
@@ -77,7 +78,7 @@ Connectivity& Elements::node_connectivity() const
 
 RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 {
-  const common::Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry_fields().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   const Uint nb_nodes=elem_nodes.size();
@@ -93,7 +94,7 @@ RealMatrix Elements::get_coordinates(const Uint elem_idx) const
 
 void Elements::put_coordinates(RealMatrix& elem_coords, const Uint elem_idx) const
 {
-  const common::Table<Real>& coords_table = geometry().coordinates();
+  const common::Table<Real>& coords_table = geometry_fields().coordinates();
   Connectivity::ConstRow elem_nodes = node_connectivity()[elem_idx];
 
   fill(elem_coords, coords_table, elem_nodes);

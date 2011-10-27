@@ -13,7 +13,7 @@
 #include "common/Root.hpp"
 #include "common/Core.hpp"
 
-#include "Python/ScriptEngine.hpp"
+#include "python/ScriptEngine.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -31,7 +31,7 @@ BOOST_AUTO_TEST_CASE( ExecuteScript )
 
   Root& root = Core::instance().root();
 
-  Python::ScriptEngine& engine = root.create_component<Python::ScriptEngine>("PythonEngine");
+  python::ScriptEngine& engine = root.create_component<python::ScriptEngine>("PythonEngine");
 
   boost::filesystem::fstream file(boost::unit_test::framework::master_test_suite().argv[1]);
 

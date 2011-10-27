@@ -16,7 +16,8 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -49,7 +50,7 @@ void StencilComputerOcttree::configure_mesh()
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 
   m_nb_elems_in_mesh = m_mesh.lock()->topology().recursive_filtered_elements_count(IsElementsVolume());
-  m_dim = m_mesh.lock()->geometry().coordinates().row_size();
+  m_dim = m_mesh.lock()->geometry_fields().coordinates().row_size();
 
   m_octtree->configure_option("mesh",m_mesh.lock()->uri());
   m_octtree->create_octtree();

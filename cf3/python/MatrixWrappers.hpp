@@ -4,20 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_Python_URI_hpp
-#define cf3_Python_URI_hpp
-
-#include "Python/LibPython.hpp"
+#ifndef cf3_Python_MatrixTypes_hpp
+#define cf3_Python_MatrixTypes_hpp
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
-/// Python wrapping for the URI class
-void Python_API def_uri();
+/// Python wrapping for the MatrixTypes class
+void def_matrix_types();
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_Python_URI_hpp
+#endif // cf3_Python_MatrixTypes_hpp

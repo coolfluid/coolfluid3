@@ -1,22 +1,22 @@
 if( CF3_ENABLE_PYTHON AND PYTHONLIBS_FOUND AND Boost_PYTHON_FOUND)
 
 list( APPEND coolfluid_python_files
-  Component.hpp
-  Component.cpp
-  Core.hpp
-  Core.cpp
-  Table.hpp
-  Table.cpp
+  ComponentWrapper.hpp
+  ComponentWrapper.cpp
+  CoreWrapper.hpp
+  CoreWrapper.cpp
+  TableWrapper.hpp
+  TableWrapper.cpp
   LibPython.hpp
   LibPython.cpp
-  MatrixTypes.hpp
-  MatrixTypes.cpp
+  MatrixWrappers.hpp
+  MatrixWrappers.cpp
   PythonModule.hpp
   PythonModule.cpp
   ScriptEngine.hpp
   ScriptEngine.cpp
-  URI.hpp
-  URI.cpp
+  URIWrapper.hpp
+  URIWrapper.cpp
   Utility.hpp
 )
 

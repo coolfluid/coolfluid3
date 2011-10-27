@@ -17,7 +17,8 @@
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 #include "solver/Tags.hpp"
 #include "solver/actions/CSolveSystem.hpp"
@@ -133,9 +134,9 @@ void LinearSolver::mesh_changed(Mesh& mesh)
   CFdebug << "UFEM::LinearSolver: Reacting to mesh_changed signal" << CFendl;
 
   // Ensure the comm pattern will be updated
-  if(is_not_null(mesh.geometry().get_child_ptr("CommPattern")))
+  if(is_not_null(mesh.geometry_fields().get_child_ptr("CommPattern")))
   {
-    mesh.geometry().remove_component("CommPattern");
+    mesh.geometry_fields().remove_component("CommPattern");
   }
 
   // Find out what tags are used
@@ -148,7 +149,7 @@ void LinearSolver::mesh_changed(Mesh& mesh)
   // Create fields as needed
   BOOST_FOREACH(const std::string& tag, tags)
   {
-    Field::Ptr field = find_component_ptr_with_tag<Field>(mesh.geometry(), tag);
+    Field::Ptr field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
 
     // If the field was created before, destroy it
     if(is_not_null(field))
@@ -161,14 +162,14 @@ void LinearSolver::mesh_changed(Mesh& mesh)
     CFdebug << "Creating field with tag " << tag << CFendl;
 
     // Create the field
-    field_manager().create_field(tag, mesh.geometry());
-    field = find_component_ptr_with_tag<Field>(mesh.geometry(), tag);
+    field_manager().create_field(tag, mesh.geometry_fields());
+    field = find_component_ptr_with_tag<Field>(mesh.geometry_fields(), tag);
     cf3_assert(is_not_null(field));
 
     // Parallelize
     if(common::PE::Comm::instance().is_active())
     {
-      field->parallelize_with(mesh.geometry().comm_pattern());
+      field->parallelize_with(mesh.geometry_fields().comm_pattern());
     }
   }
 
@@ -217,7 +218,7 @@ void LinearSolver::trigger_lss()
     std::vector<Uint> node_connectivity, starting_indices;
     build_sparsity(mesh(), node_connectivity, starting_indices);
 
-    m_implementation->m_lss.lock()->create(mesh().geometry().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
+    m_implementation->m_lss.lock()->create(mesh().geometry_fields().comm_pattern(), descriptor.size(), node_connectivity, starting_indices);
   }
 
   configure_option_recursively("lss", option("lss").value<URI>());

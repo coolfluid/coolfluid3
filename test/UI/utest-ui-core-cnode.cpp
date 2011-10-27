@@ -434,15 +434,14 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   // should have 8 strings
   BOOST_CHECK_EQUAL( list.count(), 8);
   // check the strings
-  // note: Tree is after Node4 (although it was added before), because nodes
-  // are read in alphabetical order
+  // Nodes should be in the order they were added
   BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root")             );
   BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Log")         );
   BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Log/Node1")   );
   BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2")       );
   BOOST_CHECK_EQUAL( list.at(4).toStdString(), std::string("//Root/Node2/Node3") );
-  BOOST_CHECK_EQUAL( list.at(5).toStdString(), std::string("//Root/Node2/Node4") );
-  BOOST_CHECK_EQUAL( list.at(6).toStdString(), std::string("//Root/Node2/Tree")  );
+  BOOST_CHECK_EQUAL( list.at(5).toStdString(), std::string("//Root/Node2/Tree") );
+  BOOST_CHECK_EQUAL( list.at(6).toStdString(), std::string("//Root/Node2/Node4")  );
   BOOST_CHECK_EQUAL( list.at(7).toStdString(), std::string("//Root/Node5")       );
 
   list.clear();
@@ -497,12 +496,11 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   // should have 4 strings
   BOOST_CHECK_EQUAL( list.count(), 4);
   // check the strings
-  // note: Tree is after Node4 (although it was added before), because nodes
-  // are read in alphabetical order
+  // Nodes should be in the order they were added
   BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root/Node2")       );
   BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Node2/Node3") );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node2/Node4") );
-  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2/Tree")  );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node2/Tree") );
+  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2/Node4")  );
 }
 
 //////////////////////////////////////////////////////////////////////////////

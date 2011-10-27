@@ -19,10 +19,10 @@
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
 
-#include "Python/ScriptEngine.hpp"
+#include "python/ScriptEngine.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace common;
 using namespace common::XML;

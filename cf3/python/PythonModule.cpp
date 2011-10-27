@@ -6,15 +6,15 @@
 
 #include <boost/python.hpp>
 
-#include "Python/Component.hpp"
-#include "Python/Core.hpp"
-#include "Python/Table.hpp"
-#include "Python/MatrixTypes.hpp"
-#include "Python/PythonModule.hpp"
-#include "Python/URI.hpp"
+#include "python/ComponentWrapper.hpp"
+#include "python/CoreWrapper.hpp"
+#include "python/TableWrapper.hpp"
+#include "python/MatrixWrappers.hpp"
+#include "python/PythonModule.hpp"
+#include "python/URIWrapper.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
@@ -28,5 +28,5 @@ BOOST_PYTHON_MODULE(libcoolfluid_python)
   scope().attr("__doc__") = "Provides access to the Coolfluid API from python";
 }
 
-} // Python
+} // python
 } // cf3

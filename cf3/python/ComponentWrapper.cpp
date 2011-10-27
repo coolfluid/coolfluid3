@@ -25,11 +25,11 @@
 
 #include "common/XML/FileOperations.hpp"
 
-#include "Python/Component.hpp"
-#include "Python/Table.hpp"
+#include "python/ComponentWrapper.hpp"
+#include "python/TableWrapper.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
@@ -450,5 +450,5 @@ void def_component()
     .def("__str__", to_str);
 }
 
-} // Python
+} // python
 } // cf3

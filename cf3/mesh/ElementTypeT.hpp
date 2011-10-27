@@ -54,6 +54,8 @@ public: // functions
     m_dimension      = ETYPE::dimension;
     m_nb_faces       = ETYPE::nb_faces;
     m_nb_edges       = ETYPE::nb_edges;
+
+    m_sf = common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name());
   };
 
   /// Default destructor
@@ -70,8 +72,7 @@ public: // functions
   /// @return the shape function defining this geometric element
   virtual const ShapeFunction& shape_function() const
   {
-    const static ShapeFunction::Ptr sf(common::allocate_component< ShapeFunctionT<typename ETYPE::SF> >(ETYPE::SF::type_name()));
-    return *sf;
+    return *m_sf;
   }
 
   virtual const FaceConnectivity& faces() const
@@ -185,6 +186,9 @@ public: // functions
   }
 
   //@}
+
+private:
+  ShapeFunction::Ptr m_sf;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -11,7 +11,7 @@
 
 #include "mesh/MeshReader.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/neu/LibNeu.hpp"
 #include "mesh/neu/Shared.hpp"
@@ -53,23 +53,23 @@ public: // functions
 
 private: // functions
 
-	void config_repartition();
+  void config_repartition();
 
-	void read_headerData();
+  void read_headerData();
 
-	void find_ghost_nodes();
+  void find_ghost_nodes();
 
-	void read_coordinates();
+  void read_coordinates();
 
-	void read_connectivity();
+  void read_connectivity();
 
-	void read_groups();
+  void read_groups();
 
-	void read_boundaries();
+  void read_boundaries();
 
-	void get_file_positions();
+  void get_file_positions();
 
-	std::string element_type(const Uint neu_type, const Uint nb_nodes);
+  std::string element_type(const Uint neu_type, const Uint nb_nodes);
 
 private: // data
 
@@ -82,17 +82,17 @@ private: // data
   std::map<Uint,Region_TableIndex_pair> m_global_to_tmp;
 
   boost::filesystem::fstream m_file;
-  Mesh::Ptr m_mesh;
-  Region::Ptr m_region;
+  boost::weak_ptr<Mesh> m_mesh;
+  boost::weak_ptr<Region> m_region;
   Region::Ptr m_tmp;
 
-	std::set<Uint> m_ghost_nodes;
-	std::map<Uint,Uint> m_node_to_coord_idx;
+  std::set<Uint> m_ghost_nodes;
+  std::map<Uint,Uint> m_node_to_coord_idx;
 
-	Uint m_nodal_coordinates_position;
-	Uint m_elements_cells_position;
-	std::vector<Uint> m_element_group_positions;
-	std::vector<Uint> m_boundary_condition_positions;
+  Uint m_nodal_coordinates_position;
+  Uint m_elements_cells_position;
+  std::vector<Uint> m_element_group_positions;
+  std::vector<Uint> m_boundary_condition_positions;
 
   struct HeaderData
   {

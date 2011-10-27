@@ -14,7 +14,7 @@
 
 namespace cf3 {
   namespace common { class Component; }
-namespace Python {
+namespace python {
 
 /// Encapsulates the behavior required for Python lists. When wrapping a component for Python,
 /// these functions will always be defined, but they throw exceptions when list functions are called on components
@@ -81,7 +81,7 @@ void def_component();
 
 boost::python::object wrap_component(common::Component& component);
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

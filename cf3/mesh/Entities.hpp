@@ -19,7 +19,8 @@ namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  class Geometry;
+  class FieldGroup;
+  
   class ElementType;
   class Space;
 
@@ -45,10 +46,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, Geometry& geometry);
+  virtual void initialize(const std::string& element_type_name, FieldGroup& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(Geometry& geometry);
+  virtual void assign_geometry(FieldGroup& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -63,7 +64,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  Geometry& geometry() const { cf3_assert(!m_geometry.expired()); return *m_geometry.lock(); }
+  FieldGroup& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -89,11 +90,7 @@ public: // functions
 
   Space& geometry_space() const { cf3_assert(!m_geometry_space.expired()); return *m_geometry_space.lock(); }
 
-  bool exists_space(const Uint space_idx) const;
-
   bool exists_space(const std::string& space_name) const;
-
-  Uint space_idx(const std::string& space_name) const;
 
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 
@@ -109,7 +106,7 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::weak_ptr<Geometry> m_geometry;
+  boost::weak_ptr<FieldGroup> m_geometry_fields;
 
   boost::weak_ptr<Space> m_geometry_space;
 

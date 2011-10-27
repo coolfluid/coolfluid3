@@ -7,10 +7,10 @@
 #include "common/Group.hpp"
 #include "common/RegistLibrary.hpp"
 
-#include "Python/LibPython.hpp"
+#include "python/LibPython.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 cf3::common::RegistLibrary<LibPython> libPython;
 
@@ -19,7 +19,7 @@ cf3::common::RegistLibrary<LibPython> libPython;
 void LibPython::initiate_impl()
 {
   common::Component& group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");
-  group.create_component("ScriptEngine", "cf3.Python.ScriptEngine");
+  group.create_component("ScriptEngine", "cf3.python.ScriptEngine");
 }
 
 void LibPython::terminate_impl()
@@ -31,5 +31,5 @@ void LibPython::terminate_impl()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Python
+} // python
 } // cf3

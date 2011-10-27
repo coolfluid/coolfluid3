@@ -46,8 +46,6 @@ list( APPEND coolfluid_mesh_files
   MeshWriter.cpp
   MergedParallelDistribution.hpp
   MergedParallelDistribution.cpp
-  Geometry.hpp
-  Geometry.cpp
   NodeElementConnectivity.hpp
   NodeElementConnectivity.cpp
   Node2FaceCellConnectivity.hpp

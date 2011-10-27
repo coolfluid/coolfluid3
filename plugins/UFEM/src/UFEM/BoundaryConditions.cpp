@@ -19,7 +19,8 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 #include "solver/actions/CSolveSystem.hpp"
 

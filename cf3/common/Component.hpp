@@ -91,7 +91,10 @@ public: // typedef
 private: // typedef
 
   /// type for storing the sub components
-  typedef std::map < std::string , Component::Ptr > CompStorage_t;
+  typedef std::vector <Component::Ptr> CompStorageT;
+
+  /// Type for storing component lookup-by-name
+  typedef std::map<std::string, Uint> CompLookupT;
 
 public: // functions
 
@@ -184,12 +187,12 @@ public: // functions
   bool is_child_static ( const std::string& name ) const;
 
   /// Access the name of the component
-  std::string name () const { return m_name.path(); }
+  const std::string& name () const { return m_name; }
   /// Rename the component
   void rename ( const std::string& name );
 
   /// Construct the full path
-  URI uri () const { return m_path / m_name; }
+  URI uri () const;
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
@@ -206,61 +209,42 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return constant Ptr to component or null if no component was found
-  ConstPtr access_component_ptr ( const URI& path ) const;
-
-  /// Looks for a component via its path
-  /// @param path to the component
-  /// @return constant Ptr to component
-  /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
-  ConstPtr access_component_ptr_checked ( const URI& path ) const;
-
-  /// Looks for a component via its path
-  /// @param path to the component
   /// @return Ptr to component, or null if none was found
-  Ptr access_component_ptr ( const URI& path );
+  Ptr access_component_ptr ( const cf3::common::URI& path) const;
 
   /// Looks for a component via its path
   /// @param path to the component
   /// @return Ptr to component
   /// @throws InvalidURI in case a component is not found at that path
   /// @post returns always valid pointer
-  Ptr access_component_ptr_checked ( const URI& path );
+  Ptr access_component_ptr_checked ( const URI& path ) const;
 
   /// @returns true if the component has a parent
   bool has_parent() const;
 
   /// @returns the pointer to parent component
   /// @pre parent pointer is valid
-  /// @post returns always valid pointer
   Component& parent() const;
 
+  /// @returns the upper-most component in the tree, or self if there is no parent
+  const Component& root() const;
+  Component& root();
+
   /// Gets the named child component from the list of direct subcomponents.
+  /// @throws ValueNotFound in case a component with given name is not found
   /// @return reference to the component
   Component& get_child(const std::string& name) const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @post pointer may be null
   /// @return shared pointer to the component
-  Ptr get_child_ptr(const std::string& name);
-
-  /// Gets the named child component from the list of direct subcomponents.
-  /// @post pointer may be null
-  /// @return const shared pointer to the component
-  ConstPtr get_child_ptr(const std::string& name) const;
+  Ptr get_child_ptr(const std::string& name) const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @throws ValueNotFound in case a component with given name is not found
   /// @post pointer is never null
   /// @return shared pointer to the component
-  Ptr get_child_ptr_checked(const std::string& name);
-
-  /// Gets the named child component from the list of direct subcomponents.
-  /// @throws ValueNotFound in case a component with given name is not found
-  /// @post pointer is never null
-  /// @return shared pointer to the component
-  ConstPtr get_child_ptr_checked(const std::string& name) const;
+  Ptr get_child_ptr_checked(const std::string& name) const;
 
   /// returns an iterator range with the children of this component
   boost::iterator_range<iterator> children();
@@ -504,19 +488,15 @@ private: // helper functions
 protected: // data
 
   /// component name (stored as path to ensure validity)
-  URI m_name;
-  /// component current path
-  URI m_path;
+  std::string m_name;
   /// storage of the property list
   PropertyList m_properties;
   /// storage of the option list
   OptionList m_options;
   /// list of sub-components
-  CompStorage_t m_components;
-  /// list of dynamic sub-components
-  CompStorage_t m_dynamic_components;
-  /// pointer to the root of this tree
-  boost::weak_ptr<Root> m_root;
+  CompStorageT m_components;
+  /// lookup of the index of a component
+  CompLookupT m_component_lookup;
   /// pointer to parent, naked pointer because of static components
   Component * m_raw_parent;
   /// is this a link component
@@ -705,14 +685,14 @@ inline Component::Ptr Component::as_non_const() const
 template<typename ComponentT>
 inline void Component::put_components(std::vector<typename ComponentT::Ptr >& vec, const bool recurse)
 {
-  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  for(CompStorageT::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(typename ComponentT::Ptr p = boost::dynamic_pointer_cast<ComponentT>(it->second))
+    if(typename ComponentT::Ptr p = boost::dynamic_pointer_cast<ComponentT>(*it))
     {
       vec.push_back(p);
     }
     if(recurse)
-      it->second->put_components<ComponentT>(vec, true);
+      (*it)->put_components<ComponentT>(vec, true);
   }
 }
 
@@ -721,14 +701,14 @@ inline void Component::put_components(std::vector<typename ComponentT::Ptr >& ve
 template<typename ComponentT>
 void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const
 {
-  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  for(CompStorageT::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(boost::shared_ptr<ComponentT const> p = boost::dynamic_pointer_cast<ComponentT const>(it->second))
+    if(boost::shared_ptr<ComponentT const> p = boost::dynamic_pointer_cast<ComponentT const>(*it))
     {
       vec.push_back(p);
     }
     if(recurse)
-      it->second->put_components<ComponentT>(vec, true);
+      (*it)->put_components<ComponentT>(vec, true);
   }
 }
 
@@ -738,22 +718,34 @@ void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >
 template<>
 inline void Component::put_components<Component>(std::vector<Component::Ptr>& vec, const bool recurse)
 {
-  for(CompStorage_t::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  if(recurse)
   {
-    vec.push_back(it->second);
-    if(recurse)
-      it->second->put_components<Component>(vec, true);
+    for(CompStorageT::iterator it=m_components.begin(); it!=m_components.end(); ++it)
+    {
+      vec.push_back(*it);
+      (*it)->put_components<Component>(vec, true);
+    }
+  }
+  else
+  {
+    vec.insert(vec.end(), m_components.begin(), m_components.end());
   }
 }
 
 template<>
 inline void Component::put_components<Component>(std::vector<boost::shared_ptr<Component const> >& vec, const bool recurse) const
 {
-  for(CompStorage_t::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+  if(recurse)
   {
-    vec.push_back(it->second);
-    if(recurse)
-      it->second->put_components<Component>(vec, true);
+    for(CompStorageT::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
+    {
+      vec.push_back(*it);
+      (*it)->put_components<Component>(vec, true);
+    }
+  }
+  else
+  {
+    vec.insert(vec.end(), m_components.begin(), m_components.end());
   }
 }
 

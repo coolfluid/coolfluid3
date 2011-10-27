@@ -43,10 +43,7 @@ namespace common {
 
 Component::Component ( const std::string& name ) :
     m_name (),
-    m_path (),
     m_options(),
-    m_components(),
-    m_dynamic_components(),
     m_raw_parent( nullptr ),
     m_is_link (false)
 {
@@ -142,6 +139,7 @@ Component::Component ( const std::string& name ) :
   m_properties.add_property("brief", std::string("No brief description available"));
   m_properties.add_property("description", std::string("This component has not a long description"));
   m_properties.add_property("uuid", boost::lexical_cast<std::string>(boost::uuids::random_generator()()));
+
   // events
   EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);
 }
@@ -172,42 +170,40 @@ void Component::rename ( const std::string& name )
   if(name.empty())
     throw BadValue(FromHere(), "Empty new name given for " + uri().string());
 
-  const std::string new_name = name;
-  if ( new_name == m_name.path() ) // skip if name does not change
+  if(!URI::is_valid_element(name))
+    throw BadValue(FromHere(), "Invalid new name given for " + uri().string());
+
+  if(name == m_name) // skip if name does not change
     return;
 
-  const std::string old_name = m_name.path();
+  cf3_assert(m_component_lookup.size() == m_components.size());
 
   // notification should be done before the real renaming since the path changes
   raise_path_changed();
 
-  URI new_uri = uri().base_path() / new_name;
-
-  if( ! m_root.expired() ) // inform the root about the change in path
-    m_root.lock()->change_component_path( new_uri , shared_from_this() );
-
-  if ( is_not_null(m_raw_parent) ) // rename via parent to insure unique names
+  if(has_parent())
   {
-    Component::Ptr parent = m_raw_parent->self();
-    parent->remove_component( old_name );
+    if(is_not_null(parent().get_child_ptr(name)))
+      throw ValueExists(FromHere(), std::string("A component with name ") + this->name() + " already exists in " + uri().string());
 
-    m_name = new_name;
-
-    parent->add_component( shared_from_this() );
-  }
-  else  // direct rename in case of no parent
-  {
-    m_name = new_name;
+    // Rename key in parent
+    CompLookupT::iterator lookup = parent().m_component_lookup.find(m_name);
+    const Uint idx = lookup->second;
+    parent().m_component_lookup.erase(lookup);
+    parent().m_component_lookup[name] = idx;
   }
 
-  /// @todo solve this differently,
-  /// maybe putting finally uuid's in the comps and using the root to get the path
+  m_name = name;
+}
 
-  // loop on children and inform them of change in name
-  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-  {
-    c.second->change_parent( this );
-  }
+////////////////////////////////////////////////////////////////////////////////////////////
+
+URI Component::uri() const
+{
+  if(!has_parent())
+    return URI(std::string("//") + name(), URI::Scheme::CPATH);
+
+  return parent().uri() / URI(name(), URI::Scheme::CPATH);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -219,9 +215,41 @@ bool Component::has_parent() const
 
 Component& Component::parent() const
 {
-  cf3_assert( is_not_null(m_raw_parent) );
+  if(is_null(m_raw_parent))
+    throw ValueNotFound(FromHere(), "No parent for component " + name());
   return *m_raw_parent;
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+const Component& Component::root() const
+{
+  bool parent_exists = has_parent();
+  const Component* result = this;
+  while(parent_exists)
+  {
+    result = &result->parent();
+    parent_exists = result->has_parent();
+  }
+
+  return *result;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component& Component::root()
+{
+  bool parent_exists = has_parent();
+  Component* result = this;
+  while(parent_exists)
+  {
+    result = &result->parent();
+    parent_exists = result->has_parent();
+  }
+
+  return *result;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -238,8 +266,10 @@ Component& Component::add_component ( Component::Ptr subcomp )
            << CFendl;
   }
 
-  m_components[unique_name] = subcomp;           // add to all component list
-  m_dynamic_components[unique_name] = subcomp;   // add to dynamic component list
+  m_component_lookup[unique_name] = m_components.size();
+  m_components.push_back(subcomp);           // add to all component list
+
+  cf3_assert(m_component_lookup.size() == m_components.size());
 
   subcomp->change_parent( this );
 
@@ -261,14 +291,14 @@ Component& Component::add_static_component ( Component::Ptr subcomp )
 {
   std::string unique_name = ensure_unique_name(*subcomp);
   cf3_always_assert_desc("static components must always have a unique name", unique_name == subcomp->name());
-  m_components[unique_name] = subcomp;
 
-  raise_path_changed();
+  add_component(subcomp);
 
-  subcomp->change_parent( this );
   subcomp->signal("rename_component")->hidden(true);
   subcomp->signal("delete_component")->hidden(true);
   subcomp->signal("move_component")->hidden(true);
+
+  subcomp->add_tag(Tags::static_component());
 
   return *subcomp;
 }
@@ -284,38 +314,21 @@ Component& Component::add_static_component ( Component& subcomp )
 
 bool Component::is_child_static(const std::string& name) const
 {
-  if (m_dynamic_components.find(name)==m_dynamic_components.end())
-    return true;
-  return false;
+  return has_tag(Tags::static_component());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 std::string Component::ensure_unique_name ( Component& subcomp )
 {
-  const std::string name = subcomp.name();
-  std::string new_name = name;
-  boost::regex e(name+"(_[0-9]+)?");
-  BOOST_FOREACH(CompStorage_t::value_type subcomp_pair, m_components)
+  std::string new_name = subcomp.name();
+  Uint count = 0;
+
+  while(m_component_lookup.find(new_name) != m_component_lookup.end())
   {
-    if (boost::regex_match(subcomp_pair.first,e))
-    {
-      Uint count = 1;
-
-      new_name = name + "_" + to_str(count);
-
-      // make sure constructed name does not exist
-      while ( m_components.find(new_name) != m_components.end() )
-      {
-        ++count;
-        new_name = name  + "_" + to_str(count);
-      }
-
-//      CFwarn << "Component named \'" << subcomp->uri().string() << "\' already exists. Component renamed to \'" << new_name << "\'" << CFendl;
-
-      break;
-    }
+    new_name = subcomp.name() + "_" + to_str(++count);
   }
+
   return new_name;
 }
 
@@ -325,23 +338,32 @@ std::string Component::ensure_unique_name ( Component& subcomp )
 Component::Ptr Component::remove_component ( const std::string& name )
 {
   // find the component exists
-  Component::CompStorage_t::iterator itr = m_dynamic_components.find(name);
+  Component::CompLookupT::iterator itr = m_component_lookup.find(name);
 
-  if ( itr != m_dynamic_components.end() )         // if exists
+  if ( itr != m_component_lookup.end() )         // if exists
   {
-    Component::Ptr comp = itr->second;             // get the component
+    const Uint comp_idx = itr->second;
+    Component::Ptr comp = m_components[comp_idx];             // get the component
+    if(comp->has_tag(Tags::static_component()))
+      throw BadValue(FromHere(), "Error removing component " + comp->uri().string() + ", it is static!");
 
-    // remove the component from the root
-    if( !m_root.expired() )
-      m_root.lock()->remove_component_path(comp->uri());
-
-    m_dynamic_components.erase(itr);               // remove it from the storage
-
-    // remove from the list of all components
-    Component::CompStorage_t::iterator citr = m_components.find(name);
-    m_components.erase(citr);
+    m_component_lookup.erase(itr);               // remove it from the lookup
 
     comp->change_parent( NULL );                   // set parent to invalid
+
+    // Create new storage to eliminate the removed component
+    CompStorageT new_storage; new_storage.reserve(m_components.size() - 1);
+    // Insert all components that were before the one that got removed
+    new_storage.insert(new_storage.end(), m_components.begin(), m_components.begin() + (comp_idx));
+    //Copy the ones after, adjusting their lookup index in the process
+    const Uint after_deleted_begin = comp_idx + 1;
+    const Uint after_deleted_end = m_components.size();
+    for(Uint i = after_deleted_begin; i != after_deleted_end; ++i)
+    {
+      --m_component_lookup[m_components[i]->name()];
+      new_storage.push_back(m_components[i]);
+    }
+    m_components = new_storage;
 
     raise_path_changed();
 
@@ -352,7 +374,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     throw ValueNotFound(FromHere(), "Dynamic component with name '"
                         + name + "' does not exist in component '"
                         + this->name() + "' with path ["
-                        + m_path.path() + "]");
+                        + uri().path() + "]");
   }
 }
 
@@ -376,15 +398,6 @@ void Component::complete_path ( URI& path ) const
   if(path.empty())
     path = "./";
 
-  if ( is_null(m_raw_parent) )
-    throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no parent");
-
-  if (m_root.expired())
-    throw  InvalidURI(FromHere(), "Component \'" + name() + "\' has no root");
-
-  boost::shared_ptr<Component> parent = m_raw_parent->self();
-  boost::shared_ptr<Component> root   = m_root.lock();
-
   std::string sp = path.path();
 
   if ( path.is_relative() ) // transform it to absolute
@@ -395,7 +408,9 @@ void Component::complete_path ( URI& path ) const
     // substitute leading "../" for uri() of parent
     if (starts_with(sp,".."))
     {
-      std::string pfp = parent->uri().path();
+      if(!has_parent())
+        throw InvalidURI(FromHere(), "No parent in " + uri().string() + " when evaluating relative path " + path.string());
+      std::string pfp = parent().uri().path();
       boost::algorithm::replace_first(sp, "..", pfp);
     }
     // substitute leading "./" for uri() of this component
@@ -438,83 +453,32 @@ void Component::complete_path ( URI& path ) const
 
 Component& Component::get_child(const std::string& name) const
 {
-  const CompStorage_t::const_iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return *found->second;
-  else
-    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
+  return *get_child_ptr_checked(name);
 }
 
-Component::Ptr Component::get_child_ptr(const std::string& name)
+Component::Ptr Component::get_child_ptr(const std::string& name) const
 {
-  const CompStorage_t::iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return found->second;
+  const CompLookupT::const_iterator found = m_component_lookup.find(name);
+  if(found != m_component_lookup.end())
+    return m_components[found->second];
   return Ptr();
 }
 
-Component::ConstPtr Component::get_child_ptr(const std::string& name) const
+Component::Ptr Component::get_child_ptr_checked(const std::string& name) const
 {
-  const CompStorage_t::const_iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return found->second;
-  return ConstPtr();
-}
-
-Component::Ptr Component::get_child_ptr_checked(const std::string& name)
-{
-  const CompStorage_t::iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return found->second;
-  else
+  Component::Ptr result = get_child_ptr(name);
+  if(is_null(result))
     throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
-}
 
-Component::ConstPtr Component::get_child_ptr_checked(const std::string& name) const
-{
-  const CompStorage_t::const_iterator found = m_components.find(name);
-  if(found != m_components.end())
-    return found->second;
-  else
-    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::change_parent ( Component* new_parent )
 {
-  if( !m_root.expired() )   // get the root and remove the current path
-  {
-   Root::Ptr root = m_root.lock();
-    root->remove_component_path(uri());
-  }
-
-  if( new_parent ) // valid ?
-  {
-    m_path = new_parent->uri(); // modify the path
-    m_root = new_parent->m_root;      // modify the root
-
-    if( !m_root.expired() )   // get the root and set the new path
-    {
-      m_root.lock()->change_component_path( uri() , shared_from_this() );
-    }
-  }
-  else // new parent is invalid
-  {
-    m_path = "";
-    m_root.reset();
-  }
-
   // modifiy the parent, may be NULL
   m_raw_parent = new_parent;
-
-  // modify the children
-  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
-  {
-    c.second->change_parent( this );
-  }
-
-  // raise_path_changed() event is raised for each child
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -544,116 +508,76 @@ void Component::move_to ( Component& new_parent )
 
 Component& Component::access_component ( const URI& path ) const
 {
-  Component::ConstPtr comp = access_component_ptr_checked(path);
-  cf3_assert( is_not_null(comp) );
-  return *comp->as_non_const();
+  Component::Ptr comp = access_component_ptr_checked(path);
+  if (is_null(comp))
+    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
+  return *comp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::access_component_ptr ( const URI& path )
+Component::Ptr Component::access_component_ptr ( const URI& path ) const
 {
-  Component::Ptr comp;
-  if (!m_root.expired())  // root is available. This is a faster method.
+  // Return self for trivial path or at end of recursion.
+  if(path.path() == ".")
+    return boost::const_pointer_cast<Component>(self());
+
+  // If the path is absolute, make it relative and pass it to the root
+  if(path.is_absolute())
   {
-    URI lpath = path;
+    // String without protocol
+    std::string new_path = path.path();
 
-    complete_path(lpath); // ensure the path is complete
+    // Remove any leading /
+    boost::algorithm::trim_left_if(new_path, boost::algorithm::is_any_of("/"));
 
-    // get the component from the root, always returns valid pointer
-    comp = m_root.lock()->retrieve_component(lpath);
+    // TODO: Remove when root becomes implicit. We strip the first component in an absolute path for now.
+    cf3_assert(boost::algorithm::starts_with(new_path, root().name()));
+    const std::size_t first_sep = new_path.find("/");
+    const bool has_no_separator = (first_sep == std::string::npos);
+    new_path = has_no_separator ? "." : new_path.substr(first_sep+1, new_path.size());
+
+    // Pass the rest to root
+    return root().access_component_ptr(URI(new_path, cf3::common::URI::Scheme::CPATH));
   }
-  else // we are in the case with no root. Hence the path must be relative
-  {
-    using namespace boost::algorithm;
 
-    cf3_assert_desc("Component ["+uri().string()+"] is not in tree, and no relative path is given for ["+path.string()+"].", path.is_relative() );
+  // Relative path
+  std::string path_str = path.path();
+  // Remove trailing /
+  boost::algorithm::trim_right_if(path_str, boost::algorithm::is_any_of("/"));
 
-    std::string sp = path.path();
+  // Find the first separator
+  const std::size_t first_sep = path_str.find("/");
+  const bool has_no_separator = (first_sep == std::string::npos);
 
-    // break path in tokens and loop on them, while concatenaitng to a new path
-    boost::char_separator<char> sep("/");
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-    tokenizer tok (sp,sep);
+  // Current part of the path to parse
+  const std::string current_part = has_no_separator ? path_str : path_str.substr(0, first_sep);
 
-    Component::Ptr look_comp = follow() ;
-    std::string last;
-    for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
-    {
-      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
+  // Remainder of the path to parse, set to "." if there were no more parts
+  const std::string next_part = has_no_separator ? "." : path_str.substr(first_sep+1, path_str.size());
 
-      if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->parent().self();
-      else
-      {
-        look_comp = look_comp->get_child_ptr(*el);
-      }
-      if (is_null(look_comp))
-        return Ptr();
-    }
-    comp = look_comp;
-  }
-  return comp;
-}
+  // Dispatch to self
+  if(current_part == ".")
+    return access_component_ptr(next_part);
 
-Component::ConstPtr Component::access_component_ptr ( const URI& path ) const
-{
-  Component::ConstPtr comp;
-  if (!m_root.expired())  // root is available. This is a faster method.
-  {
-    URI lpath = path;
+  // Dispatch to parent
+  if(current_part == "..")
+    return has_parent() ? parent().access_component_ptr(next_part) : Ptr();
 
-    complete_path(lpath); // ensure the path is complete
+  // Dispatch to child
+  Ptr child = get_child_ptr(current_part);
+  if(is_not_null(child))
+    return child->access_component_ptr(next_part);
 
-    // get the component from the root
-    comp = m_root.lock()->retrieve_component(lpath);
-  }
-  else // we are in the case with no root. Hence the path must be relative
-  {
-    using namespace boost::algorithm;
-
-    cf3_assert( path.is_relative() );
-
-    std::string sp = path.path();
-
-    // break path in tokens and loop on them, while concatenaitng to a new path
-    boost::char_separator<char> sep("/");
-    typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-    tokenizer tok (sp,sep);
-
-    Component::ConstPtr look_comp = follow();
-    std::string last;
-    for(tokenizer::const_iterator el=tok.begin(); el!=tok.end(); ++el)
-    {
-      if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-
-      if ( equals (*el, "..") )              // substitute any "../" for base path
-        look_comp = look_comp->parent().self();
-      else
-      {
-        look_comp = look_comp->get_child_ptr(*el);
-      }
-      if (is_null(look_comp))
-        return ConstPtr();
-    }
-    comp = look_comp;
-  }
-  return comp;
+  // Return null if not found
+  return Ptr();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::access_component_ptr_checked (const URI& path )
+Component::Ptr Component::access_component_ptr_checked (const cf3::common::URI& path) const
 {
   Component::Ptr comp = access_component_ptr(path);
-  if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
-  return comp;
-}
-
-Component::ConstPtr Component::access_component_ptr_checked (const URI& path ) const
-{
-  Component::ConstPtr comp = access_component_ptr(path);
   if (is_null(comp))
     throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
   return comp;
@@ -697,16 +621,6 @@ void Component::signal_create_component ( SignalArgs& args  )
 
 void Component::signal_delete_component ( SignalArgs& args  )
 {
-//  XmlParams p ( node );
-
-//  URI path = p.get_option<URI>("Component");
-//  if( ! path.is_protocol("cpath") )
-//    throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
-
-//  Component::Ptr comp = access_component_ptr( path.path() )->parent();
-//  Component::Ptr parent = comp->parent();
-//  parent->remove_component( comp->name() );
-
   // when goes out of scope it gets deleted
   // unless someone else shares it
 
@@ -733,14 +647,14 @@ void Component::signal_print_info ( SignalArgs& args  )
   CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
 
   CFinfo << "  sub components:" << CFendl;
-  BOOST_FOREACH( CompStorage_t::value_type c, m_components )
+  BOOST_FOREACH( const Ptr& c, m_components )
   {
-    if ( m_dynamic_components.find(c.first) == m_dynamic_components.end() )
+    if (c->has_tag(Tags::static_component()))
       CFinfo << "  + [static]  ";
     else
       CFinfo << "  + [dynamic] ";
 
-    CFinfo << c.second->name() << " / " << c.second->derived_type_name() << CFendl;
+    CFinfo << c->name() << " / " << c->derived_type_name() << CFendl;
   }
 
   CFinfo << "  options:" << CFendl;
@@ -789,9 +703,9 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
         signal_list_options( sf );
       }
 
-      boost_foreach( CompStorage_t::value_type c, m_components )
+      boost_foreach( const Ptr& c, m_components )
       {
-        c.second->write_xml_tree( this_node, put_all_content );
+        c->write_xml_tree( this_node, put_all_content );
       }
     }
   }
@@ -820,9 +734,9 @@ std::string Component::tree(Uint level) const
 
   tree += "\n";
 
-  boost_foreach( CompStorage_t::value_type c, m_components )
+  boost_foreach( const Ptr& c, m_components )
   {
-    tree += c.second->tree(level+1);
+    tree += c->tree(level+1);
   }
   return tree;
 }
@@ -1041,11 +955,10 @@ void Component::raise_path_changed ()
 
 void Component::raise_event ( const std::string & name )
 {
-  if( !m_root.expired() )
+  Root* real_root = dynamic_cast<Root*>(&root());
+  if( is_not_null(real_root) )
   {
-   Root::Ptr root = m_root.lock();
-
-    root->raise_new_event(name, uri());
+    real_root->raise_new_event(name, uri());
   }
 }
 

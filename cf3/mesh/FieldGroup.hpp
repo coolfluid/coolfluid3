@@ -21,6 +21,7 @@ namespace cf3 {
 namespace common {
   class Link;
   template <typename T> class List;
+  template <typename T> class DynTable;
   namespace PE { class CommPattern; }
 }
 namespace math { class VariablesDescriptor; }
@@ -138,9 +139,13 @@ public: // functions
 
   Field& create_coordinates();
 
-  Field& coordinates() const;
+  const Field& coordinates() const;
+
+  Field& coordinates();
 
   bool has_coordinates() const;
+
+  common::DynTable<Uint>& glb_elem_connectivity();
 
   Basis::Type basis() const { return m_basis; }
 
@@ -174,6 +179,7 @@ protected:
   boost::shared_ptr<common::List<Uint> > m_rank;
   boost::shared_ptr<UnifiedData> m_elements_lookup;
   boost::shared_ptr<Field> m_coordinates;
+  boost::shared_ptr<common::DynTable<Uint> > m_glb_elem_connectivity;
   boost::weak_ptr<common::PE::CommPattern> m_comm_pattern;
 };
 

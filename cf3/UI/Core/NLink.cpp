@@ -66,11 +66,9 @@ URI NLink::target_path() const
 
 void NLink::set_target_path(const URI & path)
 {
-  cf3_assert( !m_root.expired() );
-
   if(!path.empty())
   {
-    CNode::Ptr target = boost::dynamic_pointer_cast<Root>(m_root.lock())->retrieve_component<CNode>(path);
+    CNode::Ptr target = access_component(path).as_ptr<CNode>();
     cf3_assert( is_not_null(target.get()) );
     this->set_target_node(target);
   }

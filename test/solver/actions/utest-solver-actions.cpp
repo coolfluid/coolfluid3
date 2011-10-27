@@ -28,7 +28,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->geometry().create_field("field");
+  Field& field = mesh->geometry_fields().create_field("field");
 
   CLoop::Ptr node_loop = root.create_component_ptr< CForAllNodes2 >("node_loop");
   node_loop->configure_option("regions",std::vector<URI>(1,mesh->topology().uri()));

@@ -19,7 +19,8 @@
 namespace cf3 {
 namespace mesh {
 
-  class Geometry;
+  class FieldGroup;
+  
   class Region;
 
 namespace CGNS {
@@ -102,7 +103,7 @@ protected:
     int nbSections;
     int nbBocos;
     Uint total_nbElements;
-    Geometry* nodes;
+    FieldGroup* nodes;
     Uint nodes_start_idx;
     //
   } m_zone;
@@ -142,7 +143,7 @@ protected:
   std::map<int,Region*> m_base_map;
   std::map<int,Region*> m_zone_map;
   std::map<int,Region*> m_section_map;
-  std::map<int,Geometry*>  m_nodes_map;
+  std::map<int,FieldGroup*>  m_nodes_map;
   std::map<int,Region*> m_boco_map;
 
 private:

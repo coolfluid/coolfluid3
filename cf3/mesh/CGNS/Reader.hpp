@@ -75,7 +75,7 @@ private: // functions
 private: // data
 
   std::vector<Region_TableIndex_pair> m_global_to_region;
-  boost::shared_ptr<Mesh> m_mesh;
+  boost::weak_ptr<Mesh> m_mesh;
   Uint m_coord_start_idx;
 
 }; // end Reader

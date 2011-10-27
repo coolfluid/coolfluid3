@@ -28,7 +28,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 using namespace std;
 using namespace boost;
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   // CFinfo << mesh.tree() << CFendl;
 
-  Field& nodal = mesh.geometry().create_field("nodal" , "nodal[vector]");
+  Field& nodal = mesh.geometry_fields().create_field("nodal" , "nodal[vector]");
   nodal.descriptor().configure_option(common::Tags::dimension(),mesh.dimension());
   for (Uint n=0; n<nodal.size(); ++n)
   {
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
 
   mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
 
-  Field& cell_centred = mesh.geometry().create_field("cell_centred","cell_centred[vector]");
+  Field& cell_centred = mesh.geometry_fields().create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)
   {
     for(Uint j=0; j<cell_centred.row_size(); ++j)
