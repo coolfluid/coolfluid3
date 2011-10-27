@@ -27,6 +27,8 @@ namespace mesh {
 
 using namespace common;
 
+RegistTypeInfo<Entity,LibMesh> regist_Entity(LibMesh::library_namespace()+"."+"Entity");
+
 ////////////////////////////////////////////////////////////////////////////////
 
 Entities::Entities ( const std::string& name ) :
@@ -272,6 +274,17 @@ bool Entities::is_ghost(const Uint idx) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+ElementType& Entity::element_type() const { return comp->element_type(); }
+Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
+Uint Entity::rank() const { return comp->rank()[idx]; }
+bool Entity::is_ghost() const { return comp->is_ghost(idx); }
+RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); }
+void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
+void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
+Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+
 
 bool IsElementsVolume::operator()(const Entities::Ptr& component)
 {

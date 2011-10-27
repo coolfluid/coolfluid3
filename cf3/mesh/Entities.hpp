@@ -13,16 +13,17 @@
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/LibMesh.hpp"
-#include "common/Table.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
   class SpaceFields;
-  
+
   class ElementType;
   class Space;
+  class Connectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -117,6 +118,48 @@ protected: // data
   boost::shared_ptr<common::List<Uint> > m_rank;
 
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Low storage struct to uniquely identify one element
+///
+/// Several access-functions are provided for convenience
+struct Mesh_API Entity
+{
+  Entity() : comp(NULL), idx(0) {}
+
+  template <typename ComponentT>
+  Entity(ComponentT& component, const Uint index=0) :
+    comp( dynamic_cast<Entities*>(&component) ),
+    idx(index)
+  {
+    cf3_assert(idx<comp->size());
+  }
+
+  Entities* comp;
+  Uint idx;
+
+  /// return the elementType
+  ElementType& element_type() const;
+  Uint glb_idx() const;
+  Uint rank() const;
+  bool is_ghost() const;
+  RealMatrix get_coordinates() const;
+  void put_coordinates(RealMatrix& coordinates) const;
+  void allocate_coordinates(RealMatrix& coordinates) const;
+  Connectivity::ConstRow get_nodes() const;
+
+  bool operator==(const Entity& other) const
+  {
+    return comp==other.comp && idx==other.idx;
+  }
+};
+
+inline std::ostream& operator<<(std::ostream& os, const Entity& entity)
+{
+  os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
+  return os;
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
