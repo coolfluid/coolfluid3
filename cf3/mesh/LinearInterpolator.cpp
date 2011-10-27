@@ -48,11 +48,11 @@ LinearInterpolator::LinearInterpolator( const std::string& name )
 {
 
 
-  m_options.add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
+  options().add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
       ->description("The approximate amount of elements that are stored in a structured");
 
   std::vector<Uint> dummy;
-  m_options.add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
+  options().add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
       ->description("The number of divisions in each direction of the comb. "
                         "Takes precedence over \"ApproximateNbElementsPerCell\". ");
 

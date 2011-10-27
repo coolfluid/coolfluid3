@@ -37,7 +37,7 @@ Entities::Entities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  m_options.add_option(OptionT<std::string>::create("element_type", std::string("")))
+  options().add_option(OptionT<std::string>::create("element_type", std::string("")))
       ->description("Element type")
       ->pretty_name("Element type")
       ->attach_trigger(boost::bind(&Entities::configure_element_type, this));

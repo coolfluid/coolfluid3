@@ -42,12 +42,12 @@ InitFieldConstant::InitFieldConstant( const std::string& name )
   desc = "  Usage: InitFieldConstant constant \n";
   m_properties["description"] = desc;
 
-  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
+  options().add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();
 
-  m_options.add_option< OptionT<Real> > ("constant", m_constant)
+  options().add_option< OptionT<Real> > ("constant", m_constant)
       ->description("Constant applied as initial field")
       ->pretty_name("Constant")
       ->link_to( &m_constant )

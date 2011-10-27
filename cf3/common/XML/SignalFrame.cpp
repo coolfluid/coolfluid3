@@ -409,7 +409,7 @@ SignalOptions & SignalFrame::options( const std::string & name )
     tmp_name = Protocol::Tags::key_options();
 
   map(tmp_name);
-  m_options[tmp_name] = SignalOptions( *this, tmp_name );
+  options()[tmp_name] = SignalOptions( *this, tmp_name );
 
   return m_options[tmp_name];
 }

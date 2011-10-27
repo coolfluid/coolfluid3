@@ -26,22 +26,22 @@ ParallelDistribution::ParallelDistribution ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  m_options.add_option<OptionT <Uint> >("nb_obj", m_nb_obj)
+  options().add_option<OptionT <Uint> >("nb_obj", m_nb_obj)
       ->description("Total number of objects")
       ->pretty_name("Number of Objects")
       ->mark_basic();
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
-  m_options.add_option<OptionT <Uint> >("base", m_base)
+  options().add_option<OptionT <Uint> >("base", m_base)
       ->description("Start index for global numbering")
       ->pretty_name("Base");
 
-  m_options["nb_parts"].link_to( &m_nb_parts );
-  m_options["nb_obj"].link_to( &m_nb_obj );
-  m_options["base"].link_to( &m_base );
+  options()["nb_parts"].link_to( &m_nb_parts );
+  options()["nb_obj"].link_to( &m_nb_obj );
+  options()["base"].link_to( &m_base );
 }
 
 //////////////////////////////////////////////////////////////////////////////

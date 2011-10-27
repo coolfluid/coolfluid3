@@ -61,46 +61,46 @@ public:
   MyC ( const std::string& name ) :  Component(name)
   {
     // POD's (plain old data)
-    m_options.add_option< OptionT<bool> > ( "OptBool", false )->description("bool option");
-    m_options.add_option< OptionT<int> > ( "OptInt", -5 )->description("int option");
-    m_options.add_option< OptionT<Uint> > ( "OptUInt", 10 )->description("int option");
-    m_options.add_option< OptionT<Real> > ( "OptReal", 0.0 )->description("real option");
-    m_options.add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->description("string option");
-    m_options.add_option< OptionURI > ( "OptURI", URI("cpath://lolo") )->description( "URI option");
+    options().add_option< OptionT<bool> > ( "OptBool", false )->description("bool option");
+    options().add_option< OptionT<int> > ( "OptInt", -5 )->description("int option");
+    options().add_option< OptionT<Uint> > ( "OptUInt", 10 )->description("int option");
+    options().add_option< OptionT<Real> > ( "OptReal", 0.0 )->description("real option");
+    options().add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->description("string option");
+    options().add_option< OptionURI > ( "OptURI", URI("cpath://lolo") )->description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    m_options.add_option< OptionArrayT<int> >( "VecInt", def )->description("vector ints option");
+    options().add_option< OptionArrayT<int> >( "VecInt", def )->description("vector ints option");
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    m_options.add_option< OptionArrayT<std::string> >( "VecStr", defs )->description("vector strs option");;
+    options().add_option< OptionArrayT<std::string> >( "VecStr", defs )->description("vector strs option");;
 
 //    option("OptInt").set_value(10);
 
-    m_options["OptInt"].link_to( &m_i );
+    options()["OptInt"].link_to( &m_i );
 
-    m_options.link_to_parameter ( "OptStr", &m_str );
+    options().link_to_parameter ( "OptStr", &m_str );
 
-    m_options["OptBool"].attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
-    m_options["OptInt"].attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
-    m_options["OptStr"].attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
-    m_options["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
-    m_options["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
+    options()["OptBool"].attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
+    options()["OptInt"].attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
+    options()["OptStr"].attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
+    options()["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
+    options()["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
     std::vector<int> vi = option("VecInt").value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_options.add_option< OptionComponent<CConcrete1> >( "OptC", Core::instance().root().uri())
+    options().add_option< OptionComponent<CConcrete1> >( "OptC", Core::instance().root().uri())
         ->description("component option");
-    m_options.link_to_parameter ( "OptC", &m_component );
+    options().link_to_parameter ( "OptC", &m_component );
     Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2",Core::instance().root().uri()));
     opt2->description("component option");
-    m_options.add_option(opt2)->link_to( &m_component )->mark_basic();
-     Option::Ptr opt3 = m_options.add_option
+    options().add_option(opt2)->link_to( &m_component )->mark_basic();
+     Option::Ptr opt3 = options().add_option
        (OptionComponent<CConcrete1>::create("OptC3",&m_component));
 
      opt3->description("component option");

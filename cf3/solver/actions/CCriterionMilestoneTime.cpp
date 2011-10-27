@@ -30,13 +30,13 @@ CCriterionMilestoneTime::CCriterionMilestoneTime( const std::string& name  ) :
     "Returns true if a time is reached\n";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
+  options().add_option(OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
       ->pretty_name("Time")
       ->mark_basic()
       ->add_tag("time");
 
-  m_options.add_option(OptionT<Real>::create("milestone_dt", 0.))
+  options().add_option(OptionT<Real>::create("milestone_dt", 0.))
       ->description("Defines the checkpoints for the criterion")
       ->pretty_name("Milestone Time Step")
       ->mark_basic();

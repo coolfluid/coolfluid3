@@ -50,7 +50,7 @@ namespace Graphics {
   public:
     /// @brief Constructor.
 
-    /// @param optionsPanel Panel m_options of the selected node will be displayed.
+    /// @param optionsPanel Panel options() of the selected node will be displayed.
     /// @param parent Parent window. May be @c nullptr.
     /// @throws std::invalid_argument if @c optionsPanel is @c nullptr.
     TreeView( CentralPanel * optionsPanel,
@@ -59,7 +59,7 @@ namespace Graphics {
 
     /// @brief Destructor.
 
-    /// Frees all allocated memory. Neither the m_options panel nor the parent
+    /// Frees all allocated memory. Neither the options() panel nor the parent
     /// are destroyed.
     ~TreeView();
 
@@ -94,8 +94,8 @@ namespace Graphics {
     /// This method overloads parent class method. Four cases are possible :
     /// @li If user right-clicks, a context menu is displayed.
     /// @li If user left-clicks on another node than the currently selected one
-    /// @b and @c confirmChangeOptions() returns @c true, m_options in the
-    /// m_options panel are changed.
+    /// @b and @c confirmChangeOptions() returns @c true, options() in the
+    /// options() panel are changed.
     /// @li If user left-clicks on the selected node nothing is done.
     /// @li Middle button has no effect.
     /// @param event Event that occured.
@@ -115,7 +115,7 @@ namespace Graphics {
 
   private:
 
-    /// @brief Panel used to display and modify m_options for a selected
+    /// @brief Panel used to display and modify options() for a selected
     /// object.
     CentralPanel * m_central_panel;
 
@@ -131,7 +131,7 @@ namespace Graphics {
     /// @brief Indicates whether the tree m_view is in read-only mode or not.
 
     /// If @c true, the tree m_view is read-only mode. When it is read-only mode,
-    /// all m_options in the context that may modify an object are disbaled.
+    /// all options() in the context that may modify an object are disbaled.
     /// "Delete", "Rename", "Add a child node" and "Add an option" m_items are then
     /// disabled.
     bool m_read_only;
@@ -140,8 +140,8 @@ namespace Graphics {
 
     bool m_context_menu_allowed;
 
-    /// @brief Asks user to commit or rollback before changing m_options in
-    /// m_options panel.
+    /// @brief Asks user to commit or rollback before changing options() in
+    /// options() panel.
 
     /// If modifications were committed, nothing is asked and the method
     /// immediately returns @c true. If the commit is requested by the user,

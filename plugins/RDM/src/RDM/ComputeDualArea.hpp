@@ -169,10 +169,10 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations

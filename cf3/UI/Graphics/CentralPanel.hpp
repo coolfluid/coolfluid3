@@ -153,13 +153,13 @@ namespace Graphics {
     /// This layout is composed of three lines and one column.
     QGridLayout * m_main_layout;
 
-    /// Groupbox used to display basic m_options components
+    /// Groupbox used to display basic options() components
     /// with a titled border.
 
     ///  Its layout is @c #m_basicOptionsLayout.
     QGroupBox * m_gbox_basic_options;
 
-    /// Groupbox used to display advanced m_options components
+    /// Groupbox used to display advanced options() components
     /// with a titled border.
 
     ///  Its layout is @c #m_advancedOptionsLayout.
@@ -167,7 +167,7 @@ namespace Graphics {
 
     /// Indicates if the panel is in advanced mode or not.
 
-    /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
+    /// If @c true, the panel is in advanced mode. Advanced options() (if any)
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advanced_mode;
 

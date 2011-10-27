@@ -39,16 +39,16 @@ CPrintIterationSummary::CPrintIterationSummary ( const std::string& name ) : Act
 
   // options
 
-  m_options.add_option< OptionT<bool> >("check_convergence", true)
+  options().add_option< OptionT<bool> >("check_convergence", true)
       ->description("checks if the norm contains a non-real number ( either a nan or infinity )");
 
-  m_options.add_option< OptionT<Uint> >("print_rate", 1u)
+  options().add_option< OptionT<Uint> >("print_rate", 1u)
       ->description("how often to print the iteration summary");
 
-  m_options.add_option(OptionComponent<Component>::create("norm", &my_norm))
+  options().add_option(OptionComponent<Component>::create("norm", &my_norm))
       ->description("component holding the norm property");
 
-  m_options.add_option(OptionComponent<Component>::create("iterator", &my_iter))
+  options().add_option(OptionComponent<Component>::create("iterator", &my_iter))
       ->description("component holding the iteration property");
 }
 

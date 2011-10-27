@@ -45,12 +45,12 @@ Interpolate::Interpolate( const std::string& name )
     "Shapefunction/Space of the source-field is used to interpolate to the target";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<Field const>::create("source", &m_source))
+  options().add_option(OptionComponent<Field const>::create("source", &m_source))
       ->description("Field to interpolate from")
       ->pretty_name("Source Field")
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create("target", &m_target))
+  options().add_option(OptionComponent<Field>::create("target", &m_target))
       ->description("Field to interpolate to")
       ->pretty_name("TargetField")
       ->mark_basic();

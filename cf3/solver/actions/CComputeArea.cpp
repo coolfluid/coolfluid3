@@ -33,14 +33,14 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  m_options.add_option(OptionURI::create(mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
+  options().add_option(OptionURI::create(mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
       ->description("Field to set")
       ->pretty_name("Area")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
       ->add_tag(mesh::Tags::area());
 
-  m_options["elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
+  options()["elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

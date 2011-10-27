@@ -40,7 +40,7 @@ namespace Graphics {
   class GraphicalValue;
   struct CloseConfirmationInfos;
 
-  /// @brief Panel to m_view and modify m_options of an object.
+  /// @brief Panel to m_view and modify options() of an object.
 
   /// This class allows user to display and modify options of an object.
 
@@ -101,12 +101,12 @@ namespace Graphics {
 
   private:
 
-    /// @brief List containing basic m_options components.
+    /// @brief List containing basic options() components.
     QMap<QString, GraphicalValue *> m_options;
 
      /// @brief Indicates if the panel is in advanced mode or not.
 
-    /// If @c true, the panel is in advanced mode. Advanced m_options (if any)
+    /// If @c true, the panel is in advanced mode. Advanced options() (if any)
     /// are displayed. Otherwise, they are m_hidden.
     bool m_advanced_mode;
 

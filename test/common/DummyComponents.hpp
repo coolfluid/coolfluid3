@@ -60,9 +60,9 @@ public: // functions
   {
     // options
     URI def_path("cpath://");
-    m_options.add_option< OptionURI > ( "MyRelativeFriend", def_path  )
+    options().add_option< OptionURI > ( "MyRelativeFriend", def_path  )
         ->description("a path to another component");
-    m_options.add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
+    options().add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
         ->description("a path to another component");
   }
 

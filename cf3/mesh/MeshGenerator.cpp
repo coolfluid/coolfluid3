@@ -29,7 +29,7 @@ MeshGenerator::MeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionURI::create("mesh","cpath:",URI::Scheme::CPATH))
+  options().add_option(OptionURI::create("mesh","cpath:",URI::Scheme::CPATH))
       ->description("Mesh that will be generated")
       ->pretty_name("Mesh")
       ->mark_basic()

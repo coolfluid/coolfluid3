@@ -29,19 +29,19 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
   mark_basic();
 
   std::vector<URI> fields;
-  m_options.add_option< OptionArrayT<URI> >("fields",fields)
+  options().add_option< OptionArrayT<URI> >("fields",fields)
       ->description("Fields to ouptut")
       ->mark_basic()
       ->attach_trigger( boost::bind( &MeshWriter::config_fields, this ) );
 
   // Path to the mesh to write
-  m_options.add_option( OptionURI::create("mesh", URI(), URI::Scheme::CPATH) )
+  options().add_option( OptionURI::create("mesh", URI(), URI::Scheme::CPATH) )
       ->description("Mesh to write")
       ->pretty_name("Mesh")
       ->mark_basic();
 
   // Output file path
-  m_options.add_option( OptionURI::create("file", URI("mesh", URI::Scheme::FILE), URI::Scheme::FILE) )
+  options().add_option( OptionURI::create("file", URI("mesh", URI::Scheme::FILE), URI::Scheme::FILE) )
       ->description("File to write")
       ->pretty_name("File")
       ->mark_basic();
@@ -58,7 +58,7 @@ MeshWriter::MeshWriter ( const std::string& name  ) :
 void MeshWriter::config_fields()
 {
   std::vector<URI> field_uris;
-  m_options["fields"].put_value(field_uris);
+  options()["fields"].put_value(field_uris);
 
   m_fields.resize(0);
   boost_foreach ( const URI& uri, field_uris)

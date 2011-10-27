@@ -35,12 +35,12 @@ Reset::Reset ( const std::string& name ) : solver::Action(name)
   mark_basic();
 
   std::vector< URI > dummy0;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy0)
+  options().add_option< OptionArrayT < URI > > ("Fields", dummy0)
       ->description("Fields to cleanup")
       ->attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
 
   std::vector< std::string > dummy1;
-  m_options.add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
+  options().add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
       ->description("Tags of the field for which to apply the action");
 
   // call config field_tags when mesh is configured

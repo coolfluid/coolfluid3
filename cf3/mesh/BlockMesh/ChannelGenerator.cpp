@@ -34,39 +34,39 @@ ComponentBuilder < ChannelGenerator, Component, LibBlockMesh > ChannelGenerator_
 
 ChannelGenerator::ChannelGenerator(const std::string& name): MeshGenerator(name)
 {
-  m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
+  options().add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
     ->description("Total number of partitions (e.g. number of processors)")
     ->pretty_name("Number of Partitions");
 
-  m_options.add_option(OptionT<Uint>::create("cell_overlap", PE::Comm::instance().size()))
+  options().add_option(OptionT<Uint>::create("cell_overlap", PE::Comm::instance().size()))
     ->description("Cell overlap between two adjacent processors")
     ->pretty_name("Cell Overlap");
 
-  m_options.add_option(OptionT<Uint>::create("x_segments", 10))
+  options().add_option(OptionT<Uint>::create("x_segments", 10))
     ->description("Number of segments in the X direction")
     ->pretty_name("X segments");
 
-  m_options.add_option(OptionT<Uint>::create("y_segments_half", 10))
+  options().add_option(OptionT<Uint>::create("y_segments_half", 10))
     ->description("Number of segments in the Y direction for one half of the channel")
     ->pretty_name("Y segments half");
 
-  m_options.add_option(OptionT<Uint>::create("z_segments", 10))
+  options().add_option(OptionT<Uint>::create("z_segments", 10))
     ->description("Number of segments in the Z direction")
     ->pretty_name("Z segments");
 
-  m_options.add_option(OptionT<Real>::create("length", 10.))
+  options().add_option(OptionT<Real>::create("length", 10.))
     ->description("Length in the X direction")
     ->pretty_name("Length");
 
-  m_options.add_option(OptionT<Real>::create("half_height", 0.5))
+  options().add_option(OptionT<Real>::create("half_height", 0.5))
     ->description("Channel half height, in the Y-direction")
     ->pretty_name("Half Height");
 
-  m_options.add_option(OptionT<Real>::create("width", 10.))
+  options().add_option(OptionT<Real>::create("width", 10.))
     ->description("Channel witdh in the Z-direction")
     ->pretty_name("Width");
 
-  m_options.add_option(OptionT<Real>::create("grading", 0.2))
+  options().add_option(OptionT<Real>::create("grading", 0.2))
     ->description("Grading ratio. Values smaller than one refine towards the wall")
     ->pretty_name("Grading Ratio");
 }

@@ -56,7 +56,7 @@ MatchNodes::MatchNodes( const std::string& name )
   m_properties["description"] = desc;
 
 
-  m_options.add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
+  options().add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
       ->description("Regions to match nodes of");
 }
 

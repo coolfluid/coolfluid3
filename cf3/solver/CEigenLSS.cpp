@@ -55,7 +55,7 @@ cf3::common::ComponentBuilder < CEigenLSS, common::Component, LibSolver > aCeige
 
 CEigenLSS::CEigenLSS ( const std::string& name ) : Component ( name )
 {
-  m_options.add_option< OptionURI >("config_file", URI())
+  options().add_option< OptionURI >("config_file", URI())
       ->description("Solver config file")
       ->pretty_name("Config File")
       ->mark_basic()

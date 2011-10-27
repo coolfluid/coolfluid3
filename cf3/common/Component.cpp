@@ -814,14 +814,14 @@ boost::any& Component::property( const std::string& optname )
 
 const Option& Component::option( const std::string& optname ) const
 {
-  return m_options.option(optname);
+  return options().option(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Option& Component::option( const std::string& optname )
 {
-  return m_options.option(optname);
+  return options().option(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -954,7 +954,7 @@ void Component::signature_move_component( SignalArgs& args )
 
 Component& Component::configure_option(const std::string& optname, const boost::any& val)
 {
-  m_options.configure_option(optname,val);
+  options().configure_option(optname,val);
   return *this;
 }
 
@@ -978,7 +978,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
     configure_option(opt_name,val);
   }
 
-  foreach_container((std::string name) (boost::shared_ptr<Option> opt), m_options)
+  foreach_container((std::string name) (boost::shared_ptr<Option> opt), options())
   {
     if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
       configure_option(name,val);
