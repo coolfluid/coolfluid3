@@ -133,7 +133,7 @@ void GraphicalDoubleTest::test_signalEmmitting()
 {
   GraphicalDouble * value = new GraphicalDouble();
   QLineEdit * lineEdit = findLineEdit(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()
