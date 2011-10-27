@@ -25,7 +25,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
   std::vector<URI> fields;
   Field& solution_field = solver.field_manager().get_child(SFDM::Tags::solution()).follow()->as_type<Field>();
-  Field& solution_geom = mesh.geometry().create_field("solution_geom",solution_field.descriptor());
+  Field& solution_geom = mesh.geometry_fields().create_field("solution_geom",solution_field.descriptor());
 
   common::Action& interpolate = mesh.create_component("interpolate","cf3.mesh.actions.Interpolate").as_type<common::Action>();
   interpolate.configure_option("source",solution_field.uri());
@@ -262,7 +262,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 //  generate_probe.configure_option("offsets",offsets_probe);
 //  generate_probe.execute();
 
-//  Field& solution_probe = probe.geometry().create_field("solution",solution_field.descriptor());
+//  Field& solution_probe = probe.geometry_fields().create_field("solution",solution_field.descriptor());
 
 //  std::cout << "solution_field.row_size() = " << solution_field.row_size() << std::endl;
 //  std::cout << "solution_probe.row_size() = " << solution_probe.row_size() << std::endl;

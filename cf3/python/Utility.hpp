@@ -15,7 +15,7 @@
 #include <string>
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 /// Add a function dynamically
 /// @param object Object to add a function to
@@ -30,7 +30,7 @@ void add_function(boost::python::object& object, FunctionT function, const std::
   boost::python::setattr(object, name.c_str(), boost::python::import("types").attr("MethodType")(func_obj, object));
 }
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

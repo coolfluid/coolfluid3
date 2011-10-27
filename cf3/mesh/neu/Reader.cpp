@@ -26,6 +26,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -109,9 +110,9 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // Read mesh information
   read_headerData();
 
-  m_mesh->initialize_nodes(0, m_headerData.NDFCD);
+  m_mesh.lock()->initialize_nodes(0, m_headerData.NDFCD);
 
-  cf3_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
 
   // Create a hash
   m_hash = create_component_ptr<MergedParallelDistribution>("hash");
@@ -122,9 +123,9 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
-    m_region = m_mesh->topology().create_region(m_headerData.mesh_name).as_ptr<Region>();
+    m_region = m_mesh.lock()->topology().create_region(m_headerData.mesh_name).as_ptr<Region>();
   //else
-  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Merge").value<bool>()).as_ptr<Region>();
+  //  m_region = m_mesh.lock()->create_region(m_headerData.mesh_name,!option("Serial Merge").value<bool>()).as_ptr<Region>();
 
   find_ghost_nodes();
   read_coordinates();
@@ -138,10 +139,10 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // clean-up
   // --------
   // Remove regions with empty connectivity tables
-  remove_empty_element_regions(m_mesh->topology());
+  remove_empty_element_regions(m_mesh.lock()->topology());
 
 
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh.lock()->topology()))
   {
     elements.rank().resize(elements.size());
     Uint my_rank = option("part").value<Uint>();
@@ -155,11 +156,11 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   // close the file
   m_file.close();
 
-  m_mesh->elements().update();
-  m_mesh->update_statistics();
+  m_mesh.lock()->elements().update();
+  m_mesh.lock()->update_statistics();
 
-  cf3_assert(m_mesh->geometry().coordinates().row_size() == m_headerData.NDFCD);
-  cf3_assert(m_mesh->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
+  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh.lock()->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -283,7 +284,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -341,8 +342,8 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  Geometry& nodes = m_mesh->geometry();
-  m_tmp = m_region->create_region("main").as_ptr<Region>();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  m_tmp = m_region.lock()->create_region("main").as_ptr<Region>();
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);
@@ -410,7 +411,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -479,7 +480,7 @@ void Reader::read_groups()
   boost_foreach(GroupData& group, groups)
   {
 
-    Region& region = m_region->create_region(group.ELMMAT);
+    Region& region = m_region.lock()->create_region(group.ELMMAT);
 
     //CFinfo << "region " << region.uri().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
@@ -499,7 +500,7 @@ void Reader::read_groups()
     }
   }
 
-  m_region->remove_component(m_tmp->name());
+  m_region.lock()->remove_component(m_tmp->name());
   m_tmp.reset();
 
 }
@@ -530,8 +531,8 @@ void Reader::read_boundaries()
       throw common::NotSupported(FromHere(),"error: supports only IBCODE1 6 (ELEMENT_SIDE)");
     }
 
-    Region& bc_region = m_region->create_region(NAME);
-    Geometry& nodes = m_mesh->geometry();
+    Region& bc_region = m_region.lock()->create_region(NAME);
+    FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
     // create all kind of element type regions
     std::map<std::string,Elements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);

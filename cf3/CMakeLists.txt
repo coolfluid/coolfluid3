@@ -13,10 +13,12 @@ add_subdirectory( physics )
 # solver library provides access to PDE solvers
 add_subdirectory( solver )
 
+# library that exposes the python module
+add_subdirectory( python )
+
 # UI provides the user interface
 add_subdirectory( UI )
 
 # tools harbours miscellaneous tools to support coolfluid development
 add_subdirectory( Tools )
 
-add_subdirectory(Python)

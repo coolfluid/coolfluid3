@@ -19,7 +19,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -111,16 +111,16 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = m_mesh->topology().as_ptr<Region>();
+  m_region = m_mesh.lock()->topology().as_ptr<Region>();
 
   // Read file once and store positions
   get_file_positions();
 
-  m_mesh->initialize_nodes(0, m_mesh_dimension);
+  m_mesh.lock()->initialize_nodes(0, m_mesh_dimension);
 
   find_ghost_nodes();
 
-//  CFinfo << m_mesh->tree() << CFendl;
+//  CFinfo << m_mesh.lock()->tree() << CFendl;
 //  CFinfo << "nodes to read = " << m_nodes_to_read.size() << CFendl;
   read_coordinates();
 
@@ -137,7 +137,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_elem_idx_gmsh_to_cf.clear();
 
 
-  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
+  boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh.lock()->topology()))
   {
     elements.rank().resize(elements.size());
     Uint my_rank = option("part").value<Uint>();
@@ -148,8 +148,8 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   }
 
 
-  m_mesh->elements().update();
-  m_mesh->update_statistics();
+  m_mesh.lock()->elements().update();
+  m_mesh.lock()->update_statistics();
 //  // clean-up
 
   // close the file
@@ -293,7 +293,7 @@ Region::Ptr Reader::create_region(std::string const& relative_path)
   boost::char_separator<char> sep("/");
   Tokenizer tokens(relative_path, sep);
 
-  Region::Ptr region = m_region;
+  Region::Ptr region = m_region.lock();
   for (Tokenizer::iterator tok_iter = tokens.begin(); tok_iter != tokens.end(); ++tok_iter)
   {
     std::string name = *tok_iter;
@@ -380,7 +380,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
 
   Uint part = option("part").value<Uint>();
@@ -499,9 +499,9 @@ void Reader::read_connectivity()
  for(Uint ir = 0; ir < m_nb_regions; ++ir)
  {
    // create new region
-   Region::Ptr region = m_region_list[ir].region;
+   Region::Ptr region = m_region_list[ir].region.lock();
 
-//   elements[ir] = create_cells_in_region(*region,m_mesh->geometry(),m_supported_types);
+//   elements[ir] = create_cells_in_region(*region,m_mesh.lock()->geometry_fields(),m_supported_types);
 //   buffer[ir] = create_connectivity_buffermap(elements[ir]);
 
 
@@ -655,7 +655,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    FieldGroup& field_group = m_mesh->create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+    FieldGroup& field_group = m_mesh.lock()->create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {
@@ -742,7 +742,7 @@ void Reader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    mesh::Field& field = m_mesh->geometry().create_field(gmsh_field.name);
+    mesh::Field& field = m_mesh.lock()->geometry_fields().create_field(gmsh_field.name);
     field.configure_option("var_names",gmsh_field.var_names);
     field.configure_option("var_types",var_types_str);
     field.resize(gmsh_field.nb_entries);
@@ -792,7 +792,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
   Uint nb_string_tags(0);
   std::string var_name("var");
   std::string field_name("field");
-  std::string field_topology("./"); // to be prepended by m_mesh->topology().uri().path()
+  std::string field_topology("./"); // to be prepended by m_mesh.lock()->topology().uri().path()
   std::string field_basis("PointBased");
   Uint nb_real_tags(0);
   Real field_time(0.);
@@ -875,7 +875,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
 
 std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 {
-  std::string dim = to_str(m_mesh->geometry().coordinates().row_size());
+  std::string dim = to_str(m_mesh.lock()->geometry_fields().coordinates().row_size());
   switch (var_type_gmsh)
   {
     case 1:

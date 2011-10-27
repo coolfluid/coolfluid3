@@ -52,11 +52,11 @@ int main(int argc, char ** argv)
       create_component_ptr<Manager>("PEManager");
 
   Core::instance().root().create_component_ptr<CWorker>("Worker");
-  
+
   // Make sure the python ScriptEngine gets created, if it exists
   try
   {
-    build_component("cf3.Python.ScriptEngine", "DummyScriptEngine");
+    build_component("cf3.python.ScriptEngine", "DummyScriptEngine");
   }
   catch(...)
   {

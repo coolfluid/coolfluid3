@@ -24,7 +24,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 using namespace std;
 using namespace boost;
@@ -74,13 +74,13 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
   // the mesh to store in
   Mesh& mesh = Core::instance().root().create_component<Mesh>( "mesh" );
 
-  meshreader->read_mesh_into("quadtriag.neu",mesh);
+  meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
 
   Uint nb_ghosts=0;
 
 
-  Field& nodal = mesh.geometry().create_field("nodal","nodal[vector]");
+  Field& nodal = mesh.geometry_fields().create_field("nodal","nodal[vector]");
   for (Uint n=0; n<nodal.size(); ++n)
   {
     for(Uint j=0; j<nodal.row_size(); ++j)

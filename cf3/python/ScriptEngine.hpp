@@ -11,10 +11,10 @@
 
 #include "common/Component.hpp"
 
-#include "Python/LibPython.hpp"
+#include "python/LibPython.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -44,10 +44,10 @@ public: // functions
 
   /// Execute the script passed as a string
   void execute_script(std::string script);
-  
+
   /// Signal to execute a script
   void signal_execute_script(common::SignalArgs& node);
-  
+
 private:
   /// Signature for the execute_script signal
   void signature_execute_script(common::SignalArgs& node);
@@ -55,7 +55,7 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // Python
+} // python
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////

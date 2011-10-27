@@ -20,6 +20,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
+#include "mesh/Field.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/mesh_transformer/Transformer.hpp"

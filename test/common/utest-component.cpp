@@ -50,15 +50,15 @@ BOOST_AUTO_TEST_CASE( constructors )
   Group::Ptr dir1 = allocate_component<Group>( "dir1" );
 
   BOOST_CHECK_EQUAL ( dir1->name() , "dir1" );
-  BOOST_CHECK_EQUAL ( dir1->uri().base_path().string() , "cpath:./" );
-  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath:dir1" );
+  BOOST_CHECK_EQUAL ( dir1->uri().base_path().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath://dir1" );
 
   // constructor with passed path
   Link::Ptr lnk = allocate_component<Link>( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk->name() , "lnk" );
-  BOOST_CHECK_EQUAL ( lnk->uri().base_path().string() , "cpath:./" );
-  BOOST_CHECK_EQUAL ( lnk->uri().string() , "cpath:lnk" );
+  BOOST_CHECK_EQUAL ( lnk->uri().base_path().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( lnk->uri().string() , "cpath://lnk" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -295,7 +295,8 @@ BOOST_AUTO_TEST_CASE( rename )
   // turn off exception dumping
   ExceptionManager::instance().ExceptionDumps = false;
 
-  BOOST_CHECK_THROW ( c2->rename("c1_2"), ValueExists );
+  BOOST_CHECK_NO_THROW (c2->rename("c1_3"));
+  BOOST_CHECK(is_not_null(root->get_child_ptr("c1_3")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

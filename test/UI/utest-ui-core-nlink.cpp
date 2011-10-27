@@ -138,15 +138,12 @@ BOOST_AUTO_TEST_CASE( set_target_path )
   NTree::Ptr tree = NTree::global();
   NLink::Ptr link(new NLink("link"));
 
-  // 1. link has no root, assertion should fail
-  BOOST_CHECK_THROW( link->set_target_path(""), FailedAssertion );
-
   tree->tree_root()->add_node(link);
 
-  // 2. path does not exist, assertion should fail
-  BOOST_CHECK_THROW( link->set_target_path("cpath://Root/Unexisting/Component"), FailedAssertion );
+  // 1. path does not exist, assertion should fail
+  BOOST_CHECK_THROW( link->set_target_path("cpath://Root/Unexisting/Component"), InvalidURI );
 
-  // 3. everything is ok
+  // 2. everything is ok
   BOOST_REQUIRE_NO_THROW( link->set_target_path("cpath://Root/UI/Log") );
   BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath://Root/UI/Log") );
 

@@ -121,7 +121,7 @@ void SelectPathDialog::path_changed(const QString & path)
     Root::Ptr root = NTree::global()->tree_root()->root();
     try
     {
-      if(root->retrieve_component<CNode>(path.toStdString()) != nullptr)
+      if(boost::dynamic_pointer_cast<CNode>(root->access_component_ptr(path.toStdString())) != nullptr)
         newPath = path;
       else
         newPath = path.left(lastSlash);
@@ -129,7 +129,7 @@ void SelectPathDialog::path_changed(const QString & path)
       if(newPath == "/")
         newPath = root->uri().path().c_str();
 
-      node = root->retrieve_component<CNode>(newPath.toStdString());
+      node = boost::dynamic_pointer_cast<CNode>(root->access_component_ptr(newPath.toStdString()));
 
       if(node.get() != nullptr)
       {

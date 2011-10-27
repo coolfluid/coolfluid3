@@ -15,13 +15,12 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 namespace cf3 {
 namespace common {  class URI;  }
 namespace mesh {
 
-  class Geometry;
   class Field;
 
 ////////////////////////////////////////////////////////////////////////////////

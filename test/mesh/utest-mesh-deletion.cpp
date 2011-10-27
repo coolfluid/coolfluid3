@@ -18,6 +18,8 @@
 #include "common/XML/SignalFrame.hpp"
 
 #include "mesh/Domain.hpp"
+#include "mesh/Region.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -44,16 +46,18 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   // Setup a domain
   Domain& domain = root.create_component<Domain>("Domain");
 
-  boost::weak_ptr<Mesh> mesh;
-  // Setup mesh
-  {
-    Tools::MeshGeneration::create_rectangle(domain.create_component<Mesh>("Mesh"), length, height, x_segments, y_segments);
-    mesh = domain.get_child("Mesh").as_ptr<Mesh>();
-  }
+  boost::weak_ptr<Mesh> mesh = domain.create_component_ptr<Mesh>("mesh_empty");
   BOOST_CHECK(mesh.expired() == false);
 
-  // Remove mesh
-  domain.remove_component("Mesh");
+  domain.remove_component("mesh_empty");
+  BOOST_CHECK(mesh.expired() == true);
+
+
+  mesh = domain.create_component_ptr<Mesh>("generated_rectangle");
+  Tools::MeshGeneration::create_rectangle(*mesh.lock(), length, height, x_segments, y_segments);
+  BOOST_CHECK(mesh.expired() == false);
+
+  domain.remove_component("generated_rectangle");
   BOOST_CHECK(mesh.expired() == true);
 
   if (mesh.expired())
@@ -63,12 +67,12 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
     domain.remove_component("Mesh2");
   }
 
+  XML::SignalFrame frame;
   root.remove_component("Libraries");
   root.remove_component("Factories");
-
-
-  XML::SignalFrame frame;
+  root.remove_component("Tools");
   Core::instance().event_handler().raise_event("ping", frame);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

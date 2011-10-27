@@ -15,12 +15,12 @@
 
 #include "common/Table.hpp"
 
-#include "Python/Component.hpp"
-#include "Python/Table.hpp"
-#include "Python/Utility.hpp"
+#include "python/ComponentWrapper.hpp"
+#include "python/TableWrapper.hpp"
+#include "python/Utility.hpp"
 
 namespace cf3 {
-namespace Python {
+namespace python {
 
 using namespace boost::python;
 
@@ -158,5 +158,5 @@ void def_ctable_types()
   def_ctable_types<Uint>();
 }
 
-} // Python
+} // python
 } // cf3

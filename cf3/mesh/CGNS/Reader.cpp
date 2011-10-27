@@ -19,7 +19,8 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/CGNS/Reader.hpp"
 
@@ -73,13 +74,13 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Read every base (usually there is only 1)
   for (m_base.idx = 1; m_base.idx<=m_file.nbBases; ++m_base.idx)
-    read_base(*m_mesh);
+    read_base(*m_mesh.lock());
 
   // close the CGNS file
   CALL_CGNS(cg_close(m_file.idx));
 
-  m_mesh->elements().update();
-  m_mesh->update_statistics();
+  m_mesh.lock()->elements().update();
+  m_mesh.lock()->update_statistics();
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -95,7 +96,7 @@ void Reader::read_base(Mesh& parent_region)
   boost::algorithm::replace_all(m_base.name,".","_");
 
   // Create basic region structure
-  Region& base_region = m_mesh->topology();
+  Region& base_region = m_mesh.lock()->topology();
   m_base_map[m_base.idx] = &base_region;
 
   // check how many zones we have
@@ -256,7 +257,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
   CFinfo << "creating coordinates in " << parent_region.uri().string() << CFendl;
 
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -278,7 +279,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
       CALL_CGNS(cg_coord_read(m_file.idx,m_base.idx,m_zone.idx, "CoordinateX", RealDouble, &one, &m_zone.total_nbVertices, xCoord));
   }
 
-  m_mesh->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
+  m_mesh.lock()->initialize_nodes(m_zone.total_nbVertices, (Uint)m_zone.coord_dim);
 
   common::Table<Real>& coords = nodes.coordinates();
   common::List<Uint>& rank = nodes.rank();
@@ -315,7 +316,7 @@ void Reader::read_coordinates_unstructured(Region& parent_region)
 
 void Reader::read_coordinates_structured(Region& parent_region)
 {
-  Geometry& nodes = m_mesh->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
   m_zone.nodes = &nodes;
   m_zone.nodes_start_idx = nodes.size();
 
@@ -342,7 +343,7 @@ void Reader::read_coordinates_structured(Region& parent_region)
   }
 
   common::Table<Real>& coords = nodes.coordinates();
-  m_mesh->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
+  m_mesh.lock()->initialize_nodes(m_zone.total_nbVertices,m_zone.coord_dim);
   Uint n(0);
   switch (m_zone.coord_dim)
   {
@@ -414,7 +415,7 @@ void Reader::read_section(Region& parent_region)
   // Create a new region for this section
   Region& this_region = parent_region.create_region(m_section.name);
 
-  Geometry& all_nodes = *m_zone.nodes;
+  FieldGroup& all_nodes = *m_zone.nodes;
   Uint start_idx = m_zone.nodes_start_idx;
 
   if (m_section.type == MIXED)
@@ -523,7 +524,7 @@ void Reader::read_section(Region& parent_region)
 
 void Reader::create_structured_elements(Region& parent_region)
 {
-  Geometry& nodes = *m_zone.nodes;
+  FieldGroup& nodes = *m_zone.nodes;
 
   std::string etype_CF;
   switch (m_base.cell_dim)
@@ -649,7 +650,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       Region& this_region = parent_region.create_region(m_boco.name);
-      Geometry& nodes = *m_zone.nodes;
+      FieldGroup& nodes = *m_zone.nodes;
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
@@ -697,7 +698,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
 
       // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
       Region& this_region = parent_region.create_region(m_boco.name);
-      Geometry& nodes = *m_zone.nodes;
+      FieldGroup& nodes = *m_zone.nodes;
 
       // Create Elements components for every possible element type supported.
       std::map<std::string,Elements::Ptr> elements = create_faces_in_region(this_region,nodes,get_supported_element_types());
@@ -754,7 +755,7 @@ void Reader::read_boco_structured(Region& parent_region)
 
   // Create a region inside mesh/regions/bc-regions with the name of the cgns boco.
   Region& this_region = parent_region.create_region(m_boco.name);
-  Geometry& nodes = *m_zone.nodes;
+  FieldGroup& nodes = *m_zone.nodes;
 
   // Which BC_element type will we need?
   std::string etype_CF;

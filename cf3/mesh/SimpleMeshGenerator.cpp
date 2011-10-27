@@ -19,11 +19,12 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -127,7 +128,7 @@ void SimpleMeshGenerator::create_line()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("fluid");
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   Cells& cells = region.create_component<Cells>("Line");
@@ -234,7 +235,7 @@ void SimpleMeshGenerator::create_rectangle()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
 
 
   // find ghost nodes

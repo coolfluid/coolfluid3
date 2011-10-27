@@ -30,7 +30,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementData.hpp"
 
 #include "ElementMatrix.hpp"
@@ -84,7 +84,7 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
   GeometricSupport(const mesh::Elements& elements) :
-    m_coordinates(elements.geometry().coordinates()),
+    m_coordinates(elements.geometry_fields().coordinates()),
     m_connectivity(elements.node_connectivity())
   {
   }

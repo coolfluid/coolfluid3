@@ -79,7 +79,7 @@ public: // functions
 
   bool is_bound_to_fields() const;
 
-  FieldGroup& bound_fields() const;
+  FieldGroup& fields() const;
 
   void make_proxy(const Uint elem_start_idx);
 
@@ -108,7 +108,7 @@ protected: // data
   /// node_connectivity or state_connectivity for this space
   boost::shared_ptr<Connectivity> m_connectivity;
 
-  boost::shared_ptr<common::Link> m_bound_fields;
+  boost::shared_ptr<common::Link> m_fields;
 
   /// keyword "mutable" means that this variable can be changed using a
   /// const access function.

@@ -25,7 +25,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshGenerator.hpp"
 #include "mesh/Octtree.hpp"
 #include "mesh/StencilComputerOcttree.hpp"
