@@ -37,7 +37,7 @@ public: // functions
   //void initialize(const std::string& element_type_name, common::Table<Real>& coordinates);
 
   /// Initialize the Cells using the given type
-  virtual void initialize(const std::string& element_type_name, FieldGroup& geometry);
+  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
     
   /// Virtual destructor
   virtual ~Cells();

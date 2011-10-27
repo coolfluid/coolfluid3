@@ -24,7 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"
@@ -212,7 +212,7 @@ BOOST_AUTO_TEST_CASE( GenerateMesh )
 BOOST_AUTO_TEST_CASE( RankField )
 {
   // Store element ranks
-  FieldGroup& elems_P0 = mesh().create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh().create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(Elements& elements , elems_P0.elements_range())

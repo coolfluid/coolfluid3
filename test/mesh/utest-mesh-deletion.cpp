@@ -19,7 +19,7 @@
 
 #include "mesh/Domain.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 

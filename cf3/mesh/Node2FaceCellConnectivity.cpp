@@ -10,7 +10,7 @@
 #include "common/Builder.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 
 namespace cf3 {
@@ -42,7 +42,7 @@ void Node2FaceCellConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Node2FaceCellConnectivity::set_nodes(FieldGroup& nodes)
+void Node2FaceCellConnectivity::set_nodes(SpaceFields& nodes)
 {
   m_nodes->link_to(nodes.self());
   m_connectivity->resize(nodes.size());
@@ -52,7 +52,7 @@ void Node2FaceCellConnectivity::set_nodes(FieldGroup& nodes)
 
 void Node2FaceCellConnectivity::build_connectivity()
 {
-  FieldGroup const& nodes = *m_nodes->follow()->as_ptr<FieldGroup>();
+  SpaceFields const& nodes = *m_nodes->follow()->as_ptr<SpaceFields>();
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

@@ -18,7 +18,7 @@
 namespace cf3 {
 namespace mesh {
 
-  class FieldGroup;
+  class SpaceFields;
   
 
   class Elements;
@@ -62,7 +62,7 @@ public: // functions
   /// Set to refer to the supplied nodes
   /// @param element_type_name type of the elements
   /// @param nodes  location of the nodes the elements are linked with
-  Elements& create_elements (const std::string& element_type_name, FieldGroup& geometry);
+  Elements& create_elements (const std::string& element_type_name, SpaceFields& geometry);
 
   /// Create a Elements with nodes unset
   Elements& create_elements (const std::string& element_type_name);
@@ -89,7 +89,7 @@ public: // functions
   Elements& elements (const std::string& element_type_name);
 
   /// @return nodes of the mesh
-  FieldGroup& geometry_fields() const;
+  SpaceFields& geometry_fields() const;
 
   /// @return non-modifiable range of elements that are searched for recursively
   /// for use with boost_foreach(const Elements& elements, region.elements_range() )

@@ -10,7 +10,7 @@
 
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "DummyTerm.hpp"
 

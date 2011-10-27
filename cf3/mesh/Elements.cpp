@@ -15,7 +15,7 @@
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 
@@ -54,13 +54,13 @@ void Elements::initialize(const std::string& element_type_name)
   geometry.connectivity().set_row_size(geometry.nb_states());
 }
 
-void Elements::initialize(const std::string& element_type_name, FieldGroup& geo)
+void Elements::initialize(const std::string& element_type_name, SpaceFields& geo)
 {
   initialize(element_type_name);
   assign_geometry(geo);
 }
 
-void Elements::assign_geometry(FieldGroup& geo)
+void Elements::assign_geometry(SpaceFields& geo)
 {
   Entities::assign_geometry(geo);
   node_connectivity().create_lookup().add(geo);

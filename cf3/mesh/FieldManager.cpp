@@ -67,7 +67,7 @@ struct FieldManager::Implementation
 
     options.add_option<OptionURI>("field_group")
       ->pretty_name("Field Group")
-      ->description("URI for the FieldGroup in which to create fields");
+      ->description("URI for the SpaceFields in which to create fields");
 
     options.add_option< OptionT<std::string> >("tag")
       ->pretty_name("Tag")
@@ -90,7 +90,7 @@ FieldManager::~FieldManager()
 }
 
 
-void FieldManager::create_field(const std::string& tag, FieldGroup& field_group)
+void FieldManager::create_field(const std::string& tag, SpaceFields& field_group)
 {
   boost_foreach(VariablesDescriptor& descriptor, find_components_with_tag<VariablesDescriptor>(m_implementation->variable_manager(), tag))
   {
@@ -122,7 +122,7 @@ void FieldManager::signal_create_field(SignalArgs& node)
   if(!field_group_component)
     throw ValueNotFound(FromHere(), "No component found at field_group URI: " + field_group_uri.string());
 
-  FieldGroup::Ptr field_group = field_group_component->as_ptr<FieldGroup>();
+  SpaceFields::Ptr field_group = field_group_component->as_ptr<SpaceFields>();
   if(!field_group)
     throw ValueNotFound(FromHere(), "Wrong component type at field_group URI: " + field_group_uri.string());
 

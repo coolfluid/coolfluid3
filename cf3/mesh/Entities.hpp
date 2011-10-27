@@ -19,7 +19,7 @@ namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  class FieldGroup;
+  class SpaceFields;
   
   class ElementType;
   class Space;
@@ -46,10 +46,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, FieldGroup& geometry);
+  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(FieldGroup& geometry);
+  virtual void assign_geometry(SpaceFields& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -64,7 +64,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  FieldGroup& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
+  SpaceFields& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -106,7 +106,7 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::weak_ptr<FieldGroup> m_geometry_fields;
+  boost::weak_ptr<SpaceFields> m_geometry_fields;
 
   boost::weak_ptr<Space> m_geometry_space;
 

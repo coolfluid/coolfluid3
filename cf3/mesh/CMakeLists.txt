@@ -20,8 +20,8 @@ list( APPEND coolfluid_mesh_files
   ElementTypes.hpp
   Field.hpp
   Field.cpp
-  FieldGroup.hpp
-  FieldGroup.cpp
+  SpaceFields.hpp
+  SpaceFields.cpp
   FieldManager.cpp
   FieldManager.hpp
   ParallelDistribution.hpp

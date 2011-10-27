@@ -20,7 +20,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -41,7 +41,7 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
 Field::Field ( const std::string& name  ) :
   common::Table<Real> ( name ),
-  m_basis(FieldGroup::Basis::INVALID)
+  m_basis(SpaceFields::Basis::INVALID)
 {
   mark_basic();
 
@@ -153,14 +153,14 @@ Region& Field::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_field_group(FieldGroup& field_group)
+void Field::set_field_group(SpaceFields& field_group)
 {
-  m_field_group = field_group.as_ptr<FieldGroup>();
+  m_field_group = field_group.as_ptr<SpaceFields>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Field::field_group() const
+SpaceFields& Field::field_group() const
 {
   cf3_assert(m_field_group.expired() == false);
   return *m_field_group.lock();

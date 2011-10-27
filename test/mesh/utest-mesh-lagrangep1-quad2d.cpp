@@ -14,7 +14,7 @@
 #include "common/Root.hpp"
 
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Quad2D.hpp"
 #include "mesh/Elements.hpp"
@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a Elements component
   Elements::Ptr comp = allocate_component<Elements>("comp");
-  FieldGroup::Ptr nodes = allocate_component<FieldGroup>("nodes");
+  SpaceFields::Ptr nodes = allocate_component<SpaceFields>("nodes");
   comp->initialize("cf3.mesh.LagrangeP1.Quad2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

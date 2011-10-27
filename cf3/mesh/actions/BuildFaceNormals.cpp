@@ -16,7 +16,7 @@
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -82,7 +82,7 @@ void BuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
-  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& faces_P0 = mesh.create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(mesh::Tags::normal());
 

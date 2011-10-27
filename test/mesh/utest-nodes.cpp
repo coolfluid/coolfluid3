@@ -25,7 +25,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE( FillMatrix )
 
 BOOST_AUTO_TEST_CASE( Construct_Geometry )
 {
-  FieldGroup::Ptr geometry = allocate_component<FieldGroup>("geometry_fieds");
+  SpaceFields::Ptr geometry = allocate_component<SpaceFields>("geometry_fieds");
   BOOST_CHECK( is_not_null(geometry) );
 
   Field::Ptr coords = geometry->create_component_ptr<Field>("coordinates");

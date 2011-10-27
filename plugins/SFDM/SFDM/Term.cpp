@@ -10,7 +10,7 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/FieldManager.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -89,7 +89,7 @@ void Term::link_fields()
 
   if( is_null( m_field_group.lock() ) )
   {
-    m_field_group = solution().field_group().as_ptr<FieldGroup>();
+    m_field_group = solution().field_group().as_ptr<SpaceFields>();
   }
 
 }

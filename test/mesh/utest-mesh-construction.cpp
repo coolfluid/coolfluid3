@@ -21,7 +21,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
@@ -52,7 +52,7 @@ struct Mesh_API MeshEntity
   ElementType& element_type() const { return comp->element_type(); }
 
   /// Const access to the coordinates
-  FieldGroup& geometry_fields() const { return comp->geometry_fields(); }
+  SpaceFields& geometry_fields() const { return comp->geometry_fields(); }
 
   Uint glb_idx() const { return comp->glb_idx()[idx]; }
   Uint rank() const { return comp->rank()[idx]; }
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);

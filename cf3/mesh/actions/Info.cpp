@@ -102,7 +102,7 @@ void Info::execute()
   CFinfo << "Fields:" << CFendl;
   boost_foreach( const Field& field, find_components<Field>(mesh) )
   {
-    CFinfo << " - " << field.name() << "  (" << FieldGroup::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
+    CFinfo << " - " << field.name() << "  (" << SpaceFields::Basis::Convert::instance().to_str(field.basis()) << ")" << CFendl;
     for (Uint i=0; i<field.nb_vars(); ++i)
     {
       CFinfo << "     " << field.var_name(i) << "[" << (Uint) field.var_length(i) << "]" << CFendl;

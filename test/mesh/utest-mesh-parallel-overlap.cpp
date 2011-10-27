@@ -33,7 +33,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
@@ -185,7 +185,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 }
 
 
-bool check_nodes_sanity(FieldGroup& nodes)
+bool check_nodes_sanity(SpaceFields& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -318,7 +318,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -381,7 +381,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
   MeshWriter::Ptr tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
@@ -853,7 +853,7 @@ BOOST_CHECK(true);
       glb_node[node][0] = 1.;
 
   // Create a field with glb element numbers
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& glb_elem  = elems_P0.create_field("glb_elem");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 

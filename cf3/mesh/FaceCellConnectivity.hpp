@@ -20,9 +20,9 @@ namespace common {
 }
 namespace mesh {
 
-  class FieldGroup;
+  class SpaceFields;
   
-//  class FieldGroup;
+//  class SpaceFields;
   class Region;
   class Cells;
 

@@ -19,7 +19,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/actions/CSolveSystem.hpp"

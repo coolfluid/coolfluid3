@@ -25,7 +25,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"

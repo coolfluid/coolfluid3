@@ -5,7 +5,7 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE "Test module for cf3::mesh::FieldGroup"
+#define BOOST_TEST_MODULE "Test module for cf3::mesh::SpaceFields"
 
 #include <boost/test/unit_test.hpp>
 #include <boost/assign/list_of.hpp>
@@ -21,7 +21,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
@@ -36,10 +36,10 @@ using namespace boost::assign;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct FieldGroupTests_Fixture
+struct SpaceFieldsTests_Fixture
 {
   /// common setup for each test case
-  FieldGroupTests_Fixture()
+  SpaceFieldsTests_Fixture()
   {
      // uncomment if you want to use arguments to the test executable
      //int*    argc = &boost::unit_test::framework::master_test_suite().argc;
@@ -47,7 +47,7 @@ struct FieldGroupTests_Fixture
   }
 
   /// common tear-down for each test case
-  ~FieldGroupTests_Fixture()
+  ~SpaceFieldsTests_Fixture()
   {
   }
 
@@ -55,11 +55,11 @@ struct FieldGroupTests_Fixture
   static Mesh::Ptr m_mesh;
 };
 
-Mesh::Ptr FieldGroupTests_Fixture::m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
+Mesh::Ptr SpaceFieldsTests_Fixture::m_mesh = Core::instance().root().create_component_ptr<Mesh>("mesh");
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_FIXTURE_TEST_SUITE( FieldGroupTests_TestSuite, FieldGroupTests_Fixture )
+BOOST_FIXTURE_TEST_SUITE( SpaceFieldsTests_TestSuite, SpaceFieldsTests_Fixture )
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE( test_MeshCreation )
 }
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( test_FieldGroup )
+BOOST_AUTO_TEST_CASE( test_SpaceFields )
 {
   Mesh& mesh = *m_mesh;
 
@@ -95,19 +95,19 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK element-based field group building
 
   // Create space and field_group for Lagrange P0 elements
-  FieldGroup& elem_fields = mesh.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elem_fields = mesh.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( elem_fields.size() , 45);
   BOOST_CHECK_EQUAL( elem_fields.elements_lookup().components().size() , 5u);
 
   // Create space and field_group for Lagrange P0 cells
-  FieldGroup& cell_fields = mesh.create_space_and_field_group("cells_P0", FieldGroup::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& cell_fields = mesh.create_space_and_field_group("cells_P0", SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( cell_fields.size() , 25);
   BOOST_CHECK_EQUAL( cell_fields.elements_lookup().components().size() , 1u);
 
   // Create space and field_group for Lagrange P0 faces
-  FieldGroup& face_fields = mesh.create_space_and_field_group("faces_P0", FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& face_fields = mesh.create_space_and_field_group("faces_P0", SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
 
   BOOST_CHECK_EQUAL( face_fields.size() , 20);
   BOOST_CHECK_EQUAL( face_fields.elements_lookup().components().size() , 4u);
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK P1 point-based field group building
 
   // Create field group for the space "points_P1" fields
-  FieldGroup& point_P1_fields = mesh.create_space_and_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "cf3.mesh.LagrangeP1");
+  SpaceFields& point_P1_fields = mesh.create_space_and_field_group("points_P1", SpaceFields::Basis::POINT_BASED, "cf3.mesh.LagrangeP1");
 
   BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry_fields().size() );
 
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // CHECK P2 point-based field group building
 
   // Create field group for the space "P2"
-  FieldGroup& point_P2_fields = mesh.create_space_and_field_group("points_P2", FieldGroup::Basis::POINT_BASED, "cf3.mesh.LagrangeP2");
+  SpaceFields& point_P2_fields = mesh.create_space_and_field_group("points_P2", SpaceFields::Basis::POINT_BASED, "cf3.mesh.LagrangeP2");
   BOOST_CHECK_EQUAL ( point_P2_fields.size() , 121u );
 
 
@@ -178,7 +178,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
 
 BOOST_AUTO_TEST_CASE( test_Field )
 {
-  FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
+  SpaceFields& cells_P0 = m_mesh->get_child("cells_P0").as_type<SpaceFields>();
   Field& volume = cells_P0.field("volume");
   boost_foreach(Elements& elements, volume.elements_range())
   {
@@ -194,7 +194,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
     }
   }
 
-  FieldGroup& points_P2 = m_mesh->get_child("points_P2").as_type<FieldGroup>();
+  SpaceFields& points_P2 = m_mesh->get_child("points_P2").as_type<SpaceFields>();
   Field& point_field = points_P2.create_field("point_field");
 
 
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE( test_Field )
 
 BOOST_AUTO_TEST_CASE( FieldOperators )
 {
-  FieldGroup& cells_P0 = m_mesh->get_child("cells_P0").as_type<FieldGroup>();
+  SpaceFields& cells_P0 = m_mesh->get_child("cells_P0").as_type<SpaceFields>();
   Field& solution = cells_P0.create_field("solution","sol[1]");
   Field& solution_copy = cells_P0.create_field("solution_copy",solution.descriptor().description());
   solution_copy.descriptor().prefix_variable_names("copy_");

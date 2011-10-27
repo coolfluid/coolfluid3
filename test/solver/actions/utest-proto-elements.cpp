@@ -25,7 +25,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -128,7 +128,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   {
     elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
   }
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
   solver.field_manager().create_field("volumes", elems_P0);
 
   // Set the region of all children to the root region of the mesh

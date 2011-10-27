@@ -16,7 +16,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/UnifiedData.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE( data_location )
   }
 
   UnifiedData::Ptr unified_nodes = allocate_component<UnifiedData>("unified_nodes");
-  boost_foreach(FieldGroup& nodes, find_components_recursively<FieldGroup>(mesh))
+  boost_foreach(SpaceFields& nodes, find_components_recursively<SpaceFields>(mesh))
     unified_nodes->add(nodes);
 
   Component::Ptr nodes;

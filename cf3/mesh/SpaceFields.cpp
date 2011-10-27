@@ -32,9 +32,9 @@
 #include "math/VariablesDescriptor.hpp"
 
 #include "mesh/LibMesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "common/List.hpp"
@@ -56,36 +56,36 @@ using namespace common;
 using namespace common::PE;
 using namespace common::XML;
 
-common::ComponentBuilder < FieldGroup, Component, LibMesh >  FieldGroup_Builder;
+common::ComponentBuilder < SpaceFields, Component, LibMesh >  SpaceFields_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup::Basis::Convert::Convert()
+SpaceFields::Basis::Convert::Convert()
 {
   all_fwd = boost::assign::map_list_of
-      ( FieldGroup::Basis::POINT_BASED, "point_based" )
-      ( FieldGroup::Basis::ELEMENT_BASED, "element_based" )
-      ( FieldGroup::Basis::CELL_BASED, "cell_based" )
-      ( FieldGroup::Basis::FACE_BASED, "face_based" );
+      ( SpaceFields::Basis::POINT_BASED, "point_based" )
+      ( SpaceFields::Basis::ELEMENT_BASED, "element_based" )
+      ( SpaceFields::Basis::CELL_BASED, "cell_based" )
+      ( SpaceFields::Basis::FACE_BASED, "face_based" );
 
   all_rev = boost::assign::map_list_of
-      ("point_based",    FieldGroup::Basis::POINT_BASED )
-      ("element_based",  FieldGroup::Basis::ELEMENT_BASED )
-      ("cell_based",     FieldGroup::Basis::CELL_BASED )
-      ("face_based",     FieldGroup::Basis::FACE_BASED );
+      ("point_based",    SpaceFields::Basis::POINT_BASED )
+      ("element_based",  SpaceFields::Basis::ELEMENT_BASED )
+      ("cell_based",     SpaceFields::Basis::CELL_BASED )
+      ("face_based",     SpaceFields::Basis::FACE_BASED );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup::Basis::Convert& FieldGroup::Basis::Convert::instance()
+SpaceFields::Basis::Convert& SpaceFields::Basis::Convert::instance()
 {
-  static FieldGroup::Basis::Convert instance;
+  static SpaceFields::Basis::Convert instance;
   return instance;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup::FieldGroup ( const std::string& name  ) :
+SpaceFields::SpaceFields ( const std::string& name  ) :
   Component( name ),
   m_basis(Basis::INVALID),
   m_space("invalid"),
@@ -96,13 +96,13 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   // Option "topology"
   m_options.add_option< OptionURI >("topology",URI("cpath:"))
       ->description("The region these fields apply to")
-      ->attach_trigger( boost::bind( &FieldGroup::config_topology, this) )
+      ->attach_trigger( boost::bind( &SpaceFields::config_topology, this) )
       ->mark_basic();
 
   // Option "type"
   m_options.add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
       ->description("The type of the field")
-      ->attach_trigger ( boost::bind ( &FieldGroup::config_type,   this ) )
+      ->attach_trigger ( boost::bind ( &SpaceFields::config_type,   this ) )
       ->mark_basic();
   option("type").restricted_list() =  list_of
       (Basis::to_str(Basis::POINT_BASED))
@@ -113,7 +113,7 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   // Option "space
   m_options.add_option< OptionT<std::string> >("space", m_space)
     ->description("The space of the field is based on")
-    ->attach_trigger ( boost::bind ( &FieldGroup::config_space,   this ) )
+    ->attach_trigger ( boost::bind ( &SpaceFields::config_space,   this ) )
     ->mark_basic();
 
   // Static components
@@ -128,22 +128,22 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
 
 
   // Event handlers
-  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &FieldGroup::on_mesh_changed_event);
-  Core::instance().event_handler().connect_to_event("mesh_changed", this, &FieldGroup::on_mesh_changed_event);
+  Core::instance().event_handler().connect_to_event("mesh_loaded", this, &SpaceFields::on_mesh_changed_event);
+  Core::instance().event_handler().connect_to_event("mesh_changed", this, &SpaceFields::on_mesh_changed_event);
 
   // Signals
   regist_signal ( "create_field" )
       ->description( "Create Field" )
       ->pretty_name("Create Field" )
-      ->connect   ( boost::bind ( &FieldGroup::signal_create_field,    this, _1 ) )
-      ->signature ( boost::bind ( &FieldGroup::signature_create_field, this, _1 ) );
+      ->connect   ( boost::bind ( &SpaceFields::signal_create_field,    this, _1 ) )
+      ->signature ( boost::bind ( &SpaceFields::signature_create_field, this, _1 ) );
 
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::config_topology()
+void SpaceFields::config_topology()
 {
   URI topology_uri;
   option("topology").put_value(topology_uri);
@@ -158,7 +158,7 @@ void FieldGroup::config_topology()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::config_type()
+void SpaceFields::config_type()
 {
   m_basis = Basis::to_enum( option("type").value<std::string>() );
 
@@ -169,7 +169,7 @@ void FieldGroup::config_type()
 ////////////////////////////////////////////////////////////////////////////////
 
 
-void FieldGroup::config_space()
+void SpaceFields::config_space()
 {
   m_space = option("space").value<std::string>();
 
@@ -179,14 +179,14 @@ void FieldGroup::config_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup::~FieldGroup()
+SpaceFields::~SpaceFields()
 {
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::resize(const Uint size)
+void SpaceFields::resize(const Uint size)
 {
   m_size = size;
   m_glb_idx->resize(m_size);
@@ -199,7 +199,7 @@ void FieldGroup::resize(const Uint size)
 
 //////////////////////////////////////////////////////////////////////////////
 
-CommPattern& FieldGroup::comm_pattern()
+CommPattern& SpaceFields::comm_pattern()
 {
   if(m_comm_pattern.expired())
   {
@@ -214,7 +214,7 @@ CommPattern& FieldGroup::comm_pattern()
 
 //////////////////////////////////////////////////////////////////////////////
 
-bool FieldGroup::is_ghost(const Uint idx) const
+bool SpaceFields::is_ghost(const Uint idx) const
 {
   cf3_assert_desc(to_str(idx)+">="+to_str(size()),idx < size());
   cf3_assert(size() == m_rank->size());
@@ -224,14 +224,14 @@ bool FieldGroup::is_ghost(const Uint idx) const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Region& FieldGroup::topology() const
+Region& SpaceFields::topology() const
 {
   return *m_topology->follow()->as_ptr<Region>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, const std::string& variables_description)
+Field& SpaceFields::create_field(const std::string &name, const std::string& variables_description)
 {
 
   Field& field = create_component<Field>(name);
@@ -250,7 +250,7 @@ Field& FieldGroup::create_field(const std::string &name, const std::string& vari
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
+Field& SpaceFields::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
   Field& field = create_component<Field>(name);
   field.set_field_group(*this);
@@ -265,7 +265,7 @@ Field& FieldGroup::create_field(const std::string &name, math::VariablesDescript
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::check_sanity()
+void SpaceFields::check_sanity()
 {
   boost_foreach(Field& field, find_components<Field>(*this))
   {
@@ -282,7 +282,7 @@ void FieldGroup::check_sanity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<Entities> > FieldGroup::entities_range()
+boost::iterator_range< common::ComponentIterator<Entities> > SpaceFields::entities_range()
 {
   std::vector<Entities::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
@@ -295,7 +295,7 @@ boost::iterator_range< common::ComponentIterator<Entities> > FieldGroup::entitie
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<Elements> > FieldGroup::elements_range()
+boost::iterator_range< common::ComponentIterator<Elements> > SpaceFields::elements_range()
 {
   std::vector<Elements::Ptr> elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
@@ -308,21 +308,21 @@ boost::iterator_range< common::ComponentIterator<Elements> > FieldGroup::element
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::ComponentIteratorRange<Field> FieldGroup::fields()
+common::ComponentIteratorRange<Field> SpaceFields::fields()
 {
   return find_components<Field>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::field(const std::string& name) const
+Field& SpaceFields::field(const std::string& name) const
 {
   return get_child(name).as_type<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::on_mesh_changed_event( SignalArgs& args )
+void SpaceFields::on_mesh_changed_event( SignalArgs& args )
 {
   common::XML::SignalOptions options( args );
 
@@ -351,7 +351,7 @@ void FieldGroup::on_mesh_changed_event( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::update()
+void SpaceFields::update()
 {
   elements_lookup().reset();
 
@@ -396,7 +396,7 @@ void FieldGroup::update()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::bind_space()
+void SpaceFields::bind_space()
 {
   if (m_topology->is_linked() == false)
     throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
@@ -499,7 +499,7 @@ void hash_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::
 }
 
 
-void FieldGroup::create_connectivity_in_space()
+void SpaceFields::create_connectivity_in_space()
 {
   if (m_topology->is_linked() == false)
     throw SetupError(FromHere(), "topology of field_group ["+uri().string()+"] not configured");
@@ -544,7 +544,7 @@ void FieldGroup::create_connectivity_in_space()
     // ------------------------------
     boost_foreach(Entities& entities, entities_range())
     {
-      FieldGroup& geometry = entities.geometry_fields();
+      SpaceFields& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
       entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
@@ -895,7 +895,7 @@ void FieldGroup::create_connectivity_in_space()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
+common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   Space& space = elements.space(m_space);
   cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
@@ -904,7 +904,7 @@ common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& el
 
 ////////////////////////////////////////////////////////////////////////////////
 
-common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified_idx) const
+common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Uint unified_idx) const
 {
   Component::Ptr component;
   Uint elem_idx;
@@ -914,14 +914,14 @@ common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Uint unified
 
 ////////////////////////////////////////////////////////////////////////////////
 
-bool FieldGroup::has_coordinates() const
+bool SpaceFields::has_coordinates() const
 {
   return is_not_null(m_coordinates);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::coordinates()
+Field& SpaceFields::coordinates()
 {
   if (is_null(m_coordinates))
   {
@@ -931,7 +931,7 @@ Field& FieldGroup::coordinates()
     }
     else
     {
-      throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+      throw ValueNotFound(FromHere(),"SpaceFields ["+uri().string()+"] has no coordinates field");
     }
   }
   return *m_coordinates;
@@ -939,16 +939,16 @@ Field& FieldGroup::coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-const Field& FieldGroup::coordinates() const
+const Field& SpaceFields::coordinates() const
 {
   if (is_null(m_coordinates))
-    throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+    throw ValueNotFound(FromHere(),"SpaceFields ["+uri().string()+"] has no coordinates field");
   return *m_coordinates;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::create_coordinates()
+Field& SpaceFields::create_coordinates()
 {
   if (has_coordinates())
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
@@ -993,7 +993,7 @@ Field& FieldGroup::create_coordinates()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-DynTable<Uint>& FieldGroup::glb_elem_connectivity()
+DynTable<Uint>& SpaceFields::glb_elem_connectivity()
 {
   if (is_null(m_glb_elem_connectivity))
   {
@@ -1008,7 +1008,7 @@ DynTable<Uint>& FieldGroup::glb_elem_connectivity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::signature_create_field( SignalArgs& node )
+void SpaceFields::signature_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 
@@ -1022,7 +1022,7 @@ void FieldGroup::signature_create_field( SignalArgs& node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void FieldGroup::signal_create_field( SignalArgs& node )
+void SpaceFields::signal_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 

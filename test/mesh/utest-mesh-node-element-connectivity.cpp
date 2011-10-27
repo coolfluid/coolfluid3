@@ -16,7 +16,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/NodeElementConnectivity.hpp"

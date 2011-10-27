@@ -19,7 +19,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -380,7 +380,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
 
   Uint part = option("part").value<Uint>();
@@ -655,7 +655,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    FieldGroup& field_group = m_mesh.lock()->create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+    SpaceFields& field_group = m_mesh.lock()->create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {

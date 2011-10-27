@@ -18,7 +18,7 @@
 
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 
@@ -74,15 +74,15 @@ void Entities::initialize(const std::string& element_type_name)
   cf3_assert(is_not_null(m_element_type));
 }
 
-void Entities::initialize(const std::string& element_type_name, FieldGroup& geometry)
+void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
 {
   assign_geometry(geometry);
   initialize(element_type_name);
 }
 
-void Entities::assign_geometry(FieldGroup& geometry)
+void Entities::assign_geometry(SpaceFields& geometry)
 {
-  m_geometry_fields = geometry.as_ptr<FieldGroup>();
+  m_geometry_fields = geometry.as_ptr<SpaceFields>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

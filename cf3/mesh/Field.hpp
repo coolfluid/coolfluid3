@@ -7,7 +7,7 @@
 #ifndef cf3_mesh_Field_hpp
 #define cf3_mesh_Field_hpp
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "common/Table.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
@@ -53,9 +53,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Field"; }
 
-  FieldGroup::Basis::Type basis() const { return m_basis; }
+  SpaceFields::Basis::Type basis() const { return m_basis; }
 
-  void set_basis(const FieldGroup::Basis::Type basis) { m_basis = basis;}
+  void set_basis(const SpaceFields::Basis::Type basis) { m_basis = basis;}
 
   std::string var_name(Uint i=0) const;
 
@@ -83,9 +83,9 @@ public: // functions
 
   Region& topology() const;
 
-  void set_field_group(FieldGroup& field_group);
+  void set_field_group(SpaceFields& field_group);
 
-  FieldGroup& field_group() const;
+  SpaceFields& field_group() const;
 
   virtual void resize(const Uint size);
 
@@ -128,9 +128,9 @@ private:
   void config_var_names();
   void config_var_types();
 
-  FieldGroup::Basis::Type m_basis;
+  SpaceFields::Basis::Type m_basis;
   boost::weak_ptr<Region> m_topology;
-  boost::weak_ptr<FieldGroup> m_field_group;
+  boost::weak_ptr<SpaceFields> m_field_group;
 
   boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
 
