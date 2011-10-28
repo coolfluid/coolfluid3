@@ -186,6 +186,11 @@ URI URI::base_path () const
   {
     std::string rpath = m_path;
     rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
+    if(rpath.empty())
+    {
+      cf3_assert(is_absolute()); // this case should only happen on first-level absolute paths such as /Model
+      rpath = "/";
+    }
     return URI(rpath, m_scheme);
   }
 }

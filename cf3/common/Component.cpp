@@ -478,8 +478,7 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
 
     if(new_path.empty())
     {
-      cf3_assert(&root() == this);
-      return boost::const_pointer_cast<Component>(self());
+      return boost::const_pointer_cast<Component>(root().self());
     }
 
     // Pass the rest to root

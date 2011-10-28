@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( tool_tip )
 
   l1->set_target_path("cpath:/Target");
 
-  BOOST_CHECK_EQUAL(l1->tool_tip().toStdString(), std::string("Target: //Target"));
+  BOOST_CHECK_EQUAL(l1->tool_tip().toStdString(), std::string("Target: /Target"));
   BOOST_CHECK_EQUAL(l2->tool_tip().toStdString(), std::string("Target: <No target>"));
 
   root->remove_node( "Link1" );
@@ -99,7 +99,9 @@ BOOST_AUTO_TEST_CASE( go_to_target )
  SignalFrame frame;
  NRoot::Ptr root = ThreadManager::instance().tree().root();
  NGeneric::Ptr target(new NGeneric("Target", "MyType"));
- NGeneric::Ptr wrongTarget(new NGeneric("WrongTarget", "MyType")); // not part of the tree
+ NGeneric::Ptr wrongTargetParent(new NGeneric("WrongTargetParent", "MyType")); // not part of the tree
+ NGeneric::Ptr wrongTarget(new NGeneric("WrongTarget", "MyType"));
+ wrongTargetParent->add_component(wrongTarget);
  NTree::Ptr tree = NTree::global();
  NLink::Ptr link(new NLink("link"));
  QSignalSpy spy(tree.get(), SIGNAL(current_index_changed(QModelIndex,QModelIndex)));

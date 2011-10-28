@@ -71,7 +71,7 @@ void TreeThread::set_mutex(QMutex * mutex)
 
 void TreeThread::run()
 {
-  m_root = NRoot::Ptr(new NRoot(CLIENT_ROOT));
+  m_root = NRoot::Ptr(new NRoot("Root"));
 
   Root::Ptr realRoot = m_root->root();
 

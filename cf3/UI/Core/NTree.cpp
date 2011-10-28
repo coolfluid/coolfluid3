@@ -317,9 +317,6 @@ QModelIndex NTree::index_from_path(const URI & path) const
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first() == treeNode->node_name())
-      comps.removeFirst();
-
     for(it = comps.begin() ; it != comps.end() && treeNode != nullptr ; it++)
     {
       treeNode = treeNode->child_by_name(*it);
