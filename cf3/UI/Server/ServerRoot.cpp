@@ -195,7 +195,7 @@ void ServerRoot::listen_to_events ()
 {
   if(m_queue == nullptr)
   {
-    m_queue = new NotificationQueue(m_root);
+    m_queue = new NotificationQueue();
     m_notifier = new Notifier(m_queue);
 
     m_notifier->listenToEvent("tree_updated", true);

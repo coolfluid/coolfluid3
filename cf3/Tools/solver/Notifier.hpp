@@ -32,13 +32,13 @@ namespace solver {
 
     ~Notifier();
 
-    void listen_to_event(const std::string & name, bool notifyOnce);
+    void listen_to_event(const std::string & name, bool notify_once);
 
     void begin_notify();
 
-    void new_event(const std::string & name, const cf3::common::URI & raiserPath);
+    void new_event(const std::string & name, common::SignalArgs &args);
 
-    boost::signals2::signal< void (const std::string &, const common::URI &) > event_occured;
+    boost::signals2::signal< void (const std::string &, common::SignalArgs &) > event_occured;
 
 //  signals:
 

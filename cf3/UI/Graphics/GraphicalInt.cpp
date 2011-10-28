@@ -42,7 +42,7 @@ GraphicalInt::GraphicalInt(bool isUint, QVariant value, QWidget * parent)
   else
     this->set_value(value.toInt());
 
-  connect(m_spin_box, SIGNAL(value_changed(double)), this, SLOT(integer_changed(double)));
+  connect(m_spin_box, SIGNAL(valueChanged(double)), this, SLOT(integer_changed(double)));
 }
 
 ////////////////////////////////////////////////////////////////////////////

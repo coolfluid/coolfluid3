@@ -79,7 +79,7 @@ GraphicalUriArray::GraphicalUriArray(const QString& sep, QWidget * parent)
   connect(m_combo_type, SIGNAL(activated(QString)), this, SLOT(scheme_changed(QString)));
   connect(m_bt_up, SIGNAL(clicked()), this, SLOT(move_up()));
   connect(m_bt_down, SIGNAL(clicked()), this, SLOT(move_down()));
-  connect(m_list_view->selectionModel(), SIGNAL(selection_changed(QItemSelection,QItemSelection)),
+  connect(m_list_view->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
           this, SLOT(selection_changed(QItemSelection,QItemSelection)));
 }
 

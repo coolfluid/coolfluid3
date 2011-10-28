@@ -55,16 +55,16 @@ void Notifier::begin_notify()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Notifier::new_event(const std::string & name, const URI & raiserPath)
+void Notifier::new_event(const std::string & name, SignalArgs & args)
 {
   std::map<std::string, bool>::iterator it = m_once_notifying_events.find(name);
 
   if( it == m_once_notifying_events.end() || !it->second )
   {
-//    event_occured(name, raiserPath);
+    event_occured(name, args);
 
     /// @todo Ugly!!! should use a boost::signal2
-    m_manager->new_event(name, raiserPath);
+    m_manager->new_event(args);
 
     if(it != m_once_notifying_events.end())
       it->second = true;
