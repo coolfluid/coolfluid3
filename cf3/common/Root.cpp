@@ -11,7 +11,6 @@
 
 #include "common/BasicExceptions.hpp"
 #include "common/CF.hpp"
-#include "common/NotificationQueue.hpp"
 
 #include "common/Root.hpp"
 
