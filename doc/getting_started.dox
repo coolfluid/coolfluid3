@@ -24,9 +24,8 @@ namespace cf3 {
 
  @section _whats_there What's there?
  The cf3::common namespace contains apart from the Component base class, some specialized components:
- Root: This component is the root of the component tree, similar to the "/" or root directory in a unix type file system. It also holds the Environment or Environment component for interaction with the Operating System.
  Link: This component contains a reference to another component in the tree, and accessing it, accesses this reference. It serves as an analogy to the symbolic link on the computer file system.
- Group: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
+ Group: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system. It is also used for the "/" or root directory in a unix type file system, which holds the Environment or Environment component for interaction with the Operating System.
  The cf3::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
  
  <hr>
