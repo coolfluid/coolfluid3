@@ -17,7 +17,6 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"

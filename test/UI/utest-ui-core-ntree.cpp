@@ -480,7 +480,7 @@ BOOST_AUTO_TEST_CASE( options_changed )
   XmlDoc::Ptr doc;
   SignalFrame frame;
   NRoot::Ptr root = t->tree_root();
-  Root::Ptr newRoot = Root::create("Root");
+  Component::Ptr newRoot = allocate_component<Group>("Root");
 
   newRoot->create_component_ptr<Link>("Environment");
   newRoot->create_component_ptr<Group>("Tools");

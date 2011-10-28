@@ -13,7 +13,6 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -53,7 +52,7 @@ BOOST_AUTO_TEST_SUITE( SFDM_Suite )
 BOOST_AUTO_TEST_CASE( test_SF_lines )
 {
   typedef SFDM::ShapeFunction SFD_SF;
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   SFD_SF& sol_line_p0 = root.create_component("sol_line_p0","cf3.SFDM.SF.LineSolutionP0").as_type<SFD_SF>();
   SFD_SF& sol_line_p1 = root.create_component("sol_line_p1","cf3.SFDM.SF.LineSolutionP1").as_type<SFD_SF>();
   SFD_SF& sol_line_p2 = root.create_component("sol_line_p2","cf3.SFDM.SF.LineSolutionP2").as_type<SFD_SF>();
@@ -101,7 +100,7 @@ BOOST_AUTO_TEST_CASE( test_SF_lines )
 
 BOOST_AUTO_TEST_CASE( test_Reconstruction_lines )
 {
-  Root& root = common::Core::instance().root();
+  Component& root = common::Core::instance().root();
   Reconstruct& reconstruct = root.create_component("reconstruct","cf3.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
   from_to[0] = "cf3.SFDM.SF.LineSolutionP1";
@@ -120,7 +119,7 @@ BOOST_AUTO_TEST_CASE( test_Reconstruction_lines )
 BOOST_AUTO_TEST_CASE( test_SF_quads )
 {
   typedef SFDM::ShapeFunction SFD_SF;
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   SFD_SF& sol_quad_p0 = root.create_component("sol_quad_p0","cf3.SFDM.SF.QuadSolutionP0").as_type<SFD_SF>();
   SFD_SF& sol_quad_p1 = root.create_component("sol_quad_p1","cf3.SFDM.SF.QuadSolutionP1").as_type<SFD_SF>();
   SFD_SF& sol_quad_p2 = root.create_component("sol_quad_p2","cf3.SFDM.SF.QuadSolutionP2").as_type<SFD_SF>();
@@ -171,7 +170,7 @@ BOOST_AUTO_TEST_CASE( test_SF_quads )
 
 BOOST_AUTO_TEST_CASE( test_Reconstruction_quads )
 {
-  Root& root = common::Core::instance().root();
+  Component& root = common::Core::instance().root();
   Reconstruct& reconstruct = root.create_component("reconstruct_quads","cf3.SFDM.Reconstruct").as_type<Reconstruct>();
   std::vector<std::string> from_to(2);
   from_to[0] = "cf3.SFDM.SF.QuadSolutionP0";

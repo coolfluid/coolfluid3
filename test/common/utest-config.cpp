@@ -18,8 +18,8 @@
 
 #include "common/OptionArray.hpp"
 #include "common/BasicExceptions.hpp"
+#include "common/Group.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/URI.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"
@@ -263,7 +263,7 @@ BOOST_AUTO_TEST_CASE( configure )
 BOOST_AUTO_TEST_CASE( configure_component_path )
 {
   // Setup a little data-structure
-  Root::Ptr root = Root::create("root");
+  Group::Ptr root = allocate_component<Group>("root");
   CConcrete1::Ptr component1 = root->create_component_ptr<CConcrete1>("component1");
   CConcrete1::Ptr component2 = root->create_component_ptr<CConcrete1>("component2");
 
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 BOOST_AUTO_TEST_CASE( optionComponent )
 {
   // Setup a little data-structure
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   MyC::Ptr component1 = root.create_component_ptr<MyC>("component1");
   CConcrete1::Ptr component2 = root.create_component_ptr<CConcrete1>("component2");
 

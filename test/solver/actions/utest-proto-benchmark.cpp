@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -128,7 +127,7 @@ struct ProtoBenchmarkFixture :
     const Uint offset;
   };
 
-  Root& root;
+  Component& root;
   const Real length;
   const Real half_height;
   const Real width;

@@ -14,7 +14,6 @@
 
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/OSystem.hpp"
 #include "common/LibLoader.hpp"
 #include "common/Core.hpp"

@@ -19,7 +19,6 @@
 #include "common/Group.hpp"
 #include "common/Libraries.hpp"
 #include "common/Factories.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/BuildInfo.hpp"
@@ -73,7 +72,7 @@ Core::Core()
   RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
-  m_root = Root::create("Root");
+  m_root = allocate_component<Group>( "Root" );
   m_root->mark_basic();
   
   m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
@@ -138,7 +137,7 @@ void Core::terminate()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Root& Core::root() const
+Component& Core::root() const
 {
   cf3_assert( is_not_null(m_root) );
   return *m_root;

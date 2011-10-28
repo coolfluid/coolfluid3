@@ -12,7 +12,6 @@
 #include <boost/foreach.hpp>
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
 
@@ -143,7 +142,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   const Uint dim=2;
 
   // Create root and mesh component
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   Mesh& mesh = root.create_component<Mesh>( "mesh" ) ;
 
@@ -262,7 +261,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   const Uint dim=2;
 
   // Create root and mesh component
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Mesh& mesh = root->create_component<Mesh>( "mesh" );
 

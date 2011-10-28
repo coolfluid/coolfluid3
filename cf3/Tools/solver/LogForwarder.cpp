@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "common/StringConversion.hpp"
 #include "common/OptionT.hpp"

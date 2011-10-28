@@ -13,7 +13,6 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 
@@ -33,7 +32,7 @@ struct ComponentIterationFixture
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
 
-    m_root = Root::create ( "root" );
+    m_root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
     Component::Ptr comp1 = m_root->create_component_ptr<Component>("comp1");
     top_component_names.push_back(comp1->name());
     component_names.push_back(comp1->name());
@@ -171,13 +170,13 @@ BOOST_AUTO_TEST_CASE( test_find_parent )
   const Group& group2 = find_parent_component<Group>(const_group2_1());
   BOOST_CHECK_EQUAL(group2.uri().string() , "cpath:/group2");
 
-  Root& root = find_parent_component<Root>(group2_1());
+  Component& root = group2_1().root();
   BOOST_CHECK_EQUAL(root.uri().string() , "cpath:/");
 
   Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
   BOOST_CHECK_EQUAL(group22.uri().string() , "cpath:/group2");
 
-  Root& root2 = find_parent_component_with_filter<Root>(group2_1(),IsComponentType<Root>());
+  Component& root2 = group2_1().root();
   BOOST_CHECK_EQUAL(root2.uri().string() , "cpath:/");
 
 }

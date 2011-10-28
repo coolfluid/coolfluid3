@@ -9,6 +9,7 @@
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
 
+#include "common/Group.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
 
@@ -71,7 +72,7 @@ NRoot::NRoot(const std::string & name)
   signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
   signal("disconnect_server")->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
-  m_root = Root::create(name);
+  m_root = boost::static_pointer_cast<Component>(allocate_component<Group>(name));
 
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connected_to_server()));

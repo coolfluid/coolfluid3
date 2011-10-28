@@ -11,7 +11,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Integrators/Gauss.hpp"

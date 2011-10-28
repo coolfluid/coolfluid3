@@ -12,7 +12,6 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/Domain.hpp"

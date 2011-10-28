@@ -12,7 +12,6 @@
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/Core.hpp"
 
 #include "mesh/MergedParallelDistribution.hpp"

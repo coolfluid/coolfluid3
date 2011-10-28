@@ -12,7 +12,6 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"

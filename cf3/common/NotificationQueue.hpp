@@ -13,8 +13,8 @@
 
 #include "common/CF.hpp"
 #include "common/CommonAPI.hpp"
+#include "common/ConnectionManager.hpp"
 #include "common/EventHandler.hpp"
-#include "common/Root.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 

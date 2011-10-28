@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"

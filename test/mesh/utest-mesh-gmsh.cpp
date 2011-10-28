@@ -13,7 +13,6 @@
 
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 

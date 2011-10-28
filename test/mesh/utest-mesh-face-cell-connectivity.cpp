@@ -12,7 +12,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"

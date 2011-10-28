@@ -13,7 +13,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -60,7 +59,7 @@ struct MeshComponent_Fixture
     return coordVec;
   }
   /// common values accessed by all tests goes here
-  Root& root;
+  Component& root;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // CFinfo << "testing MeshComponents \n" << CFflush;
 
   // Create root and mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Mesh& mesh = root->create_component<Mesh>( "mesh" ) ;
 
@@ -239,7 +238,7 @@ BOOST_AUTO_TEST_CASE( Table_Uint_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Mesh& mesh = root->create_component<Mesh>  ( "mesh" ) ;
 
@@ -340,7 +339,7 @@ BOOST_AUTO_TEST_CASE( Table_Real_Templates )
 
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& regions = mesh.topology().create_region("regions");
 
@@ -690,7 +689,7 @@ BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
-  Root::Ptr root = Root::create("root");
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
   FieldGroup& nodes = mesh.geometry_fields();
@@ -706,7 +705,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
@@ -783,7 +782,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_rm_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
@@ -834,7 +833,7 @@ BOOST_AUTO_TEST_CASE( List_bool_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 

@@ -17,7 +17,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Libraries.hpp"
 #include "common/Environment.hpp"
 
@@ -80,7 +79,7 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
@@ -110,7 +109,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
@@ -142,7 +141,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh2");
 
   // read mesh from file
@@ -222,7 +221,7 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.get_child_ptr("mesh2")->as_ptr<Mesh>();
 
 

@@ -15,7 +15,6 @@
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"

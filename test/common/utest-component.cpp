@@ -15,7 +15,6 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 
@@ -37,7 +36,7 @@ BOOST_AUTO_TEST_SUITE( Component_TestSuite )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   // constructor with passed path
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   BOOST_CHECK_EQUAL ( root->name() , "root" );
   BOOST_CHECK_EQUAL ( root->uri().base_path().string() , "cpath:/" );
@@ -65,7 +64,7 @@ BOOST_AUTO_TEST_CASE( constructors )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 BOOST_AUTO_TEST_CASE( is_link )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
 
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE( is_link )
 
 BOOST_AUTO_TEST_CASE( get )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr lnk1 = allocate_component<Link>( "lnk1" );
@@ -127,15 +126,15 @@ BOOST_AUTO_TEST_CASE( get )
 
 BOOST_AUTO_TEST_CASE( as_const )
 {
-  Root::Ptr root = Root::create ( "root" );
-  Root::ConstPtr const_root = root->as_const()->as_ptr<Root>();
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  Component::ConstPtr const_root = root->as_const();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( complete_path )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -187,7 +186,7 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 BOOST_AUTO_TEST_CASE( access_component_ptr )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -215,7 +214,7 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
 
 BOOST_AUTO_TEST_CASE( move_to )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -236,7 +235,7 @@ BOOST_AUTO_TEST_CASE( move_to )
 
 BOOST_AUTO_TEST_CASE( problem )
 {
-  Root::Ptr root = Root::create ( "Simulator" );
+  Component::Ptr root = allocate_component<Group> ( "Simulator" );
 
   Component::Ptr proot = root->access_component_ptr("cpath:/");
 
@@ -248,7 +247,7 @@ BOOST_AUTO_TEST_CASE( problem )
 
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Component::Ptr comp1 = root->create_component_ptr<Component>("comp1");
   comp1->create_component_ptr<Component>("comp1_1");
   comp1->create_component_ptr<Component>("comp1_2");
@@ -261,7 +260,7 @@ BOOST_AUTO_TEST_CASE( create_subcomponents )
 
 BOOST_AUTO_TEST_CASE( create_component_signal )
 {
-  Root::Ptr root = Root::create ( "croot" );
+  Component::Ptr root = allocate_component<Group> ( "croot" );
 
   SignalFrame sf("Signal", "/", "/");
 
@@ -278,7 +277,7 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
 BOOST_AUTO_TEST_CASE( rename )
 {
-  Root::Ptr root = Root::create ( "Simulator" );
+  Component::Ptr root = allocate_component<Group> ( "Simulator" );
 
   Component::Ptr c1 = root->create_component_ptr<Component>("c1");
 

@@ -11,7 +11,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -46,7 +45,7 @@ struct BlockMeshReaderFixture
     base_dir = URI(argv[1], cf3::common::URI::Scheme::FILE);
   }
   URI base_dir;
-  common::Root& root;
+  common::Component& root;
 };
 
 //////////////////////////////////////////////////////////////////////////////

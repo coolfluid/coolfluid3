@@ -11,8 +11,6 @@
 
 #include <boost/uuid/uuid.hpp>
 
-#include "common/Root.hpp"
-
 #include "UI/Core/CNode.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -55,7 +53,7 @@ namespace Core {
 
     /// @brief Gives the Root internal shared pointer
     /// @return Returns the Root internal shared pointer
-    inline cf3::common::Root::Ptr root() const
+    inline cf3::common::Component::Ptr root() const
     {
       return m_root;
     }
@@ -106,7 +104,7 @@ namespace Core {
   private :
 
     /// @brief The internal Root component
-    cf3::common::Root::Ptr m_root;
+    cf3::common::Component::Ptr m_root;
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;

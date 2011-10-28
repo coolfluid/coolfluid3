@@ -15,7 +15,6 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 
@@ -83,7 +82,7 @@ BOOST_AUTO_TEST_SUITE( StaticSubComponent_TestSuite )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr cp = root->create_component_ptr< HolderT<Part> >( "myHolderT_Part" );
 

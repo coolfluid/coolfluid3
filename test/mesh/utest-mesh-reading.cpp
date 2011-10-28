@@ -15,7 +15,6 @@
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
 
@@ -52,7 +51,7 @@ struct MeshReading_Fixture
     m_argc = boost::unit_test::framework::master_test_suite().argc;
     m_argv = boost::unit_test::framework::master_test_suite().argv;
 
-    root = Root::create("Root");
+    root = allocate_component<Group>("Root");
     reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","MyReader");
     domain = root->create_component_ptr<Domain>("MyDom");
 
@@ -68,7 +67,7 @@ struct MeshReading_Fixture
   }
 
   /// possibly common functions used on the tests below
-  Root::Ptr root;
+  Component::Ptr root;
   MeshReader::Ptr reader;
   Domain::Ptr domain;
 

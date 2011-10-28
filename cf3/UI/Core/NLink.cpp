@@ -6,7 +6,6 @@
 
 #include <QModelIndex>
 
-#include "common/Root.hpp"
 #include "common/Signal.hpp"
 
 #include "common/XML/Protocol.hpp"
