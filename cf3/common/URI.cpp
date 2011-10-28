@@ -278,7 +278,8 @@ std::string URI::base_name() const
 
 void URI::cleanup()
 {
-  m_path = boost::regex_replace(m_path, boost::regex("//+"), "/");
+  if(m_scheme == cf3::common::URI::Scheme::CPATH)
+    m_path = boost::regex_replace(m_path, boost::regex("//+"), "/");
 }
 
 

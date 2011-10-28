@@ -351,12 +351,12 @@ BOOST_AUTO_TEST_CASE( add_node )
 
   BOOST_REQUIRE_NO_THROW( root->add_node(node));
   // the component should have been added to the *real* root (Root)
-  BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath://Node")->as_ptr<NGeneric>() );
+  BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath:/Node")->as_ptr<NGeneric>() );
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->add_node(log) );
-  BOOST_REQUIRE_NO_THROW( node->access_component_ptr("cpath://Node/" CLIENT_LOG)->as_ptr<NLog>() );
+  BOOST_REQUIRE_NO_THROW( node->access_component_ptr("cpath:/Node/" CLIENT_LOG)->as_ptr<NLog>() );
 
   BOOST_CHECK_EQUAL(nodeSpy.count(), 1);
 }
@@ -378,12 +378,12 @@ BOOST_AUTO_TEST_CASE( remove_node )
 
   BOOST_REQUIRE_NO_THROW( root->remove_node("Node"));
   // the component should have been removed from the REAL root (Root)
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath://Node").get(), nullComp);
+  BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath:/Node").get(), nullComp);
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->remove_node( CLIENT_LOG ) );
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr( "cpath://Node/" CLIENT_LOG ).get(), nullComp );
+  BOOST_CHECK_EQUAL( root->root()->access_component_ptr( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
 
   BOOST_CHECK_EQUAL( nodeSpy.count(), 1 );
 }

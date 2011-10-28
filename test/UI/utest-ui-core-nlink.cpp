@@ -57,7 +57,7 @@ BOOST_AUTO_TEST_CASE( tool_tip )
   root->add_node(target);
   root->add_node(l1);
 
-  l1->set_target_path("cpath://Target");
+  l1->set_target_path("cpath:/Target");
 
   BOOST_CHECK_EQUAL(l1->tool_tip().toStdString(), std::string("Target: //Target"));
   BOOST_CHECK_EQUAL(l2->tool_tip().toStdString(), std::string("Target: <No target>"));
@@ -79,9 +79,9 @@ BOOST_AUTO_TEST_CASE( target_path )
   root->add_node(target);
   root->add_node(l1);
 
-  l1->set_target_path("cpath://Target");
+  l1->set_target_path("cpath:/Target");
 
-  BOOST_CHECK_EQUAL( l1->target_path().string(), std::string("cpath://Target"));
+  BOOST_CHECK_EQUAL( l1->target_path().string(), std::string("cpath:/Target"));
   BOOST_CHECK_EQUAL( l2->target_path().string(), std::string(""));
 
   root->remove_node( "Link1" );
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE( go_to_target )
  // 3. everything is OK
  spy.clear();
  link->set_target_node(target);
- index = tree->index_from_path("cpath://Target");
+ index = tree->index_from_path("cpath:/Target");
  BOOST_REQUIRE_NO_THROW(link->go_to_target(frame));
 
  BOOST_CHECK_EQUAL(spy.count(), 1);
@@ -141,11 +141,11 @@ BOOST_AUTO_TEST_CASE( set_target_path )
   tree->tree_root()->add_node(link);
 
   // 1. path does not exist, assertion should fail
-  BOOST_CHECK_THROW( link->set_target_path("cpath://Unexisting/Component"), InvalidURI );
+  BOOST_CHECK_THROW( link->set_target_path("cpath:/Unexisting/Component"), InvalidURI );
 
   // 2. everything is ok
-  BOOST_REQUIRE_NO_THROW( link->set_target_path("cpath://UI/Log") );
-  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath://UI/Log") );
+  BOOST_REQUIRE_NO_THROW( link->set_target_path("cpath:/UI/Log") );
+  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath:/UI/Log") );
 
   tree->tree_root()->remove_node("link");
 }
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE( set_target_node )
 
   // 2. everything is ok
   BOOST_REQUIRE_NO_THROW( link->set_target_node( target ) );
-  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath://Target") );
+  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath:/Target") );
 
   tree->tree_root()->remove_node("link");
   tree->tree_root()->remove_node("Target");

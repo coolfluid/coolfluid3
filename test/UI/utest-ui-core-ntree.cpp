@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( current_path )
 
   // 3. when the current index is not the root (i.e the UI group)
   t.set_current_index( t.index(0, 0, rootIndex) );
-  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath://UI") );
+  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath:/UI") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( path_from_index )
   BOOST_CHECK_EQUAL( t.pathFromIndex( rootIndex ).string(), std::string("cpath:/") );
 
   // 3. when the current index is not the root (i.e the UI group)
-  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath://UI") );
+  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath:/UI") );
 
 }
 
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( are_from_same_node )
 BOOST_AUTO_TEST_CASE( node_by_path )
 {
   NTree t;
-  CNode::Ptr logNode = t.node_by_path("cpath://Path/That/Does/Not/Exist") ;
+  CNode::Ptr logNode = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
 
   BOOST_CHECK(logNode.get() == nullptr);
 
@@ -350,7 +350,7 @@ BOOST_AUTO_TEST_CASE( index_from_path )
   BOOST_CHECK_EQUAL( foundIndex.internalPointer(), index.internalPointer() );
 
   // 3. unexisting path
-  QModelIndex badIndex = t.index_from_path("cpath://Unexisting/Path");
+  QModelIndex badIndex = t.index_from_path("cpath:/Unexisting/Path");
   BOOST_CHECK( !badIndex.isValid() );
 
   // 4. unexisting path (bis, no path but just a name)

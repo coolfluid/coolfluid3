@@ -230,7 +230,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add_option<OptionURI>("location", URI("cpath://MyDom"));
+  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
   frame = options.create_frame("Target", "/", "/");
@@ -252,7 +252,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option<OptionURI>("location", URI("cpath://MyDom"));
+  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
   frame = options.create_frame("Target", "/", "/");
@@ -271,7 +271,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option<OptionURI>("location", URI("cpath://MyDom"));
+  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
   frame = options.create_frame("Target", "/", "/");
@@ -289,7 +289,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   std::vector<URI> files;
   files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "file:../../resources/quadtriag.neu" );
-  options.add_option<OptionURI>("location", URI("cpath://MyDom"));
+  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
   options.add_option<OptionArrayT<URI> >("files", files);
 
   frame = options.create_frame("Target", "/", "/");

@@ -39,7 +39,7 @@ LogForwarder::LogForwarder()
 void LogForwarder::message(const std::string &data)
 {
   /// @todo remove those hardcoded URIs
-  SignalFrame frame("message", "cpath://UI/Log", "cpath://UI/Log");
+  SignalFrame frame("message", "cpath:/UI/Log", "cpath:/UI/Log");
   SignalOptions options(frame);
   std::string header = "Worker[" + to_str( Comm::instance().rank() ) + "] ";
 

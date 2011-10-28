@@ -122,8 +122,8 @@ void GraphicalUriTest::test_setValue()
   //
   // 1. check with strings
   //
-  QVERIFY( value->set_value("cpath://Component") );
-  QCOMPARE( lineEdit->text(), QString("cpath://Component") );
+  QVERIFY( value->set_value("cpath:/Component") );
+  QCOMPARE( lineEdit->text(), QString("cpath:/Component") );
 
   QVERIFY( value->set_value("coolfluidsrv.vki.ac.be") );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
@@ -263,13 +263,13 @@ void GraphicalUriTest::test_isModified()
   QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
-  lineEdit->setText("cpath://Component");
+  lineEdit->setText("cpath:/Component");
   QVERIFY( value->is_modified() );
   value->commit();
   QVERIFY( !value->is_modified() );
 
   // 4. set the same value
-  lineEdit->setText("cpath://Component");
+  lineEdit->setText("cpath:/Component");
   QVERIFY( !value->is_modified() );
 
   delete value;

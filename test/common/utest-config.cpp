@@ -66,7 +66,7 @@ public:
     options().add_option< OptionT<Uint> > ( "OptUInt", 10 )->description("int option");
     options().add_option< OptionT<Real> > ( "OptReal", 0.0 )->description("real option");
     options().add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->description("string option");
-    options().add_option< OptionURI > ( "OptURI", URI("cpath://lolo") )->description( "URI option");
+    options().add_option< OptionURI > ( "OptURI", URI("cpath:/lolo") )->description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
@@ -269,7 +269,7 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_option("MyRelativeFriend",URI("cpath:../component2"));
-  component1->configure_option("MyAbsoluteFriend",URI("cpath://component2"));
+  component1->configure_option("MyAbsoluteFriend",URI("cpath:/component2"));
 
   // Check if everything worked OK.
   URI absolute_friend_path = component1->option("MyAbsoluteFriend").value<URI>();
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE( optionComponent )
   CConcrete1::Ptr component2 = root.create_component_ptr<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->configure_option("OptC",URI("cpath://component2"));
+  component1->configure_option("OptC",URI("cpath:/component2"));
 
   BOOST_CHECK( component1->comp() == component2 );
   // // Check if everything worked OK.

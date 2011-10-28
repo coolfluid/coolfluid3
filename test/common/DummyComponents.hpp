@@ -59,7 +59,7 @@ public: // functions
   CConcrete1 ( const std::string& name ) : CAbstract(name)
   {
     // options
-    URI def_path("cpath://");
+    URI def_path("cpath:/");
     options().add_option< OptionURI > ( "MyRelativeFriend", def_path  )
         ->description("a path to another component");
     options().add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
