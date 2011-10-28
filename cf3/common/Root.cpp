@@ -133,28 +133,5 @@ namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-  void Root::raise_new_event ( const std::string & event_name,
-                                const URI & raiser_path )
-  {
-    cf3_assert( is_not_null(access_component_ptr(raiser_path)) );
-
-    std::vector<NotificationQueue*>::iterator it;
-
-    for( it = m_notif_queues.begin() ; it != m_notif_queues.end() ; it++)
-      (*it)->add_notification(event_name, raiser_path);
-  }
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-  void Root::add_notification_queue ( NotificationQueue * queue )
-  {
-    cf3_assert( queue != nullptr );
-
-    m_notif_queues.push_back(queue);
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // common
 } // cf3

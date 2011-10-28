@@ -69,7 +69,7 @@ public: // functions
 
   const common::NotificationQueue * notification_queue() const { return m_queue; }
 
-  void new_event( const std::string & name, const common::URI & raiserPath );
+  void new_event( SignalArgs &args );
 
   /// @name SIGNALS
   //@{
