@@ -179,7 +179,7 @@ void Component::rename ( const std::string& name )
   cf3_assert(m_component_lookup.size() == m_components.size());
 
   // notification should be done before the real renaming since the path changes
-  raise_path_changed();
+  raise_tree_updated_event();
 
   if(has_parent())
   {
@@ -273,7 +273,7 @@ Component& Component::add_component ( Component::Ptr subcomp )
 
   subcomp->change_parent( this );
 
-  raise_path_changed();
+  raise_tree_updated_event();
 
   return *subcomp;
 }
@@ -365,7 +365,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     }
     m_components = new_storage;
 
-    raise_path_changed();
+    raise_tree_updated_event();
 
     return comp;                                   // return it to client
   }
@@ -501,7 +501,7 @@ void Component::move_to ( Component& new_parent )
 {
   Component::Ptr this_ptr = parent().remove_component( *this );
   new_parent.add_component( this_ptr );
-  raise_path_changed();
+  raise_tree_updated_event();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -946,20 +946,10 @@ void Component::signal_signature( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::raise_path_changed ()
+void Component::raise_tree_updated_event ()
 {
-  raise_event("tree_updated");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void Component::raise_event ( const std::string & name )
-{
-  Root* real_root = dynamic_cast<Root*>(&root());
-  if( is_not_null(real_root) )
-  {
-    real_root->raise_new_event(name, uri());
-  }
+  SignalFrame frame ( "tree_updated", uri(), uri() );
+  EventHandler::instance().raise_event("tree_updated", frame ); // no error if event doesn't exist
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

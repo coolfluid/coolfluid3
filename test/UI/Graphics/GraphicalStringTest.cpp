@@ -119,7 +119,7 @@ void GraphicalStringTest::test_signalEmmitting()
 {
   GraphicalString * value = new GraphicalString();
   QLineEdit * lineEdit = findLineEdit(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()

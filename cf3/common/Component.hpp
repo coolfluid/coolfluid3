@@ -505,9 +505,7 @@ protected: // data
 protected: // functions
 
   /// raise event that the path has changed
-  void raise_path_changed();
-  /// raise event an event with a given name
-  void raise_event(const std::string & name );
+  void raise_tree_updated_event();
 
 }; // Component
 

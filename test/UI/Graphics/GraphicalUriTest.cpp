@@ -195,7 +195,7 @@ void GraphicalUriTest::test_signalEmmitting()
 {
   GraphicalUri * value = new GraphicalUri();
   QLineEdit * lineEdit = findLineEdit(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()
