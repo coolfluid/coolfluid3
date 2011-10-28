@@ -20,7 +20,8 @@ namespace common {
 namespace mesh {
 
   class Region;
-  class Geometry;
+  class FieldGroup;
+  
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,7 +71,7 @@ public:
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(Geometry& nodes);
+  void set_nodes(FieldGroup& nodes);
 
 private: // data
 

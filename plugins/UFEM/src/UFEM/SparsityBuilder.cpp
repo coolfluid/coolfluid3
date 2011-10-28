@@ -11,7 +11,8 @@
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 
@@ -25,7 +26,7 @@ using namespace mesh;
 
 void build_sparsity(const Mesh& mesh, std::vector< Uint >& node_connectivity, std::vector< Uint >& start_indices)
 {
-  const Uint nb_nodes = mesh.geometry().coordinates().size();
+  const Uint nb_nodes = mesh.geometry_fields().coordinates().size();
   std::vector< std::set<Uint> > connectivity_sets(nb_nodes);
   start_indices.assign(nb_nodes+1, 0);
 

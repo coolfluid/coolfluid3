@@ -175,7 +175,7 @@ void GraphicalArrayTest::test_signalEmmitting()
   GraphicalArray * value = new GraphicalArray();
   QLineEdit * lineEdit = findLineEdit(value);
   QStringListModel * model = findModel(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()

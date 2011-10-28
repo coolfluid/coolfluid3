@@ -10,6 +10,7 @@
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
 #include "mesh/ptscotch/Partitioner.hpp"
+#include "mesh/FieldGroup.hpp"
 
 namespace cf3 {
 namespace mesh {

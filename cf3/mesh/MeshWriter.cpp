@@ -13,7 +13,7 @@
 
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshMetadata.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
 
 namespace cf3 {

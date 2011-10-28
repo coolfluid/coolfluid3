@@ -21,7 +21,8 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
 
@@ -32,6 +33,34 @@ using namespace boost;
 using namespace cf3;
 using namespace cf3::mesh;
 using namespace cf3::common;
+
+
+struct Mesh_API MeshEntity
+{
+  template <typename ComponentT>
+  MeshEntity(ComponentT& component, const Uint index) :
+    comp( dynamic_cast<Entities*>(&component) ),
+    idx(index)
+  {
+    cf3_assert(idx<comp->size());
+  }
+
+  Entities* comp;
+  Uint idx;
+
+  /// return the elementType
+  ElementType& element_type() const { return comp->element_type(); }
+
+  /// Const access to the coordinates
+  FieldGroup& geometry_fields() const { return comp->geometry_fields(); }
+
+  Uint glb_idx() const { return comp->glb_idx()[idx]; }
+  Uint rank() const { return comp->rank()[idx]; }
+  bool is_ghost() const { return comp->is_ghost(idx); }
+  RealMatrix get_coordinates() const { return comp->get_coordinates(idx); }
+  void put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
+  void allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
+};
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -78,14 +107,14 @@ struct MeshConstruction_Fixture
     return triagVec;
   }
 
-	std::vector<Uint> create_quad_p2(const Uint A, const Uint B, const Uint C, const Uint D,
-																	 const Uint E, const Uint F, const Uint G, const Uint H, const Uint I)
-	{
-		Uint quad[] = {A,B,C,D,E,F,G,H,I};
-		std::vector<Uint> quadVec;
-		quadVec.assign(quad,quad+9);
-		return quadVec;
-	}
+  std::vector<Uint> create_quad_p2(const Uint A, const Uint B, const Uint C, const Uint D,
+                                   const Uint E, const Uint F, const Uint G, const Uint H, const Uint I)
+  {
+    Uint quad[] = {A,B,C,D,E,F,G,H,I};
+    std::vector<Uint> quadVec;
+    quadVec.assign(quad,quad+9);
+    return quadVec;
+  }
 
   /// create a Uint vector with 3 node ID's
   std::vector<Uint> create_triag_p2(const Uint A, const Uint B, const Uint C,
@@ -120,7 +149,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -176,7 +205,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   Uint node=2;
 
   Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Real>::Row coordRef = triagRegion.geometry_fields().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -186,7 +215,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
     const ElementType& elementType = region.element_type();
     const Uint nbRows = region.node_connectivity().size();
     std::vector<Real> volumes(nbRows);
-    const Table<Real>& region_coordinates = region.geometry().coordinates();
+    const Table<Real>& region_coordinates = region.geometry_fields().coordinates();
     const Table<Uint>& region_connTable = region.node_connectivity();
 
     // the loop
@@ -214,8 +243,13 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 //    CFinfo << "\n" << CFflush;
 //  }
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-	meshwriter->write_from_to(mesh,"p1-mesh.msh");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  meshwriter->write_from_to(mesh,"p1-mesh.msh");
+
+
+  MeshEntity entity(quadRegion,0);
+
+  RealMatrix coords = entity.get_coordinates();
 
 }
 
@@ -223,9 +257,9 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
 BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 {
-	AssertionManager::instance().AssertionThrows = true;
+  AssertionManager::instance().AssertionThrows = true;
 
-	const Uint dim=2;
+  const Uint dim=2;
 
   // Create root and mesh component
   Root::Ptr root = Root::create ( "root" );
@@ -234,7 +268,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);
@@ -278,23 +312,23 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   coordinatesBuffer.add_row(create_coord( 2.0 , 1.0 ));  // 7
   coordinatesBuffer.add_row(create_coord( 2.0 , 0.0 ));  // 8
 
-	// enrich
-	coordinatesBuffer.add_row(create_coord( 0.5 , 0.0 ));  // 9
-	coordinatesBuffer.add_row(create_coord( 1.0 , 0.5 ));  // 10
-	coordinatesBuffer.add_row(create_coord( 0.5 , 1.0 ));  // 11
-	coordinatesBuffer.add_row(create_coord( 0.0 , 0.5 ));  // 12
-	coordinatesBuffer.add_row(create_coord( 0.5 , 0.5 ));  // 13
-	coordinatesBuffer.add_row(create_coord( 1.0 , 1.5 ));  // 14
-	coordinatesBuffer.add_row(create_coord( 0.5 , 2.0 ));  // 15
-	coordinatesBuffer.add_row(create_coord( 0.0 , 1.5 ));  // 16
-	coordinatesBuffer.add_row(create_coord( 0.5 , 1.5 ));  // 17
-	coordinatesBuffer.add_row(create_coord( 1.5 , 0.0 ));  // 18
-	coordinatesBuffer.add_row(create_coord( 1.5 , 0.5 ));  // 19
-	coordinatesBuffer.add_row(create_coord( 2.0 , 0.5 ));  // 20
-	coordinatesBuffer.add_row(create_coord( 1.5 , 1.0 ));  // 21
-	coordinatesBuffer.add_row(create_coord( 1.5 , 1.5 ));  // 22
-	coordinatesBuffer.add_row(create_coord( 2.0 , 1.5 ));  // 23
-	coordinatesBuffer.add_row(create_coord( 1.5 , 2.0 ));  // 24
+  // enrich
+  coordinatesBuffer.add_row(create_coord( 0.5 , 0.0 ));  // 9
+  coordinatesBuffer.add_row(create_coord( 1.0 , 0.5 ));  // 10
+  coordinatesBuffer.add_row(create_coord( 0.5 , 1.0 ));  // 11
+  coordinatesBuffer.add_row(create_coord( 0.0 , 0.5 ));  // 12
+  coordinatesBuffer.add_row(create_coord( 0.5 , 0.5 ));  // 13
+  coordinatesBuffer.add_row(create_coord( 1.0 , 1.5 ));  // 14
+  coordinatesBuffer.add_row(create_coord( 0.5 , 2.0 ));  // 15
+  coordinatesBuffer.add_row(create_coord( 0.0 , 1.5 ));  // 16
+  coordinatesBuffer.add_row(create_coord( 0.5 , 1.5 ));  // 17
+  coordinatesBuffer.add_row(create_coord( 1.5 , 0.0 ));  // 18
+  coordinatesBuffer.add_row(create_coord( 1.5 , 0.5 ));  // 19
+  coordinatesBuffer.add_row(create_coord( 2.0 , 0.5 ));  // 20
+  coordinatesBuffer.add_row(create_coord( 1.5 , 1.0 ));  // 21
+  coordinatesBuffer.add_row(create_coord( 1.5 , 1.5 ));  // 22
+  coordinatesBuffer.add_row(create_coord( 2.0 , 1.5 ));  // 23
+  coordinatesBuffer.add_row(create_coord( 1.5 , 2.0 ));  // 24
 
 
   // enrich
@@ -319,7 +353,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
   Uint node=2;
 
   Table<Uint>::ConstRow nodesRef = triagRegion.node_connectivity()[elem];
-  Table<Real>::Row coordRef = triagRegion.geometry().coordinates()[nodesRef[node]];
+  Table<Real>::Row coordRef = triagRegion.geometry_fields().coordinates()[nodesRef[node]];
   BOOST_CHECK_EQUAL(coordRef[0],1.0);
   BOOST_CHECK_EQUAL(coordRef[1],1.0);
 
@@ -357,8 +391,8 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 //	//  }
 
 
-	MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
-	meshwriter->write_from_to(mesh,"p2-mesh.msh");
+  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  meshwriter->write_from_to(mesh,"p2-mesh.msh");
 
 }
 

@@ -24,11 +24,12 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/actions/CreateSpaceP0.hpp"
 
@@ -90,13 +91,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   meshreader->read_mesh_into("../../resources/hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
-  BOOST_CHECK_EQUAL( source.geometry().coordinates().row_size() , (Uint)DIM_3D );
+  BOOST_CHECK_EQUAL( source.geometry_fields().coordinates().row_size() , (Uint)DIM_3D );
 
   Mesh& target = Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("../../resources/quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
-  BOOST_CHECK_EQUAL( target.geometry().coordinates().row_size() , (Uint)DIM_2D );
+  BOOST_CHECK_EQUAL( target.geometry_fields().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
 //	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","cgns_meshreader");
@@ -126,8 +127,8 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   FieldGroup& source_elem_fields = source.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
   FieldGroup& target_elem_fields = target.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
-  FieldGroup& source_node_fields = source.geometry();
-  FieldGroup& target_node_fields = target.geometry();
+  FieldGroup& source_node_fields = source.geometry_fields();
+  FieldGroup& target_node_fields = target.geometry_fields();
 
 
   source_elem_fields.create_coordinates();

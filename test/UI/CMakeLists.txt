@@ -12,45 +12,45 @@
                       CPP        utest-ui-core-cnode.cpp CoreApplication.hpp ExceptionThrowHandler.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-commit-details
                       CPP        utest-ui-core-commit-details.cpp CoreApplication.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-nbrowser
                       CPP        utest-ui-core-nbrowser.cpp CoreApplication.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-nlink
                       CPP        utest-ui-core-nlink.cpp CoreApplication.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-nroot
                       CPP        utest-ui-core-nroot.cpp CoreApplication.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-ntree
                       CPP        utest-ui-core-ntree.cpp CoreApplication.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-property-model
                       CPP        utest-ui-core-property-model.cpp CoreApplication.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   coolfluid_add_test( UTEST      utest-ui-core-tree-node
                       CPP        utest-ui-core-tree-node.cpp CoreApplication.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
-                      CONDITION  CF3_ENABLE_GUI)
+                      CONDITION  coolfluid_ui_core_builds)
 
   add_custom_command( TARGET utest-ui-core-cnode
                       POST_BUILD

@@ -852,6 +852,12 @@ void Convection::compute_inner_face_flux_points_contribution()
   }
 }
 
+
+void Convection::face_flx_points_one_region()
+{
+}
+
+
 /////////////////////////////////////////////////////////////////////////////
 
 } // SFDM

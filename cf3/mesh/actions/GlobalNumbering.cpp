@@ -28,7 +28,8 @@
 #include "mesh/actions/GlobalNumbering.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -99,11 +100,11 @@ void GlobalNumbering::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  common::Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
-  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
-    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
-  CVector_size_t& glb_node_hash = mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
+  if ( is_null( mesh.geometry_fields().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry_fields().create_component<CVector_size_t>("glb_node_hash");
+  CVector_size_t& glb_node_hash = mesh.geometry_fields().get_child("glb_node_hash").as_type<CVector_size_t>();
   glb_node_hash.data().resize(coordinates.size());
   Uint i(0);
   boost_foreach(common::Table<Real>::ConstRow coords, coordinates.array() )
@@ -162,7 +163,7 @@ void GlobalNumbering::execute()
 
   //------------------------------------------------------------------------------
   // create node_glb2loc mapping
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   std::map<std::size_t,Uint> node_glb2loc;
   Uint loc_node_idx(0);
   boost_foreach(std::size_t hash, glb_node_hash.data())
@@ -177,7 +178,7 @@ void GlobalNumbering::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_owned_nodes(0);
-  common::List<Uint>& nodes_rank = mesh.geometry().rank();
+  common::List<Uint>& nodes_rank = mesh.geometry_fields().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -222,7 +223,7 @@ void GlobalNumbering::execute()
   std::vector<size_t> node_from(nb_owned_nodes);
   std::vector<Uint>   node_to(nb_owned_nodes);
 
-  common::List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  common::List<Uint>& nodes_glb_idx = mesh.geometry_fields().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;
@@ -397,7 +398,7 @@ void GlobalNumbering::execute()
   }
 
 
-  mesh.geometry().remove_component(glb_node_hash);
+  mesh.geometry_fields().remove_component(glb_node_hash);
 
   boost_foreach( Entities& elements, find_components_recursively<Entities>(mesh) )
   {

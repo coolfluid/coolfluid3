@@ -82,7 +82,7 @@ void LoadBalance::execute()
     CFinfo << "  + deallocating unused connectivity" << CFendl;
 
     /// @todo check that this actually frees the memory
-    //mesh.geometry().glb_elem_connectivity().resize(0);
+    //mesh.geometry_fields().glb_elem_connectivity().resize(0);
 
   }
   else

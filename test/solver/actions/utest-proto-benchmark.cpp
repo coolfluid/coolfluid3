@@ -24,7 +24,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -169,7 +169,7 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
 
   direct_arrays.reset(new DirectArrays
   (
-    mesh.geometry().coordinates(),
+    mesh.geometry_fields().coordinates(),
     elements.node_connectivity().array(),
     vol_field,
     vol_field.field_group().space(elements).elements_begin()

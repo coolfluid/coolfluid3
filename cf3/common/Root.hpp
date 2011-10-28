@@ -89,17 +89,6 @@ namespace common {
     /// @return string with list of components in the root
     std::string list_toc () const;
 
-    /// @brief Raises an event.
-    /// @param event_name Event name
-    /// @param raiser_path Path of the component that raised the event. The path
-    /// must exist under this root.
-    void raise_new_event ( const std::string & event_name,
-                           const URI & raiser_path );
-
-    /// @brief Adds a listener to the events
-    /// @param queue The queue object. Cannot be null.
-    void add_notification_queue ( NotificationQueue * queue );
-
   private: // helper functions
 
     typedef std::map< std::string , Component::Ptr > CompStorage_t;
@@ -112,8 +101,6 @@ namespace common {
 
     /// map the paths to each component
     CompStorage_t  m_toc;
-
-    std::vector<NotificationQueue*> m_notif_queues;
 
   }; // Root
 

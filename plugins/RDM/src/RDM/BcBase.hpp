@@ -15,7 +15,7 @@
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "solver/actions/CLoopOperation.hpp"
@@ -60,7 +60,7 @@ protected: // helper functions
     connectivity =
         elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< mesh::Field >();
+        elements().geometry_fields().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );

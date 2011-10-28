@@ -49,6 +49,10 @@ private:
   void compute_inner_face_flux_points_contribution();
 
 
+  /// Optimized version where it is assumed that all faces belong to same kind of elements.
+  /// Assumption of same flux point distribution left and right of each face can be made.
+  void face_flx_points_one_region();
+
   void trigger_physical_model();
   void build_riemann_solver();
   boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;

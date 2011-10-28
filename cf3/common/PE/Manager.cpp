@@ -49,7 +49,7 @@ Manager::Manager ( const std::string & name )
   : Component(name)
 {
   m_listener = new ListeningThread();
-  m_queue = new NotificationQueue( Core::instance().root().as_ptr<Root>() );
+  m_queue = new NotificationQueue();
 
   if( Comm::instance().get_parent() != MPI_COMM_NULL )
   {
@@ -195,11 +195,9 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Manager::new_event ( const std::string & name, const URI & raiser_path )
+void Manager::new_event ( SignalArgs & args )
 {
-  SignalFrame frame ( name, raiser_path, raiser_path );
-
-  send_to_parent ( frame );
+  send_to_parent ( args );
 }
 
 ////////////////////////////////////////////////////////////////////////////

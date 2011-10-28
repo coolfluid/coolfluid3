@@ -19,7 +19,8 @@ namespace cf3 {
   }
 namespace mesh {
 
-  class Geometry;
+  
+//  class FieldGroup;
   class Region;
   class MeshElements;
   class MeshMetadata;
@@ -81,7 +82,7 @@ public: // functions
   void update_statistics();
 
   /// @return the nodes of the mesh
-  Geometry& geometry() const;
+  FieldGroup& geometry_fields() const;
 
   /// @return linearized view of all the entities in the mesh
   MeshElements& elements() const;
@@ -119,7 +120,7 @@ private: // data
 
   boost::shared_ptr<Region> m_topology;
 
-  boost::shared_ptr<Geometry> m_nodes;
+  boost::shared_ptr<FieldGroup> m_geometry_fields;
 
 };
 

@@ -20,7 +20,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////

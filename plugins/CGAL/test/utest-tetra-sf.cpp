@@ -21,7 +21,7 @@
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -86,7 +86,7 @@ struct LoopElems
       return;
 
     typename Table<Uint>::ArrayT const& conn_table = region.node_connectivity().array();
-    const Table<Real>& coords = region.geometry().coordinates();
+    const Table<Real>& coords = region.geometry_fields().coordinates();
     // loop on elements
     BOOST_FOREACH(const Table<Uint>::ConstRow& elem, conn_table)
     {

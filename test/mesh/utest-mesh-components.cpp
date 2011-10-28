@@ -24,7 +24,8 @@
 #include "common/Table.hpp"
 #include "common/DynTable.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 using namespace boost;
 using namespace boost::assign;
@@ -367,55 +368,55 @@ BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 BOOST_AUTO_TEST_CASE( List_tests )
 {
   List<bool>& bool_list = root.create_component< List<bool> >("bool_list");
-	BOOST_CHECK_EQUAL(bool_list.type_name(),"List<bool>");
+  BOOST_CHECK_EQUAL(bool_list.type_name(),"List<bool>");
 
-	List<int>::Ptr integer_list (allocate_component< List<int> >("integer_list"));
-	BOOST_CHECK_EQUAL(integer_list->type_name(),"List<integer>");
+  List<int>::Ptr integer_list (allocate_component< List<int> >("integer_list"));
+  BOOST_CHECK_EQUAL(integer_list->type_name(),"List<integer>");
 
-	List<Uint>::Ptr unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
-	BOOST_CHECK_EQUAL(unsigned_list->type_name(),"List<unsigned>");
+  List<Uint>::Ptr unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
+  BOOST_CHECK_EQUAL(unsigned_list->type_name(),"List<unsigned>");
 
-	List<Real>::Ptr real_list (allocate_component< List<Real> >("real_list"));
-	BOOST_CHECK_EQUAL(real_list->type_name(),"List<real>");
+  List<Real>::Ptr real_list (allocate_component< List<Real> >("real_list"));
+  BOOST_CHECK_EQUAL(real_list->type_name(),"List<real>");
 
-	List<std::string>::Ptr string_list (allocate_component< List<std::string> >("string_list"));
-	BOOST_CHECK_EQUAL(string_list->type_name(),"List<string>");
+  List<std::string>::Ptr string_list (allocate_component< List<std::string> >("string_list"));
+  BOOST_CHECK_EQUAL(string_list->type_name(),"List<string>");
 
-	bool_list.resize(10);
-	BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 10);
-	bool_list[0] = true;
-	bool_list[5] = true;
+  bool_list.resize(10);
+  BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 10);
+  bool_list[0] = true;
+  bool_list[5] = true;
 
-	for (Uint i=0; i<10; ++i)
-	{
-		switch (i)
-		{
-			case 0:
-			case 5:
-				BOOST_CHECK_EQUAL(bool_list[i],true);
-				break;
-			default:
-				BOOST_CHECK_EQUAL(bool_list[i],false);
-				break;
-		}
-	}
+  for (Uint i=0; i<10; ++i)
+  {
+    switch (i)
+    {
+      case 0:
+      case 5:
+        BOOST_CHECK_EQUAL(bool_list[i],true);
+        break;
+      default:
+        BOOST_CHECK_EQUAL(bool_list[i],false);
+        break;
+    }
+  }
 
-	bool_list.resize(20);
-	BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 20);
+  bool_list.resize(20);
+  BOOST_CHECK_EQUAL(bool_list.size(),(Uint) 20);
 
-	for (Uint i=0; i<20; ++i)
-	{
-		switch (i)
-		{
-			case 0:
-			case 5:
-				BOOST_CHECK_EQUAL(bool_list[i],true);
-				break;
-			default:
-				BOOST_CHECK_EQUAL(bool_list[i],false);
-				break;
-		}
-	}
+  for (Uint i=0; i<20; ++i)
+  {
+    switch (i)
+    {
+      case 0:
+      case 5:
+        BOOST_CHECK_EQUAL(bool_list[i],true);
+        break;
+      default:
+        BOOST_CHECK_EQUAL(bool_list[i],false);
+        break;
+    }
+  }
 }
 
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
@@ -648,40 +649,40 @@ BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 
   std::vector<Uint> row;
 
-	row = list_of(0);
-	buffer.add_row(row);
+  row = list_of(0);
+  buffer.add_row(row);
 
-	row = list_of(1);
-	buffer.add_row(row);
+  row = list_of(1);
+  buffer.add_row(row);
 
-	row = list_of(0)(1);
-	buffer.add_row(row);
+  row = list_of(0)(1);
+  buffer.add_row(row);
 
-	row = list_of(1)(4)(5);
-	buffer.add_row(row);
+  row = list_of(1)(4)(5);
+  buffer.add_row(row);
 
-	row = list_of(0)(3);
-	buffer.add_row(row);
+  row = list_of(0)(3);
+  buffer.add_row(row);
 
-	row.resize(0);
-	buffer.add_row(row);
+  row.resize(0);
+  buffer.add_row(row);
 
-	row.resize(0);
-	buffer.add_row(row);
+  row.resize(0);
+  buffer.add_row(row);
 
-	row.resize(0);
-	buffer.add_row(row);
+  row.resize(0);
+  buffer.add_row(row);
 
-	row.resize(0);
-	buffer.add_row(row);
+  row.resize(0);
+  buffer.add_row(row);
 
-	BOOST_CHECK(true);
+  BOOST_CHECK(true);
 
-	buffer.flush();
+  buffer.flush();
 
-	buffer.rm_row(7);
+  buffer.rm_row(7);
 
-	buffer.flush();
+  buffer.flush();
 
 
 }
@@ -692,11 +693,11 @@ BOOST_AUTO_TEST_CASE ( Mesh_test )
   Root::Ptr root = Root::create("root");
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(2,DIM_3D);
-  BOOST_CHECK_EQUAL(mesh.geometry().coordinates().row_size() , (Uint) DIM_3D);
+  BOOST_CHECK_EQUAL(mesh.geometry_fields().coordinates().row_size() , (Uint) DIM_3D);
 
-  BOOST_CHECK_EQUAL(&mesh.geometry(), &region.geometry() );
+  BOOST_CHECK_EQUAL(&mesh.geometry_fields(), &region.geometry_fields() );
 
 }
 

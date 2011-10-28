@@ -21,7 +21,8 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
@@ -138,7 +139,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
-    BOOST_CHECK( is_not_null(comp->as_ptr<Geometry>()) );
+    BOOST_CHECK( is_not_null(comp->as_ptr<FieldGroup>()) );
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 0);
     BOOST_CHECK_EQUAL(found, true);
@@ -165,8 +166,8 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank  = "  << Comm::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh.geometry().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh.geometry().rank() << std::endl;
+      std::cout << "nodes = " << mesh.geometry_fields().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh.geometry_fields().rank() << std::endl;
       boost_foreach(const Entities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;
@@ -226,8 +227,8 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
 
 
   PEProcessSortedExecute(-1,
-      std::cout << PERank << "nodes = " << mesh.geometry().coordinates() << std::endl;
-      std::cout << PERank << "ranks = " << mesh.geometry().rank() << std::endl;
+      std::cout << PERank << "nodes = " << mesh.geometry_fields().coordinates() << std::endl;
+      std::cout << PERank << "ranks = " << mesh.geometry_fields().rank() << std::endl;
       boost_foreach(const Entities& entities, mesh.topology().elements_range())
       {
         //std::cout << "elems = " << entities.glb_idx() << std::endl;

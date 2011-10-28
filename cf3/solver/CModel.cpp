@@ -25,7 +25,7 @@
 
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 
 #include "physics/PhysModel.hpp"
