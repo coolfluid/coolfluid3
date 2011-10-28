@@ -120,7 +120,7 @@ namespace cf3 {
 
  @code
  Component& relative_component = current_component.access_component("../../my_component");
- Component& absolute_component = current_component.access_component("//root/my_component");
+ Component& absolute_component = current_component.access_component("//my_component");
  @endcode
  
  When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>() again
@@ -174,7 +174,7 @@ namespace cf3 {
  @code
  boost_foreach ( Component& component , find_components_with_filter(root_component , IsComponentName("subcomponent1") )
  {
-   // component will be in order:  //root/component1/subcomponent1 , //root/component2/subcomponent1
+   // component will be in order:  //component1/subcomponent1 , //component2/subcomponent1
  }
  @endcode
  
@@ -182,7 +182,7 @@ namespace cf3 {
  @code
  boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("special_tag") )
  {
-   // component will be in order:  //root/component2 , //root/component2/subcomponent2
+   // component will be in order:  //component2 , //component2/subcomponent2
  }
  @endcode
  

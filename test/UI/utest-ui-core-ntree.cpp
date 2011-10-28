@@ -168,11 +168,11 @@ BOOST_AUTO_TEST_CASE( current_path )
 
   // 2. when the current index is the root
   t.set_current_index( rootIndex );
-  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath://Root") );
+  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath:/") );
 
   // 3. when the current index is not the root (i.e the UI group)
   t.set_current_index( t.index(0, 0, rootIndex) );
-  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath://Root/UI") );
+  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath://UI") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -203,10 +203,10 @@ BOOST_AUTO_TEST_CASE( path_from_index )
   BOOST_CHECK_EQUAL( t.pathFromIndex( QModelIndex() ).string(), std::string() );
 
   // 2. when the current index is the root
-  BOOST_CHECK_EQUAL( t.pathFromIndex( rootIndex ).string(), std::string("cpath://Root") );
+  BOOST_CHECK_EQUAL( t.pathFromIndex( rootIndex ).string(), std::string("cpath:/") );
 
   // 3. when the current index is not the root (i.e the UI group)
-  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath://Root/UI") );
+  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath://UI") );
 
 }
 
@@ -340,7 +340,7 @@ BOOST_AUTO_TEST_CASE( index_from_path )
 
 
   // 1. get the root
-  QModelIndex foundRootIndex = t.index_from_path("cpath://Root");
+  QModelIndex foundRootIndex = t.index_from_path("cpath:/");
   BOOST_CHECK( foundRootIndex.isValid() );
   BOOST_CHECK_EQUAL( foundRootIndex.internalPointer(), rootIndex.internalPointer() );
 

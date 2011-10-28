@@ -62,7 +62,7 @@ public: // functions
 
     options.add_option< OptionT<int> >( "Counter", 10 );
 
-    signal_frame = options.create_frame("Target", "//Root", "//Root");
+    signal_frame = options.create_frame("Target", "/", "/");
 
     receiver.call_signal( "print_message", signal_frame );
   }

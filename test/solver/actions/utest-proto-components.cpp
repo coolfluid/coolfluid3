@@ -340,11 +340,11 @@ BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 {
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
 
-  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
+  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Model/DynamicModel");
 
   ComponentWrapper<physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(solver::Tags::physical_model()));
 
-  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
+  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Model/DynamicModel");
 
   ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }

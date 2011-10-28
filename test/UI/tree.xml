@@ -129,6 +129,6 @@ Recording replies will significantly increase the journal size and the memory us
         </value>
       </map>
     </node>-->
-    <node name="TheLink" atype="Link" mode="basic">cpath://Root/Environment</node>
+    <node name="TheLink" atype="Link" mode="basic">cpath://Environment</node>
   </node>
 </node>

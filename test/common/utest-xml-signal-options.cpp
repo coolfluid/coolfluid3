@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
   XmlNode optUint = map.set_value("optUint", Uint(17513214));
   XmlNode optReal = map.set_value("optReal", Real(3.14159));
   XmlNode optString = map.set_value("optString", std::string("I am a string value"));
-  XmlNode optURI = map.set_value("optURI", URI("cpath://Root"));
+  XmlNode optURI = map.set_value("optURI", URI("cpath:/"));
 
   XmlNode wrongOpt = map.content.add_node( Protocol::Tags::node_value() );
 
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE( xml_to_option_types )
   // 6. uri
   BOOST_CHECK_NO_THROW( option = SignalOptions::xml_to_option(optURI) );
   BOOST_CHECK_EQUAL( option->type(), std::string("uri") );
-  BOOST_CHECK_EQUAL( option->value<URI>().string(), std::string("cpath://Root") );
+  BOOST_CHECK_EQUAL( option->value<URI>().string(), std::string("cpath:/") );
 
   // 7. unknown type
   BOOST_CHECK_THROW( SignalOptions::xml_to_option(wrongOpt), ShouldNotBeHere );
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   args[2] = "my_int:integer=-4567";
   args[3] = "my_real:real=3.1415";
   args[4] = "my_string:string=Hello World!";
-  args[5] = "my_uri:uri=cpath://Root/Tools";
+  args[5] = "my_uri:uri=cpath://Tools";
 
   // array values
   args[6] = "my_bool_array:array[bool]=true,false,true, true";
@@ -359,7 +359,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   args[8] = "my_int_array:array[integer]=-4567,42, 730";
   args[9] = "my_real_array:array[real]=3.1415,2.71,0.99,-12.35";
   args[10] = "my_string_array:array[string]=Hello World!, VKI,COOLFluiD";
-  args[11] = "my_uri_array:array[uri]=cpath://Root/Tools, http://coolfluidsrv.vki.ac.be/cdash,file:/usr/bin/gcc";
+  args[11] = "my_uri_array:array[uri]=cpath://Tools, http://coolfluidsrv.vki.ac.be/cdash,file:/usr/bin/gcc";
 
   // options to modify
   args_mod[0] = "my_int:integer=42";
@@ -401,7 +401,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   // 6. my_uri
   BOOST_CHECK ( options.check("my_uri") );
   BOOST_CHECK_EQUAL ( std::string(options["my_uri"].tag()), std::string("uri") );
-  BOOST_CHECK_EQUAL ( options["my_uri"].value<URI>().path(), URI("cpath://Root/Tools").path() );
+  BOOST_CHECK_EQUAL ( options["my_uri"].value<URI>().path(), URI("cpath://Tools").path() );
 
 
   ///////////
@@ -461,7 +461,7 @@ BOOST_AUTO_TEST_CASE ( fill_from_vector )
   BOOST_CHECK_EQUAL ( std::string(options["my_uri_array"].tag()), std::string("array") );
   std::vector<URI> uri_array = options["my_uri_array"].cast_to< OptionArrayT<URI> >()->value_vect();
   BOOST_CHECK_EQUAL ( uri_array.size(), 3 );
-  BOOST_CHECK_EQUAL ( uri_array[0].path(), URI("cpath://Root/Tools").path() );
+  BOOST_CHECK_EQUAL ( uri_array[0].path(), URI("cpath://Tools").path() );
   BOOST_CHECK_EQUAL ( uri_array[1].path(), URI("http://coolfluidsrv.vki.ac.be/cdash").path() );
   BOOST_CHECK_EQUAL ( uri_array[2].path(), URI("file:/usr/bin/gcc").path() );
 

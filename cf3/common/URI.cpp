@@ -85,6 +85,7 @@ URI::URI ( const std::string& s ):
   m_scheme(URI::Scheme::CPATH)
 {
   split_path(s, m_scheme, m_path);
+  cleanup();
 }
 
 URI::URI ( const char* c ):
@@ -93,6 +94,7 @@ URI::URI ( const char* c ):
 {
   std::string s (c);
   split_path(s, m_scheme, m_path);
+  cleanup();
 }
 
 URI::URI ( const std::string& s, URI::Scheme::Type p ):
@@ -101,6 +103,7 @@ URI::URI ( const std::string& s, URI::Scheme::Type p ):
 {
   /// @todo check path
   // throw NotImplemented(FromHere(), "Implement this");
+  cleanup();
 }
 
 bool URI::operator== (const URI& right) const
@@ -112,6 +115,7 @@ URI& URI::operator/= (const URI& rhs)
 {
   if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += separator();
   m_path += rhs.m_path;
+  cleanup();
   return *this;
 }
 
@@ -119,7 +123,7 @@ URI& URI::operator/= (const std::string& s)
 {
   if ( !m_path.empty() && !s.empty() ) m_path += separator();
   m_path += s;
-
+  cleanup();
   return *this;
 }
 
@@ -132,14 +136,15 @@ URI& URI::operator/= ( const char* c )
 URI  URI::operator/  (const URI& p) const
 {
   return ( !m_path.empty() && !p.m_path.empty() ) ?
-      URI ( m_path + separator() + p.m_path ) : // both not empty
-      URI ( m_path + p.m_path );                // one is empty
+    URI ( m_path + separator() + p.m_path ) : // both not empty
+    URI ( m_path + p.m_path );                // one is empty
 }
 
 URI& URI::operator=  (const URI& p)
 {
   m_path = p.m_path;
   m_scheme = p.m_scheme;
+  cleanup();
   return *this;
 }
 
@@ -165,19 +170,23 @@ bool URI::is_relative () const
 
 bool URI::is_absolute () const
 {
-  return boost::regex_match(m_path,boost::regex("//.+"));
+  return boost::algorithm::starts_with(m_path, "/");
 }
 
 URI URI::base_path () const
 {
   using namespace boost::algorithm;
-  std::string rpath = string();
-  if (find_last(rpath,separator()).begin() == rpath.end())
-    return URI::Scheme::Convert::instance().to_str(m_scheme)+":./";
+  
+  if(m_path == "/")
+    return *this;
+  
+  if(!contains(m_path, separator()))
+    return URI("./", m_scheme);
   else
   {
+    std::string rpath = m_path;
     rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
-    return rpath;
+    return URI(rpath, m_scheme);
   }
 }
 
@@ -206,6 +215,7 @@ void URI::scheme( URI::Scheme::Type sch )
 void URI::path( const std::string& path )
 {
   m_path = path;
+  cleanup();
 }
 
 URI::Scheme::Type URI::scheme() const
@@ -265,6 +275,12 @@ std::string URI::base_name() const
   const boost::filesystem::path p(path());
   return boost::filesystem::basename(p);
 }
+
+void URI::cleanup()
+{
+  m_path = boost::regex_replace(m_path, boost::regex("//+"), "/");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

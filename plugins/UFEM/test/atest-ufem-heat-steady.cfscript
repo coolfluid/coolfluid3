@@ -1,6 +1,6 @@
 #############################################################################
 ### Global settings
-configure //Root/Environment assertion_throws:bool=false assertion_backtrace:bool=false exception_backtrace:bool=false log_level:unsigned=4 regist_signal_handlers:bool=false
+configure //Environment assertion_throws:bool=false assertion_backtrace:bool=false exception_backtrace:bool=false log_level:unsigned=4 regist_signal_handlers:bool=false
 
 #############################################################################
 ### create model
@@ -15,7 +15,7 @@ call HotModel/Domain/load_mesh file:uri=file:@UFEM_HEAT_INPUT_MESH@ name:string=
 ### create LSS
 create HotModel/LSS cf3.math.LSS.System
 configure HotModel/LSS solver:uri=string:Trilinos
-configure HotModel/HeatConductionSteady lss:uri=cpath://Root/HotModel/LSS
+configure HotModel/HeatConductionSteady lss:uri=cpath://HotModel/LSS
 configure HotModel/LSS/Matrix settings_file:string=@UFEM_LSS_CONFIG_FILE@
 
 #############################################################################

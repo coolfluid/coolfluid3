@@ -78,12 +78,12 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   Mesh& mesh = root->create_component<Mesh>( "mesh" ) ;
 
   BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
-  BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath://root/mesh" );
+  BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath://mesh" );
 
   // Create one region inside mesh
   Region& region1 = mesh.topology().create_region("region1");
-  BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath://root/mesh/topology/region1" );
+  BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath://mesh/topology/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
   Region& region2 = mesh.topology().create_region("region2");
@@ -91,19 +91,19 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   CFinfo << mesh.tree() << CFendl;
   region2.create_region("subregion1");
   Region& subregion = region2.create_region("subregion2");
-  BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath://root/mesh/topology/region2/subregion2" );
+  BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath://mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
   subregion.create_component_ptr<Table<Uint> >("connTable");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath://root/mesh/topology/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath://mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
   subregion.create_component_ptr<Elements>("elementType");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath://mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
   mesh.create_component_ptr<Table<Real> >("coordinates");
-  BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath://root/mesh/coordinates" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath://mesh/coordinates" );
 
   find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion1");
   find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion2");

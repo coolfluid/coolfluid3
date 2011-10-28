@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 10;
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/line"));
+  meshgenerator->configure_option("mesh",URI("//line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   meshgenerator->configure_option("bdry",false);

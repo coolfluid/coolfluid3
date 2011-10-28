@@ -31,7 +31,7 @@ namespace solver {
 
 LogForwarder::LogForwarder()
 {
-  m_manager = Core::instance().root().access_component_ptr_checked("//Root/Tools/PEManager")->as_ptr<Manager>();
+  m_manager = Core::instance().root().access_component_ptr_checked("//Tools/PEManager")->as_ptr<Manager>();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -39,7 +39,7 @@ LogForwarder::LogForwarder()
 void LogForwarder::message(const std::string &data)
 {
   /// @todo remove those hardcoded URIs
-  SignalFrame frame("message", "cpath://Root/UI/Log", "cpath://Root/UI/Log");
+  SignalFrame frame("message", "cpath://UI/Log", "cpath://UI/Log");
   SignalOptions options(frame);
   std::string header = "Worker[" + to_str( Comm::instance().rank() ) + "] ";
 

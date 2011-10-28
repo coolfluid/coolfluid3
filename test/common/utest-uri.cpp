@@ -84,18 +84,18 @@ BOOST_AUTO_TEST_CASE( concatenation )
 
 BOOST_AUTO_TEST_CASE( protocol_management )
 {
-  URI uri("//Root/Component");
+  URI uri("//Component");
 
   // URI without any protocol
   BOOST_CHECK_EQUAL( uri.scheme(), URI::Scheme::CPATH );
-  BOOST_CHECK_EQUAL( uri.string(), std::string("cpath://Root/Component") );
-  BOOST_CHECK_EQUAL( uri.path(), std::string("//Root/Component") );
+  BOOST_CHECK_EQUAL( uri.string(), std::string("cpath://Component") );
+  BOOST_CHECK_EQUAL( uri.path(), std::string("//Component") );
 
   // URI with a cpath
-  URI uri2("cpath://Root/Component");
+  URI uri2("cpath://Component");
   BOOST_CHECK_EQUAL( uri2.scheme(), URI::Scheme::CPATH );
-  BOOST_CHECK_EQUAL( uri2.string(), std::string("cpath://Root/Component") );
-  BOOST_CHECK_EQUAL( uri2.path(), std::string("//Root/Component") );
+  BOOST_CHECK_EQUAL( uri2.string(), std::string("cpath://Component") );
+  BOOST_CHECK_EQUAL( uri2.path(), std::string("//Component") );
 
   // URI with a file
   URI uri3("file:///etc/fstab.txt");

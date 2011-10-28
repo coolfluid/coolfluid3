@@ -201,7 +201,7 @@ void Component::rename ( const std::string& name )
 URI Component::uri() const
 {
   if(!has_parent())
-    return URI(std::string("//") + name(), URI::Scheme::CPATH);
+    return URI(std::string("/"), URI::Scheme::CPATH);
 
   return parent().uri() / URI(name(), URI::Scheme::CPATH);
 }
@@ -464,7 +464,7 @@ Component& Component::access_component ( const URI& path ) const
 Component::Ptr Component::access_component_ptr ( const URI& path ) const
 {
   // Return self for trivial path or at end of recursion.
-  if(path.path() == ".")
+  if(path.path() == "." || path.empty())
     return boost::const_pointer_cast<Component>(self());
 
   // If the path is absolute, make it relative and pass it to the root
@@ -476,11 +476,11 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
     // Remove any leading /
     boost::algorithm::trim_left_if(new_path, boost::algorithm::is_any_of("/"));
 
-    // TODO: Remove when root becomes implicit. We strip the first component in an absolute path for now.
-    cf3_assert(boost::algorithm::starts_with(new_path, root().name()));
-    const std::size_t first_sep = new_path.find("/");
-    const bool has_no_separator = (first_sep == std::string::npos);
-    new_path = has_no_separator ? "." : new_path.substr(first_sep+1, new_path.size());
+    if(new_path.empty())
+    {
+      cf3_assert(&root() == this);
+      return boost::const_pointer_cast<Component>(self());
+    }
 
     // Pass the rest to root
     return root().access_component_ptr(URI(new_path, cf3::common::URI::Scheme::CPATH));
@@ -502,7 +502,7 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
   const std::string next_part = has_no_separator ? "." : path_str.substr(first_sep+1, path_str.size());
 
   // Dispatch to self
-  if(current_part == ".")
+  if(current_part == "." || current_part.empty())
     return access_component_ptr(next_part);
 
   // Dispatch to parent
@@ -636,7 +636,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
       if ( lnk->is_linked() )
        this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->uri().string().c_str() ));
 //      else
-//        this_node.value( this_node.document()->allocate_string( "//Root" ));
+//        this_node.value( this_node.document()->allocate_string( "/" ));
     }
     else
     {

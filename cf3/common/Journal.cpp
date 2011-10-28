@@ -180,7 +180,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
       if(receiver.empty())
         CFwarn << "Warning: missing or empty receiver. Skipping this signal." << CFendl;
 
-      if(receiver == "//Root/Core") // server specific component
+      if(receiver == "//Core") // server specific component
         continue;
 
       try

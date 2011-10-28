@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
   std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
   meshgenerator->configure_option("nb_cells",nb_cells);

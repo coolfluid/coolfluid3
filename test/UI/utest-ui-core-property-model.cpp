@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE( init )
   props.store.clear();
   opts.store.clear();
 
-  opts.add_option< OptionURI >("AnUriOption", URI("cpath://Root"));
+  opts.add_option< OptionURI >("AnUriOption", URI("cpath:/"));
   props.add_property("Euler", Real(2.71));
   opts.add_option< OptionT<std::string> >("MyString", std::string("Hello, World!"));
   props.add_property("Pi", Real(3.14159));
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE( data )
 
   // 3. everything is OK
   BOOST_CHECK_EQUAL( model.data( model.index(0, 0), role ).toString().toStdString(), std::string("AnUriOption") );
-  BOOST_CHECK_EQUAL( model.data( model.index(0, 1), role ).toString().toStdString(), std::string("cpath://Root") );
+  BOOST_CHECK_EQUAL( model.data( model.index(0, 1), role ).toString().toStdString(), std::string("cpath:/") );
 
   BOOST_CHECK_EQUAL( model.data( model.index(1, 0), role ).toString().toStdString(), std::string("Euler") );
   BOOST_CHECK_EQUAL( model.data( model.index(1, 1), role ).toString().toStdString(), std::string("2.71") );

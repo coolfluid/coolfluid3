@@ -72,7 +72,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/line"));
+  meshgenerator->configure_option("mesh",URI("//line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
   meshgenerator->configure_option("lengths",std::vector<Real>(2,2.));
   Mesh& mesh = meshgenerator->generate();

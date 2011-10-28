@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 
   // Create or read the mesh
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("parent",URI("/"));
   meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 100;

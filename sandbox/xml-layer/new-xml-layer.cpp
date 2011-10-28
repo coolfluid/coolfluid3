@@ -36,8 +36,8 @@ void test_signal( SignalFrame & frame )
 int main ( int argc, char * argv[])
 {
   std::string str;
-  URI sender("//Root/Sender", URI::Scheme::CPATH);
-  URI receiver("//Root/Receiver", URI::Scheme::CPATH);
+  URI sender("//Sender", URI::Scheme::CPATH);
+  URI receiver("//Receiver", URI::Scheme::CPATH);
   std::vector<int> vect;
 
   SignalFrame signal_frame("MySignal",  sender, receiver);

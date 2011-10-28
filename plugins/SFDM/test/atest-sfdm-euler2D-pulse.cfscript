@@ -3,7 +3,7 @@ configure Environment exception_backtrace:bool=true
 configure Environment exception_outputs:bool=true
 configure Environment log_level:unsigned=3
 
-call //Root/Libraries/load_libraries "libs:array[uri]=\
+call //Libraries/load_libraries "libs:array[uri]=\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_sfdm_sf,\
     file:@coolfluid_DSO_DIR@/libcoolfluid_euler"
@@ -23,7 +23,7 @@ create SFD_simulation/tools/meshgen cf3Mesh.SimpleMeshGenerator
 configure SFD_simulation/tools/meshgen\
   lengths:array[real]=1,1 \
   nb_cells:array[unsigned]=80,80 \
-  parent:uri=cpath://Root/SFD_simulation/Domain
+  parent:uri=cpath://SFD_simulation/Domain
 SFD_simulation/tools/meshgen
 
 call wizard/prepare_simulation
