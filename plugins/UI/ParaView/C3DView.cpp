@@ -179,7 +179,7 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
     //  Uint curr_iteration = opt.option<Uint>("iteration");
 
-    if( curr_iteration == 1 || ( curr_iteration % options()["refresh_rate"].value<Uint>() ) == 0 )
+    if( curr_iteration == 1 || ( curr_iteration % options["refresh_rate"].value<Uint>() ) == 0 )
     {
       mesh::MeshWriter& writer = get_child("writer").as_type<mesh::MeshWriter>();
 
@@ -194,9 +194,9 @@ void C3DView::signal_iteration_done( SignalArgs & args )
 
       std::vector<std::string> data(2);
 
-      data[0] =  QFileInfo( options()["filename"].value<std::string>().c_str() )
+      data[0] =  QFileInfo( options["filename"].value<std::string>().c_str() )
           .absoluteFilePath().toStdString() ;
-      data[1] = QFileInfo( options()["filename"].value<std::string>().c_str())
+      data[1] = QFileInfo( options["filename"].value<std::string>().c_str())
           .fileName().section('.',0,0).toStdString();
 
       options.add_option< OptionArrayT<std::string> >("pathinfo", data);
@@ -217,8 +217,8 @@ void C3DView::send_server_info_to_client( SignalArgs & args )
 
     std::vector<std::string> data(2);
 
-    data[0] =  options()["paraview_server_port"].value<std::string>() ;
-    data[1] = QFileInfo( options()["paraview_server_port"].value<std::string>() .c_str()).fileName().section('.',0,0).toStdString();
+    data[0] =  options.get_option<std::string>("paraview_server_port");
+    data[1] = QFileInfo( options.get_option<std::string>("paraview_server_port") .c_str()).fileName().section('.',0,0).toStdString();
 
     XmlNode node = options.set_array("pathinfo", data, " ; ");
   }
