@@ -111,7 +111,7 @@ int TreeNode::row_number() const
 int TreeNode::child_count() const
 {
   if( !m_node.expired() )
-    return m_node.lock()->real_component()->count_children();
+    return m_node.lock()->count_children();
   else
     return 0;
 }
