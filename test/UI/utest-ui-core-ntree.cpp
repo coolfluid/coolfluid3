@@ -320,10 +320,10 @@ BOOST_AUTO_TEST_CASE( node_by_path )
 
   logNode = t.node_by_path(CLIENT_LOG_PATH);
 
-  BOOST_CHECK_EQUAL(logNode.get(), NLog::global().get());
+  BOOST_REQUIRE_EQUAL(logNode.get(), NLog::global().get());
 
-  // note: we can freely use logNode here, even if the previous BOOST_CHECK_EQUAL() failed,
-  // since a failing BOOST_CHECK_EQUAL() interrupts the test case execution
+  // note: we can freely use logNode here, even if the previous BOOST_REQUIRE_EQUAL() failed,
+  // since a failing BOOST_REQUIRE_EQUAL() interrupts the test case execution
   BOOST_CHECK_EQUAL(logNode->uri().path(), std::string(CLIENT_LOG_PATH));
 
 }
