@@ -19,7 +19,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -52,15 +52,15 @@ Reader::Reader( const std::string& name )
 
   // options
 
-  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank() )
+  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank() )
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size() )
+  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size() )
       ->description("Total number of parts. (e.g. number of processors)")
       ->pretty_name("nb_parts");
 
-  m_options.add_option<OptionT <bool> >("read_fields", true)
+  options().add_option<OptionT <bool> >("read_fields", true)
       ->description("Read the data from the mesh")
       ->pretty_name("Read Fields")
       ->mark_basic();
@@ -380,7 +380,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  Geometry& nodes = m_mesh.lock()->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  Geometry& nodes = m_mesh.lock()->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
 
   Uint part = option("part").value<Uint>();
@@ -501,7 +501,7 @@ void Reader::read_connectivity()
    // create new region
    Region::Ptr region = m_region_list[ir].region.lock();
 
-//   elements[ir] = create_cells_in_region(*region,m_mesh.lock()->geometry(),m_supported_types);
+//   elements[ir] = create_cells_in_region(*region,m_mesh.lock()->geometry_fields(),m_supported_types);
 //   buffer[ir] = create_connectivity_buffermap(elements[ir]);
 
 
@@ -742,7 +742,7 @@ void Reader::read_node_data()
     boost_foreach(const Uint var_type, gmsh_field.var_types)
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
-    mesh::Field& field = m_mesh.lock()->geometry().create_field(gmsh_field.name);
+    mesh::Field& field = m_mesh.lock()->geometry_fields().create_field(gmsh_field.name);
     field.configure_option("var_names",gmsh_field.var_names);
     field.configure_option("var_types",var_types_str);
     field.resize(gmsh_field.nb_entries);
@@ -875,7 +875,7 @@ void Reader::read_variable_header(std::map<std::string,Field>& fields)
 
 std::string Reader::var_type_gmsh_to_cf(const Uint& var_type_gmsh)
 {
-  std::string dim = to_str(m_mesh.lock()->geometry().coordinates().row_size());
+  std::string dim = to_str(m_mesh.lock()->geometry_fields().coordinates().row_size());
   switch (var_type_gmsh)
   {
     case 1:

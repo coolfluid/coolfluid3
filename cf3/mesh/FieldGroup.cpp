@@ -23,6 +23,7 @@
 #include "common/StringConversion.hpp"
 #include "common/Link.hpp"
 #include "common/Tags.hpp"
+#include "common/DynTable.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "common/PE/Comm.hpp"
@@ -33,7 +34,7 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "common/List.hpp"
@@ -93,13 +94,13 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
   mark_basic();
 
   // Option "topology"
-  m_options.add_option< OptionURI >("topology",URI("cpath:"))
+  options().add_option< OptionURI >("topology",URI("cpath:"))
       ->description("The region these fields apply to")
       ->attach_trigger( boost::bind( &FieldGroup::config_topology, this) )
       ->mark_basic();
 
   // Option "type"
-  m_options.add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
+  options().add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
       ->description("The type of the field")
       ->attach_trigger ( boost::bind ( &FieldGroup::config_type,   this ) )
       ->mark_basic();
@@ -110,7 +111,7 @@ FieldGroup::FieldGroup ( const std::string& name  ) :
       (Basis::to_str(Basis::FACE_BASED));
 
   // Option "space
-  m_options.add_option< OptionT<std::string> >("space", m_space)
+  options().add_option< OptionT<std::string> >("space", m_space)
     ->description("The space of the field is based on")
     ->attach_trigger ( boost::bind ( &FieldGroup::config_space,   this ) )
     ->mark_basic();
@@ -409,7 +410,7 @@ void FieldGroup::bind_space()
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
   boost_foreach(Entities& entities, entities_range())
-    entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
+    entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
 }
 
 std::size_t hash_value(const RealMatrix& coords)
@@ -543,10 +544,10 @@ void FieldGroup::create_connectivity_in_space()
     // ------------------------------
     boost_foreach(Entities& entities, entities_range())
     {
-      Geometry& geometry = entities.geometry();
+      FieldGroup& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
-      common::List<Uint>& geometry_rank = entities.geometry().rank();
-      entities.space(m_space).get_child("bound_fields").as_type<Link>().link_to(*this);
+      common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
+      entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       Connectivity& connectivity = entities.space(m_space).connectivity();
       connectivity.set_row_size(shape_function.nb_nodes());
@@ -736,7 +737,7 @@ void FieldGroup::create_connectivity_in_space()
     {
       if (entities.space(m_space).is_bound_to_fields() > 0)
         throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
-                         "fields ["+entities.space(m_space).bound_fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
+                         "fields ["+entities.space(m_space).fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
     }
 
     // Assign the space connectivity table
@@ -744,7 +745,7 @@ void FieldGroup::create_connectivity_in_space()
     boost_foreach(Entities& entities, entities_range())
     {
       Space& space = entities.space(m_space);
-      space.get_child("bound_fields").as_type<Link>().link_to(*this);
+      space.get_child("fields").as_type<Link>().link_to(*this);
       space.make_proxy(field_idx);
       field_idx += entities.size()*space.nb_states();
     }
@@ -897,7 +898,7 @@ void FieldGroup::create_connectivity_in_space()
 common::Table<Uint>::ConstRow FieldGroup::indexes_for_element(const Entities& elements, const Uint idx) const
 {
   Space& space = elements.space(m_space);
-  cf3_assert_desc("space not bound to this field_group", &space.bound_fields() == this);
+  cf3_assert_desc("space not bound to this field_group", &space.fields() == this);
   return space.indexes_for_element(idx);
 }
 
@@ -920,11 +921,28 @@ bool FieldGroup::has_coordinates() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& FieldGroup::coordinates() const
+Field& FieldGroup::coordinates()
+{
+  if (is_null(m_coordinates))
+  {
+    if (Field::Ptr found = find_component_ptr_with_tag<Field>(*this,mesh::Tags::coordinates()))
+    {
+      m_coordinates = found;
+    }
+    else
+    {
+      throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
+    }
+  }
+  return *m_coordinates;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+const Field& FieldGroup::coordinates() const
 {
   if (is_null(m_coordinates))
     throw ValueNotFound(FromHere(),"FieldGroup ["+uri().string()+"] has no coordinates field");
-
   return *m_coordinates;
 }
 
@@ -972,6 +990,21 @@ Field& FieldGroup::create_coordinates()
   m_coordinates = coordinates.as_ptr<Field>();
   return coordinates;
 }
+
+////////////////////////////////////////////////////////////////////////////////
+
+DynTable<Uint>& FieldGroup::glb_elem_connectivity()
+{
+  if (is_null(m_glb_elem_connectivity))
+  {
+    m_glb_elem_connectivity = create_static_component_ptr< DynTable<Uint> >("glb_elem_connectivity");
+    m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
+    m_glb_elem_connectivity->resize(size());
+  }
+  return *m_glb_elem_connectivity;
+}
+
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

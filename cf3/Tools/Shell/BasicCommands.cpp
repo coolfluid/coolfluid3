@@ -13,7 +13,6 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
@@ -51,7 +50,7 @@ BasicCommands::BasicCommands()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Root::Ptr BasicCommands::tree_root = Core::instance().root().as_ptr<Root>();
+Component::Ptr BasicCommands::tree_root = Core::instance().root().self();
 
 Component::Ptr BasicCommands::current_component = BasicCommands::tree_root;
 

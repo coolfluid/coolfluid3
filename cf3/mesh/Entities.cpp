@@ -18,7 +18,7 @@
 
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 
@@ -37,7 +37,7 @@ Entities::Entities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  m_options.add_option(OptionT<std::string>::create("element_type", std::string("")))
+  options().add_option(OptionT<std::string>::create("element_type", std::string("")))
       ->description("Element type")
       ->pretty_name("Element type")
       ->attach_trigger(boost::bind(&Entities::configure_element_type, this));
@@ -74,15 +74,15 @@ void Entities::initialize(const std::string& element_type_name)
   cf3_assert(is_not_null(m_element_type));
 }
 
-void Entities::initialize(const std::string& element_type_name, Geometry& geometry)
+void Entities::initialize(const std::string& element_type_name, FieldGroup& geometry)
 {
   assign_geometry(geometry);
   initialize(element_type_name);
 }
 
-void Entities::assign_geometry(Geometry& geometry)
+void Entities::assign_geometry(FieldGroup& geometry)
 {
-  m_geometry = geometry.as_ptr<Geometry>();
+  m_geometry_fields = geometry.as_ptr<FieldGroup>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -45,7 +45,7 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> > ("p_out", std::string() )
+  options().add_option< OptionT<std::string> > ("p_out", std::string() )
       ->description("Outlet pressure (vars x,y,z)")
       ->attach_trigger ( boost::bind ( &SubsonicOutFlowWeakBc::config_pressure_function, this ) )
       ->mark_basic();
@@ -56,7 +56,7 @@ SubsonicOutFlowWeakBc::SubsonicOutFlowWeakBc ( const std::string& name ) :
 
 void SubsonicOutFlowWeakBc::config_pressure_function()
 {
-  pressure_function.functions( m_options["p_out"].value< std::string >() );
+  pressure_function.functions( options()["p_out"].value< std::string >() );
   pressure_function.parse();
 }
 

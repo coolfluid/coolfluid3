@@ -14,7 +14,6 @@
 
 #include "common/ActionDirector.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 #include "common/TimedComponent.hpp"
 
@@ -171,8 +170,8 @@ BOOST_AUTO_TEST_CASE( PhysicalModelUsage )
   // Create the fields
   FieldManager& field_manager = model.create_component<FieldManager>("FieldManager");
   field_manager.configure_option("variable_manager", model.physics().variable_manager().uri());
-  field_manager.create_field("solution", mesh.geometry());
-  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry(), "solution"));
+  field_manager.create_field("solution", mesh.geometry_fields());
+  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry_fields(), "solution"));
 
   // Do the initialization
   init_temp->loop(model.domain().get_child("mesh").as_type<Mesh>().topology());
@@ -201,8 +200,8 @@ BOOST_AUTO_TEST_CASE( ProtoAction )
   action.configure_option(solver::Tags::regions(), std::vector<URI>(1, model.domain().get_child("mesh").as_type<Mesh>().topology().uri()));
 
   // Create the fields
-  field_manager.create_field("T2", mesh.geometry());
-  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry(), "T2"));
+  field_manager.create_field("T2", mesh.geometry_fields());
+  BOOST_CHECK(find_component_ptr_with_tag<Field>(mesh.geometry_fields(), "T2"));
 
   // Run the action
   action.execute();
@@ -236,7 +235,7 @@ BOOST_AUTO_TEST_CASE( SimpleSolver )
   solver.configure_option_recursively("physical_model", model.physics().uri());
   solver.mesh_loaded(model.domain().get_child("mesh").as_type<Mesh>());
 
-  solver.field_manager().create_field("T3", mesh.geometry());
+  solver.field_manager().create_field("T3", mesh.geometry_fields());
 
   // Run the actions
   model.simulate();
@@ -266,7 +265,7 @@ public:
 
   virtual void mesh_loaded(Mesh& mesh)
   {
-    field_manager().create_field("T4", mesh.geometry());
+    field_manager().create_field("T4", mesh.geometry_fields());
   }
 
   MeshTerm<0, ScalarField> T;
@@ -340,11 +339,11 @@ BOOST_AUTO_TEST_CASE( ComponentWrapperURI )
 {
   CModel& model = Core::instance().root().get_child("Model").as_type<CModel>();
 
-  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath://Root/Model/DynamicModel");
+  BOOST_CHECK_EQUAL(model.physics().uri().string(), "cpath:/Model/DynamicModel");
 
   ComponentWrapper<physics::PhysModel, SomeTag> wrapped_phys_model(model.get_child("CustomSolver").option(solver::Tags::physical_model()));
 
-  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath://Root/Model/DynamicModel");
+  BOOST_CHECK_EQUAL(boost::proto::value(wrapped_phys_model).component().uri().string(), "cpath:/Model/DynamicModel");
 
   ComponentURIPrinter()(DeepCopy()(wrapped_phys_model + 1));
 }

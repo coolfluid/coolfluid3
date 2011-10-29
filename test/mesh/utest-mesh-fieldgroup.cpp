@@ -13,7 +13,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -23,7 +22,7 @@
 #include "mesh/Elements.hpp"
 #include "mesh/FieldGroup.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
@@ -78,17 +77,17 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   Mesh& mesh = *m_mesh;
 
   // Check if nodes field_group is sane
-  BOOST_CHECK_NO_THROW(mesh.geometry().check_sanity());
+  BOOST_CHECK_NO_THROW(mesh.geometry_fields().check_sanity());
 
   // Check if indexes_for_element function returns expected results
-  boost_foreach(Elements& elements, mesh.geometry().elements_range())
+  boost_foreach(Elements& elements, mesh.geometry_fields().elements_range())
   {
     for (Uint e=0; e<elements.size(); ++e)
     {
-      BOOST_CHECK( mesh.geometry().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
+      BOOST_CHECK( mesh.geometry_fields().indexes_for_element(elements,e) == elements.node_connectivity()[e] );
     }
   }
-  BOOST_CHECK_EQUAL( mesh.geometry().elements_lookup().components().size() , 5u);
+  BOOST_CHECK_EQUAL( mesh.geometry_fields().elements_lookup().components().size() , 5u);
 
 
   // ----------------------------------------------------------------------------------------------
@@ -161,7 +160,7 @@ BOOST_AUTO_TEST_CASE( test_FieldGroup )
   // Create field group for the space "points_P1" fields
   FieldGroup& point_P1_fields = mesh.create_space_and_field_group("points_P1", FieldGroup::Basis::POINT_BASED, "cf3.mesh.LagrangeP1");
 
-  BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry().size() );
+  BOOST_CHECK_EQUAL ( point_P1_fields.size() , mesh.geometry_fields().size() );
 
   // ----------------------------------------------------------------------------------------------
   // CHECK P2 point-based field group building

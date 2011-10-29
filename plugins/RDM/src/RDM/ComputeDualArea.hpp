@@ -14,7 +14,7 @@
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementType.hpp"
 #include "solver/actions/CLoopOperation.hpp"
 
@@ -101,7 +101,7 @@ protected: // helper functions
     connectivity =
         elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< mesh::Field >();
+        elements().geometry_fields().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
@@ -169,10 +169,10 @@ ComputeDualArea::Term<SF,QD>::Term ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &ComputeDualArea::Term<SF,QD>::change_elements, this ) );
 
   // initializations

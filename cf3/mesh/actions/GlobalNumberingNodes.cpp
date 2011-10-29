@@ -28,7 +28,7 @@
 #include "mesh/actions/GlobalNumberingNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -38,6 +38,7 @@
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 #include "mesh/ElementData.hpp"
+#include "mesh/Field.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -68,12 +69,12 @@ GlobalNumberingNodes::GlobalNumberingNodes( const std::string& name )
     "  Usage: GlobalNumberingNodes Regions:array[uri]=region1,region2\n\n";
   m_properties["description"] = desc;
 
-  m_options.add_option<OptionT<bool> >("debug", m_debug)
+  options().add_option<OptionT<bool> >("debug", m_debug)
       ->description("Perform checks on validity")
       ->pretty_name("Debug")
       ->link_to(&m_debug);
 
-  m_options.add_option<OptionT<bool> >("combined", true)
+  options().add_option<OptionT<bool> >("combined", true)
       ->description("Combine nodes and elements in one global numbering")
       ->pretty_name("Combined");
 }
@@ -99,13 +100,13 @@ void GlobalNumberingNodes::execute()
 {
   Mesh& mesh = *m_mesh.lock();
 
-  common::Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
-  if ( is_null( mesh.geometry().get_child_ptr("glb_node_hash") ) )
-    mesh.geometry().create_component<CVector_size_t>("glb_node_hash");
+  if ( is_null( mesh.geometry_fields().get_child_ptr("glb_node_hash") ) )
+    mesh.geometry_fields().create_component<CVector_size_t>("glb_node_hash");
 
   CVector_size_t& glb_node_hash =
-      mesh.geometry().get_child("glb_node_hash").as_type<CVector_size_t>();
+      mesh.geometry_fields().get_child("glb_node_hash").as_type<CVector_size_t>();
 
   glb_node_hash.data().resize(coordinates.size());
 
@@ -148,8 +149,8 @@ void GlobalNumberingNodes::execute()
   // get tot nb of owned indexes and communicate
 
   Uint nb_ghost(0);
-  Geometry& nodes = mesh.geometry();
-  common::List<Uint>& nodes_rank = mesh.geometry().rank();
+  FieldGroup& nodes = mesh.geometry_fields();
+  common::List<Uint>& nodes_rank = mesh.geometry_fields().rank();
   nodes_rank.resize(nodes.size());
   for (Uint i=0; i<nodes.size(); ++i)
   {
@@ -189,7 +190,7 @@ void GlobalNumberingNodes::execute()
   std::vector<size_t> node_from(nodes.size()-nb_ghost);
   std::vector<Uint>   node_to(nodes.size()-nb_ghost);
 
-  common::List<Uint>& nodes_glb_idx = mesh.geometry().glb_idx();
+  common::List<Uint>& nodes_glb_idx = mesh.geometry_fields().glb_idx();
   nodes_glb_idx.resize(nodes.size());
 
   Uint cnt=0;

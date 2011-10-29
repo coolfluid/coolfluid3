@@ -15,7 +15,6 @@
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -61,7 +60,7 @@ BOOST_AUTO_TEST_CASE( constructor )
   options.add_option< OptionT<std::string> >("name", std::string("Mesh") );
   options.add_option< OptionArrayT<URI> >("files", files);
 
-  frame = options.create_frame("Target", "//Root", "//Root");
+  frame = options.create_frame("Target", "/", "/");
 
   load_mesh->signal_load_mesh(frame);
 }

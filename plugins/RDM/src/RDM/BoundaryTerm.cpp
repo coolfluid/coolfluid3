@@ -29,13 +29,13 @@ BoundaryTerm::BoundaryTerm ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::solution(), &m_solution))
+  options().add_option(OptionComponent<Field>::create( RDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution Field");
 
-  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::wave_speed(), &m_wave_speed))
+  options().add_option(OptionComponent<Field>::create( RDM::Tags::wave_speed(), &m_wave_speed))
       ->pretty_name("Wave Speed Field");
 
-  m_options.add_option(OptionComponent<Field>::create( RDM::Tags::residual(), &m_residual))
+  options().add_option(OptionComponent<Field>::create( RDM::Tags::residual(), &m_residual))
       ->pretty_name("Residual Field");
 }
 

@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/MeshWriter.hpp"
 
@@ -19,7 +18,8 @@
 
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 
 using namespace cf3;
 using namespace cf3::mesh;
@@ -33,16 +33,16 @@ BOOST_AUTO_TEST_SUITE( VTKXMLSuite )
 
 BOOST_AUTO_TEST_CASE( WriteGrid )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);
 
   MeshWriter::Ptr vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer","meshwriter");
-  
-  std::vector<Field::Ptr> fields; fields.push_back(mesh->geometry().coordinates().as_ptr<Field>());
+
+  std::vector<Field::Ptr> fields; fields.push_back(mesh->geometry_fields().coordinates().as_ptr<Field>());
   vtk_writer->set_fields(fields);
-  
+
   vtk_writer->write_from_to(*mesh,"grid.vtu");
 
   BOOST_CHECK(true);

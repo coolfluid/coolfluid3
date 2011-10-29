@@ -12,7 +12,6 @@
 #include <boost/algorithm/string.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
 #include "mesh/Mesh.hpp"

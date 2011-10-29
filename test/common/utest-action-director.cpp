@@ -14,7 +14,6 @@
 #include "common/CF.hpp"
 #include "common/ActionDirector.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/URI.hpp"
 
@@ -46,7 +45,7 @@ Uint SetIntegerAction::value = 0;
 
 BOOST_AUTO_TEST_CASE(ActionDirectorBasic)
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   ActionDirector::Ptr director = root.create_component_ptr<ActionDirector>("director");
   SetIntegerAction::Ptr test_action = director->create_component_ptr<SetIntegerAction>("testaction");
   const std::vector<std::string> action_vector(1, test_action->name());
@@ -58,7 +57,7 @@ BOOST_AUTO_TEST_CASE(ActionDirectorBasic)
 
 BOOST_AUTO_TEST_CASE(ActionDirectorAppend)
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   
   ActionDirector& director = dynamic_cast<ActionDirector&>(root.get_child("director"));
   SetIntegerAction& test_action2 = director.create_component<SetIntegerAction>("testaction2");
@@ -74,7 +73,7 @@ BOOST_AUTO_TEST_CASE(ActionDirectorAppend)
 
 BOOST_AUTO_TEST_CASE(ActionDirectorStream)
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   
   ActionDirector& director = dynamic_cast<ActionDirector&>(root.get_child("director"));
   SetIntegerAction& test_action3 = director.create_component<SetIntegerAction>("testaction3");

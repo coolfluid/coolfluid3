@@ -9,7 +9,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
@@ -20,6 +19,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshTransformer.hpp"
+#include "mesh/Field.hpp"
 
 #include "Tools/Shell/BasicCommands.hpp"
 #include "Tools/mesh_transformer/Transformer.hpp"

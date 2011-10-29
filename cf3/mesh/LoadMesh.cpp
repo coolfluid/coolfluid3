@@ -8,7 +8,6 @@
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionT.hpp"

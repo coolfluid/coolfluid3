@@ -31,22 +31,22 @@ MergedParallelDistribution::MergedParallelDistribution ( const std::string& name
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  m_options.add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
+  options().add_option<OptionArrayT <Uint> >("nb_obj", m_nb_obj)
       ->description("Total number of objects of each subhash. Subhashes will "
                         "be created upon configuration with names hash_0 hash_1, ...")
       ->pretty_name("Number of Objects");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
-  m_options.add_option<OptionT <Uint> >("base", m_base)
+  options().add_option<OptionT <Uint> >("base", m_base)
       ->description("Start index for global numbering")
       ->pretty_name("Base");
 
-  m_options["nb_parts"].attach_trigger( boost::bind ( &MergedParallelDistribution::config_nb_parts , this) );
-  m_options["base"].link_to( &m_base );
-  m_options["nb_obj"].attach_trigger( boost::bind ( &MergedParallelDistribution::config_nb_obj , this) );
+  options()["nb_parts"].attach_trigger( boost::bind ( &MergedParallelDistribution::config_nb_parts , this) );
+  options()["base"].link_to( &m_base );
+  options()["nb_obj"].attach_trigger( boost::bind ( &MergedParallelDistribution::config_nb_obj , this) );
 }
 
 //////////////////////////////////////////////////////////////////////////////

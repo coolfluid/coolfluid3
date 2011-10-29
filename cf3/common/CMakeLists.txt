@@ -112,8 +112,6 @@ list( APPEND coolfluid_common_files
     OSystemLayer.cpp
     OSystemLayer.hpp
     RegistLibrary.hpp
-    Root.hpp
-    Root.cpp
     StreamHelpers.hpp
     StringConversion.hpp
     StringConversion.cpp

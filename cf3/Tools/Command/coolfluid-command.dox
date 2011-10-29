@@ -12,15 +12,15 @@ Since the component-architecture of %COOLFluiD is very similar to a file system,
 By default when starting "coolfluid-command", the user seemingly enters another shell environment. where commands such as "ls", "pwd", "cd" , "exit" can be used to traverse the data structure.
 @verbatim
 $> coolfluid-command
-[//Root] ls
+[/] ls
 Environment
 Factories
 Libraries
 Tools
-[//Root] cd Tools
-[//Root/Tools] pwd
-//Root/Tools
-[//Root/Tools] exit
+[/] cd Tools
+[//Tools] pwd
+//Tools
+[//Tools] exit
 $>
 @endverbatim
 @c "ls l" shows detailed view, @c "ls s" shows signals only, @c "ls a" shows both Components and signals.
@@ -36,14 +36,14 @@ coolfluid-command can also be used in batch:
 Following will show exactly the same output as above, and exits the executable automatically
 @verbatim
 $> coolfluid-command --ls   --cd Tools  --pwd
-[//Root] ls
+[/] ls
 Environment
 Factories
 Libraries
 Tools
-[//Root] cd Tools
-[//Root/Tools] pwd
-//Root/Tools
+[/] cd Tools
+[//Tools] pwd
+//Tools
 $>
 @endverbatim
 
@@ -51,15 +51,15 @@ The same commands as in interactive mode can be used, but have to be prepended w
 When ending the line with "--interactive", the user enters the interactive shell to continue interactively.
 @verbatim
 $> coolfluid-command --ls   --cd Tools  --pwd --interactive
-[//Root] ls
+[/] ls
 Environment
 Factories
 Libraries
 Tools
-[//Root] cd Tools
-[//Root/Tools] pwd
-//Root/Tools
-[//Root/Tools]
+[/] cd Tools
+[//Tools] pwd
+//Tools
+[//Tools]
 @endverbatim
 
 <hr>
@@ -79,15 +79,15 @@ pwd
 Interpreting the script:
 @verbatim
 $> coolfluid-command --file example.cfscript  --interactive
-[//Root] ls
+[/] ls
 Environment
 Factories
 Libraries
 Tools
-[//Root] cd Tools
-[//Root/Tools] pwd
-//Root/Tools
-[//Root/Tools]
+[/] cd Tools
+[//Tools] pwd
+//Tools
+[//Tools]
 @endverbatim
 */
 } // namespace cf3

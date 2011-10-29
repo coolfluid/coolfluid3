@@ -23,7 +23,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
 
@@ -200,7 +200,7 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
 
-      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
+      if (FieldGroup::Ptr nodes = comp->as_ptr<FieldGroup>())
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         nb_connections_per_obj[idx] = node_to_glb_elm.row_size(loc_idx);
@@ -233,7 +233,7 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
+      if (FieldGroup::Ptr nodes = comp->as_ptr<FieldGroup>())
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -242,7 +242,7 @@ void MeshPartitioner::list_of_connected_objects_in_part(const Uint part, VectorT
       else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
         const Connectivity& connectivity_table = elements->node_connectivity();
-        const common::List<Uint>& glb_node_indices    = elements->geometry().glb_idx();
+        const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
 
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_objects[idx++] = glb_node_indices[ loc_node ];
@@ -269,7 +269,7 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
     if (part_of_obj(glb_obj) == part)
     {
       boost::tie(comp,loc_idx) = m_lookup->location(loc_obj);
-      if (Geometry::Ptr nodes = comp->as_ptr<Geometry>())
+      if (FieldGroup::Ptr nodes = comp->as_ptr<FieldGroup>())
       {
         const common::DynTable<Uint>& node_to_glb_elm = nodes->glb_elem_connectivity();
         boost_foreach (const Uint glb_elm , node_to_glb_elm[loc_idx])
@@ -278,7 +278,7 @@ void MeshPartitioner::list_of_connected_procs_in_part(const Uint part, VectorT& 
       else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
         const Connectivity& connectivity_table = elements->node_connectivity();
-        const common::List<Uint>& glb_node_indices    = elements->geometry().glb_idx();
+        const common::List<Uint>& glb_node_indices    = elements->geometry_fields().glb_idx();
         boost_foreach (const Uint loc_node , connectivity_table[loc_idx])
           connected_procs[idx++] = part_of_obj( glb_node_indices[loc_node] ); /// @todo should be proc of obj, not part!!!
       }

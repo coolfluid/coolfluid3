@@ -14,7 +14,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/Foreach.hpp"
@@ -28,7 +27,8 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/MeshGenerator.hpp"
@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 10;
@@ -131,7 +131,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
   // create a field and assign it to the comm pattern
 
-  Field& field = mesh.geometry().create_field("node_rank");
+  Field& field = mesh.geometry_fields().create_field("node_rank");
 
   field.parallelize();
 
@@ -172,16 +172,16 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   }
 
   // Create a field with glb node numbers
-  Field& glb_node_idx = mesh.geometry().create_field("glb_node_idx");
+  Field& glb_node_idx = mesh.geometry_fields().create_field("glb_node_idx");
 
-  List<Uint>& glb_idx = mesh.geometry().glb_idx();
+  List<Uint>& glb_idx = mesh.geometry_fields().glb_idx();
   {
     for (Uint n=0; n<glb_node_idx.size(); ++n)
       glb_node_idx[n][0] = glb_idx[n];
   }
 
   // Create a field with glb node numbers
-  Field& P1_node_rank = mesh.geometry().create_field("P1_node_rank");
+  Field& P1_node_rank = mesh.geometry_fields().create_field("P1_node_rank");
 
   Action& interpolator = mesh.create_component("interpolator","cf3.mesh.actions.Interpolate").as_type<Action>();
   interpolator.configure_option("source",nodes_P1_node_rank.uri());
@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/line"));
+  meshgenerator->configure_option("mesh",URI("//line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   meshgenerator->configure_option("bdry",false);
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE( minitest )
 
   // create a field and assign it to the comm pattern
 
-  Field& node_rank = mesh.geometry().create_field("node_rank");
+  Field& node_rank = mesh.geometry_fields().create_field("node_rank");
   node_rank.parallelize();
 
 
@@ -251,38 +251,38 @@ BOOST_AUTO_TEST_CASE( minitest )
     {
       if (Comm::instance().rank() == 0)
       {
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[0][XX] , 0.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[0][XX] , 0.);
         BOOST_CHECK_EQUAL( node_rank[0][0] , 0. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[1][XX] , 1.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[1][XX] , 1.);
         BOOST_CHECK_EQUAL( node_rank[1][0] , 0. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[2][XX] , 2.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[2][XX] , 2.);
         BOOST_CHECK_EQUAL( node_rank[2][0] , 0. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[3][XX] , 3.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[3][XX] , 3.);
         BOOST_CHECK_EQUAL( node_rank[3][0] , 0. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[4][XX] , 4.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[4][XX] , 4.);
         BOOST_CHECK_EQUAL( node_rank[4][0] , 0. );
 
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[5][XX] , 5.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[5][XX] , 5.);
         BOOST_CHECK_EQUAL( node_rank[5][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[6][XX] , 6.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[6][XX] , 6.);
         BOOST_CHECK_EQUAL( node_rank[6][0] , 1. );
       }
       else if (Comm::instance().rank() == 1)
       {
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[0][XX] , 5.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[0][XX] , 5.);
         BOOST_CHECK_EQUAL( node_rank[0][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[1][XX] , 6.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[1][XX] , 6.);
         BOOST_CHECK_EQUAL( node_rank[1][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[2][XX] , 7.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[2][XX] , 7.);
         BOOST_CHECK_EQUAL( node_rank[2][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[3][XX] , 8.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[3][XX] , 8.);
         BOOST_CHECK_EQUAL( node_rank[3][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[4][XX] , 9.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[4][XX] , 9.);
         BOOST_CHECK_EQUAL( node_rank[4][0] , 1. );
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[5][XX] , 10.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[5][XX] , 10.);
         BOOST_CHECK_EQUAL( node_rank[5][0] , 1. );
 
-        BOOST_CHECK_EQUAL( mesh.geometry().coordinates()[6][XX] , 4.);
+        BOOST_CHECK_EQUAL( mesh.geometry_fields().coordinates()[6][XX] , 4.);
         BOOST_CHECK_EQUAL( node_rank[6][0] , 0. );
       }
     }
@@ -349,13 +349,13 @@ BOOST_AUTO_TEST_CASE( minitest )
   gp << "plot ";
   gp << "'-' with points title 'node-rank'"  << ", ";
   gp << "'-' with points title 'elem-rank'"  << "\n";
-  gp.send( mesh.geometry().coordinates().array()  , node_rank.array() );
+  gp.send( mesh.geometry_fields().coordinates().array()  , node_rank.array() );
   gp.send( elems.coordinates().array()            , elem_rank.array() );
 
 //   Following works too, if coordinates need to be in sequence
 //    std::map<Real,Real> nodes_xy;
 //    for (Uint i=0; i<node_rank.size(); ++i)
-//      nodes_xy[mesh.geometry().coordinates()[i][XX]] = node_rank[i][0];
+//      nodes_xy[mesh.geometry_fields().coordinates()[i][XX]] = node_rank[i][0];
 
 //    std::map<Real,Real> elems_xy;
 //    for (Uint i=0; i<elem_rank.size(); ++i)

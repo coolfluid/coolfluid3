@@ -26,7 +26,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/ElementData.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -48,11 +48,11 @@ LinearInterpolator::LinearInterpolator( const std::string& name )
 {
 
 
-  m_options.add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
+  options().add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
       ->description("The approximate amount of elements that are stored in a structured");
 
   std::vector<Uint> dummy;
-  m_options.add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
+  options().add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
       ->description("The number of divisions in each direction of the comb. "
                         "Takes precedence over \"ApproximateNbElementsPerCell\". ");
 
@@ -285,7 +285,7 @@ void LinearInterpolator::create_bounding_box()
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(common::Table<Real>::ConstRow coords, m_source_mesh->geometry().coordinates().array())
+  boost_foreach(common::Table<Real>::ConstRow coords, m_source_mesh->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {

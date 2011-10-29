@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -22,7 +21,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 using namespace std;
 using namespace boost;
@@ -72,7 +71,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/line"));
+  meshgenerator->configure_option("mesh",URI("//line"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(1,10));
   meshgenerator->configure_option("lengths",std::vector<Real>(1,10.));
   Mesh& mesh = meshgenerator->generate();
@@ -90,7 +89,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -109,7 +108,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   meshgenerator->configure_option("nb_cells",std::vector<Uint>(2,2));
   meshgenerator->configure_option("lengths",std::vector<Real>(2,2.));
   Mesh& mesh = meshgenerator->generate();
@@ -127,7 +126,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))

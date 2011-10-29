@@ -9,7 +9,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -36,13 +36,13 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "field", &m_field ))
+  options().add_option(OptionComponent<Field>::create( "field", &m_field ))
       ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
@@ -53,7 +53,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 
@@ -70,7 +70,7 @@ void Init::execute()
   Field& field = *m_field.lock();
 
   //  std::cout << "   field.size() == " << field.size() << std::endl;
-  //  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
+  //  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
@@ -78,9 +78,9 @@ void Init::execute()
 
   boost_foreach(Region::Ptr& region, m_loop_regions)
   {
-    /// @warning assumes that field maps one to one with mesh.geometry()
+    /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    Geometry& nodes = mesh().geometry();
+    FieldGroup& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

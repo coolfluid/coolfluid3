@@ -179,7 +179,7 @@ void Component::rename ( const std::string& name )
   cf3_assert(m_component_lookup.size() == m_components.size());
 
   // notification should be done before the real renaming since the path changes
-  raise_path_changed();
+  raise_tree_updated_event();
 
   if(has_parent())
   {
@@ -201,7 +201,7 @@ void Component::rename ( const std::string& name )
 URI Component::uri() const
 {
   if(!has_parent())
-    return URI(std::string("//") + name(), URI::Scheme::CPATH);
+    return URI(std::string("/"), URI::Scheme::CPATH);
 
   return parent().uri() / URI(name(), URI::Scheme::CPATH);
 }
@@ -273,7 +273,7 @@ Component& Component::add_component ( Component::Ptr subcomp )
 
   subcomp->change_parent( this );
 
-  raise_path_changed();
+  raise_tree_updated_event();
 
   return *subcomp;
 }
@@ -365,7 +365,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
     }
     m_components = new_storage;
 
-    raise_path_changed();
+    raise_tree_updated_event();
 
     return comp;                                   // return it to client
   }
@@ -389,64 +389,9 @@ Component::Ptr Component::remove_component ( Component& subcomp )
 
 void Component::complete_path ( URI& path ) const
 {
-  using namespace boost::algorithm;
-
-//  CFinfo << "PATH [" << path.string() << "]\n" << CFflush;
-
   cf3_assert( path.scheme() == URI::Scheme::CPATH );
 
-  if(path.empty())
-    path = "./";
-
-  std::string sp = path.path();
-
-  if ( path.is_relative() ) // transform it to absolute
-  {
-    if ( starts_with(sp,"/") ) // remove leading "/" if any
-      boost::algorithm::replace_first(sp, "/", "" );
-
-    // substitute leading "../" for uri() of parent
-    if (starts_with(sp,".."))
-    {
-      if(!has_parent())
-        throw InvalidURI(FromHere(), "No parent in " + uri().string() + " when evaluating relative path " + path.string());
-      std::string pfp = parent().uri().path();
-      boost::algorithm::replace_first(sp, "..", pfp);
-    }
-    // substitute leading "./" for uri() of this component
-    else if (starts_with(sp,"."))
-    {
-      boost::algorithm::replace_first(sp, ".", uri().path());
-    }
-    else
-    {
-      sp = uri().path()+"/"+sp;
-    }
-
-  }
-
-  cf3_assert ( URI(sp).is_absolute() );
-
-  // break path in tokens and loop on them, while concatenaitng to a new path
-  boost::char_separator<char> sep("/");
-  typedef boost::tokenizer<boost::char_separator<char> > tokenizer;
-  tokenizer tok (sp,sep);
-
-  path = "/" ;
-  std::string last;
-  for(tokenizer::iterator el=tok.begin(); el!=tok.end(); ++el)
-  {
-    if ( equals (*el, ".") ) continue;     // substitute any "/./" for nothing
-
-    if ( equals (*el, "..") )              // substitute any "../" for base path
-      path = path.base_path();
-    else
-      path /= *el;
-  }
-
-//  CFinfo << "FINAL PATH: [" << path.string() << "]\n" << CFflush;
-
-  cf3_assert ( path.is_complete() );
+  path = access_component(path).uri();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -501,7 +446,7 @@ void Component::move_to ( Component& new_parent )
 {
   Component::Ptr this_ptr = parent().remove_component( *this );
   new_parent.add_component( this_ptr );
-  raise_path_changed();
+  raise_tree_updated_event();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -519,7 +464,7 @@ Component& Component::access_component ( const URI& path ) const
 Component::Ptr Component::access_component_ptr ( const URI& path ) const
 {
   // Return self for trivial path or at end of recursion.
-  if(path.path() == ".")
+  if(path.path() == "." || path.empty())
     return boost::const_pointer_cast<Component>(self());
 
   // If the path is absolute, make it relative and pass it to the root
@@ -531,11 +476,10 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
     // Remove any leading /
     boost::algorithm::trim_left_if(new_path, boost::algorithm::is_any_of("/"));
 
-    // TODO: Remove when root becomes implicit. We strip the first component in an absolute path for now.
-    cf3_assert(boost::algorithm::starts_with(new_path, root().name()));
-    const std::size_t first_sep = new_path.find("/");
-    const bool has_no_separator = (first_sep == std::string::npos);
-    new_path = has_no_separator ? "." : new_path.substr(first_sep+1, new_path.size());
+    if(new_path.empty())
+    {
+      return boost::const_pointer_cast<Component>(root().self());
+    }
 
     // Pass the rest to root
     return root().access_component_ptr(URI(new_path, cf3::common::URI::Scheme::CPATH));
@@ -557,7 +501,7 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
   const std::string next_part = has_no_separator ? "." : path_str.substr(first_sep+1, path_str.size());
 
   // Dispatch to self
-  if(current_part == ".")
+  if(current_part == "." || current_part.empty())
     return access_component_ptr(next_part);
 
   // Dispatch to parent
@@ -691,7 +635,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
       if ( lnk->is_linked() )
        this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->uri().string().c_str() ));
 //      else
-//        this_node.value( this_node.document()->allocate_string( "//Root" ));
+//        this_node.value( this_node.document()->allocate_string( "/" ));
     }
     else
     {
@@ -869,14 +813,14 @@ boost::any& Component::property( const std::string& optname )
 
 const Option& Component::option( const std::string& optname ) const
 {
-  return m_options.option(optname);
+  return options().option(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 Option& Component::option( const std::string& optname )
 {
-  return m_options.option(optname);
+  return options().option(optname);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -946,20 +890,10 @@ void Component::signal_signature( SignalArgs & args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::raise_path_changed ()
+void Component::raise_tree_updated_event ()
 {
-  raise_event("tree_updated");
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-void Component::raise_event ( const std::string & name )
-{
-  Root* real_root = dynamic_cast<Root*>(&root());
-  if( is_not_null(real_root) )
-  {
-    real_root->raise_new_event(name, uri());
-  }
+  SignalFrame frame ( "tree_updated", uri(), uri() );
+  EventHandler::instance().raise_event("tree_updated", frame ); // no error if event doesn't exist
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1009,7 +943,7 @@ void Component::signature_move_component( SignalArgs& args )
 
 Component& Component::configure_option(const std::string& optname, const boost::any& val)
 {
-  m_options.configure_option(optname,val);
+  options().configure_option(optname,val);
   return *this;
 }
 
@@ -1033,7 +967,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
     configure_option(opt_name,val);
   }
 
-  foreach_container((std::string name) (boost::shared_ptr<Option> opt), m_options)
+  foreach_container((std::string name) (boost::shared_ptr<Option> opt), options())
   {
     if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
       configure_option(name,val);

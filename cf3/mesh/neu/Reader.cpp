@@ -26,6 +26,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/MeshElements.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -49,18 +50,18 @@ Reader::Reader( const std::string& name )
   Shared()
 {
   // options
-  m_options.add_option<OptionT <bool> >("read_groups" ,true)
+  options().add_option<OptionT <bool> >("read_groups" ,true)
       ->description("Reads neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
-  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
+  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
+  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
       ->description("Total nb_partitions. (e.g. number of processors)");
 
-  m_options.add_option<OptionT <bool> >("read_boundaries", true)
+  options().add_option<OptionT <bool> >("read_boundaries", true)
       ->description("Read the surface elements for the boundary")
       ->pretty_name("Read Boundaries");
 
@@ -111,7 +112,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   m_mesh.lock()->initialize_nodes(0, m_headerData.NDFCD);
 
-  cf3_assert(m_mesh.lock()->geometry().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
 
   // Create a hash
   m_hash = create_component_ptr<MergedParallelDistribution>("hash");
@@ -158,7 +159,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_mesh.lock()->elements().update();
   m_mesh.lock()->update_statistics();
 
-  cf3_assert(m_mesh.lock()->geometry().coordinates().row_size() == m_headerData.NDFCD);
+  cf3_assert(m_mesh.lock()->geometry_fields().coordinates().row_size() == m_headerData.NDFCD);
   cf3_assert(m_mesh.lock()->properties().value<Uint>(common::Tags::dimension()) == m_headerData.NDFCD);
 }
 
@@ -283,7 +284,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  Geometry& nodes = m_mesh.lock()->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -341,7 +342,7 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  Geometry& nodes = m_mesh.lock()->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
   m_tmp = m_region.lock()->create_region("main").as_ptr<Region>();
 
   m_global_to_tmp.clear();
@@ -410,7 +411,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  Geometry& nodes = m_mesh.lock()->geometry();
+  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -531,7 +532,7 @@ void Reader::read_boundaries()
     }
 
     Region& bc_region = m_region.lock()->create_region(NAME);
-    Geometry& nodes = m_mesh.lock()->geometry();
+    FieldGroup& nodes = m_mesh.lock()->geometry_fields();
 
     // create all kind of element type regions
     std::map<std::string,Elements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);

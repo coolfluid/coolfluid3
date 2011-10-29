@@ -21,7 +21,6 @@
 #include "solver/actions/Proto/Terminals.hpp"
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -33,7 +32,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"
@@ -118,7 +117,7 @@ BOOST_AUTO_TEST_CASE( MatrixProducts )
   Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "solution", "Temperature" ).add_tag("solution");
+  mesh->geometry_fields().create_field( "solution", "Temperature" ).add_tag("solution");
 
   MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
@@ -189,7 +188,7 @@ BOOST_AUTO_TEST_CASE( RotatingCylinderField )
   Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("circle");
   Tools::MeshGeneration::create_circle_2d(*mesh, radius, segments);
 
-  mesh->geometry().create_field( "Pressure", "Pressure" ).add_tag("solution");
+  mesh->geometry_fields().create_field( "Pressure", "Pressure" ).add_tag("solution");
 
   MeshTerm<1, ScalarField > p("Pressure", "solution"); // Pressure field
 
@@ -253,7 +252,7 @@ BOOST_AUTO_TEST_CASE( CustomOp )
   Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("line");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field( "Temperature", "Temperature" ).add_tag("solution");
+  mesh->geometry_fields().create_field( "Temperature", "Temperature" ).add_tag("solution");
 
   MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
@@ -306,7 +305,7 @@ BOOST_AUTO_TEST_CASE( ElementGaussQuadrature )
   Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
+  mesh->geometry_fields().create_field("Temperature", "Temperature").add_tag("solution");
 
   MeshTerm<0, ScalarField > temperature("Temperature", "solution");
 
@@ -352,7 +351,7 @@ BOOST_AUTO_TEST_CASE(GroupArity)
   Mesh::Ptr mesh = Core::instance().root().create_component_ptr<Mesh>("GaussQuadratureLine");
   Tools::MeshGeneration::create_line(*mesh, 1., 1);
 
-  mesh->geometry().create_field("Temperature", "Temperature").add_tag("solution");
+  mesh->geometry_fields().create_field("Temperature", "Temperature").add_tag("solution");
 
   Real total = 0;
 
@@ -435,7 +434,7 @@ BOOST_AUTO_TEST_CASE(IndexLooper)
   Tools::MeshGeneration::create_line(line, 1., 1);
 
   MeshTerm<0, VectorField> u("Velocity", "solution");
-  line.geometry().create_field( "solution", "Velocity[v]" ).add_tag("solution");
+  line.geometry_fields().create_field( "solution", "Velocity[v]" ).add_tag("solution");
 
   RealVector1 center;
   center.setZero();
@@ -478,7 +477,7 @@ BOOST_AUTO_TEST_CASE( VectorMultiplication )
 
   // set up fields
   init->register_variables(physics);
-  field_manager.create_field("solution", mesh.geometry());
+  field_manager.create_field("solution", mesh.geometry_fields());
 
   // Do the initialization
   init->loop(mesh.topology());

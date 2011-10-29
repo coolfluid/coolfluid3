@@ -33,22 +33,22 @@ ActionDirector::ActionDirector ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
+  options().add_option( OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<Mesh>::create("mesh", &m_mesh))
+  options().add_option( OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  options().add_option( OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
-  m_options.add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
+  options().add_option( OptionComponent<CTime>::create(Tags::time(), &m_time))
       ->description("Time tracking component")
       ->pretty_name("Time")
       ->mark_basic();

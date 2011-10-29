@@ -30,7 +30,7 @@ ComponentBuilder < ActionDirector, Action, LibCommon > ActionDirector_Builder;
 
 ActionDirector::ActionDirector(const std::string& name): Action(name)
 {
-  m_options.add_option< OptionArrayT<std::string> >("action_order", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> >("action_order", std::vector<std::string>())
       ->description("Names of the actions to execute in sequence");
       
   // signals

@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/MeshWriter.hpp"
 
@@ -19,7 +18,7 @@
 
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 using namespace cf3;
 using namespace cf3::mesh;
@@ -33,7 +32,7 @@ BOOST_AUTO_TEST_SUITE( VTKLegacySuite )
 
 BOOST_AUTO_TEST_CASE( WriteGrid )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(*mesh, 5., 5., 5, 5);

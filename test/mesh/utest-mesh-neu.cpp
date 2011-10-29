@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -22,7 +21,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 using namespace std;
 using namespace boost;
@@ -92,7 +91,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  Geometry& nodes = find_component_recursively<Geometry>(mesh);
+  FieldGroup& nodes = find_component_recursively<FieldGroup>(mesh);
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))

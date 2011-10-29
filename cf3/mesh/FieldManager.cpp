@@ -20,6 +20,7 @@
 #include "mesh/MeshTransformer.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
+#include "mesh/Field.hpp"
 
 #include "common/PE/Comm.hpp"
 

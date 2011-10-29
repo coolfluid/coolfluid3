@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -20,7 +19,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;
@@ -95,8 +94,8 @@ BOOST_AUTO_TEST_CASE( build )
 
   Mesh& line = mesh_generator->generate();
 
-  Field& source = rect.geometry().create_field("solution");
-  Field& target = line.geometry().create_field("solution");
+  Field& source = rect.geometry_fields().create_field("solution");
+  Field& target = line.geometry_fields().create_field("solution");
 
 
   for(Uint i=0; i<source.size();++i)

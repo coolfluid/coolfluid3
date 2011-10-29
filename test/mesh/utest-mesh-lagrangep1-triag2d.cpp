@@ -11,9 +11,8 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
 #include "mesh/Elements.hpp"
@@ -82,7 +81,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  Geometry::Ptr nodes = allocate_component<Geometry>("nodes") ;
+  FieldGroup::Ptr nodes = allocate_component<FieldGroup>("nodes") ;
   // Create a Elements component
   Elements::Ptr comp = allocate_component<Elements>("comp");
 

@@ -127,11 +127,11 @@ BOOST_AUTO_TEST_CASE( set_option )
 
 BOOST_AUTO_TEST_CASE( clear )
 {
-  CommitDetails cd(nullptr, "//Root/Path/To/Node");
+  CommitDetails cd(nullptr, "//Path/To/Node");
 
   BOOST_CHECK( !cd.has_options() );
 
-  BOOST_CHECK_EQUAL( cd.node_path().toStdString(), std::string("//Root/Path/To/Node") );
+  BOOST_CHECK_EQUAL( cd.node_path().toStdString(), std::string("//Path/To/Node") );
   cd.set_option("Option1", "OldVal", "NewVal");
 
   BOOST_CHECK( cd.has_options() );

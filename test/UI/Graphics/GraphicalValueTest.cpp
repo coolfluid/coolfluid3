@@ -317,7 +317,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
   // 6. check URI
   //
   option = OptionURI::Ptr(new OptionURI("OptUri", URI("http://www.google.com")));
-  option->restricted_list().push_back( URI("cpath://Root") );
+  option->restricted_list().push_back( URI("cpath:/") );
   value = GraphicalValue::create_from_option( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalRestrictedList*>(value) ) );
@@ -403,7 +403,7 @@ void GraphicalValueTest::test_createFromOptionArrayRestrValues()
   std::vector<URI> vectUri;
   vectUri.push_back( URI("http://coolfluidsrv.vki.ac.be") );
   option = OptionArrayT<URI>::Ptr(new OptionArrayT<URI>("OptUri", vectUri));
-  option->restricted_list() += URI("cpath://Root");
+  option->restricted_list() += URI("cpath:/");
   value = GraphicalValue::create_from_option( option );
   QVERIFY( is_not_null(value) );
   QVERIFY( is_not_null(dynamic_cast<GraphicalArrayRestrictedList*>(value) ) );

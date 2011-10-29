@@ -102,13 +102,13 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 
   // options
 
-  m_options.add_option< OptionT<bool> >("Scale", true)
+  options().add_option< OptionT<bool> >("Scale", true)
       ->description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  m_options.add_option< OptionT<Uint> >("Order", 2u)
+  options().add_option< OptionT<Uint> >("Order", 2u)
       ->description("Order of the p-norm, zero if L-inf");
 
-  m_options.add_option(OptionComponent<Field>::create("Field", &m_field))
+  options().add_option(OptionComponent<Field>::create("Field", &m_field))
       ->description("Field for which to compute the norm");
 }
 
@@ -126,7 +126,7 @@ void CComputeLNorm::execute()
 
   Real norm = 0.;
 
-  const Uint order = m_options.option("Order").value<Uint>();
+  const Uint order = options().option("Order").value<Uint>();
 
   // sum of all processors
 
@@ -143,7 +143,7 @@ void CComputeLNorm::execute()
   }
 
 
-  if( m_options.option("Scale").value<bool>() && order )
+  if( options().option("Scale").value<bool>() && order )
     norm /= nbrows;
 
   configure_property("norm", norm);

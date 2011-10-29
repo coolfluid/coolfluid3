@@ -19,13 +19,15 @@
 #include "mesh/actions/MatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Field.hpp"
+
 #include "math/Functions.hpp"
 #include "math/Consts.hpp"
 
@@ -56,7 +58,7 @@ MatchNodes::MatchNodes( const std::string& name )
   m_properties["description"] = desc;
 
 
-  m_options.add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
+  options().add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
       ->description("Regions to match nodes of");
 }
 
@@ -84,7 +86,7 @@ void MatchNodes::execute()
   std::map<std::size_t,Uint> hash_to_node_idx;
 
   CFinfo << mesh.tree() << CFendl;
-  const Uint m_dim = mesh.geometry().coordinates().row_size();
+  const Uint m_dim = mesh.geometry_fields().coordinates().row_size();
 
   std::vector<URI> region_paths = option("Regions").value<std::vector<URI> >();
 
@@ -98,7 +100,7 @@ void MatchNodes::execute()
     throw SetupError(FromHere(), "Number of used nodes in ["+region_1.uri().path()+"] and ["+region_2.uri().path()+"] are different.\n"
       "Nodes cannot be matched." );
 
-  common::Table<Real>& coordinates = mesh.geometry().coordinates();
+  common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
 
 
   // find bounding box coordinates for region 1 and region 2

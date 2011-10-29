@@ -20,7 +20,7 @@ domain = model.get_child('Domain')
 
 # Generate a channel mesh
 generator = domain.create_component('generator', 'cf3.mesh.BlockMesh.ChannelGenerator')
-generator.configure_option('mesh', cf.URI('//Root/HotModel/Domain/mesh'))
+generator.configure_option('mesh', cf.URI('//HotModel/Domain/mesh'))
 generator.configure_option('x_segments', 64)
 generator.configure_option('cell_overlap', 1)
 generator.execute()

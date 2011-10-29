@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "NavierStokes/Cons2D.hpp"

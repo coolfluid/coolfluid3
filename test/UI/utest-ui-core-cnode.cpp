@@ -351,12 +351,12 @@ BOOST_AUTO_TEST_CASE( add_node )
 
   BOOST_REQUIRE_NO_THROW( root->add_node(node));
   // the component should have been added to the *real* root (Root)
-  BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath://Root/Node")->as_ptr<NGeneric>() );
+  BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath:/Node")->as_ptr<NGeneric>() );
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->add_node(log) );
-  BOOST_REQUIRE_NO_THROW( node->access_component_ptr("cpath://Root/Node/" CLIENT_LOG)->as_ptr<NLog>() );
+  BOOST_REQUIRE_NO_THROW( node->access_component_ptr("cpath:/Node/" CLIENT_LOG)->as_ptr<NLog>() );
 
   BOOST_CHECK_EQUAL(nodeSpy.count(), 1);
 }
@@ -378,12 +378,12 @@ BOOST_AUTO_TEST_CASE( remove_node )
 
   BOOST_REQUIRE_NO_THROW( root->remove_node("Node"));
   // the component should have been removed from the REAL root (Root)
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath://Root/Node").get(), nullComp);
+  BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath:/Node").get(), nullComp);
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->remove_node( CLIENT_LOG ) );
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr( "cpath://Root/Node/" CLIENT_LOG ).get(), nullComp );
+  BOOST_CHECK_EQUAL( root->root()->access_component_ptr( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
 
   BOOST_CHECK_EQUAL( nodeSpy.count(), 1 );
 }
@@ -435,14 +435,14 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   BOOST_CHECK_EQUAL( list.count(), 8);
   // check the strings
   // Nodes should be in the order they were added
-  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root")             );
-  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Log")         );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Log/Node1")   );
-  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2")       );
-  BOOST_CHECK_EQUAL( list.at(4).toStdString(), std::string("//Root/Node2/Node3") );
-  BOOST_CHECK_EQUAL( list.at(5).toStdString(), std::string("//Root/Node2/Tree") );
-  BOOST_CHECK_EQUAL( list.at(6).toStdString(), std::string("//Root/Node2/Node4")  );
-  BOOST_CHECK_EQUAL( list.at(7).toStdString(), std::string("//Root/Node5")       );
+  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("/")             );
+  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("/Log")         );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("/Log/Node1")   );
+  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("/Node2")       );
+  BOOST_CHECK_EQUAL( list.at(4).toStdString(), std::string("/Node2/Node3") );
+  BOOST_CHECK_EQUAL( list.at(5).toStdString(), std::string("/Node2/Tree") );
+  BOOST_CHECK_EQUAL( list.at(6).toStdString(), std::string("/Node2/Node4")  );
+  BOOST_CHECK_EQUAL( list.at(7).toStdString(), std::string("/Node5")       );
 
   list.clear();
 
@@ -453,11 +453,11 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   // should have 5 strings
   BOOST_CHECK_EQUAL( list.count(), 5);
   // check the strings
-  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root")             );
-  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Node2")       );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node2/Node3") );
-  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2/Node4") );
-  BOOST_CHECK_EQUAL( list.at(4).toStdString(), std::string("//Root/Node5")       );
+  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("/")             );
+  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("/Node2")       );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("/Node2/Node3") );
+  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("/Node2/Node4") );
+  BOOST_CHECK_EQUAL( list.at(4).toStdString(), std::string("/Node5")       );
 
   list.clear();
 
@@ -468,10 +468,10 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   // should have 4 strings
   BOOST_CHECK_EQUAL( list.count(), 4);
   // check the strings
-  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root")       );
-  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Log")   );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node2") );
-  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node5") );
+  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("/")       );
+  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("/Log")   );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("/Node2") );
+  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("/Node5") );
 
 
   list.clear();
@@ -483,9 +483,9 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   // should have 3 strings
   BOOST_CHECK_EQUAL( list.count(), 3);
   // check the strings
-  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root")       );
-  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Node2") );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node5") );
+  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("/")       );
+  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("/Node2") );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("/Node5") );
 
   list.clear();
 
@@ -497,10 +497,10 @@ BOOST_AUTO_TEST_CASE( list_child_paths )
   BOOST_CHECK_EQUAL( list.count(), 4);
   // check the strings
   // Nodes should be in the order they were added
-  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("//Root/Node2")       );
-  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("//Root/Node2/Node3") );
-  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("//Root/Node2/Tree") );
-  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("//Root/Node2/Node4")  );
+  BOOST_CHECK_EQUAL( list.at(0).toStdString(), std::string("/Node2")       );
+  BOOST_CHECK_EQUAL( list.at(1).toStdString(), std::string("/Node2/Node3") );
+  BOOST_CHECK_EQUAL( list.at(2).toStdString(), std::string("/Node2/Tree") );
+  BOOST_CHECK_EQUAL( list.at(3).toStdString(), std::string("/Node2/Node4")  );
 }
 
 //////////////////////////////////////////////////////////////////////////////

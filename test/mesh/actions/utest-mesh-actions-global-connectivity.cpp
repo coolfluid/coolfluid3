@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -21,7 +20,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/MeshReader.hpp"
 
 using namespace cf3;
@@ -91,8 +90,8 @@ BOOST_AUTO_TEST_CASE( build )
 
   PEProcessSortedExecute(-1,
       std::cout << "rank = " << Comm::instance().rank() << std::endl;
-      std::cout << "nodes = " << mesh->geometry().glb_idx() << std::endl;
-      std::cout << "ranks = " << mesh->geometry().rank() << std::endl;
+      std::cout << "nodes = " << mesh->geometry_fields().glb_idx() << std::endl;
+      std::cout << "ranks = " << mesh->geometry_fields().rank() << std::endl;
       boost_foreach(const Entities& entities, mesh->topology().elements_range())
       {
         std::cout << "elems = " << entities.glb_idx() << std::endl;

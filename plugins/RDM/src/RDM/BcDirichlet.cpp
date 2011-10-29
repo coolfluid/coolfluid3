@@ -10,7 +10,7 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -37,7 +37,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
       ->mark_basic();
@@ -48,7 +48,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 
 void BcDirichlet::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
   m_function.parse();
@@ -66,7 +66,7 @@ void BcDirichlet::execute()
   Field& solution_field = solution();
 
 //  std::cout << "   field.size() == " << field.size() << std::endl;
-//  std::cout << "   coordinates.size() == " << mesh().geometry().coordinates().size() << std::endl;
+//  std::cout << "   coordinates.size() == " << mesh().geometry_fields().coordinates().size() << std::endl;
 
   std::vector<Real> vars( DIM_3D, 0.);
 
@@ -75,9 +75,9 @@ void BcDirichlet::execute()
   boost_foreach(Region::Ptr& region, m_loop_regions)
   {
 
-    /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry()
+    /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry_fields()
 
-    Geometry& nodes = mesh().geometry();
+    FieldGroup& nodes = mesh().geometry_fields();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())

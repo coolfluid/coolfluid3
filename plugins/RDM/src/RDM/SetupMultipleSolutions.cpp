@@ -17,7 +17,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -43,7 +43,7 @@ SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3
 {
   // options
 
-  m_options.add_option< OptionT<Uint> >( "nb_levels", 1u )
+  options().add_option< OptionT<Uint> >( "nb_levels", 1u )
       ->description("Number of solution levels to be created")
       ->pretty_name("Number of levels");
 }
@@ -61,7 +61,7 @@ void SetupMultipleSolutions::execute()
 
   // get the geometry field group
 
-  Geometry& geometry = mesh.geometry();
+  FieldGroup& geometry = mesh.geometry_fields();
 
   const std::string solution_space = mysolver.option("solution_space").value<std::string>();
 

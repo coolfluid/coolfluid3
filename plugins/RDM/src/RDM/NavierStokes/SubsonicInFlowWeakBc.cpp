@@ -42,14 +42,14 @@ SubsonicInFlowWeakBc::SubsonicInFlowWeakBc ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionT<std::string> > ("rho_in", std::string() )
+  options().add_option< OptionT<std::string> > ("rho_in", std::string() )
       ->description("Inlet density (vars x,y,z)")
       ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_density_function, this ) )
       ->mark_basic();
 
   density_function.variables("x,y,z");
 
-  m_options.add_option< OptionArrayT<std::string> > ("vel_in",std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("vel_in",std::vector<std::string>())
       ->description("Inlet velocity (vars x,y,z)")
       ->attach_trigger ( boost::bind ( &SubsonicInFlowWeakBc::config_velocity_function, this ) )
       ->mark_basic();
@@ -63,7 +63,7 @@ void SubsonicInFlowWeakBc::config_density_function()
 {
   std::cout << FromHere().short_str() << std::endl;
 
-  density_function.functions( m_options["rho_in"].value< std::string >() );
+  density_function.functions( options()["rho_in"].value< std::string >() );
   density_function.parse();
 }
 
@@ -73,7 +73,7 @@ void SubsonicInFlowWeakBc::config_velocity_function()
 {
   std::cout << FromHere().short_str() << std::endl;
 
-  velocity_function.functions( m_options["vel_in"].value< std::vector<std::string> >() );
+  velocity_function.functions( options()["vel_in"].value< std::vector<std::string> >() );
   velocity_function.parse();
 }
 

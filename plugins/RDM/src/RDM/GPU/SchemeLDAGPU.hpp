@@ -129,7 +129,7 @@ SchemeLDAGPU<SF,QD,PHYS>::SchemeLDAGPU ( const std::string& name ) :
 {
   regist_typeinfo(this);
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SF,QD,PHYS>::change_elements, this ) );
+  options()["Elements"].attach_trigger ( boost::bind ( &SchemeLDAGPU<SF,QD,PHYS>::change_elements, this ) );
 
   m_phi.resize(SF::nb_nodes);
 

@@ -12,7 +12,6 @@
 
 #include "common/Core.hpp"
 
-#include "common/Root.hpp"
 #include "common/LibLoader.hpp"
 #include "common/OSystem.hpp"
 
@@ -38,7 +37,7 @@ BOOST_AUTO_TEST_CASE( CreateGrid )
   loader.load_library("coolfluid_mesh_gmsh");
 
   // Setup document structure and mesh
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   Mesh& mesh = root.create_component<Mesh>("mesh");
   Tools::MeshGeneration::create_rectangle(mesh, 10., 5., 5, 5);

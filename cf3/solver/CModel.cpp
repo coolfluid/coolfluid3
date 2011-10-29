@@ -25,7 +25,7 @@
 
 #include "mesh/Domain.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Region.hpp"
 
 #include "physics/PhysModel.hpp"
@@ -72,15 +72,15 @@ CModel::CModel( const std::string& name  ) :
 
   std::string cwd = boost::filesystem::current_path().string();
 
-   m_options.add_option< OptionURI >("WorkingDir", URI( cwd ) )
+   options().add_option< OptionURI >("WorkingDir", URI( cwd ) )
        ->description("Your working directory")
        ->mark_basic();
 
-   m_options.add_option< OptionURI >("ResultsDir", URI( cwd ) )
+   options().add_option< OptionURI >("ResultsDir", URI( cwd ) )
        ->description("Directory to store the output files")
        ->mark_basic();
 
-   m_options.add_option< OptionT<Uint> >("CPUs", 1u )
+   options().add_option< OptionT<Uint> >("CPUs", 1u )
        ->description("Number of cpus to use in simulation")
        ->mark_basic();
 

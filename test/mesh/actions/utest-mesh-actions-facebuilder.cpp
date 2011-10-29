@@ -12,7 +12,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "common/FindComponents.hpp"
 
@@ -156,7 +155,7 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   SimpleMeshGenerator::Ptr mesh_gen = allocate_component<SimpleMeshGenerator>("mesh_gen");
   std::vector<Real> lengths  = list_of(10.)(10.);
   std::vector<Uint> nb_cells = list_of(5u)(5u);
-  mesh_gen->configure_option("mesh",URI("//Root/rectangle_mesh"))
+  mesh_gen->configure_option("mesh",URI("//rectangle_mesh"))
       .configure_option("lengths",lengths)
       .configure_option("nb_cells",nb_cells);
   Mesh& rmesh = mesh_gen->generate();

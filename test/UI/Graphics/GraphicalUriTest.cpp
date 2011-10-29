@@ -49,13 +49,13 @@ void GraphicalUriTest::test_constructor()
   QCOMPARE( lineEdit->text(), QString() );
 
   delete value;
-  OptionURI::Ptr option(new OptionURI("Option",  URI("cpath://Root")));
+  OptionURI::Ptr option(new OptionURI("Option",  URI("cpath:/")));
   value = new GraphicalUri(option);
   lineEdit = findLineEdit(value);
 
   // 2. value is not empty
   QVERIFY( is_not_null(lineEdit) );
-  QCOMPARE( lineEdit->text(), QString("cpath://Root") );
+  QCOMPARE( lineEdit->text(), QString("cpath:/") );
 
   delete value;
 }
@@ -64,7 +64,7 @@ void GraphicalUriTest::test_constructor()
 
 void GraphicalUriTest::test_setSchemes()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath://Root")));
+  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QComboBox * comboBox = findComboBox(value);
   std::vector<URI::Scheme::Type> schemes;
@@ -113,7 +113,7 @@ void GraphicalUriTest::test_setSchemes()
 
 void GraphicalUriTest::test_setValue()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath://Root")));
+  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = findLineEdit(value);
 
@@ -122,8 +122,8 @@ void GraphicalUriTest::test_setValue()
   //
   // 1. check with strings
   //
-  QVERIFY( value->set_value("cpath://Root/Component") );
-  QCOMPARE( lineEdit->text(), QString("cpath://Root/Component") );
+  QVERIFY( value->set_value("cpath:/Component") );
+  QCOMPARE( lineEdit->text(), QString("cpath:/Component") );
 
   QVERIFY( value->set_value("coolfluidsrv.vki.ac.be") );
   QCOMPARE( lineEdit->text(), QString("cpath:coolfluidsrv.vki.ac.be") );
@@ -150,7 +150,7 @@ void GraphicalUriTest::test_setValue()
 
 void GraphicalUriTest::test_value()
 {
-  OptionURI::Ptr option(new OptionURI("Option", URI("cpath://Root")));
+  OptionURI::Ptr option(new OptionURI("Option", URI("cpath:/")));
   GraphicalUri * value = new GraphicalUri(option);
   QLineEdit * lineEdit = findLineEdit(value);
   QComboBox * comboBox = findComboBox(value);
@@ -164,7 +164,7 @@ void GraphicalUriTest::test_value()
   // 1. get value when the scheme exists in the line edit
   theValue = value->value();
   QVERIFY( theValue.type() == QVariant::String );
-  QCOMPARE( theValue.toString(), QString("cpath://Root") );
+  QCOMPARE( theValue.toString(), QString("cpath:/") );
 
   // 2. get value when the scheme is determined by the combo box
   lineEdit->setText("/etc/fstab");
@@ -200,7 +200,7 @@ void GraphicalUriTest::test_signalEmmitting()
   //
   // 1. through setValue()
   //
-  value->set_value("cpath://Root");
+  value->set_value("cpath:/");
   value->set_value("file:/etc/fstab");
   value->set_value(12);
 
@@ -215,7 +215,7 @@ void GraphicalUriTest::test_signalEmmitting()
   lineEdit->clear();
   value->show(); // make the value visible (it ignores keyboard events if not)
   QTest::keyClicks(lineEdit, "cpath:" );
-  QTest::keyClicks(lineEdit, "//Root/Path" );
+  QTest::keyClicks(lineEdit, "//Path" );
   QTest::keyClicks(lineEdit, "/To/A/Component" );
 
   // 32 signals should have been emitted (one per character)
@@ -239,8 +239,8 @@ void GraphicalUriTest::test_valueString()
 {
   GraphicalUri * value = new GraphicalUri();
 
-  value->set_value("cpath://Root");
-  QCOMPARE( value->value_string(), QString("cpath://Root") );
+  value->set_value("cpath:/");
+  QCOMPARE( value->value_string(), QString("cpath:/") );
 
   value->set_value("http://coolfluidsrv.vki.ac.be");
   QCOMPARE( value->value_string(), QString("http://coolfluidsrv.vki.ac.be") );
@@ -259,17 +259,17 @@ void GraphicalUriTest::test_isModified()
   QVERIFY( !value->is_modified() );
 
   // 2. change the value
-  lineEdit->setText("cpath://Root");
+  lineEdit->setText("cpath:/");
   QVERIFY( value->is_modified() );
 
   // 3. change the value and commit
-  lineEdit->setText("cpath://Root/Component");
+  lineEdit->setText("cpath:/Component");
   QVERIFY( value->is_modified() );
   value->commit();
   QVERIFY( !value->is_modified() );
 
   // 4. set the same value
-  lineEdit->setText("cpath://Root/Component");
+  lineEdit->setText("cpath:/Component");
   QVERIFY( !value->is_modified() );
 
   delete value;

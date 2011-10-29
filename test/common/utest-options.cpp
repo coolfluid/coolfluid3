@@ -15,7 +15,6 @@
 #include "common/BasicExceptions.hpp"
 #include "common/Group.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
@@ -82,7 +81,7 @@ typename SelectOptionType<T>::type& add_option(OptionList& options, const std::s
 
 BOOST_AUTO_TEST_CASE( StringOption )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   //root.options().add_option< OptionT<std::string> >("test_option", "Test Option", "test01");
   root.options().add_option< OptionT<std::string> >( "test_option", "test01");
@@ -98,7 +97,7 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
   ExceptionManager::instance().ExceptionAborts = false;
   ExceptionManager::instance().ExceptionOutputs = false;
 
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   const Component& referred = root.create_component<Component>("ReferredComponent");
 
   //OptionComponent<Component>::Ptr opt = boost::dynamic_pointer_cast< OptionComponent<Component> >(root.options().add_option< OptionComponent<Component> >("test_component_option", "Test component option", root.uri()));
@@ -129,7 +128,7 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
 
 BOOST_AUTO_TEST_CASE( TestOptionArray )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   std::vector<int> def;
   def += 1,2,3,4,5,6,7,8,9;
@@ -140,7 +139,7 @@ BOOST_AUTO_TEST_CASE( TestOptionArray )
 
 BOOST_AUTO_TEST_CASE( TestOptionURI )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   // Since the result is properly typed, we can immediately call supported_protocol
   add_option<URI>(root.options(), "test_uri_option", root.uri()).supported_protocol(cf3::common::URI::Scheme::CPATH);

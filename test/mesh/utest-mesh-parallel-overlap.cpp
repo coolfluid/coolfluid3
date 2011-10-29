@@ -14,7 +14,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/Foreach.hpp"
@@ -33,7 +32,8 @@
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/MeshWriter.hpp"
@@ -184,7 +184,7 @@ void my_all_to_all(const PE::Buffer& send, std::vector<int>& send_strides, PE::B
 }
 
 
-bool check_nodes_sanity(Geometry& nodes)
+bool check_nodes_sanity(FieldGroup& nodes)
 {
   bool sane = true;
   std::map<Uint,Uint> glb_node_2_loc_node;
@@ -210,7 +210,7 @@ bool check_element_nodes_sanity(Mesh& mesh)
 
   boost_foreach( Entities& entities, mesh.topology().elements_range())
   {
-    Uint max_node_idx = entities.geometry().size();
+    Uint max_node_idx = entities.geometry_fields().size();
 
     for (Uint e=0; e<entities.size(); ++e)
     {
@@ -295,7 +295,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
 
   // Create or read the mesh
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("parent",URI("//Root"));
+  meshgenerator->configure_option("parent",URI("/"));
   meshgenerator->configure_option("name",std::string("test_mpinode_mesh"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
@@ -317,7 +317,7 @@ BOOST_AUTO_TEST_CASE( test_buffer_MPINode )
   build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_elem_node_connectivity")->transform(mesh);
 
   BOOST_CHECK(true);
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
 
   PackUnpackNodes copy_node(nodes);
   PE::Buffer buf;
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 #ifdef GEN
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);
   std::vector<Real> lengths(2);
   nb_cells[0] = 100;
@@ -380,7 +380,7 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
 
 
   Core::instance().root().add_component(mesh);
-  Geometry& nodes = mesh.geometry();
+  FieldGroup& nodes = mesh.geometry_fields();
 
   MeshWriter::Ptr tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");
@@ -847,7 +847,7 @@ CFinfo << "Growing Overlap... done" << CFendl;
 
 BOOST_CHECK(true);
 
-  Field& glb_node = mesh.geometry().create_field("glb_node");
+  Field& glb_node = mesh.geometry_fields().create_field("glb_node");
   boost_foreach(const Uint node, debug_nodes)
       glb_node[node][0] = 1.;
 

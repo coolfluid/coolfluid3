@@ -44,12 +44,12 @@ CIterate::CIterate( const std::string& name  ) :
   "It can have one or more stop criteria\n";
   m_properties["description"] = description;
 
-  m_options.add_option( OptionT<bool>::create("verbose", m_verbose))
+  options().add_option( OptionT<bool>::create("verbose", m_verbose))
       ->description("Print iteration number")
       ->pretty_name("Verbose")
       ->link_to(&m_verbose);
 
-  m_options.add_option< OptionT<Uint> >("max_iter", m_max_iter)
+  options().add_option< OptionT<Uint> >("max_iter", m_max_iter)
       ->description("Maximal number of iterations")
       ->pretty_name("Max Iterations")
       ->link_to(&m_max_iter);

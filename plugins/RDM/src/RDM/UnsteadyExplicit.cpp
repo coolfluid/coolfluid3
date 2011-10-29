@@ -61,7 +61,7 @@ UnsteadyExplicit::UnsteadyExplicit ( const std::string& name  ) :
 {
   // options
 
-  m_options.add_option< OptionT<Uint> >( "rkorder", 1u )
+  options().add_option< OptionT<Uint> >( "rkorder", 1u )
       ->description("Order of the explicit time stepping")
       ->pretty_name("Time Step Order");
 

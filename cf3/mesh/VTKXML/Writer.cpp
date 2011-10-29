@@ -31,7 +31,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Field.hpp"
 
 #include "rapidxml/rapidxml.hpp"
@@ -201,7 +201,7 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    m_options.add_option< OptionT<bool> >("distributed_files", false)
+    options().add_option< OptionT<bool> >("distributed_files", false)
     ->pretty_name("Distributed Files")
     ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
@@ -237,7 +237,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
   XmlNode unstructured_grid = vtkfile.add_node("UnstructuredGrid");
 
-  const Field& coords = mesh.topology().geometry().coordinates();
+  const Field& coords = mesh.topology().geometry_fields().coordinates();
   const Uint npoints = coords.size();
   const Uint dim = coords.row_size();
 

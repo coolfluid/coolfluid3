@@ -32,23 +32,23 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
+  options().add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
+  options().add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  options().add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
   std::vector< common::URI > dummy;
-  m_options.add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
+  options().add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
       ->description("Regions this action is applied to")
       ->pretty_name("Regions")
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );

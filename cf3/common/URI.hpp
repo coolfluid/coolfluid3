@@ -173,6 +173,9 @@ namespace common {
 
   private:
 
+    /// Cleans up the stored string, i.e. remove multiple / in sequence, ...
+    void cleanup();
+
     /// path string
     std::string m_path;
     /// Current URI protocol

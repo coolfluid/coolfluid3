@@ -37,7 +37,7 @@ Space::Space ( const std::string& name ) :
   m_properties["brief"] = std::string("Spaces are other views of Entities, for instance a higher-order representation");
   m_properties["description"] = std::string("");
 
-  m_options.add_option(OptionT<std::string>::create("shape_function", std::string("")))
+  options().add_option(OptionT<std::string>::create("shape_function", std::string("")))
       ->description("Shape Function defined in this space")
       ->pretty_name("Shape Function")
       ->attach_trigger(boost::bind(&Space::configure_shape_function, this))
@@ -45,7 +45,7 @@ Space::Space ( const std::string& name ) :
 
   m_connectivity = create_static_component_ptr<Connectivity>("connectivity");
 
-  m_bound_fields = create_static_component_ptr<Link>("bound_fields");
+  m_fields = create_static_component_ptr<Link>("fields");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -102,15 +102,15 @@ void Space::configure_shape_function()
 
 bool Space::is_bound_to_fields() const
 {
-  return m_bound_fields->is_linked();
+  return m_fields->is_linked();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Space::bound_fields() const
+FieldGroup& Space::fields() const
 {
   cf3_assert(is_bound_to_fields());
-  return m_bound_fields->follow()->as_type<FieldGroup>();
+  return m_fields->follow()->as_type<FieldGroup>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -160,10 +160,10 @@ RealMatrix Space::compute_coordinates(const Uint elem_idx) const
 
 void Space::put_coordinates(RealMatrix& coordinates, const Uint elem_idx) const
 {
-  if (bound_fields().has_coordinates())
+  if (fields().has_coordinates())
   {
     Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-    Field& coordinates_field = bound_fields().coordinates();
+    Field& coordinates_field = fields().coordinates();
 
     cf3_assert(coordinates.rows() == indexes.size());
     cf3_assert(coordinates.cols() == coordinates_field.row_size());
@@ -204,11 +204,11 @@ void Space::allocate_coordinates(RealMatrix& coordinates) const
 
 RealMatrix Space::get_coordinates(const Uint elem_idx) const
 {
-  if (bound_fields().has_coordinates())
+  if (fields().has_coordinates())
   {
 
     Connectivity::ConstRow indexes = indexes_for_element(elem_idx);
-    Field& coordinates_field = bound_fields().coordinates();
+    Field& coordinates_field = fields().coordinates();
     RealMatrix coordinates(indexes.size(),coordinates_field.row_size());
     for (Uint i=0; i<coordinates.rows(); ++i)
     {

@@ -23,7 +23,7 @@ Library::Library(const std::string & lib_name) : Component(lib_name),
 
 Library::~Library()
 {
-  terminate(); // insure cleanup
+  // No terminate allowed here. See http://www.artima.com/cppsource/pure_virtual.html
 }
 
 std::string Library::lib_kversion()

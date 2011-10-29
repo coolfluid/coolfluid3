@@ -317,9 +317,6 @@ QModelIndex NTree::index_from_path(const URI & path) const
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first() == treeNode->node_name())
-      comps.removeFirst();
-
     for(it = comps.begin() ; it != comps.end() && treeNode != nullptr ; it++)
     {
       treeNode = treeNode->child_by_name(*it);
@@ -601,8 +598,8 @@ void NTree::list_tree_reply(SignalArgs & args)
   try
   {
     NRoot::Ptr tree_root = m_root_node->node()->castTo<NRoot>();
-    NRoot::Ptr root_node = CNode::create_from_xml(args.main_map.content.content->first_node())->castTo<NRoot>();
-    ComponentIterator<CNode> it = root_node->root()->begin<CNode>();
+    CNode::Ptr root_node = CNode::create_from_xml(args.main_map.content.content->first_node());
+    ComponentIterator<CNode> it = root_node->root().begin<CNode>();
     URI currentIndexPath;
 
     if(m_current_index.isValid())
@@ -613,8 +610,8 @@ void NTree::list_tree_reply(SignalArgs & args)
     //
     // rename the root
     //
-    tree_root->rename(root_node->root()->name());
-    tree_root->root()->rename(root_node->root()->name());
+    tree_root->rename(root_node->root().name());
+    tree_root->root()->rename(root_node->root().name());
 
     //
     // remove old nodes
@@ -641,7 +638,7 @@ void NTree::list_tree_reply(SignalArgs & args)
     // add the new nodes
     //
 
-    for( ; it != root_node->root()->end<CNode>() ; it++)
+    for( ; it != root_node->root().end<CNode>() ; it++)
       tree_root->root()->add_component(it.get());
 
     // child count may have changed, ask the root TreeNode to update its internal data

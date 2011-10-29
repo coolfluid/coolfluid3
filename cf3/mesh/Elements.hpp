@@ -43,10 +43,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Elements using the given type and set the nodes
-  virtual void initialize(const std::string& element_type_name, Geometry& geo);
+  virtual void initialize(const std::string& element_type_name, FieldGroup& geo);
 
   /// Set nodes
-  virtual void assign_geometry(Geometry& geo);
+  virtual void assign_geometry(FieldGroup& geo);
 
   /// Virtual destructor
   virtual ~Elements();

@@ -44,35 +44,35 @@ ComputeUpdateCoefficient::ComputeUpdateCoefficient ( const std::string& name ) :
 {
   mark_basic();
   // options
-  m_options.add_option< OptionT<bool> > ("time_accurate", true)
+  options().add_option< OptionT<bool> > ("time_accurate", true)
     ->description("Time Accurate")
     ->pretty_name("Time Accurate")
     ->mark_basic()
     ->add_tag("time_accurate");
 
-  m_options.add_option< OptionT<Real> > ("cfl", 1.)
+  options().add_option< OptionT<Real> > ("cfl", 1.)
     ->description("Courant Number")
     ->pretty_name("CFL")
     ->mark_basic()
     ->add_tag("cfl");
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
     ->description("Update coefficient to multiply with residual")
     ->pretty_name("Update Coefficient");
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::wave_speed(), &m_wave_speed ))
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::wave_speed(), &m_wave_speed ))
     ->description("Wave Speed multiplied divided by characteristic length")
     ->pretty_name("Wave Speed");
 
-  m_options.add_option(OptionComponent<CTime>::create(SFDM::Tags::time(), &m_time))
+  options().add_option(OptionComponent<CTime>::create(SFDM::Tags::time(), &m_time))
     ->description("Time Tracking component")
     ->pretty_name("Time");
 
-  m_options.add_option(OptionT<Real>::create("milestone_dt", 0.))
+  options().add_option(OptionT<Real>::create("milestone_dt", 0.))
     ->description("Limits time-steps to fall on milestones")
     ->pretty_name("Milestone Time Step");
 
-  m_options.add_option(OptionT<bool>::create("freeze_update_coeff", m_freeze))
+  options().add_option(OptionT<bool>::create("freeze_update_coeff", m_freeze))
     ->description("Disable (re)computation of update_coefficient. Some multistage methods might want to freeze this")
     ->pretty_name("Freeze Update Coefficient")
     ->link_to(&m_freeze);

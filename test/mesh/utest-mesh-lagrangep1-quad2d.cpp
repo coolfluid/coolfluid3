@@ -11,10 +11,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 
 #include "common/Table.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Quad2D.hpp"
 #include "mesh/Elements.hpp"
@@ -88,7 +87,7 @@ BOOST_AUTO_TEST_CASE( Element )
 {
   // Create a Elements component
   Elements::Ptr comp = allocate_component<Elements>("comp");
-  Geometry::Ptr nodes = allocate_component<Geometry>("nodes");
+  FieldGroup::Ptr nodes = allocate_component<FieldGroup>("nodes");
   comp->initialize("cf3.mesh.LagrangeP1.Quad2D",*nodes);
   BOOST_CHECK_EQUAL(comp->element_type().shape(), GeoShape::QUAD);
   BOOST_CHECK_EQUAL(comp->element_type().nb_faces(), (Uint) 4);

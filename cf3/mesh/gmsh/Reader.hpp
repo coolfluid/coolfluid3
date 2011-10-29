@@ -25,7 +25,8 @@ namespace mesh {
 class Elements;
 class Region;
 class MergedParallelDistribution;
-class Geometry;
+class FieldGroup;
+
 class Mesh;
 
 namespace gmsh {

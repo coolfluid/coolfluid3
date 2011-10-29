@@ -12,7 +12,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 
 #include "common/PE/CommPattern.hpp"
 
@@ -50,7 +49,7 @@ struct UFEMBuildSparsityFixture
   {
   }
 
-  Root& root;
+  Component& root;
 };
 
 BOOST_FIXTURE_TEST_SUITE( UFEMBuildSparsitySuite, UFEMBuildSparsityFixture )
@@ -91,7 +90,7 @@ BOOST_AUTO_TEST_CASE( Sparsity1D )
     BOOST_CHECK_EQUAL(starting_indices[i] - starting_indices[i-1], 3);
 
   // Create the LSS
-  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -123,7 +122,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DQuads )
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
   // Create the LSS
-  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -155,7 +154,7 @@ BOOST_AUTO_TEST_CASE( Sparsity2DTris )
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
   // Create the LSS
-  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -206,14 +205,14 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaBlock )
                          list_of(2)(3)(7)(6);
   BlockMesh::build_mesh(blocks, mesh);
 
-  BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry().coordinates().size());
+  BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry_fields().coordinates().size());
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
   // Create the LSS
-  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
 
 
   // Write the matrix
@@ -242,14 +241,14 @@ BOOST_AUTO_TEST_CASE( Sparsity3DHexaChannel )
   Tools::MeshGeneration::create_channel_3d(blocks, length, length/8., length, nb_segments, nb_segments/2, nb_segments, 1.);
   BlockMesh::build_mesh(blocks, mesh);
 
-  BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry().coordinates().size());
+  BOOST_CHECK_EQUAL(nb_nodes, mesh.geometry_fields().coordinates().size());
 
   // Setup sparsity
   std::vector<Uint> node_connectivity, starting_indices;
   UFEM::build_sparsity(mesh, node_connectivity, starting_indices);
 
   // Create the LSS
-  lss.create(mesh.geometry().comm_pattern(), 1u, node_connectivity, starting_indices);
+  lss.create(mesh.geometry_fields().comm_pattern(), 1u, node_connectivity, starting_indices);
 
   // Write the matrix
   lss.matrix()->print("utest-ufem-buildsparsity_heat_matrix_3DHexaChannel.plt");

@@ -15,7 +15,7 @@
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/ElementType.hpp"
 
 #include "solver/actions/CLoopOperation.hpp"
@@ -60,7 +60,7 @@ protected: // helper functions
     connectivity =
         elements().as_ptr<mesh::Elements>()->node_connectivity().as_ptr< mesh::Connectivity >();
     coordinates =
-        elements().geometry().coordinates().as_ptr< mesh::Field >();
+        elements().geometry_fields().coordinates().as_ptr< mesh::Field >();
 
     cf3_assert( is_not_null(connectivity) );
     cf3_assert( is_not_null(coordinates) );
@@ -124,7 +124,7 @@ BcBase<SF,QD,PHYS>::BcBase ( const std::string& name ) :
 {
   regist_typeinfo(this);
 
-  m_options["elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
+  options()["elements"].attach_trigger ( boost::bind ( &BcBase<SF,QD,PHYS>::change_elements, this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

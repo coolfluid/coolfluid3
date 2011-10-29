@@ -11,7 +11,6 @@
 #include <boost/assign/list_of.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/StreamHelpers.hpp"

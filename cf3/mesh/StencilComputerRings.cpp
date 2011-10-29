@@ -20,7 +20,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ StencilComputerRings::StencilComputerRings( const std::string& name )
 {
   option("mesh").attach_trigger(boost::bind(&StencilComputerRings::configure_mesh,this));
 
-  m_options.add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
+  options().add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
       ->description("Number of neighboring rings of elements in stencil")
       ->pretty_name("Number of Rings")
       ->link_to(&m_nb_rings);

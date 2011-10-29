@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -24,7 +23,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/Geometry.hpp"
+#include "mesh/FieldGroup.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -128,7 +127,7 @@ struct ProtoBenchmarkFixture :
     const Uint offset;
   };
 
-  Root& root;
+  Component& root;
   const Real length;
   const Real half_height;
   const Real width;
@@ -169,7 +168,7 @@ BOOST_AUTO_TEST_CASE( SetupDirect )
 
   direct_arrays.reset(new DirectArrays
   (
-    mesh.geometry().coordinates(),
+    mesh.geometry_fields().coordinates(),
     elements.node_connectivity().array(),
     vol_field,
     vol_field.field_group().space(elements).elements_begin()
