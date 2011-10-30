@@ -11,7 +11,6 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
-#include <../coolfluid-deps/include/boost/concept_check.hpp>
 
 namespace cf3 {
 namespace mesh {
