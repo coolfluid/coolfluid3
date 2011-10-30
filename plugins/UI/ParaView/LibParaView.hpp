@@ -65,13 +65,12 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibParaView"; }
 
+  virtual void initiate();
+  
 protected:
 
   /// initiate library
   virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -14,18 +14,6 @@ namespace MeshGeneration {
 
 cf3::common::RegistLibrary<LibMeshGeneration> libMeshGeneration;
 
-////////////////////////////////////////////////////////////////////////////////
-
-void LibMeshGeneration::initiate_impl()
-{
-}
-
-void LibMeshGeneration::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // LibMeshGeneration
 } // Tools
 } // cf3

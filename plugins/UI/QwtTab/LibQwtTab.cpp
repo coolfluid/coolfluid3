@@ -27,17 +27,20 @@ cf3::common::RegistLibrary<LibQwtTab> libQwtTab;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void LibQwtTab::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+
 void LibQwtTab::initiate_impl()
 {
   NPlugins::global()->register_plugin<LibQwtTab>();
   CNodeBuilders::instance().register_builder<NPlotXY>("cf3.solver.CPlotXY");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibQwtTab::terminate_impl()
-{
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////

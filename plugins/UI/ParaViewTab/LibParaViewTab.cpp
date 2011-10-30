@@ -32,6 +32,31 @@ cf3::common::RegistLibrary<LibParaViewTab> libParaViewTab;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+LibParaViewTab::~LibParaViewTab()
+{
+  if(m_is_initiated)
+    terminate_impl();
+}
+
+void LibParaViewTab::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+void LibParaViewTab::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
+
 void LibParaViewTab::initiate_impl()
 {
   common::Core & core = common::Core::instance();

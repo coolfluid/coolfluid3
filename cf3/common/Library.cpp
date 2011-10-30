@@ -23,7 +23,6 @@ Library::Library(const std::string & lib_name) : Component(lib_name),
 
 Library::~Library()
 {
-  // No terminate allowed here. See http://www.artima.com/cppsource/pure_virtual.html
 }
 
 std::string Library::lib_kversion()
@@ -38,22 +37,12 @@ std::string Library::lib_version()
 
 void  Library::initiate()
 {
-  if(!m_is_initiated)
-  {
-    //CFinfo << "+ initiating library \'" << name() << "\'" << CFendl;
-    initiate_impl();
-    m_is_initiated = true;
-  }
+  m_is_initiated = true;
 }
 
 void  Library::terminate()
 {
-  if(m_is_initiated)
-  {
-    //CFinfo << "+ terminating library \'" << name() << "\'" << CFendl;
-    terminate_impl();
-    m_is_initiated = false;
-  }
+  m_is_initiated = false;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

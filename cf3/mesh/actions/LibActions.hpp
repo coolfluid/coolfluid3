@@ -67,14 +67,6 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "mesh::actions::LibActions"; }
 
-protected:
-
-  /// initiate library
-  virtual void initiate_impl();
-
-  /// terminate library
-  virtual void terminate_impl();
-
 }; // end mesh::actions::LibActions
 
 ////////////////////////////////////////////////////////////////////////////////

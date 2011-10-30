@@ -16,18 +16,6 @@ namespace NavierStokes {
 
 cf3::common::RegistLibrary<LibNavierStokes> LibNavierStokes;
 
-////////////////////////////////////////////////////////////////////////////////
-
-void LibNavierStokes::initiate_impl()
-{
-}
-
-void LibNavierStokes::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // NavierStokes
 } // physics
 } // cf3

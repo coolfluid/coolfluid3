@@ -11,6 +11,7 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/WriteMesh.hpp"
+#include <../coolfluid-deps/include/boost/concept_check.hpp>
 
 namespace cf3 {
 namespace mesh {
@@ -20,6 +21,33 @@ using namespace cf3::common;
 cf3::common::RegistLibrary<LibMesh> libMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+LibMesh::~LibMesh()
+{
+  if(m_is_initiated)
+    terminate_impl();
+}
+
+
+void LibMesh::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+
+void LibMesh::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
 
 void LibMesh::initiate_impl()
 {
