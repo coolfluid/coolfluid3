@@ -48,8 +48,6 @@ public:
 
   /// Constructor
   LibMesh ( const std::string& name) : common::Library(name) {   }
-  
-  ~LibMesh();
 
 public: // functions
 
@@ -84,6 +82,9 @@ private:
 
   /// terminate library
   void terminate_impl();
+  
+  boost::weak_ptr<common::Component> m_load_mesh;
+  boost::weak_ptr<common::Component> m_write_mesh;
 
 }; // end LibMesh
 

@@ -91,7 +91,11 @@ Core::Core()
   tools->properties()["description"] = std::string("");
 }
 
-Core::~Core() {}
+Core::~Core()
+{
+  // Make sure libs are terminated before the destruction of root
+  terminate();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
