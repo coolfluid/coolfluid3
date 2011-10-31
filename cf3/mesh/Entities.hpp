@@ -143,6 +143,9 @@ public:
   Entities const* comp;
   Uint idx;
 
+
+  static std::string type_name() { return "Entity"; }
+
   /// return the elementType
   ElementType& element_type() const;
   Uint glb_idx() const;

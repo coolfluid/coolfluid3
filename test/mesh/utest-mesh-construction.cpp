@@ -24,6 +24,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/ElementConnectivity.hpp"
 
 #include "mesh/MeshWriter.hpp"
 
@@ -338,6 +339,9 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   {
     std::cout << entity << std::endl;
   }
+
+  std::cout << ElementConnectivity::type_name() << std::endl;
+
 
 }
 

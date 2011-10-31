@@ -28,7 +28,7 @@ namespace mesh {
 
 using namespace common;
 
-RegistTypeInfo<Entity,LibMesh> regist_Entity(LibMesh::library_namespace()+"."+"Entity");
+RegistTypeInfo<Entity,LibMesh> regist_Entity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
