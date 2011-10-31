@@ -122,26 +122,6 @@ QString CNode::component_type() const
 
 ////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr CNode::real_component()
-{
-  if( m_is_root )
-    return castTo<NRoot>()->root();
-
-  return as_ptr<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////
-
-Component::ConstPtr CNode::real_component() const
-{
-  if( m_is_root )
-    return castTo<const NRoot>()->root();
-
-  return as_ptr<const Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////
-
 void CNode::set_properties( const SignalArgs & options )
 {
   QMutexLocker locker(m_mutex);
@@ -413,13 +393,14 @@ CNode::Ptr CNode::child(cf3::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
-  Component::Ptr compo = real_component();
+  ComponentIterator<CNode> it = component_begin<CNode>(*this);
 
-  std::vector<CNode::Ptr> nodes;
-  compo->put_components<CNode>(nodes,false);
+  cf3_assert(index < count_children());
 
-  cf3_assert(index < nodes.size());
-  return nodes[index];
+  for(Uint i = 0 ; i < index ; i++)
+    it++;
+
+  return it.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -445,14 +426,13 @@ void CNode::list_child_paths( QStringList & list,
                               bool client_nodes ) const
 {
   QMutexLocker locker(m_mutex);
-  Component::ConstPtr comp = real_component();
 
-  ComponentIterator<const CNode> it_begin = component_begin<const CNode>(*comp);
-  ComponentIterator<const CNode> it_end   = component_end<const CNode>(*comp);
+  ComponentIterator<const CNode> it_begin = component_begin<const CNode>(*this);
+  ComponentIterator<const CNode> it_end   = component_end<const CNode>(*this);
 
   // add the current path
   if(list.isEmpty())
-    list << comp->uri().path().c_str();
+    list << uri().path().c_str();
 
   for( ; it_begin != it_end ; it_begin++)
   {
@@ -473,7 +453,7 @@ void CNode::add_node(CNode::Ptr node)
 {
   QMutexLocker locker(m_mutex);
 
-  real_component()->add_component(node);
+  add_component(node);
 
   m_notifier->notify_child_count_changed();
 }
@@ -484,7 +464,7 @@ void CNode::remove_node(const QString & nodeName)
 {
   QMutexLocker locker(m_mutex);
 
-  real_component()->remove_component( nodeName.toStdString() );
+  remove_component( nodeName.toStdString() );
 
   m_notifier->notify_child_count_changed();
 }
@@ -549,18 +529,17 @@ void CNode::list_properties(QMap<QString, QString> & props)
     fetch_content();
   else
   {
-    Component::Ptr comp = real_component();
-    PropertyList::const_iterator it_prop = comp->properties().begin();
-    OptionList::const_iterator it_opt = comp->options().begin();
+    PropertyList::const_iterator it_prop = m_properties.begin();
+    OptionList::const_iterator it_opt = m_options.begin();
 
     props.clear();
 
     // add the properties
-    for( ; it_prop != comp->properties().end() ; ++it_prop)
+    for( ; it_prop != m_properties.end() ; ++it_prop)
       props[ it_prop->first.c_str() ] =  any_to_str(it_prop->second).c_str();
 
     // add the options
-    for( ; it_opt != comp->options().end() ; ++it_opt)
+    for( ; it_opt != m_options.end() ; ++it_opt)
       props[ it_opt->first.c_str() ] = it_opt->second->value_str().c_str();
   }
 
@@ -690,7 +669,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
 
 void CNode::request_signal_signature(const QString & name)
 {
-  URI path = real_component()->uri();
+  URI path = uri();
   XmlNode * node;
 
   SignalFrame frame("signal_signature", path, path);
@@ -714,7 +693,7 @@ void CNode::fetch_content()
   NetworkThread& network = ThreadManager::instance().network();
   if(!m_content_listed && !m_listing_content && network.is_connected())
   {
-    URI path = real_component()->uri();
+    URI path = uri();
 
     SignalFrame frame("list_content", path, path);
 

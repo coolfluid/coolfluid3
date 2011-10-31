@@ -72,13 +72,19 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibMesh"; }
 
-protected:
+  virtual void initiate();
+  virtual void terminate();
+  
+private:
 
   /// initiate library
-  virtual void initiate_impl();
+  void initiate_impl();
 
   /// terminate library
-  virtual void terminate_impl();
+  void terminate_impl();
+  
+  boost::weak_ptr<common::Component> m_load_mesh;
+  boost::weak_ptr<common::Component> m_write_mesh;
 
 }; // end LibMesh
 

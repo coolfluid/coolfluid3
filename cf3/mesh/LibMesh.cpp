@@ -21,19 +21,42 @@ cf3::common::RegistLibrary<LibMesh> libMesh;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+void LibMesh::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+
+void LibMesh::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
+
 void LibMesh::initiate_impl()
 {
-  Core::instance().tools().create_component_ptr<mesh::LoadMesh>( "LoadMesh" )
-      ->mark_basic();
+  m_load_mesh = Core::instance().tools().create_component_ptr<mesh::LoadMesh>( "LoadMesh" );
+  m_load_mesh.lock()->mark_basic();
 
-  Core::instance().tools().create_component_ptr<mesh::WriteMesh>( "WriteMesh" )
-      ->mark_basic();
+  m_write_mesh =  Core::instance().tools().create_component_ptr<mesh::WriteMesh>( "WriteMesh" );
+  m_write_mesh.lock()->mark_basic();
 }
 
 void LibMesh::terminate_impl()
 {
-  Core::instance().tools().remove_component("LoadMesh");
-  Core::instance().tools().remove_component("WriteMesh");
+  if(!m_load_mesh.expired())
+    Core::instance().tools().remove_component("LoadMesh");
+  
+  if(!m_write_mesh.expired())
+    Core::instance().tools().remove_component("WriteMesh");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

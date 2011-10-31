@@ -329,14 +329,14 @@ BOOST_AUTO_TEST_CASE( list_options )
 
 BOOST_AUTO_TEST_CASE( create_from_xml )
 {
-  CNode::Ptr node;
+  Component::Ptr node;
   NRoot::Ptr root;
   NGeneric::Ptr group;
 
   BOOST_REQUIRE_NO_THROW(root = makeTreeFromFile());
 
-  BOOST_REQUIRE_NO_THROW(node = boost::dynamic_pointer_cast<CNode>(root->root()->get_child_ptr("Tools")));
-  BOOST_REQUIRE_NO_THROW(group = node->castTo<NGeneric>());
+  BOOST_REQUIRE_NO_THROW(node = root->get_child_ptr("Tools") );
+  BOOST_REQUIRE_NO_THROW(group = node->as_ptr_checked<NGeneric>());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -351,7 +351,7 @@ BOOST_AUTO_TEST_CASE( add_node )
 
   BOOST_REQUIRE_NO_THROW( root->add_node(node));
   // the component should have been added to the *real* root (Root)
-  BOOST_REQUIRE_NO_THROW( root->root()->access_component_ptr("cpath:/Node")->as_ptr<NGeneric>() );
+  BOOST_REQUIRE_NO_THROW( root->access_component_ptr("cpath:/Node")->as_ptr<NGeneric>() );
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
@@ -378,12 +378,12 @@ BOOST_AUTO_TEST_CASE( remove_node )
 
   BOOST_REQUIRE_NO_THROW( root->remove_node("Node"));
   // the component should have been removed from the REAL root (Root)
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr("cpath:/Node").get(), nullComp);
+  BOOST_CHECK_EQUAL( root->access_component_ptr("cpath:/Node").get(), nullComp);
 
   BOOST_CHECK_EQUAL(rootSpy.count(), 1);
 
   BOOST_REQUIRE_NO_THROW( node->remove_node( CLIENT_LOG ) );
-  BOOST_CHECK_EQUAL( root->root()->access_component_ptr( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
+  BOOST_CHECK_EQUAL( root->access_component_ptr( "cpath:/Node/" CLIENT_LOG ).get(), nullComp );
 
   BOOST_CHECK_EQUAL( nodeSpy.count(), 1 );
 }

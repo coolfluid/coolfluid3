@@ -52,7 +52,7 @@ public:
   template<typename TYPE>
   typename TYPE::Ptr root_child(const std::string & name) const
   {
-    return m_root->root()->get_child_ptr("UI")->get_child_ptr(name)->as_ptr<TYPE>();
+    return m_root->get_child_ptr("UI")->get_child_ptr(name)->as_ptr<TYPE>();
   }
 
   void set_mutex(QMutex * mutex);

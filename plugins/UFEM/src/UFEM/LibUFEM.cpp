@@ -15,26 +15,5 @@ using namespace cf3::common;
 
 cf3::common::RegistLibrary<LibUFEM> libUFEM;
 
-////////////////////////////////////////////////////////////////////////////////
-
-void LibUFEM::initiate_impl()
-{
-//   Core::instance().root()
-//     .get_child_ptr("Tools")
-//     ->create_component_ptr<SetupLinearSystem>( "SetupHeatConduction" )
-//     ->mark_basic();
-
-
-}
-
-void LibUFEM::terminate_impl()
-{
-//   Core::instance().root()
-//       .get_child_ptr("Tools")
-//       ->remove_component("SetupHeatConduction");
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // UFEM
 } // cf3

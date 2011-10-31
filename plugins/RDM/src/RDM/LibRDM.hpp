@@ -40,6 +40,7 @@ public:
 
   /// Constructor
   LibRDM ( const std::string& name) : common::Library(name) {   }
+  ~LibRDM();
 
 public: // functions
 
@@ -63,6 +64,9 @@ public: // functions
   /// Gets the Class name
   static std::string type_name() { return "LibRDM"; }
 
+  virtual void initiate();
+  virtual void terminate();
+  
 protected:
 
   /// initiate library

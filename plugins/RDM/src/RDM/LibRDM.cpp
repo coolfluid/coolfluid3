@@ -22,6 +22,34 @@ cf3::common::RegistLibrary<LibRDM> LibRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+LibRDM::~LibRDM()
+{
+  if(m_is_initiated)
+    terminate_impl();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void LibRDM::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+void LibRDM::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
+
 void LibRDM::initiate_impl()
 {
   Group& rdm_group =

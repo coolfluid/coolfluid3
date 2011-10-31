@@ -73,8 +73,6 @@ NRoot::NRoot(const std::string & name)
   signal("connect_server")->signature( boost::bind(&NRoot::signature_connect_server, this, _1) );
   signal("disconnect_server")->signature( boost::bind(&NRoot::signature_disconnect_server, this, _1) );
 
-  m_root = boost::static_pointer_cast<Component>(allocate_component<Group>(name));
-
   connect(&ThreadManager::instance().network(), SIGNAL(connected()),
           this, SLOT(connected_to_server()));
   connect(&ThreadManager::instance().network(), SIGNAL(disconnected_from_server(bool)),
@@ -90,13 +88,28 @@ QString NRoot::tool_tip() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-CNode::Ptr NRoot::child_from_root(cf3::Uint number) const
+CNode::ConstPtr NRoot::child_from_root(cf3::Uint number) const
 {
-  ComponentIterator<CNode> it = component_begin<CNode>(*m_root);
-  ComponentIterator<CNode> end = component_end<CNode>(*m_root);
-  cf3::Uint i;
+  ComponentIterator<CNode const> it = component_begin<CNode>(*this);
+  ComponentIterator<CNode const> end = component_end<CNode>(*this);
 
-  for(i = 0 ; i < number && it != end ; i++)
+  for(Uint i = 0 ; i < number && it != end ; i++)
+    it++;
+
+  // if number is bigger than the map size, it is equal to end()
+  cf3_assert(it != end);
+
+  return it.get();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+CNode::Ptr NRoot::child_from_root(cf3::Uint number)
+{
+  ComponentIterator<CNode> it = component_begin<CNode>(*this);
+  ComponentIterator<CNode> end = component_end<CNode>(*this);
+
+  for(Uint i = 0 ; i < number && it != end ; i++)
     it++;
 
   // if number is bigger than the map size, it is equal to end()

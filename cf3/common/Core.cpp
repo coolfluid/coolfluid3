@@ -91,7 +91,11 @@ Core::Core()
   tools->properties()["description"] = std::string("");
 }
 
-Core::~Core() {}
+Core::~Core()
+{
+  // Make sure libs are terminated before the destruction of root
+  terminate();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -131,8 +135,8 @@ void Core::initiate ( int argc, char** argv )
 void Core::terminate()
 {
   // terminate all
-
-  libraries().terminate_all_libraries();
+  if(!m_libraries.expired())
+    libraries().terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

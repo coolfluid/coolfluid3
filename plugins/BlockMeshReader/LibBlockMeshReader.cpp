@@ -13,17 +13,5 @@ namespace BlockMeshReader {
 
 cf3::common::RegistLibrary<LibBlockMeshReader> libBlockMeshReader;
 
-////////////////////////////////////////////////////////////////////////////////
-
-void LibBlockMeshReader::initiate_impl()
-{
-}
-
-void LibBlockMeshReader::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 } // BlockMeshReader
 } // cf3

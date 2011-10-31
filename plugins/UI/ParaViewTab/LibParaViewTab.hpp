@@ -48,6 +48,7 @@ public:
 
     /// Constructor
     LibParaViewTab ( const std::string& name) : common::Library(name), m_appCore(nullptr) {   }
+    ~LibParaViewTab();
 
 public: // functions
 
@@ -71,6 +72,9 @@ public: // functions
     /// Gets the Class name
     static std::string type_name() { return "LibParaViewTab"; }
 
+    virtual void initiate();
+    virtual void terminate();
+    
 protected:
 
     /// initiate library

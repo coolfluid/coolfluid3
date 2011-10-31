@@ -18,23 +18,28 @@ namespace cf3 {
 namespace UI {
 namespace ParaView {
 
-  cf3::common::RegistLibrary<LibParaView> libParaView;
+cf3::common::RegistLibrary<LibParaView> libParaView;
 
-  ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
-  void LibParaView::initiate_impl()
-  {
-    Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
+void LibParaView::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
 
-    tools->create_component_ptr<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
-  }
 
-  void LibParaView::terminate_impl()
-  {
+void LibParaView::initiate_impl()
+{
+  Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
 
-  }
+  tools->create_component_ptr<C3DViewBuilder>("C3DViewBuilder")->mark_basic();
+}
 
-  ////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 
 } // ParaView
 } // UI
