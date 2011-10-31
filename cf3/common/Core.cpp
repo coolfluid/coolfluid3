@@ -7,9 +7,9 @@
 #include <boost/tokenizer.hpp>
 
 #include "common/PE/Comm.hpp"
-#include "common/LibCommon.hpp"
+
 #include "common/Log.hpp"
-#include "common/FindComponents.hpp"
+#include "common/LibCommon.hpp"
 #include "common/Signal.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -74,7 +74,7 @@ Core::Core()
   // create the root component and its structure structure
   m_root = allocate_component<Group>( "Root" );
   m_root->mark_basic();
-  
+
   m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
   m_factories = m_root->create_component_ptr<Factories>("Factories");
   libraries().mark_basic();
@@ -205,7 +205,7 @@ boost::shared_ptr<CodeProfiler> Core::profiler() const
   Component::Ptr profiler_comp = m_root->get_child_ptr("Profiler");
   if(is_not_null(profiler_comp))
     return profiler_comp->as_ptr<CodeProfiler>();
-  
+
   return CodeProfiler::Ptr();
 }
 ////////////////////////////////////////////////////////////////////////////////

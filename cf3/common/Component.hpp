@@ -23,8 +23,6 @@
 #include "common/ConnectionManager.hpp"
 #include "common/URI.hpp"
 
-#include "common/ComponentIterator.hpp"
-
 namespace boost
 {
   // forward declarations for iterator_range
@@ -34,6 +32,8 @@ namespace boost
 
 namespace cf3 {
 namespace common {
+
+template<class T> class ComponentIterator;
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -125,58 +125,26 @@ public: // functions
   /// @name ITERATORS
   //@{
 
-  /// The begin iterator for a range containing only components of the specified type
-  template<typename ComponentT>
-  ComponentIterator<ComponentT> begin();
-
   /// The begin iterator for a range containing Components
   Component::iterator begin();
-
-  /// The end iterator for a range containing only components of the specified type
-  template<typename ComponentT>
-  ComponentIterator<ComponentT> end();
 
   /// The end iterator for a range containing Components
   Component::iterator end();
 
-  /// The begin iterator for a range containing only components of the specified type (const version)
-  template<typename ComponentT>
-  ComponentIterator<ComponentT const> begin() const;
-
   /// The begin iterator for a range containing Components (const version)
   Component::const_iterator begin() const;
-
-  /// The end iterator for a range containing only components of the specified type (const version)
-  template<typename ComponentT>
-  ComponentIterator<ComponentT const> end() const;
 
   /// The end iterator for a range containing Components (const version)
   Component::const_iterator end() const;
 
-  /// The begin iterator for a recursive range containing only components of the specified type
-  template<typename ComponentT>
-  ComponentIterator<ComponentT> recursive_begin();
-
   /// The begin iterator for a recursive range containing Components
   Component::iterator recursive_begin();
-
-  /// The end iterator for a recursive range containing only components of the specified type
-  template<typename ComponentT>
-  ComponentIterator<ComponentT> recursive_end();
 
   /// The end iterator for a recursive range containing Components
   Component::iterator recursive_end();
 
-  /// The begin iterator for a recursive range containing only components of the specified type (const version)
-  template<typename ComponentT>
-  ComponentIterator<ComponentT const> recursive_begin() const;
-
   /// The begin iterator for a recursive range containing Components (const version)
   Component::const_iterator recursive_begin() const;
-
-  /// The end iterator for a recursive range containing only components of the specified type (const version)
-  template<typename ComponentT>
-  ComponentIterator<ComponentT const> recursive_end() const;
 
   /// The end iterator for a recursive range containing Components (const version)
   Component::const_iterator recursive_end() const;
@@ -437,6 +405,22 @@ public: // functions
   /// marks this component as basic.
   Component& mark_basic();
 
+  /// Put all subcomponents in a given vector, optionally recursive
+  /// @param [out] vec  A vector of all (recursive) subcomponents
+  /// @param [in] recurse If true, recurse through all subcomponents.
+  ///             If false, puts only direct children
+  template<typename ComponentT>
+  void put_components(std::vector<typename ComponentT::Ptr>& vec, const bool recurse);
+
+  /// Put all subcomponents in a given vector, optionally recursive
+  /// @param [out] vec  A vector of all (recursive) subcomponents
+  /// @param [in] recurse If true, recurse through all subcomponents.
+  ///             If false, puts only direct children
+  template<typename ComponentT>
+  void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
+
+
+
 protected: // functions
 
   /// Add a static (sub)component of this component
@@ -458,32 +442,6 @@ private: // helper functions
   /// @param put_all_content If @c false, options and properties are not put
   /// in the node.
   void write_xml_tree( XML::XmlNode& node, bool put_all_content );
-
-  /// Put all subcomponents in a given vector, optionally recursive
-  /// @param [out] vec  A vector of all (recursive) subcomponents
-  /// @param [in] recurse If true, recurse through all subcomponents.
-  ///             If false, puts only direct children
-  template<typename ComponentT>
-  void put_components(std::vector<typename ComponentT::Ptr>& vec, const bool recurse);
-
-  /// Put all subcomponents in a given vector, optionally recursive
-  /// @param [out] vec  A vector of all (recursive) subcomponents
-  /// @param [in] recurse If true, recurse through all subcomponents.
-  ///             If false, puts only direct children
-  template<typename ComponentT>
-  void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
-
-  /// Returns an iterator
-  /// @param [in] begin If true, the begin iterator is returned, otherwise end
-  /// @param [out] recursive If true, the iterator recurses over all components below this
-  template<typename ComponentT>
-  ComponentIterator<ComponentT> make_iterator(const bool begin, const bool recursive);
-
-  /// Returns an iterator
-  /// @param [in] begin If true, the begin iterator is returned, otherwise end
-  /// @param [out] recursive If true, the iterator recurses over all components below this
-  template<typename ComponentT>
-  ComponentIterator<ComponentT const> make_iterator(const bool begin, const bool recursive) const;
 
   /// Triggered when the "ping" event is raised. Useful to find out what components still exist
   void on_ping_event( SignalArgs& args );
@@ -669,128 +627,6 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
   {
     vec.insert(vec.end(), m_components.begin(), m_components.end());
   }
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT> Component::make_iterator(const bool begin, const bool recursive)
-{
-  std::vector<boost::shared_ptr<ComponentT> > vec;
-  put_components<ComponentT>(vec, recursive);
-  return ComponentIterator<ComponentT>(vec, begin ? 0 : vec.size());
-}
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT const> Component::make_iterator(const bool begin, const bool recursive) const
-{
-  std::vector<boost::shared_ptr<ComponentT const> > vec;
-  put_components<ComponentT>(vec, recursive);
-  return ComponentIterator<ComponentT const>(vec, begin ? 0 : vec.size());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT> Component::begin()
-{
-  return make_iterator<ComponentT>(true, false);
-}
-
-inline Component::iterator Component::begin()
-{
-  return begin<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT> Component::end()
-{
-  return make_iterator<ComponentT>(false, false);
-}
-
-inline Component::iterator Component::end()
-{
-  return end<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT const> Component::begin() const
-{
-  return make_iterator<ComponentT>(true, false);
-}
-
-inline Component::const_iterator Component::begin() const
-{
-  return begin<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT const> Component::end() const
-{
-  return make_iterator<ComponentT>(false, false);
-}
-
-inline Component::const_iterator Component::end() const
-{
-  return end<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT> Component::recursive_begin()
-{
-  return make_iterator<ComponentT>(true, true);
-}
-
-inline Component::iterator Component::recursive_begin()
-{
-  return recursive_begin<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT> Component::recursive_end()
-{
-  return make_iterator<ComponentT>(false, true);
-}
-
-inline Component::iterator Component::recursive_end()
-{
-  return recursive_end<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT const> Component::recursive_begin() const
-{
-  return make_iterator<ComponentT>(true, true);
-}
-
-inline Component::const_iterator Component::recursive_begin() const
-{
-  return recursive_begin<Component>();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template<typename ComponentT>
-inline ComponentIterator<ComponentT const> Component::recursive_end() const
-{
-  return make_iterator<ComponentT>(false, true);
-}
-
-inline Component::const_iterator Component::recursive_end() const
-{
-  return recursive_end<Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
