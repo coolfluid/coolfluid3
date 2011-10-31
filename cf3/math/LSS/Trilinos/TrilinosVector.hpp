@@ -37,7 +37,7 @@ namespace LSS {
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-#define TRILINOS_ASSERT(a) cf3_assert((a)==0)
+#define TRILINOS_ASSERT(a) cf3_always_assert((a)==0)
 #define TRILINOS_THROW(trilinos_function_call)  { \
   int trilinos_check_error=trilinos_function_call; \
   if ((trilinos_check_error)!=0) \
