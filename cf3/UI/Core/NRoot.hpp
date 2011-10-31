@@ -51,18 +51,17 @@ namespace Core {
     /// @return The name of the class.
     virtual QString tool_tip() const;
 
-    /// @brief Gives the Root internal shared pointer
-    /// @return Returns the Root internal shared pointer
-    inline cf3::common::Component::Ptr root() const
-    {
-      return m_root;
-    }
-
-    /// @brief Gets a child node from the internal Root component
+    /// @brief Gets a child node bqsed on its number
     /// @param number Child number.
     /// @return Returns the child, or a null pointer if the number is not
     /// valid.
-    CNode::Ptr child_from_root(cf3::Uint number) const;
+    CNode::ConstPtr child_from_root(cf3::Uint number) const;
+
+    /// @brief Gets a child node bqsed on its number
+    /// @param number Child number.
+    /// @return Returns the child, or a null pointer if the number is not
+    /// valid.
+    CNode::Ptr child_from_root(cf3::Uint number);
 
     /// @brief Gives the client UUID
     /// @return Returns the Client UUID
@@ -102,9 +101,6 @@ namespace Core {
     void connected_to_server();
 
   private :
-
-    /// @brief The internal Root component
-    cf3::common::Component::Ptr m_root;
 
     /// @brief Client UUID
     boost::uuids::uuid m_uuid;

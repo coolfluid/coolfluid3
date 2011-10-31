@@ -118,7 +118,7 @@ void SelectPathDialog::path_changed(const QString & path)
     m_node_clicked = false;
   else
   {
-    Component::Ptr root = NTree::global()->tree_root()->root();
+    Component::Ptr root = NTree::global()->tree_root();
     try
     {
       if(boost::dynamic_pointer_cast<CNode>(root->access_component_ptr(path.toStdString())) != nullptr)

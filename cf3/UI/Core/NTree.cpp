@@ -252,7 +252,7 @@ CNode::ConstPtr NTree::node_by_path(const URI & path) const
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
-      Component::ConstPtr comp = node->real_component()->get_child_ptr(it->toStdString());
+      Component::ConstPtr comp = node->get_child_ptr(it->toStdString());
 
       if( is_not_null(comp.get()) )
         node = comp->as_ptr_checked<CNode>();
@@ -286,7 +286,7 @@ CNode::Ptr NTree::node_by_path(const URI & path)
 
     for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
     {
-      Component::Ptr comp = node->real_component()->get_child_ptr(it->toStdString());
+      Component::Ptr comp = node->get_child_ptr(it->toStdString());
 
       if( is_not_null(comp.get()) )
         node = comp->as_ptr_checked<CNode>();
@@ -345,7 +345,7 @@ URI NTree::pathFromIndex(const QModelIndex & index) const
   URI path;
 
   if(treeNode != nullptr)
-    path = treeNode->node()->real_component()->uri();
+    path = treeNode->node()->uri();
 
   return path;
 }
@@ -408,7 +408,7 @@ bool NTree::node_matches(const QModelIndex & index, const QRegExp & regex) const
 
   //QMutexLocker locker(m_mutex);
 
-  Component::Ptr node = m_root_node->node()->castTo<NRoot>()->root();
+  Component::Ptr node = m_root_node->node()->castTo<NRoot>();
 
   // if the index is value, we get the right node
   if(index.isValid() && index_to_tree_node(index) != m_root_node)
@@ -610,17 +610,17 @@ void NTree::list_tree_reply(SignalArgs & args)
     //
     // rename the root
     //
-    tree_root->rename(root_node->root().name());
-    tree_root->root()->rename(root_node->root().name());
+    tree_root->rename(root_node->name());
+    tree_root->rename(root_node->name());
 
     //
     // remove old nodes
     //
-    ComponentIterator<CNode> itRem = tree_root->root()->begin<CNode>();
+    ComponentIterator<CNode> itRem = tree_root->begin<CNode>();
     QList<std::string> list_to_remove;
     QList<std::string>::iterator itList;
 
-    for( ; itRem != tree_root->root()->end<CNode>() ; itRem++)
+    for( ; itRem != tree_root->end<CNode>() ; itRem++)
     {
       if(!itRem->is_local_component() && !itRem->is_root() )
         list_to_remove << itRem->name();
@@ -630,16 +630,16 @@ void NTree::list_tree_reply(SignalArgs & args)
 
     for( ; itList != list_to_remove.end() ; itList++)
     {
-      tree_root->root()->access_component_ptr_checked(*itList)->as_ptr<CNode>()->about_to_be_removed();
-      tree_root->root()->remove_component(*itList);
+      tree_root->access_component_ptr_checked(*itList)->as_ptr<CNode>()->about_to_be_removed();
+      tree_root->remove_component(*itList);
     }
 
     //
     // add the new nodes
     //
 
-    for( ; it != root_node->root().end<CNode>() ; it++)
-      tree_root->root()->add_component(it.get());
+    for( ; it != root_node->end<CNode>() ; it++)
+      tree_root->add_component(it.get());
 
     // child count may have changed, ask the root TreeNode to update its internal data
     m_root_node->update_child_list();
@@ -674,11 +674,11 @@ void NTree::clear_tree()
   //QMutexLocker locker(m_mutex);
 
   NRoot::Ptr treeRoot = m_root_node->node()->castTo<NRoot>();
-  ComponentIterator<CNode> itRem = treeRoot->root()->begin<CNode>();
+  ComponentIterator<CNode> itRem = treeRoot->begin<CNode>();
   QMap<int, std::string> listToRemove;
   QMutableMapIterator<int, std::string> itList(listToRemove);
 
-  for(int i = 0 ; itRem != treeRoot->root()->end<CNode>() ; itRem++, i++)
+  for(int i = 0 ; itRem != treeRoot->end<CNode>() ; itRem++, i++)
   {
     if(!itRem->is_local_component())
       listToRemove[i] = itRem->name();
@@ -691,7 +691,7 @@ void NTree::clear_tree()
     itList.previous();
 
     emit beginRemoveRows(index(0,0), itList.key(), itList.key());
-    treeRoot->root()->remove_component(itList.value());
+    treeRoot->remove_component(itList.value());
     m_root_node->update_child_list();
     emit endRemoveRows();
   }

@@ -88,11 +88,11 @@ BOOST_AUTO_TEST_CASE( set_root )
   NRoot::Ptr newRoot(new NRoot("Root"));
   QSignalSpy spy(&t, SIGNAL(layoutChanged()));
 
-  newRoot->root()->create_component_ptr<Link>("link");
-  newRoot->root()->create_component_ptr<Group>("Group1");
-  newRoot->root()->create_component_ptr<Group>("Group2");
-  newRoot->root()->create_component_ptr<Group>("Group3");
-  newRoot->root()->create_component_ptr<Group>("Group4");
+  newRoot->create_component_ptr<Link>("link");
+  newRoot->create_component_ptr<Group>("Group1");
+  newRoot->create_component_ptr<Group>("Group2");
+  newRoot->create_component_ptr<Group>("Group3");
+  newRoot->create_component_ptr<Group>("Group4");
 
   t.set_tree_root(newRoot);
 
@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( set_root )
   BOOST_CHECK_EQUAL(t.tree_root(), newRoot);
 
   // the tree root should have 5 children now
-  BOOST_CHECK_EQUAL( t.tree_root()->root()->count_children(), std::size_t(5));
+  BOOST_CHECK_EQUAL( t.tree_root()->count_children(), std::size_t(5));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE( list_node_options )
   BOOST_CHECK(ok);
   BOOST_CHECK_EQUAL(options.count(), 3);
 
-  t.tree_root()->root()->remove_component(node->name());
+  t.tree_root()->remove_component(node->name());
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -320,10 +320,10 @@ BOOST_AUTO_TEST_CASE( node_by_path )
 
   logNode = t.node_by_path(CLIENT_LOG_PATH);
 
-  BOOST_CHECK_EQUAL(logNode.get(), NLog::global().get());
+  BOOST_REQUIRE_EQUAL(logNode.get(), NLog::global().get());
 
-  // note: we can freely use logNode here, even if the previous BOOST_CHECK_EQUAL() failed,
-  // since a failing BOOST_CHECK_EQUAL() interrupts the test case execution
+  // note: we can freely use logNode here, even if the previous BOOST_REQUIRE_EQUAL() failed,
+  // since a failing BOOST_REQUIRE_EQUAL() interrupts the test case execution
   BOOST_CHECK_EQUAL(logNode->uri().path(), std::string(CLIENT_LOG_PATH));
 
 }
@@ -436,9 +436,10 @@ BOOST_AUTO_TEST_CASE( parent )
 BOOST_AUTO_TEST_CASE( row_count )
 {
   NTree t;
+  TreeThread & tree = ThreadManager::instance().tree();
 
   BOOST_CHECK_EQUAL(t.rowCount(), 1);
-  BOOST_CHECK_EQUAL(t.rowCount(t.index(0, 0)), (int) ThreadManager::instance().tree().root()->root()->count_children());
+  BOOST_CHECK_EQUAL(t.rowCount(t.index(0, 0)), (int) tree.root()->count_children());
   BOOST_CHECK_EQUAL(t.rowCount(t.index(0, 1)), 0);
 }
 
@@ -496,16 +497,16 @@ BOOST_AUTO_TEST_CASE( options_changed )
   BOOST_CHECK_NO_THROW ( t->list_tree_reply( replyFrame ) );
 
   // check that the previously added node has been removed
-  BOOST_CHECK_THROW( root->root()->get_child("ThisNodeShouldDisappear"),  ValueNotFound);
+  BOOST_CHECK_THROW( root->get_child("ThisNodeShouldDisappear"),  ValueNotFound);
 
   // check that new nodes have been added
-  BOOST_CHECK_NO_THROW( root->root()->get_child("Environment") );
-  BOOST_CHECK_NO_THROW( root->root()->get_child("Tools") );
+  BOOST_CHECK_NO_THROW( root->get_child("Environment") );
+  BOOST_CHECK_NO_THROW( root->get_child("Tools") );
 
   // check that the local components are still there
   Component::Ptr uidir;
 
-  BOOST_CHECK_NO_THROW( uidir = root->root()->get_child_ptr("UI") );
+  BOOST_CHECK_NO_THROW( uidir = root->get_child_ptr("UI") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Browsers") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Log") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Plugins") );
@@ -543,7 +544,7 @@ BOOST_AUTO_TEST_CASE( signal_list_tree )
   QModelIndex treeIndex = t.index_from_path( CLIENT_TREE_PATH );
   QModelIndex logIndex = t.index_from_path( CLIENT_LOG_PATH );
 
-  t.tree_root()->root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
+  t.tree_root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
 
   QModelIndex nodeIndex = t.index_from_path( CLIENT_TREE_PATH "/MyNode" );
 
