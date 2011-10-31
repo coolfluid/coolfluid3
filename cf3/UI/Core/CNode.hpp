@@ -191,16 +191,6 @@ namespace Core {
       return m_is_root;
     }
 
-    /// Gives the real component.
-    /// @return Returns this component cast to Component, execpt if this node
-    /// is a NRoot, in which case the internal Root is returned.
-    Component::Ptr real_component();
-
-    /// Gives the real component.
-    /// @return Returns this component cast to Component, execpt if this node
-    /// is a NRoot, in which case the internal Root is returned.
-    Component::ConstPtr real_component() const;
-
     /// Sets node properties
     /// @param node Node containing the options
     void set_properties( const common::SignalArgs & node );
