@@ -12,6 +12,7 @@
 #include "common/Group.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
+#include "common/FindComponents.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -91,14 +92,15 @@ QString NRoot::tool_tip() const
 
 CNode::Ptr NRoot::child_from_root(cf3::Uint number) const
 {
-  ComponentIterator<CNode> it = m_root->begin<CNode>();
+  ComponentIterator<CNode> it = component_begin<CNode>(*m_root);
+  ComponentIterator<CNode> end = component_end<CNode>(*m_root);
   cf3::Uint i;
 
-  for(i = 0 ; i < number && it != m_root->end<CNode>() ; i++)
+  for(i = 0 ; i < number && it != end ; i++)
     it++;
 
   // if number is bigger than the map size, it is equal to end()
-  cf3_assert(it != m_root->end<CNode>());
+  cf3_assert(it != end);
 
   return it.get();
 }

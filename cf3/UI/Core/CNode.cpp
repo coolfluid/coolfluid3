@@ -22,6 +22,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/StringConversion.hpp"
+#include "common/FindComponents.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
 #include "common/XML/FileOperations.hpp"
@@ -413,16 +414,12 @@ CNode::Ptr CNode::child(cf3::Uint index)
   QMutexLocker locker(m_mutex);
 
   Component::Ptr compo = real_component();
-  cf3::Uint i;
 
-  ComponentIterator<CNode> it = compo->begin<CNode>();
+  std::vector<CNode::Ptr> nodes;
+  compo->put_components<CNode>(nodes,false);
 
-  cf3_assert(index < compo->count_children());
-
-  for(i = 0 ; i < index ; i++)
-    it++;
-
-  return it.get();
+  cf3_assert(index < nodes.size());
+  return nodes[index];
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -450,8 +447,8 @@ void CNode::list_child_paths( QStringList & list,
   QMutexLocker locker(m_mutex);
   Component::ConstPtr comp = real_component();
 
-  ComponentIterator<const CNode> it_begin = comp->begin<const CNode>();
-  ComponentIterator<const CNode> it_end = comp->end<const CNode>();
+  ComponentIterator<const CNode> it_begin = component_begin<const CNode>(*comp);
+  ComponentIterator<const CNode> it_end   = component_end<const CNode>(*comp);
 
   // add the current path
   if(list.isEmpty())
