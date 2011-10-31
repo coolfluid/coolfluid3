@@ -59,7 +59,7 @@ namespace common {
     static bool is_valid_element ( const std::string& str);
 
     /// separator for path tokens
-    static const std::string& separator ();
+    static const std::string separator ();
 
     // constructors
 

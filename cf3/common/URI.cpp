@@ -18,6 +18,8 @@
 namespace cf3 {
 namespace common {
 
+#define CF3_URI_SEPARATOR "/"
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 InvalidURI::InvalidURI( const common::CodeLocation& where, const std::string& what)
@@ -113,7 +115,7 @@ bool URI::operator== (const URI& right) const
 
 URI& URI::operator/= (const URI& rhs)
 {
-  if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += separator();
+  if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += CF3_URI_SEPARATOR;
   m_path += rhs.m_path;
   cleanup();
   return *this;
@@ -121,7 +123,7 @@ URI& URI::operator/= (const URI& rhs)
 
 URI& URI::operator/= (const std::string& s)
 {
-  if ( !m_path.empty() && !s.empty() ) m_path += separator();
+  if ( !m_path.empty() && !s.empty() ) m_path += CF3_URI_SEPARATOR;
   m_path += s;
   cleanup();
   return *this;
@@ -136,7 +138,7 @@ URI& URI::operator/= ( const char* c )
 URI  URI::operator/  (const URI& p) const
 {
   return ( !m_path.empty() && !p.m_path.empty() ) ?
-    URI ( m_path + separator() + p.m_path ) : // both not empty
+    URI ( m_path + CF3_URI_SEPARATOR + p.m_path ) : // both not empty
     URI ( m_path + p.m_path );                // one is empty
 }
 
@@ -180,12 +182,12 @@ URI URI::base_path () const
   if(m_path == "/")
     return *this;
   
-  if(!contains(m_path, separator()))
+  if(!contains(m_path, CF3_URI_SEPARATOR))
     return URI("./", m_scheme);
   else
   {
     std::string rpath = m_path;
-    rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
+    rpath.erase ( find_last(rpath,CF3_URI_SEPARATOR).begin(), rpath.end() );
     if(rpath.empty())
     {
       cf3_assert(is_absolute()); // this case should only happen on first-level absolute paths such as /Model
@@ -199,17 +201,16 @@ std::string URI::name () const
 {
   using namespace boost::algorithm;
   std::string name = string();
-  if (find_last(name,separator()).begin() == name.end())
+  if (find_last(name,CF3_URI_SEPARATOR).begin() == name.end())
     name.erase ( name.begin(), find_last(name,":").begin()+1 );
   else
-    name.erase ( name.begin(), find_last(name,separator()).begin()+1 );
+    name.erase ( name.begin(), find_last(name,CF3_URI_SEPARATOR).begin()+1 );
   return name;
 }
 
-const std::string& URI::separator ()
+const std::string URI::separator ()
 {
-  static std::string sep ( "/" );
-  return sep;
+  return std::string(CF3_URI_SEPARATOR);
 }
 
 void URI::scheme( URI::Scheme::Type sch )
