@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <ios>
+
 #include <boost/assign/list_of.hpp> // for map_list_of
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
@@ -53,17 +55,31 @@ URI::Scheme::Convert::Convert()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& in )
+std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& scheme )
 {
-  os << URI::Scheme::Convert::instance().to_str(in);
+  os << URI::Scheme::Convert::instance().to_str(scheme);
   return os;
 }
 
-std::istream& operator>> (std::istream& is, URI::Scheme::Type& in )
+std::istream& operator>> (std::istream& is, URI::Scheme::Type& scheme )
 {
   std::string tmp;
   is >> tmp;
-  in = URI::Scheme::Convert::instance().to_enum(tmp);
+  scheme = URI::Scheme::Convert::instance().to_enum(tmp);
+  return is;
+}
+
+std::ostream& operator<< ( std::ostream& os, const URI& uri )
+{
+  os << uri.string();
+  return os;
+}
+
+std::istream& operator>> (std::istream& is, URI& uri )
+{
+  std::string tmp;
+  is >> tmp;
+  uri = URI(tmp);
   return is;
 }
 

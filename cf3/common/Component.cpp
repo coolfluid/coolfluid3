@@ -29,6 +29,9 @@
 #include "common/Core.hpp"
 #include "common/OSystem.hpp"
 #include "common/LibLoader.hpp"
+#include "common/PropertyList.hpp"
+#include "common/OptionList.hpp"
+
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/FileOperations.hpp"

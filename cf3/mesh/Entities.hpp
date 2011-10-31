@@ -9,6 +9,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <iosfwd>
+
 #include "common/EnumT.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -124,19 +126,21 @@ protected: // data
 /// @brief Low storage struct to uniquely identify one element
 ///
 /// Several access-functions are provided for convenience
-struct Mesh_API Entity
+class Mesh_API Entity
 {
+public:
   Entity() : comp(NULL), idx(0) {}
+  Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
 
   template <typename ComponentT>
-  Entity(ComponentT& component, const Uint index=0) :
-    comp( dynamic_cast<Entities*>(&component) ),
+  Entity(const ComponentT& component, const Uint index=0) :
+    comp( dynamic_cast<Entities const*>(&component) ),
     idx(index)
   {
     cf3_assert(idx<comp->size());
   }
 
-  Entities* comp;
+  Entities const* comp;
   Uint idx;
 
   /// return the elementType
@@ -149,17 +153,19 @@ struct Mesh_API Entity
   void allocate_coordinates(RealMatrix& coordinates) const;
   Connectivity::ConstRow get_nodes() const;
 
-  bool operator==(const Entity& other) const
-  {
-    return comp==other.comp && idx==other.idx;
-  }
+
+  Entity& operator++()
+    {  cf3_assert(idx<comp->size()); idx++; return *this; }
+  Entity& operator--()
+    {  cf3_assert(idx>=0u); idx--; return *this; }
+  bool operator==(const Entity& other) const { return comp==other.comp && idx==other.idx; }
+  bool operator!=(const Entity& other) const { return !(*this==other);  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Entity& entity);
+
 };
 
-inline std::ostream& operator<<(std::ostream& os, const Entity& entity)
-{
-  os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
-  return os;
-}
+std::ostream& operator<<(std::ostream& os, const Entity& entity);
 
 ////////////////////////////////////////////////////////////////////////////////
 

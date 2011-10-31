@@ -7,6 +7,8 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <boost/function.hpp>
+
 #include "common/BasicExceptions.hpp"
 #include "common/Foreach.hpp"
 
@@ -65,6 +67,14 @@ void Option::configure_option ( XmlNode& node )
 
   // call all trigger functors
   trigger();
+}
+
+////////////////////////////////////////////////////////////////////////////
+
+Option::Ptr Option::attach_trigger ( Trigger_t trigger )
+{
+  m_triggers.push_back(trigger);
+  return shared_from_this();
 }
 
 ////////////////////////////////////////////////////////////////////////////

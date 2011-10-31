@@ -7,8 +7,9 @@
 #ifndef cf3_mesh_Field_hpp
 #define cf3_mesh_Field_hpp
 
-#include "mesh/SpaceFields.hpp"
 #include "common/Table.hpp"
+
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
 
@@ -122,6 +123,181 @@ public: // functions
   void set_descriptor(math::VariablesDescriptor& descriptor);
 
   void create_descriptor(const std::string& description, const Uint dimension=0);
+
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+    // Index operator.
+    // --------------
+    // c = U[i]
+    // Real& operator[](int index);
+    // const Real& operator[](int index) const;
+
+    // // Binary arithmetic operators.
+    // // ----------------------------
+    // /// U = U + U
+    // friend Field operator +(const Field& U1, const Field& U2);
+    // /// U = U - U
+    // friend Field operator -(const Field& U1, const Field& U2);
+    // /// U = U * c
+    // friend Field operator *(const Field& U, const Real& a);
+    // /// U = c * U
+    // friend Field operator *(const Real& a, const Field& U);
+    // /// U = U * U (row-wise)
+    // friend Field operator *(const Field& U1, const Field& U2);
+    // /// U = U / c
+    // friend Field operator /(const Field& U, const Real& a);
+    // /// U = U / U (row-wise)
+    // friend Field operator /(const Field& U1, const Field& U2);
+    //
+    // // Unary arithmetic operators.
+    // // ---------------------------
+    // /// U = -U
+    // friend Field operator -(const Field& U);
+    // //friend Field fabs(const Field& U);
+
+    // Shortcut arithmetic operators.
+    // ------------------------------
+    /// U = U
+    Field& operator =(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      array() = U.array();
+      return *this;
+    }
+
+    /// U = c
+    Field& operator =(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] = c;
+      return *this;
+    }
+
+    /// U += c
+    Field& operator +=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] += c;
+      return *this;
+    }
+
+    /// U += U
+    Field& operator +=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      cf3_assert(row_size() == U.row_size());
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] += U.array()[i][j];
+      return *this;
+    }
+
+    /// U -= c
+    Field& operator -=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] -= c;
+      return *this;
+    }
+
+    /// U -= U
+    Field& operator -=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      cf3_assert(row_size() == U.row_size());
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] -= U.array()[i][j];
+      return *this;
+    }
+
+    /// U *= c
+    Field& operator *=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] *= c;
+      return *this;
+    }
+
+    /// U *= U
+    Field& operator *=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      if (U.row_size() == 1) // U is a scalar field
+      {
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] *= U.array()[i][0];
+      }
+      else
+      {
+        cf3_assert(row_size() == U.row_size()); // field must be same size
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] *= U.array()[i][j];
+      }
+      return *this;
+    }
+
+    /// U /= c
+    Field& operator /=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] /= c;
+      return *this;
+    }
+
+    /// U /= U
+    Field& operator /=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      if (U.row_size() == 1) // U is a scalar field
+      {
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] /= U.array()[i][0];
+      }
+      else
+      {
+        cf3_assert(row_size() == U.row_size()); // field must be same size
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] /= U.array()[i][j];
+      }
+      return *this;
+    }
+
+
+    // // Relational operators.
+    // // ---------------------
+    // /// U == U
+    // friend bool operator ==(const Field& U1, const Field& U2);
+    // /// U != U
+    // friend bool operator !=(const Field& U1, const Field& U2);
+    // // /// U <= U
+    // // friend bool operator <=(const Field& U1, const Field& U2);
+    // // /// U >= U
+    // // friend bool operator >=(const Field& U1, const Field& U2);
+    // // /// U < U
+    // // friend bool operator <(const Field& U1, const Field& U2);
+    // // /// U > U
+    // // friend bool operator >(const Field& U1, const Field& U2);
+    //
+    // // Input-output operators.
+    // // ----------------------
+    // /// ostream << U
+    // friend ostream& operator << (ostream& out, const Field& U);
+    // /// istream >> U
+    // friend istream& operator >> (istream& in,  Field& U);
+
+
+
 
 private:
 

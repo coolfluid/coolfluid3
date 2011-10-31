@@ -10,7 +10,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Option.hpp"
-#include "common/BasicExceptions.hpp"
 #include "common/XML/Protocol.hpp"
 
 namespace cf3 {

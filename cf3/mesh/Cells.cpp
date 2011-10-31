@@ -24,7 +24,7 @@ Cells::Cells ( const std::string& name ) :
 {
   properties()["brief"] = std::string("Holds information of elements of one type");
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
-  +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");  
+  +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

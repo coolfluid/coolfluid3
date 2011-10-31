@@ -9,6 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bind.hpp>
 #include <boost/range.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/mpl/if.hpp>
@@ -248,10 +249,10 @@ make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predic
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
 struct ComponentIteratorRangeSelector {
-  
+
   template<typename IsAbstractT, int dummy = 0>
   struct impl;
-  
+
   template<int dummy>
   struct impl<boost::true_type, dummy>
   {
@@ -260,7 +261,7 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            IsComponentTrue>::type type;
   };
-  
+
   template<int dummy>
   struct impl<boost::false_type, dummy>
   {
@@ -269,7 +270,7 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            Predicate>::type type;
   };
-  
+
   typedef typename impl< typename boost::is_abstract<Predicate>::type >::type type;
 };
 

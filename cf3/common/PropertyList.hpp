@@ -4,12 +4,14 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file PropertyList.hpp
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
+
 #ifndef cf3_common_PropertyList_hpp
 #define cf3_common_PropertyList_hpp
 
 /////////////////////////////////////////////////////////////////////////////////////
-
-//#include "common/Option.hpp"
 
 #include <boost/any.hpp>
 

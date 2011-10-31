@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <ios>
 #include <set>
 
 #include <boost/assign/list_of.hpp>
@@ -284,6 +285,11 @@ RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); 
 void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
 void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
 Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+std::ostream& operator<<(std::ostream& os, const Entity& entity)
+{
+  os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
+  return os;
+}
 
 
 bool IsElementsVolume::operator()(const Entities::Ptr& component)

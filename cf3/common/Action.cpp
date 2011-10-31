@@ -5,7 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Signal.hpp"
-
+#include "common/PropertyList.hpp"
+#include "common/OptionList.hpp"
 #include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 

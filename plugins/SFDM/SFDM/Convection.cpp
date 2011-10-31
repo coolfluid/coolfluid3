@@ -90,8 +90,8 @@ void Convection::execute()
   link_fields();
 
   // Set residual and wave_speeds to zero
-  residual().  as_type< Table<Real> >() = 0.;
-  wave_speed().as_type< Table<Real> >() = 0.;
+  residual() = 0.;
+  wave_speed() = 0.;
 
 //  compute_one_cell_at_a_time();
   compute_cell_interior_flux_points_contribution();
@@ -193,6 +193,7 @@ void Convection::compute_one_cell_at_a_time()
     /// element loop
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
+      Entity this_cell(elements,elem);
       Connectivity::ConstRow field_idx_proxy = space.indexes_for_element(elem);
       std::vector<Uint> field_idx(field_idx_proxy.size());
       for (Uint i=0; i<field_idx.size(); ++i)
@@ -205,7 +206,7 @@ void Convection::compute_one_cell_at_a_time()
       std::vector<Entities::Ptr> connected_faces(nb_faces);
       std::vector<Uint> connected_face_idx(nb_faces);
 
-      std::vector<Entities::Ptr> connected_cells(nb_faces);
+      std::vector<Entities const*> connected_cells(nb_faces);
       std::vector<Uint> connected_cell_idx(nb_faces);
       std::vector<bool> connected_cell_is_bdry(nb_faces);
 
@@ -220,11 +221,11 @@ void Convection::compute_one_cell_at_a_time()
           FaceCellConnectivity& f2c = inner_face->cell_connectivity();
           for (Uint c=0; c<2; ++c)
           {
-            boost::tie(dummy_component,dummy_idx) = f2c.lookup().location( f2c.connectivity()[connected_face_idx[f]][c] );
-            if (dummy_component.get() != &elements || dummy_idx != elem)  // this not the current cell
+            const Entity connected_cell = f2c.connectivity()[connected_face_idx[f]][c];
+            if ( !(connected_cell == this_cell) )  // this not the current cell
             {
-              connected_cells[f] = dummy_component->as_ptr<Entities>();
-              connected_cell_idx[f] = dummy_idx;
+              connected_cells[f] = connected_cell.comp;
+              connected_cell_idx[f] = connected_cell.idx;
               connected_cell_is_bdry[f] = false;
               break;
             }
@@ -561,7 +562,7 @@ void Convection::compute_inner_face_flux_points_contribution()
   Uint dummy_idx;
 
   std::vector<bool> ghost(2);
-  std::vector<Cells*> cells(2);
+  std::vector<Cells const*> cells(2);
   std::vector<Space*> spaces(2);
   std::vector<SFDM::ShapeFunction const*> sf(2);
   std::vector<Uint> cell_idx(2);
@@ -582,15 +583,15 @@ void Convection::compute_inner_face_flux_points_contribution()
     for (Uint face=0; face<faces.size(); ++face)
     {
 //      std::cout << "f="<<face<<" "<<std::flush;
-      Connectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
+      ElementConnectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
       Connectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
 
       // Set data for left and right cells
       for (Uint side=0; side<2; ++side)
       {
-        boost::tie(dummy_component,dummy_idx) = cell_connectivity.lookup().location(connected_cells[side]);
-        cells[side] = &dummy_component->as_type<Cells>();
-        cell_idx[side] = dummy_idx;
+        Entity connected_cell = connected_cells[side];
+        cells[side] = dynamic_cast<Cells const*>(connected_cell.comp);
+        cell_idx[side] = connected_cell.idx;
         spaces[side] = &field_group().space(*cells[side]);
         sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
         nb_sol_pts[side] = sf[side]->line().nb_nodes();
@@ -729,13 +730,13 @@ void Convection::compute_inner_face_flux_points_contribution()
       /// face loop
       for (Uint face=0; face<faces.size(); ++face)
       {
-        Connectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
+        ElementConnectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
         Connectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
         for (Uint side=0; side<1; ++side)
         {
-          boost::tie(dummy_component,dummy_idx) = cell_connectivity.lookup().location(connected_cells[side]);
-          cells[side] = &dummy_component->as_type<Cells>();
-          cell_idx[side] = dummy_idx;
+          Entity connected_cell = connected_cells[side];
+          cells[side] = dynamic_cast<Cells const*>(connected_cell.comp);
+          cell_idx[side] = connected_cell.idx;
           spaces[side] = &field_group().space(*cells[side]);
           sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
           nb_sol_pts[side] = sf[side]->line().nb_nodes();

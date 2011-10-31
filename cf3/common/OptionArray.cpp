@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -15,7 +13,7 @@
 #include "common/OptionArray.hpp"
 #include "common/StringConversion.hpp"
 #include "common/URI.hpp"
-#include "common/Log.hpp"
+#include "common/BasicExceptions.hpp"
 
 #include "common/XML/Map.hpp"
 #include "common/XML/CastingFunctions.hpp"

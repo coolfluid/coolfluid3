@@ -13,6 +13,8 @@ list( APPEND coolfluid_mesh_files
   Entities.cpp
   Elements.hpp
   Elements.cpp
+  ElementConnectivity.hpp
+  ElementConnectivity.cpp
   FaceCellConnectivity.hpp
   FaceCellConnectivity.cpp
   Faces.hpp
