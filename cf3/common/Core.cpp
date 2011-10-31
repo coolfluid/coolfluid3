@@ -135,8 +135,8 @@ void Core::initiate ( int argc, char** argv )
 void Core::terminate()
 {
   // terminate all
-
-  libraries().terminate_all_libraries();
+  if(!m_libraries.expired())
+    libraries().terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

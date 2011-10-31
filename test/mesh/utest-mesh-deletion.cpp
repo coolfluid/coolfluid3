@@ -66,6 +66,8 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
     domain.remove_component("Mesh2");
   }
 
+  Core::instance().terminate();
+  
   XML::SignalFrame frame;
   root.remove_component("Libraries");
   root.remove_component("Factories");
