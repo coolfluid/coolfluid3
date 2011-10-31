@@ -21,6 +21,9 @@ namespace mesh {
 
 using namespace common;
 
+// FIRST register the value_type to be used in common::Table<ValueT>
+RegistTypeInfo<Entity,LibMesh> regist_ElementConnectivity_ValueT;
+// THEN create the builder that assumes the ValueT is already registered
 common::ComponentBuilder < ElementConnectivity , Component, LibMesh > ElementConnectivity_Builder;
 
 ////////////////////////////////////////////////////////////////////////////////

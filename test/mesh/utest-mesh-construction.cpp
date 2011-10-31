@@ -59,7 +59,6 @@ public:
 
 private:
   friend class boost::iterator_core_access;
-  friend class ElementIterator;
 
   bool equal(ElementIterator const& other) const { return (element == other.element); }
 
@@ -339,9 +338,6 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   {
     std::cout << entity << std::endl;
   }
-
-  std::cout << ElementConnectivity::type_name() << std::endl;
-
 
 }
 
