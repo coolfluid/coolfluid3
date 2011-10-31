@@ -13,7 +13,6 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 
@@ -33,7 +32,7 @@ struct ComponentIterationFixture
     ExceptionManager::instance().ExceptionDumps = false;
     ExceptionManager::instance().ExceptionAborts = false;
 
-    m_root = Root::create ( "root" );
+    m_root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
     Component::Ptr comp1 = m_root->create_component_ptr<Component>("comp1");
     top_component_names.push_back(comp1->name());
     component_names.push_back(comp1->name());
@@ -96,24 +95,24 @@ struct ComponentIterationFixture
     component_names.push_back(link1->name());
     top_component_names.push_back(link1->name());
 
-    //root
-    //root/comp1
-    //root/comp1/comp1_1
-    //root/comp1/comp1_2
-    //root/comp2
-    //root/comp2/comp2_1
-    //root/comp2/comp2_2
-    //root/group1
-    //root/group1/comp3                          tag: special
-    //root/group1/group1_1
-    //root/group1/group1_2                       tag: special
-    //root/group2
-    //root/group2/group2_1
-    //root/group2/group2_1/group2_1_1            tag: very_special
-    //root/group2/link2
-    //root/group3
-    //root/group3/group3_1
-    //root/link1
+    //
+    //comp1
+    //comp1/comp1_1
+    //comp1/comp1_2
+    //comp2
+    //comp2/comp2_1
+    //comp2/comp2_2
+    //group1
+    //group1/comp3                          tag: special
+    //group1/group1_1
+    //group1/group1_2                       tag: special
+    //group2
+    //group2/group2_1
+    //group2/group2_1/group2_1_1            tag: very_special
+    //group2/link2
+    //group3
+    //group3/group3_1
+    //link1
 
 
   }
@@ -169,16 +168,16 @@ BOOST_FIXTURE_TEST_SUITE( ComponentIteration, ComponentIterationFixture )
 BOOST_AUTO_TEST_CASE( test_find_parent )
 {
   const Group& group2 = find_parent_component<Group>(const_group2_1());
-  BOOST_CHECK_EQUAL(group2.uri().string() , "cpath://root/group2");
+  BOOST_CHECK_EQUAL(group2.uri().string() , "cpath:/group2");
 
-  Root& root = find_parent_component<Root>(group2_1());
-  BOOST_CHECK_EQUAL(root.uri().string() , "cpath://root");
+  Component& root = group2_1().root();
+  BOOST_CHECK_EQUAL(root.uri().string() , "cpath:/");
 
   Component& group22 = find_parent_component_with_filter(group2_1(),IsComponentName("group2"));
-  BOOST_CHECK_EQUAL(group22.uri().string() , "cpath://root/group2");
+  BOOST_CHECK_EQUAL(group22.uri().string() , "cpath:/group2");
 
-  Root& root2 = find_parent_component_with_filter<Root>(group2_1(),IsComponentType<Root>());
-  BOOST_CHECK_EQUAL(root2.uri().string() , "cpath://root");
+  Component& root2 = group2_1().root();
+  BOOST_CHECK_EQUAL(root2.uri().string() , "cpath:/");
 
 }
 //////////////////////////////////////////////////////////////////////////////

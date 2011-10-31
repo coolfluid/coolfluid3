@@ -190,6 +190,8 @@ public:
   std::string base_name() const;
 
 private:
+  /// Cleans up the stored string, i.e. remove multiple / in sequence, ...
+  void cleanup();
 
   /// path string
   std::string m_path;

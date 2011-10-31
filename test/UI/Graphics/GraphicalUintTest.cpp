@@ -34,8 +34,7 @@ void GraphicalUintTest::initTestCase()
   GraphicalInt * value = new GraphicalInt(false);
 
   QVERIFY( is_not_null( findSpinBox(value) ) );
-  delete value;
-}
+  delete value; }
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -126,7 +125,7 @@ void GraphicalUintTest::test_signalEmmitting()
 {
   GraphicalInt * value = new GraphicalInt(true);
   QDoubleSpinBox * spinBox = findSpinBox(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()

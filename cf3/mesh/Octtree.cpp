@@ -48,17 +48,17 @@ Octtree::Octtree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to create octtree from")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
+  options().add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
       ->description("The approximate amount of elements that are stored in a structured cell of the octtree")
       ->pretty_name("Number of Elements per Octtree Cell");
 
   std::vector<Uint> dummy;
-  m_options.add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
+  options().add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
       ->description("The number of cells in each direction of the comb. "
                         "Takes precedence over \"Number of Elements per Octtree Cell\". ")
       ->pretty_name("Number of Cells");

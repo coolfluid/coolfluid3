@@ -13,7 +13,6 @@
 #include "common/Log.hpp"
 #include "common/Group.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/NotificationQueue.hpp"
 #include "common/PE/Manager.hpp"
 //#include "common/XML/SignalFrame.hpp"
@@ -47,7 +46,7 @@ ServerRoot::ServerRoot()
   : m_queue(nullptr),
     m_notifier(nullptr),
     m_thread(nullptr),
-    m_root( Core::instance().root().as_ptr<Root>() ),
+    m_root( Core::instance().root().self() ),
     m_core( new CCore() ),
     m_journal( common::allocate_component<Journal>("Journal") ),
     m_manager( common::allocate_component<Manager>("PEManager") ),
@@ -195,7 +194,7 @@ void ServerRoot::listen_to_events ()
 {
   if(m_queue == nullptr)
   {
-    m_queue = new NotificationQueue(m_root);
+    m_queue = new NotificationQueue();
     m_notifier = new Notifier(m_queue);
 
     m_notifier->listenToEvent("tree_updated", true);

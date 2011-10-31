@@ -45,14 +45,14 @@ Field::Field ( const std::string& name  ) :
 {
   mark_basic();
 
-//  m_options.add_option<OptionArrayT<std::string> >("var_names", std::vector<std::string>(1,name))
+//  options().add_option<OptionArrayT<std::string> >("var_names", std::vector<std::string>(1,name))
 //      ->description("Names of the variables")
 //      ->pretty_name("Variable Names")
 //      ->attach_trigger ( boost::bind ( &Field::config_var_names, this ) )
 //      ->mark_basic();
 //  config_var_names();
 
-//  m_options.add_option<OptionArrayT<std::string> >("var_types", std::vector<std::string>(1,"scalar"))
+//  options().add_option<OptionArrayT<std::string> >("var_types", std::vector<std::string>(1,"scalar"))
 //      ->description("Types of the variables")
 //      ->attach_trigger ( boost::bind ( &Field::config_var_types,   this ) )
 //      ->mark_basic()

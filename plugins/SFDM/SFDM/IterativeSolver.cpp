@@ -59,39 +59,39 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   m_post_update = create_static_component_ptr<ActionDirector>("PostUpdate");
 
-  m_options.add_option< OptionT<Uint> >("rk_order", 1u)
+  options().add_option< OptionT<Uint> >("rk_order", 1u)
       ->description("Order of the Runge-Kutta integration")
       ->pretty_name("RK Integration Order")
       ->attach_trigger( boost::bind( &IterativeSolver::config_rk_order , this ) );
 
-  m_options.add_option( OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
+  options().add_option( OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
       ->description("Solution to update")
       ->pretty_name("Solution");
 
-      m_options.add_option( OptionComponent<Field>::create("solution_backup", &m_solution_backup))
+      options().add_option( OptionComponent<Field>::create("solution_backup", &m_solution_backup))
       ->description("Solution Backup")
       ->pretty_name("Solution Backup");
 
-      m_options.add_option( OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
+      options().add_option( OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
       ->description("Update coefficient")
       ->pretty_name("Update Coefficient");
 
-      m_options.add_option( OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
+      options().add_option( OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
       ->description("Residual")
       ->pretty_name("Residual");
 
   std::vector<Real> dummy(4);
-  m_options.add_option< OptionArrayT<Real> >("alpha", dummy)
+  options().add_option< OptionArrayT<Real> >("alpha", dummy)
       ->description("RK coefficients alpha")
       ->pretty_name("alpha")
       ->link_to(&m_alpha);
 
-  m_options.add_option< OptionArrayT<Real> >("beta", dummy)
+  options().add_option< OptionArrayT<Real> >("beta", dummy)
       ->description("RK coefficients beta")
       ->pretty_name("beta")
       ->link_to(&m_beta);
 
-  m_options.add_option< OptionArrayT<Real> >("gamma", dummy)
+  options().add_option< OptionArrayT<Real> >("gamma", dummy)
       ->description("RK coefficients gamma")
       ->pretty_name("gamma")
       ->link_to(&m_gamma);

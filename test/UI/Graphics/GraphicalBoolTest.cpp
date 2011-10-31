@@ -145,7 +145,7 @@ void GraphicalBoolTest::test_signalEmmitting()
 {
   GraphicalBool * value = new GraphicalBool(false);
   QCheckBox * checkbox = findCheckBox(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. check/uncheck through setValue()

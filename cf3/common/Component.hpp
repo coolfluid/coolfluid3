@@ -35,10 +35,6 @@ namespace boost
 namespace cf3 {
 namespace common {
 
-  class Root;
-
-//  template<class T> class ComponentIterator;
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
   /// @brief Stand-alone function to allocate components of a given type
@@ -203,8 +199,8 @@ public: // functions
 
   /// Resolves relative elements within a path to complete it.
   /// The path may be relative to this component or absolute.
-  /// This is strictly a path operation so the path may not actually point anywhere
   /// @param path to a component
+  /// @pre path must point to an existing component
   /// @post path statisfies URI::is_complete()
   /// @post path statisfies URI::is_absolute()
   void complete_path ( URI& path ) const;
@@ -512,9 +508,7 @@ protected: // data
 protected: // functions
 
   /// raise event that the path has changed
-  void raise_path_changed();
-  /// raise event an event with a given name
-  void raise_event(const std::string & name );
+  void raise_tree_updated_event();
 
 }; // Component
 

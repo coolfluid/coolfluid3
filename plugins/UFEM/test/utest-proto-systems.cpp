@@ -11,7 +11,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 
 #include "mesh/Domain.hpp"
 

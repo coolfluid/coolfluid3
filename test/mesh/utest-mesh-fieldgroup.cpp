@@ -13,7 +13,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "math/VariablesDescriptor.hpp"

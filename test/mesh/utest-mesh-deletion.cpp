@@ -11,7 +11,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/EventHandler.hpp"
 #include "common/Log.hpp"
 
@@ -41,7 +40,7 @@ BOOST_AUTO_TEST_CASE( DeleteMesh )
   const Uint x_segments = 25;
   const Uint y_segments = 10;
 
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   // Setup a domain
   Domain& domain = root.create_component<Domain>("Domain");

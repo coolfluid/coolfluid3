@@ -11,7 +11,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 
 #include "math/LSS/System.hpp"
 
@@ -59,7 +58,7 @@ struct ProtoHeatFixture
     solver_config = boost::unit_test::framework::master_test_suite().argv[1];
   }
 
-  Root& root;
+  Component& root;
   std::string solver_config;
 
 };

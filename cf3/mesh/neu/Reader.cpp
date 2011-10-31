@@ -50,18 +50,18 @@ Reader::Reader( const std::string& name )
   Shared()
 {
   // options
-  m_options.add_option<OptionT <bool> >("read_groups" ,true)
+  options().add_option<OptionT <bool> >("read_groups" ,true)
       ->description("Reads neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
-  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
+  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
+  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
       ->description("Total nb_partitions. (e.g. number of processors)");
 
-  m_options.add_option<OptionT <bool> >("read_boundaries", true)
+  options().add_option<OptionT <bool> >("read_boundaries", true)
       ->description("Read the surface elements for the boundary")
       ->pretty_name("Read Boundaries");
 

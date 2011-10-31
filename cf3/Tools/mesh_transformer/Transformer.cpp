@@ -9,7 +9,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/BuildInfo.hpp"
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"

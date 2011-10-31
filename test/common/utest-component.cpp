@@ -15,7 +15,6 @@
 #include "common/Log.hpp"
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
 
@@ -37,11 +36,11 @@ BOOST_AUTO_TEST_SUITE( Component_TestSuite )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   // constructor with passed path
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   BOOST_CHECK_EQUAL ( root->name() , "root" );
   BOOST_CHECK_EQUAL ( root->uri().base_path().string() , "cpath:/" );
-  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath://root" );
+  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath:/" );
 
   BOOST_CHECK_EQUAL ( root->properties().check("brief") , true );
   BOOST_CHECK_EQUAL ( root->properties().check("description") , true );
@@ -51,21 +50,21 @@ BOOST_AUTO_TEST_CASE( constructors )
 
   BOOST_CHECK_EQUAL ( dir1->name() , "dir1" );
   BOOST_CHECK_EQUAL ( dir1->uri().base_path().string() , "cpath:/" );
-  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath://dir1" );
+  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath:/" );
 
   // constructor with passed path
   Link::Ptr lnk = allocate_component<Link>( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk->name() , "lnk" );
   BOOST_CHECK_EQUAL ( lnk->uri().base_path().string() , "cpath:/" );
-  BOOST_CHECK_EQUAL ( lnk->uri().string() , "cpath://lnk" );
+  BOOST_CHECK_EQUAL ( lnk->uri().string() , "cpath:/" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -73,16 +72,16 @@ BOOST_AUTO_TEST_CASE( add_component )
   root->add_component( dir1 );
   dir1->add_component( dir2 );
 
-  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath://root/dir1" );
-  BOOST_CHECK_EQUAL ( dir2->uri().string() , "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( root->uri().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath:/dir1" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string() , "cpath:/dir1/dir2" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( is_link )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
 
@@ -96,7 +95,7 @@ BOOST_AUTO_TEST_CASE( is_link )
 
 BOOST_AUTO_TEST_CASE( get )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr lnk1 = allocate_component<Link>( "lnk1" );
@@ -111,15 +110,15 @@ BOOST_AUTO_TEST_CASE( get )
 
   // check that the root returns himself
   BOOST_CHECK_EQUAL ( root->follow()->name(), "root" );
-  BOOST_CHECK_EQUAL ( root->follow()->uri().string(), "cpath://root" );
+  BOOST_CHECK_EQUAL ( root->follow()->uri().string(), "cpath:/" );
 
   // check that the link is sane
   BOOST_CHECK_EQUAL ( lnk1->name(), "lnk1" );
-  BOOST_CHECK_EQUAL ( lnk1->uri().string(), "cpath://root/lnk1" );
+  BOOST_CHECK_EQUAL ( lnk1->uri().string(), "cpath:/lnk1" );
 
   // check that the link returns the dir1
   BOOST_CHECK_EQUAL ( lnk1->follow()->name(), "dir1" );
-  BOOST_CHECK_EQUAL ( lnk1->follow()->uri().string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( lnk1->follow()->uri().string(), "cpath:/dir1" );
 
 }
 
@@ -127,15 +126,15 @@ BOOST_AUTO_TEST_CASE( get )
 
 BOOST_AUTO_TEST_CASE( as_const )
 {
-  Root::Ptr root = Root::create ( "root" );
-  Root::ConstPtr const_root = root->as_const()->as_ptr<Root>();
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  Component::ConstPtr const_root = root->as_const();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( complete_path )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -147,39 +146,39 @@ BOOST_AUTO_TEST_CASE( complete_path )
   dir2->add_component( dir3 );
 
   // test absolute & complete path
-  URI p0 ( "cpath://root/dir1" );
+  URI p0 ( "cpath:/dir1" );
   dir2->complete_path( p0 );
-  BOOST_CHECK_EQUAL ( p0.string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( p0.string(), "cpath:/dir1" );
 
   // test relative
   URI p10 ( "cpath:.." );
   dir2->complete_path( p10 );
-  BOOST_CHECK_EQUAL ( p10.string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( p10.string(), "cpath:/dir1" );
 
   // test relative
   URI p11 ( "cpath:./" );
   dir2->complete_path( p11 );
-  BOOST_CHECK_EQUAL ( p11.string(), "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( p11.string(), "cpath:/dir1/dir2" );
 
   // test relative & complete path
   URI p12 ( "cpath:../../dir2" );
   dir3->complete_path( p12 );
-  BOOST_CHECK_EQUAL ( p12.string(), "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( p12.string(), "cpath:/dir1/dir2" );
 
   // test absolute & incomplete path
-  URI p2 ( "cpath://root/dir1/dir2/../dir2" );
+  URI p2 ( "cpath:/dir1/dir2/../dir2" );
   dir2->complete_path( p2 );
-  BOOST_CHECK_EQUAL ( p2.string(), "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( p2.string(), "cpath:/dir1/dir2" );
 
   // test absolute & multiple incomplete path
-  URI p3 ( "cpath://root/dir1/../dir2/../dir1/../dir2/dir3" );
+  URI p3 ( "cpath:/dir1/../dir1/../dir1/dir2/../../dir1/dir2" );
   dir2->complete_path( p3 );
-  BOOST_CHECK_EQUAL ( p3.string(), "cpath://root/dir2/dir3" );
+  BOOST_CHECK_EQUAL ( p3.string(), "cpath:/dir1/dir2" );
 
   // test absolute & multiple incomplete path at end
-  URI p4 ( "cpath://root/dir1/dir2/dir3/../../" );
+  URI p4 ( "cpath:/dir1/dir2/dir3/../../" );
   dir2->complete_path( p4 );
-  BOOST_CHECK_EQUAL ( p4.string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( p4.string(), "cpath:/dir1" );
 
 }
 
@@ -187,7 +186,7 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 BOOST_AUTO_TEST_CASE( access_component_ptr )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -203,19 +202,19 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
   // test relative & complete path
   URI p0 ( "cpath:../dir21" );
   Component::Ptr cp0 = dir22->access_component_ptr( p0 );
-  BOOST_CHECK_EQUAL ( cp0->uri().string(), "cpath://root/dir1/dir2/dir21" );
+  BOOST_CHECK_EQUAL ( cp0->uri().string(), "cpath:/dir1/dir2/dir21" );
 
   // test relative & complete path
-  URI p1 ( "cpath://root/dir1" );
+  URI p1 ( "cpath:/dir1" );
   Component::Ptr cp1 = dir22->access_component_ptr( p1 );
-  BOOST_CHECK_EQUAL ( cp1->uri().string(), "cpath://root/dir1" );
+  BOOST_CHECK_EQUAL ( cp1->uri().string(), "cpath:/dir1" );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( move_to )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Component::Ptr dir1 = allocate_component<Group>( "dir1" );
   Component::Ptr dir2 = allocate_component<Group>( "dir2" );
@@ -224,11 +223,11 @@ BOOST_AUTO_TEST_CASE( move_to )
   root->add_component( dir1 );
   dir1->add_component( dir2 );
 
-  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath://root/dir1/dir2" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath:/dir1/dir2" );
 
   dir2->move_to( *root );
 
-  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath://root/dir2" );
+  BOOST_CHECK_EQUAL ( dir2->uri().string(), "cpath:/dir2" );
 
 }
 
@@ -236,11 +235,11 @@ BOOST_AUTO_TEST_CASE( move_to )
 
 BOOST_AUTO_TEST_CASE( problem )
 {
-  Root::Ptr root = Root::create ( "Simulator" );
+  Component::Ptr root = allocate_component<Group> ( "Simulator" );
 
-  Component::Ptr proot = root->access_component_ptr("cpath://Simulator");
+  Component::Ptr proot = root->access_component_ptr("cpath:/");
 
-  BOOST_CHECK_EQUAL ( proot->uri().string(), "cpath://Simulator" );
+  BOOST_CHECK_EQUAL ( proot->uri().string(), "cpath:/" );
 
 }
 
@@ -248,7 +247,7 @@ BOOST_AUTO_TEST_CASE( problem )
 
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Component::Ptr comp1 = root->create_component_ptr<Component>("comp1");
   comp1->create_component_ptr<Component>("comp1_1");
   comp1->create_component_ptr<Component>("comp1_2");
@@ -261,9 +260,9 @@ BOOST_AUTO_TEST_CASE( create_subcomponents )
 
 BOOST_AUTO_TEST_CASE( create_component_signal )
 {
-  Root::Ptr root = Root::create ( "croot" );
+  Component::Ptr root = allocate_component<Group> ( "croot" );
 
-  SignalFrame sf("Signal", "//Root", "//Root");
+  SignalFrame sf("Signal", "/", "/");
 
   sf.set_option<std::string>( "name",  "MyMesh" );
   sf.set_option<std::string>( "atype", "MeshReader" );
@@ -278,7 +277,7 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
 BOOST_AUTO_TEST_CASE( rename )
 {
-  Root::Ptr root = Root::create ( "Simulator" );
+  Component::Ptr root = allocate_component<Group> ( "Simulator" );
 
   Component::Ptr c1 = root->create_component_ptr<Component>("c1");
 

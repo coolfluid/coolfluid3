@@ -14,7 +14,6 @@
 #include <Eigen/StdVector>
 
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 
 #include "common/Table.hpp"
 #include "mesh/Integrators/Gauss.hpp"

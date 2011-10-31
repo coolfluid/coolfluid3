@@ -10,11 +10,11 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Signal.hpp"
-#include "common/Root.hpp"
 #include "common/LibCommon.hpp"
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
 #include "common/OptionT.hpp"
+#include "common/Group.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
@@ -62,7 +62,7 @@ public: // functions
 
     options.add_option< OptionT<int> >( "Counter", 10 );
 
-    signal_frame = options.create_frame("Target", "//Root", "//Root");
+    signal_frame = options.create_frame("Target", "/", "/");
 
     receiver.call_signal( "print_message", signal_frame );
   }
@@ -113,7 +113,7 @@ BOOST_FIXTURE_TEST_SUITE( TestSignals_TestSuite, TestSignals_Fixture )
 
 BOOST_AUTO_TEST_CASE( simple_signal )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Group::Ptr root = allocate_component<Group>("root");
 
   CSmall::Ptr small_1  ( allocate_component<CSmall> ( "small-1" ) );
   CSmall::Ptr small_2  ( allocate_component<CSmall> ( "small-2" ) );

@@ -14,7 +14,6 @@
 #include <boost/type_traits/is_base_of.hpp>
 
 #include "common/Factories.hpp"
-#include "common/Root.hpp"
 #include "common/Link.hpp"
 #include "common/Core.hpp"
 #include "common/Library.hpp"

@@ -26,7 +26,7 @@ MeshTransformer::MeshTransformer ( const std::string& name  ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description( "The mesh to be transformed" )
       ->pretty_name( "Mesh" )
       ->mark_basic();

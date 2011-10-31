@@ -1,6 +1,6 @@
 ### Global settings
 
-configure //Root/Environment assertion_throws:bool=false   \
+configure //Environment assertion_throws:bool=false   \
                              assertion_backtrace:bool=true \
                              exception_backtrace:bool=true \
                              exception_aborts:bool=true    \
@@ -39,9 +39,9 @@ call Model/RDSolver/BoundaryConditions/create_boundary_condition \
      name:string=INLET \
      type:string=cf3.RDM.BcDirichlet \
      regions:array[uri]=\
-//Root/Model/Domain/mesh/topology/bottom,\
-//Root/Model/Domain/mesh/topology/left,\
-//Root/Model/Domain/mesh/topology/right
+//Model/Domain/mesh/topology/bottom,\
+//Model/Domain/mesh/topology/left,\
+//Model/Domain/mesh/topology/right
 
 configure Model/RDSolver/BoundaryConditions/INLET functions:array[string]=1.5-2.0*x
 

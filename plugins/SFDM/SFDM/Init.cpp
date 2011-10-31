@@ -44,15 +44,15 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
+  options().add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
       ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
-  m_options.add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
+  options().add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
       ->pretty_name("Input Variables")
       ->description("The input variables.\nIf empty, Solution Variables will be used");
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->pretty_name("Functions")
       ->description("math function applied as initial condition using Input Variables (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
@@ -64,7 +64,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 

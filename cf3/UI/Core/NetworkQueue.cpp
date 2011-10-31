@@ -300,7 +300,7 @@ void NetworkQueue::execute_script ( const QString & filename )
     }
     else // python
     {
-      const URI script_engine_path("//Root/Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
+      const URI script_engine_path("//Tools/Python/ScriptEngine", common::URI::Scheme::CPATH);
       
       SignalOptions options;
       options.add_option< OptionT<std::string> >("script", m_script_stream->readAll().toStdString());

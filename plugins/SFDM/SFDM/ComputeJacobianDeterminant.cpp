@@ -32,14 +32,14 @@ ComputeJacobianDeterminant::ComputeJacobianDeterminant ( const std::string& name
   solver::actions::CLoopOperation(name)
 {
   // options
-  m_options.add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))
+  options().add_option(OptionURI::create("jacobian_determinant", URI("cpath:"), URI::Scheme::CPATH))
     ->description("Field storing the Jacobian Determinant")
     ->pretty_name("Jacobian Determinant")
     ->mark_basic()
     ->attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::config_jacobian_determinant,   this ) )
     ->add_tag("jacobian_determinant");
 
-  m_options["Elements"].attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::trigger_elements,   this ) );
+  options()["Elements"].attach_trigger ( boost::bind ( &ComputeJacobianDeterminant::trigger_elements,   this ) );
 
   m_jacobian_determinant = create_static_component_ptr<CMultiStateFieldView>("jacobian_determinant_view");
 

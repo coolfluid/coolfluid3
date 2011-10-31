@@ -37,15 +37,15 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::solution(), &m_solution))
      ->description("Solution to update")
      ->pretty_name("Solution");
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::update_coeff(), &m_update_coeff))
      ->description("Update coefficient")
      ->pretty_name("Update Coefficient");
 
-  m_options.add_option(OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
      ->description("Residual")
      ->pretty_name("Residual");
 }

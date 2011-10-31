@@ -40,20 +40,20 @@ CTime::CTime ( const std::string& name  ) :
     "unless the code explicitely (re)configures them.";
   m_properties["description"] = description;
 
-  m_options.add_option(OptionT<Uint>::create("iteration", m_iter) )
+  options().add_option(OptionT<Uint>::create("iteration", m_iter) )
       ->description("Current iteration of the simulation")
       ->pretty_name("Iteration")
       ->link_to(&m_iter)
       ->mark_basic();
 
 
-  m_options.add_option(OptionT<Real>::create("time", m_current_time) )
+  options().add_option(OptionT<Real>::create("time", m_current_time) )
       ->description("Current time of the simulation")
       ->pretty_name("Time")
       ->link_to(&m_current_time)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Real>::create("time_step", m_dt) )
+  options().add_option(OptionT<Real>::create("time_step", m_dt) )
       ->description("Maximal Time Step the simulation will use.\n"
                         "A CFL condition will be applied to make time step more strict if required.")
       ->pretty_name("Time Step")
@@ -61,7 +61,7 @@ CTime::CTime ( const std::string& name  ) :
       ->mark_basic()
       ->attach_trigger(boost::bind(&CTime::trigger_timestep, this));
 
-  m_options.add_option(OptionT<Real>::create("end_time", m_current_time) )
+  options().add_option(OptionT<Real>::create("end_time", m_current_time) )
       ->description("Time at which to finish the simulation")
       ->pretty_name("End Time")
       ->link_to(&m_end_time)

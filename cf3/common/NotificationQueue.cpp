@@ -7,32 +7,40 @@
 #include "common/URI.hpp"
 #include "common/NotificationQueue.hpp"
 
-using namespace cf3::common;
+#include "common/XML/SignalFrame.hpp"
 
-NotificationQueue::NotificationQueue(Root::Ptr root)
-: m_sig_begin_flush(new SignalTypeFlush_t()),
-m_event_signals()
+///////////////////////////////////////////////////////////////////////////////
+
+namespace cf3 {
+namespace common {
+
+///////////////////////////////////////////////////////////////////////////////
+
+NotificationQueue::NotificationQueue()
+  : m_sig_begin_flush(new SignalTypeFlush_t()),
+    m_event_signals()
 {
-  cf3_assert( root.get() != nullptr );
 
-  root->add_notification_queue(this);
+
+//  EventHandler::instance().add_notification_queue(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 NotificationQueue::~NotificationQueue()
 {
-
+//  EventHandler::instance().remove_notification_queue(this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NotificationQueue::add_notification ( const std::string & name,
-                                           const URI & sender_path )
+void NotificationQueue::add_notification ( SignalArgs & args )
 {
+  std::string name = args.node.attribute_value("target");
+
   cf3_assert( !name.empty() );
 
-  m_notifications.push_back( std::pair<std::string, URI>(name, sender_path) );
+  m_notifications.push_back( std::pair<std::string, SignalArgs>(name, args) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -45,7 +53,7 @@ cf3::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
     count = m_notifications.size();
   else
   {
-    std::vector< std::pair<std::string, URI> >::const_iterator it;
+    std::vector< std::pair<std::string, SignalArgs> >::const_iterator it;
 
     for (it = m_notifications.begin() ; it != m_notifications.end() ; it++)
     {
@@ -61,7 +69,7 @@ cf3::Uint NotificationQueue::nb_notifications ( const std::string & name ) const
 
 void NotificationQueue::flush()
 {
-  std::vector< std::pair<std::string, URI> >::iterator it;
+  std::vector< std::pair<std::string, SignalArgs> >::iterator it;
 
   if( !m_notifications.empty() )
   {
@@ -78,3 +86,8 @@ void NotificationQueue::flush()
     m_notifications.clear();
   }
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+} // common
+} // cf3

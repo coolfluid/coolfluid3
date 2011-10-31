@@ -53,7 +53,7 @@ Convection::Convection( const std::string& name )
   properties()["brief"] = std::string("Convective Spectral Finite Difference term");
   properties()["description"] = std::string("Fields to be created: ...");
 
-  m_options.add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
+  options().add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
     ->description("The component to solve the Rieman Problem on cell-faces")
     ->pretty_name("Riemann Solver")
     ->mark_basic()

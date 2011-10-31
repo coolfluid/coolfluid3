@@ -9,7 +9,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "python/CoreWrapper.hpp"

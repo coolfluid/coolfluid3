@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 

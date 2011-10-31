@@ -94,13 +94,13 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
   mark_basic();
 
   // Option "topology"
-  m_options.add_option< OptionURI >("topology",URI("cpath:"))
+  options().add_option< OptionURI >("topology",URI("cpath:"))
       ->description("The region these fields apply to")
       ->attach_trigger( boost::bind( &SpaceFields::config_topology, this) )
       ->mark_basic();
 
   // Option "type"
-  m_options.add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
+  options().add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
       ->description("The type of the field")
       ->attach_trigger ( boost::bind ( &SpaceFields::config_type,   this ) )
       ->mark_basic();
@@ -111,7 +111,7 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
       (Basis::to_str(Basis::FACE_BASED));
 
   // Option "space
-  m_options.add_option< OptionT<std::string> >("space", m_space)
+  options().add_option< OptionT<std::string> >("space", m_space)
     ->description("The space of the field is based on")
     ->attach_trigger ( boost::bind ( &SpaceFields::config_space,   this ) )
     ->mark_basic();

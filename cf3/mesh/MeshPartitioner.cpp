@@ -44,7 +44,7 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  m_options.add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
+  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions")
       ->link_to(&m_nb_parts)

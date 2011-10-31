@@ -42,12 +42,12 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
     "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
+  options().add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as initial field (vars x,y,z)")
       ->pretty_name("Functions definition")
       ->attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
@@ -67,7 +67,7 @@ InitFieldFunction::~InitFieldFunction()
 
 void InitFieldFunction::config_function()
 {
-  m_function.functions( m_options["functions"].value<std::vector<std::string> >() );
+  m_function.functions( options()["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 

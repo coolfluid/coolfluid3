@@ -175,14 +175,14 @@ void GraphicalArrayTest::test_signalEmmitting()
   GraphicalArray * value = new GraphicalArray();
   QLineEdit * lineEdit = findLineEdit(value);
   QStringListModel * model = findModel(value);
-  QSignalSpy spy(value, SIGNAL(valueChanged()));
+  QSignalSpy spy(value, SIGNAL(value_changed()));
 
   //
   // 1. through setValue()
   //
   value->set_value( QString("Hello World") ); // when the value is a string
   value->set_value( QStringList() << "Hello" << "World" ); // when the value is a string list
-  value->set_value( 42 ); // when the value is not valid (so signal emitted)
+  value->set_value( 42 ); // when the value is not valid (no signal emitted)
 
   // 2 signals should have been emitted
   QCOMPARE( spy.count(), 2 );

@@ -64,8 +64,8 @@ BOOST_AUTO_TEST_CASE ( contructors )
   BOOST_CHECK ( !second_frame.has_map("not_a_map") );
 
   // 3. test the constructor that builds a new document
-  URI sender("cpath://Root/sender");
-  URI receiver("cpath://Root/receiver");
+  URI sender("cpath:/sender");
+  URI receiver("cpath:/receiver");
   SignalFrame third_frame ( "theTarget", sender, receiver);
 
   rapidxml::xml_node<>* frame_node = third_frame.main_map.content.content->parent();
@@ -91,8 +91,8 @@ BOOST_AUTO_TEST_CASE ( contructors )
 
 BOOST_AUTO_TEST_CASE ( map )
 {
-  URI sender("cpath://Root/sender");
-  URI receiver("cpath://Root/receiver");
+  URI sender("cpath:/sender");
+  URI receiver("cpath:/receiver");
   SignalFrame frame ( "theTarget", sender, receiver);
 
   BOOST_CHECK ( !frame.has_map("MyMap") );

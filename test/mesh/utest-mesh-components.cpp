@@ -13,7 +13,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -60,7 +59,7 @@ struct MeshComponent_Fixture
     return coordVec;
   }
   /// common values accessed by all tests goes here
-  Root& root;
+  Component& root;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -74,17 +73,17 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   // CFinfo << "testing MeshComponents \n" << CFflush;
 
   // Create root and mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Mesh& mesh = root->create_component<Mesh>( "mesh" ) ;
 
   BOOST_CHECK_EQUAL ( mesh.name() , "mesh" );
-  BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath://root" );
-  BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath://root/mesh" );
+  BOOST_CHECK_EQUAL ( mesh.uri().base_path().string() , "cpath:/" );
+  BOOST_CHECK_EQUAL ( mesh.uri().string() , "cpath:/mesh" );
 
   // Create one region inside mesh
   Region& region1 = mesh.topology().create_region("region1");
-  BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath://root/mesh/topology/region1" );
+  BOOST_CHECK_EQUAL ( region1.uri().string() , "cpath:/mesh/topology/region1" );
 
   // Create second region inside mesh, with 2 subregions inside
   Region& region2 = mesh.topology().create_region("region2");
@@ -92,19 +91,19 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
   CFinfo << mesh.tree() << CFendl;
   region2.create_region("subregion1");
   Region& subregion = region2.create_region("subregion2");
-  BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath://root/mesh/topology/region2/subregion2" );
+  BOOST_CHECK_EQUAL ( subregion.uri().string() , "cpath:/mesh/topology/region2/subregion2" );
 
   // Create a connectivity table inside a subregion
   subregion.create_component_ptr<Table<Uint> >("connTable");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath://root/mesh/topology/region2/subregion2/connTable" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "connTable").uri().string() , "cpath:/mesh/topology/region2/subregion2/connTable" );
 
   // Create a elementsType component inside a subregion
   subregion.create_component_ptr<Elements>("elementType");
-  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath://root/mesh/topology/region2/subregion2/elementType" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(subregion, "elementType").uri().string() , "cpath:/mesh/topology/region2/subregion2/elementType" );
 
   // Create an array of coordinates inside mesh
   mesh.create_component_ptr<Table<Real> >("coordinates");
-  BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath://root/mesh/coordinates" );
+  BOOST_CHECK_EQUAL ( find_component_with_name(mesh, "coordinates").uri().string() , "cpath:/mesh/coordinates" );
 
   find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion1");
   find_component_with_name<Region>(region2, "subregion1").create_region("subsubregion2");
@@ -239,7 +238,7 @@ BOOST_AUTO_TEST_CASE( Table_Uint_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   Mesh& mesh = root->create_component<Mesh>  ( "mesh" ) ;
 
@@ -340,7 +339,7 @@ BOOST_AUTO_TEST_CASE( Table_Real_Templates )
 
 BOOST_AUTO_TEST_CASE( moving_mesh_components_around )
 {
-  Root::Ptr root = Root::create ( "root" );
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& regions = mesh.topology().create_region("regions");
 
@@ -690,7 +689,7 @@ BOOST_AUTO_TEST_CASE ( DynTable_test_hard )
 
 BOOST_AUTO_TEST_CASE ( Mesh_test )
 {
-  Root::Ptr root = Root::create("root");
+  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
   Mesh& mesh = root->create_component<Mesh>("mesh");
   Region& region = mesh.topology().create_region("region");
   SpaceFields& nodes = mesh.geometry_fields();
@@ -706,7 +705,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
@@ -783,7 +782,7 @@ BOOST_AUTO_TEST_CASE( List_Uint_rm_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 
@@ -834,7 +833,7 @@ BOOST_AUTO_TEST_CASE( List_bool_Test )
   // CFinfo << "testing Table<Uint> \n" << CFflush;
   Logger::instance().getStream(DEBUG).set_log_level(SILENT);
   // Create mesh component
-  boost::shared_ptr<Root> root = Root::create ( "root" );
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   boost::shared_ptr<Mesh> mesh = allocate_component<Mesh>  ( "mesh" ) ;
 

@@ -238,7 +238,7 @@ namespace Graphics {
     void build_menus();
 
     /// @brief Sets the client to a <i>file open</i> or a <i>file
-    /// not open</i> state by enabling or disabling certain m_options.
+    /// not open</i> state by enabling or disabling certain options().
 
     /// @param fileOpen If @c true, the client is set to a <i>file open</i>
     /// running state, otherwise it is set to a <i>file not open</i> state.

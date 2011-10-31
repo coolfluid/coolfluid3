@@ -33,7 +33,7 @@ CSynchronizeFields::CSynchronizeFields ( const std::string& name ) : solver::Act
   mark_basic();
 
   std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy)
+  options().add_option< OptionArrayT < URI > > ("Fields", dummy)
       ->description("Fields to synchronize")
       ->attach_trigger ( boost::bind ( &CSynchronizeFields::config_fields,   this ) );
 }

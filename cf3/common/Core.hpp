@@ -19,10 +19,10 @@
 namespace cf3 {
 namespace common {
 
+  class Component;
   class EventHandler;
   class BuildInfo;
   class CodeProfiler;
-  class Root;
   class Environment;
   class Group;
   class Libraries;
@@ -52,9 +52,9 @@ public: // methods
   ///       only destruction procedures ar allowed afterwards.
   void terminate();
 
-  /// @brief Gives the root component.
+  /// @brief Gives the default root component.
   /// @return Returns the root component.
-  common::Root& root() const;
+  common::Component& root() const;
 
   /// Gets the EventHandler of the CF runtime environment
   /// @pre Core does not need to be initialized before
@@ -120,7 +120,7 @@ private: // data
   /// the Factories unique object
   boost::weak_ptr< common::Factories >   m_factories;
   /// @brief The component tree root
-  boost::shared_ptr< common::Root >        m_root;
+  boost::shared_ptr< common::Group >        m_root;
   /// The network information
   boost::shared_ptr< common::NetworkInfo >   m_network_info;
 

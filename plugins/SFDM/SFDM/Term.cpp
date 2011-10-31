@@ -37,16 +37,16 @@ Term::Term ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::solution(), &m_solution))
+  options().add_option(OptionComponent<Field>::create( SFDM::Tags::solution(), &m_solution))
       ->pretty_name("Solution Field");
 
-  m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::wave_speed(), &m_wave_speed))
+  options().add_option(OptionComponent<Field>::create( SFDM::Tags::wave_speed(), &m_wave_speed))
       ->pretty_name("Wave Speed Field");
 
-  m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::residual(), &m_residual))
+  options().add_option(OptionComponent<Field>::create( SFDM::Tags::residual(), &m_residual))
       ->pretty_name("Residual Field");
 
-  m_options.add_option(OptionComponent<Field>::create( SFDM::Tags::jacob_det(), &m_jacob_det))
+  options().add_option(OptionComponent<Field>::create( SFDM::Tags::jacob_det(), &m_jacob_det))
       ->pretty_name("Jacobian Determinant Field");
 
 }

@@ -30,7 +30,7 @@ GraphicalBool::GraphicalBool(bool value, QWidget * parent)
 
   this->set_value(value);
 
-  connect(m_check_box, SIGNAL(state_changed(int)), this, SLOT(state_changed(int)));
+  connect(m_check_box, SIGNAL(stateChanged(int)), this, SLOT(state_changed(int)));
 }
 
 //////////////////////////////////////////////////////////////////////////

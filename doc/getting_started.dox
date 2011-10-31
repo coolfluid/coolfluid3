@@ -24,9 +24,8 @@ namespace cf3 {
 
  @section _whats_there What's there?
  The cf3::common namespace contains apart from the Component base class, some specialized components:
- Root: This component is the root of the component tree, similar to the "/" or root directory in a unix type file system. It also holds the Environment or Environment component for interaction with the Operating System.
  Link: This component contains a reference to another component in the tree, and accessing it, accesses this reference. It serves as an analogy to the symbolic link on the computer file system.
- Group: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system.
+ Group: This component actually doesn't add more functionality, but serves as an analogy to the folder or directory on the computer file system. It is also used for the "/" or root directory in a unix type file system, which holds the Environment or Environment component for interaction with the Operating System.
  The cf3::Mesh namespace implements components that constitute to building, storing, and manipulating the mesh.
  
  <hr>
@@ -120,7 +119,7 @@ namespace cf3 {
 
  @code
  Component& relative_component = current_component.access_component("../../my_component");
- Component& absolute_component = current_component.access_component("//root/my_component");
+ Component& absolute_component = current_component.access_component("//my_component");
  @endcode
  
  When the component needs to be cast to a known derived type (e.g. CDerived), use the Component member function as_type<T>() again
@@ -174,7 +173,7 @@ namespace cf3 {
  @code
  boost_foreach ( Component& component , find_components_with_filter(root_component , IsComponentName("subcomponent1") )
  {
-   // component will be in order:  //root/component1/subcomponent1 , //root/component2/subcomponent1
+   // component will be in order:  //component1/subcomponent1 , //component2/subcomponent1
  }
  @endcode
  
@@ -182,7 +181,7 @@ namespace cf3 {
  @code
  boost_foreach ( Component& component , find_components_recursively_with_filter(root_component , IsComponentTag("special_tag") )
  {
-   // component will be in order:  //root/component2 , //root/component2/subcomponent2
+   // component will be in order:  //component2 , //component2/subcomponent2
  }
  @endcode
  

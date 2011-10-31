@@ -13,7 +13,6 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
@@ -53,7 +52,7 @@ struct BockMesh3DFixture :
     if(!PE::Comm::instance().is_active())
       PE::Comm::instance().init(argc, argv);
 
-    Root& root = Core::instance().root();
+    Component& root = Core::instance().root();
     if(!root.get_child_ptr("domain"))
     {
       m_domain = root.create_component_ptr<Domain>("domain");

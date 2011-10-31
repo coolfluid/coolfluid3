@@ -43,7 +43,7 @@ SetupMultipleSolutions::SetupMultipleSolutions ( const std::string& name ) : cf3
 {
   // options
 
-  m_options.add_option< OptionT<Uint> >( "nb_levels", 1u )
+  options().add_option< OptionT<Uint> >( "nb_levels", 1u )
       ->description("Number of solution levels to be created")
       ->pretty_name("Number of levels");
 }

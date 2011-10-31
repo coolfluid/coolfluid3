@@ -68,7 +68,7 @@ BuildFaces::BuildFaces( const std::string& name )
   "      element distribution for each region, and element type";
   m_properties["description"] = desc;
 
-  m_options.add_option( OptionT<bool>::create("store_cell2face", m_store_cell2face) )
+  options().add_option( OptionT<bool>::create("store_cell2face", m_store_cell2face) )
       ->description("Optionally store Cell to Face connectivity")
       ->pretty_name("Store Cell to Face")
       ->mark_basic()

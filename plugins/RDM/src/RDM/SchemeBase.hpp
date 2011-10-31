@@ -200,15 +200,15 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   // initializations

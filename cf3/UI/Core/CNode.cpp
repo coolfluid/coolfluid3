@@ -535,9 +535,9 @@ void CNode::list_options(QList<Option::ConstPtr> & list)
    fetch_content();
  else
  {
-   OptionList::const_iterator it = m_options.begin();
+   OptionList::const_iterator it = options().begin();
 
-   for( ; it != m_options.end() ; ++it)
+   for( ; it != options().end() ; ++it)
      list.append( it->second );
  }
 }

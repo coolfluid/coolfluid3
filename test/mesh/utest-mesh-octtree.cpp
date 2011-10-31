@@ -16,7 +16,6 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
-#include "common/Root.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"

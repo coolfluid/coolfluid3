@@ -56,7 +56,7 @@ GraphicalRestrictedList::GraphicalRestrictedList(Option::ConstPtr opt, QWidget *
 
   m_layout->addWidget(m_comboChoices);
 
-  connect(m_comboChoices, SIGNAL(current_index_changed(int)), this, SLOT(current_index_changed(int)));
+  connect(m_comboChoices, SIGNAL(currentIndexChanged(int)), this, SLOT(current_index_changed(int)));
 }
 
 /////////////////////////////////////////////////////////////////////////////
