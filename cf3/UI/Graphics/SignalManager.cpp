@@ -140,7 +140,7 @@ void SignalManager::signal_signature(SignalArgs & args)
 {
   if(m_waiting_for_signature)
   {
-    URI path = m_node->real_component()->uri();
+    URI path = m_node->uri();
     ActionInfo & info = m_signals[m_current_action];
     const char * tag = Protocol::Tags::key_options();
 

@@ -285,8 +285,8 @@ void NetworkQueue::execute_script ( const QString & filename )
                            "] does not exist." );
 
   BasicCommands::dispatcher = this;
-  BasicCommands::tree_root = ThreadManager::instance().tree().root()->root();
-  BasicCommands::current_component = ThreadManager::instance().tree().root()->root();
+  BasicCommands::tree_root = ThreadManager::instance().tree().root();
+  BasicCommands::current_component = ThreadManager::instance().tree().root();
 
   if( !m_script_file->open( QIODevice::ReadOnly ) )
     NLog::global()->add_error( m_script_file->errorString() );

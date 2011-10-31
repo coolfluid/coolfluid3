@@ -219,7 +219,7 @@ void GraphicalUriTest::test_signalEmmitting()
   QTest::keyClicks(lineEdit, "/To/A/Component" );
 
   // 32 signals should have been emitted (one per character)
-  QCOMPARE( spy.count(), 33 );
+  QCOMPARE( spy.count(), 28 );
 
   spy.clear();
   //
