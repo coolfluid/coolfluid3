@@ -18,6 +18,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
+#include "mesh/Field.hpp"
 #include "mesh/FieldGroup.hpp"
 
 #include "CGAL/ImplicitFunctionMesh.hpp"
