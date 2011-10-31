@@ -9,11 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/foreach.hpp>
-
 #include "common/Option.hpp"
-
-#include "common/BasicExceptions.hpp"
 
 namespace cf3 {
 namespace common {

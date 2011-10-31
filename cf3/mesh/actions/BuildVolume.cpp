@@ -67,7 +67,7 @@ void BuildVolume::execute()
 
   Mesh& mesh = *m_mesh.lock();
 
-  FieldGroup& cells_P0 = mesh.create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& cells_P0 = mesh.create_space_and_field_group("cells_P0",SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
   Field& volume = cells_P0.create_field(mesh::Tags::volume());
   volume.add_tag(mesh::Tags::volume());
 

@@ -37,7 +37,7 @@ Faces::~Faces()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Faces::initialize(const std::string& element_type_name, FieldGroup& nodes)
+void Faces::initialize(const std::string& element_type_name, SpaceFields& nodes)
 {
   Elements::initialize(element_type_name,nodes);
   cf3_assert(element_type().dimensionality() == element_type().dimension() - 1);

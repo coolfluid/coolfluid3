@@ -22,6 +22,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/StringConversion.hpp"
+#include "common/FindComponents.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
 #include "common/XML/FileOperations.hpp"
@@ -392,7 +393,7 @@ CNode::Ptr CNode::child(cf3::Uint index)
 {
   QMutexLocker locker(m_mutex);
 
-  ComponentIterator<CNode> it = begin<CNode>();
+  ComponentIterator<CNode> it = component_begin<CNode>(*this);
 
   cf3_assert(index < count_children());
 
@@ -426,8 +427,8 @@ void CNode::list_child_paths( QStringList & list,
 {
   QMutexLocker locker(m_mutex);
 
-  ComponentIterator<const CNode> it_begin = begin<const CNode>();
-  ComponentIterator<const CNode> it_end = end<const CNode>();
+  ComponentIterator<const CNode> it_begin = component_begin<const CNode>(*this);
+  ComponentIterator<const CNode> it_end   = component_end<const CNode>(*this);
 
   // add the current path
   if(list.isEmpty())

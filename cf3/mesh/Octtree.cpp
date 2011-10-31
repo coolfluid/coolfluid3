@@ -6,7 +6,6 @@
 
 #include <set>
 
-#include <boost/algorithm/string/erase.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include "common/Foreach.hpp"
@@ -16,7 +15,6 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/Link.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
@@ -24,13 +22,11 @@
 #include "math/Consts.hpp"
 #include "mesh/Octtree.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/ElementData.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -86,7 +82,7 @@ void Octtree::create_bounding_box()
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(common::Table<Real>::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
+  boost_foreach(Field::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -133,13 +129,13 @@ void Octtree::create_octtree()
     }
   }
 
-  CFinfo << "Octtree:" << CFendl;
-  CFinfo << "--------" << CFendl;
+  CFdebug << "Octtree:" << CFendl;
+  CFdebug << "--------" << CFendl;
   for (Uint d=0; d<m_dim; ++d)
   {
-    std::cout<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << std::endl;
+    CFdebug<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << CFendl;
   }
-  CFinfo << "V = " << V << CFendl;
+  CFdebug << "V = " << V << CFendl;
 
   // initialize the honeycomb
   m_octtree.resize(boost::extents[std::max(Uint(1),m_N[XX])][std::max(Uint(1),m_N[YY])][std::max(Uint(1),m_N[ZZ])]);

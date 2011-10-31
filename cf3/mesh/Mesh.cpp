@@ -31,7 +31,7 @@
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ElementType.hpp"
@@ -74,7 +74,7 @@ Mesh::Mesh ( const std::string& name  ) :
       ->connect   ( boost::bind ( &Mesh::signal_write_mesh,    this, _1 ) )
       ->signature ( boost::bind ( &Mesh::signature_write_mesh, this, _1 ) );
 
-  m_geometry_fields = create_static_component_ptr<FieldGroup>("geometry_fields");
+  m_geometry_fields = create_static_component_ptr<SpaceFields>("geometry_fields");
   m_geometry_fields->add_tag(mesh::Tags::geometry());
   Field::Ptr coord_field = m_geometry_fields->create_static_component_ptr< Field >(mesh::Tags::coordinates());
   coord_field->add_tag(mesh::Tags::coordinates());
@@ -95,12 +95,12 @@ void Mesh::initialize_nodes(const Uint nb_nodes, const Uint dimension)
 {
   cf3_assert(dimension > 0);
 
-  geometry_fields().configure_option("type",    FieldGroup::Basis::to_str(FieldGroup::Basis::POINT_BASED));
+  geometry_fields().configure_option("type",    SpaceFields::Basis::to_str(SpaceFields::Basis::POINT_BASED));
   geometry_fields().configure_option("space",   std::string(Tags::geometry()));
   geometry_fields().configure_option("topology",topology().uri());
   geometry_fields().coordinates().set_field_group(geometry_fields());
   geometry_fields().coordinates().set_topology(geometry_fields().topology());
-  geometry_fields().coordinates().set_basis(FieldGroup::Basis::POINT_BASED);
+  geometry_fields().coordinates().set_basis(SpaceFields::Basis::POINT_BASED);
   geometry_fields().coordinates().descriptor().configure_option(common::Tags::dimension(),dimension);
   geometry_fields().resize(nb_nodes);
 
@@ -136,16 +136,16 @@ void Mesh::update_statistics()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::create_field_group( const std::string& name,
-                                       const FieldGroup::Basis::Type base )
+SpaceFields& Mesh::create_field_group( const std::string& name,
+                                       const SpaceFields::Basis::Type base )
 {
   return create_field_group ( name, base, name, topology() );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::create_field_group( const std::string& name,
-                                       const FieldGroup::Basis::Type base,
+SpaceFields& Mesh::create_field_group( const std::string& name,
+                                       const SpaceFields::Basis::Type base,
                                        const std::string& space )
 {
   return create_field_group ( name, base, space, topology() );
@@ -153,13 +153,13 @@ FieldGroup& Mesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::create_field_group( const std::string& name,
-                                       const FieldGroup::Basis::Type base,
+SpaceFields& Mesh::create_field_group( const std::string& name,
+                                       const SpaceFields::Basis::Type base,
                                        const std::string& space,
                                        const Region& topology )
 {
-  FieldGroup& field_group = create_component<FieldGroup>(name);
-  field_group.configure_option("type",FieldGroup::Basis::to_str(base));
+  SpaceFields& field_group = create_component<SpaceFields>(name);
+  field_group.configure_option("type",SpaceFields::Basis::to_str(base));
   field_group.configure_option("space",space);
   field_group.configure_option("topology",topology.uri());
   return field_group;
@@ -167,40 +167,40 @@ FieldGroup& Mesh::create_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name)
+void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name)
 {
   create_space(name,base,space_lib_name,topology());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Mesh::create_space( const std::string& name, const FieldGroup::Basis::Type base, const std::string& space_lib_name, Region& topology)
+void Mesh::create_space( const std::string& name, const SpaceFields::Basis::Type base, const std::string& space_lib_name, Region& topology)
 {
   switch (base)
   {
-  case FieldGroup::Basis::POINT_BASED:
-  case FieldGroup::Basis::ELEMENT_BASED:
+  case SpaceFields::Basis::POINT_BASED:
+  case SpaceFields::Basis::ELEMENT_BASED:
     boost_foreach(Entities& elements, find_components_recursively<Entities>(topology))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
-  case FieldGroup::Basis::CELL_BASED:
+  case SpaceFields::Basis::CELL_BASED:
     boost_foreach(Cells& elements, find_components_recursively<Cells>(topology))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
-  case FieldGroup::Basis::FACE_BASED:
+  case SpaceFields::Basis::FACE_BASED:
     boost_foreach(Entities& elements, find_components_recursively_with_tag<Entities>(topology,mesh::Tags::face_entity()))
       elements.create_space(name,space_lib_name+"."+elements.element_type().shape_name());
     break;
-  case FieldGroup::Basis::INVALID:
+  case SpaceFields::Basis::INVALID:
   default:
-    throw BadValue(FromHere(),"value "+FieldGroup::Basis::to_str(base)+" not supported for base");
+    throw BadValue(FromHere(),"value "+SpaceFields::Basis::to_str(base)+" not supported for base");
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
-                                                 const FieldGroup::Basis::Type base,
+SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
+                                                 const SpaceFields::Basis::Type base,
                                                  const std::string& space_lib_name )
 {
   return create_space_and_field_group(name,base,space_lib_name,topology());
@@ -208,8 +208,8 @@ FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
-                                                 const FieldGroup::Basis::Type base,
+SpaceFields& Mesh::create_space_and_field_group( const std::string& name,
+                                                 const SpaceFields::Basis::Type base,
                                                  const std::string& space_lib_name,
                                                  Region& topology )
 {
@@ -219,7 +219,7 @@ FieldGroup& Mesh::create_space_and_field_group( const std::string& name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Mesh::geometry_fields() const
+SpaceFields& Mesh::geometry_fields() const
 {
   return *m_geometry_fields;
 }
@@ -306,7 +306,7 @@ void Mesh::check_sanity() const
   if(geometry_fields().coordinates().row_size() != dimension())
     message << "- coordinates dimension does not match mesh.dimension" << std::endl;
 
-  boost_foreach(const FieldGroup& field_group, find_components_recursively<FieldGroup>(*this))
+  boost_foreach(const SpaceFields& field_group, find_components_recursively<SpaceFields>(*this))
   {
     if (field_group.rank().size() != field_group.size())
       message << "- " << field_group.uri().string() << ": size() ["<<field_group.size()<<"] != rank().size() ["<<field_group.rank().size()<<"]"<<std::endl;

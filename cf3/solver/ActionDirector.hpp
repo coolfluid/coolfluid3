@@ -8,7 +8,6 @@
 #define cf3_solver_ActionDirector_hpp
 
 #include "common/ActionDirector.hpp"
-#include "common/FindComponents.hpp"
 
 #include "solver/LibSolver.hpp"
 

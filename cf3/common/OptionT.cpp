@@ -4,10 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/foreach.hpp>
+
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/BoostFilesystem.hpp"
-
+#include "common/BasicExceptions.hpp"
 #include "common/OptionT.hpp"
 #include "common/StringConversion.hpp"
 #include "common/URI.hpp"

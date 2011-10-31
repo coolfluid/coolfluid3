@@ -7,8 +7,6 @@
 #ifndef cf3_common_TimedComponent_hpp
 #define cf3_common_TimedComponent_hpp
 
-#include <boost/scoped_ptr.hpp>
-
 #include "common/CommonAPI.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -23,7 +21,7 @@ class Common_API TimedComponent
 {
 public:
   virtual ~TimedComponent() {}
-  
+
   /// Copy the stored timings from internal storage to visible properties.
   /// This avoids having expensive property updates on each timing
   virtual void store_timings() = 0;

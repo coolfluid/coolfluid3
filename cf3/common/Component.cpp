@@ -29,6 +29,10 @@
 #include "common/Core.hpp"
 #include "common/OSystem.hpp"
 #include "common/LibLoader.hpp"
+#include "common/PropertyList.hpp"
+#include "common/OptionList.hpp"
+#include "common/ComponentIterator.hpp"
+
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/FileOperations.hpp"
@@ -1359,6 +1363,78 @@ Component::Ptr build_component(const std::string& builder_name,
 void Component::on_ping_event(SignalArgs& args)
 {
   CFdebug << "Ping response: " << uri().path() << " of type " << derived_type_name() << CFendl;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::iterator Component::begin()
+{
+  std::vector<boost::shared_ptr<Component> > vec;
+  put_components<Component>(vec, false); // not recursive
+  return Component::iterator(vec, 0);    // begin
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::iterator Component::end()
+{
+  std::vector<boost::shared_ptr<Component> > vec;
+  put_components<Component>(vec, false);        // not recursive
+  return Component::iterator(vec, vec.size());  // end
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::const_iterator Component::begin() const
+{
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec, false); // not recursive
+  return Component::const_iterator(vec, 0);    // begin
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::const_iterator Component::end() const
+{
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec, false);        // not recursive
+  return Component::const_iterator(vec, vec.size());  // end
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::iterator Component::recursive_begin()
+{
+  std::vector<boost::shared_ptr<Component> > vec;
+  put_components<Component>(vec, true);  // recursive
+  return Component::iterator(vec, 0);    // begin
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::iterator Component::recursive_end()
+{
+  std::vector<boost::shared_ptr<Component> > vec;
+  put_components<Component>(vec, true);         // recursive
+  return Component::iterator(vec, vec.size());  // end
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::const_iterator Component::recursive_begin() const
+{
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec, true);  // recursive
+  return Component::const_iterator(vec, 0);    // begin
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+Component::const_iterator Component::recursive_end() const
+{
+  std::vector<boost::shared_ptr<Component const> > vec;
+  put_components<Component>(vec, true);         // recursive
+  return Component::const_iterator(vec, vec.size());  // end
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

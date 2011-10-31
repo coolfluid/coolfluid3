@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <ios>
 #include <set>
 
 #include <boost/assign/list_of.hpp>
@@ -18,7 +19,7 @@
 
 #include "mesh/Connectivity.hpp"
 #include "common/List.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 
@@ -26,6 +27,8 @@ namespace cf3 {
 namespace mesh {
 
 using namespace common;
+
+RegistTypeInfo<Entity,LibMesh> regist_Entity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,15 +77,15 @@ void Entities::initialize(const std::string& element_type_name)
   cf3_assert(is_not_null(m_element_type));
 }
 
-void Entities::initialize(const std::string& element_type_name, FieldGroup& geometry)
+void Entities::initialize(const std::string& element_type_name, SpaceFields& geometry)
 {
   assign_geometry(geometry);
   initialize(element_type_name);
 }
 
-void Entities::assign_geometry(FieldGroup& geometry)
+void Entities::assign_geometry(SpaceFields& geometry)
 {
-  m_geometry_fields = geometry.as_ptr<FieldGroup>();
+  m_geometry_fields = geometry.as_ptr<SpaceFields>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -272,6 +275,22 @@ bool Entities::is_ghost(const Uint idx) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+ElementType& Entity::element_type() const { return comp->element_type(); }
+Uint Entity::glb_idx() const { return comp->glb_idx()[idx]; }
+Uint Entity::rank() const { return comp->rank()[idx]; }
+bool Entity::is_ghost() const { return comp->is_ghost(idx); }
+RealMatrix Entity::get_coordinates() const { return comp->get_coordinates(idx); }
+void Entity::put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
+void Entity::allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
+Connectivity::ConstRow Entity::get_nodes() const { return comp->get_nodes(idx); }
+std::ostream& operator<<(std::ostream& os, const Entity& entity)
+{
+  os << entity.comp->uri().string()<<"["<<entity.idx<<"]";
+  return os;
+}
+
 
 bool IsElementsVolume::operator()(const Entities::Ptr& component)
 {

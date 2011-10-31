@@ -4,11 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
-#include "RiemannSolvers/Roe.hpp"
 #include "common/OptionComponent.hpp"
+
+#include "RiemannSolvers/Roe.hpp"
 
 namespace cf3 {
 namespace RiemannSolvers {

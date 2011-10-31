@@ -13,6 +13,7 @@
 #include "common/XML/Protocol.hpp"
 #include "common/OptionArray.hpp"
 
+#include "common/Option.hpp"
 #include "common/Component.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"

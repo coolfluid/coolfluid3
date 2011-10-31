@@ -21,7 +21,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 using namespace std;
 using namespace boost;
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE( generate_1d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))
@@ -126,7 +126,7 @@ BOOST_AUTO_TEST_CASE( generate_2d_mesh )
 
   CFinfo << mesh.tree() << CFendl;
 
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   for (Uint n=0; n<nodes.size(); ++n)
   {
     if (nodes.is_ghost(n))

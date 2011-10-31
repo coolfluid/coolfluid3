@@ -4,6 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file Option.hpp
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
+
 #ifndef cf3_common_Option_hpp
 #define cf3_common_Option_hpp
 
@@ -11,8 +15,7 @@
 
 #include <boost/any.hpp>
 #include <boost/enable_shared_from_this.hpp>
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include <boost/function/function_fwd.hpp>
 
 #include "common/BasicExceptions.hpp"
 #include "common/TaggedObject.hpp"
@@ -20,6 +23,7 @@
 #include "common/TypeInfo.hpp"
 
 ////////////////////////////////////////////////////////////////////////////
+
 
 namespace cf3 {
 namespace common {
@@ -171,11 +175,7 @@ namespace XML { class XmlNode; }
 
     /// attach a function that will be triggered when an option gets configured
     /// @return this option
-    Ptr attach_trigger ( Trigger_t trigger )
-    {
-      m_triggers.push_back(trigger);
-      return shared_from_this();
-    }
+    Ptr attach_trigger ( Trigger_t trigger );
 
     /// @returns puts the value of the option casted to TYPE on the passed parameter
     /// @param value which to assign the option value

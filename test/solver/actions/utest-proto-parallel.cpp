@@ -28,7 +28,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
 
   CModel& model = setup("NoOverlap");
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
 
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
@@ -232,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE( CreateOverlapFields, ProtoParallelFixture )
   CModel& model = root.get_child("Overlap").as_type<CModel>();
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
 }
 

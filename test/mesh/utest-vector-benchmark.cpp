@@ -17,7 +17,7 @@
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 #include "Tools/Testing/TimedTestFixture.hpp"

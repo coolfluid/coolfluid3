@@ -12,7 +12,7 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP1/Triag2D.hpp"
 #include "mesh/Elements.hpp"
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE( Volume )
 
 BOOST_AUTO_TEST_CASE( Element )
 {
-  FieldGroup::Ptr nodes = allocate_component<FieldGroup>("nodes") ;
+  SpaceFields::Ptr nodes = allocate_component<SpaceFields>("nodes") ;
   // Create a Elements component
   Elements::Ptr comp = allocate_component<Elements>("comp");
 

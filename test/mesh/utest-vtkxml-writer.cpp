@@ -18,7 +18,7 @@
 
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 using namespace cf3;

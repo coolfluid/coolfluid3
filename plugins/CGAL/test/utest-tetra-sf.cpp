@@ -21,8 +21,8 @@
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 #include "mesh/ElementTypes.hpp"

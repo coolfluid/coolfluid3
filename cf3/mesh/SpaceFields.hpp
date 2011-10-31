@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_FieldGroup_hpp
-#define cf3_mesh_FieldGroup_hpp
+#ifndef cf3_mesh_SpaceFields_hpp
+#define cf3_mesh_SpaceFields_hpp
 
 #include <boost/range.hpp>
 
@@ -36,12 +36,12 @@ namespace mesh {
 
 /// Component that holds Fields of the same type (topology and space)
 /// @author Willem Deconinck
-class Mesh_API FieldGroup : public common::Component {
+class Mesh_API SpaceFields : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<FieldGroup> Ptr;
-  typedef boost::shared_ptr<FieldGroup const> ConstPtr;
+  typedef boost::shared_ptr<SpaceFields> Ptr;
+  typedef boost::shared_ptr<SpaceFields const> ConstPtr;
 
   class Mesh_API Basis
   {
@@ -76,13 +76,13 @@ public: // functions
 
   /// Contructor
   /// @param name of the component
-  FieldGroup ( const std::string& name );
+  SpaceFields ( const std::string& name );
 
   /// Virtual destructor
-  virtual ~FieldGroup();
+  virtual ~SpaceFields();
 
   /// Get the class name
-  static std::string type_name () { return "FieldGroup"; }
+  static std::string type_name () { return "SpaceFields"; }
 
   /// Create a new field in this group
   Field& create_field( const std::string& name, const std::string& variables_description = "scalar_same_name");
@@ -188,4 +188,4 @@ protected:
 } // mesh
 } // cf3
 
-#endif // cf3_mesh_FieldGroup_hpp
+#endif // cf3_mesh_SpaceFields_hpp

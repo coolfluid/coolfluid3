@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp> //include all types plus i/o
 #include <boost/progress.hpp>
 
 #include "common/BoostFilesystem.hpp"
@@ -18,7 +18,7 @@
 
 #include "mesh/neu/Writer.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "common/Table.hpp"
 #include "mesh/Region.hpp"
@@ -137,7 +137,7 @@ void Writer::write_headerData(std::fstream& file)
   file << "** GAMBIT NEUTRAL FILE\n";
   file << m_fileBasename << "\n";
   file << "PROGRAM:                Gambit     VERSION:  2.3.16\n";
-  file << std::setw(4)  << std::string(date.month().as_long_string()).substr(0,3) << " " << date.year() << "\n";
+  file << std::setw(4)  << std::string(date.month().as_long_string()).substr(0,3) << " " << int(date.year()) << "\n";
   file << std::setw(10) << "NUMNP" << std::setw(10) << "NELEM" << std::setw(10) << "NGRPS"
        << std::setw(10) << "NBSETS" << std::setw(10) << "NDFCD" << std::setw(10) << "NDFVL" << std::endl;
   file << std::setw(10) << node_counter << std::setw(10) << element_counter << std::setw(10) << group_counter

@@ -32,6 +32,7 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
+    ComponentIterator.hpp
     ConnectionManager.hpp
     ConnectionManager.cpp
     Core.hpp

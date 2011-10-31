@@ -21,7 +21,7 @@ namespace mesh {
   class ElementType;
   class Elements;
   class Connectivity;
-  class FieldGroup;
+  class SpaceFields;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ public: // functions
 
   bool is_bound_to_fields() const;
 
-  FieldGroup& fields() const;
+  SpaceFields& fields() const;
 
   void make_proxy(const Uint elem_start_idx);
 

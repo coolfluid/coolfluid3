@@ -14,16 +14,17 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
-
+#include "common/Table.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/ElementConnectivity.hpp"
 
 #include "mesh/MeshWriter.hpp"
 
@@ -33,33 +34,100 @@ using namespace cf3;
 using namespace cf3::mesh;
 using namespace cf3::common;
 
-
-struct Mesh_API MeshEntity
+class ElementIterator :
+    public boost::iterator_facade<ElementIterator,  // iterator
+                                  Entity,                     // Value
+                                  boost::bidirectional_traversal_tag, // search direction
+                                  Entity                     // return type of dereference
+                                 >
 {
-  template <typename ComponentT>
-  MeshEntity(ComponentT& component, const Uint index) :
-    comp( dynamic_cast<Entities*>(&component) ),
-    idx(index)
+  typedef boost::iterator_facade<ElementIterator,
+                                 Entity,
+                                 boost::random_access_traversal_tag,
+                                 Entity
+                                > BaseT;
+public:
+
+  typedef BaseT::difference_type difference_type;
+
+  /// Construct an iterator over the given set of components.
+  /// If endIterator is true, the iterator is intialized
+  /// at the end of the range, otherwise at the beginning.
+  explicit ElementIterator(Entities& entities,
+                           const Uint element_idx=0)
+    : element(entities,element_idx) {}
+
+private:
+  friend class boost::iterator_core_access;
+
+  bool equal(ElementIterator const& other) const { return (element == other.element); }
+
+  void increment()
   {
-    cf3_assert(idx<comp->size());
+    ++element.idx;
   }
 
-  Entities* comp;
+  void decrement()
+  {
+    --element.idx;
+  }
+
+  void advance(const difference_type n) { element.idx += n; }
+
+  template <typename T2>
+  difference_type distance_to(ElementIterator const& other) const
+  {
+    return other.element.idx - element.idx;
+  }
+
+public:
+
+  /// dereferencing
+  const Entity& dereference() const { return element; }
+
+private:
+
+  Entity element;
+};
+
+boost::iterator_range<ElementIterator> make_range(Entities& entities)
+{
+  ElementIterator begin(entities);
+  return boost::make_iterator_range(begin,begin+entities.size());
+}
+
+
+
+struct Mesh_API SpaceElement
+{
+
+  SpaceElement(const Space& component, const Uint index=0) :
+    comp( &component ),
+    idx(index)
+  {
+    cf3_assert(idx<comp->support().size());
+  }
+
+  Space const* comp;
   Uint idx;
 
   /// return the elementType
-  ElementType& element_type() const { return comp->element_type(); }
+  const ShapeFunction& element_type() const { return comp->shape_function(); }
 
   /// Const access to the coordinates
-  FieldGroup& geometry_fields() const { return comp->geometry_fields(); }
+  SpaceFields& fields() const { return comp->fields(); }
 
-  Uint glb_idx() const { return comp->glb_idx()[idx]; }
-  Uint rank() const { return comp->rank()[idx]; }
-  bool is_ghost() const { return comp->is_ghost(idx); }
+  Entity support() const { return Entity(comp->support(),idx); }
+
+  Connectivity::ConstRow field_indices() const { return comp->indexes_for_element(idx); }
+  Uint glb_idx() const { return comp->support().glb_idx()[idx]; }
+  Uint rank() const { return comp->support().rank()[idx]; }
+  bool is_ghost() const { return comp->support().is_ghost(idx); }
   RealMatrix get_coordinates() const { return comp->get_coordinates(idx); }
   void put_coordinates(RealMatrix& coordinates) const { return comp->put_coordinates(coordinates,idx); }
   void allocate_coordinates(RealMatrix& coordinates) const { return comp->allocate_coordinates(coordinates); }
 };
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -148,7 +216,7 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
 
@@ -246,9 +314,30 @@ BOOST_AUTO_TEST_CASE( P1_2D_MeshConstruction )
   meshwriter->write_from_to(mesh,"p1-mesh.msh");
 
 
-  MeshEntity entity(quadRegion,0);
+  Entity entity(quadRegion,0);
 
-  RealMatrix coords = entity.get_coordinates();
+
+  SpaceElement space_elem(quadRegion.space(mesh::Tags::geometry()),0);
+  BOOST_CHECK_EQUAL( space_elem.field_indices()[0] , 0 );
+
+  RealMatrix geom_coords  = space_elem.support().get_coordinates();
+  RealMatrix space_coords = space_elem.get_coordinates();
+
+  BOOST_CHECK( geom_coords == space_coords );
+
+
+  for(SpaceElement elem(quadRegion.space(mesh::Tags::geometry())); elem.idx<quadRegion.size(); ++elem.idx)
+  {
+    CFinfo << "indices = ";
+    boost_foreach(Uint field_idx, elem.field_indices())
+      CFinfo << field_idx << " ";
+    CFinfo << CFendl;
+  }
+  ElementIterator it(quadRegion);
+  boost_foreach( const Entity& entity, make_range(quadRegion) )
+  {
+    std::cout << entity << std::endl;
+  }
 
 }
 
@@ -267,7 +356,7 @@ BOOST_AUTO_TEST_CASE( P2_2D_MeshConstruction )
 
   // create regions
   Region& superRegion = mesh.topology().create_region("superRegion");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(0,dim);
   BOOST_CHECK_EQUAL(nodes.coordinates().row_size() , dim);
   Elements& quadRegion = superRegion.create_elements("cf3.mesh.LagrangeP2.Quad2D",nodes);
