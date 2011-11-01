@@ -23,11 +23,6 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "DEBUG")
     set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /Zi" CACHE STRING "")
   endif()
 
-
-  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF3_ENABLE_DEBUG_MACROS ON   )
-  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
-
 endif()
 
 #######################################################
@@ -36,10 +31,6 @@ endif()
 if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELWITHDEBINFO")
 
   set(CF3_BUILD_TYPE_OK ON)
-
-  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   ON   )
-  coolfluid_set_if_not_defined( CF3_ENABLE_OPTIM_MACROS ON   )
-  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
 
 endif()
 
@@ -51,14 +42,10 @@ if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
   set(CF3_BUILD_TYPE_OK ON)
 
   if(CMAKE_COMPILER_IS_GNUCC)
-    set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
-    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
-    set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fomit-frame-pointer" CACHE STRING "" FORCE)
+    set(CMAKE_C_FLAGS_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -DCF3_NO_DEBUG_MACROS" CACHE STRING "" FORCE)
+    set(CMAKE_CXX_FLAGS_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -DCF3_NO_DEBUG_MACROS" CACHE STRING "" FORCE)
+    set(CMAKE_Fortran_FLAGS_RELEASE "-O3 -fomit-frame-pointer -DNDEBUG -DCF3_NO_DEBUG_MACROS" CACHE STRING "" FORCE)
   endif()
-
-  coolfluid_set_if_not_defined( CF3_ENABLE_ASSERTIONS   OFF  )
-  coolfluid_set_if_not_defined( CF3_ENABLE_DEBUG_MACROS OFF  )
-  coolfluid_set_if_not_defined( CF3_ENABLE_STATIC       OFF  )
 
 endif()
 
