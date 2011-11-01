@@ -178,3 +178,14 @@ coolfluid_add_test( UTEST utest-common-mpi-buffer
 coolfluid_add_test( UTEST utest-build-options
                     CPP   utest-build-options.cpp
                     LIBS  coolfluid_common )
+
+if(CMAKE_BUILD_TYPE_CAPS MATCHES "RELEASE")
+  set(PTR_BENCHMARK_SIZE 10000)
+else()
+  set(PTR_BENCHMARK_SIZE 100)
+endif()
+
+coolfluid_add_test( UTEST utest-ptr-benchmark
+                    CPP   utest-ptr-benchmark.cpp
+                    ARGUMENTS ${PTR_BENCHMARK_SIZE}
+                    LIBS  coolfluid_common coolfluid_testing )
