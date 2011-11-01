@@ -32,7 +32,7 @@ mesh                                                  |  cf3::mesh::Mesh
                 patch_2                               |  cf3::mesh::Region
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry_fields                                   |  cf3::mesh::FieldGroup
+    geometry_fields                                   |  cf3::mesh::SpaceFields
         coordinates                                   |  cf3::mesh::Field
 @endverbatim
 
@@ -70,11 +70,11 @@ The element_type provides all information needed to describe the element and tra
 The connectivity-table of the elements, which for each element describes which nodes it connects, is stored in the component "connectivity".
 It is essentially a table where each row describes one element, and the values of each row point to indexes in the geometry field-group at "mesh/geometry".
 
-@subsection spaces Spaces and FieldGroups
+@subsection spaces Spaces and SpaceFieldss
 The concept of "space" is here introduced as an invisible mesh completely overlapping the original mesh. 
 It has exactly the same elements as the original mesh, but every element is defined by a different set of nodes.
 
-One "space" that is always there is called "geometry". This name is not by coincidence the same as the FieldGroup "geometry", as this space and FieldGroup together describe the actual mesh geometry.
+One "space" that is always there is called "geometry". This name is not by coincidence the same as the SpaceFields "geometry", as this space and SpaceFields together describe the actual mesh geometry.
 
 When a mesh is defined with Lagrange-P1 elements (nodes in vertices), but a field of a higher order P2 is desired, another "space" can be created a posteriori.
 Let's create the space "P2" in the same tree:
@@ -98,17 +98,17 @@ tree                                                  |  type
 @endverbatim
 
 The shape_function here describes Lagrange-P2 quadrilateral elements with 9 nodes. This space has therefore a connectivity-table with 9 columns instead of 4 for the (Lagrange-P1) geometry space.
-What is evident now is that the entries of this connectivity table are indexes to something that does not exist yet: another FieldGroup.
+What is evident now is that the entries of this connectivity table are indexes to something that does not exist yet: another SpaceFields.
 
-A FieldGroup is characterized by 2 things:
+A SpaceFields is characterized by 2 things:
 - Region it is applied to:
   By default a field is applied to the entire topology. It is however possible to select a more specific region.
 - Space it is linked to.
-  A field group is closely linked to a space. It is therefore common practice to name both the space and the FieldGroup similarly. 
+  A field group is closely linked to a space. It is therefore common practice to name both the space and the SpaceFields similarly. 
 
-Fields that share the same space and region are grouped together inside the FieldGroup. Hence its name.
+Fields that share the same space and region are grouped together inside the SpaceFields. Hence its name.
 
-The mesh tree now has to contain the FieldGroup as well.
+The mesh tree now has to contain the SpaceFields as well.
 @verbatim
 tree                                                  |  type
 -------------------------------------------------------------------------------
@@ -121,19 +121,19 @@ mesh                                                  |  cf3::mesh::Mesh
             ...                                       |
         tail                                          |  cf3::mesh::Region
                                                       |
-    geometry_fields                                   |  cf3::mesh::FieldGroup
+    geometry_fields                                   |  cf3::mesh::SpaceFields
         coordinates                                   |  cf3::mesh::Field
                                                       |
-    P2                                                |  cf3::mesh::FieldGroup
+    P2                                                |  cf3::mesh::SpaceFields
         pressure                                      |  cf3::mesh::Field
         velocity                                      |  cf3::mesh::Field
 @endverbatim
 
 @subsection _mesh_remarks Remarks
 
-It can be noticed that the coordinates Field is not strictly necessary in the P2 FieldGroup, as it can be computed on the fly through the information from the P2 and geometry shape functions, and the geometry coordinates.
+It can be noticed that the coordinates Field is not strictly necessary in the P2 SpaceFields, as it can be computed on the fly through the information from the P2 and geometry shape functions, and the geometry coordinates.
 
-The creation of the P2 space and FieldGroup is completely optional and for demonstration purposes only. It is perfectly possible to create all desired fields in the geometry space and fieldgroup. Note however that the geometry fieldgroup only supports continuous fields.
+The creation of the P2 space and SpaceFields is completely optional and for demonstration purposes only. It is perfectly possible to create all desired fields in the geometry space and fieldgroup. Note however that the geometry fieldgroup only supports continuous fields.
 
 Discontinuous fields require a separate space.
 

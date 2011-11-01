@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file CF.hpp
+/// @brief coolfluid3 header, included almost everywhere
+
 #ifndef cf3_hpp
 #define cf3_hpp
 

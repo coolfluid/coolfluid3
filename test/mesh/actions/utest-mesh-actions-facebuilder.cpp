@@ -75,13 +75,181 @@ BOOST_AUTO_TEST_CASE( Constructors)
   BOOST_CHECK_EQUAL(facebuilder->name(),"facebuilder");
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( build_faces )
+BOOST_AUTO_TEST_CASE( build_faceconnectivity )
 {
   MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   meshreader->read_mesh_into("../../../resources/quadtriag.neu",*mesh);
 
+  FaceCellConnectivity& f2c = mesh->create_component<FaceCellConnectivity>("faces");
+  f2c.setup(mesh->topology());
+
+  BOOST_CHECK_EQUAL( f2c.size() , 31u);
+
+  Face2Cell face(f2c);
+  Elements& liquid_triag = mesh->access_component("topology/quadtriag/liquid/Triag").as_type<Elements>();
+  Elements& gas_triag    = mesh->access_component("topology/quadtriag/gas/Triag").as_type<Elements>();
+  Elements& gas_quad     = mesh->access_component("topology/quadtriag/gas/Quad").as_type<Elements>();
+
+  face.idx=0;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,9) );
+
+  face.idx=1;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,2) );
+
+  face.idx=2;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,1) );
+
+  face.idx=3;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,1) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,2) );
+
+  face.idx=4;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,1) );
+
+  face.idx=5;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,2) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,3) );
+
+  face.idx=6;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,2) );
+
+  face.idx=7;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,3) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,8) );
+
+  face.idx=8;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,3) );
+
+  face.idx=9;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,4) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,5) );
+
+  face.idx=10;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,4) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,0) );
+
+  face.idx=11;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,4) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,9) );
+
+  face.idx=12;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,5) );
+
+  face.idx=13;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,5) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,6) );
+
+  face.idx=14;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,6) );
+
+  face.idx=15;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,6) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,7) );
+
+  face.idx=16;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,7) );
+
+  face.idx=17;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,7) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,8) );
+
+  face.idx=18;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(liquid_triag,8) );
+  BOOST_CHECK( face.cells()[1] == Entity(liquid_triag,9) );
+
+  face.idx=19;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,0) );
+
+  face.idx=20;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,0) );
+
+  face.idx=21;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_quad,1) );
+
+  face.idx=22;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,1) );
+
+  face.idx=23;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,1) );
+
+  face.idx=24;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,1) );
+
+  face.idx=25;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_quad,1) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,3) );
+
+  face.idx=26;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_triag,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,3) );
+
+  face.idx=27;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_triag,0) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,1) );
+
+  face.idx=28;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_triag,1) );
+
+  face.idx=29;
+  BOOST_CHECK_EQUAL( face.is_bdry() , true);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_triag,2) );
+
+  face.idx=30;
+  BOOST_CHECK_EQUAL( face.is_bdry() , false);
+  BOOST_CHECK( face.cells()[0] == Entity(gas_triag,2) );
+  BOOST_CHECK( face.cells()[1] == Entity(gas_triag,3) );
+
+//  for (Face2Cell face(f2c); face.idx<f2c.size(); ++face.idx)
+//  {
+//    std::cout << face.idx << "  : " << face.cells()[0];
+//    if (face.is_bdry())
+//      std::cout << std::endl;
+//    else
+//      std::cout << "   <-->   " << face.cells()[1] << std::endl;
+//  }
+
+//  std::cout << mesh->tree() << std::endl<<std::endl;
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+BOOST_AUTO_TEST_CASE( build_faces )
+{
   BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
 
   facebuilder->set_mesh(mesh);
@@ -99,14 +267,14 @@ BOOST_AUTO_TEST_CASE( build_faces )
   Uint cell_idx(0);
 
   CFinfo << "\n\nCHECKING wall connectivity"<<CFendl;
-  for (Uint face=0; face<f2c.size(); ++face)
+  for (Face2Cell face(f2c); face.idx<f2c.size(); ++face.idx)
   {
-    CFinfo << wall_faces.parent().name()<<"/"<<wall_faces.name() << "["<<face<<"] <--> ";
+    CFinfo << wall_faces.parent().name()<<"/"<<wall_faces.name() << "["<<face.idx<<"] <--> ";
 
-    boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
-    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    RealMatrix cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
-    RealVector face_coordinates = wall_faces.get_coordinates(face).row(0);
+    Entity cell = face.cells()[0];
+    CFinfo << cell.comp->parent().parent().name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]" << CFendl;
+    RealMatrix cell_coordinates = cell.get_coordinates();
+    RealVector face_coordinates = wall_faces.get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -177,14 +345,14 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
   BOOST_CHECK(true);
 
   CFinfo << "\n\nCHECKING inner faces connectivity"<<CFendl;
-  for (Uint face=0; face<f2c.size(); ++face)
+  for (Face2Cell face(f2c); face.idx<f2c.size(); ++face.idx)
   {
-    CFinfo << inner_faces.parent().name()<<"/"<<inner_faces.name() << "["<<face<<"] <--> ";
+    CFinfo << inner_faces.parent().name()<<"/"<<inner_faces.name() << "["<<face.idx<<"] <--> ";
 
-    boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][0]);
-    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]  <-->  ";
-    RealMatrix cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
-    RealVector face_coordinates = inner_faces.get_coordinates(face).row(0);
+    Entity cell = face.cells()[0];
+    CFinfo << cell.comp->parent().parent().name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]  <-->  ";
+    RealMatrix cell_coordinates = cell.get_coordinates();
+    RealVector face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
     bool match_found = false;
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
@@ -197,10 +365,10 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
     BOOST_CHECK(match_found);
 
     match_found = false;
-    boost::tie(cells,cell_idx) = f2c.lookup().location(f2c.connectivity()[face][1]);
-    CFinfo << cells->parent().parent().name()<<"/"<<cells->name() << "["<<cell_idx<<"]" << CFendl;
-    cell_coordinates = cells->as_type<Elements>().get_coordinates(cell_idx);
-    face_coordinates = inner_faces.get_coordinates(face).row(0);
+    cell = face.cells()[0];
+    CFinfo << cell.comp->parent().parent().name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]"<<CFendl;
+    cell_coordinates = cell.get_coordinates();
+    face_coordinates = inner_faces.get_coordinates(face.idx).row(0);
     for (Uint i=0; i<cell_coordinates.rows(); ++i)
     {
       if (cell_coordinates.row(i) == face_coordinates.transpose())

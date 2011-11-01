@@ -23,7 +23,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Interpolator.hpp"
@@ -124,10 +124,10 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   evars =   "rho_e[1] , V_e[3] , p_e[1]";
   evars_2 = "rho_e_2[1] , V_e_2[3] , p_e_2[1]";
 
-  FieldGroup& source_elem_fields = source.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
-  FieldGroup& target_elem_fields = target.create_space_and_field_group("elems_P0", FieldGroup::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
-  FieldGroup& source_node_fields = source.geometry_fields();
-  FieldGroup& target_node_fields = target.geometry_fields();
+  SpaceFields& source_elem_fields = source.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
+  SpaceFields& target_elem_fields = target.create_space_and_field_group("elems_P0", SpaceFields::Basis::ELEMENT_BASED, "cf3.mesh.LagrangeP0");
+  SpaceFields& source_node_fields = source.geometry_fields();
+  SpaceFields& target_node_fields = target.geometry_fields();
 
 
   source_elem_fields.create_coordinates();

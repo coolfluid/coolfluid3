@@ -8,11 +8,10 @@
 #define BOOST_TEST_MODULE "Test module for CF log level filter"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign/std/vector.hpp>
-
-
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 

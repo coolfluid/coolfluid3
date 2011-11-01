@@ -226,7 +226,7 @@ void IterativeSolver::execute()
   if (m_time.expired())        throw SetupError(FromHere(), "Time was not set");
   CTime& time = *m_time.lock();
 
-  U0.as_type< Table<Real> >() = U.as_type< Table<Real> >();
+  U0 = U;
 
   const Real T0 = time.current_time();
   Real dt = 0;

@@ -9,6 +9,7 @@
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/Signal.hpp"
+#include "common/FindComponents.hpp"
 
 #include "UI/Core/TreeThread.hpp"
 #include "UI/Core/NetworkQueue.hpp"
@@ -599,7 +600,8 @@ void NTree::list_tree_reply(SignalArgs & args)
   {
     NRoot::Ptr tree_root = m_root_node->node()->castTo<NRoot>();
     CNode::Ptr root_node = CNode::create_from_xml(args.main_map.content.content->first_node());
-    ComponentIterator<CNode> it = root_node->root().begin<CNode>();
+    ComponentIterator<CNode> it = component_begin<CNode>(root_node->root());
+    ComponentIterator<CNode> root_end = component_end<CNode>(root_node->root());
     URI currentIndexPath;
 
     if(m_current_index.isValid())
@@ -616,11 +618,13 @@ void NTree::list_tree_reply(SignalArgs & args)
     //
     // remove old nodes
     //
-    ComponentIterator<CNode> itRem = tree_root->begin<CNode>();
+    ComponentIterator<CNode> itRem = component_begin<CNode>(*tree_root);
+    ComponentIterator<CNode> tree_root_end = component_end<CNode>(*tree_root);
+
     QList<std::string> list_to_remove;
     QList<std::string>::iterator itList;
 
-    for( ; itRem != tree_root->end<CNode>() ; itRem++)
+    for( ; itRem != tree_root_end ; itRem++)
     {
       if(!itRem->is_local_component() && !itRem->is_root() )
         list_to_remove << itRem->name();
@@ -638,7 +642,7 @@ void NTree::list_tree_reply(SignalArgs & args)
     // add the new nodes
     //
 
-    for( ; it != root_node->end<CNode>() ; it++)
+    for( ; it != root_end ; it++)
       tree_root->add_component(it.get());
 
     // child count may have changed, ask the root TreeNode to update its internal data
@@ -674,11 +678,12 @@ void NTree::clear_tree()
   //QMutexLocker locker(m_mutex);
 
   NRoot::Ptr treeRoot = m_root_node->node()->castTo<NRoot>();
-  ComponentIterator<CNode> itRem = treeRoot->begin<CNode>();
+  ComponentIterator<CNode> itRem = component_begin<CNode>(*treeRoot);
+  ComponentIterator<CNode> tree_root_end = component_end<CNode>(*treeRoot);
   QMap<int, std::string> listToRemove;
   QMutableMapIterator<int, std::string> itList(listToRemove);
 
-  for(int i = 0 ; itRem != treeRoot->end<CNode>() ; itRem++, i++)
+  for(int i = 0 ; itRem != tree_root_end ; itRem++, i++)
   {
     if(!itRem->is_local_component())
       listToRemove[i] = itRem->name();
@@ -775,9 +780,10 @@ bool NTree::node_matches_recursive(Component::Ptr node, const QRegExp regex) con
 
 
   bool match = QString(node->name().c_str()).contains(regex);
-  ComponentIterator<CNode> it = node->begin<CNode>();
+  ComponentIterator<CNode> it = component_begin<CNode>(*node);
+  ComponentIterator<CNode> end = component_end<CNode>(*node);
 
-  for( ; it != node->end<CNode>() ; it++)
+  for( ; it != end ; it++)
     match |= (m_debug_mode_enabled || !it->is_local_component()) && this->node_matches_recursive(it.get(), regex);
 
   return match;

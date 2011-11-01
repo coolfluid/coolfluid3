@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
@@ -30,18 +33,18 @@ struct DynamicModel::Implementation
       ->description("Dimensions for the problem")
       ->attach_trigger(boost::bind(&Implementation::trigger_dimensions, this));
   }
-  
+
   void trigger_dimensions()
   {
     if(m_updating)
       return;
-    
+
     m_updating = true;
     m_dimensions = m_component.option(common::Tags::dimension()).value<Uint>();
     m_component.configure_option_recursively(common::Tags::dimension(), m_dimensions);
     m_updating = false;
   }
-  
+
   Component& m_component;
   std::string m_type;   ///< name of the physics type
   Uint m_dimensions;
@@ -54,7 +57,7 @@ common::ComponentBuilder < physics::DynamicModel,
                            physics::PhysModel,
                            LibPhysics >
                            Builder_DynamicModel;
-                           
+
 DynamicModel::DynamicModel( const std::string& name ) :
   physics::PhysModel(name),
   m_implementation(new Implementation(*this))
@@ -91,7 +94,7 @@ Uint DynamicModel::neqs() const
   {
     nb_eqs += var_desc.size();
   }
-  
+
   return nb_eqs;
 }
 

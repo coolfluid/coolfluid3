@@ -6,16 +6,13 @@
 
 /// @file AllocatedComponent.hpp
 /// @brief Wrapper around component, ensuring proper allocation and type identification, as well as optional function wrapping
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
 
 #ifndef cf3_common_AllocatedComponent_hpp
 #define cf3_common_AllocatedComponent_hpp
 
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-#include <boost/scoped_ptr.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/if.hpp>
-#include <boost/type_traits/is_base_of.hpp>
 
 #include "common/CF.hpp"
 #include "common/TypeInfo.hpp"
@@ -48,6 +45,12 @@ public:
 }
 }
 
+#include <boost/scoped_ptr.hpp>
+#include <boost/mpl/and.hpp>
+#include <boost/mpl/if.hpp>
+#include <boost/type_traits/is_base_of.hpp>
+
+
 #include "common/IAction.hpp"
 #include "common/TimedComponent.hpp"
 
@@ -63,11 +66,11 @@ struct TimedActionImpl
 {
   TimedActionImpl(IAction& action);
   ~TimedActionImpl();
-  
+
   void start_timing();
   void stop_timing();
   void store_timings();
-  
+
   // Avoid dragging in the timer-related headers
   class Implementation;
   boost::scoped_ptr<Implementation> m_implementation;
@@ -87,19 +90,19 @@ public:
   {
     return TypeInfo::instance().portable_types[ typeid(ComponentT).name() ];
   }
-  
+
   inline void execute()
   {
     m_impl.start_timing();
     ComponentT::execute();
     m_impl.stop_timing();
   }
-  
+
   inline void store_timings()
   {
     m_impl.store_timings();
   }
-  
+
   TimedActionImpl m_impl;
 };
 

@@ -67,7 +67,7 @@ void BuildArea::execute()
 
   Mesh& mesh = *m_mesh.lock();
 
-  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& faces_P0 = mesh.create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 

@@ -14,7 +14,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

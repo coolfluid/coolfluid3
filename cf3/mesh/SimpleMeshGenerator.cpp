@@ -18,7 +18,7 @@
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
@@ -127,7 +127,7 @@ void SimpleMeshGenerator::create_line()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("fluid");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   Cells& cells = region.create_component<Cells>("Line");
@@ -234,7 +234,7 @@ void SimpleMeshGenerator::create_rectangle()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("region");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
 
   // find ghost nodes

@@ -20,7 +20,7 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
@@ -138,7 +138,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
-    BOOST_CHECK( is_not_null(comp->as_ptr<FieldGroup>()) );
+    BOOST_CHECK( is_not_null(comp->as_ptr<SpaceFields>()) );
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 0);
     BOOST_CHECK_EQUAL(found, true);

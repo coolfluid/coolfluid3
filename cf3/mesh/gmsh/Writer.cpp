@@ -19,7 +19,7 @@
 #include "mesh/Mesh.hpp"
 #include "common/Table.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 
@@ -274,15 +274,15 @@ void Writer::write_elem_nodal_data(std::fstream& file)
   {
     cf3_assert(field_ptr.expired() == false);
     Field& field = *field_ptr.lock();
-//    if (field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-//        field.basis() == FieldGroup::Basis::CELL_BASED    ||
-//        field.basis() == FieldGroup::Basis::FACE_BASED    )
+//    if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
+//        field.basis() == SpaceFields::Basis::CELL_BASED    ||
+//        field.basis() == SpaceFields::Basis::FACE_BASED    )
     {
       const Real field_time = 0;//field.option("time").value<Real>();
       const Uint field_iter = 0;//field.option("iteration").value<Uint>();
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
-      const std::string field_basis = FieldGroup::Basis::Convert::instance().to_str(field.basis());
+      const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(Entities& elements, find_components_recursively<Entities>(field.topology()))
@@ -433,7 +433,7 @@ void Writer::write_nodal_data(std::fstream& file)
   {
     Field& field = *field_ptr.lock();
 
-    if (field.basis() == FieldGroup::Basis::POINT_BASED)
+    if (field.basis() == SpaceFields::Basis::POINT_BASED)
     {
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
@@ -547,15 +547,15 @@ void Writer::write_element_data(std::fstream& file)
   boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
   {
     Field& field = *field_ptr.lock();
-    if (field.basis() == FieldGroup::Basis::ELEMENT_BASED ||
-        field.basis() == FieldGroup::Basis::CELL_BASED    ||
-        field.basis() == FieldGroup::Basis::FACE_BASED    )
+    if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
+        field.basis() == SpaceFields::Basis::CELL_BASED    ||
+        field.basis() == SpaceFields::Basis::FACE_BASED    )
     {
       const Real field_time = field.option("time").value<Real>();
       const Uint field_iter = field.option("iteration").value<Uint>();
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
-      const std::string field_basis = FieldGroup::Basis::Convert::instance().to_str(field.basis());
+      const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
       boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(Entities& field_elements, find_components_recursively<Entities>(field.topology()))

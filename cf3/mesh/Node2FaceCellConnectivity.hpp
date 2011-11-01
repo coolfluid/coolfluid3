@@ -20,8 +20,8 @@ namespace common {
 namespace mesh {
 
   class Region;
-  class FieldGroup;
-  
+  class SpaceFields;
+
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,36 +53,36 @@ public:
   /// @param [in] region in which the elements are connected to the nodes.
   void setup(Region& region);
 
-  /// @return lookup table for node to face_cell_connectivity
-  UnifiedData& face_cell_connectivity() {  return *m_face_cell_connectivity; }
-  const UnifiedData& face_cell_connectivity() const {  return *m_face_cell_connectivity; }
-
   /// Build the connectivity table
   /// Build the connectivity table as a DynTable<Uint>
   /// @pre set_nodes() and set_elements() must have been called
   void build_connectivity();
 
   /// const access to the node to element connectivity table in unified indices
-  common::DynTable<Uint>& connectivity() { return *m_connectivity; }
-  const common::DynTable<Uint>& connectivity() const { return *m_connectivity; }
+  common::DynTable<Face2Cell>& connectivity() { return *m_connectivity; }
+  const common::DynTable<Face2Cell>& connectivity() const { return *m_connectivity; }
 
   Uint size() const { return connectivity().size(); }
 //private: //functions
 
   /// set the nodes for the node to element connectivity
   /// @param [in] nodes the nodes component to find connected elements of
-  void set_nodes(FieldGroup& nodes);
+  void set_nodes(SpaceFields& nodes);
+
+  std::vector<FaceCellConnectivity::Ptr> used();
+  void add_used (const FaceCellConnectivity& used_comp);
+
 
 private: // data
+
+  /// unified view of the elements
+  boost::shared_ptr<common::Group> m_used_components;
 
   /// link to the nodes component
   boost::shared_ptr<common::Link> m_nodes;
 
-  /// unified view of the elements
-  UnifiedData::Ptr m_face_cell_connectivity;
-
   /// Actual connectivity table
-  common::DynTable<Uint>::Ptr m_connectivity;
+  common::DynTable<Face2Cell>::Ptr m_connectivity;
 
 }; // Node2FaceCellConnectivity
 

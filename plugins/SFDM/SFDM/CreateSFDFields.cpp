@@ -20,7 +20,7 @@
 #include "solver/actions/CForAllCells.hpp"
 
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Space.hpp"
@@ -67,13 +67,13 @@ void CreateSFDFields::execute()
 
   std::string sfdm_fields_space = "sfdm_fields_P"+to_str(solution_order-1);
 
-  if ( is_not_null (find_component_ptr_recursively_with_tag<FieldGroup>(mesh(),sfdm_fields_space)))
+  if ( is_not_null (find_component_ptr_recursively_with_tag<SpaceFields>(mesh(),sfdm_fields_space)))
   {
     CFinfo << "field group ["<<sfdm_fields_space<<"] already exists, check now to create the fields" << CFendl;
   }
   else
   {
-    FieldGroup& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,FieldGroup::Basis::CELL_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
+    SpaceFields& sfdm_fields = mesh().create_space_and_field_group(sfdm_fields_space,SpaceFields::Basis::CELL_BASED,"cf3.SFDM.P"+to_str(solution_order-1));
     sfdm_fields.add_tag(sfdm_fields_space);
 
     Component& solution_vars = find_component_with_tag(physical_model(),SFDM::Tags::solution_vars());

@@ -84,7 +84,7 @@ void InitFieldFunction::execute()
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == FieldGroup::Basis::POINT_BASED)
+  if (field.basis() == SpaceFields::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();

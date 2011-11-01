@@ -14,7 +14,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Connectivity.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Field.hpp"
 
@@ -107,10 +107,10 @@ bool Space::is_bound_to_fields() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Space::fields() const
+SpaceFields& Space::fields() const
 {
   cf3_assert(is_bound_to_fields());
-  return m_fields->follow()->as_type<FieldGroup>();
+  return m_fields->follow()->as_type<SpaceFields>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////

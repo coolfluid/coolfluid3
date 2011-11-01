@@ -13,6 +13,8 @@ list( APPEND coolfluid_mesh_files
   Entities.cpp
   Elements.hpp
   Elements.cpp
+  ElementConnectivity.hpp
+  ElementConnectivity.cpp
   FaceCellConnectivity.hpp
   FaceCellConnectivity.cpp
   Faces.hpp
@@ -20,8 +22,8 @@ list( APPEND coolfluid_mesh_files
   ElementTypes.hpp
   Field.hpp
   Field.cpp
-  FieldGroup.hpp
-  FieldGroup.cpp
+  SpaceFields.hpp
+  SpaceFields.cpp
   FieldManager.cpp
   FieldManager.hpp
   ParallelDistribution.hpp

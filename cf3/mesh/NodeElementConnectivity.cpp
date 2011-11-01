@@ -10,7 +10,7 @@
 #include "common/Builder.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "common/DynTable.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 
 namespace cf3 {
@@ -44,7 +44,7 @@ void NodeElementConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void NodeElementConnectivity::set_nodes(FieldGroup& nodes)
+void NodeElementConnectivity::set_nodes(SpaceFields& nodes)
 {
   m_nodes->link_to(nodes.self());
   m_connectivity->resize(nodes.size());
@@ -55,7 +55,7 @@ void NodeElementConnectivity::set_nodes(FieldGroup& nodes)
 void NodeElementConnectivity::build_connectivity()
 {
   set_nodes(elements().components()[0].lock()->as_type<Elements>().geometry_fields());
-  FieldGroup const& nodes = *m_nodes->follow()->as_ptr<FieldGroup>();
+  SpaceFields const& nodes = *m_nodes->follow()->as_ptr<SpaceFields>();
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());

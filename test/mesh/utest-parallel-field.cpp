@@ -27,7 +27,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
@@ -149,12 +149,12 @@ BOOST_AUTO_TEST_CASE( parallelize_and_synchronize )
   BOOST_CHECK(true); // Tadaa
 
   // Create a field with glb element numbers
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& glb_elem_idx  = elems_P0.create_field("glb_elem");
   Field& elem_rank     = elems_P0.create_field("elem_rank");
 
 
-  FieldGroup& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",FieldGroup::Basis::POINT_BASED,"cf3.mesh.LagrangeP2");
+  SpaceFields& nodes_P1 = mesh.create_space_and_field_group("nodes_P1",SpaceFields::Basis::POINT_BASED,"cf3.mesh.LagrangeP2");
   Field& nodes_P1_node_rank = nodes_P1.create_field("node_rank");
   nodes_P1_node_rank.parallelize();
   for (Uint n=0; n<nodes_P1_node_rank.size(); ++n)
@@ -291,7 +291,7 @@ BOOST_AUTO_TEST_CASE( minitest )
   }
 
 
-  FieldGroup& elems = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   elems.create_coordinates();
   Field& elem_rank     = elems.create_field("elem_rank");
   elem_rank.parallelize();

@@ -6,7 +6,7 @@
 
 #include "common/Log.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/CTime.hpp"

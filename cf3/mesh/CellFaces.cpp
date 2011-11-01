@@ -7,7 +7,7 @@
 #include "common/Builder.hpp"
 
 #include "mesh/CellFaces.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
 

@@ -15,7 +15,7 @@
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 namespace cf3 {
 namespace common {  class URI;  }

@@ -24,7 +24,7 @@ Cells::Cells ( const std::string& name ) :
 {
   properties()["brief"] = std::string("Holds information of elements of one type");
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
-  +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");  
+  +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,7 +35,7 @@ Cells::~Cells()
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Cells::initialize(const std::string& element_type_name, FieldGroup& nodes)
+void Cells::initialize(const std::string& element_type_name, SpaceFields& nodes)
 {
   Elements::initialize(element_type_name,nodes);
   cf3_assert(element_type().dimensionality() == element_type().dimension());

@@ -8,7 +8,7 @@
 #include "common/OptionComponent.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/CTime.hpp"
