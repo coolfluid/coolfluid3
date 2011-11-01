@@ -426,17 +426,17 @@ void GraphOption::add_line(){
 
 
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,1)),
-          SIGNAL(current_index_changed(int)), this,
+          SIGNAL(currentIndexChanged(int)), this,
           SLOT (draw_action()));
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,2)),
-          SIGNAL(current_index_changed(int)), this,
+          SIGNAL(currentIndexChanged(int)), this,
           SLOT (draw_action()));
   connect(((QCheckBox *)m_line_table->cellWidget(old_row_count,0)),
           SIGNAL(stateChanged(int)), this, SLOT (checked_changed(int)));
   connect(((ColorSelector *)m_line_table->cellWidget(old_row_count,3)),
           SIGNAL(valueChanged(QColor,int)), this, SLOT (color_changed(QColor,int)));
   connect(((QComboBox *)m_line_table->cellWidget(old_row_count,4)),
-          SIGNAL(current_index_changed(int)), this, SLOT (line_type_changed(int)));
+          SIGNAL(currentIndexChanged(int)), this, SLOT (line_type_changed(int)));
 }
 
 void GraphOption::remove_line()

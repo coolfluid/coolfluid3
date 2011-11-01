@@ -108,7 +108,7 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
 
   ThreadManager::instance().tree().root()->add_node(m_model);
 
-  connect(m_combo_filter, SIGNAL(current_index_changed(int)),
+  connect(m_combo_filter, SIGNAL(currentIndexChanged(int)),
           this, SLOT(filter_type_changed(int)));
 
   connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
