@@ -12,6 +12,7 @@
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {

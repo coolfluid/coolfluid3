@@ -16,7 +16,7 @@
 
 #include "math/Consts.hpp"
 
-#include "common/Table.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementData.hpp"

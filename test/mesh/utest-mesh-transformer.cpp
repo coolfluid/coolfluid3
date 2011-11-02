@@ -14,7 +14,7 @@
 
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
-
+#include "common/Group.hpp"
 #include "common/FindComponents.hpp"
 
 

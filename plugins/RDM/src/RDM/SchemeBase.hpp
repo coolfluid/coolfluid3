@@ -9,6 +9,8 @@
 
 #include <functional>
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include <boost/assign.hpp>
 
 #include "common/EigenAssertions.hpp"
@@ -25,6 +27,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "physics/PhysModel.hpp"
 

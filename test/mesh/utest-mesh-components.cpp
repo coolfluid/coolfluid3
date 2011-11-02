@@ -13,6 +13,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
+#include "common/Group.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"

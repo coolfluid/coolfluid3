@@ -4,9 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <iostream>
-
 #include "common/RegistLibrary.hpp"
+#include "common/Group.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/LoadMesh.hpp"
@@ -25,7 +24,7 @@ void LibMesh::initiate()
 {
   if(m_is_initiated)
     return;
-  
+
   initiate_impl();
   m_is_initiated = true;
 }
@@ -35,7 +34,7 @@ void LibMesh::terminate()
 {
   if(!m_is_initiated)
     return;
-  
+
   terminate_impl();
   m_is_initiated = false;
 }
@@ -54,7 +53,7 @@ void LibMesh::terminate_impl()
 {
   if(!m_load_mesh.expired())
     Core::instance().tools().remove_component("LoadMesh");
-  
+
   if(!m_write_mesh.expired())
     Core::instance().tools().remove_component("WriteMesh");
 }

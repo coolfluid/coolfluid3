@@ -4,17 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/OptionT.hpp"
-#include "common/FindComponents.hpp"
-#include "common/Link.hpp"
-#include "common/Group.hpp"
-#include "common/Log.hpp"
-#include "common/Builder.hpp"
+#include <iostream>
 
+#include "common/Builder.hpp"
+#include "common/Foreach.hpp"
+#include "common/Table.hpp"
 
 #include "mesh/ElementConnectivity.hpp"
-#include "mesh/Mesh.hpp"
-#include "mesh/MeshElements.hpp"
 
 namespace cf3 {
 namespace mesh {

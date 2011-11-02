@@ -13,6 +13,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 

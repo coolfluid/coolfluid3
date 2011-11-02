@@ -4,8 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Component.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 
 #include "solver/actions/Proto/CProtoAction.hpp"
 #include "solver/actions/Proto/Expression.hpp"

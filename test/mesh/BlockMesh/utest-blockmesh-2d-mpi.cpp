@@ -12,6 +12,8 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
@@ -44,7 +46,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint rank = PE::Comm::instance().rank();
 
   MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
-  
+
   Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 

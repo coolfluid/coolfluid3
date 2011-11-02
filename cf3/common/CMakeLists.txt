@@ -122,6 +122,7 @@ list( APPEND coolfluid_common_files
     SignalDispatcher.hpp
     SignalHandler.hpp
     SignalHandler.cpp
+    Table_fwd.hpp
     Table.hpp
     Table.cpp
     TaggedObject.hpp

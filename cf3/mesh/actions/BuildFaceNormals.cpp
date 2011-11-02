@@ -26,6 +26,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "math/Functions.hpp"
 

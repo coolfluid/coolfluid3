@@ -4,30 +4,47 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_mesh_ElementConnectivity_hpp
-#define cf3_mesh_ElementConnectivity_hpp
+#ifndef cf3_common_Table_fwd_hpp
+#define cf3_common_Table_fwd_hpp
 
-#include "common/Table_fwd.hpp"
-#include "mesh/Entities.hpp"
+#define BOOST_MULTI_ARRAY_NO_GENERATORS 0
+#include <boost/multi_array/base.hpp>
+#undef BOOST_MULTI_ARRAY_NO_GENERATORS
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace mesh {
-
-
-////////////////////////////////////////////////////////////////////////////////
-
-typedef common::Table<Entity> ElementConnectivity;
-
-std::ostream& operator<<(std::ostream& os, common::TableConstRow<Entity> row);
-std::ostream& operator<<(std::ostream& os, const ElementConnectivity& table);
+namespace common {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-} // mesh
+template <typename T>
+class Table;
+
+template <typename T>
+struct TableArray
+{
+  typedef boost::multi_array<T,2> type;
+};
+
+
+template <typename T>
+struct TableRow
+{
+  typedef boost::detail::multi_array::sub_array<T,1> type;
+};
+
+template <typename T>
+struct TableConstRow
+{
+  typedef const boost::detail::multi_array::const_sub_array<T,1> type;
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+} // common
 } // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_mesh_ElementConnectivity_hpp
+#endif // cf3_common_Table_fwd_hpp

@@ -12,10 +12,11 @@
 #include "common/BoostFilesystem.hpp"
 
 #include "common/Component.hpp"
+#include "common/Table.hpp"
+
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 
 namespace cf3 {
 namespace mesh {

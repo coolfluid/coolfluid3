@@ -19,6 +19,7 @@
 #include "common/Core.hpp"
 #include "common/Libraries.hpp"
 #include "common/Environment.hpp"
+#include "common/Group.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshWriter.hpp"

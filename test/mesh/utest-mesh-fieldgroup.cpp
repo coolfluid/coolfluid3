@@ -20,6 +20,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Field.hpp"
@@ -148,8 +149,8 @@ BOOST_AUTO_TEST_CASE( test_SpaceFields )
   BOOST_CHECK_EQUAL(volume.size() , cell_fields.size());
   BOOST_CHECK_EQUAL(volume.field_group().uri().string() , cell_fields.uri().string() );
 
-  BOOST_CHECK_EQUAL(cell_fields.fields().size() , 1u);
-  boost_foreach(Field& field, cell_fields.fields())
+  BOOST_CHECK_EQUAL(find_components<Field>(cell_fields).size() , 1u);
+  boost_foreach(Field& field, find_components<Field>(cell_fields))
     BOOST_CHECK_EQUAL( field.field_group().uri().string() , cell_fields.uri().string());
 
   BOOST_CHECK_EQUAL(cell_fields.field("volume").uri().string() , volume.uri().string());

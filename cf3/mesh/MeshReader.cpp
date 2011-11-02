@@ -27,6 +27,7 @@
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {

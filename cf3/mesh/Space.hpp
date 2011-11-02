@@ -9,10 +9,13 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/scoped_ptr.hpp>
+
+#include "common/Table_fwd.hpp"
+
+#include "math/MatrixTypes.hpp"
+
 #include "mesh/LibMesh.hpp"
-#include "mesh/ShapeFunction.hpp"
-#include "mesh/Entities.hpp"
-#include "Connectivity.hpp"
 
 namespace cf3 {
 namespace common { class Link; }
@@ -21,7 +24,9 @@ namespace mesh {
   class ElementType;
   class Elements;
   class Connectivity;
+  class ShapeFunction;
   class SpaceFields;
+  class Entities;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -52,8 +57,8 @@ public: // functions
   const ShapeFunction& shape_function() const;
 
   /// The geometric support of this space. This is equal to the element type defined in Entities
-  ElementType& element_type() { return support().element_type(); }
-  const ElementType& element_type() const { return support().element_type(); }
+  ElementType& element_type();
+  const ElementType& element_type() const;
 
   /// Set the geometric support that is associated with this space
   void set_support(Entities& support);
@@ -65,7 +70,7 @@ public: // functions
   const Entities& support() const;
 
   /// The number of nodes or states this element shape function provides
-  Uint nb_states() const { return shape_function().nb_nodes(); }
+  Uint nb_states() const;
 
   /// Return the node_connectivity table
   /// @pre node connectivity must have been created beforehand
@@ -75,7 +80,7 @@ public: // functions
   /// @pre node connectivity must have been created beforehand
   const Connectivity& connectivity() const { return *m_connectivity; }
 
-  Connectivity::ConstRow indexes_for_element(const Uint elem_idx) const;
+  common::TableConstRow<Uint>::type indexes_for_element(const Uint elem_idx) const;
 
   bool is_bound_to_fields() const;
 
@@ -115,7 +120,7 @@ protected: // data
   /// This is because this is just a temporary storage to mimic the full
   /// connectivity table. This variable is being accessed by the function
   /// indexes_for_element()
-  mutable Connectivity::ArrayT m_connectivity_proxy;
+  mutable boost::scoped_ptr<common::TableArray<Uint>::type> m_connectivity_proxy;
 
 private: // data
 

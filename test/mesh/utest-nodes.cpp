@@ -13,14 +13,14 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
+#include "common/DynTable.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/MeshReader.hpp"
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"

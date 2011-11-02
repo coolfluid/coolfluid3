@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include "common/Log.hpp"
 #include "common/OptionT.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
@@ -20,6 +21,8 @@
 #include "mesh/MeshElements.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
+#include "mesh/ElementConnectivity.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -49,6 +52,8 @@ FaceCellConnectivity::FaceCellConnectivity ( const std::string& name ) :
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+Uint FaceCellConnectivity::size() const { return connectivity().size(); }
 
 void FaceCellConnectivity::setup(Region& region)
 {
@@ -355,6 +360,19 @@ std::vector<Uint> FaceCellConnectivity::face_nodes(const Uint face) const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+bool Face2Cell::is_bdry() const { return comp->is_bdry_face()[idx]; }
+common::TableConstRow<Entity>::type Face2Cell::cells() const { return comp->connectivity()[idx]; }
+common::TableRow<Entity>::type Face2Cell::cells() { return comp->connectivity()[idx]; }
+common::TableConstRow<Uint>::type Face2Cell::face_nb_in_cells() const { return comp->face_number()[idx]; }
+common::TableRow<Uint>::type Face2Cell::face_nb_in_cells() { return comp->face_number()[idx]; }
+std::vector<Uint> Face2Cell::nodes() { return comp->face_nodes(idx); }
+const ElementType& Face2Cell::element_type() { return cells()[0].element_type().face_type(face_nb_in_cells()[0]); }
+
+
 
 } // mesh
 } // cf3

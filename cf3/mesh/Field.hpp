@@ -104,9 +104,9 @@ public: // functions
 
   Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
 
-  boost::iterator_range< common::ComponentIterator<Entities> > entities_range() { return field_group().entities_range(); }
+  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
 
-  boost::iterator_range< common::ComponentIterator<Elements> > elements_range() { return field_group().elements_range(); }
+  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
 
   Field& coordinates() const { return field_group().coordinates(); }
 

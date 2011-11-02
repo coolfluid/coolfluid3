@@ -11,11 +11,10 @@
 
 #include <iosfwd>
 
-#include "common/EnumT.hpp"
+#include "common/Table_fwd.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/LibMesh.hpp"
-#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
@@ -25,7 +24,6 @@ namespace mesh {
 
   class ElementType;
   class Space;
-  class Connectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -85,7 +83,7 @@ public: // functions
 
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
 
   Space& space (const std::string& space_name) const;
 
@@ -154,7 +152,7 @@ public:
   RealMatrix get_coordinates() const;
   void put_coordinates(RealMatrix& coordinates) const;
   void allocate_coordinates(RealMatrix& coordinates) const;
-  Connectivity::ConstRow get_nodes() const;
+  common::TableConstRow<Uint>::type get_nodes() const;
 
 
   Entity& operator++()

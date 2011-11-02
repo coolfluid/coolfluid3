@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"

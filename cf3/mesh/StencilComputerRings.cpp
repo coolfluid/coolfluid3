@@ -7,6 +7,8 @@
 #include <set>
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -14,6 +16,7 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/StencilComputerRings.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Mesh.hpp"

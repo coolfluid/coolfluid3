@@ -22,6 +22,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

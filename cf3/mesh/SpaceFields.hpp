@@ -7,15 +7,11 @@
 #ifndef cf3_mesh_SpaceFields_hpp
 #define cf3_mesh_SpaceFields_hpp
 
-#include <boost/range.hpp>
-
+#include "common/Table_fwd.hpp"
 #include "common/EnumT.hpp"
 #include "common/Component.hpp"
-#include "common/FindComponents.hpp"
+
 #include "mesh/LibMesh.hpp"
-#include "common/Table.hpp"
-#include "mesh/UnifiedData.hpp"
-#include "mesh/Entities.hpp"
 
 namespace cf3 {
 namespace common {
@@ -27,10 +23,13 @@ namespace common {
 namespace math { class VariablesDescriptor; }
 namespace mesh {
 
+  class UnifiedData;
   class Mesh;
   class Field;
   class Region;
   class Elements;
+  class Entities;
+  class Space;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -103,7 +102,7 @@ public: // functions
   const std::string& space() const { return m_space; }
 
   /// Return the space of given entities
-  Space& space(const Entities& entities) const { return entities.space(m_space); }
+  Space& space(const Entities& entities) const;
 
   /// Return the global index of every field row
   common::List<Uint>& glb_idx() const { return *m_glb_idx; }
@@ -124,8 +123,6 @@ public: // functions
   boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
   boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
 
-  common::ComponentIteratorRange<Field> fields();
-
   Field& field(const std::string& name) const;
 
   UnifiedData& elements_lookup() const { return *m_elements_lookup; }
@@ -133,9 +130,9 @@ public: // functions
   void create_connectivity_in_space();
   void bind_space();
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
+  common::TableConstRow<Uint>::type indexes_for_element(const Entities& elements, const Uint idx) const;
 
-  common::Table<Uint>::ConstRow indexes_for_element(const Uint unified_element_idx) const;
+  common::TableConstRow<Uint>::type indexes_for_element(const Uint unified_element_idx) const;
 
   Field& create_coordinates();
 

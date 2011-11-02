@@ -14,6 +14,8 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 
+#include "mesh/Mesh.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
