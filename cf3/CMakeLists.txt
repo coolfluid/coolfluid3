@@ -17,7 +17,7 @@ add_subdirectory( solver )
 add_subdirectory( python )
 
 # UI provides the user interface
-add_subdirectory( UI )
+add_subdirectory( ui )
 
 # tools harbours miscellaneous tools to support coolfluid development
 add_subdirectory( Tools )
