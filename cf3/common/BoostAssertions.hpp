@@ -7,11 +7,6 @@
 #ifndef cf3_common_BoostAssertions_hpp
 #define cf3_common_BoostAssertions_hpp
 
-// disable boost assertions if compiled with -DNDEBUG
-#ifdef NDEBUG
-  #define BOOST_DISABLE_ASSERTS
-#endif
-
 // build system should define BOOST_ENABLE_ASSERT_HANDLER
 
 #include <boost/assert.hpp>
