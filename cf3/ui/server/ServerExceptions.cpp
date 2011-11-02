@@ -4,7 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "ui/Server/ServerExceptions.hpp"
+#include "ui/server/ServerExceptions.hpp"
 
 using namespace cf3::common;
 
@@ -12,7 +12,7 @@ using namespace cf3::common;
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "ui/Server/Notifier.hpp"
+#include "ui/server/Notifier.hpp"
 
 using namespace cf3::common;
-using namespace cf3::ui::Server;
+using namespace cf3::ui::server;
 
 Notifier::Notifier(NotificationQueue * observedQueue, QObject * parent)
   : QObject(parent),

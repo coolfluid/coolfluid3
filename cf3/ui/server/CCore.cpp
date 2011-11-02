@@ -25,11 +25,11 @@
 
 #include "ui/uicommon/ComponentNames.hpp"
 
-#include "ui/Server/RemoteClientAppender.hpp"
-#include "ui/Server/ServerNetworkComm.hpp"
-#include "ui/Server/ServerRoot.hpp"
+#include "ui/server/RemoteClientAppender.hpp"
+#include "ui/server/ServerNetworkComm.hpp"
+#include "ui/server/ServerRoot.hpp"
 
-#include "ui/Server/CCore.hpp"
+#include "ui/server/CCore.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -39,7 +39,7 @@ using namespace cf3::ui::uiCommon;
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 /////////////////////////////////////////////////////////////////////////////
 

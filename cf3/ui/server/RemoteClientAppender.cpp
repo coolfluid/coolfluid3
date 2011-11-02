@@ -4,10 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "ui/Server/RemoteClientAppender.hpp"
+#include "ui/server/RemoteClientAppender.hpp"
 
 using namespace cf3::common;
-using namespace cf3::ui::Server;
+using namespace cf3::ui::server;
 
 RemoteClientAppender::RemoteClientAppender() : LogStringForwarder()
 {}

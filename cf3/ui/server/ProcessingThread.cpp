@@ -9,9 +9,9 @@
 
 #include "common/Log.hpp"
 
-#include "ui/Server/ServerRoot.hpp"
+#include "ui/server/ServerRoot.hpp"
 
-#include "ui/Server/ProcessingThread.hpp"
+#include "ui/server/ProcessingThread.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -20,7 +20,7 @@ using namespace cf3::common::XML;
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 /////////////////////////////////////////////////////////////////////////////
 

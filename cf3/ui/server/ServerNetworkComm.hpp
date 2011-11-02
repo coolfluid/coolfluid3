@@ -27,7 +27,7 @@ class QString;
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 /////////////////////////////////////////////////////////////////////////////
 

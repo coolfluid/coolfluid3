@@ -24,10 +24,10 @@
 
 #include "ui/uicommon/ComponentNames.hpp"
 
-#include "ui/Server/Notifier.hpp"
-#include "ui/Server/ProcessingThread.hpp"
+#include "ui/server/Notifier.hpp"
+#include "ui/server/ProcessingThread.hpp"
 
-#include "ui/Server/ServerRoot.hpp"
+#include "ui/server/ServerRoot.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::PE;
@@ -38,7 +38,7 @@ using namespace cf3::solver;
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 //////////////////////////////////////////////////////////////////////////////
 

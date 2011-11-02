@@ -14,7 +14,7 @@
 #include "common/Journal.hpp"
 #include "common/NotificationQueue.hpp"
 
-#include "ui/Server/CCore.hpp"
+#include "ui/server/CCore.hpp"
 
 class QMutex;
 template<typename T> class QList;
@@ -27,7 +27,7 @@ namespace common { namespace PE { class Manager; } }
 namespace solver { class CPlotter; }
 
 namespace ui {
-namespace Server {
+namespace server {
 
   class ProcessingThread;
   class Notifier;

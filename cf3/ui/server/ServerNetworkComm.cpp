@@ -22,22 +22,22 @@
 #include "ui/uicommon/ComponentNames.hpp"
 #include "ui/uicommon/LogMessage.hpp"
 
-#include "ui/Server/ServerExceptions.hpp"
-#include "ui/Server/ServerRoot.hpp"
+#include "ui/server/ServerExceptions.hpp"
+#include "ui/server/ServerRoot.hpp"
 
-#include "ui/Server/ServerNetworkComm.hpp"
+#include "ui/server/ServerNetworkComm.hpp"
 
 using namespace std;
 using namespace cf3::common;
 using namespace cf3::common::XML;
 using namespace cf3::ui::uiCommon;
-using namespace cf3::ui::Server;
+using namespace cf3::ui::server;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
 /////////////////////////////////////////////////////////////////////////////
 

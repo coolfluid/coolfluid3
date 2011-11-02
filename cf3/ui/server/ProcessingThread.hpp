@@ -17,7 +17,7 @@
 
 namespace cf3 {
 namespace ui {
-namespace Server {
+namespace server {
 
   class Notifier;
 
