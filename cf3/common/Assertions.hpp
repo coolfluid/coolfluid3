@@ -13,7 +13,7 @@
 
 #include "common/CommonAPI.hpp"
 
-#ifndef cf3_ENABLE_STDASSERT
+#ifndef CF3_ENABLE_STDASSERT
   #include <cassert>
 #endif
 
