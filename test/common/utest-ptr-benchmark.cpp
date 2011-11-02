@@ -9,8 +9,10 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
 
-#include "common/Component.hpp"
+#include "common/CF.hpp"
 
 #include "Tools/Testing/TimedTestFixture.hpp"
 
@@ -23,44 +25,11 @@ using namespace cf3::common;
 
 //////////////////////////////////////////////////////////////////////////////
 
-class TestComponent : public Component
-{
-public:
-  typedef boost::shared_ptr<TestComponent> Ptr;
-  typedef boost::shared_ptr<TestComponent const> ConstPtr;
-
-  static std::string type_name () { return "TestComponent"; }
-
-  TestComponent(const std::string& name) : Component(name)
-  {
-  }
-
-  ~TestComponent() {}
-
-  // Override this so we can allocate directly using new()
-  virtual std::string derived_type_name() const
-  {
-    return TestComponent::type_name();
-  }
-
-  Uint counter()
-  {
-    static Uint counter = 0;
-    ++counter;
-    return counter;
-  }
-};
-
 struct PtrFixture : Tools::Testing::TimedTestFixture
 {
-  typedef std::vector< boost::shared_ptr<TestComponent> > SharedVecT;
-  typedef std::vector< boost::weak_ptr<TestComponent> > WeakVecT;
-  typedef std::vector< TestComponent* > RawVecT;
-
-  PtrFixture() : vec_size(boost::lexical_cast<Uint>(boost::unit_test::framework::master_test_suite().argv[1]))
-  {
-    BOOST_CHECK(boost::unit_test::framework::master_test_suite().argc == 2);
-  }
+  typedef std::vector< boost::shared_ptr<Uint> > SharedVecT;
+  typedef std::vector< boost::weak_ptr<Uint> > WeakVecT;
+  typedef std::vector< Uint* > RawVecT;
 
   SharedVecT& shared_vec()
   {
@@ -80,7 +49,7 @@ struct PtrFixture : Tools::Testing::TimedTestFixture
     return v;
   }
 
-  const Uint vec_size;
+  static const Uint vec_size = 1000000;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -106,7 +75,7 @@ BOOST_AUTO_TEST_CASE ( FillShared )
 {
   SharedVecT& vec = shared_vec();
   for(Uint i = 0; i != vec_size; ++i)
-    vec.push_back(allocate_component<TestComponent>("Test"));
+    vec.push_back(boost::shared_ptr<Uint>(new Uint(i)));
 }
 
 BOOST_AUTO_TEST_CASE ( FillWeak )
@@ -121,7 +90,7 @@ BOOST_AUTO_TEST_CASE ( FillRaw )
 {
   RawVecT& vec = raw_vec();
   for(Uint i = 0; i != vec_size; ++i)
-    vec.push_back(new TestComponent("Test"));
+    vec.push_back(new Uint(i));
 }
 
 BOOST_AUTO_TEST_CASE ( CopyShared )
@@ -166,22 +135,34 @@ BOOST_AUTO_TEST_CASE ( CheckRaw )
 BOOST_AUTO_TEST_CASE ( DerefShared )
 {
   SharedVecT& vec = shared_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(vec[i]->counter() != 0);
+  {
+    result += *vec[i];
+  }
+  BOOST_CHECK_EQUAL(((vec_size-1)*vec_size)/2, result);
 }
 
 BOOST_AUTO_TEST_CASE ( DerefWeak)
 {
   WeakVecT& vec = weak_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(vec[i].lock()->counter() != 0);
+  {
+    result += *vec[i].lock();
+  }
+  BOOST_CHECK_EQUAL(((vec_size-1)*vec_size)/2, result);
 }
 
 BOOST_AUTO_TEST_CASE ( DerefRaw )
 {
   RawVecT& vec = raw_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(vec[i]->counter() != 0);
+  {
+    result += *vec[i];
+  }
+  BOOST_CHECK_EQUAL(((vec_size-1)*vec_size)/2, result);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
