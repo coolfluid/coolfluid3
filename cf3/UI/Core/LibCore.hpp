@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_LibUICore_hpp
-#define cf3_GUI_Core_LibUICore_hpp
+#ifndef cf3_ui_core_LibUICore_hpp
+#define cf3_ui_core_LibUICore_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Define the macro Core_API
-/// @note build system defines COOLFLUID_UI_CORE_EXPORTS when compiling ClientCoreTools files
-#ifdef COOLFLUID_UI_CORE_EXPORTS
+/// @note build system defines COOLFLUID_UI_core_EXPORTS when compiling ClientCoreTools files
+#ifdef COOLFLUID_UI_core_EXPORTS
 #   define Core_API      CF3_EXPORT_API
 #   define Core_TEMPLATE
 #else
@@ -27,9 +27,9 @@
 
 namespace cf3 {
 
-namespace UI {
+namespace ui {
 /// Basic Classes for client-core library used by coolfluid-client application
-namespace Core {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,4 +79,4 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Core_LibUICore_hpp
+#endif // cf3_ui_core_LibUICore_hpp

@@ -33,8 +33,8 @@ using namespace cf3::common::XML;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -138,7 +138,7 @@ void NRoot::connected_to_server()
   NLog::global()->add_message(msg2.arg(uuid().c_str()));
 
   // build and send signal
-  SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
+  SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_core_PATH);
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }

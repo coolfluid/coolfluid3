@@ -25,8 +25,8 @@ using namespace cf3::common::XML;
 /////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -151,7 +151,7 @@ QString NRemoteFSBrowser::current_path() const
 
 void NRemoteFSBrowser::open_dir ( const QString & path )
 {
-  SignalFrame frame("read_dir", uri(), SERVER_CORE_PATH);
+  SignalFrame frame("read_dir", uri(), SERVER_core_PATH);
   SignalOptions options( frame );
 
   std::vector<std::string> vect;

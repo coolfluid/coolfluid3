@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Server_ServerExceptions_hpp
-#define cf3_GUI_Server_ServerExceptions_hpp
+#ifndef cf3_ui_Server_ServerExceptions_hpp
+#define cf3_ui_Server_ServerExceptions_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +14,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace Server {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -61,4 +61,4 @@ class NetworkError : public cf3::common::Exception
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Server_ServerExceptions_hpp
+#endif // cf3_ui_Server_ServerExceptions_hpp

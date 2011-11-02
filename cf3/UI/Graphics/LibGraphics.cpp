@@ -9,8 +9,8 @@
 #include "UI/Graphics/LibGraphics.hpp"
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 cf3::common::RegistLibrary<LibGraphics> libGraphics;
 

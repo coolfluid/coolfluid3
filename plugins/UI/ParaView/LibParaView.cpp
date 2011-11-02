@@ -15,7 +15,7 @@ using namespace cf3::common;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace ParaView {
 
 cf3::common::RegistLibrary<LibParaView> libParaView;

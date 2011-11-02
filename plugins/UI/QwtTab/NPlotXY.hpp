@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_NPlotXY_hpp
-#define cf3_GUI_Core_NPlotXY_hpp
+#ifndef cf3_ui_core_NPlotXY_hpp
+#define cf3_ui_core_NPlotXY_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -23,14 +23,14 @@ class QString;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////
 
 class QwtTab_API NPlotXY :
     public QObject,
-    public Core::CNode
+    public core::CNode
 {
   Q_OBJECT
 
@@ -72,4 +72,4 @@ protected:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Core_NPlotXY_hpp
+#endif // cf3_ui_core_NPlotXY_hpp

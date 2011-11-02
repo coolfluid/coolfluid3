@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_SelectPathDialog_hpp
-#define cf3_GUI_Graphics_SelectPathDialog_hpp
+#ifndef cf3_ui_Graphics_SelectPathDialog_hpp
+#define cf3_ui_Graphics_SelectPathDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -26,8 +26,8 @@ namespace cf3 {
 
   namespace common { class URI; }
 
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
   //////////////////////////////////////////////////////////////////////////
 
@@ -88,4 +88,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_SelectPathDialog_hpp
+#endif // cf3_ui_Graphics_SelectPathDialog_hpp

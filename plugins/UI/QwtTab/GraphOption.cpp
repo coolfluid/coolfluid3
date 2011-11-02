@@ -26,12 +26,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-using namespace cf3::UI::Core;
+using namespace cf3::ui::core;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace QwtTab {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -276,7 +276,7 @@ void GraphOption::set_data(NPlotXY::PlotDataPtr & fcts,
   draw_action();
 
   //inform user
-  Core::NLog::global()->add_message("New data set received.");
+  core::NLog::global()->add_message("New data set received.");
 }
 
 
@@ -315,7 +315,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 
   //ferification of name and formula input
   if(name.isEmpty() || formula.isEmpty()){
-    Core::NLog::global()->add_error("Please give function's name and formula.");
+    core::NLog::global()->add_error("Please give function's name and formula.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -323,7 +323,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   //check if the function name already exist
   for(int i=0; i < m_data_table->rowCount(); ++i){
     if((((QLabel *)m_data_table->cellWidget(i,0))->text()) == name){
-      Core::NLog::global()->add_error("The function name already exist.");
+      core::NLog::global()->add_error("The function name already exist.");
       m_button_generate_function->setEnabled(true);
       return;
     }
@@ -347,7 +347,7 @@ void  GraphOption::generate_function(QString name,QString formula){
                           variable.toStdString().c_str());
 
   if(res > 0){
-    Core::NLog::global()->add_error("The function is not recognized.");
+    core::NLog::global()->add_error("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -358,7 +358,7 @@ void  GraphOption::generate_function(QString name,QString formula){
   {
     max_it = m_fcts->size();
   }else{
-    Core::NLog::global()->add_error("The function is not recognized.");
+    core::NLog::global()->add_error("The function is not recognized.");
     m_button_generate_function->setEnabled(true);
     return;
   }
@@ -390,7 +390,7 @@ void  GraphOption::generate_function(QString name,QString formula){
 void GraphOption::add_line(){
 
   if(m_data_table->rowCount() <= 0){
-    Core::NLog::global()->add_error("There are no data to set, you cannot add line");
+    core::NLog::global()->add_error("There are no data to set, you cannot add line");
     return;
   }
 
@@ -610,7 +610,7 @@ void GraphOption::save_functions(){
     popup_save_to_text->setModal(true);
     popup_save_to_text->show();
   }else{
-    Core::NLog::global()->add_error("There are no data to save.");
+    core::NLog::global()->add_error("There are no data to save.");
   }
   return;
 }
@@ -663,7 +663,7 @@ void GraphOption::save_functions_to_file(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      Core::NLog::global()->add_error("Unable to open file.");
+      core::NLog::global()->add_error("Unable to open file.");
       return;
     }
 
@@ -671,7 +671,7 @@ void GraphOption::save_functions_to_file(){
     out << output;
     file.close();
 
-    Core::NLog::global()->add_message("Data saved ...");
+    core::NLog::global()->add_message("Data saved ...");
     /***********************************************************/
   }
 }
@@ -696,7 +696,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     QFile file(file_name);
 
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text)){
-      Core::NLog::global()->add_error("Unable to open file.");
+      core::NLog::global()->add_error("Unable to open file.");
       return;
     }
 
@@ -728,7 +728,7 @@ void GraphOption::save_functions_to_file_no_buffering(){
     /***********************************************************/
     file.close();
 
-    Core::NLog::global()->add_message("Data saved ...");
+    core::NLog::global()->add_message("Data saved ...");
     /***********************************************************/
   }
 }

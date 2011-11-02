@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Client_UI_TabBuilder_hpp
-#define cf3_GUI_Client_UI_TabBuilder_hpp
+#ifndef cf3_ui_Client_UI_TabBuilder_hpp
+#define cf3_ui_Client_UI_TabBuilder_hpp
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -20,8 +20,8 @@
 ///////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -44,7 +44,7 @@ public:
   static TabBuilder * instance();
 
   template<typename TYPE>
-  TYPE * widget( Core::CNode::ConstPtr node )
+  TYPE * widget( core::CNode::ConstPtr node )
   {
     TYPE * widget = nullptr;
     std::string key = node->properties().value_str("uuid"); //node->uri().path();
@@ -70,9 +70,9 @@ public:
     return widget;
   }
 
-  void show_tab( Core::CNode::ConstPtr node );
+  void show_tab( core::CNode::ConstPtr node );
 
-  void queue_tab( Core::CNode::ConstPtr node);
+  void queue_tab( core::CNode::ConstPtr node);
 
 private slots:
 
@@ -106,4 +106,4 @@ private : // data
 
 ///////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Client_UI_TabBuilder_hpp
+#endif // cf3_ui_Client_UI_TabBuilder_hpp

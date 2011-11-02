@@ -18,13 +18,13 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Core;
+using namespace cf3::ui::core;
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////
 

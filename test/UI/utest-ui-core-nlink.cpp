@@ -23,7 +23,7 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Core;
+using namespace cf3::ui::core;
 
 Q_DECLARE_METATYPE(QModelIndex)
 

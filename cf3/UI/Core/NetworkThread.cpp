@@ -28,8 +28,8 @@ using namespace cf3::common::XML;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -93,7 +93,7 @@ void NetworkThread::disconnect_from_server(bool shutServer)
   {
     if(shutServer)
     {
-      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
+      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_core_PATH);
 
       this->send(frame);
     }

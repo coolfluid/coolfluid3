@@ -42,14 +42,14 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::UICommon;
+using namespace cf3::ui::core;
+using namespace cf3::ui::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -727,7 +727,7 @@ void NRemoteBrowser::update_model(QStandardItemModel * model,
 
 void NRemoteBrowser::open_dir(const QString & path)
 {
-  SignalFrame frame("read_dir", uri(), SERVER_CORE_PATH);
+  SignalFrame frame("read_dir", uri(), SERVER_core_PATH);
   SignalOptions options( frame );
 
   std::vector<std::string> vect;

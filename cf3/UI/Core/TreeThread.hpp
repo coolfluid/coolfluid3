@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_TreeThread_hpp
-#define cf3_GUI_Core_TreeThread_hpp
+#ifndef cf3_ui_core_TreeThread_hpp
+#define cf3_ui_core_TreeThread_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -22,8 +22,8 @@ namespace cf3 {
 
 namespace common { namespace XML { class XmlDoc; } }
 
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -79,4 +79,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Core_TreeThread_hpp
+#endif // cf3_ui_core_TreeThread_hpp

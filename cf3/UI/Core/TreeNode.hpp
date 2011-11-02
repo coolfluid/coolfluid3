@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_TreeNode_hpp
-#define cf3_GUI_Core_TreeNode_hpp
+#ifndef cf3_ui_core_TreeNode_hpp
+#define cf3_ui_core_TreeNode_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -18,8 +18,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
   ////////////////////////////////////////////////////////////////////////////
 
@@ -146,4 +146,4 @@ namespace Core {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Core_TreeNode_hpp
+#endif // cf3_ui_core_TreeNode_hpp

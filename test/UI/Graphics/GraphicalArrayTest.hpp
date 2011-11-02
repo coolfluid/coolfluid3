@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Client_uTests_GraphicalArrayTest_hpp
-#define cf3_GUI_Client_uTests_GraphicalArrayTest_hpp
+#ifndef cf3_ui_Client_uTests_GraphicalArrayTest_hpp
+#define cf3_ui_Client_uTests_GraphicalArrayTest_hpp
 
 #include <QObject>
 
@@ -17,9 +17,9 @@ class QStringListModel;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Graphics { class GraphicalArray; }
+namespace graphics { class GraphicalArray; }
 
 namespace GraphicsTest {
 
@@ -51,15 +51,15 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const Graphics::GraphicalArray* value);
+  QLineEdit * findLineEdit(const graphics::GraphicalArray* value);
 
-  QPushButton * findRemoveButton(const Graphics::GraphicalArray* value);
+  QPushButton * findRemoveButton(const graphics::GraphicalArray* value);
 
-  QListView * findListView(const Graphics::GraphicalArray* value);
+  QListView * findListView(const graphics::GraphicalArray* value);
 
-  QStringListModel * findModel(const Graphics::GraphicalArray* value);
+  QStringListModel * findModel(const graphics::GraphicalArray* value);
 
-  QWidget * findWidget(const Graphics::GraphicalArray* value, int row, int col);
+  QWidget * findWidget(const graphics::GraphicalArray* value, int row, int col);
 
 };
 
@@ -71,4 +71,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Client_uTests_GraphicalArrayTest_hpp
+#endif // cf3_ui_Client_uTests_GraphicalArrayTest_hpp

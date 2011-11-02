@@ -7,7 +7,7 @@
 #include "UI/Server/RemoteClientAppender.hpp"
 
 using namespace cf3::common;
-using namespace cf3::UI::Server;
+using namespace cf3::ui::Server;
 
 RemoteClientAppender::RemoteClientAppender() : LogStringForwarder()
 {}

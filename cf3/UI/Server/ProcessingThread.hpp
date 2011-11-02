@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Server_ProcessingThread_hpp
-#define cf3_GUI_Server_ProcessingThread_hpp
+#ifndef cf3_ui_Server_ProcessingThread_hpp
+#define cf3_ui_Server_ProcessingThread_hpp
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace Server {
 
   class Notifier;
@@ -59,4 +59,4 @@ namespace Server {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Server_ProcessingThread_hpp
+#endif // cf3_ui_Server_ProcessingThread_hpp

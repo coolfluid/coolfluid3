@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_ModifiedOptionsDialog_hpp
-#define cf3_GUI_Graphics_ModifiedOptionsDialog_hpp
+#ifndef cf3_ui_Graphics_ModifiedOptionsDialog_hpp
+#define cf3_ui_Graphics_ModifiedOptionsDialog_hpp
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -23,11 +23,11 @@ class QVBoxLayout;
 /////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class CommitDetails; }
+namespace core { class CommitDetails; }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -48,7 +48,7 @@ public:
 
   /// @brief Shows the dialog with provided details.
   /// @param details Details to use
-  void show(Core::CommitDetails & details);
+  void show(core::CommitDetails & details);
 
 private:
 
@@ -74,4 +74,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_ModifiedOptionsDialog_hpp
+#endif // cf3_ui_Graphics_ModifiedOptionsDialog_hpp

@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_JournalBrowserDialog_hpp
-#define cf3_GUI_Graphics_JournalBrowserDialog_hpp
+#ifndef cf3_ui_Graphics_JournalBrowserDialog_hpp
+#define cf3_ui_Graphics_JournalBrowserDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -27,8 +27,8 @@ namespace common {
   namespace XML { class XmlNode; }
 }
 
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -84,7 +84,7 @@ private:
 
   QPushButton * m_bt_execute;
 
-  Core::NJournalBrowser::Ptr m_model;
+  core::NJournalBrowser::Ptr m_model;
 
 }; // JournalBrowserDialog
 
@@ -96,4 +96,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_JournalBrowserDialog_hpp
+#endif // cf3_ui_Graphics_JournalBrowserDialog_hpp

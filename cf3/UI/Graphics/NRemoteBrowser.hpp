@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_NRemoteBrowser_hpp
-#define cf3_GUI_Graphics_NRemoteBrowser_hpp
+#ifndef cf3_ui_Graphics_NRemoteBrowser_hpp
+#define cf3_ui_Graphics_NRemoteBrowser_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -35,8 +35,8 @@ class QStringList;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +113,7 @@ namespace Graphics {
 
   class Graphics_API NRemoteBrowser :
       public QDialog,
-      public Core::CNode
+      public core::CNode
   {
     Q_OBJECT
 
@@ -441,7 +441,7 @@ namespace Graphics {
     /// @param error
     /// @param fromServer @c true if the error message comes from the server,
     /// otherwise @c false. This parameter is never used.
-    void message(const QString & error, cf3::UI::UICommon::LogMessage::Type type);
+    void message(const QString & error, cf3::ui::UICommon::LogMessage::Type type);
 
     /// @brief Slot called when the user double-click on an item in the
     /// list m_view.
@@ -599,4 +599,4 @@ namespace Graphics {
 
 /////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_NRemoteBrowser_h
+#endif // cf3_ui_Graphics_NRemoteBrowser_h

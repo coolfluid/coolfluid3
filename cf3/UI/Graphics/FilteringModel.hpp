@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_FilteringModel_hpp
-#define cf3_GUI_Core_FilteringModel_hpp
+#ifndef cf3_ui_core_FilteringModel_hpp
+#define cf3_ui_core_FilteringModel_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +16,8 @@
 #include "UI/Graphics/LibGraphics.hpp"
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -50,4 +50,4 @@ namespace Graphics {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // cf3_GUI_Core_FilteringModel_hpp
+#endif // cf3_ui_core_FilteringModel_hpp

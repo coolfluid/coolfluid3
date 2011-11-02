@@ -7,7 +7,7 @@
 #include "UI/Server/Notifier.hpp"
 
 using namespace cf3::common;
-using namespace cf3::UI::Server;
+using namespace cf3::ui::Server;
 
 Notifier::Notifier(NotificationQueue * observedQueue, QObject * parent)
   : QObject(parent),

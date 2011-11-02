@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_GUI_ParaViewTab_LibParaViewTab_hpp
-#define CF_GUI_ParaViewTab_LibParaViewTab_hpp
+#ifndef CF_ui_ParaViewTab_LibParaViewTab_hpp
+#define CF_ui_ParaViewTab_LibParaViewTab_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -30,7 +30,7 @@ class pqApplicationCore;
 
 namespace cf3 {
 
-namespace UI {
+namespace ui {
 /// Basic Classes for ParaViewTab applications used by CF
 namespace ParaViewTab {
 
@@ -101,4 +101,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_GUI_ParaViewTab_LibParaViewTab_hpp
+#endif // CF_ui_ParaViewTab_LibParaViewTab_hpp

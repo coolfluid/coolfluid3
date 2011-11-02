@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Client_uTests_GraphicalRestrictedListTest_hpp
-#define cf3_GUI_Client_uTests_GraphicalRestrictedListTest_hpp
+#ifndef cf3_ui_Client_uTests_GraphicalRestrictedListTest_hpp
+#define cf3_ui_Client_uTests_GraphicalRestrictedListTest_hpp
 
 #include <QObject>
 
@@ -14,9 +14,9 @@ class QComboBox;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Graphics { class GraphicalRestrictedList; }
+namespace graphics { class GraphicalRestrictedList; }
 
 namespace GraphicsTest {
 
@@ -46,7 +46,7 @@ private slots:
 
 private:
 
-  QComboBox * findComboBox(const Graphics::GraphicalRestrictedList* value);
+  QComboBox * findComboBox(const graphics::GraphicalRestrictedList* value);
 
 };
 
@@ -58,4 +58,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Client_uTests_GraphicalRestrictedListTest_hpp
+#endif // cf3_ui_Client_uTests_GraphicalRestrictedListTest_hpp

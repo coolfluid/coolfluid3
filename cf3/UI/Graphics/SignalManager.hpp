@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_SignalManager_hpp
-#define cf3_GUI_Graphics_SignalManager_hpp
+#ifndef cf3_ui_Graphics_SignalManager_hpp
+#define cf3_ui_Graphics_SignalManager_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -26,8 +26,8 @@ template<typename T> class QList;
 
 namespace cf3 {
 
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
   //////////////////////////////////////////////////////////////////////////////
 
@@ -41,8 +41,8 @@ namespace Graphics {
 
     ~SignalManager();
 
-    void show_menu(const QPoint & pos, Core::CNode::Ptr node,
-                  const QList<cf3::UI::Core::ActionInfo> & sigs);
+    void show_menu(const QPoint & pos, core::CNode::Ptr node,
+                  const QList<cf3::ui::core::ActionInfo> & sigs);
 
   private slots:
 
@@ -58,9 +58,9 @@ namespace Graphics {
 
     QMenu * m_menu;
 
-    Core::CNode::Ptr m_node;
+    core::CNode::Ptr m_node;
 
-    QMap<QAction *, Core::ActionInfo> m_signals;
+    QMap<QAction *, core::ActionInfo> m_signals;
 
     QMap<QAction *, bool> m_local_status;
 
@@ -80,4 +80,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_UI_SignalManager_hpp
+#endif // cf3_ui_Graphics_UI_SignalManager_hpp

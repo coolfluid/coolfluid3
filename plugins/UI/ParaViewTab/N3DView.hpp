@@ -14,7 +14,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace ParaViewTab {
 
 
@@ -25,7 +25,7 @@ namespace ParaViewTab {
   /// @author Wertz Gil
 class ParaViewTab_API N3DView :
     public QObject,
-    public UI::Core::CNode
+    public ui::core::CNode
 {
 
     Q_OBJECT

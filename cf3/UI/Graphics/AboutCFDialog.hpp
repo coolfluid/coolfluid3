@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_AboutCFDialog_hpp
-#define cf3_GUI_Graphics_AboutCFDialog_hpp
+#ifndef cf3_ui_Graphics_AboutCFDialog_hpp
+#define cf3_ui_Graphics_AboutCFDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -23,8 +23,8 @@ class QWidget;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -70,4 +70,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_AboutCFDialo.hpp
+#endif // cf3_ui_Graphics_AboutCFDialo.hpp

@@ -29,11 +29,11 @@ class QListView;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class NRemoteFSBrowser; }
+namespace core { class NRemoteFSBrowser; }
 
-namespace Graphics {
+namespace graphics {
 
 class FileFilter;
 
@@ -71,7 +71,7 @@ private slots:
 
 private:
 
-  boost::shared_ptr<Core::NRemoteFSBrowser> m_model;
+  boost::shared_ptr<core::NRemoteFSBrowser> m_model;
 
   FileFilter * m_filter_model;
 

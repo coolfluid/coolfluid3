@@ -9,13 +9,13 @@
 #include "UI/Graphics/TabBuilder.hpp"
 
 using namespace cf3::common;
-using namespace cf3::UI::Core;
+using namespace cf3::ui::core;
 
 ///////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -106,7 +106,7 @@ void TabBuilder::show_tab( CNode::ConstPtr node )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void TabBuilder::queue_tab(Core::CNode::ConstPtr node)
+void TabBuilder::queue_tab(core::CNode::ConstPtr node)
 {
   std::string uuid = node->properties().value_str("uuid");
 

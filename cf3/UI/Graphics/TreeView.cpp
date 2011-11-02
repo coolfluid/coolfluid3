@@ -27,14 +27,14 @@
 #include "UI/Graphics/TreeView.hpp"
 
 using namespace cf3::common;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::UICommon;
+using namespace cf3::ui::core;
+using namespace cf3::ui::UICommon;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 

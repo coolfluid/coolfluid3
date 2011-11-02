@@ -33,13 +33,13 @@
 
 using namespace boost::assign;
 using namespace cf3::common;
-using namespace cf3::UI::Graphics;
+using namespace cf3::ui::graphics;
 using namespace cf3::math;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace GraphicsTest {
 
 //////////////////////////////////////////////////////////////////////////

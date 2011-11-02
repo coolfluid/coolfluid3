@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_MainWindow_hpp
-#define cf3_GUI_Graphics_MainWindow_hpp
+#ifndef cf3_ui_Graphics_MainWindow_hpp
+#define cf3_ui_Graphics_MainWindow_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -32,13 +32,13 @@ namespace cf3 {
 
 namespace Tools { namespace Shell { class Interpreter; } }
 
-namespace UI {
+namespace ui {
 
-namespace Core {
+namespace core {
   class PropertyModel;
 }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -224,7 +224,7 @@ namespace Graphics {
 
     QTableView * m_property_view;
 
-    Core::PropertyModel * m_property_model;
+    core::PropertyModel * m_property_model;
 
     QLabel * m_lab_description;
 
@@ -271,4 +271,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_MainWindow_hpp
+#endif // cf3_ui_Graphics_MainWindow_hpp

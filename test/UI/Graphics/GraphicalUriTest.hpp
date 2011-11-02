@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Client_uTests_GraphicalUriTest_hpp
-#define cf3_GUI_Client_uTests_GraphicalUriTest_hpp
+#ifndef cf3_ui_Client_uTests_GraphicalUriTest_hpp
+#define cf3_ui_Client_uTests_GraphicalUriTest_hpp
 
 #include <QObject>
 
@@ -15,9 +15,9 @@ class QLineEdit;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Graphics { class GraphicalUri; }
+namespace graphics { class GraphicalUri; }
 
 namespace GraphicsTest {
 
@@ -47,11 +47,11 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const Graphics::GraphicalUri* value);
+  QLineEdit * findLineEdit(const graphics::GraphicalUri* value);
 
-  QComboBox * findComboBox(const Graphics::GraphicalUri* value);
+  QComboBox * findComboBox(const graphics::GraphicalUri* value);
 
-  QWidget * findWidget(const Graphics::GraphicalUri* value, int index);
+  QWidget * findWidget(const graphics::GraphicalUri* value, int index);
 
 };
 
@@ -63,4 +63,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Client_uTests_GraphicalUriTest_hpp
+#endif // cf3_ui_Client_uTests_GraphicalUriTest_hpp

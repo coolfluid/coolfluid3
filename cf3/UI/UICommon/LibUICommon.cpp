@@ -9,7 +9,7 @@
 #include "UI/UICommon/LibUICommon.hpp"
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace UICommon {
 
 cf3::common::RegistLibrary<LibUICommon> LibUICommon;

@@ -12,8 +12,8 @@
 /////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -32,15 +32,15 @@ bool Application::notify(QObject * obj, QEvent * ev)
   }
   catch(common::Exception & cfe)
   {
-    Core::NLog::global()->add_exception( cfe.what() );
+    core::NLog::global()->add_exception( cfe.what() );
   }
   catch(std::exception & stde)
   {
-    Core::NLog::global()->add_exception( stde.what() );
+    core::NLog::global()->add_exception( stde.what() );
   }
   catch(...)
   {
-    Core::NLog::global()->add_error( "Unknown exception was caught by the event handler." );
+    core::NLog::global()->add_error( "Unknown exception was caught by the event handler." );
   }
 
   return false;

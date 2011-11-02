@@ -35,8 +35,8 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::CoreTest;
+using namespace cf3::ui::core;
+using namespace cf3::ui::CoreTest;
 
 Q_DECLARE_METATYPE(QModelIndex)
 

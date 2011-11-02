@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UI_Core_CNodeBuilders_hpp
-#define cf3_UI_Core_CNodeBuilders_hpp
+#ifndef cf3_UI_core_CNodeBuilders_hpp
+#define cf3_UI_core_CNodeBuilders_hpp
 
 #include <QMap>
 
@@ -17,8 +17,8 @@
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -60,4 +60,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_UI_Core_CNodeBuilders_hpp
+#endif // cf3_UI_core_CNodeBuilders_hpp

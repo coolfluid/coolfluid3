@@ -23,7 +23,7 @@
 #include "test/UI/Graphics/GraphicalUriTest.hpp"
 #include "test/UI/Graphics/GraphicalValueTest.hpp"
 
-using namespace cf3::UI::GraphicsTest;
+using namespace cf3::ui::GraphicsTest;
 
 int main(int argc, char * argv[])
 {

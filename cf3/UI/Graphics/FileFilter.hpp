@@ -12,11 +12,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class NRemoteFSBrowser; }
+namespace core { class NRemoteFSBrowser; }
 
-namespace Graphics {
+namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -26,13 +26,13 @@ class FileFilter : public QSortFilterProxyModel
 
 public:
 
-  FileFilter( Core::NRemoteFSBrowser * model, QObject * parent = 0 );
+  FileFilter( core::NRemoteFSBrowser * model, QObject * parent = 0 );
 
   virtual QVariant data ( const QModelIndex &index, int role ) const;
 
 private: // data
 
-  Core::NRemoteFSBrowser * m_model;
+  core::NRemoteFSBrowser * m_model;
 };
 
 //////////////////////////////////////////////////////////////////////////////

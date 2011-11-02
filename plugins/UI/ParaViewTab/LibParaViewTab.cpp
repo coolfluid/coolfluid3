@@ -19,13 +19,13 @@
 #include "UI/ParaViewTab/LibParaViewTab.hpp"
 
 using namespace cf3::common;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::Graphics;
+using namespace cf3::ui::core;
+using namespace cf3::ui::graphics;
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace ParaViewTab {
 
 cf3::common::RegistLibrary<LibParaViewTab> libParaViewTab;

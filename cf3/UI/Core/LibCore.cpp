@@ -9,8 +9,8 @@
 #include "UI/Core/LibCore.hpp"
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 cf3::common::RegistLibrary<LibCore> LibCore;
 

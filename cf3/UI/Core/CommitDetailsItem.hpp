@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Core_CommiDetailsItem_h
-#define cf3_GUI_Core_CommiDetailsItem_h
+#ifndef cf3_ui_core_CommiDetailsItem_h
+#define cf3_ui_core_CommiDetailsItem_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -16,8 +16,8 @@ class QString;
 /////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
   ////////////////////////////////////////////////////////////////////////////////
 
@@ -71,4 +71,4 @@ namespace Core {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Core_CommiDetailsItem_h
+#endif // cf3_ui_core_CommiDetailsItem_h

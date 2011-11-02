@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Client_uTests_GraphicalDoubleTest_hpp
-#define cf3_GUI_Client_uTests_GraphicalDoubleTest_hpp
+#ifndef cf3_ui_Client_uTests_GraphicalDoubleTest_hpp
+#define cf3_ui_Client_uTests_GraphicalDoubleTest_hpp
 
 #include <QObject>
 
@@ -14,9 +14,9 @@ class QLineEdit;
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Graphics { class GraphicalDouble; }
+namespace graphics { class GraphicalDouble; }
 
 namespace GraphicsTest {
 
@@ -44,7 +44,7 @@ private slots:
 
 private:
 
-  QLineEdit * findLineEdit(const Graphics::GraphicalDouble* value);
+  QLineEdit * findLineEdit(const graphics::GraphicalDouble* value);
 
 };
 
@@ -56,4 +56,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Client_uTests_GraphicalDoubleTest_hpp
+#endif // cf3_ui_Client_uTests_GraphicalDoubleTest_hpp

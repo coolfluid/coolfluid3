@@ -34,7 +34,7 @@
 
 using namespace boost;
 using namespace cf3::common::PE;
-using namespace cf3::UI::Server;
+using namespace cf3::ui::Server;
 
 using namespace cf3;
 using namespace cf3::common;

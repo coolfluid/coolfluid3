@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_OptionPanel_h
-#define cf3_GUI_Graphics_OptionPanel_h
+#ifndef cf3_ui_Graphics_OptionPanel_h
+#define cf3_ui_Graphics_OptionPanel_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -29,11 +29,11 @@ class QVBoxLayout;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class CommitDetails; }
+namespace core { class CommitDetails; }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -75,7 +75,7 @@ namespace Graphics {
 
     /// @param commitDetails Object where modified values will be stored. The
     /// object is not cleared.
-    void modified_options(Core::CommitDetails & commitDetails) const;
+    void modified_options(core::CommitDetails & commitDetails) const;
 
     void add_option(cf3::common::Option::ConstPtr option);
 
@@ -122,4 +122,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_OptionPanel_h
+#endif // cf3_ui_Graphics_OptionPanel_h

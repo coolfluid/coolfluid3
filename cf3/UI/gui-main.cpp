@@ -23,8 +23,8 @@
 
 using namespace cf3::common;
 using namespace cf3::Tools::Shell;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::Graphics;
+using namespace cf3::ui::core;
+using namespace cf3::ui::graphics;
 
 int main(int argc, char *argv[])
 {

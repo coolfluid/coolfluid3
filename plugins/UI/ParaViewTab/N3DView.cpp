@@ -18,12 +18,12 @@
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Graphics;
+using namespace cf3::ui::graphics;
 
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace ParaViewTab {
 
 ////////////////////////////////////////////////////////////////////////////////

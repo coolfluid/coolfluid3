@@ -37,7 +37,7 @@ using namespace cf3::solver;
 //////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace Server {
 
 //////////////////////////////////////////////////////////////////////////////
@@ -60,7 +60,7 @@ ServerRoot::ServerRoot()
   tools->add_component( m_manager );
   tools->add_component( m_plotter );
 
-  m_local_components << URI( SERVER_CORE_PATH, URI::Scheme::CPATH );
+  m_local_components << URI( SERVER_core_PATH, URI::Scheme::CPATH );
 
   m_manager->mark_basic();
   m_plotter->mark_basic();

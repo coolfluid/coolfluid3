@@ -11,13 +11,13 @@
 #include "UI/Graphics/FilesListItem.hpp"
 #include "UI/Graphics/NRemoteOpen.hpp"
 
-using namespace cf3::UI::Core;
+using namespace cf3::ui::core;
 
 ////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
-namespace Graphics {
+namespace ui {
+namespace graphics {
 
 //////////////////////////////////////////////////////////////////////////
 

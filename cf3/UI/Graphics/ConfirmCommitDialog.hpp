@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_ConfirmCommitDialog_h
-#define cf3_GUI_Graphics_ConfirmCommitDialog_h
+#ifndef cf3_ui_Graphics_ConfirmCommitDialog_h
+#define cf3_ui_Graphics_ConfirmCommitDialog_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -24,11 +24,11 @@ class QString;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class CommitDetails; }
+namespace core { class CommitDetails; }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -77,7 +77,7 @@ namespace Graphics {
     /// @brief Shows the dialog
     /// @param commitDetails Commit details to show.
     /// @return Returns the user answer.
-    ConfirmCommitDialog::CommitConfirmation show(Core::CommitDetails & commitDetails);
+    ConfirmCommitDialog::CommitConfirmation show(core::CommitDetails & commitDetails);
 
   private slots:
 
@@ -123,4 +123,4 @@ namespace Graphics {
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_ConfirmCommitDialog_h
+#endif // cf3_ui_Graphics_ConfirmCommitDialog_h

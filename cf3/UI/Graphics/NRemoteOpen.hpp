@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_NRemoteOpen_h
-#define cf3_GUI_Graphics_NRemoteOpen_h
+#ifndef cf3_ui_Graphics_NRemoteOpen_h
+#define cf3_ui_Graphics_NRemoteOpen_h
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -14,11 +14,11 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class ClientNetworkComm; }
+namespace core { class ClientNetworkComm; }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -120,4 +120,4 @@ namespace Graphics {
 ////////////////////////////////////////////////////////////////////////////////
 
 
-#endif // cf3_GUI_Graphics_NRemoteOpen_h
+#endif // cf3_ui_Graphics_NRemoteOpen_h

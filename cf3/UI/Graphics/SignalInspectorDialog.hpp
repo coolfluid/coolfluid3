@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_SignalInspectorDialog_hpp
-#define cf3_GUI_Graphics_SignalInspectorDialog_hpp
+#ifndef cf3_ui_Graphics_SignalInspectorDialog_hpp
+#define cf3_ui_Graphics_SignalInspectorDialog_hpp
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -25,9 +25,9 @@ namespace common
   namespace XML { class SignalFrame; }
 }
 
-namespace UI {
+namespace ui {
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -61,4 +61,4 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_SignalInspectorDialog_hpp
+#endif // cf3_ui_Graphics_SignalInspectorDialog_hpp

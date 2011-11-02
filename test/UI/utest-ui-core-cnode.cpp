@@ -43,8 +43,8 @@ using namespace boost::assign;
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::XML;
-using namespace cf3::UI::Core;
-using namespace cf3::UI::CoreTest;
+using namespace cf3::ui::core;
+using namespace cf3::ui::CoreTest;
 
 NRoot::Ptr makeTreeFromFile()
 {

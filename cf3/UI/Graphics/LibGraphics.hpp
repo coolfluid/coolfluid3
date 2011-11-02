@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_Core_LibGraphics_hpp
-#define cf3_GUI_Graphics_Core_LibGraphics_hpp
+#ifndef cf3_ui_Graphics_core_LibGraphics_hpp
+#define cf3_ui_Graphics_core_LibGraphics_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -27,9 +27,9 @@
 
 namespace cf3 {
 
-  namespace UI {
+  namespace ui {
   /// Basic Classes for Graphics applications used by CF
-  namespace Graphics {
+  namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,4 +79,4 @@ namespace cf3 {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_Core_LibGraphics_hpp
+#endif // cf3_ui_Graphics_core_LibGraphics_hpp

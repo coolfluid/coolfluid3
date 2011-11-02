@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_UI_Core_RemoteDispatcher_hpp
-#define cf3_UI_Core_RemoteDispatcher_hpp
+#ifndef cf3_UI_core_RemoteDispatcher_hpp
+#define cf3_UI_core_RemoteDispatcher_hpp
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -23,8 +23,8 @@ namespace cf3 {
 
 namespace common { class ConnectionManager; }
 
-namespace UI {
-namespace Core {
+namespace ui {
+namespace core {
 
 class NRoot;
 
@@ -81,4 +81,4 @@ private:
 
 //////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_UI_Core_RemoteDispatcher_hpp
+#endif // cf3_UI_core_RemoteDispatcher_hpp

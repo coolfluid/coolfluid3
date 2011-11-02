@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_UICommon_LogMessage_hpp
-#define cf3_GUI_UICommon_LogMessage_hpp
+#ifndef cf3_ui_UICommon_LogMessage_hpp
+#define cf3_ui_UICommon_LogMessage_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 namespace UICommon {
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -57,4 +57,4 @@ UICommon_API std::istream& operator>> ( std::istream& is, LogMessage::Type& in )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_UICommon_LogMessage_hpp
+#endif // cf3_ui_UICommon_LogMessage_hpp

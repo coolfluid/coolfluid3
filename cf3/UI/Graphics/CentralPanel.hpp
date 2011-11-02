@@ -4,8 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef cf3_GUI_Graphics_CentralPanel_h
-#define cf3_GUI_Graphics_CentralPanel_h
+#ifndef cf3_ui_Graphics_CentralPanel_h
+#define cf3_ui_Graphics_CentralPanel_h
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -25,11 +25,11 @@ class QSplitter;
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace UI {
+namespace ui {
 
-namespace Core { class CommitDetails; }
+namespace core { class CommitDetails; }
 
-namespace Graphics {
+namespace graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ namespace Graphics {
     /// values (i.e. : if user modified several times the same option) are
     /// ignored.
     /// @param commitDetails The object where values will be stored.
-    void list_modified_options(Core::CommitDetails & commitDetails) const;
+    void list_modified_options(core::CommitDetails & commitDetails) const;
 
     /// Gives the current path.
 
@@ -205,4 +205,4 @@ namespace Graphics {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // cf3_GUI_Graphics_CentralPanel_h
+#endif // cf3_ui_Graphics_CentralPanel_h
