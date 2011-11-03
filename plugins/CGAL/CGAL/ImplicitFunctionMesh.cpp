@@ -15,6 +15,7 @@
 
 #include "common/Log.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
