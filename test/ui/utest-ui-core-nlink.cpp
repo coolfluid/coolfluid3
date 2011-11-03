@@ -146,8 +146,8 @@ BOOST_AUTO_TEST_CASE( set_target_path )
   BOOST_CHECK_THROW( link->set_target_path("cpath:/Unexisting/Component"), InvalidURI );
 
   // 2. everything is ok
-  BOOST_REQUIRE_NO_THROW( link->set_target_path("cpath:/ui/Log") );
-  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath:/ui/Log") );
+  BOOST_REQUIRE_NO_THROW( link->set_target_path("cpath:/UI/Log") );
+  BOOST_CHECK_EQUAL( link->target_path().string(), std::string("cpath:/UI/Log") );
 
   tree->tree_root()->remove_node("link");
 }

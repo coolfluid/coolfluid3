@@ -172,7 +172,7 @@ BOOST_AUTO_TEST_CASE( current_path )
 
   // 3. when the current index is not the root (i.e the ui group)
   t.set_current_index( t.index(0, 0, rootIndex) );
-  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath:/ui") );
+  BOOST_CHECK_EQUAL( t.current_path().string(), std::string("cpath:/UI") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE( node_path )
   BOOST_CHECK_EQUAL( t.node_path( rootIndex ).toStdString(), std::string("Root/") );
 
   // 3. when the index is not the root (i.e the ui group)
-  BOOST_CHECK_EQUAL( t.node_path( t.index(0, 0, rootIndex) ).toStdString(), std::string("Root/ui/") );
+  BOOST_CHECK_EQUAL( t.node_path( t.index(0, 0, rootIndex) ).toStdString(), std::string("Root/UI/") );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -206,7 +206,7 @@ BOOST_AUTO_TEST_CASE( path_from_index )
   BOOST_CHECK_EQUAL( t.pathFromIndex( rootIndex ).string(), std::string("cpath:/") );
 
   // 3. when the current index is not the root (i.e the ui group)
-  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath:/ui") );
+  BOOST_CHECK_EQUAL( t.pathFromIndex( t.index(0, 0, rootIndex) ).string(), std::string("cpath:/UI") );
 
 }
 
