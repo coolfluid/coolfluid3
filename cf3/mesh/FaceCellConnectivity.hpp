@@ -7,24 +7,23 @@
 #ifndef cf3_mesh_FaceCellConnectivity_hpp
 #define cf3_mesh_FaceCellConnectivity_hpp
 
-#include "common/Table.hpp"
-
-#include "mesh/UnifiedData.hpp"
-#include "mesh/ElementConnectivity.hpp"
-#include "mesh/MeshElements.hpp"
-#include "mesh/ElementType.hpp"
+#include "common/Table_fwd.hpp"
+#include "mesh/Entities.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace common {
   class Link;
+  template <typename T> class List;
 }
 namespace mesh {
 
+  class ElementType;
   class SpaceFields;
   class Region;
   class Cells;
+  typedef common::Table<Entity> ElementConnectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +78,7 @@ public:
 
   const common::Table<Uint>& face_number() const { cf3_assert( is_not_null(m_face_nb_in_elem) ); return *m_face_nb_in_elem; }
 
-  Uint size() const { return connectivity().size(); }
+  Uint size() const;
 
   std::vector<Uint> face_nodes(const Uint face) const;
 
@@ -96,12 +95,12 @@ private: // data
   boost::shared_ptr<common::Group> m_used_components;
 
   /// Actual connectivity table
-  ElementConnectivity::Ptr m_connectivity;
+  boost::shared_ptr<ElementConnectivity> m_connectivity;
 
-  common::Table<Uint>::Ptr m_face_nb_in_elem;
+  boost::shared_ptr<common::Table<Uint> > m_face_nb_in_elem;
 
   // @todo make a common::List<bool> (some bug prevents using common::List<bool>::Buffer with common::List<bool> )
-  common::List<bool>::Ptr m_is_bdry_face;
+  boost::shared_ptr<common::List<bool> > m_is_bdry_face;
 
   bool m_face_building_algorithm;
 
@@ -122,13 +121,13 @@ struct Face2Cell
   FaceCellConnectivity* comp;
   Uint idx;
 
-  bool is_bdry() const { return comp->is_bdry_face()[idx]; }
-  ElementConnectivity::ConstRow cells() const { return comp->connectivity()[idx]; }
-  ElementConnectivity::Row cells() { return comp->connectivity()[idx]; }
-  common::Table<Uint>::ConstRow face_nb_in_cells() const { return comp->face_number()[idx]; }
-  common::Table<Uint>::Row face_nb_in_cells() { return comp->face_number()[idx]; }
-  std::vector<Uint> nodes() { return comp->face_nodes(idx); }
-  const ElementType& element_type() { return cells()[0].element_type().face_type(face_nb_in_cells()[0]); }
+  bool is_bdry() const;
+  common::TableConstRow<Entity>::type cells() const;
+  common::TableRow<Entity>::type cells();
+  common::TableConstRow<Uint>::type face_nb_in_cells() const;
+  common::TableRow<Uint>::type face_nb_in_cells();
+  std::vector<Uint> nodes();
+  const ElementType& element_type();
 
   Face2Cell& operator++()
     { idx++; cf3_assert(idx!=comp->size()); return *this; }

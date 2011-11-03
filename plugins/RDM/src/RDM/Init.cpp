@@ -4,17 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
+#include "common/List.hpp"
 
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "common/List.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"

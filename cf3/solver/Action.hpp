@@ -8,12 +8,11 @@
 #define cf3_solver_Action_hpp
 
 #include "common/Action.hpp"
-#include "common/FindComponents.hpp"
 
 #include "solver/LibSolver.hpp"
 
 namespace cf3 {
-
+namespace common { template <typename T> struct ComponentIterator; }
 namespace mesh { class Region; class Mesh; }
 namespace physics { class PhysModel; }
 namespace solver {
@@ -56,7 +55,7 @@ public: // functions
   physics::PhysModel& physical_model();
 
   /// @returns the regions this action is operating on
-  common::ComponentIteratorRange<mesh::Region> regions();
+  boost::iterator_range<common::ComponentIterator<mesh::Region> > regions();
 
   //@} END ACCESSORS
 

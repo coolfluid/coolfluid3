@@ -231,6 +231,13 @@ Region& SpaceFields::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Space& SpaceFields::space(const Entities& entities) const
+{
+  return entities.space(m_space);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 Field& SpaceFields::create_field(const std::string &name, const std::string& variables_description)
 {
 
@@ -304,13 +311,6 @@ boost::iterator_range< common::ComponentIterator<Elements> > SpaceFields::elemen
   ComponentIterator<Elements> begin_iter(elements_vec,0);
   ComponentIterator<Elements> end_iter(elements_vec,elements_vec.size());
   return boost::make_iterator_range(begin_iter,end_iter);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-common::ComponentIteratorRange<Field> SpaceFields::fields()
-{
-  return find_components<Field>(*this);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

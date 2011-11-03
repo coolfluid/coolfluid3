@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 
@@ -17,6 +20,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

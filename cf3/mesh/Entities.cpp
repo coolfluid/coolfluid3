@@ -8,20 +8,22 @@
 #include <set>
 
 #include <boost/assign/list_of.hpp>
-#include "common/Link.hpp"
 
+#include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
+#include "common/List.hpp"
+
 #include "common/XML/SignalOptions.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "mesh/Connectivity.hpp"
-#include "common/List.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Entities.hpp"
 
 namespace cf3 {
 namespace mesh {

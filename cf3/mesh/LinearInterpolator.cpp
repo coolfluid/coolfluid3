@@ -18,9 +18,9 @@
 #include "common/Link.hpp"
 
 #include "math/Consts.hpp"
+
 #include "mesh/LinearInterpolator.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
@@ -28,6 +28,8 @@
 #include "mesh/ElementData.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/UnifiedData.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

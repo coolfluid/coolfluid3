@@ -39,6 +39,7 @@
 #include "common/OptionURI.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Timer.hpp"
+#include "common/FindComponents.hpp"
 
 #include "mesh/Field.hpp"
 

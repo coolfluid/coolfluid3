@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
@@ -17,6 +20,7 @@
 #include "mesh/SpaceFields.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -30,7 +34,8 @@ common::ComponentBuilder < Space, Component, LibMesh > Space_Builder;
 Space::Space ( const std::string& name ) :
   Component ( name ),
   m_is_proxy(false),
-  m_elem_start_idx(0)
+  m_elem_start_idx(0),
+  m_connectivity_proxy(new Connectivity::ArrayT)
 {
   mark_basic();
 
@@ -83,6 +88,20 @@ const Entities& Space::support() const
   return *m_support.lock();
 }
 
+ElementType& Space::element_type()
+{
+  return support().element_type();
+}
+
+const ElementType& Space::element_type() const
+{
+  return support().element_type();
+}
+
+Uint Space::nb_states() const
+{
+  return shape_function().nb_nodes();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -119,10 +138,10 @@ Connectivity::ConstRow Space::indexes_for_element(const Uint elem_idx) const
 {
   if (m_is_proxy)
   {
-    const Uint start_idx = m_elem_start_idx+elem_idx*m_connectivity_proxy.shape()[1];
-    for (Uint i=0; i<m_connectivity_proxy.shape()[1]; ++i)
-      m_connectivity_proxy[0][i] = start_idx+i;
-    return m_connectivity_proxy[0];
+    const Uint start_idx = m_elem_start_idx+elem_idx*m_connectivity_proxy->shape()[1];
+    for (Uint i=0; i<m_connectivity_proxy->shape()[1]; ++i)
+      (*m_connectivity_proxy)[0][i] = start_idx+i;
+    return (*m_connectivity_proxy)[0];
   }
   else
   {
@@ -136,7 +155,7 @@ void Space::make_proxy(const Uint elem_start_idx)
 {
   m_is_proxy = true;
   m_elem_start_idx = elem_start_idx;
-  m_connectivity_proxy.resize(boost::extents[1][nb_states()]);
+  m_connectivity_proxy->resize(boost::extents[1][nb_states()]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

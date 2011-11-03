@@ -77,7 +77,7 @@ void NLink::set_target_path(const URI & path)
 
 void NLink::set_target_node(const CNode::Ptr & node)
 {
-  cf3_assert( is_not_null(node.get()) );
+  cf3_always_assert( is_not_null(node.get()) );
 
   m_target = node;
 }

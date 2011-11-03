@@ -5,8 +5,10 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <set>
+
 #include <boost/foreach.hpp>
 #include <boost/functional/hash.hpp>
+
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/PE/debug.hpp"
@@ -14,7 +16,9 @@
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/OptionT.hpp"
-#include "mesh/actions/BuildFaces.hpp"
+
+#include "math/Functions.hpp"
+
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshElements.hpp"
@@ -23,7 +27,10 @@
 #include "mesh/Node2FaceCellConnectivity.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Mesh.hpp"
-#include "math/Functions.hpp"
+#include "mesh/Connectivity.hpp"
+
+#include "mesh/actions/BuildFaces.hpp"
+
 
 //////////////////////////////////////////////////////////////////////////////
 

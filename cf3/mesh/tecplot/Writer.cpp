@@ -18,11 +18,11 @@
 #include "mesh/tecplot/Writer.hpp"
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

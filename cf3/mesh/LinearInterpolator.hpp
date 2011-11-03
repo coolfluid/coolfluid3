@@ -11,14 +11,16 @@
 
 #include <boost/tuple/tuple.hpp>
 
+#include "common/BoostArray.hpp"
 #include "mesh/Interpolator.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/UnifiedData.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
 namespace mesh {
+
+  class UnifiedData;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -46,19 +48,19 @@ public: // functions
 
 private: // functions
 
-	/// Construct internal storage for fast searching algorithm
-	/// @param source [in] the mesh from which interpolation will occur
-	virtual void construct_internal_storage(const Mesh& source);
+  /// Construct internal storage for fast searching algorithm
+  /// @param source [in] the mesh from which interpolation will occur
+  virtual void construct_internal_storage(const Mesh& source);
 
-	/// Interpolate from one source field to target field
-	/// @param source [in] the source field
-	/// @param target [out] the target field
-	virtual void interpolate_field_from_to(const Field& source, Field& target);
+  /// Interpolate from one source field to target field
+  /// @param source [in] the source field
+  /// @param target [out] the target field
+  virtual void interpolate_field_from_to(const Field& source, Field& target);
 
-	/// Create the octtree for fast searching in which element a coordinate can be found
-	void create_bounding_box();
+  /// Create the octtree for fast searching in which element a coordinate can be found
+  void create_bounding_box();
 
-	void create_octtree();
+  void create_octtree();
 
   /// Given a coordinate, find which box in the octtree it is located in
   /// @param coordinate [in]  The coordinate to look for
@@ -66,21 +68,21 @@ private: // functions
   /// @return true if the coordinate is found inside the honeycomb
   bool find_point_in_octtree(const RealVector& coordinate, std::vector<Uint>& point_idx);
 
-	/// Find the pointcloud of minimum "nb_points" points
-	/// It is assumed that first "find_comb_idx(coordinate)" is called
-	/// @param nb_points [in] the minimum number of points in the point cloud
-	void find_pointcloud(Uint nb_points);
+  /// Find the pointcloud of minimum "nb_points" points
+  /// It is assumed that first "find_comb_idx(coordinate)" is called
+  /// @param nb_points [in] the minimum number of points in the point cloud
+  void find_pointcloud(Uint nb_points);
 
-	/// Find one single element in which the given coordinate resides.
-	/// @param target_coord [in] the given coordinate
-	/// @return the elements region, and the local coefficient in this region
-	boost::tuple<Elements::ConstPtr,Uint> find_element(const RealVector& target_coord);
+  /// Find one single element in which the given coordinate resides.
+  /// @param target_coord [in] the given coordinate
+  /// @return the elements region, and the local coefficient in this region
+  boost::tuple<Elements::ConstPtr,Uint> find_element(const RealVector& target_coord);
 
-	/// Pseudo-Laplacian weighted linear interpolation algorithm
-	/// @param source_points [in] The coordinates of the points used for interpolation
-	/// @param target_point  [in] The coordinate of the target point for interpolation
-	/// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
-	void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
+  /// Pseudo-Laplacian weighted linear interpolation algorithm
+  /// @param source_points [in] The coordinates of the points used for interpolation
+  /// @param target_point  [in] The coordinate of the target point for interpolation
+  /// @param weights [out]  The weights corresponding for each source_point.  Q_t = sum( weight_i * Q_i )
+  void pseudo_laplacian_weighted_linear_interpolation(const std::vector<RealVector>& source_points, const RealVector& target_point, std::vector<Real>& weights);
 
 
   /// Utility function to convert a vector-like type to a RealVector
@@ -111,7 +113,7 @@ private: // data
 
   Uint m_sufficient_nb_points;
 
-  UnifiedData::Ptr m_elements;
+  boost::shared_ptr<UnifiedData> m_elements;
 
   std::vector<Uint> m_element_cloud;
 

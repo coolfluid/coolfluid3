@@ -10,6 +10,7 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/EventHandler.hpp"
+#include "common/FindComponents.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 

@@ -14,6 +14,7 @@
 #include "common/Environment.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
+#include "common/List.hpp"
 
 #include "common/PE/Comm.hpp"
 

@@ -12,7 +12,6 @@
 
 #include "mesh/Entities.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
   namespace common
@@ -20,6 +19,8 @@ namespace cf3 {
     class Link;
   }
 namespace mesh {
+
+  class Connectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -58,9 +59,9 @@ public: // functions
   Connectivity& node_connectivity() const;
 
   /// return the number of elements
-  virtual Uint size() const { return node_connectivity().size(); }
+  virtual Uint size() const;
 
-  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
 
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 

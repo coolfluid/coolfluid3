@@ -13,26 +13,24 @@
 
 #include "common/Assertions.hpp"
 
-#ifdef NDEBUG
 
-  // disable Eigen assertions if compiled with -DNDEBUG
+/// @macro Translate eigen assertion into coolfluid assertion
+/// @author Willem Deconinck
+#ifdef NDEBUG   // disable Eigen assertions if compiled with -DNDEBUG
   #define cf_eigen_assertion_failed(x)
-
 #else
-
-  /// @macro Translate eigen assertion into coolfluid assertion
-  /// @author Willem Deconinck
   #define cf_eigen_assertion_failed(x) \
     do { \
       if(!Eigen::internal::copy_bool(x)) \
         cf3::common::AssertionManager::do_assert(false, EIGEN_MAKESTRING(x), __FILE__, __LINE__, __PRETTY_FUNCTION__); \
     } while(false)
-
 #endif
 
-// eigen_assert can be overridden
-#ifndef eigen_assert
-#define eigen_assert(x) cf_eigen_assertion_failed(x)
+/// set eigen assertions to cf assertions
+#ifdef eigen_assert
+  #warning "common/EigenAssertions.hpp" must be included before any other Eigen header for eigen to coolfluid assertions
+#else // eigen_assert can be overridden
+  #define eigen_assert(x) cf_eigen_assertion_failed(x)
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////

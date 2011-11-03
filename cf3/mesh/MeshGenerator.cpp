@@ -4,8 +4,6 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/OptionComponent.hpp"
-#include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"

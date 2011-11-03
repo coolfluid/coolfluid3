@@ -69,6 +69,13 @@ void Elements::assign_geometry(SpaceFields& geo)
 
 //////////////////////////////////////////////////////////////////////////////
 
+Uint Elements::size() const
+{
+  return node_connectivity().size();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
 Connectivity& Elements::node_connectivity() const
 {
   return geometry_space().connectivity();
