@@ -283,7 +283,7 @@ bool BrowserDialog::show( bool multi_select, QVariant & selected )
   else
     m_view->setSelectionMode(QAbstractItemView::SingleSelection);   // mono-selection
 
-  connect(NLog::global().get(), SIGNAL(newMessage(QString, uiCommon::LogMessage::Type)),
+  connect(NLog::global().get(), SIGNAL(new_message(QString, uiCommon::LogMessage::Type)),
           this, SLOT(message(QString, uiCommon::LogMessage::Type)));
 
   bool ok_clicked = exec() == Accepted;

@@ -36,6 +36,7 @@
 #include "ui/core/ThreadManager.hpp"
 
 #include "ui/graphics/AboutCFDialog.hpp"
+#include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
 #include "ui/graphics/NRemoteOpen.hpp"
@@ -547,8 +548,11 @@ void MainWindow::open_file_locally()
 
 void MainWindow::open_file_remotely()
 {
-  NRemoteOpen::Ptr rop = NRemoteOpen::create();
-  rop->show();
+  BrowserDialog dlg(this);
+//  NRemoteOpen::Ptr rop = NRemoteOpen::create();
+//  rop->show();
+  QVariant selected;
+  dlg.show(false, selected);
 }
 
 ////////////////////////////////////////////////////////////////////////////

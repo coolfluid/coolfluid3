@@ -506,7 +506,7 @@ BOOST_AUTO_TEST_CASE( options_changed )
   // check that the local components are still there
   Component::Ptr uidir;
 
-  BOOST_CHECK_NO_THROW( uidir = root->get_child_ptr("ui") );
+  BOOST_CHECK_NO_THROW( uidir = root->get_child_ptr("UI") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Browsers") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Log") );
   BOOST_CHECK_NO_THROW( uidir->get_child("Plugins") );
@@ -544,7 +544,7 @@ BOOST_AUTO_TEST_CASE( signal_list_tree )
   QModelIndex treeIndex = t.index_from_path( CLIENT_TREE_PATH );
   QModelIndex logIndex = t.index_from_path( CLIENT_LOG_PATH );
 
-  t.tree_root()->get_child("ui").get_child("Log").as_type<NLog>().add_node( node );
+  t.tree_root()->get_child("UI").get_child("Log").as_type<NLog>().add_node( node );
 
   QModelIndex nodeIndex = t.index_from_path( CLIENT_TREE_PATH "/MyNode" );
 
