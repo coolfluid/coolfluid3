@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE ( CheckShared )
   SharedT* vec = shared_vec();
   Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    result += is_not_null(vec[i]);
+    result += is_not_null(vec[i].get());
   BOOST_CHECK(vec_size == result);
 }
 
