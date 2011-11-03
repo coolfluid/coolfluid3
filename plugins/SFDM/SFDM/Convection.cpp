@@ -7,7 +7,7 @@
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#include "common/Log.hpp"
+//#include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
@@ -16,7 +16,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 
-#include "common/PE/debug.hpp"
+//#include "common/PE/debug.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/SpaceFields.hpp"
@@ -391,6 +391,15 @@ void Convection::compute_cell_interior_flux_points_contribution()
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_ev(nb_vars);
 
+
+  // looping declares
+  Uint elem=0;
+  Uint orientation=0;
+  Uint line=0;
+  Uint flx_pt=0;
+  Uint sol_pt=0;
+  Uint var=0;
+
   /// Cells loop
   boost_foreach(Region::Ptr region, m_loop_regions)
   boost_foreach(Cells& elements, find_components_recursively<Cells>(*region))
@@ -413,6 +422,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
     ElementType& geometry = elements.element_type();
     RealVector unit_normal(geometry.dimension());
     RealVector plane_jacobian_normal(geometry.dimension());
+    Real plane_jacob_det;
     RealVector local_coord(geometry.dimensionality());
     RealVector flux_pt_line_coord(1);
     RealVector sol_pt_line_coord(1);
@@ -427,7 +437,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
 
     // Interpolation matrix from values in solution points to values in flux points
     RealMatrix sol_to_flux_pts(nb_flx_pts, nb_sol_pts);
-    for (Uint flx_pt=0; flx_pt<nb_flx_pts; ++flx_pt)
+    for (flx_pt=0; flx_pt<nb_flx_pts; ++flx_pt)
     {
       flux_pt_line_coord << shape_func.flux_line().local_coordinates() ( shape_func.flux_line().points()[0][0][flx_pt] );
       sol_to_flux_pts.row(flx_pt) = shape_func.line().value(flux_pt_line_coord);
@@ -440,7 +450,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
     RealMatrix flx_to_sol_pts(nb_sol_pts, nb_flx_pts);
 
     // Computation of interpolation matrices
-    for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+    for (sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
     {
       sol_pt_line_coord << shape_func.line().local_coordinates() ( shape_func.line().points()[0][0][sol_pt] );
       flx_to_grad_in_sol_pts.row(sol_pt) = shape_func.flux_line().gradient(sol_pt_line_coord);
@@ -448,7 +458,7 @@ void Convection::compute_cell_interior_flux_points_contribution()
     }
 
     /// element loop
-    for (Uint elem=0; elem<elements.size(); ++elem)
+    for (elem=0; elem<elements.size(); ++elem)
     {
 //      if (elements.is_ghost(elem))
 //        continue;
@@ -462,15 +472,15 @@ void Convection::compute_cell_interior_flux_points_contribution()
       ElementType& geometry = elements.element_type();
 
       /// orientation loop
-      for (Uint orientation=0; orientation<shape_func.dimensionality(); ++orientation)
+      for (orientation=0; orientation<shape_func.dimensionality(); ++orientation)
       {
 
         /// line loop
-        for (Uint line=0; line<nb_lines; ++line)
+        for (line=0; line<nb_lines; ++line)
         {
 
           /// 1) compute solution in solution points in this line
-          for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+          for (sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
           {
 
             cf3_assert(shape_func.points()[orientation][line][sol_pt] < field_idx.size());
@@ -481,23 +491,23 @@ void Convection::compute_cell_interior_flux_points_contribution()
           }
 
           /// 2) compute solution in interior flux points in this line
-          for (Uint flx_pt=1; flx_pt<nb_flx_pts-1; flx_pt++) {
-            for (Uint var=0; var<nb_vars; ++var) {
+          for (flx_pt=1; flx_pt<nb_flx_pts-1; flx_pt++) {
+            for (var=0; var<nb_vars; ++var) {
               solution_in_flx_pts(flx_pt,var) = 0.;
-              for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt) {
+              for (sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt) {
                 solution_in_flx_pts(flx_pt,var) += sol_to_flux_pts(flx_pt,sol_pt) * solution_in_sol_pts(sol_pt,var);
               }
             }
           }
 
           /// 3) compute flux and wave_speed in interior flux points in this line
-          for (Uint flx_pt=1; flx_pt<nb_flx_pts-1; flx_pt++)
+          for (flx_pt=1; flx_pt<nb_flx_pts-1; flx_pt++)
           {
             // Compute plane-jacobian-normal
             local_coord.setZero();
             local_coord[orientation] = flux_pt_line_coord[0];
             geometry.compute_plane_jacobian_normal(local_coord,geometry_nodes,(CoordRef)orientation,plane_jacobian_normal);
-            Real plane_jacob_det = plane_jacobian_normal.norm();
+            plane_jacob_det = plane_jacobian_normal.norm();
             unit_normal = plane_jacobian_normal/plane_jacob_det;
 
             // compute physical properties in flux points
@@ -515,26 +525,26 @@ void Convection::compute_cell_interior_flux_points_contribution()
           /// 4) compute derivative of flux to orientation in solution points
           ///    note that only contribution of inner flux points is added.
           ///    A separate loop to compute contributions of face-flux points is needed
-          for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+          for (sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
           {
-            for (Uint var=0; var<nb_vars; ++var)
+            for (var=0; var<nb_vars; ++var)
               flux_grad_in_sol_pts(sol_pt,var) = 0.;
             wave_speed_in_sol_pts(sol_pt) = 0.;
-            for (Uint flx_pt=1; flx_pt<nb_flx_pts-1; ++flx_pt)
+            for (flx_pt=1; flx_pt<nb_flx_pts-1; ++flx_pt)
             {
-              for (Uint var=0; var<nb_vars; ++var)
+              for (var=0; var<nb_vars; ++var)
                 flux_grad_in_sol_pts(sol_pt,var) += flx_to_grad_in_sol_pts(sol_pt,flx_pt) * flux_in_flx_pts(flx_pt,var);
               wave_speed_in_sol_pts(sol_pt) += flx_to_sol_pts(sol_pt,flx_pt) * wave_speed_in_flx_pts(flx_pt);
             }
           }
 
           /// 5) add contribution to the residual
-          for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+          for (sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
           {
             cf3_assert(shape_func.points()[orientation][line][sol_pt]<field_idx.size());
             const Uint pt_idx = field_idx[ shape_func.points()[orientation][line][sol_pt] ];
             cf3_assert(pt_idx<residual_field.size());
-            for (Uint var=0; var<residual_field.row_size(); ++var)
+            for (var=0; var<residual_field.row_size(); ++var)
             {
               residual_field[pt_idx][var] -= flux_grad_in_sol_pts(sol_pt,var) / jacob_det_field[pt_idx][0];
             }
@@ -568,20 +578,15 @@ void Convection::compute_inner_face_flux_points_contribution()
   RealMatrix dummy_grads( physical_model().neqs(), physical_model().ndim() );
   RealVector phys_ev(nb_vars);
 
-  Component::Ptr dummy_component;
-  Uint dummy_idx;
-
-  std::vector<bool> ghost(2);
-  std::vector<Cells const*> cells(2);
-  std::vector<Space*> spaces(2);
-  std::vector<SFDM::ShapeFunction const*> sf(2);
-  std::vector<Uint> cell_idx(2);
-  std::vector<Uint> nb_sol_pts(2);
-  std::vector<Uint> nb_flx_pts(2);
   std::vector<Uint> flx_pt(2);
   std::vector<RealVector> flx_pt_line_coord(2);
   std::vector<RealRowVector> solution_at_face(2);
+  RealVector sol_pt_line_coord(1);
 
+  RealMatrix left_nodes;
+
+  RealVector flux_in_face_pt(nb_vars);
+  RealVector dummy_ws(nb_vars);
 
   /// inner-faces loop
   boost_foreach(Region::Ptr region, m_loop_regions)
@@ -590,146 +595,143 @@ void Convection::compute_inner_face_flux_points_contribution()
     FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
 
     /// face loop
-    for (Uint face=0; face<faces.size(); ++face)
+    for (Face2Cell face(cell_connectivity); face.idx<cell_connectivity.size(); ++face.idx)
     {
-//      std::cout << "f="<<face<<" "<<std::flush;
-      ElementConnectivity::ConstRow connected_cells = cell_connectivity.connectivity()[face];
-      Connectivity::ConstRow face_nb = cell_connectivity.face_number()[face];
-
-      // Set data for left and right cells
-      for (Uint side=0; side<2; ++side)
+      if (face.cells()[LEFT].comp == face.cells()[RIGHT].comp)  // We can make the algorithm faster
       {
-        Entity connected_cell = connected_cells[side];
-        cells[side] = dynamic_cast<Cells const*>(connected_cell.comp);
-        cell_idx[side] = connected_cell.idx;
-        spaces[side] = &field_group().space(*cells[side]);
-        sf[side] = &spaces[side]->shape_function().as_type<SFDM::ShapeFunction>();
-        nb_sol_pts[side] = sf[side]->line().nb_nodes();
-        nb_flx_pts[side] = sf[side]->flux_line().nb_nodes();
-        flx_pt_line_coord[side].resize(1);
-        ghost[side] = cells[side]->is_ghost(cell_idx[side]);
-        Connectivity::ConstRow face_nodes = faces.get_nodes(face);
-        Connectivity::ConstRow cell_nodes = cells[side]->get_nodes(cell_idx[side]);
-        Uint nb_match = 0;
-        boost_foreach(const Uint face_node, face_nodes)
+        const Entities& cells = *face.cells()[LEFT].comp;
+        const Space& space = field_group().space(cells);
+        const SFDM::ShapeFunction& sf = space.shape_function().as_type<SFDM::ShapeFunction>();
+        const ElementType& etype = cells.element_type();
+        const Real direction = sf.face_direction(face.face_nb_in_cells()[LEFT]);
+        const Real orientation = sf.face_orientation(face.face_nb_in_cells()[LEFT]);
+        const Uint nb_face_pts = sf.dimensionality() == 1 ? 1 : sf.order()+1;
+
+        const Uint nb_sol_pts = sf.line().nb_nodes();
+        const Uint nb_flx_pts = sf.flux_line().nb_nodes();
+
+        std::vector<RealRowVector> sol_to_face_flx_pt(2,RealRowVector(nb_sol_pts));
+
+        RealMatrix solution_in_sol_pts(nb_sol_pts,nb_vars);
+        RealMatrix flux_grad_in_sol_pts(nb_sol_pts, nb_vars);
+        RealVector wave_speed_in_sol_pts(nb_sol_pts);
+
+
+        // Interpolation matrix from values in flux points to gradient-values in solution points
+        RealMatrix flx_to_grad_in_sol_pts(nb_sol_pts, nb_flx_pts);
+
+        // Interpolation matrix from values in flux points to values in solution points
+        RealMatrix flx_to_sol_pts(nb_sol_pts, nb_flx_pts);
+
+        // Computation of interpolation matrices
+        for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
         {
-          boost_foreach(const Uint cell_node, cell_nodes)
-            if (face_node == cell_node)
-              ++nb_match;
+          sol_pt_line_coord << sf.line().local_coordinates() ( sf.line().points()[0][0][sol_pt] );
+          flx_to_grad_in_sol_pts.row(sol_pt) = sf.flux_line().gradient(sol_pt_line_coord);
+          flx_to_sol_pts.row(sol_pt)         = sf.flux_line().value(sol_pt_line_coord);
         }
-      }
 
-//      if (ghost[LEFT] && ghost[RIGHT])
-//        continue;//throw InvalidStructure(FromHere(),"this is a ghost face!!");
-
-      std::vector<Real> coords(2);
-
-      const Real direction = sf[LEFT]->face_direction(face_nb[LEFT]);
-
-      const Uint orientation = sf[LEFT]->face_orientation(face_nb[LEFT]);
-
-      Uint nb_face_pts = spaces[LEFT]->shape_function().dimensionality() == 1? 1 : spaces[LEFT]->shape_function().order()+1;
-
-      for (Uint line=0; line<nb_face_pts; ++line)
-      {
-
-        /// 1) Compute solution at left and right side
+        // Set data for left and right cells
         for (Uint side=0; side<2; ++side)
         {
-          Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
+          flx_pt[side] = sf.face_side(face.face_nb_in_cells()[side]) == ShapeFunction::NEG ? 0 : nb_flx_pts-1;
 
-          RealMatrix solution_in_sol_pts(nb_sol_pts[side],nb_vars);
-          for (Uint sol_pt=0; sol_pt<nb_sol_pts[side]; ++sol_pt)
-          {
-            Uint pt_idx = field_idx[ sf[side]->points()[orientation][line][sol_pt] ];
-            for (Uint var=0; var<nb_vars; ++var)
-              solution_in_sol_pts(sol_pt,var) = solution_field[pt_idx][var];
-          }
+          flx_pt_line_coord[side].resize(1);
+          flx_pt_line_coord[side] << sf.flux_line().local_coordinates()(flx_pt[side],0);
 
-          flx_pt[side] = sf[side]->face_side(face_nb[side]) == 0 ? 0 : nb_flx_pts[side]-1;
-          flx_pt_line_coord[side] << sf[side]->flux_line().local_coordinates()(flx_pt[side],0);
-
-          RealRowVector sf_values(nb_sol_pts[side]);
-          sf[side]->line().compute_value(flx_pt_line_coord[side],sf_values);
-
-          solution_at_face[side] = sf_values * solution_in_sol_pts;
+          sf.line().compute_value(flx_pt_line_coord[side],sol_to_face_flx_pt[side]);
         }
-        // end side loop
+        cf3_assert(flx_pt[LEFT] != flx_pt[RIGHT])
 
-        /// 2) Solve Riemann problem using left and right solution
-        RealMatrix left_nodes;
-        cells[LEFT]->allocate_coordinates(left_nodes);
-        cells[LEFT]->put_coordinates(left_nodes, cell_idx[LEFT]);
-        ElementType& left_etype = cells[LEFT]->element_type();
+        cells.allocate_coordinates(left_nodes);
+        cells.put_coordinates(left_nodes, face.cells()[LEFT].idx);
 
-        RealVector face_pt_local_coord(left_etype.dimensionality());
-        face_pt_local_coord.setZero();
+        /// @note assumed that plane_jacobian_normal doesn't change with coordinate perpendicular to line
+        RealVector face_pt_local_coord(etype.dimensionality()); face_pt_local_coord.setZero();
         face_pt_local_coord[orientation] = flx_pt_line_coord[LEFT][0];
-        RealVector plane_jacobian_normal(left_etype.dimension());
-        left_etype.compute_plane_jacobian_normal(face_pt_local_coord,left_nodes,(CoordRef)orientation,plane_jacobian_normal);
+        RealVector plane_jacobian_normal(etype.dimension());
+        etype.compute_plane_jacobian_normal(face_pt_local_coord,left_nodes,(CoordRef)orientation,plane_jacobian_normal);
         Real plane_jacobian_det = plane_jacobian_normal.norm();
         RealVector unit_normal = direction * plane_jacobian_normal / plane_jacobian_det;
-        RealVector flux_in_face_pt(nb_vars);
-        RealVector dummy_ws(nb_vars);
-        m_riemann_solver->compute_interface_flux_and_wavespeeds(solution_at_face[LEFT],solution_at_face[RIGHT],unit_normal,flux_in_face_pt,dummy_ws);
-        flux_in_face_pt = flux_in_face_pt * plane_jacobian_det;
-        Real wave_speed_in_face_pt = dummy_ws.cwiseAbs().maxCoeff() * plane_jacobian_det / 2.;
 
-        /// 3) Add contribution of face-flux to the residual of cells on both sides
-        for (Uint side=0; side<2; ++side)
+        for (Uint line=0; line<nb_face_pts; ++line)
         {
 
-//          if (ghost[side])
-//            continue;
-
-          Connectivity::ConstRow field_idx = spaces[side]->indexes_for_element(cell_idx[side]);
-
-          RealMatrix flux_grad_in_sol_pts(nb_sol_pts[side], nb_vars);
-          flux_grad_in_sol_pts.setZero();
-          RealVector wave_speed_in_sol_pts(nb_sol_pts[side]);
-          wave_speed_in_sol_pts.setZero();
-
-          RealMatrix flux_sf_gradient(1,nb_flx_pts[side]);
-          RealRowVector flux_sf_value(nb_flx_pts[side]);
-          for (Uint sol_pt=0; sol_pt<nb_sol_pts[side]; ++sol_pt)
+          /// 1) Compute solution at left and right side
+          for (Uint side=0; side<2; ++side)
           {
-            // compute flux_sf_gradient
-            RealVector sol_pt_coord(1);
-            sol_pt_coord << sf[side]->line().local_coordinates() ( sf[side]->line().points()[0][0][sol_pt] , 0);
-            sf[side]->flux_line().compute_gradient( sol_pt_coord , flux_sf_gradient );
-            sf[side]->flux_line().compute_value   ( sol_pt_coord , flux_sf_value    );
+            Connectivity::ConstRow field_idx = space.indexes_for_element(face.cells()[side].idx);
 
-            for (Uint var=0; var<nb_vars; ++var)
+            for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
             {
-              flux_grad_in_sol_pts(sol_pt,var) += flux_sf_gradient(flx_pt[side]) * flux_in_face_pt[var];
+              Uint pt_idx = field_idx[ sf.points()[orientation][line][sol_pt] ];
+              for (Uint var=0; var<nb_vars; ++var)
+                solution_in_sol_pts(sol_pt,var) = solution_field[pt_idx][var];
             }
-
-            wave_speed_in_sol_pts[sol_pt] += flux_sf_value(flx_pt[side]) * wave_speed_in_face_pt;
-
-
-//            std::cout << "flux_grad_in_sol_pts["<<cell_idx[side]<<"]["<<orientation<<"]["<<line<<"]["<<sol_pt<<"] = " << flux_grad_in_sol_pts.row(sol_pt) << std::endl;
-            const Uint pt_idx = field_idx[ sf[side]->points()[orientation][line][sol_pt] ];
-
-//            std::cout << "face adding wave_speed to cell["<<cell_idx[side]<<"]    " << wave_speed_in_sol_pts(sol_pt) << std::endl;
-            for (Uint var=0; var<residual_field.row_size(); ++var)
-            {
-              residual_field[pt_idx][var] -= direction * flux_grad_in_sol_pts(sol_pt,var) / jacob_det_field[pt_idx][0];
-            }
-            wave_speed_field[pt_idx][0] += wave_speed_in_sol_pts[sol_pt] / jacob_det_field[pt_idx][0];
+            solution_at_face[side] = sol_to_face_flx_pt[side] * solution_in_sol_pts;
           }
+          // end side loop
 
+          /// 2) Solve Riemann problem using left and right solution
+
+          m_riemann_solver->compute_interface_flux_and_wavespeeds(solution_at_face[LEFT],solution_at_face[RIGHT],unit_normal,flux_in_face_pt,dummy_ws);
+          flux_in_face_pt = flux_in_face_pt * plane_jacobian_det;
+          Real wave_speed_in_face_pt = dummy_ws.cwiseAbs().maxCoeff() * plane_jacobian_det / 2.;
+
+          /// 3) Add contribution of face-flux to the residual of cells on both sides
+          for (Uint side=0; side<2; ++side)
+          {
+            Connectivity::ConstRow field_idx = space.indexes_for_element(face.cells()[side].idx);
+
+            wave_speed_in_sol_pts.setZero();
+            flux_grad_in_sol_pts.setZero();
+            for (Uint sol_pt=0; sol_pt<nb_sol_pts; ++sol_pt)
+            {
+              for (Uint var=0; var<nb_vars; ++var)
+              {
+                flux_grad_in_sol_pts(sol_pt,var) += flx_to_grad_in_sol_pts(sol_pt,flx_pt[side]) * flux_in_face_pt[var];
+              }
+              wave_speed_in_sol_pts[sol_pt] += flx_to_sol_pts(sol_pt,flx_pt[side]) * wave_speed_in_face_pt;
+
+              // std::cout << "flux_grad_in_sol_pts["<<face.cells()[side].idx<<"]["<<orientation<<"]["<<line<<"]["<<sol_pt<<"] = " << flux_grad_in_sol_pts.row(sol_pt) << std::endl;
+              const Uint pt_idx = field_idx[ sf.points()[orientation][line][sol_pt] ];
+
+              // std::cout << "face adding wave_speed to cell["<<face.cells()[side].idx<<"]    " << wave_speed_in_sol_pts(sol_pt) << std::endl;
+              for (Uint var=0; var<residual_field.row_size(); ++var)
+              {
+                residual_field[pt_idx][var] -= direction * flux_grad_in_sol_pts(sol_pt,var) / jacob_det_field[pt_idx][0];
+              }
+              wave_speed_field[pt_idx][0] += wave_speed_in_sol_pts[sol_pt] / jacob_det_field[pt_idx][0];
+            }
+
+          }
+          // end side loop
         }
-        // end side loop
+        // end line loop
       }
-      // end line loop
+      else
+      {
+        throw NotImplemented(FromHere(),"left and right cell are of different type or region");
+      }
+
     }
     // end face loop
   }
   // end inner faces loop
 
 
-  /// outer-faces loop
+
+  /// BOUNDARY outer-faces loop
   /// These faces should be moved to the boundary condition
+
+
+  std::vector<Cells const*> cells(2);
+  std::vector<Space*> spaces(2);
+  std::vector<SFDM::ShapeFunction const*> sf(2);
+  std::vector<Uint> cell_idx(2);
+  std::vector<Uint> nb_sol_pts(2);
+  std::vector<Uint> nb_flx_pts(2);
+
   boost_foreach(Region::Ptr region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively<Entities>(*region))
   {
@@ -861,6 +863,7 @@ void Convection::compute_inner_face_flux_points_contribution()
     }
     // end outer faces loop
   }
+
 }
 
 
