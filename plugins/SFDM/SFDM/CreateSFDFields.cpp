@@ -28,6 +28,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/FieldManager.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "physics/Variables.hpp"
 #include "physics/PhysModel.hpp"

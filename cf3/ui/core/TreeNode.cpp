@@ -21,8 +21,8 @@ namespace core {
     m_parent(parent),
     m_row_number(rowNumber)
 {
-  cf3_assert(node.get() != nullptr);
-  cf3_assert(rowNumber >= 0);
+  cf3_always_assert(node.get() != nullptr);
+  cf3_always_assert(rowNumber >= 0);
 
   m_node.lock()->connect_notifier(this, SIGNAL(child_count_changed()), SLOT(update_child_list()));
 

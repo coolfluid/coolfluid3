@@ -13,6 +13,8 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"

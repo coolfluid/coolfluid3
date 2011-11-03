@@ -9,13 +9,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/Log.hpp"
-#include "common/Component.hpp"
-#include "common/OptionArray.hpp"
-#include "common/OptionT.hpp"
-#include "common/Signal.hpp"
-#include "common/XML/SignalOptions.hpp"
+#include <iosfwd>
 
+#include "common/Component.hpp"
+
+#include "common/Table_fwd.hpp"
 #include "common/ArrayBufferT.hpp"
 #include "common/LibCommon.hpp"
 
@@ -52,13 +50,13 @@ public: // typedefs
   typedef ValueT value_type;
 
   /// @brief the type of the internal structure of the table
-  typedef boost::multi_array<ValueT,2> ArrayT;
+  typedef typename TableArray<ValueT>::type ArrayT;
 
   /// @brief the type of a row in the internal structure of the table
-  typedef typename boost::subarray_gen<ArrayT,1>::type Row;
+  typedef typename TableRow<ValueT>::type Row;
 
   /// @brief the const type of a row in the internal structure of the table
-  typedef const typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
+  typedef typename TableConstRow<ValueT>::type ConstRow;
 
   /// @brief the type of the buffer used to interact with the table
   typedef ArrayBufferT<ValueT> Buffer;
@@ -74,13 +72,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   Table ( const std::string& name )  : Component ( name )
-  {
-    regist_signal ( "resize" )
-        ->description( "Resize the table" )
-        ->pretty_name("Resize" )
-        ->connect   ( boost::bind ( &Table::signal_resize,    this, _1 ) )
-        ->signature ( boost::bind ( &Table::signature_resize, this, _1 ) );
-  }
+  {  }
 
   /// Get the component type name
   /// @returns the component type name
@@ -158,24 +150,6 @@ public: // functions
 
     for(Uint j=0; j<row.size(); ++j)
       row_to_set[j] = row[j];
-  }
-
-  void signal_resize ( common::SignalArgs& node )
-  {
-    common::XML::SignalOptions options( node );
-    std::vector<Uint> size = options.array<Uint>("size");
-    resize(size[0]);
-    set_row_size(size[1]);
-  }
-
-  void signature_resize ( common::SignalArgs& node)
-  {
-    common::XML::SignalOptions options( node );
-
-    std::vector<Uint> size;
-
-    options.add_option< common::OptionArrayT<Uint> >("size", size )
-        ->description("Vector of [nb_rows,nb_cols]");
   }
 
 private: // data

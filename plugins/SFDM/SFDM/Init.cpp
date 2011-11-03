@@ -4,11 +4,15 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
 
 #include "physics/Variables.hpp"
 
@@ -18,8 +22,8 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/ElementType.hpp"
-#include "common/List.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "solver/CSolver.hpp"
 

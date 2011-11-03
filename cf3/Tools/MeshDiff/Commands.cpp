@@ -14,7 +14,7 @@
 #include "common/BuildInfo.hpp"
 #include "common/Factory.hpp"
 #include "common/Builder.hpp"
- 
+#include "common/Group.hpp"
 #include "common/Foreach.hpp"
 #include "common/Action.hpp"
 #include "common/FindComponents.hpp"
@@ -37,7 +37,7 @@ namespace MeshDiff {
 ////////////////////////////////////////////////////////////////////////////////
 
 Commands::Commands()
-{	
+{
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -79,10 +79,10 @@ void Commands::compare(const std::vector<std::string>& params)
   for (Uint i=1; i<mesh_vector.size(); ++i)
   {
     CFinfo << "Comparing " << reference_mesh.name() << " to " << mesh_vector[i]->name() << CFendl;
-    
+
     MeshDiff::diff(reference_mesh,*mesh_vector[i],100);
   }
-  
+
 }
 
 

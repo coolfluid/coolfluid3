@@ -18,7 +18,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
@@ -247,7 +247,7 @@ public:
 
   /// The dimension of the problem
   static const Uint dimension = NbDims::value;
-  
+
   /// Type of the per-variable data
   typedef typename boost::mpl::transform< VariablesT, AddNodeData<NbDims::value> >::type VariablesDataT;
 

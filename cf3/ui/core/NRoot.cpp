@@ -113,7 +113,7 @@ CNode::Ptr NRoot::child_from_root(cf3::Uint number)
     it++;
 
   // if number is bigger than the map size, it is equal to end()
-  cf3_assert(it != end);
+  cf3_always_assert(it != end);
 
   return it.get();
 }

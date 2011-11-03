@@ -20,6 +20,8 @@
 #include "common/PE/debug.hpp"
 
 #include "math/Consts.hpp"
+
+#include "mesh/UnifiedData.hpp"
 #include "mesh/Octtree.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -28,6 +30,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

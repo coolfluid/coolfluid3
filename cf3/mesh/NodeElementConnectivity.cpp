@@ -5,13 +5,14 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/FindComponents.hpp"
-
+#include "common/DynTable.hpp"
 #include "common/Link.hpp"
 #include "common/Builder.hpp"
+
 #include "mesh/NodeElementConnectivity.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {

@@ -16,17 +16,17 @@
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Tags.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
-#include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "mesh/neu/Reader.hpp"
 

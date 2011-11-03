@@ -9,10 +9,9 @@
 
 #include <set>
 
-#include <boost/shared_ptr.hpp>
-
 #include "mesh/Elements.hpp"
 #include "mesh/SpaceFields.hpp"
+#include "mesh/Connectivity.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 

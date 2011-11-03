@@ -187,6 +187,16 @@ common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx)
   return field_group().indexes_for_element(unified_idx);
 }
 
+boost::iterator_range< common::ComponentIterator<Entities> > Field::entities_range()
+{
+  return field_group().entities_range();
+}
+
+boost::iterator_range< common::ComponentIterator<Elements> > Field::elements_range()
+{
+  return field_group().elements_range();
+}
+
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {

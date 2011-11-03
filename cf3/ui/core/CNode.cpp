@@ -221,8 +221,8 @@ void CNode::set_signals( const SignalArgs & args )
 
       if(hidden_attr == nullptr || !from_str<bool>(hidden_attr->value()) )
       {
-        cf3_assert( key_attr != nullptr );
-        cf3_assert( key_attr->value()[0] != '\0');
+        cf3_always_assert( key_attr != nullptr );
+        cf3_always_assert( key_attr->value()[0] != '\0');
 
         si.name = key_attr->value();
         si.readable_name = name_attr != nullptr ? name_attr->value() : si.name;
@@ -602,8 +602,8 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
 
   std::string uuid = node.attribute_value( "uuid" );
 
-  cf3_assert(typeAttr != nullptr);
-  cf3_assert(nameAttr != nullptr);
+  cf3_always_assert(typeAttr != nullptr);
+  cf3_always_assert(nameAttr != nullptr);
 
   QString type_name = typeAttr->value();
   char * node_name = nameAttr->value();

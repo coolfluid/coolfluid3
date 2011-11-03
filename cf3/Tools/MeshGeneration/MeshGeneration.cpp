@@ -11,7 +11,6 @@
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionURI.hpp"
-#include "common/Table.hpp"
 
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -22,6 +21,7 @@
 #include "mesh/Cells.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;

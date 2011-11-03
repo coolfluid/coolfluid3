@@ -17,7 +17,7 @@
 #include "common/Core.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
-
+#include "common/Group.hpp"
 #include "common/FindComponents.hpp"
 
 #include "common/XML/Protocol.hpp"

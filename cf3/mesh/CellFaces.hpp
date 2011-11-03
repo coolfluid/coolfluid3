@@ -9,12 +9,14 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "math/MatrixTypes.hpp"
+#include <boost/scoped_ptr.hpp>
+
 #include "mesh/Entities.hpp"
-#include "mesh/FaceCellConnectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
+
+class FaceCellConnectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -41,11 +43,11 @@ public: // functions
   static std::string type_name () { return "CellFaces"; }
 
   /// return the number of elements
-  virtual Uint size() const { return m_cell_connectivity->size(); }
+  virtual Uint size() const;
 
-  virtual common::Table<Uint>::ConstRow get_nodes(const Uint face_idx) const;
+  virtual common::TableConstRow<Uint>::type get_nodes(const Uint face_idx) const;
 
-  bool is_bdry(const Uint idx) { return m_cell_connectivity->is_bdry_face()[idx]; }
+  bool is_bdry(const Uint idx) const;
 
   FaceCellConnectivity& cell_connectivity() { return *m_cell_connectivity; }
   const FaceCellConnectivity& cell_connectivity() const { return *m_cell_connectivity; }
@@ -57,9 +59,8 @@ public: // functions
 
 protected:
 
-  FaceCellConnectivity::Ptr m_cell_connectivity;
-
-  mutable common::Table<Uint>::ArrayT m_proxy_nodes;
+  boost::shared_ptr<FaceCellConnectivity> m_cell_connectivity;
+  boost::scoped_ptr<common::TableArray<Uint>::type> m_proxy_nodes;
 
 };
 

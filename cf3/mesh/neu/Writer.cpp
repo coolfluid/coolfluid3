@@ -20,12 +20,12 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshMetadata.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

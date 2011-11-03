@@ -311,8 +311,8 @@ QModelIndex NTree::index_from_path(const URI & path) const
   QStringList::iterator it;
   TreeNode * treeNode = m_root_node;
 
-  cf3_assert( path.scheme() == URI::Scheme::CPATH );
-  cf3_assert( treeNode != nullptr );
+  cf3_always_assert( path.scheme() == URI::Scheme::CPATH );
+  cf3_always_assert( treeNode != nullptr );
 
   if(path.is_absolute())
   {
