@@ -10,6 +10,8 @@
 #include <map>
 #include <set>
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/mpl/for_each.hpp>
 #include <boost/fusion/algorithm/iteration/for_each.hpp>
 
@@ -17,6 +19,7 @@
 #include "common/Foreach.hpp"
 #include "common/Option.hpp"
 #include "common/OptionT.hpp"
+#include "common/OptionArray.hpp"
 #include "common/OptionList.hpp"
 
 #include "math/VariableManager.hpp"

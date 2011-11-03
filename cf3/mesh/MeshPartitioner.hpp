@@ -14,18 +14,20 @@
 #include "common/FindComponents.hpp"
 #include "common/Map.hpp"
 #include "common/Foreach.hpp"
+#include "common/DynTable.hpp"
+#include "common/Table.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/LibMesh.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
-#include "common/DynTable.hpp"
-#include "common/Table.hpp"
-#include "common/List.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshTransformer.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -207,7 +209,7 @@ Uint MeshPartitioner::nb_connected_objects_in_part(const Uint part, VectorT& nb_
       }
       else if (Elements::Ptr elements = comp->as_ptr<Elements>())
       {
-        const common::Table<Uint>& connectivity_table = elements->node_connectivity();
+        const Connectivity& connectivity_table = elements->node_connectivity();
         nb_connections_per_obj[idx] = connectivity_table.row_size(loc_idx);
       }
       size += nb_connections_per_obj[idx];

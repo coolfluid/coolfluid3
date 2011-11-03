@@ -6,19 +6,22 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/Signal.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/actions/Interpolate.hpp"
+#include "math/Consts.hpp"
+
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Octtree.hpp"
+#include "mesh/Connectivity.hpp"
 
-#include "math/Consts.hpp"
+#include "mesh/actions/Interpolate.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

@@ -12,19 +12,20 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
+
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/Buffer.hpp"
 #include "common/PE/debug.hpp"
 
-
+#include "mesh/Connectivity.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "common/DynTable.hpp"
-#include "common/Table.hpp"
-#include "common/List.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 

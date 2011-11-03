@@ -12,6 +12,7 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
 #include "mesh/Domain.hpp"
@@ -78,11 +79,11 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BOOST_CHECK_EQUAL(mesh.dimension(), 2);
 
   writer->write_from_to(mesh, URI("grid-2d.vtk"));
-  
+
   // Test block partitioning
   BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   BlockMesh::partition_blocks(blocks, 4, XX, parallel_blocks);
-  
+
   Mesh& parallel_block_mesh = domain.create_component<Mesh>("parallel_blocks");
   BlockMesh::create_block_mesh(parallel_blocks, parallel_block_mesh);
   writer->write_from_to(parallel_block_mesh, URI("grid-2d-parblocks.vtk"));

@@ -4,9 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
 
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
@@ -90,9 +94,10 @@ solver::CSolver& Action::solver()
 }
 
 
-common::ComponentIteratorRange<Region> Action::regions()
+boost::iterator_range<common::ComponentIterator<Region> > Action::regions()
 {
-  return common::ComponentIteratorRange<Region>(m_loop_regions);
+  return boost::make_iterator_range( common::ComponentIterator<Region>(m_loop_regions,0),
+                                     common::ComponentIterator<Region>(m_loop_regions,m_loop_regions.size()));
 }
 
 

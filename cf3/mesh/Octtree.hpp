@@ -13,7 +13,6 @@
 
 #include "common/Component.hpp"
 #include "mesh/Elements.hpp"
-#include "mesh/UnifiedData.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -21,6 +20,7 @@ namespace cf3 {
 namespace mesh {
 
   class Mesh;
+  class UnifiedData;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -101,7 +101,7 @@ private: // data
   std::vector<Uint> m_N;
   std::vector<Real> m_D;
 
-  UnifiedData::Ptr m_elements;
+  boost::shared_ptr<UnifiedData> m_elements;
 
   std::vector<Uint> m_octtree_idx;
 

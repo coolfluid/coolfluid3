@@ -13,6 +13,8 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -33,8 +35,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
-
-#include "rapidxml/rapidxml.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

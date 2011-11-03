@@ -14,8 +14,9 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/FindComponents.hpp"
-#include "common/Table.hpp"
+#include "common/Group.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"

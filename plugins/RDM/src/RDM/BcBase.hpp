@@ -9,10 +9,14 @@
 
 #include <functional>
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Core.hpp"
 #include "common/OptionT.hpp"
 #include "common/BasicExceptions.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/SpaceFields.hpp"

@@ -17,6 +17,7 @@
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/SpaceFields.hpp"

@@ -77,7 +77,7 @@ struct traits<CoeffBasedProduct<LhsNested,RhsNested,NestingFlags> >
 
       SameType = is_same<typename _LhsNested::Scalar,typename _RhsNested::Scalar>::value,
 
-      CanVectorizeRhs = RhsRowMajor & (RhsFlags & PacketAccessBit)
+      CanVectorizeRhs = RhsRowMajor && (RhsFlags & PacketAccessBit)
                       && (ColsAtCompileTime == Dynamic
                           || ( (ColsAtCompileTime % packet_traits<Scalar>::size) == 0
                               && (RhsFlags&AlignedBit)
