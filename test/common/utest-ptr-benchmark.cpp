@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE ( FillWeak )
 BOOST_AUTO_TEST_CASE ( FillRaw )
 {
   RawT* vec = raw_vec();
-  for(Uint i = 0; i != vec_size; ++i)
-    vec[2*i] = new Uint(i);
+  for(Uint i = 0; i != 2*vec_size; ++i)
+    vec[i] = new Uint(i/2);
 }
 
 BOOST_AUTO_TEST_CASE ( CopyShared )
@@ -120,22 +120,28 @@ BOOST_AUTO_TEST_CASE ( CopyRaw )
 BOOST_AUTO_TEST_CASE ( CheckShared )
 {
   SharedT* vec = shared_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(is_not_null(vec[i]));
+    result += is_not_null(vec[i]);
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( CheckWeak)
 {
   WeakT* vec = weak_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(!vec[i].expired());
+    result += !vec[i].expired();
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( CheckRaw )
 {
   RawT* vec = raw_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(is_not_null(vec[2*i]));
+    result += is_not_null(vec[2*i]);
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( DerefShared )
