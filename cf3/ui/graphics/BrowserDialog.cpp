@@ -16,10 +16,7 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QPushButton>
-//#include <QTableView>
 #include <QMessageBox>
-
-#include <cstdlib>      // for abs()
 
 #include "ui/core/NBrowser.hpp"
 #include "ui/core/NRemoteFSBrowser.hpp"
@@ -113,7 +110,7 @@ void BrowserDialog::path_edited( const QString & text )
   // character (this may happen if user pasted a path or delete more than
   // one character at a time), the path to explore is the parent directory of
   // the path in the field
-  else if(m_old_path.endsWith("/") || std::abs(m_old_path.length() - text.length()) > 1)
+  else if(m_old_path.endsWith("/") || qAbs(m_old_path.length() - text.length()) > 1)
   {
     m_updating_completer = true;
     send = true;
@@ -262,7 +259,7 @@ void BrowserDialog::init_gui()
   m_view = new QListView( this );
   m_favorites_view = new QListView( this );
   m_lab_path = new QLabel("Path:");
-  m_lab_filter = new QLabel("Filter:");
+  m_lab_filter = new QLabel("Filter (wildcards allowed):");
   m_edit_filter = new QLineEdit();
   m_edit_path = new QLineEdit();
   m_bt_add_fav = new QPushButton("Add");
@@ -285,12 +282,7 @@ void BrowserDialog::init_gui()
 
   m_main_layout->setSpacing(5);
 
-//  m_view->setSortingEnabled(true);
-//  m_view->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-//  m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
   m_view->setAlternatingRowColors(true);
-//  m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
-//  m_view->horizontalHeader()->setStretchLastSection(true);
 
   m_lab_path->setBuddy(m_edit_path);
   m_lab_filter->setBuddy(m_edit_filter);
