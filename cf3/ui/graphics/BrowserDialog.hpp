@@ -24,7 +24,7 @@ class QListView;
 class QModelIndex;
 class QPushButton;
 class QSortFilterProxyModel;
-class QListView;
+//class QTableView;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -57,7 +57,7 @@ protected:
 
 private slots:
 
-  void filter_type_changed( int index );
+  void filter_edited( const QString & new_text );
 
   void double_clicked( const QModelIndex & index );
 
@@ -69,7 +69,7 @@ private slots:
 
   void message( const QString& message , uiCommon::LogMessage::Type);
 
-private:
+private: // data
 
   boost::shared_ptr<core::NRemoteFSBrowser> m_model;
 
@@ -101,13 +101,15 @@ private:
 
   QLineEdit * m_edit_filter;
 
-  QComboBox * m_combo_filter;
-
   QCompleter * m_completer;
 
   QString m_old_path;
 
   bool m_updating_completer;
+
+private: // function
+
+  void init_gui();
 
 }; // BrowserDialog
 

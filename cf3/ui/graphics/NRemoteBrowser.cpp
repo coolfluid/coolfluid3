@@ -13,7 +13,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
-#include <QListView>
+#include <QTableView>
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QPushButton>
@@ -55,7 +55,7 @@ namespace graphics {
 
 NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * parent)
   : QDialog(parent),
-    CNode(NBrowser::global()->generate_name().toStdString(), componentType, CNode::DEBUG_NODE)
+    CNode(NBrowser::global()->generate_name(), componentType, CNode::DEBUG_NODE)
 {
 
   regist_signal( "read_dir" )
@@ -68,7 +68,7 @@ NRemoteBrowser::NRemoteBrowser(const QString & componentType, QMainWindow * pare
   m_lab_filter = new QLabel("Filter (wildcards allowed) :", this);
   m_lab_files_list = new QLabel("Files in", this);
   m_view_model = new QStandardItemModel();
-  m_list_view = new QListView(this);
+  m_list_view = new QTableView(this);
   m_edit_filter = new QLineEdit(this);
   m_edit_path = new QLineEdit(this);
   m_lab_status = new QLabel(this);

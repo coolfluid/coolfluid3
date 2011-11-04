@@ -239,7 +239,7 @@ QVariant NRemoteFSBrowser::data ( const QModelIndex & index, int role ) const
     {
       switch( index.column() )
       {
-      case 0 :                     // item name
+      case 0:                     // item name
         data = item->name;
         break;
 

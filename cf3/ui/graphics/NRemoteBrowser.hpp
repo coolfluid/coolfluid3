@@ -25,7 +25,7 @@ class QHBoxLayout;
 class QIcon;
 class QLabel;
 class QLineEdit;
-class QListView;
+class QTableView;
 class QMainWindow;
 class QVBoxLayout;
 class QSortFilterProxyModel;
@@ -487,7 +487,7 @@ namespace graphics {
     QDialogButtonBox * m_buttons;
 
     /// @brief List m_view used to display files list.
-    QListView * m_list_view;
+    QTableView * m_list_view;
 
     /// @brief Model for the list m_view
     QStandardItemModel * m_view_model;
