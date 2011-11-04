@@ -638,7 +638,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
     root_node->mark_basic();
 
   if( !uuid.empty() )
-    root_node->configure_property( "uuid", uuid );
+    root_node->configure_property( "uuid", boost::lexical_cast<Uint>(uuid) );
   else
     NLog::global()->add_warning( "Found a Component without no UuiD." );
 
