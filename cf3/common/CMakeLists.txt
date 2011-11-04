@@ -137,6 +137,8 @@ list( APPEND coolfluid_common_files
     TypeInfo.hpp
     URI.hpp
     URI.cpp
+    UUID.hpp
+    UUID.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
 
