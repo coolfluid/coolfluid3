@@ -121,7 +121,7 @@ int NetworkThread::send(common::SignalArgs& signal)
 
   out.setVersion(QDataStream::Qt_4_6); // set stream version
 
-  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid() );
+  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid().string() );
 
   to_string(*signal.xml_doc, str);
 

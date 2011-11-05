@@ -8,6 +8,7 @@
 
 #include "common/TypeInfo.hpp"
 #include "common/URI.hpp"
+#include "common/UUCount.hpp"
 
 #ifdef CF3_HAVE_CXXABI_H
 #include <cxxabi.h>
@@ -51,6 +52,7 @@ TypeInfo::TypeInfo()
   regist<bool>("bool");
   regist<cf3::Real>("real");
   regist<common::URI>("uri");
+  regist<common::UUCount>("uucount");
   regist<std::vector<int> >("array[integer]");
   regist<std::vector<Uint> >("array[unsigned]");
   regist<std::vector<std::string> >("array[string]");

@@ -12,6 +12,7 @@
 #include "common/StringConversion.hpp"
 #include "common/TypeInfo.hpp"
 #include "common/URI.hpp"
+#include "common/UUCount.hpp"
 
 namespace cf3 {
 namespace common {
@@ -96,6 +97,8 @@ std::string PropertyList::value_str ( const std::string & pname ) const
       return boost::any_cast<std::string>(value);
     else if (value_type == "uri")
       return to_str(boost::any_cast<URI>(value));
+    else if (value_type == "uucount")
+      return to_str(boost::any_cast<UUCount>(value));
     else
       throw ProtocolError(FromHere(),"Property has illegal value type: "+value_type);
   }
@@ -217,6 +220,7 @@ Common_TEMPLATE template Uint PropertyList::value<Uint>(const std::string &) con
 Common_TEMPLATE template Real PropertyList::value<Real>(const std::string &) const;
 Common_TEMPLATE template std::string PropertyList::value<std::string>(const std::string &) const;
 Common_TEMPLATE template URI PropertyList::value<URI>(const std::string &) const;
+Common_TEMPLATE template UUCount PropertyList::value<UUCount>(const std::string &) const;
 
 } // common
 } // cf3

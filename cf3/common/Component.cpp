@@ -30,6 +30,7 @@
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/ComponentIterator.hpp"
+#include "common/UUCount.hpp"
 
 
 #include "common/XML/Protocol.hpp"
@@ -140,11 +141,7 @@ Component::Component ( const std::string& name ) :
 
   m_properties.add_property("brief", std::string("No brief description available"));
   m_properties.add_property("description", std::string("This component has not a long description"));
-  
-  static Uint uuid = 0;
-  ++uuid;
-  cf3_always_assert(uuid); // Bail out if there is a UUID overlap
-  m_properties.add_property("uuid", uuid);
+  m_properties.add_property("uuid", UUCount());
 
   // events
   EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);

@@ -47,7 +47,7 @@ public:
 
   /// @brief Gives the root UuiD.
   /// @return Returns the root UuiD.
-  inline std::string get_uuid() { return m_root->uuid(); }
+  inline const common::UUCount& get_uuid() { return m_root->uuid(); }
 
   template<typename TYPE>
   typename TYPE::Ptr root_child(const std::string & name) const

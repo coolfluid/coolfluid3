@@ -12,6 +12,7 @@
 #include "common/URI.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
+#include "common/UUCount.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +55,12 @@ namespace common {
 
   template <>
   Common_API std::string to_str<URI> (const URI & v)
+  {
+    return v.string();
+  }
+  
+  template <>
+  Common_API std::string to_str<UUCount> (const UUCount & v)
   {
     return v.string();
   }
@@ -215,6 +222,12 @@ namespace common {
   Common_API URI from_str<URI> (const std::string& str)
   {
     return URI( str );
+  }
+  
+  template <>
+  Common_API UUCount from_str<UUCount> (const std::string& str)
+  {
+    return UUCount( str );
   }
 
   template <>

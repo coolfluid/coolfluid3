@@ -6,6 +6,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/uuid/nil_generator.hpp>
 #include <boost/uuid/random_generator.hpp>
 #include <boost/uuid/string_generator.hpp>
 #include <boost/uuid/uuid_io.hpp>
@@ -42,27 +43,35 @@ UUCount::UUCount() : m_uuid(detail::static_uuid()), m_count(detail::static_count
 
 UUCount::UUCount(const std::string& str)
 {
-  std::vector<std::string> split_parts;
-  boost::algorithm::split(split_parts, str, boost::algorithm::is_any_of(":"));
-  if(split_parts.size() != 2)
-    throw ParsingFailed(FromHere(), "Did not find exactly one ':' separating UUID and count when parsing UUID string " + str);
-  
-  try
+  if(str.empty())
   {
-    m_uuid = boost::uuids::string_generator()(split_parts.front());
+    m_uuid = boost::uuids::nil_uuid();
+    m_count = 0;
   }
-  catch(std::runtime_error&)
+  else
   {
-    throw ParsingFailed(FromHere(), "Invalid UUID string: " + split_parts.front());
-  }
-  
-  try
-  {
-    m_count = boost::lexical_cast<Uint>(split_parts.back());
-  }
-  catch(boost::bad_lexical_cast& e)
-  {
-    throw ParsingFailed(FromHere(), "Error casting this string to Uint: " + split_parts.back());
+    std::vector<std::string> split_parts;
+    boost::algorithm::split(split_parts, str, boost::algorithm::is_any_of(":"));
+    if(split_parts.size() != 2)
+      throw ParsingFailed(FromHere(), "Did not find exactly one ':' separating UUID and count when parsing UUID string " + str);
+    
+    try
+    {
+      m_uuid = boost::uuids::string_generator()(split_parts.front());
+    }
+    catch(std::runtime_error&)
+    {
+      throw ParsingFailed(FromHere(), "Invalid UUID string: " + split_parts.front());
+    }
+    
+    try
+    {
+      m_count = boost::lexical_cast<Uint>(split_parts.back());
+    }
+    catch(boost::bad_lexical_cast& e)
+    {
+      throw ParsingFailed(FromHere(), "Error casting this string to Uint: " + split_parts.back());
+    }
   }
 }
 
@@ -83,6 +92,12 @@ Uint UUCount::count() const
 {
   return m_count;
 }
+
+bool UUCount::is_nil() const
+{
+  return m_count == 0 && m_uuid.is_nil();
+}
+
 
 bool UUCount::operator!=(UUCount const& rhs) const
 {

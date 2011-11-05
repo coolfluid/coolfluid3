@@ -23,6 +23,7 @@
 #include "common/OptionURI.hpp"
 #include "common/StringConversion.hpp"
 #include "common/FindComponents.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
 #include "common/XML/FileOperations.hpp"
@@ -600,7 +601,7 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   rapidxml::xml_attribute<>* nameAttr = node.content->first_attribute("name");
   rapidxml::xml_attribute<>* mode_attr = node.content->first_attribute("mode");
 
-  std::string uuid = node.attribute_value( "uuid" );
+  UUCount uuid(node.attribute_value( "uuid" ));
 
   cf3_always_assert(typeAttr != nullptr);
   cf3_always_assert(nameAttr != nullptr);
@@ -637,8 +638,8 @@ CNode::Ptr CNode::create_from_xml_recursive( XmlNode & node,
   if(mode_attr != nullptr && std::strcmp(mode_attr->value(), "basic") == 0)
     root_node->mark_basic();
 
-  if( !uuid.empty() )
-    root_node->configure_property( "uuid", boost::lexical_cast<Uint>(uuid) );
+  if( !uuid.is_nil() )
+    root_node->configure_property( "uuid", uuid );
   else
     NLog::global()->add_warning( "Found a Component without no UuiD." );
 

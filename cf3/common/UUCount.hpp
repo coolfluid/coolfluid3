@@ -38,6 +38,9 @@ public:
   /// The count part
   Uint count() const;
   
+  /// True if the UUID is nil and the count is 0
+  bool is_nil() const;
+  
   bool operator==(UUCount const& rhs) const;
   bool operator!=(UUCount const& rhs) const;
   bool operator<(UUCount const& rhs) const;

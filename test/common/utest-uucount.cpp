@@ -49,6 +49,9 @@ BOOST_AUTO_TEST_CASE( UUSerialization )
   
   UUCount c("01234567-89ab-cdef-0123-456789abcdef:1");
   BOOST_CHECK_EQUAL(c.string(), "01234567-89ab-cdef-0123-456789abcdef:1");
+  
+  UUCount d("");
+  BOOST_CHECK(d.is_nil());
 }
 
 ////////////////////////////////////////////////////////////////////////////////

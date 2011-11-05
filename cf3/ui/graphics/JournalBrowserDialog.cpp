@@ -9,9 +9,6 @@
 #include <QTableView>
 #include <QVBoxLayout>
 
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include "ui/core/NBrowser.hpp"
 #include "ui/core/NLog.hpp"
 #include "ui/core/NJournal.hpp"
