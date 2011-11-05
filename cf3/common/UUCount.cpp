@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/uuid/nil_generator.hpp>
@@ -25,6 +27,12 @@ namespace detail
   inline const boost::uuids::uuid& static_uuid()
   {
     static boost::uuids::uuid uuid = boost::uuids::random_generator()();
+    static bool is_inited = false;
+    if(!is_inited)
+    {
+      std::cout << "Process UUID is " << boost::uuids::to_string(uuid) << std::endl;
+      is_inited = true;
+    }
     return uuid;
   }
 
@@ -78,7 +86,7 @@ UUCount::UUCount(const std::string& str)
 
 std::string UUCount::string() const
 {
-  return boost::lexical_cast<std::string>(m_uuid) + ":" + boost::lexical_cast<std::string>(m_count);
+  return boost::uuids::to_string(m_uuid) + ":" + boost::lexical_cast<std::string>(m_count);
 }
 
 

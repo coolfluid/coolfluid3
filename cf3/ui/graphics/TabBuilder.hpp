@@ -13,6 +13,8 @@
 #include <QMap>
 #include <QTabWidget>
 
+#include "common/UUCount.hpp"
+
 #include "ui/core/CNode.hpp"
 
 #include "ui/graphics/LibGraphics.hpp"
@@ -90,11 +92,11 @@ private: // functions
 
 private : // data
 
-  QMap<std::string, TabInfo> m_tabs;
+  QMap<common::UUCount, TabInfo> m_tabs;
 
-  QMap<std::string, int> m_last_tabs;
+  QMap<common::UUCount, int> m_last_tabs;
 
-  QList<std::string> m_new_tabs;
+  QList<common::UUCount> m_new_tabs;
 
 }; // TabManager
 

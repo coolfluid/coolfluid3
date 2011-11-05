@@ -96,7 +96,7 @@ void PropertyList::erase( const std::string& pname)
 
 boost::any & PropertyList::operator [] (const std::string & pname)
 {
-  return property(pname);
+  return store[pname];
 }
 
 ////////////////////////////////////////////////////////////////////////////////
