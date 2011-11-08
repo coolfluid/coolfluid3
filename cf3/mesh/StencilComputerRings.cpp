@@ -7,6 +7,8 @@
 #include <set>
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -14,13 +16,14 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionT.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/StencilComputerRings.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Octtree.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -41,7 +44,7 @@ StencilComputerRings::StencilComputerRings( const std::string& name )
 {
   option("mesh").attach_trigger(boost::bind(&StencilComputerRings::configure_mesh,this));
 
-  m_options.add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
+  options().add_option(OptionT<Uint>::create("nb_rings", m_nb_rings))
       ->description("Number of neighboring rings of elements in stencil")
       ->pretty_name("Number of Rings")
       ->link_to(&m_nb_rings);

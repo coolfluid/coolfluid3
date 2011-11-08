@@ -30,8 +30,9 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/ElementData.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "ElementMatrix.hpp"
 #include "ElementOperations.hpp"
@@ -581,7 +582,7 @@ public:
 
   /// Shape function for the support
   typedef SupportEtypeT SupportShapeFunction;
-  
+
   /// The dimension of the problem
   static const Uint dimension = SupportShapeFunction::dimension;
 

@@ -4,12 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/UnifiedData.hpp"
 
 #include "solver/actions/CComputeArea.hpp"
 
@@ -33,14 +37,14 @@ CComputeArea::CComputeArea ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  m_options.add_option(OptionURI::create(mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
+  options().add_option(OptionURI::create(mesh::Tags::area(), URI("cpath:"), URI::Scheme::CPATH) )
       ->description("Field to set")
       ->pretty_name("Area")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeArea::config_field, this ) )
       ->add_tag(mesh::Tags::area());
 
-  m_options["elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
+  options()["elements"].attach_trigger ( boost::bind ( &CComputeArea::trigger_elements,   this ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

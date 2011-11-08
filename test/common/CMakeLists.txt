@@ -174,3 +174,19 @@ coolfluid_add_test( UTEST utest-common-mpi-buffer
                     CPP   utest-common-mpi-buffer.cpp
                     LIBS  coolfluid_common
                     MPI   4 )
+
+coolfluid_add_test( UTEST utest-build-options
+                    CPP   utest-build-options.cpp
+                    LIBS  coolfluid_common )
+
+coolfluid_add_test( UTEST utest-ptr-benchmark
+                    CPP   utest-ptr-benchmark.cpp
+                    LIBS  coolfluid_common coolfluid_testing )
+
+coolfluid_add_test( UTEST utest-component-benchmark
+                    CPP   utest-component-benchmark.cpp
+                    LIBS  coolfluid_common coolfluid_testing )
+
+coolfluid_add_test( UTEST utest-uucount
+                    CPP   utest-uucount.cpp
+                    LIBS  coolfluid_common coolfluid_testing )

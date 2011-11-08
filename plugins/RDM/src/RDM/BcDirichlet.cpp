@@ -4,13 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
@@ -37,7 +40,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 {
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &BcDirichlet::config_function, this ) )
       ->mark_basic();
@@ -48,7 +51,7 @@ BcDirichlet::BcDirichlet ( const std::string& name ) :
 
 void BcDirichlet::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
   m_function.parse();
@@ -77,7 +80,7 @@ void BcDirichlet::execute()
 
     /// @warning BcDirichlet assumes that solution maps one to one with mesh.geometry_fields()
 
-    FieldGroup& nodes = mesh().geometry_fields();
+    SpaceFields& nodes = mesh().geometry_fields();
 
 //    std::cout << PERank << "  region \'" << region->uri().string() << "\'" << std::endl;
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())

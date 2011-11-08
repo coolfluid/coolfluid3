@@ -6,19 +6,22 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/Signal.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
-#include "mesh/actions/Interpolate.hpp"
+#include "math/Consts.hpp"
+
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ShapeFunction.hpp"
 #include "mesh/Octtree.hpp"
+#include "mesh/Connectivity.hpp"
 
-#include "math/Consts.hpp"
+#include "mesh/actions/Interpolate.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -45,12 +48,12 @@ Interpolate::Interpolate( const std::string& name )
     "Shapefunction/Space of the source-field is used to interpolate to the target";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<Field const>::create("source", &m_source))
+  options().add_option(OptionComponent<Field const>::create("source", &m_source))
       ->description("Field to interpolate from")
       ->pretty_name("Source Field")
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create("target", &m_target))
+  options().add_option(OptionComponent<Field>::create("target", &m_target))
       ->description("Field to interpolate to")
       ->pretty_name("TargetField")
       ->mark_basic();

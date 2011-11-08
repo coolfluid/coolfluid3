@@ -20,8 +20,9 @@
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -155,7 +156,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
     const Field& field = *field_ptr.lock();
 
     // must be point based
-    if(field.basis() != FieldGroup::Basis::POINT_BASED)
+    if(field.basis() != SpaceFields::Basis::POINT_BASED)
       continue;
 
     // size must be correct

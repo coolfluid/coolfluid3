@@ -4,12 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file Assertions.hpp
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
+
 #ifndef cf3_common_Assertions_hpp
 #define cf3_common_Assertions_hpp
 
 #include "common/CommonAPI.hpp"
 
-#ifndef cf3_ENABLE_STDASSERT
+#ifndef CF3_ENABLE_STDASSERT
   #include <cassert>
 #endif
 
@@ -47,14 +51,14 @@ public:
                            int line,
                            const char * func,
                            const char * desc = 0 );
-  
+
   static void do_assert (  bool condition,
                            const char * cond_str,
                            const char * file,
                            int line,
                            const char * func,
                            const std::string& desc) { do_assert(condition,cond_str,file,line,func,desc.c_str()); }
-  
+
   /// flag to  dynamically turn off assertions
   bool DoAssertions;
   /// assertions dump backtraces

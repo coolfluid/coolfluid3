@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -25,7 +24,7 @@
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/WriteMesh.hpp"
 
 using namespace std;
@@ -88,7 +87,7 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
       nodal[n][j] = n;
   }
 
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
 
   Field& cell_centred = elems_P0.create_field("cell_centred","cell_centred[vector]");
   for (Uint e=0; e<cell_centred.size(); ++e)

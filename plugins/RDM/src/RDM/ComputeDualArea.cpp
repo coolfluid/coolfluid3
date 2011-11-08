@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Builder.hpp"
 #include "common/Link.hpp"
 #include "common/Foreach.hpp"
@@ -12,6 +15,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/RDSolver.hpp"
 #include "RDM/CellLoop.hpp"
@@ -46,7 +50,7 @@ void ComputeDualArea::create_dual_area_field()
 
   const std::string solution_space = rdsolver.option("solution_space").value<std::string>();
 
-  FieldGroup& solution_grp = find_component_with_tag<FieldGroup>( mymesh, solution_space );
+  SpaceFields& solution_grp = find_component_with_tag<SpaceFields>( mymesh, solution_space );
 
   // create if does not exist
 

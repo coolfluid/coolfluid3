@@ -16,17 +16,17 @@
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Tags.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
-#include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "common/DynTable.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "mesh/neu/Reader.hpp"
 
@@ -50,18 +50,18 @@ Reader::Reader( const std::string& name )
   Shared()
 {
   // options
-  m_options.add_option<OptionT <bool> >("read_groups" ,true)
+  options().add_option<OptionT <bool> >("read_groups" ,true)
       ->description("Reads neu Groups and splits the mesh in these subgroups")
       ->pretty_name("Unified Zones");
 
-  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
+  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank())
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
+  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size())
       ->description("Total nb_partitions. (e.g. number of processors)");
 
-  m_options.add_option<OptionT <bool> >("read_boundaries", true)
+  options().add_option<OptionT <bool> >("read_boundaries", true)
       ->description("Read the surface elements for the boundary")
       ->pretty_name("Read Boundaries");
 
@@ -284,7 +284,7 @@ void Reader::read_coordinates()
 
   // Create the nodes
 
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
   nodes.resize(m_hash->subhash(NODES).nb_objects_in_part(PE::Comm::instance().rank()) + m_ghost_nodes.size());
   std::string line;
@@ -342,7 +342,7 @@ void Reader::read_coordinates()
 
 void Reader::read_connectivity()
 {
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
   m_tmp = m_region.lock()->create_region("main").as_ptr<Region>();
 
   m_global_to_tmp.clear();
@@ -411,7 +411,7 @@ void Reader::read_connectivity()
 
 void Reader::read_groups()
 {
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
   cf3_assert(m_element_group_positions.size() == m_headerData.NGRPS)
 
   std::vector<GroupData> groups(m_headerData.NGRPS);
@@ -532,7 +532,7 @@ void Reader::read_boundaries()
     }
 
     Region& bc_region = m_region.lock()->create_region(NAME);
-    FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+    SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
     // create all kind of element type regions
     std::map<std::string,Elements::Ptr> elements = create_faces_in_region (bc_region,nodes,m_supported_types);

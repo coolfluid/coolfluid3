@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 
 #include "RDM/Schemes/LibSchemes.hpp"
@@ -16,18 +15,6 @@ namespace RDM {
 using namespace cf3::common;
 
 cf3::common::RegistLibrary<LibSchemes> LibSchemes;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibSchemes::initiate_impl()
-{
-}
-
-void LibSchemes::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // cf3

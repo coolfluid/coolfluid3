@@ -11,7 +11,6 @@
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionURI.hpp"
-#include "common/Table.hpp"
 
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -20,8 +19,9 @@
 #include "mesh/Elements.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -72,7 +72,7 @@ void build_serial_gids(Mesh& mesh)
 void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 {
   Region& region = mesh.topology().create_region("fluid");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(x_segments+1,DIM_1D);
   const Real x_step = x_len / static_cast<Real>(x_segments);
   for(Uint i = 0; i <= x_segments; ++i)
@@ -113,7 +113,7 @@ void create_line(Mesh& mesh, const Real x_len, const Uint x_segments)
 void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -220,7 +220,7 @@ void create_rectangle(Mesh& mesh, const Real x_len, const Real y_len, const Uint
 void create_rectangle_tris(Mesh& mesh, const Real x_len, const Real y_len, const Uint x_segments, const Uint y_segments)
 {
   Region& region = mesh.topology().create_region("region");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes((x_segments+1)*(y_segments+1),DIM_2D);
 
   const Real x_step = x_len / static_cast<Real>(x_segments);
@@ -377,7 +377,7 @@ void create_circle_2d(Table<Real>& coordinates, Table<Uint>& connectivity, const
 void create_circle_2d ( Mesh& mesh, const Real radius, const Uint segments, const Real start_angle, const Real end_angle )
 {
   Region& region = mesh.topology().create_region("region");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
   Faces::Ptr cells = region.create_component_ptr<Faces>("Faces");
   cells->initialize("cf3.mesh.LagrangeP1.Line2D",nodes);

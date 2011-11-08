@@ -53,12 +53,12 @@ Journal::Journal (const std::string & name)
 
   signal("list_journal")->hidden(true);
 
-  m_options.add_option< OptionT<bool> >("RecordReplies", false)
+  options().add_option< OptionT<bool> >("RecordReplies", false)
       ->description("If true, both signal and reply frames are recorded. If "
                         "false, only signal frames are recorded.\nRecording replies "
                         "will significantly increase the journal size and the memory used.");
 
-  m_options["RecordReplies"].mark_basic();
+  options()["RecordReplies"].mark_basic();
 
   XmlNode doc_node = Protocol::goto_doc_node(*m_xmldoc.get());
   const char * tag_map = Protocol::Tags::node_map();
@@ -118,7 +118,7 @@ void Journal::add_signal ( const SignalArgs & signal_node )
 {
   rapidxml::xml_attribute<> * type_attr = signal_node.node.content->first_attribute("type");
 
-  if( m_options["RecordReplies"].value<bool>() ||
+  if( options()["RecordReplies"].value<bool>() ||
      (type_attr != nullptr && std::strcmp(type_attr->value(), "signal") == 0) )
   {
     XmlNode copy = copy_node(signal_node.node, m_signals_map.content);
@@ -143,7 +143,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
 //  bool found_map = false;
   rapidxml::xml_node<>* node = nullptr;
 //  rapidxml::xml_attribute<>* key_attr = nullptr;
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   const char * frame_tag = Protocol::Tags::node_frame();
 
   XmlNode signal_map = Map(doc_node).find_value( Protocol::Tags::key_signals() );
@@ -180,7 +180,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
       if(receiver.empty())
         CFwarn << "Warning: missing or empty receiver. Skipping this signal." << CFendl;
 
-      if(receiver == "//Root/Core") // server specific component
+      if(receiver == "//Core") // server specific component
         continue;
 
       try

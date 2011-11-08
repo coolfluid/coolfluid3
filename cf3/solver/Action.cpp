@@ -4,9 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/URI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/FindComponents.hpp"
 
 #include "mesh/Region.hpp"
 #include "mesh/Mesh.hpp"
@@ -32,23 +36,23 @@ Action::Action ( const std::string& name ) :
 
   // options
 
-  m_options.add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
+  options().add_option( common::OptionComponent<CSolver>::create(Tags::solver(), &m_solver))
       ->description("Link to the solver discretizing the problem")
       ->pretty_name("Solver")
       ->mark_basic();
 
-  m_options.add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
+  options().add_option( common::OptionComponent<Mesh>::create(Tags::mesh(), &m_mesh))
       ->description("Mesh the Discretization Method will be applied to")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
+  options().add_option( common::OptionComponent<physics::PhysModel>::create(Tags::physical_model(), &m_physical_model))
       ->description("Physical model")
       ->pretty_name("Physical Model")
       ->mark_basic();
 
   std::vector< common::URI > dummy;
-  m_options.add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
+  options().add_option< common::OptionArrayT<common::URI> > (Tags::regions(), dummy)
       ->description("Regions this action is applied to")
       ->pretty_name("Regions")
       ->attach_trigger ( boost::bind ( &Action::config_regions,   this ) );
@@ -90,9 +94,10 @@ solver::CSolver& Action::solver()
 }
 
 
-common::ComponentIteratorRange<Region> Action::regions()
+boost::iterator_range<common::ComponentIterator<Region> > Action::regions()
 {
-  return common::ComponentIteratorRange<Region>(m_loop_regions);
+  return boost::make_iterator_range( common::ComponentIterator<Region>(m_loop_regions,0),
+                                     common::ComponentIterator<Region>(m_loop_regions,m_loop_regions.size()));
 }
 
 

@@ -5,11 +5,13 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/Builder.hpp"
+#include "common/List.hpp"
 
 #include "mesh/CellFaces.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/FaceCellConnectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -21,7 +23,8 @@ common::ComponentBuilder < CellFaces, Entities, LibMesh > CellFaces_Builder;
 ////////////////////////////////////////////////////////////////////////////////
 
 CellFaces::CellFaces ( const std::string& name ) :
-  Entities ( name )
+  Entities ( name ),
+  m_proxy_nodes(new common::Table<Uint>::ArrayT)
 {
   properties()["brief"] = std::string("Holds information of faces of one element type");
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
@@ -40,14 +43,28 @@ CellFaces::~CellFaces()
 
 ////////////////////////////////////////////////////////////////////////////////
 
+Uint CellFaces::size() const
+{
+  return m_cell_connectivity->size();
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+bool CellFaces::is_bdry(const Uint idx) const
+{
+  return m_cell_connectivity->is_bdry_face()[idx];
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 common::Table<Uint>::ConstRow CellFaces::get_nodes(const Uint face_idx) const
 {
-  m_proxy_nodes.resize(boost::extents[1][element_type().nb_nodes()]);
+  m_proxy_nodes->resize(boost::extents[1][element_type().nb_nodes()]);
 
   std::vector<Uint> face_nodes = m_cell_connectivity->face_nodes(face_idx);
   for (Uint i=0; i<face_nodes.size(); ++i)
-    m_proxy_nodes[0][i]=face_nodes[i];
-  return m_proxy_nodes[0];
+    (*m_proxy_nodes)[0][i]=face_nodes[i];
+  return (*m_proxy_nodes)[0];
 }
 
 ////////////////////////////////////////////////////////////////////////////////

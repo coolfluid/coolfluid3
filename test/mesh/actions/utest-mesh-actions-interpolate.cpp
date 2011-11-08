@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/PE/debug.hpp"
 #include "common/PE/Comm.hpp"
 
@@ -20,7 +19,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 
 using namespace cf3;

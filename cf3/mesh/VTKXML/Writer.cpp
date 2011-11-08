@@ -13,6 +13,8 @@
 #include <boost/iostreams/filtering_stream.hpp>
 #include <boost/iostreams/filter/zlib.hpp>
 
+#include "rapidxml/rapidxml.hpp"
+
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -31,10 +33,9 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
-
-#include "rapidxml/rapidxml.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -201,7 +202,7 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    m_options.add_option< OptionT<bool> >("distributed_files", false)
+    options().add_option< OptionT<bool> >("distributed_files", false)
     ->pretty_name("Distributed Files")
     ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
@@ -368,18 +369,18 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
       continue;
 
     // point-based field
-    if(!(field.basis() == FieldGroup::Basis::POINT_BASED || field.basis() == cf3::mesh::FieldGroup::Basis::ELEMENT_BASED))
+    if(!(field.basis() == SpaceFields::Basis::POINT_BASED || field.basis() == cf3::mesh::SpaceFields::Basis::ELEMENT_BASED))
       continue;
 
     for(Uint var_idx = 0; var_idx != field.nb_vars(); ++var_idx)
     {
       const std::string var_name = field.var_name(var_idx);
       const Uint var_begin = field.var_index(var_name);
-      const Uint field_size = FieldGroup::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
+      const Uint field_size = SpaceFields::Basis::POINT_BASED == field.basis() ? field.size() : nb_elems;
       const Uint var_size = field.var_length(var_idx);
       const Uint var_end = var_begin + var_size;
 
-      XmlNode data_array = FieldGroup::Basis::POINT_BASED == field.basis()
+      XmlNode data_array = SpaceFields::Basis::POINT_BASED == field.basis()
         ? point_data.add_node("DataArray")
         : cell_data.add_node("DataArray");
 
@@ -391,7 +392,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 
       appended_data.start_array(field_size*(var_size == 2 && dim == 2 ? 3 : var_size), sizeof(Real));
 
-      if(field.basis() == cf3::mesh::FieldGroup::Basis::POINT_BASED)
+      if(field.basis() == cf3::mesh::SpaceFields::Basis::POINT_BASED)
       {
         if(dim == 2 && var_size == 2)
         {

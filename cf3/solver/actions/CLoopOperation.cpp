@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
@@ -34,11 +37,11 @@ CLoopOperation::CLoopOperation ( const std::string& name ) :
 {
   // Following option is ignored if the loop is not about elements
   //m_options.add_option(OptionComponent<mesh::Entities>::create("elements","Elements that are being looped",&m_elements));
-  m_options.add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
+  options().add_option(OptionURI::create("elements", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Elements that are being looped")
       ->attach_trigger ( boost::bind ( &CLoopOperation::config_elements,   this ) );
 
-  m_options.add_option< OptionT<Uint> > ("loop_index", 0u)
+  options().add_option< OptionT<Uint> > ("loop_index", 0u)
       ->description("Index that is being looped")
       ->link_to( &m_idx );
 

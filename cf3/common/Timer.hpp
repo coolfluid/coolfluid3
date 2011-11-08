@@ -7,13 +7,13 @@
 #ifndef cf3_common_Timer_hpp
 #define cf3_common_Timer_hpp
 
-#include <boost/scoped_ptr.hpp>
-
 #include "common/CommonAPI.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
 
 #ifdef CF3_OS_LINUX
+
+#include <boost/scoped_ptr.hpp>
 
 namespace cf3 {
 namespace common {
@@ -26,9 +26,9 @@ class Common_API Timer
 public:
   Timer();
   ~Timer();
-  
+
   void restart();
-  
+
   double elapsed() const;
 
 private:

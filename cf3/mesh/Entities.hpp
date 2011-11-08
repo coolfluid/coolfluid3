@@ -9,18 +9,19 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/EnumT.hpp"
+#include <iosfwd>
+
+#include "common/Table_fwd.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "mesh/LibMesh.hpp"
-#include "common/Table.hpp"
 
 namespace cf3 {
 namespace common { class Link; class Group;   template <typename T> class List;}
 namespace mesh {
 
-  class FieldGroup;
-  
+  class SpaceFields;
+
   class ElementType;
   class Space;
 
@@ -46,10 +47,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Entities using the given type, also setting the nodes in one go
-  virtual void initialize(const std::string& element_type_name, FieldGroup& geometry);
+  virtual void initialize(const std::string& element_type_name, SpaceFields& geometry);
 
   /// Set the nodes
-  virtual void assign_geometry(FieldGroup& geometry);
+  virtual void assign_geometry(SpaceFields& geometry);
 
   /// Virtual destructor
   virtual ~Entities();
@@ -64,7 +65,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  FieldGroup& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
+  SpaceFields& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -82,7 +83,7 @@ public: // functions
 
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
-  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
 
   Space& space (const std::string& space_name) const;
 
@@ -106,7 +107,7 @@ protected: // data
 
   boost::shared_ptr<ElementType> m_element_type;
 
-  boost::weak_ptr<FieldGroup> m_geometry_fields;
+  boost::weak_ptr<SpaceFields> m_geometry_fields;
 
   boost::weak_ptr<Space> m_geometry_space;
 
@@ -117,6 +118,55 @@ protected: // data
   boost::shared_ptr<common::List<Uint> > m_rank;
 
 };
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// @brief Low storage struct to uniquely identify one element
+///
+/// Several access-functions are provided for convenience
+class Mesh_API Entity
+{
+public:
+  Entity() : comp(NULL), idx(0) {}
+  Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
+
+  template <typename ComponentT>
+  Entity(const ComponentT& component, const Uint index=0) :
+    comp( dynamic_cast<Entities const*>(&component) ),
+    idx(index)
+  {
+    cf3_assert(idx<comp->size());
+  }
+
+  Entities const* comp;
+  Uint idx;
+
+
+  static std::string type_name() { return "Entity"; }
+
+  /// return the elementType
+  ElementType& element_type() const;
+  Uint glb_idx() const;
+  Uint rank() const;
+  bool is_ghost() const;
+  RealMatrix get_coordinates() const;
+  void put_coordinates(RealMatrix& coordinates) const;
+  void allocate_coordinates(RealMatrix& coordinates) const;
+  common::TableConstRow<Uint>::type get_nodes() const;
+
+
+  Entity& operator++()
+    {  cf3_assert(idx<comp->size()); idx++; return *this; }
+  Entity& operator--()
+    {  cf3_assert(idx>=0u); idx--; return *this; }
+  bool operator==(const Entity& other) const { return comp==other.comp && idx==other.idx; }
+  bool operator!=(const Entity& other) const { return !(*this==other);  }
+
+  friend std::ostream& operator<<(std::ostream& os, const Entity& entity);
+
+};
+
+std::ostream& operator<<(std::ostream& os, const Entity& entity);
 
 ////////////////////////////////////////////////////////////////////////////////
 

@@ -4,16 +4,19 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 #include "common/OptionArray.hpp"
 #include "common/FindComponents.hpp"
 
-
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/WeakDirichlet.hpp"
 
@@ -52,7 +55,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &WeakDirichlet::config_function, this ) )
       ->mark_basic();
@@ -63,7 +66,7 @@ WeakDirichlet::WeakDirichlet ( const std::string& name ) :
 
 void WeakDirichlet::config_function()
 {
-  function.functions( m_options["functions"].value<std::vector<std::string> >() );
+  function.functions( options()["functions"].value<std::vector<std::string> >() );
   function.parse();
 }
 

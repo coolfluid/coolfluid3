@@ -4,17 +4,21 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
+#include "common/List.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
-#include "common/List.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/Init.hpp"
 #include "RDM/RDSolver.hpp"
@@ -36,13 +40,13 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "field", &m_field ))
+  options().add_option(OptionComponent<Field>::create( "field", &m_field ))
       ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
   // options
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as Dirichlet boundary condition (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
       ->mark_basic();
@@ -53,7 +57,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 
@@ -80,7 +84,7 @@ void Init::execute()
   {
     /// @warning assumes that field maps one to one with mesh.geometry_fields()
 
-    FieldGroup& nodes = mesh().geometry_fields();
+    SpaceFields& nodes = mesh().geometry_fields();
 
     boost_foreach(const Uint node, Elements::used_nodes(*region).array())
     {

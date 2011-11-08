@@ -16,6 +16,35 @@ cf3::common::RegistLibrary<LibPython> libPython;
 
 ////////////////////////////////////////////////////////////////////////////////
 
+LibPython::~LibPython()
+{
+  if(m_is_initiated)
+    terminate_impl();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void LibPython::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+
+void LibPython::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
+
 void LibPython::initiate_impl()
 {
   common::Component& group = common::Core::instance().tools().create_component("Python", "cf3.common.Group");

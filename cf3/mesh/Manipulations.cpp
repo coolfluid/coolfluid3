@@ -9,9 +9,10 @@
 #include "math/Consts.hpp"
 
 #include "mesh/Manipulations.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -22,7 +23,7 @@ using namespace math::Consts;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-RemoveNodes::RemoveNodes(FieldGroup& nodes) :
+RemoveNodes::RemoveNodes(SpaceFields& nodes) :
     glb_idx (nodes.glb_idx().create_buffer()),
     rank (nodes.rank().create_buffer()),
     coordinates (nodes.coordinates().create_buffer()),
@@ -169,7 +170,7 @@ void PackUnpackElements::flush()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-PackUnpackNodes::PackUnpackNodes(FieldGroup& nodes) :
+PackUnpackNodes::PackUnpackNodes(SpaceFields& nodes) :
   m_nodes(nodes),
   m_remove_after_pack(false),
   m_idx(uint_max()),

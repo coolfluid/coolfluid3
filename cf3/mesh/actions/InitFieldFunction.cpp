@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 
@@ -17,6 +20,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -42,12 +46,12 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
     "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  m_options.add_option(OptionComponent<Field>::create("field", &m_field))
+  options().add_option(OptionComponent<Field>::create("field", &m_field))
       ->description("Field to initialize")
       ->pretty_name("Field")
       ->mark_basic();
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->description("math function applied as initial field (vars x,y,z)")
       ->pretty_name("Functions definition")
       ->attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
@@ -67,7 +71,7 @@ InitFieldFunction::~InitFieldFunction()
 
 void InitFieldFunction::config_function()
 {
-  m_function.functions( m_options["functions"].value<std::vector<std::string> >() );
+  m_function.functions( options()["functions"].value<std::vector<std::string> >() );
   m_function.parse();
 }
 
@@ -84,7 +88,7 @@ void InitFieldFunction::execute()
 
   RealVector return_val(field.row_size());
 
-  if (field.basis() == FieldGroup::Basis::POINT_BASED)
+  if (field.basis() == SpaceFields::Basis::POINT_BASED)
   {
     const Uint nb_pts = field.size();
     Field& coordinates = field.coordinates();

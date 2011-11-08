@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 
 #include "RDM/GPU/LibGPU.hpp"
@@ -16,18 +15,6 @@ namespace RDM {
 using namespace cf3::common;
 
 cf3::common::RegistLibrary<LibGPU> LibGPU;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibGPU::initiate_impl()
-{
-}
-
-void LibGPU::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // CF

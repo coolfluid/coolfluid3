@@ -19,7 +19,7 @@
 #include "mesh/actions/MatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -58,7 +58,7 @@ MatchNodes::MatchNodes( const std::string& name )
   m_properties["description"] = desc;
 
 
-  m_options.add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
+  options().add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
       ->description("Regions to match nodes of");
 }
 

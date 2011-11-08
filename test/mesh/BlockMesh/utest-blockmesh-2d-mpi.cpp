@@ -12,7 +12,8 @@
 
 #include "common/Core.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
+#include "common/List.hpp"
+
 #include "common/PE/Comm.hpp"
 
 #include "mesh/BlockMesh/BlockData.hpp"
@@ -23,7 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 using namespace cf3;
 using namespace cf3::common;
@@ -45,7 +46,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint rank = PE::Comm::instance().rank();
 
   MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
-  
+
   Domain& domain = Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 
@@ -92,7 +93,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks
-  FieldGroup& elems_P0 = mesh.create_space_and_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
   boost_foreach(Elements& elements , elems_P0.elements_range())

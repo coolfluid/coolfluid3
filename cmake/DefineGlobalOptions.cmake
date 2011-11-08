@@ -3,8 +3,6 @@
 #########################################################################################
 
 # code compilation options
-
-option( CF3_ENABLE_ASSERTIONS         "Enable code assertions"                         ON  )
 option( CF3_ENABLE_GUI                "Enable GUI building"                            ON  )
 
 option( CF3_ENABLE_PYTHON             "Enable building of the python bindings"         ON  )
@@ -24,18 +22,13 @@ option( CF3_ENABLE_OPENCL             "Enable OpenCL for GPGPU (if available)"  
 
 option( CF3_ENABLE_TCMALLOC           "Google tcmalloc (can be faster, but buggy)"     OFF )
 
-option( CF3_ENABLE_STATIC             "Enable static building"                         OFF )
-
 option( CF3_ENABLE_STDDEBUG           "Enable debug of STL code"                       OFF )
+
+set( CF3_EXTRA_DEFINES "" CACHE STRING "Extra defines or undefines to pass (examples: -DNDEBUG or -UNDEBUG)" )
 
 # precision for real numbers
 
 set( CF3_USER_PRECISION "DOUBLE" CACHE STRING "Precision for floating point numbers" )
-
-
-# log options
-
-option( CF3_ENABLE_DEBUG_MACROS       "Enable debug macros"                     ON  )
 
 # code analysis options
 

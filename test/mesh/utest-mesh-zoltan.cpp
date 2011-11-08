@@ -12,7 +12,6 @@
 #include "common/Log.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -21,7 +20,7 @@
 #include "common/PE/debug.hpp"
 
 #include "mesh/Mesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/MeshReader.hpp"
@@ -139,7 +138,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   {
     boost::tie(comp,idx) = p.to_local(0);
     boost::tie(comp_idx,idx,found) = p.to_local_indices_from_glb_obj(0);
-    BOOST_CHECK( is_not_null(comp->as_ptr<FieldGroup>()) );
+    BOOST_CHECK( is_not_null(comp->as_ptr<SpaceFields>()) );
     BOOST_CHECK_EQUAL(comp_idx, 0);
     BOOST_CHECK_EQUAL(idx, 0);
     BOOST_CHECK_EQUAL(found, true);
@@ -184,7 +183,7 @@ BOOST_AUTO_TEST_CASE( MeshPartitioner_test_quadtriag )
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
   MeshGenerator::Ptr meshgenerator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","1Dgenerator");
 
-  meshgenerator->configure_option("mesh",URI("//Root/rect"));
+  meshgenerator->configure_option("mesh",URI("//rect"));
   std::vector<Uint> nb_cells(2);  nb_cells[0] = 3;   nb_cells[1] = 2;
   std::vector<Real> lengths(2);   lengths[0]  = nb_cells[0];  lengths[1]  = nb_cells[1];
   meshgenerator->configure_option("nb_cells",nb_cells);

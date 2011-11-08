@@ -9,6 +9,8 @@
 
 #include <functional>
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 #include <boost/assign.hpp>
 
 #include "common/EigenAssertions.hpp"
@@ -23,8 +25,9 @@
 
 #include "mesh/ElementData.hpp"
 #include "mesh/Field.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/ElementType.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "physics/PhysModel.hpp"
 
@@ -200,15 +203,15 @@ SchemeBase<SF,QD,PHYS>::SchemeBase ( const std::string& name ) :
 
   // options
 
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::solution(), &csolution));
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::wave_speed(), &cwave_speed));
-  m_options.add_option(
+  options().add_option(
         common::OptionComponent<mesh::Field>::create( RDM::Tags::residual(), &cresidual));
 
 
-  m_options["elements"]
+  options()["elements"]
       .attach_trigger ( boost::bind ( &SchemeBase<SF,QD,PHYS>::change_elements, this ) );
 
   // initializations

@@ -6,7 +6,6 @@
 
 #include <set>
 
-#include <boost/algorithm/string/erase.hpp>
 #include <boost/tuple/tuple.hpp>
 
 #include "common/Foreach.hpp"
@@ -16,22 +15,22 @@
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
-#include "common/Link.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
 
 #include "math/Consts.hpp"
+
+#include "mesh/UnifiedData.hpp"
 #include "mesh/Octtree.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/ElementData.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -52,17 +51,17 @@ Octtree::Octtree( const std::string& name )
   : Component(name), m_dim(0), m_bounding(2), m_N(3), m_D(3), m_octtree_idx(3)
 {
 
-  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to create octtree from")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
+  options().add_option< OptionT<Uint> >( "nb_elems_per_cell", 1 )
       ->description("The approximate amount of elements that are stored in a structured cell of the octtree")
       ->pretty_name("Number of Elements per Octtree Cell");
 
   std::vector<Uint> dummy;
-  m_options.add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
+  options().add_option< OptionArrayT<Uint> >( "nb_cells", dummy)
       ->description("The number of cells in each direction of the comb. "
                         "Takes precedence over \"Number of Elements per Octtree Cell\". ")
       ->pretty_name("Number of Cells");
@@ -86,7 +85,7 @@ void Octtree::create_bounding_box()
   m_bounding[MIN].setConstant(real_max());
   m_bounding[MAX].setConstant(real_min());
 
-  boost_foreach(common::Table<Real>::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
+  boost_foreach(Field::ConstRow coords, m_mesh.lock()->geometry_fields().coordinates().array())
   {
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -133,13 +132,13 @@ void Octtree::create_octtree()
     }
   }
 
-  CFinfo << "Octtree:" << CFendl;
-  CFinfo << "--------" << CFendl;
+  CFdebug << "Octtree:" << CFendl;
+  CFdebug << "--------" << CFendl;
   for (Uint d=0; d<m_dim; ++d)
   {
-    std::cout<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << std::endl;
+    CFdebug<< PERank << "range["<<d<<"] :   L = " << L[d] << "    N = " << m_N[d] << "    D = " << m_D[d] << "    min = " << m_bounding[MIN][d] << "    max = " << m_bounding[MAX][d] << CFendl;
   }
-  CFinfo << "V = " << V << CFendl;
+  CFdebug << "V = " << V << CFendl;
 
   // initialize the honeycomb
   m_octtree.resize(boost::extents[std::max(Uint(1),m_N[XX])][std::max(Uint(1),m_N[YY])][std::max(Uint(1),m_N[ZZ])]);

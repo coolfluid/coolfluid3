@@ -40,17 +40,17 @@ Notifier::Notifier ( const std::string& name ) :
     m_api_key = env_var;
   }
 
-  m_options.add_option( OptionT<int>::create("priority", m_priority) )
+  options().add_option( OptionT<int>::create("priority", m_priority) )
       ->description("Priority [-2 = Very Low, -1 = Moderate, 0 = Normal, 1 = High, 2 = Emergency]")
       ->pretty_name("Priority")
       ->link_to(&m_priority);
 
-  m_options.add_option( OptionT<std::string>::create("application_name", m_application_name) )
+  options().add_option( OptionT<std::string>::create("application_name", m_application_name) )
       ->description("Name of the application")
       ->pretty_name("Application Name")
       ->link_to(&m_application_name);
 
-  m_options.add_option( OptionT<std::string>::create("api_key", m_api_key) )
+  options().add_option( OptionT<std::string>::create("api_key", m_api_key) )
       ->description("Prowl API key, personal to one iOS device (default = $PROWL_API_KEY)")
       ->pretty_name("API key")
       ->link_to(&m_api_key)

@@ -18,11 +18,11 @@
 #include "mesh/tecplot/Writer.hpp"
 #include "mesh/GeoShape.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -116,7 +116,7 @@ void Writer::write_file(std::fstream& file)
         {
           file << " \"" << var_name << "["<<i<<"]\"";
           ++zone_var_id;
-          if (field.basis() != FieldGroup::Basis::POINT_BASED)
+          if (field.basis() != SpaceFields::Basis::POINT_BASED)
             cell_centered_var_ids.push_back(zone_var_id);
         }
       }
@@ -124,7 +124,7 @@ void Writer::write_file(std::fstream& file)
       {
         file << " \"" << var_name <<"\"";
         ++zone_var_id;
-        if (field.basis() != FieldGroup::Basis::POINT_BASED)
+        if (field.basis() != SpaceFields::Basis::POINT_BASED)
           cell_centered_var_ids.push_back(zone_var_id);
       }
     }
@@ -210,7 +210,7 @@ void Writer::write_file(std::fstream& file)
 
         for (Uint i=0; i<static_cast<Uint>(var_type); ++i)
         {
-          if (field.basis() == FieldGroup::Basis::POINT_BASED)
+          if (field.basis() == SpaceFields::Basis::POINT_BASED)
           {
             if ( &field.field_group() == &m_mesh->geometry_fields() )
             {

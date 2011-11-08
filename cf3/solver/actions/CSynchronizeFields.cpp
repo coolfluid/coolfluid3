@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
@@ -33,7 +36,7 @@ CSynchronizeFields::CSynchronizeFields ( const std::string& name ) : solver::Act
   mark_basic();
 
   std::vector< URI > dummy;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy)
+  options().add_option< OptionArrayT < URI > > ("Fields", dummy)
       ->description("Fields to synchronize")
       ->attach_trigger ( boost::bind ( &CSynchronizeFields::config_fields,   this ) );
 }

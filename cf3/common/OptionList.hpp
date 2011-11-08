@@ -4,13 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file OptionList.hpp
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
+
 #ifndef cf3_common_OptionList_hpp
 #define cf3_common_OptionList_hpp
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-//#include <boost/type_traits/is_base_of.hpp>
-
+#include "common/CF.hpp"
+#include "common/Assertions.hpp"
 #include "common/Option.hpp"
 
 namespace cf3 {
@@ -31,7 +35,7 @@ namespace common {
   public:
 
     /// type to store the options per name
-    typedef std::map < std::string , Option::Ptr > OptionStorage_t;
+    typedef std::map < std::string , boost::shared_ptr<Option> > OptionStorage_t;
 
     typedef OptionStorage_t::iterator       iterator;
     typedef OptionStorage_t::const_iterator const_iterator;
@@ -52,23 +56,23 @@ namespace common {
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
-    Option::Ptr add_option (const std::string& name,
+    boost::shared_ptr<Option> add_option (const std::string& name,
                             const typename OPTION_TYPE::value_type& def=typename OPTION_TYPE::value_type() )
     {
       cf3_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
-      Option::Ptr opt ( new OPTION_TYPE(name, def) );
+      boost::shared_ptr<Option> opt ( new OPTION_TYPE(name, def) );
       store.insert( std::make_pair(name, opt ) );
       return opt;
     }
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
-    Option::Ptr add_option (boost::shared_ptr<OPTION_TYPE> option)
+    boost::shared_ptr<Option> add_option (boost::shared_ptr<OPTION_TYPE> option)
     {
       cf3_assert_desc ( "Class has already property with name " + option->name(),
                        this->store.find(option->name()) == store.end() );
-      Option::Ptr opt = boost::dynamic_pointer_cast<Option>(option);
+      boost::shared_ptr<Option> opt = boost::dynamic_pointer_cast<Option>(option);
       store.insert( std::make_pair(option->name(), opt ) );
       return opt;
     }

@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "common/PE/all_reduce.hpp"
@@ -29,7 +28,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -117,7 +116,7 @@ struct ProtoParallelFixture :
     return model;
   }
 
-  Root& root;
+  Component& root;
   const Real length;
   const Real half_height;
   const Real width;
@@ -145,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE( SetupNoOverlap, ProtoParallelFixture )
 
   CModel& model = setup("NoOverlap");
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
 
   MeshTerm<0, ScalarField> V("CellVolume", "variables");
@@ -233,7 +232,7 @@ BOOST_FIXTURE_TEST_CASE( CreateOverlapFields, ProtoParallelFixture )
   CModel& model = root.get_child("Overlap").as_type<CModel>();
   Mesh& mesh = model.domain().get_child("mesh").as_type<Mesh>();
 
-  FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+  SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
   model.solver().field_manager().create_field("variables", elems_P0);
 }
 

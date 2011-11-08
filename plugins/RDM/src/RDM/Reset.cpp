@@ -4,12 +4,17 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
+#include "common/FindComponents.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "RDM/RDSolver.hpp"
 
@@ -35,12 +40,12 @@ Reset::Reset ( const std::string& name ) : solver::Action(name)
   mark_basic();
 
   std::vector< URI > dummy0;
-  m_options.add_option< OptionArrayT < URI > > ("Fields", dummy0)
+  options().add_option< OptionArrayT < URI > > ("Fields", dummy0)
       ->description("Fields to cleanup")
       ->attach_trigger ( boost::bind ( &Reset::config_fields,   this ) );
 
   std::vector< std::string > dummy1;
-  m_options.add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
+  options().add_option( OptionArrayT<std::string>::create("FieldTags", dummy1))
       ->description("Tags of the field for which to apply the action");
 
   // call config field_tags when mesh is configured
@@ -95,7 +100,7 @@ void Reset::execute()
   {
     if( ptr.expired() ) continue; // skip if pointer invalid
 
-    Table<Real>& field = *ptr.lock();
+    Field& field = *ptr.lock();
 
     field = 0.; // set all entries to zero
   }

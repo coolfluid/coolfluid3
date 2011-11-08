@@ -27,7 +27,7 @@ model = root.get_child('Model')
 domain = model.get_child('Domain')
 domain.load_mesh(file=cf.URI('rotation-tg-p1.neu', cf.URI.Scheme.file), name='mesh')
 
-internal_regions = [cf.URI('//Root/Model/Domain/mesh/topology/default_id1084')]
+internal_regions = [cf.URI('//Model/Domain/mesh/topology/default_id1084')]
 
 # file:rotation-tg-p1.msh
 # file:rotation-tg-p2.msh
@@ -58,10 +58,10 @@ iconds.get_child('INIT').configure_option('regions', internal_regions)
 
 bcs = solver.get_child('BoundaryConditions')
 
-bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/inlet')])
+bcs.create_boundary_condition(name='INLET', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/inlet')])
 bcs.get_child('INLET').configure_option('functions', ['if(x>=-1.4,if(x<=-0.6,0.5*(cos(3.141592*(x+1.0)/0.4)+1.0),0.),0.)'])
 
-bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Root/Model/Domain/mesh/topology/default_id1084/farfield')])
+bcs.create_boundary_condition(name='FARFIELD', type='cf3.RDM.BcDirichlet', regions=[cf.URI('//Model/Domain/mesh/topology/default_id1084/farfield')])
 bcs.get_child('FARFIELD').configure_option('functions', ['0'])
 
 ### domain discretization

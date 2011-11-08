@@ -28,7 +28,7 @@
 #include "mesh/actions/GlobalNumberingElements.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -69,12 +69,12 @@ GlobalNumberingElements::GlobalNumberingElements( const std::string& name )
     "  Usage: GlobalNumberingElements Regions:array[uri]=region1,region2\n\n";
   m_properties["description"] = desc;
 
-  m_options.add_option<OptionT<bool> >("debug", m_debug)
+  options().add_option<OptionT<bool> >("debug", m_debug)
       ->description("Perform checks on validity")
       ->pretty_name("Debug")
       ->link_to(&m_debug);
 
-  m_options.add_option<OptionT<bool> >("combined", true)
+  options().add_option<OptionT<bool> >("combined", true)
       ->description("Combine nodes and elements in one global numbering")
       ->pretty_name("Combined");
 }

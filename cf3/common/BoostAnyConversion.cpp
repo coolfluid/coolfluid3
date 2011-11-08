@@ -8,6 +8,7 @@
 #include "common/StringConversion.hpp"
 #include "common/TypeInfo.hpp"
 #include "common/URI.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/BoostAnyConversion.hpp"
 
@@ -36,6 +37,8 @@ std::string any_to_str( const boost::any & value )
       return boost::any_cast<std::string>(value);
     else if (value_type == "uri")
       return to_str(boost::any_cast<URI>(value));
+    else if (value_type == "uucount")
+      return to_str(boost::any_cast<UUCount>(value));
     else
       throw ProtocolError(FromHere(),"Value has illegal type: "+value_type);
   }
@@ -76,6 +79,7 @@ Common_TEMPLATE template Uint any_to_value<Uint>( const boost::any& );
 Common_TEMPLATE template Real any_to_value<Real>( const boost::any& );
 Common_TEMPLATE template std::string any_to_value<std::string>( const boost::any& );
 Common_TEMPLATE template URI any_to_value<URI>( const boost::any& );
+Common_TEMPLATE template UUCount any_to_value<UUCount>( const boost::any& );
 
 /////////////////////////////////////////////////////////////////////////////
 

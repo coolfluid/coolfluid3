@@ -12,7 +12,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 
 #include "common/PE/CommPattern.hpp"
 
@@ -50,7 +49,7 @@ struct UFEMBuildSparsityFixture
   {
   }
 
-  Root& root;
+  Component& root;
 };
 
 BOOST_FIXTURE_TEST_SUITE( UFEMBuildSparsitySuite, UFEMBuildSparsityFixture )

@@ -4,22 +4,26 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
+#include "common/List.hpp"
 
 #include "physics/Variables.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/ElementType.hpp"
-#include "common/List.hpp"
 #include "mesh/Space.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "solver/CSolver.hpp"
 
@@ -44,15 +48,15 @@ Init::Init ( const std::string& name ) :
 {
   mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
+  options().add_option(OptionComponent<Field>::create( "solution_field", &m_field ))
       ->pretty_name("Solution Field")
       ->description("The field to Initialize");
 
-  m_options.add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
+  options().add_option(OptionComponent<Variables>::create( "input_vars", &m_input_vars))
       ->pretty_name("Input Variables")
       ->description("The input variables.\nIf empty, Solution Variables will be used");
 
-  m_options.add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
+  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
       ->pretty_name("Functions")
       ->description("math function applied as initial condition using Input Variables (vars x,y)")
       ->attach_trigger ( boost::bind ( &Init::config_function, this ) )
@@ -64,7 +68,7 @@ Init::Init ( const std::string& name ) :
 
 void Init::config_function()
 {
-  std::vector<std::string> vs = m_options["functions"].value<std::vector<std::string> >();
+  std::vector<std::string> vs = options()["functions"].value<std::vector<std::string> >();
 
   m_function.functions( vs );
 

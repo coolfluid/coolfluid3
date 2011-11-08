@@ -55,7 +55,7 @@ std::string class_name ()
   std::map<std::string, std::string>::const_iterator it =
       ti.portable_types.find(typeid(TYPE).name());
 
-  cf3_assert( it != ti.portable_types.end() );
+  cf3_assert_desc("type "+std::string(typeid(TYPE).name())+" not registered", it != ti.portable_types.end() );
 
   return it->second;
 }

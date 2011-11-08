@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <ios>
+
 #include <boost/assign/list_of.hpp> // for map_list_of
 #include <boost/tokenizer.hpp>
 #include <boost/regex.hpp>
@@ -18,6 +20,8 @@
 namespace cf3 {
 namespace common {
 
+#define CF3_URI_SEPARATOR "/"
+  
 ////////////////////////////////////////////////////////////////////////////////
 
 InvalidURI::InvalidURI( const common::CodeLocation& where, const std::string& what)
@@ -53,17 +57,31 @@ URI::Scheme::Convert::Convert()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& in )
+std::ostream& operator<< ( std::ostream& os, const URI::Scheme::Type& scheme )
 {
-  os << URI::Scheme::Convert::instance().to_str(in);
+  os << URI::Scheme::Convert::instance().to_str(scheme);
   return os;
 }
 
-std::istream& operator>> (std::istream& is, URI::Scheme::Type& in )
+std::istream& operator>> (std::istream& is, URI::Scheme::Type& scheme )
 {
   std::string tmp;
   is >> tmp;
-  in = URI::Scheme::Convert::instance().to_enum(tmp);
+  scheme = URI::Scheme::Convert::instance().to_enum(tmp);
+  return is;
+}
+
+std::ostream& operator<< ( std::ostream& os, const URI& uri )
+{
+  os << uri.string();
+  return os;
+}
+
+std::istream& operator>> (std::istream& is, URI& uri )
+{
+  std::string tmp;
+  is >> tmp;
+  uri = URI(tmp);
   return is;
 }
 
@@ -85,6 +103,7 @@ URI::URI ( const std::string& s ):
   m_scheme(URI::Scheme::CPATH)
 {
   split_path(s, m_scheme, m_path);
+  cleanup();
 }
 
 URI::URI ( const char* c ):
@@ -93,6 +112,7 @@ URI::URI ( const char* c ):
 {
   std::string s (c);
   split_path(s, m_scheme, m_path);
+  cleanup();
 }
 
 URI::URI ( const std::string& s, URI::Scheme::Type p ):
@@ -101,6 +121,7 @@ URI::URI ( const std::string& s, URI::Scheme::Type p ):
 {
   /// @todo check path
   // throw NotImplemented(FromHere(), "Implement this");
+  cleanup();
 }
 
 bool URI::operator== (const URI& right) const
@@ -110,16 +131,17 @@ bool URI::operator== (const URI& right) const
 
 URI& URI::operator/= (const URI& rhs)
 {
-  if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += separator();
+  if ( !m_path.empty() && !rhs.m_path.empty() ) m_path += CF3_URI_SEPARATOR;
   m_path += rhs.m_path;
+  cleanup();
   return *this;
 }
 
 URI& URI::operator/= (const std::string& s)
 {
-  if ( !m_path.empty() && !s.empty() ) m_path += separator();
+  if ( !m_path.empty() && !s.empty() ) m_path += CF3_URI_SEPARATOR;
   m_path += s;
-
+  cleanup();
   return *this;
 }
 
@@ -132,14 +154,15 @@ URI& URI::operator/= ( const char* c )
 URI  URI::operator/  (const URI& p) const
 {
   return ( !m_path.empty() && !p.m_path.empty() ) ?
-      URI ( m_path + separator() + p.m_path ) : // both not empty
-      URI ( m_path + p.m_path );                // one is empty
+    URI ( m_path + CF3_URI_SEPARATOR + p.m_path ) : // both not empty
+    URI ( m_path + p.m_path );                // one is empty
 }
 
 URI& URI::operator=  (const URI& p)
 {
   m_path = p.m_path;
   m_scheme = p.m_scheme;
+  cleanup();
   return *this;
 }
 
@@ -165,19 +188,28 @@ bool URI::is_relative () const
 
 bool URI::is_absolute () const
 {
-  return boost::regex_match(m_path,boost::regex("//.+"));
+  return boost::algorithm::starts_with(m_path, "/");
 }
 
 URI URI::base_path () const
 {
   using namespace boost::algorithm;
-  std::string rpath = string();
-  if (find_last(rpath,separator()).begin() == rpath.end())
-    return URI::Scheme::Convert::instance().to_str(m_scheme)+":./";
+  
+  if(m_path == "/")
+    return *this;
+  
+  if(!contains(m_path, CF3_URI_SEPARATOR))
+    return URI("./", m_scheme);
   else
   {
-    rpath.erase ( find_last(rpath,separator()).begin(), rpath.end() );
-    return rpath;
+    std::string rpath = m_path;
+    rpath.erase ( find_last(rpath,CF3_URI_SEPARATOR).begin(), rpath.end() );
+    if(rpath.empty())
+    {
+      cf3_assert(is_absolute()); // this case should only happen on first-level absolute paths such as /Model
+      rpath = "/";
+    }
+    return URI(rpath, m_scheme);
   }
 }
 
@@ -185,17 +217,16 @@ std::string URI::name () const
 {
   using namespace boost::algorithm;
   std::string name = string();
-  if (find_last(name,separator()).begin() == name.end())
+  if (find_last(name,CF3_URI_SEPARATOR).begin() == name.end())
     name.erase ( name.begin(), find_last(name,":").begin()+1 );
   else
-    name.erase ( name.begin(), find_last(name,separator()).begin()+1 );
+    name.erase ( name.begin(), find_last(name,CF3_URI_SEPARATOR).begin()+1 );
   return name;
 }
 
-const std::string& URI::separator ()
+const std::string URI::separator ()
 {
-  static std::string sep ( "/" );
-  return sep;
+  return std::string(CF3_URI_SEPARATOR);
 }
 
 void URI::scheme( URI::Scheme::Type sch )
@@ -206,6 +237,7 @@ void URI::scheme( URI::Scheme::Type sch )
 void URI::path( const std::string& path )
 {
   m_path = path;
+  cleanup();
 }
 
 URI::Scheme::Type URI::scheme() const
@@ -265,6 +297,13 @@ std::string URI::base_name() const
   const boost::filesystem::path p(path());
   return boost::filesystem::basename(p);
 }
+
+void URI::cleanup()
+{
+  if(m_scheme == cf3::common::URI::Scheme::CPATH)
+    m_path = boost::regex_replace(m_path, boost::regex("//+"), "/");
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

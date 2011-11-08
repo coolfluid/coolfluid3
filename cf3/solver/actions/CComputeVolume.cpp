@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/Builder.hpp"
 #include "common/OptionURI.hpp"
 
@@ -11,6 +14,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/ElementType.hpp"
 #include "mesh/Entities.hpp"
+#include "mesh/UnifiedData.hpp"
 
 #include "solver/actions/CComputeVolume.hpp"
 
@@ -34,13 +38,13 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  m_options.add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
+  options().add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
       ->description("Field to set")
       ->mark_basic()
       ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
       ->add_tag(mesh::Tags::volume());
 
-  m_options["elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
+  options()["elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
 }
 

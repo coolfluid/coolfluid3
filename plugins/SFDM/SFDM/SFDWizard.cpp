@@ -73,12 +73,12 @@ SFDWizard::SFDWizard( const std::string& name )
   m_properties["brief"] = std::string("MISSING");
   m_properties["description"] = std::string("MISSING");
 
-  m_options.add_option( OptionT<std::string>::create("model", "SFD_simulation") )
+  options().add_option( OptionT<std::string>::create("model", "SFD_simulation") )
     ->description("Name to give to the simulation model")
     ->pretty_name("Model Name")
     ->mark_basic();
 
-  m_options.add_option( OptionT<Uint>::create("dim", 1u) )
+  options().add_option( OptionT<Uint>::create("dim", 1u) )
     ->description("Dimension of the simulation")
     ->pretty_name("Dimension")
     ->mark_basic();
@@ -88,37 +88,37 @@ SFDWizard::SFDWizard( const std::string& name )
   //  ->pretty_name("Physics")
   //  ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("solution_state", "cf3.Euler.Cons1D") )
+  options().add_option( OptionT<std::string>::create("solution_state", "cf3.Euler.Cons1D") )
     ->description("Solution state builder")
     ->pretty_name("Solution State")
     ->mark_basic();
 
-  m_options.add_option( OptionT<std::string>::create("roe_state", "cf3.Euler.Roe1D") )
+  options().add_option( OptionT<std::string>::create("roe_state", "cf3.Euler.Roe1D") )
     ->description("Roe state builder")
     ->pretty_name("Roe State")
     ->mark_basic();
 
-  m_options.add_option( OptionT<Uint>::create("P", 0u) )
+  options().add_option( OptionT<Uint>::create("P", 0u) )
     ->description("The order of the polynomial of the solution")
     ->pretty_name("Polynomial Order")
     ->mark_basic();
 
-  m_options.add_option( OptionT<Uint>::create("RK_stages", 2u) )
+  options().add_option( OptionT<Uint>::create("RK_stages", 2u) )
     ->description("The number of Runge Kutta stages")
     ->pretty_name("Runge Kutta stages")
     ->mark_basic();
 
-  m_options.add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(), 1.) )
+  options().add_option( OptionT<Real>::create(FlowSolver::Tags::cfl(), 1.) )
     ->description("The Courant-Friedrichs-Lax Number")
     ->pretty_name("CFL")
     ->mark_basic();
 
-  m_options.add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(), true) )
+  options().add_option( OptionT<bool>::create(FlowSolver::Tags::time_accurate(), true) )
     ->description("Time accurate or steady state")
     ->pretty_name("Time Accurate")
     ->mark_basic();
 
-  m_options.add_option( OptionT<bool>::create("output_file", "mesh_t${time}.msh") )
+  options().add_option( OptionT<bool>::create("output_file", "mesh_t${time}.msh") )
     ->description("File to write")
     ->pretty_name("Output File")
     ->mark_basic();
@@ -206,7 +206,7 @@ void SFDWizard::prepare_simulation()
     }
     else
     {
-      m_options.add_option( OptionURI::create("mesh","Mesh","The mesh to solve on",model.domain().uri()/URI("mesh")) )->mark_basic();
+      options().add_option( OptionURI::create("mesh","Mesh","The mesh to solve on",model.domain().uri()/URI("mesh")) )->mark_basic();
       throw SetupError(FromHere(),"Multiple meshes exist in ["+model.domain().uri().path()+"]\n"
                        "Set the option \"mesh\" to specify the path to the mesh");
     }

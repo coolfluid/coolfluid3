@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 
 #include "RDM/Scalar/LibScalar.hpp"
@@ -16,18 +15,6 @@ namespace RDM {
 using namespace cf3::common;
 
 cf3::common::RegistLibrary<LibScalar> LibScalar;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibScalar::initiate_impl()
-{
-}
-
-void LibScalar::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // RDM
 } // cf3

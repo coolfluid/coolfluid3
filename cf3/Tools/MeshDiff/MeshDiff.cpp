@@ -4,18 +4,16 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/foreach.hpp>
-
-#include "MeshDiff.hpp"
-
+#include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
-#include "common/Table.hpp"
-#include "common/Table.hpp"
+#include "mesh/Connectivity.hpp"
 
+
+#include "Tools/MeshDiff/MeshDiff.hpp"
 
 using namespace cf3;
 using namespace cf3::common;

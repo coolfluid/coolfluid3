@@ -20,7 +20,7 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Mesh.hpp"
 
 #include "math/VariablesDescriptor.hpp"
@@ -41,18 +41,18 @@ common::ComponentBuilder < Field, Component, LibMesh >  Field_Builder;
 
 Field::Field ( const std::string& name  ) :
   common::Table<Real> ( name ),
-  m_basis(FieldGroup::Basis::INVALID)
+  m_basis(SpaceFields::Basis::INVALID)
 {
   mark_basic();
 
-//  m_options.add_option<OptionArrayT<std::string> >("var_names", std::vector<std::string>(1,name))
+//  options().add_option<OptionArrayT<std::string> >("var_names", std::vector<std::string>(1,name))
 //      ->description("Names of the variables")
 //      ->pretty_name("Variable Names")
 //      ->attach_trigger ( boost::bind ( &Field::config_var_names, this ) )
 //      ->mark_basic();
 //  config_var_names();
 
-//  m_options.add_option<OptionArrayT<std::string> >("var_types", std::vector<std::string>(1,"scalar"))
+//  options().add_option<OptionArrayT<std::string> >("var_types", std::vector<std::string>(1,"scalar"))
 //      ->description("Types of the variables")
 //      ->attach_trigger ( boost::bind ( &Field::config_var_types,   this ) )
 //      ->mark_basic()
@@ -153,14 +153,14 @@ Region& Field::topology() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Field::set_field_group(FieldGroup& field_group)
+void Field::set_field_group(SpaceFields& field_group)
 {
-  m_field_group = field_group.as_ptr<FieldGroup>();
+  m_field_group = field_group.as_ptr<SpaceFields>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-FieldGroup& Field::field_group() const
+SpaceFields& Field::field_group() const
 {
   cf3_assert(m_field_group.expired() == false);
   return *m_field_group.lock();
@@ -185,6 +185,16 @@ common::Table<Uint>::ConstRow Field::indexes_for_element(const Entities& element
 common::Table<Uint>::ConstRow Field::indexes_for_element(const Uint unified_idx) const
 {
   return field_group().indexes_for_element(unified_idx);
+}
+
+boost::iterator_range< common::ComponentIterator<Entities> > Field::entities_range()
+{
+  return field_group().entities_range();
+}
+
+boost::iterator_range< common::ComponentIterator<Elements> > Field::elements_range()
+{
+  return field_group().elements_range();
 }
 
 

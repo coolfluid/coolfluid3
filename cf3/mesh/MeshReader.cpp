@@ -27,6 +27,7 @@
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Elements.hpp"
+#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -129,7 +130,7 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 //////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Elements::Ptr>
-  MeshReader::create_cells_in_region (Region& parent_region, FieldGroup& nodes,
+  MeshReader::create_cells_in_region (Region& parent_region, SpaceFields& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Elements::Ptr> cells_map;
@@ -149,7 +150,7 @@ std::map<std::string,Elements::Ptr>
 ////////////////////////////////////////////////////////////////////////////////
 
 std::map<std::string,Elements::Ptr>
-  MeshReader::create_faces_in_region (Region& parent_region, FieldGroup& nodes,
+  MeshReader::create_faces_in_region (Region& parent_region, SpaceFields& nodes,
                                        const std::vector<std::string>& etypes)
 {
   std::map<std::string,Elements::Ptr> faces_map;

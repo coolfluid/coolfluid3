@@ -12,7 +12,6 @@
 #include <boost/test/unit_test.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -24,7 +23,7 @@
 #include "mesh/MeshWriter.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/LagrangeP0/Hexa.hpp"
@@ -106,7 +105,7 @@ struct ProtoBenchmarkFixture :
     {
       elements.create_space("elems_P0","cf3.mesh.LagrangeP0."+elements.element_type().shape_name());
     }
-    FieldGroup& elems_P0 = mesh.create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+    SpaceFields& elems_P0 = mesh.create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
     solver.field_manager().create_field("volume", elems_P0);
 
     return model;
@@ -128,7 +127,7 @@ struct ProtoBenchmarkFixture :
     const Uint offset;
   };
 
-  Root& root;
+  Component& root;
   const Real length;
   const Real half_height;
   const Real width;

@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/Root.hpp"
 
 #include "SFDM/LibSFDM.hpp"
 
@@ -13,18 +12,6 @@ namespace cf3 {
 namespace SFDM {
 
 cf3::common::RegistLibrary<LibSFDM> LibSFDM;
-
-////////////////////////////////////////////////////////////////////////////////
-
-void LibSFDM::initiate_impl()
-{
-}
-
-void LibSFDM::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
 } // cf3

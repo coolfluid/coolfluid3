@@ -10,12 +10,15 @@
 #include <boost/program_options/variables_map.hpp>
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
+#include "common/Journal.hpp"
 #include "common/Log.hpp"
+#include "common/Table.hpp"
 
 #include "common/PE/Manager.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/ListeningThread.hpp"
+
+#include "solver/CPlotter.hpp"
 
 #include "Tools/solver/CWorker.hpp"
 #include "Tools/solver/LogForwarder.hpp"
@@ -25,7 +28,46 @@ using namespace boost;
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::PE;
+using namespace cf3::solver;
 using namespace cf3::Tools::solver;
+
+///////////////////////////////////////////////////////////////////////////////
+
+void setup_tree()
+{
+  Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
+  CPlotter & plotter = tools->create_component< CPlotter >("Plotter");
+  Table<Real> & table = tools->create_component< Table<Real> >("MyTable");
+  tools->create_component< Journal >("Journal");
+
+  table.set_row_size(8); // reserve 8 columns
+  Table<Real>::Buffer buffer = table.create_buffer(8000);
+
+  table.mark_basic();
+  plotter.mark_basic();
+  plotter.set_data_set( table.uri() );
+
+  // fill the table
+  std::vector<Real> row(8);
+
+  for(Real value = 0.0 ; value != 1000.0 ; value += 1.0 )
+  {
+    row[0] = value / 1000;          // x
+    row[1] = 0;                     // y
+    row[2] = (value / 1000) - 1;    // z
+    row[3] = std::sin(4 * row[0]);  // u
+    row[4] = 0;                     // v
+    row[5] = std::cos(4 * row[2]);  // w
+    row[6] = 1000;                  // p
+    row[7] = 278 * row[0];          // t
+
+    buffer.add_row( row );
+  }
+
+  buffer.flush();
+}
+
+//////////////////////////////////////////////////////////////////////////////
 
 int main(int argc, char ** argv)
 {
@@ -46,6 +88,8 @@ int main(int argc, char ** argv)
     CFerror << "This solver cannot run without a manager. Exiting..." << CFendl;
     return 1;
   }
+
+  setup_tree();
 
   // create the PE manager
   Manager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->

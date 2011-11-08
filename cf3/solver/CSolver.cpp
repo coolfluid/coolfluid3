@@ -105,7 +105,7 @@ CSolver::CSolver ( const std::string& name  ) :
 
   // options
 
-  m_options.add_option< OptionURI > (Tags::domain(), URI("cpath:../Domain"))
+  options().add_option< OptionURI > (Tags::domain(), URI("cpath:../Domain"))
       ->description("Domain to solve")
       ->pretty_name("Domain")
       ->link_to(&m_implementation->m_domain_uri)

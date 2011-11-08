@@ -17,9 +17,9 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Libraries.hpp"
 #include "common/Environment.hpp"
+#include "common/Group.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/MeshWriter.hpp"
@@ -28,7 +28,7 @@
 #include "mesh/Field.hpp"
 #include "mesh/LoadMesh.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Space.hpp"
 
 #include "solver/actions/LibActions.hpp"
@@ -80,7 +80,7 @@ BOOST_AUTO_TEST_SUITE( TestActionsSuite )
 BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 {
   Core::instance().environment().configure_option("log_level",(Uint)DEBUG);
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE( Node_Looping_Test )
 
 BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
   // read mesh from file
@@ -142,7 +142,7 @@ BOOST_AUTO_TEST_CASE( Face_Looping_Test )
 
 BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh2");
 
   // read mesh from file
@@ -165,13 +165,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
   BOOST_CHECK(find_components_recursively<Cells>(mesh->topology()).size() > 0);
 
-  FieldGroup& cells_P0 = mesh->create_space_and_field_group("cells_P0",FieldGroup::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& cells_P0 = mesh->create_space_and_field_group("cells_P0",SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
   Field& volumes = cells_P0.create_field("volume");
 
   BOOST_CHECK(true);
 
 
-  FieldGroup& faces_P0 = mesh->create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED, "cf3.mesh.LagrangeP0");
+  SpaceFields& faces_P0 = mesh->create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED, "cf3.mesh.LagrangeP0");
   Field& areas = faces_P0.create_field("area");
 
 
@@ -222,13 +222,13 @@ BOOST_AUTO_TEST_CASE ( test_CSetFieldValue )
 
 BOOST_AUTO_TEST_CASE ( test_CForAllElementsT )
 {
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   Mesh::Ptr mesh = root.get_child_ptr("mesh2")->as_ptr<Mesh>();
 
 
   BOOST_CHECK(true);
 
-  Field& field = mesh->get_child("cells_P0").as_type<FieldGroup>().create_field("test_CForAllElementsT","var[1]");
+  Field& field = mesh->get_child("cells_P0").as_type<SpaceFields>().create_field("test_CForAllElementsT","var[1]");
 
   BOOST_CHECK(true);
 

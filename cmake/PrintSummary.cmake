@@ -52,7 +52,6 @@ coolfluid_log( " Unit Tests            : [${CF3_ENABLE_UNIT_TESTS}]")
 coolfluid_log( " Acceptance Tests      : [${CF3_ENABLE_ACCEPTANCE_TESTS}]")
 coolfluid_log( " GUI                   : [${CF3_ENABLE_GUI}]")
 coolfluid_log( " Sandbox               : [${CF3_ENABLE_SANDBOX}]")
-coolfluid_log( " Assertions            : [${CF3_ENABLE_ASSERTIONS}]")
 coolfluid_log( " Code coverage         : [${CF3_ENABLE_CODECOVERAGE}]")
 coolfluid_log( " Explicit Templates    : [${CF3_HAVE_CXX_EXPLICIT_TEMPLATES}]")
 

@@ -9,16 +9,71 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <boost/bind.hpp>
 #include <boost/range.hpp>
 #include <boost/iterator/filter_iterator.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 
 #include "common/Component.hpp"
+#include "common/ComponentIterator.hpp"
 #include "common/Foreach.hpp"
 
 namespace cf3 {
 namespace common {
+
+/// Reference to ComponentT, constness determined by the constness of ParentT
+template<typename ParentT, typename ComponentT=Component>
+struct ComponentReference {
+  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, ComponentT const&, ComponentT&>::type type;
+};
+
+/// Shared pointer to ComponentT, constness determined by the constness of ParentT
+template<typename ParentT, typename ComponentT=Component>
+struct ComponentPtr {
+  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, boost::shared_ptr<ComponentT const>, boost::shared_ptr<ComponentT> >::type type;
+};
+
+/// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
+template<typename ParentT, typename ComponentT=Component>
+struct ComponentIteratorSelector {
+  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, // if ParentT is const
+                                    ComponentIterator<ComponentT const>,  // use a const component iterator
+                                    ComponentIterator<ComponentT> >::type // or the mutable one otherwise
+          type;
+};
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentIteratorSelector<ParentT,ComponentT>::type component_begin(ParentT& component)
+{
+  std::vector< typename ComponentPtr<ParentT,ComponentT>::type > vec;
+  component.template put_components<ComponentT>(vec, false); // not recursive
+  return typename ComponentIteratorSelector<ParentT,ComponentT>::type(vec, 0); // begin
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentIteratorSelector<ParentT,ComponentT>::type component_end(ParentT& component)
+{
+  std::vector< typename ComponentPtr<ParentT,ComponentT>::type > vec;
+  component.template put_components<ComponentT>(vec, false);  // not recursive
+  return typename ComponentIteratorSelector<ParentT,ComponentT>::type(vec, vec.size()); // end
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentIteratorSelector<ParentT,ComponentT>::type component_recursive_begin(ParentT& component)
+{
+  std::vector< typename ComponentPtr<ParentT,ComponentT>::type > vec;
+  component.template put_components<ComponentT>(vec, true); // recursive
+  return typename ComponentIteratorSelector<ParentT,ComponentT>::type(vec, 0); // begin
+}
+
+template<typename ComponentT, typename ParentT>
+inline typename ComponentIteratorSelector<ParentT,ComponentT>::type component_recursive_end(ParentT& component)
+{
+  std::vector< typename ComponentPtr<ParentT,ComponentT>::type > vec;
+  component.template put_components<ComponentT>(vec, true); // recursive
+  return typename ComponentIteratorSelector<ParentT,ComponentT>::type(vec, vec.size()); // end
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Filter iterator classes and functions
@@ -248,10 +303,10 @@ make_new_range(ComponentIterator<T> from, ComponentIterator<T> to , const Predic
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component, typename Predicate=IsComponentTrue>
 struct ComponentIteratorRangeSelector {
-  
+
   template<typename IsAbstractT, int dummy = 0>
   struct impl;
-  
+
   template<int dummy>
   struct impl<boost::true_type, dummy>
   {
@@ -260,7 +315,7 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            IsComponentTrue>::type type;
   };
-  
+
   template<int dummy>
   struct impl<boost::false_type, dummy>
   {
@@ -269,20 +324,8 @@ struct ComponentIteratorRangeSelector {
                                                                      ComponentT >::type, // or the mutable one otherwise
                                            Predicate>::type type;
   };
-  
+
   typedef typename impl< typename boost::is_abstract<Predicate>::type >::type type;
-};
-
-/// Reference to ComponentT, constness determined by the constness of ParentT
-template<typename ParentT, typename ComponentT=Component>
-struct ComponentReference {
-  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, ComponentT const&, ComponentT&>::type type;
-};
-
-/// Shared pointer to ComponentT, constness determined by the constness of ParentT
-template<typename ParentT, typename ComponentT=Component>
-struct ComponentPtr {
-  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, boost::shared_ptr<ComponentT const>, boost::shared_ptr<ComponentT> >::type type;
 };
 
 
@@ -368,22 +411,20 @@ inline ComponentIteratorRangeSelector<Component, Component>::type
 find_components(Component& parent)
 {
   return make_filtered_range(parent.begin(),parent.end());
-  // return boost::make_iterator_range(parent.begin(),parent.end());
+  // return boost::make_iterator_range(component_begin(parent),component_end(parent));
 }
 
 inline ComponentIteratorRangeSelector<const Component, Component>::type
 find_components(const Component& parent)
 {
   return make_filtered_range(parent.begin(),parent.end());
-  // return boost::make_iterator_range(parent.begin(),parent.end());
 }
 
 template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT>::type
 find_components(ParentT& parent)
 {
-  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
-  // return boost::make_iterator_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>());
+  return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -407,7 +448,7 @@ template <typename ComponentT, typename ParentT, typename Predicate>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT, Predicate>::type
 find_components_with_filter(ParentT& parent, const Predicate& pred)
 {
-  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),pred);
+  return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent),pred);
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -428,7 +469,7 @@ template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT, IsComponentName>::type
 find_components_with_name(ParentT& parent, const std::string& name)
 {
-  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),IsComponentName(name));
+  return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent),IsComponentName(name));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -449,7 +490,7 @@ template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT, IsComponentTag>::type
 find_components_with_tag(ParentT& parent, const std::string& tag)
 {
-  return make_filtered_range(parent.template begin<ComponentT>(),parent.template end<ComponentT>(),IsComponentTag(tag));
+  return make_filtered_range(component_begin<ComponentT>(parent),component_end<ComponentT>(parent),IsComponentTag(tag));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -458,7 +499,7 @@ inline ComponentIteratorRangeSelector<Component, Component>::type
 find_components_recursively(Component& parent)
 {
   return make_filtered_range(parent.recursive_begin(),parent.recursive_end());
-  // return boost::make_iterator_range(parent.recursive_begin(),parent.recursive_end());
+  // return boost::make_iterator_range(component_recursive_begin(parent),component_recursive_end(parent));
 }
 
 inline ComponentIteratorRangeSelector<Component const, Component>::type
@@ -471,7 +512,7 @@ template <typename ComponentT, typename ParentT>
 inline typename ComponentIteratorRangeSelector<ParentT, ComponentT>::type
 find_components_recursively(ParentT& parent)
 {
-  return make_filtered_range(parent.template recursive_begin<ComponentT>(),parent.template recursive_end<ComponentT>());
+  return make_filtered_range(component_recursive_begin<ComponentT>(parent),component_recursive_end<ComponentT>(parent));
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -494,14 +535,14 @@ template <typename ComponentT, typename Predicate>
 inline typename ComponentIteratorRangeSelector<Component, ComponentT, Predicate>::type
 find_components_recursively_with_filter(Component& parent, const Predicate& pred)
 {
-  return make_filtered_range(parent.recursive_begin<ComponentT>(),parent.recursive_end<ComponentT>(),pred);
+  return make_filtered_range(component_recursive_begin<ComponentT>(parent),component_recursive_end<ComponentT>(parent),pred);
 }
 
 template <typename ComponentT, typename Predicate>
 inline typename ComponentIteratorRangeSelector<Component const, ComponentT, Predicate>::type
 find_components_recursively_with_filter(const Component& parent, const Predicate& pred)
 {
-  return make_filtered_range(parent.recursive_begin<ComponentT>(),parent.recursive_end<ComponentT>(),pred);
+  return make_filtered_range(component_recursive_begin<ComponentT>(parent),component_recursive_end<ComponentT>(parent),pred);
 }
 
 //////////////////////////////////////////////////////////////////////////////

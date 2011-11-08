@@ -11,7 +11,6 @@
 #include <boost/assign/list_of.hpp>
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -25,7 +24,7 @@
 #include "physics/Variables.hpp"
 
 #include "mesh/Domain.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"

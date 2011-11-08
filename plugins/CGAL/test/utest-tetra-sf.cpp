@@ -16,12 +16,14 @@
 #include "common/FindComponents.hpp"
 #include "common/Log.hpp"
 
+#include "mesh/Connectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
 #include "common/Table.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/MeshWriter.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
+#include "mesh/Field.hpp"
 
 #include "mesh/LagrangeP1/Tetra3D.hpp"
 #include "mesh/ElementTypes.hpp"

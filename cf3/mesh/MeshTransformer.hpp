@@ -9,8 +9,6 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/BoostFilesystem.hpp"
-
 #include "common/Action.hpp"
 
 #include "mesh/LibMesh.hpp"

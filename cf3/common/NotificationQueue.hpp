@@ -13,7 +13,8 @@
 
 #include "common/CF.hpp"
 #include "common/CommonAPI.hpp"
-#include "common/Root.hpp"
+#include "common/ConnectionManager.hpp"
+#include "common/EventHandler.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////
 
@@ -31,9 +32,9 @@ namespace common {
   /// Once flushed, all event are removed from the internal buffer. @n
   /// Notifiers are external classes that register one or more of their methods
   /// to the queue. The notifier classes have to meet some constraints:
-  /// @li all registered methods return nothing and take a string and a CPath as
-  /// parameters. The string is the name of event and the CPath is the path
-  /// to the component that raised the event.
+  /// @li all registered methods return nothing and take a string and a
+  /// @c #SignalArgs as parameters. The string is the name of event and the
+  /// @c #SignalArgs is the signal to send when flushing the queue.
   /// @li define a public method begin_notify() that will be called before
   /// each flush. The method takes no parameter and returns nothing. This is
   /// useful if the notifier has to clean or set up things between two flushes.
@@ -41,14 +42,14 @@ namespace common {
   /// is called.
 
   /// @author Quentin Gasper
-  class Common_API NotificationQueue
+  class Common_API NotificationQueue : public ConnectionManager
   {
   public: // functions
 
     /// @brief Constructor
     /// @param root The root component this class has to listen to. Cannot be
     /// null.
-    NotificationQueue(Root::Ptr root);
+    NotificationQueue();
 
     /// @brief Desctructor
     ~NotificationQueue();
@@ -59,7 +60,7 @@ namespace common {
     /// created.
     /// @param name Event name
     /// @param sender_path Path of the component that emitted the event
-    void add_notification ( const std::string & name, const URI & sender_path );
+    void add_notification ( SignalArgs &args );
 
     /// @brief Counts the notifications for a speficied event.
 
@@ -77,17 +78,17 @@ namespace common {
     /// @brief Adds a notifier
     /// @param name The name of the event
     /// @param fcnt Pointer to a method of @c NOTIFIER class. This method
-    /// returns nothing and take a string and a CPath as parameters.
+    /// returns nothing and take a string and SignalArgs as parameters.
     /// @param receiver The object that will receive the event.
     template<class NOTIFIER>
     void add_notifier( const std::string & name,
-                       void (NOTIFIER::*fcnt)(const std::string & name, const URI & sender_path),
+                       void (NOTIFIER::*fcnt)(const std::string&, SignalArgs & args),
                        NOTIFIER * receiver);
 
   private: // typedefs
 
     /// @brief Typedef for event signals
-    typedef boost::signals2::signal< void (const std::string&, const URI&) > SignalType_t;
+    typedef boost::signals2::signal< void (const std::string&, SignalArgs&) > SignalType_t;
 
     /// @brief Boost shared pointer for a signal
     typedef boost::shared_ptr<SignalType_t> SignalPtr_t;
@@ -106,8 +107,8 @@ namespace common {
     /// @brief Notification buffer.
 
     /// For each pair, the @c first if the event name, and the @c second is
-    /// the path to the component that emitted the event.
-    std::vector< std::pair<std::string, URI> > m_notifications;
+    /// the signal arguments.
+    std::vector< std::pair<std::string, SignalArgs> > m_notifications;
 
     /// @brief Signal used to raise events when #flush() method is called.
     boost::shared_ptr< SignalTypeFlush_t > m_sig_begin_flush;
@@ -124,8 +125,8 @@ namespace common {
 
   template<class NOTIFIER>
   void NotificationQueue::add_notifier( const std::string & name,
-                                        void (NOTIFIER::*fcnt)(const std::string & name, const URI & sender_path),
-                                        NOTIFIER * receiver)
+                                        void (NOTIFIER::*fcnt)(const std::string &, SignalArgs &),
+                                        NOTIFIER * receiver )
   {
     cf3_assert( receiver != nullptr );
 
@@ -139,8 +140,11 @@ namespace common {
     else
       sig = m_event_signals[name];
 
+    EventHandler::instance().connect_to_event(name, this, &NotificationQueue::add_notification);
+
     m_sig_begin_flush->connect(boost::bind(&NOTIFIER::begin_notify, receiver));
     sig->connect( boost::bind(fcnt, receiver, _1, _2) ); // _2 because 2 arguments
+
   }
 
   ///////////////////////////////////////////////////////////////////////////////

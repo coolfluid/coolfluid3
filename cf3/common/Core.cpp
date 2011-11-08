@@ -7,9 +7,9 @@
 #include <boost/tokenizer.hpp>
 
 #include "common/PE/Comm.hpp"
-#include "common/LibCommon.hpp"
+
 #include "common/Log.hpp"
-#include "common/FindComponents.hpp"
+#include "common/LibCommon.hpp"
 #include "common/Signal.hpp"
 #include "common/OSystem.hpp"
 #include "common/OSystemLayer.hpp"
@@ -19,7 +19,6 @@
 #include "common/Group.hpp"
 #include "common/Libraries.hpp"
 #include "common/Factories.hpp"
-#include "common/Root.hpp"
 #include "common/Environment.hpp"
 
 #include "common/BuildInfo.hpp"
@@ -73,9 +72,9 @@ Core::Core()
   RegistTypeInfo<Factories,LibCommon>();
 
   // create the root component and its structure structure
-  m_root = Root::create("Root");
+  m_root = allocate_component<Group>( "Root" );
   m_root->mark_basic();
-  
+
   m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
   m_factories = m_root->create_component_ptr<Factories>("Factories");
   libraries().mark_basic();
@@ -92,7 +91,11 @@ Core::Core()
   tools->properties()["description"] = std::string("");
 }
 
-Core::~Core() {}
+Core::~Core()
+{
+  // Make sure libs are terminated before the destruction of root
+  terminate();
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -132,13 +135,13 @@ void Core::initiate ( int argc, char** argv )
 void Core::terminate()
 {
   // terminate all
-
-  libraries().terminate_all_libraries();
+  if(!m_libraries.expired())
+    libraries().terminate_all_libraries();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Root& Core::root() const
+Component& Core::root() const
 {
   cf3_assert( is_not_null(m_root) );
   return *m_root;
@@ -206,7 +209,7 @@ boost::shared_ptr<CodeProfiler> Core::profiler() const
   Component::Ptr profiler_comp = m_root->get_child_ptr("Profiler");
   if(is_not_null(profiler_comp))
     return profiler_comp->as_ptr<CodeProfiler>();
-  
+
   return CodeProfiler::Ptr();
 }
 ////////////////////////////////////////////////////////////////////////////////

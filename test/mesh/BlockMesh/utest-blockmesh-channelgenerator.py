@@ -15,7 +15,7 @@ model = root.create_component('model', 'cf3.solver.CModel')
 model.create_domain()
 domain = model.get_child('Domain')
 generator = domain.create_component('generator', 'cf3.mesh.BlockMesh.ChannelGenerator')
-generator.configure_option('mesh', cf.URI('//Root/model/Domain/mesh'))
+generator.configure_option('mesh', cf.URI('//model/Domain/mesh'))
 
 generator.configure_option('x_segments', 64)
 generator.execute()

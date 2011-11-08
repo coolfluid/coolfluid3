@@ -17,7 +17,6 @@
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 
 #include "common/XML/Protocol.hpp"
@@ -51,18 +50,18 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
   mark_basic();
 
 
-  m_options.add_option( OptionComponent<Mesh>::create("mesh", &m_mesh) )
+  options().add_option( OptionComponent<Mesh>::create("mesh", &m_mesh) )
       ->description("Mesh to write")
       ->pretty_name("Mesh")
       ->mark_basic();
 
-  m_options.add_option( OptionURI::create("file", m_file, URI::Scheme::FILE) )
+  options().add_option( OptionURI::create("file", m_file, URI::Scheme::FILE) )
       ->description("File to write")
       ->pretty_name("File")
       ->mark_basic()
       ->link_to(&m_file);
 
-  m_options.add_option( OptionArrayT<URI>::create("fields", m_fields) )
+  options().add_option( OptionArrayT<URI>::create("fields", m_fields) )
       ->description("Fields to write")
       ->pretty_name("Fields")
       ->mark_basic()

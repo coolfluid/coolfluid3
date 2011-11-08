@@ -19,7 +19,7 @@
 #include "common/Table.hpp"
 #include "common/List.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/ConnectivityData.hpp"
 #include "common/DynTable.hpp"
@@ -52,15 +52,15 @@ Reader::Reader( const std::string& name )
 
   // options
 
-  m_options.add_option<OptionT <Uint> >("part", PE::Comm::instance().rank() )
+  options().add_option<OptionT <Uint> >("part", PE::Comm::instance().rank() )
       ->description("Number of the part of the mesh to read. (e.g. rank of processor)")
       ->pretty_name("Part");
 
-  m_options.add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size() )
+  options().add_option<OptionT <Uint> >("nb_parts", PE::Comm::instance().size() )
       ->description("Total number of parts. (e.g. number of processors)")
       ->pretty_name("nb_parts");
 
-  m_options.add_option<OptionT <bool> >("read_fields", true)
+  options().add_option<OptionT <bool> >("read_fields", true)
       ->description("Read the data from the mesh")
       ->pretty_name("Read Fields")
       ->mark_basic();
@@ -380,7 +380,7 @@ void Reader::read_coordinates()
      master_region++;
   }
 
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
   Uint part = option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
@@ -472,7 +472,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
 
-  FieldGroup& nodes = m_mesh.lock()->geometry_fields();
+  SpaceFields& nodes = m_mesh.lock()->geometry_fields();
 
 
   Uint part = option("part").value<Uint>();
@@ -655,7 +655,7 @@ void Reader::read_element_data()
 
   if (fields.size())
   {
-    FieldGroup& field_group = m_mesh.lock()->create_field_group("elems_P0",FieldGroup::Basis::ELEMENT_BASED);
+    SpaceFields& field_group = m_mesh.lock()->create_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED);
 
     foreach_container((const std::string& name) (Reader::Field& gmsh_field) , fields)
     {

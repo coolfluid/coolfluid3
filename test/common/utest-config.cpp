@@ -8,18 +8,17 @@
 #define BOOST_TEST_MODULE "Test module for CF log level filter"
 
 #include <boost/test/unit_test.hpp>
-
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/foreach.hpp>
 #include <boost/assign/std/vector.hpp>
-
-
 #include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include "common/OptionArray.hpp"
 #include "common/BasicExceptions.hpp"
+#include "common/Group.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/URI.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"
@@ -61,46 +60,46 @@ public:
   MyC ( const std::string& name ) :  Component(name)
   {
     // POD's (plain old data)
-    m_options.add_option< OptionT<bool> > ( "OptBool", false )->description("bool option");
-    m_options.add_option< OptionT<int> > ( "OptInt", -5 )->description("int option");
-    m_options.add_option< OptionT<Uint> > ( "OptUInt", 10 )->description("int option");
-    m_options.add_option< OptionT<Real> > ( "OptReal", 0.0 )->description("real option");
-    m_options.add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->description("string option");
-    m_options.add_option< OptionURI > ( "OptURI", URI("cpath://lolo") )->description( "URI option");
+    options().add_option< OptionT<bool> > ( "OptBool", false )->description("bool option");
+    options().add_option< OptionT<int> > ( "OptInt", -5 )->description("int option");
+    options().add_option< OptionT<Uint> > ( "OptUInt", 10 )->description("int option");
+    options().add_option< OptionT<Real> > ( "OptReal", 0.0 )->description("real option");
+    options().add_option< OptionT<std::string> > ( "OptStr", "LOLO" )->description("string option");
+    options().add_option< OptionURI > ( "OptURI", URI("cpath:/lolo") )->description( "URI option");
 
     // vector of POD's
     std::vector<int> def;
     def += 1,2,3,4,5,6,7,8,9; /* uses boost::assign */
-    m_options.add_option< OptionArrayT<int> >( "VecInt", def )->description("vector ints option");
+    options().add_option< OptionArrayT<int> >( "VecInt", def )->description("vector ints option");
 
     // vector of POD's
     std::vector< std::string > defs;
     defs += "lolo","koko";     /* uses boost::assign */
-    m_options.add_option< OptionArrayT<std::string> >( "VecStr", defs )->description("vector strs option");;
+    options().add_option< OptionArrayT<std::string> >( "VecStr", defs )->description("vector strs option");;
 
 //    option("OptInt").set_value(10);
 
-    m_options["OptInt"].link_to( &m_i );
+    options()["OptInt"].link_to( &m_i );
 
-    m_options.link_to_parameter ( "OptStr", &m_str );
+    options().link_to_parameter ( "OptStr", &m_str );
 
-    m_options["OptBool"].attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
-    m_options["OptInt"].attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
-    m_options["OptStr"].attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
-    m_options["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
-    m_options["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
+    options()["OptBool"].attach_trigger( boost::bind ( &MyC::config_bool,  this ) );
+    options()["OptInt"].attach_trigger ( boost::bind ( &MyC::config_int,   this ) );
+    options()["OptStr"].attach_trigger ( boost::bind ( &MyC::config_str,   this ) );
+    options()["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
+    options()["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
     std::vector<int> vi = option("VecInt").value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
-    m_options.add_option< OptionComponent<CConcrete1> >( "OptC", Core::instance().root().uri())
+    options().add_option< OptionComponent<CConcrete1> >( "OptC", Core::instance().root().uri())
         ->description("component option");
-    m_options.link_to_parameter ( "OptC", &m_component );
+    options().link_to_parameter ( "OptC", &m_component );
     Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2",Core::instance().root().uri()));
     opt2->description("component option");
-    m_options.add_option(opt2)->link_to( &m_component )->mark_basic();
-     Option::Ptr opt3 = m_options.add_option
+    options().add_option(opt2)->link_to( &m_component )->mark_basic();
+     Option::Ptr opt3 = options().add_option
        (OptionComponent<CConcrete1>::create("OptC3",&m_component));
 
      opt3->description("component option");
@@ -263,13 +262,13 @@ BOOST_AUTO_TEST_CASE( configure )
 BOOST_AUTO_TEST_CASE( configure_component_path )
 {
   // Setup a little data-structure
-  Root::Ptr root = Root::create("root");
+  Group::Ptr root = allocate_component<Group>("root");
   CConcrete1::Ptr component1 = root->create_component_ptr<CConcrete1>("component1");
   CConcrete1::Ptr component2 = root->create_component_ptr<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
   component1->configure_option("MyRelativeFriend",URI("cpath:../component2"));
-  component1->configure_option("MyAbsoluteFriend",URI("cpath://root/component2"));
+  component1->configure_option("MyAbsoluteFriend",URI("cpath:/component2"));
 
   // Check if everything worked OK.
   URI absolute_friend_path = component1->option("MyAbsoluteFriend").value<URI>();
@@ -286,12 +285,12 @@ BOOST_AUTO_TEST_CASE( configure_component_path )
 BOOST_AUTO_TEST_CASE( optionComponent )
 {
   // Setup a little data-structure
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
   MyC::Ptr component1 = root.create_component_ptr<MyC>("component1");
   CConcrete1::Ptr component2 = root.create_component_ptr<CConcrete1>("component2");
 
   // Configure component 1 without XML (It could also be done with xml)
-  component1->configure_option("OptC",URI("cpath://Root/component2"));
+  component1->configure_option("OptC",URI("cpath:/component2"));
 
   BOOST_CHECK( component1->comp() == component2 );
   // // Check if everything worked OK.

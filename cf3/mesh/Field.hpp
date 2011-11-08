@@ -7,8 +7,9 @@
 #ifndef cf3_mesh_Field_hpp
 #define cf3_mesh_Field_hpp
 
-#include "mesh/FieldGroup.hpp"
 #include "common/Table.hpp"
+
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Entities.hpp"
 #include "mesh/Elements.hpp"
 
@@ -53,9 +54,9 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "Field"; }
 
-  FieldGroup::Basis::Type basis() const { return m_basis; }
+  SpaceFields::Basis::Type basis() const { return m_basis; }
 
-  void set_basis(const FieldGroup::Basis::Type basis) { m_basis = basis;}
+  void set_basis(const SpaceFields::Basis::Type basis) { m_basis = basis;}
 
   std::string var_name(Uint i=0) const;
 
@@ -83,9 +84,9 @@ public: // functions
 
   Region& topology() const;
 
-  void set_field_group(FieldGroup& field_group);
+  void set_field_group(SpaceFields& field_group);
 
-  FieldGroup& field_group() const;
+  SpaceFields& field_group() const;
 
   virtual void resize(const Uint size);
 
@@ -103,9 +104,9 @@ public: // functions
 
   Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
 
-  boost::iterator_range< common::ComponentIterator<Entities> > entities_range() { return field_group().entities_range(); }
+  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
 
-  boost::iterator_range< common::ComponentIterator<Elements> > elements_range() { return field_group().elements_range(); }
+  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
 
   Field& coordinates() const { return field_group().coordinates(); }
 
@@ -123,14 +124,189 @@ public: // functions
 
   void create_descriptor(const std::string& description, const Uint dimension=0);
 
+
+  ////////////////////////////////////////////////////////////////////////////////
+
+    // Index operator.
+    // --------------
+    // c = U[i]
+    // Real& operator[](int index);
+    // const Real& operator[](int index) const;
+
+    // // Binary arithmetic operators.
+    // // ----------------------------
+    // /// U = U + U
+    // friend Field operator +(const Field& U1, const Field& U2);
+    // /// U = U - U
+    // friend Field operator -(const Field& U1, const Field& U2);
+    // /// U = U * c
+    // friend Field operator *(const Field& U, const Real& a);
+    // /// U = c * U
+    // friend Field operator *(const Real& a, const Field& U);
+    // /// U = U * U (row-wise)
+    // friend Field operator *(const Field& U1, const Field& U2);
+    // /// U = U / c
+    // friend Field operator /(const Field& U, const Real& a);
+    // /// U = U / U (row-wise)
+    // friend Field operator /(const Field& U1, const Field& U2);
+    //
+    // // Unary arithmetic operators.
+    // // ---------------------------
+    // /// U = -U
+    // friend Field operator -(const Field& U);
+    // //friend Field fabs(const Field& U);
+
+    // Shortcut arithmetic operators.
+    // ------------------------------
+    /// U = U
+    Field& operator =(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      array() = U.array();
+      return *this;
+    }
+
+    /// U = c
+    Field& operator =(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] = c;
+      return *this;
+    }
+
+    /// U += c
+    Field& operator +=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] += c;
+      return *this;
+    }
+
+    /// U += U
+    Field& operator +=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      cf3_assert(row_size() == U.row_size());
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] += U.array()[i][j];
+      return *this;
+    }
+
+    /// U -= c
+    Field& operator -=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] -= c;
+      return *this;
+    }
+
+    /// U -= U
+    Field& operator -=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      cf3_assert(row_size() == U.row_size());
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] -= U.array()[i][j];
+      return *this;
+    }
+
+    /// U *= c
+    Field& operator *=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] *= c;
+      return *this;
+    }
+
+    /// U *= U
+    Field& operator *=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      if (U.row_size() == 1) // U is a scalar field
+      {
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] *= U.array()[i][0];
+      }
+      else
+      {
+        cf3_assert(row_size() == U.row_size()); // field must be same size
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] *= U.array()[i][j];
+      }
+      return *this;
+    }
+
+    /// U /= c
+    Field& operator /=(const Real& c)
+    {
+      for (Uint i=0; i<size(); ++i)
+        for (Uint j=0; j<row_size(); ++j)
+          array()[i][j] /= c;
+      return *this;
+    }
+
+    /// U /= U
+    Field& operator /=(const Field& U)
+    {
+      cf3_assert(size() == U.size());
+      if (U.row_size() == 1) // U is a scalar field
+      {
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] /= U.array()[i][0];
+      }
+      else
+      {
+        cf3_assert(row_size() == U.row_size()); // field must be same size
+        for (Uint i=0; i<size(); ++i)
+          for (Uint j=0; j<row_size(); ++j)
+            array()[i][j] /= U.array()[i][j];
+      }
+      return *this;
+    }
+
+
+    // // Relational operators.
+    // // ---------------------
+    // /// U == U
+    // friend bool operator ==(const Field& U1, const Field& U2);
+    // /// U != U
+    // friend bool operator !=(const Field& U1, const Field& U2);
+    // // /// U <= U
+    // // friend bool operator <=(const Field& U1, const Field& U2);
+    // // /// U >= U
+    // // friend bool operator >=(const Field& U1, const Field& U2);
+    // // /// U < U
+    // // friend bool operator <(const Field& U1, const Field& U2);
+    // // /// U > U
+    // // friend bool operator >(const Field& U1, const Field& U2);
+    //
+    // // Input-output operators.
+    // // ----------------------
+    // /// ostream << U
+    // friend ostream& operator << (ostream& out, const Field& U);
+    // /// istream >> U
+    // friend istream& operator >> (istream& in,  Field& U);
+
+
+
+
 private:
 
   void config_var_names();
   void config_var_types();
 
-  FieldGroup::Basis::Type m_basis;
+  SpaceFields::Basis::Type m_basis;
   boost::weak_ptr<Region> m_topology;
-  boost::weak_ptr<FieldGroup> m_field_group;
+  boost::weak_ptr<SpaceFields> m_field_group;
 
   boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
 

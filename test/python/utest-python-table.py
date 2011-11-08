@@ -16,7 +16,8 @@ table = root.create_component("table", "cf3.common.Table<unsigned>")
 if len(table) != 0:
   raise Exception('Created table was not size 0')
 
-table.resize([10, 2])
+table.set_row_size(2)
+table.resize(10)
 
 if len(table) != 10:
   raise Exception('Incorrect table size')

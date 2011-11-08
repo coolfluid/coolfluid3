@@ -11,8 +11,9 @@
 #include "mesh/Region.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Mesh.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "UFEM/SparsityBuilder.hpp"
 

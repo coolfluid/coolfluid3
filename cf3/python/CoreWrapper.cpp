@@ -9,7 +9,6 @@
 
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
-#include "common/Root.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "python/CoreWrapper.hpp"
@@ -50,6 +49,11 @@ struct CoreWrapper
       common::PE::Comm::instance().init(argc, argv);
     }
   }
+  
+  static void terminate()
+  {
+    common::Core::instance().terminate();
+  }
 };
 
 void def_core()
@@ -60,7 +64,9 @@ void def_core()
     .def("environment", CoreWrapper::environment, "Access to the environment for setting global options")
     .staticmethod("environment")
     .def("initiate", CoreWrapper::initiate)
-    .staticmethod("initiate");
+    .staticmethod("initiate")
+    .def("terminate", CoreWrapper::terminate)
+    .staticmethod("terminate");
 }
 
 } // python

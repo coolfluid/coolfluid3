@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/RegistLibrary.hpp"
-#include "common/Root.hpp"
 #include "common/Group.hpp"
 
 #include "RDM/LibRDM.hpp"
@@ -22,6 +21,34 @@ using namespace cf3::common;
 cf3::common::RegistLibrary<LibRDM> LibRDM;
 
 ////////////////////////////////////////////////////////////////////////////////
+
+LibRDM::~LibRDM()
+{
+  if(m_is_initiated)
+    terminate_impl();
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
+
+void LibRDM::initiate()
+{
+  if(m_is_initiated)
+    return;
+  
+  initiate_impl();
+  m_is_initiated = true;
+}
+
+void LibRDM::terminate()
+{
+  if(!m_is_initiated)
+    return;
+  
+  terminate_impl();
+  m_is_initiated = false;
+}
+
 
 void LibRDM::initiate_impl()
 {

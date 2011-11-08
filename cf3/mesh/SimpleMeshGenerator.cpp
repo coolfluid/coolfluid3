@@ -12,14 +12,15 @@
 #include "common/Foreach.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Log.hpp"
-#include "common/Root.hpp"
 #include "common/Core.hpp"
 
+#include "mesh/Mesh.hpp"
+#include "mesh/Connectivity.hpp"
 #include "mesh/MergedParallelDistribution.hpp"
 #include "mesh/ParallelDistribution.hpp"
 #include "mesh/SimpleMeshGenerator.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 #include "mesh/Cells.hpp"
 #include "mesh/Faces.hpp"
@@ -43,33 +44,33 @@ SimpleMeshGenerator::SimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  m_options.add_option<OptionArrayT<Uint> >("nb_cells", m_nb_cells)
+  options().add_option<OptionArrayT<Uint> >("nb_cells", m_nb_cells)
       ->description("Vector of number of cells in each direction")
       ->pretty_name("Number of Cells")
       ->link_to(&m_nb_cells)
       ->mark_basic();
 
-  m_options.add_option<OptionArrayT<Real> >("offsets", m_offsets)
+  options().add_option<OptionArrayT<Real> >("offsets", m_offsets)
       ->description("Vector of offsets in direction")
       ->pretty_name("Offsets")
       ->link_to(&m_offsets)
       ->mark_basic();
 
-  m_options.add_option<OptionArrayT<Real> >("lengths", m_lengths)
+  options().add_option<OptionArrayT<Real> >("lengths", m_lengths)
       ->description("Vector of lengths each direction")
       ->pretty_name("Lengths")
       ->link_to(&m_lengths)
       ->mark_basic();
 
-  m_options.add_option(OptionT<Uint>::create("part", PE::Comm::instance().rank()))
+  options().add_option(OptionT<Uint>::create("part", PE::Comm::instance().rank()))
       ->description("Part number (e.g. rank of processors)")
       ->pretty_name("Part");
 
-  m_options.add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
+  options().add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
       ->description("Total number of partitions (e.g. number of processors)")
       ->pretty_name("Number of Partitions");
 
-  m_options.add_option(OptionT<bool>::create("bdry", true))
+  options().add_option(OptionT<bool>::create("bdry", true))
       ->description("Generate Boundary")
       ->pretty_name("Boundary");
 }
@@ -128,7 +129,7 @@ void SimpleMeshGenerator::create_line()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("fluid");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
   Cells& cells = region.create_component<Cells>("Line");
@@ -235,7 +236,7 @@ void SimpleMeshGenerator::create_rectangle()
   hash.configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("region");
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
 
   // find ghost nodes

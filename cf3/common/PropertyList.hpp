@@ -4,15 +4,18 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+/// @file PropertyList.hpp
+/// @note This header gets included indirectly in common/Component.hpp
+///       It should be as lean as possible!
+
 #ifndef cf3_common_PropertyList_hpp
 #define cf3_common_PropertyList_hpp
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-//#include "common/Option.hpp"
-
 #include <boost/any.hpp>
 
+#include "common/BoostAnyConversion.hpp"
 #include "common/CommonAPI.hpp"
 
 namespace cf3 {
@@ -66,7 +69,10 @@ namespace common {
 
     /// @returns the value of the option cast to TYPE
     template < typename TYPE >
-    TYPE value( const std::string & pname) const;
+    TYPE value( const std::string & pname) const
+    {
+      return any_to_value<TYPE>(property(pname));
+    }
 
     std::string value_str ( const std::string & pname ) const;
 

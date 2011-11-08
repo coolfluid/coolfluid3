@@ -4,6 +4,9 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -19,7 +22,7 @@
 
 #include "math/LSS/System.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/actions/CSolveSystem.hpp"

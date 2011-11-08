@@ -1,0 +1,134 @@
+<node name="Root" atype="Root" mode="basic">
+  <map>
+    <value key="properties">
+      <map>
+        <value key="brief">
+          <string>No brief description available</string>
+        </value>
+        <value key="description">
+          <string>This component has not a long description</string>
+        </value>
+      </map>
+    </value>
+  </map>
+  <node name="Core" atype="Core" mode="adv">
+    <map>
+      <value key="properties">
+        <map>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </map>
+      </value>
+    </map>
+  </node>
+  <node name="Environment" atype="Env" mode="basic">
+    <map>
+      <value key="properties">
+        <map>
+          <value key="AssertionThrows" descr="If true, failed assertions throw exceptions instead of abording." mode="basic" is_option="true">
+            <bool>false</bool>
+          </value>
+          <value key="ErrorOnUnusedConfig" descr="If true, signal error when some user provided config parameters are not used." mode="basic" is_option="true">
+            <bool>false</bool>
+          </value>
+          <value key="ExceptionLogLevel" descr="The log level for exceptions" mode="basic" is_option="true">
+            <unsigned>0</unsigned>
+          </value>
+          <value key="MainLoggerFileName" descr="The name if the file in which to put the logging messages." mode="basic" is_option="true">
+            <string>output.log</string>
+          </value>
+          <value key="OnlyCP0Writes" descr="If true, only processor P0 writes the log info to files. If false, all processors write." mode="basic" is_option="true">
+            <bool>true</bool>
+          </value>
+          <value key="RegistRignalHandlers" descr="If true, regist signal handlers" mode="basic" is_option="true">
+            <bool>true</bool>
+          </value>
+          <value key="TraceActive" descr="If true, trace is active." mode="basic" is_option="true">
+            <bool>false</bool>
+          </value>
+          <value key="TraceToStdOut" descr="If true, trace log is also written to the stdout." mode="basic" is_option="true">
+            <bool>false</bool>
+          </value>
+          <value key="VerboseEvents" descr="If true, events are verbose output." mode="basic" is_option="true">
+            <bool>false</bool>
+          </value>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+        </map>
+      </value>
+    </map>
+  </node>
+  <node name="Tools" atype="Group" mode="basic">
+    <map>
+      <value key="properties">
+        <map>
+          <value key="brief">
+            <string>No brief description available</string>
+          </value>
+          <value key="description">
+            <string>This component has not a long description</string>
+          </value>
+          <value key="count" descr="From one to ten" mode="basic" is_option="true">
+            <string>One</string>
+            <array key="restrictedValues" size="10" type="string" is_option="true">
+              <e>One</e>
+              <e>Two</e>
+              <e>Three</e>
+              <e>Four</e>
+              <e>Five</e>
+              <e>Six</e>
+              <e>Seven</e>
+              <e>Eight</e>
+              <e>Nine</e>
+              <e>Ten</e>
+            </array>
+          </value>
+          <value key="pi" descr="Pi in a CGroup" mode="adv" is_option="true">
+            <real>3.14159</real>
+          </value>
+        </map>
+      </value>
+    </map>
+    <node name="Journal" atype="Journal" mode="basic">
+      <map>
+        <value key="properties">
+          <map>
+            <value key="RecordReplies" descr="If true, both signal and reply frames are recorded. If false, only signal frames are recorded.
+Recording replies will significantly increase the journal size and the memory used." mode="basic" is_option="true">
+              <bool>false</bool>
+            </value>
+            <value key="brief">
+              <string>No brief description available</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </map>
+        </value>
+      </map>
+    </node>
+    <!--<node name="LoadMesh" atype="LoadMesh" mode="basic">
+      <map>
+        <value key="properties">
+          <map>
+            <value key="brief">
+              <string>Loads meshes, guessing automatically the format from the file extension</string>
+            </value>
+            <value key="description">
+              <string>This component has not a long description</string>
+            </value>
+          </map>
+        </value>
+      </map>
+    </node>-->
+    <node name="TheLink" atype="Link" mode="basic">cpath:/Environment</node>
+  </node>
+</node>

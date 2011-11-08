@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <boost/tuple/tuple.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
@@ -16,7 +18,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 #include "mesh/Octtree.hpp"
 

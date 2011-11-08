@@ -12,10 +12,10 @@
 
 #include "mesh/CGNS/Writer.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 

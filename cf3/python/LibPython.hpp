@@ -43,6 +43,8 @@ namespace cf3 {
 
     /// Constructor
     LibPython ( const std::string& name) : common::Library(name) {   }
+    
+    ~LibPython();
 
   public: // functions
 
@@ -65,6 +67,9 @@ namespace cf3 {
 
     /// Gets the Class name
     static std::string type_name() { return "LibPython"; }
+    
+    virtual void initiate();
+    virtual void terminate();
 
   protected:
 

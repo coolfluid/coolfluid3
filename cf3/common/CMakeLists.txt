@@ -32,6 +32,7 @@ list( APPEND coolfluid_common_files
     CommonAPI.hpp
     Component.hpp
     Component.cpp
+    ComponentIterator.hpp
     ConnectionManager.hpp
     ConnectionManager.cpp
     Core.hpp
@@ -112,8 +113,6 @@ list( APPEND coolfluid_common_files
     OSystemLayer.cpp
     OSystemLayer.hpp
     RegistLibrary.hpp
-    Root.hpp
-    Root.cpp
     StreamHelpers.hpp
     StringConversion.hpp
     StringConversion.cpp
@@ -123,6 +122,7 @@ list( APPEND coolfluid_common_files
     SignalDispatcher.hpp
     SignalHandler.hpp
     SignalHandler.cpp
+    Table_fwd.hpp
     Table.hpp
     Table.cpp
     TaggedObject.hpp
@@ -137,6 +137,8 @@ list( APPEND coolfluid_common_files
     TypeInfo.hpp
     URI.hpp
     URI.cpp
+    UUCount.hpp
+    UUCount.cpp
     WorkerStatus.cpp
     WorkerStatus.hpp
 

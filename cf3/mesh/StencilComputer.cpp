@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
@@ -14,7 +16,7 @@
 #include "mesh/Mesh.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -29,7 +31,7 @@ StencilComputer::StencilComputer( const std::string& name )
   : Component(name)
 {
 
-  m_options.add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
+  options().add_option(OptionComponent<Mesh>::create("mesh", &m_mesh))
       ->description("Mesh to create octtree from")
       ->pretty_name("Mesh")
       ->attach_trigger(boost::bind(&StencilComputer::configure_mesh,this))
@@ -38,7 +40,7 @@ StencilComputer::StencilComputer( const std::string& name )
   m_elements = create_component_ptr<UnifiedData>("elements");
 
   m_min_stencil_size=1;
-  m_options.add_option(OptionT<Uint>::create("stencil_size", m_min_stencil_size ))
+  options().add_option(OptionT<Uint>::create("stencil_size", m_min_stencil_size ))
       ->description("The minimum amount of cells in a stencil")
       ->pretty_name("Stencil Size")
       ->link_to(&m_min_stencil_size);

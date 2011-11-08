@@ -106,11 +106,11 @@ BOOST_AUTO_TEST_CASE( URI_test )
   BOOST_CHECK(uri2.is_relative());
   BOOST_CHECK_EQUAL(uri2.string(),"file:file_name.txt");
 
-  URI uri3("cpath://hostname");
+  URI uri3("cpath:/hostname");
   uri3 /= "component";
   BOOST_CHECK(uri3.is_absolute());
-  BOOST_CHECK_EQUAL(uri3.string(),"cpath://hostname/component");
-  BOOST_CHECK_EQUAL(uri3.base_path().string(),"cpath://hostname");
+  BOOST_CHECK_EQUAL(uri3.string(),"cpath:/hostname/component");
+  BOOST_CHECK_EQUAL(uri3.base_path().string(),"cpath:/hostname");
 
 }
 BOOST_AUTO_TEST_SUITE_END()

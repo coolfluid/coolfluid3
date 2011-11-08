@@ -14,17 +14,6 @@ namespace RiemannSolvers {
 
 cf3::common::RegistLibrary<LibRiemannSolvers> libRiemannSolvers;
 
-////////////////////////////////////////////////////////////////////////////////
-
-void LibRiemannSolvers::initiate_impl()
-{
-}
-
-void LibRiemannSolvers::terminate_impl()
-{
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 } // RiemannSolvers
 } // cf3

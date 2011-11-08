@@ -14,7 +14,6 @@
 #include "common/Log.hpp"
 #include "common/Environment.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 
 #include "math/VariableManager.hpp"
 #include "math/VariablesDescriptor.hpp"
@@ -28,7 +27,7 @@
 #include "mesh/Space.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Cells.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "Tools/MeshGeneration/MeshGeneration.hpp"
 
@@ -49,7 +48,7 @@ BOOST_AUTO_TEST_CASE( test_FieldManager )
   Core::instance().environment().configure_option("exception_aborts",false);
   Core::instance().environment().configure_option("exception_backtrace",false);
   Core::instance().environment().configure_option("exception_outputs",false);
-  Root& root = Core::instance().root();
+  Component& root = Core::instance().root();
 
   // tag to use (normally supplied by the solver)
   const std::string tag = "solution";

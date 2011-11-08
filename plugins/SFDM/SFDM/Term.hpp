@@ -13,7 +13,7 @@
 
 namespace cf3 {
 
-namespace mesh   { class Field; class FieldGroup; class Cells; }
+namespace mesh   { class Field; class SpaceFields; class Cells; }
 namespace SFDM {
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -41,7 +41,7 @@ public: // functions
   /// @name ACCESSORS
   //@{
 
-  mesh::FieldGroup& field_group() { return *m_field_group.lock(); }
+  mesh::SpaceFields& field_group() { return *m_field_group.lock(); }
 
   mesh::Field& solution()    { return *m_solution.lock(); }
 
@@ -59,7 +59,7 @@ protected: // function
 
 protected: // data
 
-  boost::weak_ptr<mesh::FieldGroup> m_field_group;
+  boost::weak_ptr<mesh::SpaceFields> m_field_group;
 
   boost::weak_ptr<mesh::Field> m_solution;     ///< access to the solution field
 

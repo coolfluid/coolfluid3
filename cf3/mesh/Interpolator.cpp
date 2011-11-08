@@ -4,9 +4,11 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/OptionComponent.hpp"
 #include "common/OptionT.hpp"
-
 
 #include "mesh/Interpolator.hpp"
 #include "mesh/Mesh.hpp"
@@ -24,27 +26,27 @@ using namespace common::XML;
 Interpolator::Interpolator ( const std::string& name  ) :
   Component ( name )
 {
-  m_options.add_option(OptionComponent<Field>::create("source", &m_source))
+  options().add_option(OptionComponent<Field>::create("source", &m_source))
       ->description("Field to interpolate from")
       ->pretty_name("Source Field")
       ->mark_basic();
 
-  m_options.add_option(OptionComponent<Field>::create("target", &m_target))
+  options().add_option(OptionComponent<Field>::create("target", &m_target))
       ->description("Field to interpolate to")
       ->pretty_name("TargetField")
       ->mark_basic();
 
-  m_options.add_option(OptionT<bool>::create("store", true))
+  options().add_option(OptionT<bool>::create("store", true))
       ->description("Flag to store weights and stencils used for faster interpolation")
       ->pretty_name("Store");
 
-  m_options.add_option(OptionT<std::string>::create("stencil_computer", std::string("stencilcomputer")))
+  options().add_option(OptionT<std::string>::create("stencil_computer", std::string("stencilcomputer")))
       ->description("Builder name of the stencil computer")
       ->pretty_name("Stencil Computer")
       ->attach_trigger( boost::bind( &Interpolator::configure_stencil_computer, this ) )
       ->mark_basic();
 
-  m_options.add_option(OptionT<std::string>::create("function", std::string("function")))
+  options().add_option(OptionT<std::string>::create("function", std::string("function")))
       ->description("Builder name of the interpolator function")
       ->pretty_name("Interpolator Function")
       ->attach_trigger( boost::bind( &Interpolator::configure_interpolator_function, this ) )

@@ -21,7 +21,6 @@
 #include "solver/actions/Proto/Terminals.hpp"
 
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Log.hpp"
 
 #include "math/MatrixTypes.hpp"
@@ -33,7 +32,7 @@
 #include "mesh/MeshReader.hpp"
 #include "mesh/ElementData.hpp"
 #include "mesh/FieldManager.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 
 #include "mesh/Integrators/Gauss.hpp"
 #include "mesh/ElementTypes.hpp"

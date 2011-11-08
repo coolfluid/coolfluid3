@@ -15,14 +15,6 @@ namespace GooglePerfTools {
 
 cf3::common::RegistLibrary<LibGooglePerfTools> libGooglePerfTools;
 
-void LibGooglePerfTools::initiate_impl()
-{
-}
-
-void LibGooglePerfTools::terminate_impl()
-{
-}
-
 } // GooglePerfTools
 } // Tools
 } // CF

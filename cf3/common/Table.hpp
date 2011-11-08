@@ -9,13 +9,11 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "common/Log.hpp"
-#include "common/Component.hpp"
-#include "common/OptionArray.hpp"
-#include "common/OptionT.hpp"
-#include "common/Signal.hpp"
-#include "common/XML/SignalOptions.hpp"
+#include <iosfwd>
 
+#include "common/Component.hpp"
+
+#include "common/Table_fwd.hpp"
 #include "common/ArrayBufferT.hpp"
 #include "common/LibCommon.hpp"
 
@@ -52,13 +50,13 @@ public: // typedefs
   typedef ValueT value_type;
 
   /// @brief the type of the internal structure of the table
-  typedef boost::multi_array<ValueT,2> ArrayT;
+  typedef typename TableArray<ValueT>::type ArrayT;
 
   /// @brief the type of a row in the internal structure of the table
-  typedef typename boost::subarray_gen<ArrayT,1>::type Row;
+  typedef typename TableRow<ValueT>::type Row;
 
   /// @brief the const type of a row in the internal structure of the table
-  typedef const typename boost::const_subarray_gen<ArrayT,1>::type ConstRow;
+  typedef typename TableConstRow<ValueT>::type ConstRow;
 
   /// @brief the type of the buffer used to interact with the table
   typedef ArrayBufferT<ValueT> Buffer;
@@ -74,26 +72,7 @@ public: // functions
   /// Contructor
   /// @param name of the component
   Table ( const std::string& name )  : Component ( name )
-  {
-    regist_signal ( "resize" )
-        ->description( "Resize the table" )
-        ->pretty_name("Resize" )
-        ->connect   ( boost::bind ( &Table::signal_resize,    this, _1 ) )
-        ->signature ( boost::bind ( &Table::signature_resize, this, _1 ) );
-
-    regist_signal ( "set_row" )
-        ->description( "Set Row" )
-        ->pretty_name("Set Row" )
-        ->connect   ( boost::bind ( &Table::signal_set_row,    this, _1 ) )
-        ->signature ( boost::bind ( &Table::signature_set_row, this, _1 ) );
-
-    regist_signal ( "print_table" )
-        ->description( "Print the table" )
-        ->pretty_name("Print Table" )
-        ->connect   ( boost::bind ( &Table::signal_print_table,    this, _1 ) )
-        ->signature ( boost::bind ( &Table::signature_print_table, this, _1 ) );
-
-  }
+  {  }
 
   /// Get the component type name
   /// @returns the component type name
@@ -172,224 +151,6 @@ public: // functions
     for(Uint j=0; j<row.size(); ++j)
       row_to_set[j] = row[j];
   }
-
-  void signal_resize ( common::SignalArgs& node )
-  {
-    common::XML::SignalOptions options( node );
-    std::vector<Uint> size = options.array<Uint>("size");
-    resize(size[0]);
-    set_row_size(size[1]);
-  }
-
-  void signature_resize ( common::SignalArgs& node)
-  {
-    common::XML::SignalOptions options( node );
-
-    std::vector<Uint> size;
-
-    options.add_option< common::OptionArrayT<Uint> >("size", size )
-        ->description("Vector of [nb_rows,nb_cols]");
-  }
-
-  void signal_set_row ( common::SignalArgs& node )
-  {
-    common::XML::SignalOptions options(node);
-    Uint index = options.value<Uint>("index");
-    std::vector<value_type> row = options.array<value_type>("row");
-    set_row(index,row);
-  }
-
-  void signature_set_row ( common::SignalArgs& node)
-  {
-    common::XML::SignalOptions options(node);
-
-    options.add_option< common::OptionT<Uint> >("index");
-
-    options.add_option< common::OptionArrayT<value_type> >("row")
-        ->description("Row");
-  }
-
-  void signal_print_table ( common::SignalArgs& node )
-  {
-    CFinfo << uri().string() <<" :\n" << *this << CFendl;
-  }
-
-  void signature_print_table ( common::SignalArgs& node)
-  {
-
-  }
-
-////////////////////////////////////////////////////////////////////////////////
-
-  // Index operator.
-  // --------------
-  // c = U[i]
-  // Real& operator[](int index);
-  // const Real& operator[](int index) const;
-
-  // // Binary arithmetic operators.
-  // // ----------------------------
-  // /// U = U + U
-  // friend Table operator +(const Table& U1, const Table& U2);
-  // /// U = U - U
-  // friend Table operator -(const Table& U1, const Table& U2);
-  // /// U = U * c
-  // friend Table operator *(const Table& U, const Real& a);
-  // /// U = c * U
-  // friend Table operator *(const Real& a, const Table& U);
-  // /// U = U * U (row-wise)
-  // friend Table operator *(const Table& U1, const Table& U2);
-  // /// U = U / c
-  // friend Table operator /(const Table& U, const Real& a);
-  // /// U = U / U (row-wise)
-  // friend Table operator /(const Table& U1, const Table& U2);
-  //
-  // // Unary arithmetic operators.
-  // // ---------------------------
-  // /// U = -U
-  // friend Table operator -(const Table& U);
-  // //friend Table fabs(const Table& U);
-
-  // Shortcut arithmetic operators.
-  // ------------------------------
-  /// U = U
-  Table& operator =(const Table& U)
-  {
-    cf3_assert(size() == U.size());
-    array() = U.array();
-    return *this;
-  }
-
-  /// U = c
-  Table& operator =(const value_type& c)
-  {
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] = c;
-    return *this;
-  }
-
-  /// U += c
-  Table& operator +=(const value_type& c)
-  {
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] += c;
-    return *this;
-  }
-
-  /// U += U
-  Table& operator +=(const Table& U)
-  {
-    cf3_assert(size() == U.size());
-    cf3_assert(row_size() == U.row_size());
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] += U.array()[i][j];
-    return *this;
-  }
-
-  /// U -= c
-  Table& operator -=(const value_type& c)
-  {
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] -= c;
-    return *this;
-  }
-
-  /// U -= U
-  Table& operator -=(const Table& U)
-  {
-    cf3_assert(size() == U.size());
-    cf3_assert(row_size() == U.row_size());
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] -= U.array()[i][j];
-    return *this;
-  }
-
-  /// U *= c
-  Table& operator *=(const value_type& c)
-  {
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] *= c;
-    return *this;
-  }
-
-  /// U *= U
-  Table& operator *=(const Table& U)
-  {
-    cf3_assert(size() == U.size());
-    if (U.row_size() == 1) // U is a scalar field
-    {
-      for (Uint i=0; i<size(); ++i)
-        for (Uint j=0; j<row_size(); ++j)
-          array()[i][j] *= U.array()[i][0];
-    }
-    else
-    {
-      cf3_assert(row_size() == U.row_size()); // field must be same size
-      for (Uint i=0; i<size(); ++i)
-        for (Uint j=0; j<row_size(); ++j)
-          array()[i][j] *= U.array()[i][j];
-    }
-    return *this;
-  }
-
-  /// U /= c
-  Table& operator /=(const value_type& c)
-  {
-    for (Uint i=0; i<size(); ++i)
-      for (Uint j=0; j<row_size(); ++j)
-        array()[i][j] /= c;
-    return *this;
-  }
-
-  /// U /= U
-  Table& operator /=(const Table& U)
-  {
-    cf3_assert(size() == U.size());
-    if (U.row_size() == 1) // U is a scalar field
-    {
-      for (Uint i=0; i<size(); ++i)
-        for (Uint j=0; j<row_size(); ++j)
-          array()[i][j] /= U.array()[i][0];
-    }
-    else
-    {
-      cf3_assert(row_size() == U.row_size()); // field must be same size
-      for (Uint i=0; i<size(); ++i)
-        for (Uint j=0; j<row_size(); ++j)
-          array()[i][j] /= U.array()[i][j];
-    }
-    return *this;
-  }
-
-
-  // // Relational operators.
-  // // ---------------------
-  // /// U == U
-  // friend bool operator ==(const Table& U1, const Table& U2);
-  // /// U != U
-  // friend bool operator !=(const Table& U1, const Table& U2);
-  // // /// U <= U
-  // // friend bool operator <=(const Table& U1, const Table& U2);
-  // // /// U >= U
-  // // friend bool operator >=(const Table& U1, const Table& U2);
-  // // /// U < U
-  // // friend bool operator <(const Table& U1, const Table& U2);
-  // // /// U > U
-  // // friend bool operator >(const Table& U1, const Table& U2);
-  //
-  // // Input-output operators.
-  // // ----------------------
-  // /// ostream << U
-  // friend ostream& operator << (ostream& out, const Table& U);
-  // /// istream >> U
-  // friend istream& operator >> (istream& in,  Table& U);
-
 
 private: // data
 

@@ -4,8 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/Signal.hpp"
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 
+#include "common/Signal.hpp"
+#include "common/PropertyList.hpp"
+#include "common/OptionList.hpp"
 #include "common/Action.hpp"
 #include "common/FindComponents.hpp"
 

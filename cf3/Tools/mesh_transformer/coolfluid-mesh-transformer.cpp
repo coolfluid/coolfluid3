@@ -11,7 +11,6 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-#include "common/Root.hpp"
 #include "common/Foreach.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -45,7 +44,7 @@ int main(int argc, char * argv[])
     ExceptionManager::instance().ExceptionAborts = false;
 
     // create mesh object
-    Root& root = Core::instance().root();
+    Component& root = Core::instance().root();
     Mesh::Ptr mesh = root.create_component_ptr<Mesh>("mesh");
 
     // Initialize empty commands

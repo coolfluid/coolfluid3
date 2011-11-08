@@ -1,15 +1,4 @@
-###############################################################################
-# assertions
-if( NOT CF3_ENABLE_ASSERTIONS )
-  add_definitions( -DNDEBUG )
-endif()
-
-###############################################################################
-# Logging options
-
-if( NOT CF3_ENABLE_DEBUG_MACROS)
-  add_definitions(-DCF3_NO_DEBUG_MACROS)
-endif()
+add_definitions(${CF3_EXTRA_DEFINES})
 
 ###############################################################################
 # process precision option

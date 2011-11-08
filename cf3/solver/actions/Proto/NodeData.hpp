@@ -18,8 +18,8 @@
 
 #include "mesh/Field.hpp"
 #include "mesh/Mesh.hpp"
-#include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/Connectivity.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"
 
@@ -84,7 +84,7 @@ private:
 inline mesh::Field& find_field(mesh::Region& region, const std::string& tag)
 {
   mesh::Mesh& mesh = common::find_parent_component<mesh::Mesh>(region);
-  mesh::FieldGroup& field_group =  mesh.geometry_fields();
+  mesh::SpaceFields& field_group =  mesh.geometry_fields();
   return common::find_component_with_tag<mesh::Field>(field_group, tag);
 }
 
@@ -247,7 +247,7 @@ public:
 
   /// The dimension of the problem
   static const Uint dimension = NbDims::value;
-  
+
   /// Type of the per-variable data
   typedef typename boost::mpl::transform< VariablesT, AddNodeData<NbDims::value> >::type VariablesDataT;
 

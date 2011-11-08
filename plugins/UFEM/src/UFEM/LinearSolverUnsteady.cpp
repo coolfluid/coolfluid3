@@ -4,9 +4,12 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/function.hpp>
+#include <boost/bind.hpp>
+
 #include "common/Log.hpp"
 
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/Field.hpp"
 
 #include "solver/CTime.hpp"
@@ -49,7 +52,7 @@ LinearSolverUnsteady::LinearSolverUnsteady(const std::string& name) :
   LinearSolver(name),
   m_implementation( new Implementation() )
 {
-  m_options.add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_implementation->m_time))
+  options().add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_implementation->m_time))
     ->pretty_name("Time")
     ->description("Component that keeps track of time for this simulation")
     ->attach_trigger(boost::bind(&Implementation::trigger_time, m_implementation.get()));

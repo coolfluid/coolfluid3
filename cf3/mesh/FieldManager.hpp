@@ -18,7 +18,7 @@
 namespace cf3 {
 namespace mesh {
 
-class FieldGroup;
+class SpaceFields;
 class Mesh;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -46,7 +46,7 @@ public: // functions
   static std::string type_name () { return "FieldManager"; }
 
   /// Create fields. Looks up the VariablesDescriptor with the given tag, and creates a field with the same tag in the given field group.
-  void create_field(const std::string& tag, cf3::mesh::FieldGroup& field_group);
+  void create_field(const std::string& tag, cf3::mesh::SpaceFields& field_group);
 
   /// @name SIGNALS
   //@{

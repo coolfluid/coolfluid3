@@ -12,20 +12,21 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/DynTable.hpp"
+#include "common/List.hpp"
+
+
 #include "common/PE/Comm.hpp"
 #include "common/PE/Buffer.hpp"
 #include "common/PE/debug.hpp"
 
-
+#include "mesh/Connectivity.hpp"
 #include "mesh/Faces.hpp"
 #include "mesh/Region.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/Mesh.hpp"
 #include "mesh/Manipulations.hpp"
-#include "common/DynTable.hpp"
-#include "common/Table.hpp"
-#include "common/List.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshElements.hpp"
 
 #include "mesh/actions/GrowOverlap.hpp"
@@ -188,7 +189,7 @@ void GrowOverlap::execute()
 {
 
   Mesh& mesh = *m_mesh.lock();
-  FieldGroup& nodes = mesh.geometry_fields();
+  SpaceFields& nodes = mesh.geometry_fields();
 
   const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
 

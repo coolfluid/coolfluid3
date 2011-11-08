@@ -12,7 +12,6 @@
 
 #include "mesh/Entities.hpp"
 #include "mesh/ElementType.hpp"
-#include "mesh/Connectivity.hpp"
 
 namespace cf3 {
   namespace common
@@ -20,6 +19,8 @@ namespace cf3 {
     class Link;
   }
 namespace mesh {
+
+  class Connectivity;
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -43,10 +44,10 @@ public: // functions
   virtual void initialize(const std::string& element_type_name);
 
   /// Initialize the Elements using the given type and set the nodes
-  virtual void initialize(const std::string& element_type_name, FieldGroup& geo);
+  virtual void initialize(const std::string& element_type_name, SpaceFields& geo);
 
   /// Set nodes
-  virtual void assign_geometry(FieldGroup& geo);
+  virtual void assign_geometry(SpaceFields& geo);
 
   /// Virtual destructor
   virtual ~Elements();
@@ -58,9 +59,9 @@ public: // functions
   Connectivity& node_connectivity() const;
 
   /// return the number of elements
-  virtual Uint size() const { return node_connectivity().size(); }
+  virtual Uint size() const;
 
-  virtual common::Table<Uint>::ConstRow get_nodes(const Uint elem_idx) const;
+  virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
 
   virtual RealMatrix get_coordinates(const Uint elem_idx) const;
 

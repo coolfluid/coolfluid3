@@ -16,7 +16,6 @@
 #include "common/Log.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
-#include "common/Root.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
@@ -25,7 +24,7 @@
 #include "mesh/Region.hpp"
 #include "mesh/Elements.hpp"
 #include "common/Table.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/MeshGenerator.hpp"
 #include "mesh/Octtree.hpp"
 #include "mesh/StencilComputerOcttree.hpp"

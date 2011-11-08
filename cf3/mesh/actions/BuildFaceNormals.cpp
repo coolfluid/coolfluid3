@@ -16,7 +16,7 @@
 #include "mesh/actions/BuildFaceNormals.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Region.hpp"
-#include "mesh/FieldGroup.hpp"
+#include "mesh/SpaceFields.hpp"
 #include "mesh/FaceCellConnectivity.hpp"
 #include "mesh/NodeElementConnectivity.hpp"
 #include "mesh/Node2FaceCellConnectivity.hpp"
@@ -26,6 +26,7 @@
 #include "mesh/Faces.hpp"
 #include "mesh/CellFaces.hpp"
 #include "mesh/Field.hpp"
+#include "mesh/Connectivity.hpp"
 
 #include "math/Functions.hpp"
 
@@ -82,7 +83,7 @@ void BuildFaceNormals::execute()
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
-  FieldGroup& faces_P0 = mesh.create_space_and_field_group("faces_P0",FieldGroup::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
+  SpaceFields& faces_P0 = mesh.create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(mesh::Tags::normal());
 
@@ -97,17 +98,16 @@ void BuildFaceNormals::execute()
       common::Table<Uint>& face_nb = face2cell.face_number();
       RealMatrix face_coordinates(faces.element_type().nb_nodes(),faces.element_type().dimension());
       RealVector normal(faces.element_type().dimension());
-      for (Uint face=0; face<face2cell.size(); ++face)
+      for (Face2Cell face(face2cell); face.idx<face2cell.size(); ++face.idx)
       {
         // The normal will be outward to the first connected element
-        boost::tie(component,cell_idx) = face2cell.lookup().location(face2cell.connectivity()[face][FIRST]);
-        Cells& cells = component->as_type<Cells>();
-        Connectivity::ConstRow cell_nodes = cells.node_connectivity()[cell_idx];
+        Entity cell = face.cells()[FIRST];
+        Connectivity::ConstRow cell_nodes = cell.get_nodes();
         Uint i(0);
-        boost_foreach(Uint node_id, cells.element_type().faces().nodes_range(face_nb[face][0]) )
+        boost_foreach(Uint node_id, face.nodes() )
         {
           Uint j(0);
-          boost_foreach(const Real& coord, mesh.geometry_fields().coordinates()[cell_nodes[node_id]])
+          boost_foreach(const Real& coord, mesh.geometry_fields().coordinates()[node_id])
           {
             face_coordinates(i,j) = coord;
             ++j;
@@ -115,19 +115,19 @@ void BuildFaceNormals::execute()
           ++i;
         }
 
-        if (faces.element_type().dimensionality() == 0) // cannot compute normal from element_type
+        if (face.element_type().dimensionality() == 0) // cannot compute normal from element_type
         {
           RealVector cell_centroid(1);
-          cells.element_type().compute_centroid(cells.get_coordinates(cell_idx),cell_centroid);
+          cell.element_type().compute_centroid(cell.get_coordinates(),cell_centroid);
           RealVector normal(1);
           normal = face_coordinates.row(0) - cell_centroid;
           normal.normalize();
-          face_normals[face_normals.indexes_for_element(faces,face)[0]][XX]=normal[XX];
+          face_normals[face_normals.indexes_for_element(faces,face.idx)[0]][XX]=normal[XX];
         }
         else
         {
-          faces.element_type().compute_normal(face_coordinates,normal);
-          Uint field_index = face_normals.indexes_for_element(faces,face)[0];
+          face.element_type().compute_normal(face_coordinates,normal);
+          Uint field_index = face_normals.indexes_for_element(faces,face.idx)[0];
           cf3_assert(field_index    < face_normals.size()    );
           cf3_assert(normal.size() == face_normals.row_size());
           for (Uint i=0; i<normal.size(); ++i)
