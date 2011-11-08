@@ -16,17 +16,17 @@
 
 #include "math/Consts.hpp"
 
-#include "ui/Graphics/GraphicalArray.hpp"
-#include "ui/Graphics/GraphicalArrayRestrictedList.hpp"
-#include "ui/Graphics/GraphicalBool.hpp"
-#include "ui/Graphics/GraphicalDouble.hpp"
-#include "ui/Graphics/GraphicalRestrictedList.hpp"
-#include "ui/Graphics/GraphicalString.hpp"
-#include "ui/Graphics/GraphicalInt.hpp"
-#include "ui/Graphics/GraphicalUri.hpp"
-#include "ui/Graphics/GraphicalUriArray.hpp"
+#include "ui/graphics/GraphicalArray.hpp"
+#include "ui/graphics/GraphicalArrayRestrictedList.hpp"
+#include "ui/graphics/GraphicalBool.hpp"
+#include "ui/graphics/GraphicalDouble.hpp"
+#include "ui/graphics/GraphicalRestrictedList.hpp"
+#include "ui/graphics/GraphicalString.hpp"
+#include "ui/graphics/GraphicalInt.hpp"
+#include "ui/graphics/GraphicalUri.hpp"
+#include "ui/graphics/GraphicalUriArray.hpp"
 
-#include "ui/Graphics/GraphicalValue.hpp"
+#include "ui/graphics/GraphicalValue.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 #include "test/ui/Graphics/GraphicalValueTest.hpp"

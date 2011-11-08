@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalBool.hpp"
+#include "ui/graphics/GraphicalBool.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 

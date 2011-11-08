@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalInt.hpp"
+#include "ui/graphics/GraphicalInt.hpp"
 
 #include "math/Consts.hpp"
 
