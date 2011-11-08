@@ -67,7 +67,7 @@ void TabBuilder::begin_model_reset()
 
 void TabBuilder::end_model_reset()
 {
-  QMap<std::string, int>::iterator it = m_last_tabs.begin();
+  QMap<common::UUCount, int>::iterator it = m_last_tabs.begin();
 
   while( it != m_last_tabs.end() )
   {
@@ -82,7 +82,7 @@ void TabBuilder::end_model_reset()
   m_last_tabs.clear();
   m_new_tabs.clear();
 
-  QMap<std::string, TabInfo>::iterator itTabs = m_tabs.begin();
+  QMap<common::UUCount, TabInfo>::iterator itTabs = m_tabs.begin();
 
   while( itTabs != m_tabs.end() )
   {
@@ -95,7 +95,7 @@ void TabBuilder::end_model_reset()
 
 void TabBuilder::show_tab( CNode::ConstPtr node )
 {
-  std::string key = node->properties().value_str("uuid"); //node->uri().path();
+  common::UUCount key = node->properties().value<common::UUCount>("uuid"); //node->uri().path();
 
   if( m_tabs.contains(key) )
     setCurrentIndex( m_tabs[key].tabIndex );

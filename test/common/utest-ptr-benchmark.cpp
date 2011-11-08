@@ -7,6 +7,8 @@
 #define BOOST_TEST_DYN_LINK
 #define BOOST_TEST_MODULE "Test module for Map component"
 
+#include <iostream>
+
 #include <boost/test/unit_test.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
@@ -51,7 +53,7 @@ struct PtrFixture : Tools::Testing::TimedTestFixture
   {
     static RawT* v = 0;
     if(!v)
-      v = new RawT[vec_size];
+      v = new RawT[vec_size*2];
     return v;
   }
 
@@ -67,6 +69,10 @@ BOOST_FIXTURE_TEST_SUITE( BuildOptions, PtrFixture )
 
 BOOST_AUTO_TEST_CASE ( FillShared )
 {
+  std::cout << "size of boost::shared_ptr: " << sizeof(SharedT) << std::endl;
+  std::cout << "size of boost::weak_ptr: " << sizeof(WeakT) << std::endl;
+  std::cout << "size of raw pointer: " << sizeof(RawT) << std::endl;
+
   SharedT* vec = shared_vec();
   for(Uint i = 0; i != vec_size; ++i)
     vec[i] = boost::shared_ptr<Uint>(new Uint(i));
@@ -83,8 +89,8 @@ BOOST_AUTO_TEST_CASE ( FillWeak )
 BOOST_AUTO_TEST_CASE ( FillRaw )
 {
   RawT* vec = raw_vec();
-  for(Uint i = 0; i != vec_size; ++i)
-    vec[i] = new Uint(i);
+  for(Uint i = 0; i != 2*vec_size; ++i)
+    vec[i] = new Uint(i/2);
 }
 
 BOOST_AUTO_TEST_CASE ( CopyShared )
@@ -105,31 +111,37 @@ BOOST_AUTO_TEST_CASE ( CopyWeak )
 
 BOOST_AUTO_TEST_CASE ( CopyRaw )
 {
-  RawT* new_vec = new RawT[vec_size];
+  RawT* new_vec = new RawT[vec_size*2];
   RawT* old_vec = raw_vec();
   for(Uint i = 0; i != vec_size; ++i)
-    new_vec[i] = old_vec[i];
+    new_vec[2*i] = old_vec[2*i];
 }
 
 BOOST_AUTO_TEST_CASE ( CheckShared )
 {
   SharedT* vec = shared_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(is_not_null(vec[i]));
+    result += is_not_null(vec[i].get());
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( CheckWeak)
 {
   WeakT* vec = weak_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(!vec[i].expired());
+    result += !vec[i].expired();
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( CheckRaw )
 {
   RawT* vec = raw_vec();
+  Uint result = 0;
   for(Uint i = 0; i != vec_size; ++i)
-    BOOST_CHECK(is_not_null(vec[i]));
+    result += is_not_null(vec[2*i]);
+  BOOST_CHECK(vec_size == result);
 }
 
 BOOST_AUTO_TEST_CASE ( DerefShared )
@@ -168,7 +180,7 @@ BOOST_AUTO_TEST_CASE ( DerefRaw )
   {
     for(Uint i = 0; i != vec_size; ++i)
     {
-      result += *vec[i];
+      result += *vec[2*i];
     }
   }
   BOOST_CHECK(result);

@@ -6,13 +6,11 @@
 
 #include <sstream>
 
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include "common/Group.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
 #include "common/FindComponents.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -43,7 +41,6 @@ NRoot::NRoot(const std::string & name)
   : CNode(name, "Root", CNode::STANDARD_NODE)
 {
   m_is_root = true;
-  m_uuid = boost::uuids::random_generator()();
 
   regist_signal( "shutdown" )
     ->description("Server shutdown")
@@ -120,11 +117,9 @@ CNode::Ptr NRoot::child_from_root(cf3::Uint number)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::string NRoot::uuid() const
+const UUCount& NRoot::uuid() const
 {
-  std::ostringstream ss;
-  ss << m_uuid;
-  return ss.str();
+  return m_uuid;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -135,7 +130,7 @@ void NRoot::connected_to_server()
   QString msg2 = "Attempting to register with UuiD %1.";
 
 //  NLog::global()->add_message(msg1.arg(host).arg(port));
-  NLog::global()->add_message(msg2.arg(uuid().c_str()));
+  NLog::global()->add_message(msg2.arg(uuid().string().c_str()));
 
   // build and send signal
   SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_core_PATH);

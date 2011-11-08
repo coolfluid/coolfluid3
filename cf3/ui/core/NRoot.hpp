@@ -9,7 +9,7 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
-#include <boost/uuid/uuid.hpp>
+#include "common/UUCount.hpp"
 
 #include "ui/core/CNode.hpp"
 
@@ -65,7 +65,7 @@ namespace core {
 
     /// @brief Gives the client UuiD
     /// @return Returns the Client UuiD
-    std::string uuid() const;
+    const common::UUCount& uuid() const;
 
     /// @name SIGNALS
     // @{
@@ -103,7 +103,7 @@ namespace core {
   private :
 
     /// @brief Client UuiD
-    boost::uuids::uuid m_uuid;
+    common::UUCount m_uuid;
   private: // helper functions
 
     /// @name Signals

@@ -116,13 +116,11 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   if(client == nullptr)
   {
     QHash<QTcpSocket *, std::string>::iterator it = m_clients.begin();
-
     while(it != m_clients.end())
     {
       client = it.key();
       count += client->write(block);
       m_bytesSent += count;
-      client->flush();
       it++;
     }
   }
@@ -130,8 +128,6 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   {
     count = client->write(block);
     m_bytesSent += count;
-
-    client->flush();
   }
 
   return count;
