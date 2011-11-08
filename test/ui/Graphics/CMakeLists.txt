@@ -20,4 +20,4 @@ coolfluid_add_test( UTEST      utest-ui-graphics
                                GraphicalUriTest.hpp
                                GraphicalValueTest.hpp
                     LIBS       coolfluid_ui_graphics ${QT_LIBRARIES}
-                    CONDITION  CF3_ENABLE_Gui )
+                    CONDITION  CF3_ENABLE_GUI )
