@@ -276,6 +276,7 @@ void BrowserDialog::init_gui()
 
   // configure the graphical components
   m_view->setModel( m_filter_model );
+  m_favorites_view->setModel( m_model->favorites_model() );
   m_edit_path->setCompleter( m_completer );
 
   m_filter_model->setDynamicSortFilter(true);

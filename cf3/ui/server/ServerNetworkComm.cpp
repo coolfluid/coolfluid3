@@ -192,7 +192,7 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message,
                                     LogMessage::Type type)
 {
-  SignalFrame frame("message", SERVER_core_PATH, CLIENT_LOG_PATH);
+  SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
   SignalOptions options( frame );
 
 
@@ -380,7 +380,7 @@ void ServerNetworkComm::newData()
   }
 
   if(!errorMsg.isEmpty())
-    this->sendFrameRejected(socket, frameId, SERVER_core_PATH, errorMsg);
+    this->sendFrameRejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
 
 }
 

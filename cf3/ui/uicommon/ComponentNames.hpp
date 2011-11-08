@@ -34,7 +34,7 @@
 #define SERVER_HISTORY  "History"
 
 #define SERVER_ROOT_PATH     "/"
-#define SERVER_core_PATH     "/" SERVER_CORE
+#define SERVER_CORE_PATH     "/" SERVER_CORE
 #define SERVER_JOURNAL_PATH  "/Tools/" SERVER_JOURNAL
 
 /////////////////////////////////////////////////////////////////////////////

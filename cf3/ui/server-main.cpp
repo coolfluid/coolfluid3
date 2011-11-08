@@ -49,6 +49,8 @@ int main(int argc, char *argv[])
   Uint nb_workers = 1;
   std::string hostfile("./machine.txt");
 
+  std::cout << "My PID is " << getpid() << std::endl;
+
   boost::program_options::options_description desc("Allowed options");
 
   desc.add_options()
@@ -75,8 +77,6 @@ int main(int argc, char *argv[])
     program_options::variables_map vm;
     program_options::store(program_options::parse_command_line(argc, argv, desc), vm);
     program_options::notify(vm);
-
-    std::cout << "My PID is " << getpid() << std::endl;
 
     if ( vm.count("help") > 0 )
     {
@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
       CCore::Ptr sk = ServerRoot::instance().core();
       QString message("Server successfully launched on machine %1 (%2) on port %3!");
 
-      sk->listenToPort(port); // start listening to the network
+      sk->listen_to_port(port); // start listening to the network
 
       QList<QHostAddress> addrs = hostInfo.addresses();
       QString ip;

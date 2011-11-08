@@ -36,11 +36,14 @@ NRemoteFSBrowser::NRemoteFSBrowser( const std::string & name ) :
   m_include_files(true)
 {
   m_completion_model = new QStringListModel(this);
+  m_favorites_model = new QStringListModel(this);
 
   m_headers << "Name" << "Size" << "Date Modified";
 
   regist_signal("read_dir")
-      ->connect(boost::bind(&NRemoteFSBrowser::signal_read_dir, this, _1));
+      ->connect(boost::bind(&NRemoteFSBrowser::reply_read_dir, this, _1));
+  regist_signal("list_favorites")
+      ->connect(boost::bind(&NRemoteFSBrowser::reply_list_favorites, this, _1));
 
 }
 
@@ -53,7 +56,7 @@ NRemoteFSBrowser::~NRemoteFSBrowser()
 
 /////////////////////////////////////////////////////////////////////////////
 
-void NRemoteFSBrowser::signal_read_dir ( common::SignalArgs & args )
+void NRemoteFSBrowser::reply_read_dir ( common::SignalArgs & args )
 {
   SignalOptions options( args );
   QStringList completion_list;
@@ -135,9 +138,47 @@ void NRemoteFSBrowser::signal_read_dir ( common::SignalArgs & args )
 
 /////////////////////////////////////////////////////////////////////////////
 
-QStringListModel * NRemoteFSBrowser::completion_model() const
+void NRemoteFSBrowser::reply_list_favorites ( SignalArgs &node )
+{
+  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
+  std::vector<std::string>::iterator it = favs.begin();
+  QStringList fav_dirs;
+
+  fav_dirs.reserve( favs.size() );
+
+  for(int i = 0 ; it != favs.end() ; ++it, ++i )
+    fav_dirs[i] = QString::fromStdString(*it);
+
+  fav_dirs.removeDuplicates();
+  m_favorites_model->setStringList(fav_dirs);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+const QStringListModel * NRemoteFSBrowser::completion_model() const
 {
   return m_completion_model;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+QStringListModel * NRemoteFSBrowser::completion_model()
+{
+  return m_completion_model;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+const QStringListModel * NRemoteFSBrowser::favorites_model() const
+{
+  return m_favorites_model;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+QStringListModel * NRemoteFSBrowser::favorites_model()
+{
+  return m_favorites_model;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -151,7 +192,7 @@ QString NRemoteFSBrowser::current_path() const
 
 void NRemoteFSBrowser::open_dir ( const QString & path )
 {
-  SignalFrame frame("read_dir", uri(), SERVER_core_PATH);
+  SignalFrame frame("read_dir", uri(), SERVER_CORE_PATH);
   SignalOptions options( frame );
 
   std::vector<std::string> vect;
@@ -343,6 +384,15 @@ bool NRemoteFSBrowser::is_file(const QModelIndex &index) const
   FileInfo * info = static_cast<FileInfo*>( index.internalPointer() );
 
   return is_not_null(info) && info->type == FILE;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void NRemoteFSBrowser::update_favorite_list() const
+{
+  SignalFrame frame("list_favorites", uri(), SERVER_CORE_PATH);
+
+  NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }
 
 /////////////////////////////////////////////////////////////////////////////

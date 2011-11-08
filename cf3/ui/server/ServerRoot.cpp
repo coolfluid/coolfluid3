@@ -60,7 +60,7 @@ ServerRoot::ServerRoot()
   tools->add_component( m_manager );
   tools->add_component( m_plotter );
 
-  m_local_components << URI( SERVER_core_PATH, URI::Scheme::CPATH );
+  m_local_components << URI( SERVER_CORE_PATH, URI::Scheme::CPATH );
 
   m_manager->mark_basic();
   m_plotter->mark_basic();
@@ -156,7 +156,7 @@ void ServerRoot::process_signal( const std::string & target,
 
           if( reply.node.is_valid() )
           {
-            m_core->sendSignal( *signal.xml_doc.get() );
+            m_core->send_signal( *signal.xml_doc.get() );
             m_journal->add_signal( reply );
           }
 
@@ -179,7 +179,7 @@ void ServerRoot::process_signal( const std::string & target,
             target + "] on component [" + receiver.path() + "].";
       }
 
-      m_core->sendACK( clientid, frameid, success, message );
+      m_core->send_ack( clientid, frameid, success, message );
     }
   }
   else // the receiver is not a local component
@@ -208,7 +208,7 @@ void ServerRoot::listen_to_events ()
 
 void ServerRoot::signal_to_forward( common::SignalArgs & args )
 {
-  m_core->sendSignal( *args.xml_doc.get() );
+  m_core->send_signal( *args.xml_doc.get() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -227,7 +227,7 @@ void ServerRoot::finished ()
     rapidxml::xml_attribute<>* attr = reply.node.content->first_attribute("type");
     if( is_not_null(attr) && std::strcmp(attr->value(), Protocol::Tags::node_type_reply()) == 0)
     {
-      core()->sendSignal(*m_doc.get());
+      core()->send_signal(*m_doc.get());
       journal()->add_signal( reply );
     }
   }
@@ -241,7 +241,7 @@ void ServerRoot::finished ()
 
   m_queue->flush();
 
-  m_core->sendACK( m_current_client_id, m_current_frame_id, success, message );
+  m_core->send_ack( m_current_client_id, m_current_frame_id, success, message );
   m_current_client_id.clear();
   m_current_frame_id.clear();
 }
