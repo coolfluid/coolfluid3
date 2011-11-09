@@ -10,6 +10,7 @@
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/weak_ptr.hpp>
 
+#include "common/Assertions.hpp"
 #include "common/CommonAPI.hpp"
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -17,7 +18,7 @@
 namespace cf3 {
 namespace common {
 
-/// Safe pointer to a component. This is the supported method for referring to other components.
+/// Safe pointer to an object. This is the supported method for referring to components.
 template<typename T>
 class Common_API Handle
 {
@@ -34,7 +35,7 @@ public:
     create_from_shared(ptr);
   }
 
-  /// Construction from shared_ptr. Casting is done as in construction from shared_ptr.
+  /// Construction from another handle. Casting is done as in construction from shared_ptr.
   template<typename Y>
   explicit Handle(const Handle<Y>& other)
   {
@@ -95,6 +96,13 @@ private:
   void create_from_shared(const boost::shared_ptr<Y>& ptr)
   {
     create_from_shared(boost::is_base_of<T, Y>(), ptr);
+  }
+
+  /// Avoid the is_base_of stuff when both types are the same
+  void create_from_shared(const boost::shared_ptr<T>& ptr)
+  {
+    m_weak_ptr = ptr;
+    m_cached_ptr = ptr.get();
   }
 
   /// Static dispatch in case T is a base of Y
