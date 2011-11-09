@@ -58,6 +58,7 @@ list( APPEND coolfluid_common_files
     GroupActions.cpp
     Group.hpp
     Group.cpp
+    Handle.hpp
     IAction.hpp
     Journal.cpp
     Journal.hpp
