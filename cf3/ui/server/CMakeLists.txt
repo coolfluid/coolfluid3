@@ -2,8 +2,6 @@
 # List of classes to "moc"
 set( coolfluid_ui_server_moc_classes
   CCore.hpp
-  Notifier.hpp
-  RemoteClientAppender.hpp
   ServerNetworkComm.hpp
   ServerRoot.hpp )
 
@@ -14,12 +12,8 @@ QT4_WRAP_CPP(coolfluid_ui_server_moc_files ${coolfluid_ui_server_moc_classes})
 list( APPEND coolfluid_ui_server_files
   CCore.cpp
   CCore.hpp
-  Notifier.cpp
-  Notifier.hpp
   ProcessingThread.cpp
   ProcessingThread.hpp
-  RemoteClientAppender.cpp
-  RemoteClientAppender.hpp
   ServerExceptions.hpp
   ServerExceptions.cpp
   ServerNetworkComm.cpp

@@ -105,14 +105,6 @@ namespace server {
     /// @param clientId New client id.
      void new_client(const std::string & uuid);
 
-    /// @brief Forwards a message from the simulator to the network layer
-    /// @param message Message to send
-    void message(const QString & message);
-
-    /// @brief Forwards an error message from the simulator to the network layer
-    /// @param message Error message to send
-    void error(const QString & message);
-
   public slots:
 
     void newEvent(const std::string & name, const cf3::common::URI & path);

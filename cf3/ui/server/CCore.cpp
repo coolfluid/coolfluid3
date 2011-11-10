@@ -27,7 +27,6 @@
 
 #include "ui/uicommon/ComponentNames.hpp"
 
-#include "ui/server/RemoteClientAppender.hpp"
 #include "ui/server/ServerNetworkComm.hpp"
 #include "ui/server/ServerRoot.hpp"
 
@@ -62,17 +61,9 @@ CCore::CCore()
   connect( m_commServer, SIGNAL(newClientConnected(std::string)),
            this,  SLOT(new_client(std::string)) );
 
-  RemoteClientAppender * rca = new RemoteClientAppender();
-
-  Logger::instance().getStream(WARNING).addStringForwarder(rca);
-  Logger::instance().getStream(ERROR).addStringForwarder(rca);
-  Logger::instance().getStream(INFO).addStringForwarder(rca);
-
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
-
-  connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
 
   regist_signal( "read_dir" )
     ->description("Read directory content")
@@ -403,24 +394,6 @@ void CCore::new_client(const std::string & clientId)
 {
   // send a welcome message to the new client
   m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::message(const QString & message)
-{
-  QString typeStr = message.split(" ").first();
-  QString copy(message);
-  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr.toStdString());
-
-  m_commServer->sendMessageToClient(copy.remove(0, typeStr.length() + 1), type);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::error(const QString & message)
-{
-  m_commServer->sendMessageToClient(message, LogMessage::ERROR);
 }
 
 /////////////////////////////////////////////////////////////////////////////
