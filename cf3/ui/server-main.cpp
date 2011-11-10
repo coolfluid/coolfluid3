@@ -5,9 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <iostream>
-#include <cstdlib>
-
-#include <unistd.h>
 
 #include <QCoreApplication>
 #include <QHostInfo>
@@ -26,19 +23,17 @@
 #include "common/PE/Comm.hpp"
 #include "common/PE/Manager.hpp"
 
-
 #include "ui/server/ServerExceptions.hpp"
 #include "ui/server/ServerRoot.hpp"
 
 #include "common/Core.hpp"
 
 using namespace boost;
-using namespace cf3::common::PE;
-using namespace cf3::ui::server;
-
 using namespace cf3;
 using namespace cf3::common;
 using namespace cf3::common::PE;
+using namespace cf3::common::PE;
+using namespace cf3::ui::server;
 
 int main(int argc, char *argv[])
 {
@@ -48,8 +43,6 @@ int main(int argc, char *argv[])
   int port = 62784;
   Uint nb_workers = 1;
   std::string hostfile("./machine.txt");
-
-  std::cout << "My PID is " << getpid() << std::endl;
 
   boost::program_options::options_description desc("Allowed options");
 
@@ -101,7 +94,7 @@ int main(int argc, char *argv[])
 
     // spawn the
     Manager::Ptr mgr =  Core::instance().tools().get_child("PEManager").as_ptr_checked<Manager>();
-    mgr->spawn_group("Workers", nb_workers, (std::string(CF3_BUILD_DIR) + "/cf3/Tools/solver/coolfluid-solver").c_str());
+    mgr->spawn_group("Workers", nb_workers, CF3_BUILD_DIR "/cf3/Tools/solver/coolfluid-solver");
 
     // check if the port number is valid and launch the network connection if so
     if(port < 49153 || port > 65535)
