@@ -27,7 +27,6 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   JournalBrowserDialog.hpp
   LoggingList.hpp
   MainWindow.hpp
-  NRemoteBrowser.hpp
   OptionLayout.hpp
   SignalManager.hpp
   SignalInspectorDialog.hpp
@@ -92,10 +91,6 @@ list( APPEND coolfluid_ui_graphics_files
   ModifiedOptionsDialog.hpp
   OptionLayout.cpp
   OptionLayout.hpp
-  NRemoteBrowser.cpp
-  NRemoteBrowser.hpp
-  NRemoteOpen.cpp
-  NRemoteOpen.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
   SignalInspectorDialog.cpp

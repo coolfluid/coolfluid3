@@ -39,7 +39,6 @@
 #include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/LoggingList.hpp"
 #include "ui/graphics/CentralPanel.hpp"
-#include "ui/graphics/NRemoteOpen.hpp"
 #include "ui/graphics/SignatureDialog.hpp"
 #include "ui/graphics/TabBuilder.hpp"
 #include "ui/graphics/TreeBrowser.hpp"
