@@ -9,10 +9,12 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QThread>
-#include <QStringList>
 #include <vector>
 #include <string>
+
+#include <QDir>
+#include <QStringList>
+#include <QThread>
 
 #include "common/Component.hpp"
 
@@ -167,6 +169,8 @@ namespace server {
 
     void read_dir(cf3::common::SignalArgs & node);
 
+    void read_special_dir(cf3::common::SignalArgs & node);
+
     void create_dir(cf3::common::SignalArgs & node);
 
     void shutdown(cf3::common::SignalArgs & node);
@@ -177,7 +181,7 @@ namespace server {
 
     void signal_set_favorites(cf3::common::SignalArgs & node);
 
-    void signal_get_favorites(cf3::common::SignalArgs & node);
+    void signal_list_favorites(cf3::common::SignalArgs & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////

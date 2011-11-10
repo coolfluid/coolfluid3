@@ -34,6 +34,7 @@ namespace core { class NRemoteFSBrowser; }
 
 namespace graphics {
 
+class FavoritesModel;
 class FileFilter;
 
 ////////////////////////////////////////////////////////////////////////////
@@ -119,6 +120,12 @@ private slots:
   /// @param type The message type.
   void message  ( const QString& message , uiCommon::LogMessage::Type type );
 
+  void add_favorite();
+
+  void remove_favorite();
+
+  void favorite_selected(const QModelIndex &index);
+
 private: // data
 
   /// The underlying model.
@@ -139,6 +146,9 @@ private: // data
 
   /// View for the favorite places.
   QListView * m_favorites_view;
+
+  /// Model for the favorite places.
+  FavoritesModel * m_favorites_model;
 
   /// Top layout for the graphical components related to the path.
   QHBoxLayout * m_path_layout;

@@ -66,13 +66,11 @@ public:
 
   const QStringListModel * completion_model() const;
 
-  QStringListModel * favorites_model();
-
-  const QStringListModel * favorites_model() const;
-
   QString current_path() const;
 
   void open_dir ( const QString & path );
+
+  void open_special_dir ( const QString & path );
 
   void set_extensions( const QStringList & list );
 
@@ -111,7 +109,9 @@ public:
 
   bool is_directory( const QModelIndex & index ) const;
 
-  void update_favorite_list( ) const;
+  void update_favorite_list() const;
+
+  void send_favorites( const QStringList & favs );
 
   /// @name Signals
   //@{
@@ -126,6 +126,8 @@ signals:
 
   void current_path_changed( const QString & newPath );
 
+  void favorites_changed( const QStringList & list );
+
 private: // functions
 
   QString size_to_string( Uint size ) const;
@@ -137,8 +139,6 @@ private: // data
   QString m_current_path;
 
   QStringListModel * m_completion_model;
-
-  QStringListModel * m_favorites_model;
 
   QStringList m_extensions;
 

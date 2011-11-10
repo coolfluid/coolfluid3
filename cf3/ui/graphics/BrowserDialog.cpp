@@ -24,6 +24,7 @@
 #include "ui/core/TreeThread.hpp"
 #include "ui/core/NLog.hpp"
 
+#include "ui/graphics/FavoritesModel.hpp"
 #include "ui/graphics/FileFilter.hpp"
 
 #include "ui/graphics/BrowserDialog.hpp"
@@ -44,9 +45,14 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   m_updating_completer(false)
 {
   m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser( NBrowser::global()->generate_name() ));
+  m_favorites_model = new FavoritesModel();
 
   init_gui();
 
+  connect( m_model.get(), SIGNAL(favorites_changed(QStringList)),
+           m_favorites_model, SLOT(set_string_list(QStringList)) );
+
+  m_model->update_favorite_list();
   m_model->open_dir("");
 }
 
@@ -240,7 +246,7 @@ bool BrowserDialog::show( bool multi_select, QVariant & selected )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::message( const QString& message , LogMessage::Type type)
+void BrowserDialog::message( const QString& message , LogMessage::Type type )
 {
   if ( type == LogMessage::INFO )
     QMessageBox::information(this, "Info", message);
@@ -248,6 +254,49 @@ void BrowserDialog::message( const QString& message , LogMessage::Type type)
     QMessageBox::warning(this, "Warning", message);
   else
     QMessageBox::critical(this, "Error", message);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::add_favorite()
+{
+  QString path = m_model->current_path();
+
+  path.remove(path.length() - 1, 1);
+
+  if( !m_favorites_model->add_string(path) )
+    QMessageBox::critical(this, "Error", "This favorite place already exists!");
+  else
+    m_model->send_favorites(m_favorites_model->string_list());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::remove_favorite()
+{
+  QModelIndexList list = m_favorites_view->selectionModel()->selectedIndexes();
+  if( !list.isEmpty() )
+  {
+    if( !m_favorites_model->remove_string(list.at(0).row()) )
+      QMessageBox::critical(this, "Error", "You cannot remove this favorite place!");
+    else
+      m_model->send_favorites(m_favorites_model->string_list());
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::favorite_selected( const QModelIndex & index)
+{
+  if( index.isValid() )
+  {
+    QString path = m_favorites_model->full_path(index);
+
+    if( !m_favorites_model->is_special_dir(index) )
+      m_model->open_dir(path);
+    else
+      m_model->open_special_dir(path);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -276,7 +325,7 @@ void BrowserDialog::init_gui()
 
   // configure the graphical components
   m_view->setModel( m_filter_model );
-  m_favorites_view->setModel( m_model->favorites_model() );
+  m_favorites_view->setModel( m_favorites_model );
   m_edit_path->setCompleter( m_completer );
 
   m_filter_model->setDynamicSortFilter(true);
@@ -331,6 +380,12 @@ void BrowserDialog::init_gui()
 
   connect(m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
 
+  connect(m_bt_add_fav, SIGNAL(clicked()), this, SLOT(add_favorite()));
+
+  connect(m_bt_remove_fav, SIGNAL(clicked()), this, SLOT(remove_favorite()));
+
+  connect(m_favorites_view, SIGNAL(pressed(QModelIndex)),
+          this, SLOT(favorite_selected(QModelIndex)));
 
   m_view->adjustSize();
   this->adjustSize();

@@ -6,7 +6,6 @@
 
 #include <QApplication>
 #include <QDateTime>
-#include <QDir>
 #include <QHostInfo>
 #include <QSettings>
 
@@ -60,8 +59,6 @@ CCore::CCore()
 
   m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  m_favorite_directories.prepend( QDir::homePath() );
-
   connect( m_commServer, SIGNAL(newClientConnected(std::string)),
            this,  SLOT(new_client(std::string)) );
 
@@ -81,9 +78,25 @@ CCore::CCore()
     ->description("Read directory content")
     ->read_only(true)
     ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+
+  regist_signal( "read_special_dir" )
+    ->description("Read special directory content")
+    ->read_only(true)
+    ->pretty_name("")->connect(boost::bind(&CCore::read_special_dir, this, _1));
+
   regist_signal( "shutdown" )
     ->description("Shutdown the server")
     ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
+
+  regist_signal("list_favorites")
+      ->description( "Lists the favorite directories for the remote browsing feature." )
+      ->read_only(true)
+      ->connect(boost::bind(&CCore::signal_list_favorites, this, _1));
+
+  regist_signal("set_favorites")
+      ->description( "Sets the favorite directories for the remote browsing feature." )
+      ->read_only(true)
+      ->connect(boost::bind(&CCore::signal_set_favorites, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -212,8 +225,6 @@ void CCore::read_dir(SignalArgs & args)
   DirContent content;
   QString directory;
   rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
-  std::string clientId( attr != nullptr ? attr->value() : "" );
-
 
   QString dirPath = options.value<std::string>("dirPath").c_str();
   bool includeFiles = options.value<bool>("includeFiles");
@@ -244,6 +255,68 @@ void CCore::read_dir(SignalArgs & args)
     // Build the reply
     SignalFrame reply = args.create_reply( uri() );
     SignalOptions roptions = reply.options();
+
+    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
+    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
+    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
+    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
+    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
+    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+
+    roptions.flush();
+
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CCore::read_special_dir(SignalArgs & args)
+{
+  SignalOptions options( args );
+
+//  std::vector<std::string> dirList;
+//  std::vector<std::string> fileList;
+  DirContent content;
+  QString directory;
+  rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
+
+  QString dirPath = options.value<std::string>("dirPath").c_str();
+  bool includeFiles = options.value<bool>("includeFiles");
+  bool includeNoExt = options.value<bool>("includeNoExtensions");
+  std::vector<std::string> exts = options.array<std::string>("extensions");
+
+//  if(dirPath.isEmpty())
+//    directory = this->DEFAULT_PATH;
+//  else
+    directory = dirPath;
+
+  if( directory == "Home" )
+    directory = QDir::homePath();
+  else
+    throw ValueNotFound( FromHere(),
+                         "Unknown special directory [" + directory.toStdString() + "]." );
+
+//  directory = QDir(directory).absolutePath();
+//  directory = QDir::cleanPath(directory);
+
+  // if the directory is not the root
+  /// @todo test this on Windows!!!!
+  if(directory != "/")
+    content.dirs.push_back("..");
+
+  content.dir_dates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+
+  if(!this->get_dir_content(directory, exts, includeFiles, includeNoExt, content))
+  {
+    throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
+  }
+  else
+  {
+    // Build the reply
+    SignalFrame reply = args.create_reply( uri() );
+    SignalOptions roptions = reply.options();
+
+    reply.node.set_attribute( "target", "read_dir" );
 
     roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
     roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
@@ -296,10 +369,9 @@ void CCore::signal_set_favorites(SignalArgs &node)
   std::vector<std::string>::iterator it = favs.begin();
 
   m_favorite_directories.clear();
-  m_favorite_directories.reserve( favs.size() );
 
   for(int i = 0 ; it != favs.end() ; ++it, ++i )
-    m_favorite_directories[i] = QString::fromStdString(*it);
+    m_favorite_directories.append( QString::fromStdString(*it) );
 
   m_favorite_directories.removeDuplicates();
 
@@ -309,7 +381,7 @@ void CCore::signal_set_favorites(SignalArgs &node)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::signal_get_favorites( SignalArgs &node )
+void CCore::signal_list_favorites( SignalArgs &node )
 {
   SignalArgs reply = node.create_reply();
   QStringList::iterator it = m_favorite_directories.begin();
