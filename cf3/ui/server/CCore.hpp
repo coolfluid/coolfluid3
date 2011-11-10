@@ -9,13 +9,18 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <QObject>
-#include <QThread>
-#include <QList>
 #include <vector>
 #include <string>
 
+#include <QDir>
+#include <QStringList>
+#include <QThread>
+
 #include "common/Component.hpp"
+
+////////////////////////////////////////////////////////////////////////////
+
+class QSettings;
 
 ////////////////////////////////////////////////////////////////////////////
 
@@ -51,9 +56,9 @@ namespace server {
     {
       std::vector<std::string> dirs;
       std::vector<std::string> files;
-      std::vector<Uint> fileSizes;
-      std::vector<std::string> dirDates;
-      std::vector<std::string> fileDates;
+      std::vector<Uint> file_sizes;
+      std::vector<std::string> dir_dates;
+      std::vector<std::string> file_dates;
     };
 
   public:
@@ -75,30 +80,22 @@ namespace server {
       {
         return common::TypeInfo::instance().portable_types[ typeid(*this).name() ];
       }
-     
+
      /// @param hostame Host name
      /// @param portNumber Port number
      /// @throw NetworkException
-     bool listenToPort(quint16 portNumber);
+     bool listen_to_port(quint16 portNumber);
 
-     void sendSignal(const common::XML::XmlDoc & signal);
+     void send_signal(const common::XML::XmlDoc & signal);
 
      static std::string type_name() { return "CCore"; }
 
-     void sendFrameRejected(const std::string & clientid,
-                            const std::string & frameid,
-                            const cf3::common::URI & sender,
-                            const QString & reason);
-
-     void sendException(const char * what,
-                        const std::string & clientid = std::string());
-
      void forward_signal( common::SignalArgs & args );
 
-     void sendACK( const std::string & clientid,
-                   const std::string & frameid,
-                   bool success,
-                   const std::string & message);
+     void send_ack( const std::string & clientid,
+                    const std::string & frameid,
+                    bool success,
+                    const std::string & message );
 
   private slots:
 
@@ -106,21 +103,13 @@ namespace server {
 
     /// Sends server status (file open, simulation running) to the new client.
     /// @param clientId New client id.
-     void newClient(const std::string & uuid);
-
-    /// @brief Forwards a message from the simulator to the network layer
-    /// @param message Message to send
-    void message(const QString & message);
-
-    /// @brief Forwards an error message from the simulator to the network layer
-    /// @param message Error message to send
-    void error(const QString & message);
+     void new_client(const std::string & uuid);
 
   public slots:
 
     void newEvent(const std::string & name, const cf3::common::URI & path);
 
-  private:
+  private: // data
     /// @brief The default path for the file browsing.
 
     /// The default path is the current directory (./).
@@ -128,6 +117,8 @@ namespace server {
 
     /// @brief The network communication
     ServerNetworkComm * m_commServer;
+
+    QSettings * m_settings;
 
     /// @brief Indicates wether a file is already open.
 
@@ -137,9 +128,14 @@ namespace server {
     /// @brief Indicates wether the simulation is running.
 
     /// If @c true, the simulation is running.
-    bool m_simRunning;
+    bool m_sim_running;
 
     bool m_active;
+
+    /// List of user's favorite directories.
+    QStringList m_favorite_directories;
+
+  private: // functions
 
     /// @brief Reads a directory contents.
 
@@ -157,21 +153,27 @@ namespace server {
     /// @return Returns @c true if the directory has been correctly read.
     /// Otherwise, returns @c false (@c dirsList and @c filesList are not
     /// modified in this case).
-    bool getDirContent(const QString & directory,
-                       const std::vector<std::string> & extensions,
-                       bool includeFiles,
-                       bool includeNoExtension,
-                       DirContent & content) const;
+    bool get_dir_content( const QString & directory,
+                          const std::vector<std::string> & extensions,
+                          bool includeFiles,
+                          bool includeNoExtension,
+                          DirContent & content ) const;
 
     void read_dir(cf3::common::SignalArgs & node);
 
-    void createDir(cf3::common::SignalArgs & node);
+    void read_special_dir(cf3::common::SignalArgs & node);
+
+    void create_dir(cf3::common::SignalArgs & node);
 
     void shutdown(cf3::common::SignalArgs & node);
 
-    void saveConfig(cf3::common::SignalArgs & node);
+    void save_config(cf3::common::SignalArgs & node);
 
     void signal_list_tree(cf3::common::SignalArgs & node);
+
+    void signal_set_favorites(cf3::common::SignalArgs & node);
+
+    void signal_list_favorites(cf3::common::SignalArgs & node);
   };
 
 ////////////////////////////////////////////////////////////////////////////

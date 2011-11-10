@@ -21,7 +21,7 @@
 #include "ui/core/TreeThread.hpp"
 
 #include "ui/graphics/GraphicalUriArray.hpp"
-#include "ui/graphics/NRemoteOpen.hpp"
+#include "ui/graphics/BrowserDialog.hpp"
 #include "ui/graphics/SelectPathDialog.hpp"
 
 using namespace cf3::common;
@@ -181,18 +181,20 @@ void GraphicalUriArray::bt_add_clicked()
     }
     else if(m_combo_type->currentText() == "file")
     {
-      NRemoteOpen::Ptr nro = NRemoteOpen::create();
+      BrowserDialog nro;
+      QVariant val;
 
-      QStringList fileList = nro->show_multiple_select("");
-      QStringList::iterator file = fileList.begin();
-
-      for( ; file != fileList.end() ; ++ file)
+      if( nro.show(true, val) )
       {
-        file->prepend( m_combo_type->currentText() + ':' );
-      }
+        QStringList file_list = val.toStringList();
+        QStringList::iterator file = file_list.begin();
 
-      if(!fileList.isEmpty())
-        m_model->setStringList( m_model->stringList() << fileList );
+        for( ; file != file_list.end() ; ++ file)
+          file->prepend( m_combo_type->currentText() + ':' );
+
+        if(!file_list.isEmpty())
+          m_model->setStringList( m_model->stringList() << file_list );
+      }
     }
   }
 

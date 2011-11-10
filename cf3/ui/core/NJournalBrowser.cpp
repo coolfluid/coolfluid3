@@ -36,7 +36,7 @@ namespace core {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(NBrowser::global()->generate_name().toStdString(), "NJournalBrowser", CNode::STANDARD_NODE)
+    CNode(NBrowser::global()->generate_name(), "NJournalBrowser", CNode::STANDARD_NODE)
 {
   set_root_node(rootNode);
 

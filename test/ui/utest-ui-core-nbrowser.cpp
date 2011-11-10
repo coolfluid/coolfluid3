@@ -37,14 +37,14 @@ BOOST_AUTO_TEST_CASE( generate_name )
 {
   NBrowser b;
 
-  BOOST_CHECK_EQUAL(b.generate_name().toStdString(), std::string("Browser_0"));
-  BOOST_CHECK_EQUAL(b.generate_name().toStdString(), std::string("Browser_1"));
-  BOOST_CHECK_EQUAL(b.generate_name().toStdString(), std::string("Browser_2"));
+  BOOST_CHECK_EQUAL(b.generate_name(), std::string("Browser_0"));
+  BOOST_CHECK_EQUAL(b.generate_name(), std::string("Browser_1"));
+  BOOST_CHECK_EQUAL(b.generate_name(), std::string("Browser_2"));
 
   for(int i = 0 ; i < 15 ; i++)
     b.generate_name();
 
-  BOOST_CHECK_EQUAL(b.generate_name().toStdString(), std::string("Browser_18"));
+  BOOST_CHECK_EQUAL(b.generate_name(), std::string("Browser_18"));
 }
 
 //////////////////////////////////////////////////////////////////////////////

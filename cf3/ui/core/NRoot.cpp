@@ -133,7 +133,7 @@ void NRoot::connected_to_server()
   NLog::global()->add_message(msg2.arg(uuid().string().c_str()));
 
   // build and send signal
-  SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_core_PATH);
+  SignalFrame frame("client_registration", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
   NetworkQueue::global()->send( frame, NetworkQueue::IMMEDIATE );
 }

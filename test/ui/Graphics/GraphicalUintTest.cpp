@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalInt.hpp"
+#include "ui/graphics/GraphicalInt.hpp"
 
 #include "math/Consts.hpp"
 
@@ -108,12 +108,12 @@ void GraphicalUintTest::test_value()
   QVariant theValue;
 
   theValue = value->value();
-  QVERIFY( theValue.type() == QVariant::uint );
+  QVERIFY( theValue.type() == QVariant::UInt );
   QCOMPARE( theValue.toInt(), 0 );
 
   spinBox->setValue(412654);
   theValue = value->value();
-  QVERIFY( theValue.type() == QVariant::uint );
+  QVERIFY( theValue.type() == QVariant::UInt );
   QCOMPARE( theValue.toInt(), 412654 );
 
   delete value;

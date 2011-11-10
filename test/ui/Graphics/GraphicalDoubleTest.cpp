@@ -9,7 +9,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalDouble.hpp"
+#include "ui/graphics/GraphicalDouble.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 

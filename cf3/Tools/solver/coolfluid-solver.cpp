@@ -130,7 +130,7 @@ int main(int argc, char ** argv)
 
   CFinfo.setFilterRankZero(LogStream::SCREEN, rank0);
 
-  mgr->listening_thread().join();
+  mgr->listening_thread()->join();
 
   CFinfo << "Worker[" << rank << "] -> " << "C U..." << CFendl;
 
