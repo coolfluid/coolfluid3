@@ -120,10 +120,15 @@ private slots:
   /// @param type The message type.
   void message  ( const QString& message , uiCommon::LogMessage::Type type );
 
+  /// Add the current path as a favorite.
   void add_favorite();
 
+  /// Remove the currently selected favorite.
   void remove_favorite();
 
+  /// Slot called when user clicks on a favorite directory to go to that place.
+
+  /// @param index Index selected.
   void favorite_selected(const QModelIndex &index);
 
 private: // data
