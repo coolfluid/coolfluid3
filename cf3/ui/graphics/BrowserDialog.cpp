@@ -81,12 +81,7 @@ void BrowserDialog::double_clicked(const QModelIndex &index)
 void BrowserDialog::current_path_changed( const QString & path )
 {
   if( !m_updating_completer )
-  {
     m_edit_path->setText( path );
-
-    if(m_edit_path->hasFocus())
-      m_completer->popup()->show();
-  }
   else
     m_updating_completer = false;
 }
@@ -158,11 +153,10 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
   // Qt::Key_Return : return key
   if(pressed_key == Qt::Key_Enter || pressed_key == Qt::Key_Return)
   {
-//    if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
-//      this->btOkClicked();
-
-//    else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
-//      this->btCancelClicked();
+    if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
+      accept();
+    else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
+      reject();
   }
 
   else if(pressed_key == Qt::Key_Backspace)
@@ -262,6 +256,7 @@ void BrowserDialog::add_favorite()
 {
   QString path = m_model->current_path();
 
+
   path.remove(path.length() - 1, 1);
 
   if( !m_favorites_model->add_string(path) )
@@ -327,6 +322,7 @@ void BrowserDialog::init_gui()
   m_view->setModel( m_filter_model );
   m_favorites_view->setModel( m_favorites_model );
   m_edit_path->setCompleter( m_completer );
+  m_completer->setMaxVisibleItems(7);
 
   m_filter_model->setDynamicSortFilter(true);
 
