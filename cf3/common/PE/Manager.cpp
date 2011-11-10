@@ -4,6 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/thread/thread.hpp>
 #include <boost/assign/std/vector.hpp> // for 'operator+=()'
 
 #include <coolfluid-paths.hpp>
@@ -340,9 +341,9 @@ void Manager::send_to ( Communicator comm, const SignalArgs &args )
 
 ////////////////////////////////////////////////////////////////////////////
 
-boost::thread & Manager::listening_thread ()
+boost::thread * Manager::listening_thread ()
 {
-  return m_listener->thread();
+  return &m_listener->thread();
 }
 
 ////////////////////////////////////////////////////////////////////////////

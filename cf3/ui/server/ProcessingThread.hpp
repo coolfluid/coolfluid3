@@ -19,8 +19,6 @@ namespace cf3 {
 namespace ui {
 namespace server {
 
-  class Notifier;
-
 ///////////////////////////////////////////////////////////////////////////////
 
   class ProcessingThread : public QThread

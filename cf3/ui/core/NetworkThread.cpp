@@ -93,7 +93,7 @@ void NetworkThread::disconnect_from_server(bool shutServer)
   {
     if(shutServer)
     {
-      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_core_PATH);
+      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
       this->send(frame);
     }

@@ -51,7 +51,7 @@
 #include "pqProgressManager.h"
 
 // header
-#include "ui/graphics/NRemoteOpen.hpp"
+#include "ui/graphics/BrowserDialog.hpp"
 #include "ui/core/NLog.hpp"
 #include "ui/ParaViewTab/N3DView.hpp"
 #include "ui/ParaViewTab/Widget3D.hpp"
@@ -426,25 +426,29 @@ void Widget3D::disconnect_from_server(){
 
 void Widget3D::show_load_file_dialog(){
   // Create a Server file browser Dialog
-  NRemoteOpen::Ptr loadFileDialog = NRemoteOpen::create();
+  BrowserDialog load_file_dialog;
+  QVariant val;
 
-  QStringList path_list = loadFileDialog->show_multiple_select();
-
-  for(int i=0;i<path_list.size();++i)
+  if( load_file_dialog.show(true, val) )
   {
-    // Show the file Dialog and load a file
-    QFileInfo * fileinfo = new QFileInfo(path_list.at(i));
+    QStringList path_list = val.toStringList();
 
-    if(!fileinfo->filePath().isEmpty())
+    for(int i=0;i<path_list.size();++i)
     {
-      NLog::global()->add_message("Loading file");
-      //open this file
-      open_file(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
-    }
-    else
-    {
-      //error
-      NLog::global()->add_error("Cannot Load file !");
+      // Show the file Dialog and load a file
+      QFileInfo * fileinfo = new QFileInfo(path_list.at(i));
+
+      if(!fileinfo->filePath().isEmpty())
+      {
+        NLog::global()->add_message("Loading file");
+        //open this file
+        open_file(fileinfo->filePath(),fileinfo->fileName().section('.',0,0));
+      }
+      else
+      {
+        //error
+        NLog::global()->add_error("Cannot load file!");
+      }
     }
   }
 }
