@@ -42,13 +42,11 @@ Link::~Link()
 
 Handle<Component> Link::follow()
 {
-//  cf3_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
   return m_link_component;
 }
 
 Handle<Component const> Link::follow() const
 {
-//  cf3_assert_desc("Cannot retrieve linked component because it is null", is_not_null(m_link_component.lock()) );
   return m_link_component;
 }
 

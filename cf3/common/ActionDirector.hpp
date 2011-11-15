@@ -7,6 +7,8 @@
 #ifndef cf3_common_ActionDirector_hpp
 #define cf3_common_ActionDirector_hpp
 
+#include <set>
+
 #include "common/Action.hpp"
 
 #include "LibCommon.hpp"
@@ -18,8 +20,8 @@ namespace common {
 
 /////////////////////////////////////////////////////////////////////////////////////
 
-/// Executes a series of actions, configured through a list of names for the actions to execute
-/// actions are passed through the "action_order" option and will be executed in the order they are listed
+/// Executes actions or links to actions that are direct children of this component.
+/// Actions cn be deactivated through a list of booleans
 class Common_API ActionDirector : public Action
 {
 public: // functions
@@ -31,48 +33,29 @@ public: // functions
   /// Get the class name
   static std::string type_name () { return "ActionDirector"; }
 
-  /// Action implementation
+  /// Execute all active child actions
   virtual void execute();
-
-  /// Append an action to the back of the list, returning a reference to self (for chaining purposes)
-  /// A link to the supplied action is created
-  /// If this ActionDirector already has a component or an action with the same name that is different from
-  /// the supplied action, an error is raised
-  /// If the supplied action was added before, its name is added to the execution list a second time
-  ActionDirector& append(Action& action);
-
-  /// Overload taking a handle, working the same way as from reference
-  ActionDirector& append(const Handle<Action>& action);
   
-  /// Take ownership of the supplied action and add it to the list
-  ActionDirector& append(const boost::shared_ptr<Action>& action);
-  
-  /// Disable the action with the given name
-  void disable_action(const std::string& name);
-  
-  /// Signal for disabling an action
-  void signal_disable_action(common::SignalArgs& node);
-
 protected:
-  /// Called when an action is added. The default implementation does nothing,
-  /// derived classes may override this to complete the configuration of added actions
-  /// Only invoked when the action was not already a child of this director.
-  virtual void on_action_added(Action& action);
+  /// True if the passed action is disabled
+  bool is_disabled(const std::string& name);
   
 private:
-  /// Signature for the disable_action signal
-  void signature_disable_action(common::SignalArgs& node);
+  void trigger_disabled_actions();
+  std::set<std::string> m_disabled_actions;
 };
 
-/// Allow growing of the list of actions using the shift left operator:
-/// director << action1 << action2 << action3
-/// Same behavior as append.
+/// Add a link to the passed action as a child
 ActionDirector& operator<<(ActionDirector& action_director, Action& action);
 
-/// Overload for handles
-ActionDirector& operator<<(ActionDirector& action_director, const Handle<Action>& action);
+/// Add a link to the passed action as a child
+template<typename ActionT>
+ActionDirector& operator<<(ActionDirector& action_director, const Handle<ActionT>& action)
+{
+  return action_director << *action;
+}
 
-/// Overload for shared_ptr
+/// Take ownership of the passed action, adding it as a child
 ActionDirector& operator<<(ActionDirector& action_director, const boost::shared_ptr<Action>& action);
 
 /////////////////////////////////////////////////////////////////////////////////////

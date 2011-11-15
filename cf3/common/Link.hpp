@@ -18,12 +18,9 @@ namespace common {
 
 /// Component for creating links between components
 /// @author Tiago Quintino
-class Common_API Link : public Component {
-
-public: //typedefs
-
+class Common_API Link : public Component
+{
 public: // functions
-
   /// Contructor
   /// @param name of the component
   Link ( const std::string& name );
@@ -35,7 +32,7 @@ public: // functions
   static std::string type_name () { return "Link"; }
 
   /// get the component through the links to the actual components
-  Handle<Component> follow ();
+  Handle<Component> follow();
   Handle<Component const>  follow() const;
 
   // functions specific to the Link component
@@ -50,7 +47,6 @@ public: // functions
 private: // data
 
   /// this is a link to the component
-  /// using weak_ptr means it might become invalid so we should test for expire()
   Handle<Component> m_link_component;
 
 }; // Link

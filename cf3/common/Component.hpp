@@ -215,6 +215,10 @@ public: // functions
 
   /// Add the passed component as a subcomponent
   Component& add_component ( const boost::shared_ptr<Component>& subcomp );
+  
+  /// Add a link to the passed component, as child. The name of the link will be the same as the
+  /// name of the passed component.
+  void add_link(Component& linked_component);
 
   /// Remove a (sub)component of this component
   boost::shared_ptr<Component> remove_component ( const std::string& name );

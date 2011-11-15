@@ -254,6 +254,13 @@ Component& Component::add_component ( const boost::shared_ptr<Component>& subcom
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+void Component::add_link(Component& linked_component)
+{
+  create_component<Link>(linked_component.name())->link_to(linked_component);
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 Component& Component::add_static_component ( const boost::shared_ptr< Component >& subcomp )
 {
   std::string unique_name = ensure_unique_name(*subcomp);
