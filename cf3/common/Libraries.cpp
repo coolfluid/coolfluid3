@@ -78,7 +78,7 @@ std::string Libraries::namespace_to_libname( const std::string& libnamespace )
 
 bool Libraries::is_loaded( const std::string& name )
 {
-  return is_not_null( get_child_ptr( name ) );
+  return is_not_null( get_child( name ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -95,12 +95,10 @@ void Libraries::load_library( const URI& file )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr Libraries::autoload_library_with_namespace( const std::string& libnamespace )
+Handle<Library> Libraries::autoload_library_with_namespace( const std::string& libnamespace )
 {
   if( libnamespace.empty() )
     throw BadValue( FromHere(), "Library namespace is empty - cannot guess library name" );
-
-  Library::Ptr lib;
 
   const std::string lib_name = namespace_to_libname( libnamespace );
 
@@ -108,27 +106,23 @@ Library::Ptr Libraries::autoload_library_with_namespace( const std::string& libn
   {
     CFinfo << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<Library>();
+    Handle<Library> lib(get_child( libnamespace ));
+    cf3_assert( is_not_null(lib) );
+    return lib;
   }
   catch(const std::exception& e)
   {
     throw ValueNotFound(FromHere(),
                         "Failed to auto-load plugin " + lib_name + ": " + e.what());
   }
-
-  cf3_assert( is_not_null(lib) );
-
-  return lib;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Library::Ptr Libraries::autoload_library_with_builder( const std::string& builder_name )
+Handle<Library> Libraries::autoload_library_with_builder( const std::string& builder_name )
 {
   if( builder_name.empty() )
     throw BadValue( FromHere(), "Builder name is empty - cannot guess library name" );
-
-  Library::Ptr lib;
 
   const std::string libnamespace = Builder::extract_namespace( builder_name );
   const std::string lib_name = namespace_to_libname( libnamespace );
@@ -137,17 +131,15 @@ Library::Ptr Libraries::autoload_library_with_builder( const std::string& builde
   {
     CFinfo << "Auto-loading plugin " << lib_name << CFendl;
     OSystem::instance().lib_loader()->load_library(lib_name);
-    lib = get_child( libnamespace ).as_ptr_checked<Library>();
+    Handle<Library> lib(get_child( libnamespace ));
+    cf3_assert( is_not_null(lib) );
+    return lib;
   }
   catch(const std::exception& e)
   {
     throw ValueNotFound(FromHere(),
                         "Failed to auto-load plugin " + lib_name + ": " + e.what());
   }
-
-  cf3_assert( is_not_null(lib) );
-
-  return lib;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

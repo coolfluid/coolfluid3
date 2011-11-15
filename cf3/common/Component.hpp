@@ -17,10 +17,11 @@
 
 #include "common/AllocatedComponent.hpp"
 #include "common/Assertions.hpp"
+#include "common/ConnectionManager.hpp"
+#include "common/Handle.hpp"
 #include "common/PropertyList.hpp"
 #include "common/OptionList.hpp"
 #include "common/SignalHandler.hpp"
-#include "common/ConnectionManager.hpp"
 #include "common/URI.hpp"
 
 namespace boost
@@ -73,19 +74,14 @@ template<class T> class ComponentIterator;
 /// @author Tiago Quintino
 /// @author Willem Deconinck
 class Common_API Component :
-  public boost::enable_shared_from_this<Component>,
   public boost::noncopyable,
   public SignalHandler,
   public ConnectionManager,
-  public TaggedObject  {
+  public TaggedObject,
+  private boost::enable_shared_from_this<Component>
+{
 
 public: // typedef
-
-  /// type of pointer to Component
-  typedef boost::shared_ptr<Component> Ptr;
-  /// type of pointer to constant Component
-  typedef boost::shared_ptr<Component const> ConstPtr;
-
   /// type of the iterator to Component
   typedef ComponentIterator<Component> iterator;
   /// type of the iterator to constant Component
@@ -94,7 +90,7 @@ public: // typedef
 private: // typedef
 
   /// type for storing the sub components
-  typedef std::vector <Component::Ptr> CompStorageT;
+  typedef std::vector< boost::shared_ptr<Component> > CompStorageT;
 
   /// Type for storing component lookup-by-name
   typedef std::map<std::string, Uint> CompLookupT;
@@ -110,17 +106,6 @@ public: // functions
 
   /// Virtual destructor
   virtual ~Component();
-
-  /// Get the component through the links to the actual components
-  virtual Component::Ptr  follow();
-  /// Get the component through the links to the actual components
-  virtual Component::ConstPtr  follow() const;
-
-  /// @return a shared pointer to self
-  Component::Ptr self() { return shared_from_this(); }
-
-  /// @return a shared pointer to self
-  Component::ConstPtr self() const { return shared_from_this(); }
 
   /// @name ITERATORS
   //@{
@@ -151,14 +136,9 @@ public: // functions
 
   //@} END ITERATORS
 
-  /// checks if this component is in fact a link to another component
-  bool is_link () const { return m_is_link; }
-
-  /// checks if the child component with name is static
-  bool is_child_static ( const std::string& name ) const;
-
   /// Access the name of the component
   const std::string& name () const { return m_name; }
+
   /// Rename the component
   void rename ( const std::string& name );
 
@@ -175,111 +155,72 @@ public: // functions
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return reference to component
-  Component& access_component ( const URI& path ) const;
+  /// @return handle to component or null if it doesn't exist
+  Handle<Component> access_component ( const URI& path );
+  Handle<Component const> access_component ( const URI& path ) const;
 
   /// Looks for a component via its path
   /// @param path to the component
-  /// @return Ptr to component, or null if none was found
-  Ptr access_component_ptr ( const cf3::common::URI& path) const;
-
-  /// Looks for a component via its path
-  /// @param path to the component
-  /// @return Ptr to component
+  /// @return handle to component that is always valid
   /// @throws InvalidURI in case a component is not found at that path
-  /// @post returns always valid pointer
-  Ptr access_component_ptr_checked ( const URI& path ) const;
+  Handle<Component> access_component_checked ( const URI& path );
+  Handle<Component const> access_component_checked ( const URI& path ) const;
 
-  /// @returns true if the component has a parent
-  bool has_parent() const;
-
-  /// @returns the pointer to parent component
-  /// @pre parent pointer is valid
-  Component& parent() const;
+  /// Get a handle to the component
+  Handle<Component> handle() { return Handle<Component>(shared_from_this()); }
+  Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
+  
+  /// @returns the handle to the parent component, which can be null if there is no parent
+  const Handle<Component>& parent() const;
 
   /// @returns the upper-most component in the tree, or self if there is no parent
-  const Component& root() const;
-  Component& root();
+  Handle<Component const> root() const;
+  Handle<Component> root();
+
+  /// Gets the named child component from the list of direct subcomponents.l
+  /// @return handle to the component. Null if not found.
+  Handle<Component> get_child(const std::string& name);
+  Handle<Component const> get_child(const std::string& name) const;
 
   /// Gets the named child component from the list of direct subcomponents.
   /// @throws ValueNotFound in case a component with given name is not found
-  /// @return reference to the component
-  Component& get_child(const std::string& name) const;
-
-  /// Gets the named child component from the list of direct subcomponents.
-  /// @post pointer may be null
-  /// @return shared pointer to the component
-  Ptr get_child_ptr(const std::string& name) const;
-
-  /// Gets the named child component from the list of direct subcomponents.
-  /// @throws ValueNotFound in case a component with given name is not found
-  /// @post pointer is never null
-  /// @return shared pointer to the component
-  Ptr get_child_ptr_checked(const std::string& name) const;
-
-  /// returns an iterator range with the children of this component
-  boost::iterator_range<iterator> children();
-
-  /// returns an iterator range with the children of this component
-  boost::iterator_range<const_iterator> children() const;
-
-  /// @returns this component converted to type T shared pointer
-  template < typename T > boost::shared_ptr<T> as_ptr();
-  /// @returns this component converted to type T shared const pointer
-  template < typename T > boost::shared_ptr<T const> as_ptr() const;
-
-  /// @returns this component converted to type T shared pointer
-  template < typename T > boost::shared_ptr<T> as_ptr_checked();
-  /// @returns this component converted to type T shared const pointer
-  template < typename T > typename boost::shared_ptr<T const> as_ptr_checked() const;
-
-  /// @returns this component converted to type T reference
-  template < typename T > T& as_type() { return * as_ptr_checked<T>(); }
-  /// @returns this component converted to type T reference
-  template < typename T > const T& as_type() const { return * as_ptr_checked<T>(); }
-
-  /// Cast the component as a ConstPtr
-  /// @return a ConstPtr
-  ConstPtr as_const() const;
-
-  /// Cast a const object to a non-const Ptr (to be used with extreme care)
-  /// @return a Ptr
-  Ptr as_non_const() const;
+  /// @return Always valid handle to the component
+  Handle<Component> get_child_checked(const std::string& name);
+  Handle<Component const> get_child_checked(const std::string& name) const;
 
   /// @brief Build a (sub)component of this component using the extended type_name of the component.
   ///
   /// The Library is extracted from the extended type_name, and inside is searched for the builder.
   /// The builder creates the component. The component is then added as a subcomponent.
   /// See @ref using_create_component "here" for a tutorial
-  Component& create_component ( const std::string& name , const std::string& builder );
+  Handle<Component> create_component ( const std::string& name , const std::string& builder );
 
   /// Create a (sub)component of this component automatically cast to the specified type
   template < typename T >
-    typename T::Ptr create_component_ptr ( const std::string& name );
+  Handle<T> create_component( const std::string& name )
+  {
+    boost::shared_ptr<T> comp = allocate_component<T>(name);
+    add_component( comp );
+    return Handle<T>(comp);
+  }
 
-  /// Create a (sub)component of this component automatically cast to the specified type
+  /// Create a static "always there" subcomponent
   template < typename T >
-    T& create_component ( const std::string& name );
+  Handle<T> create_static_component ( const std::string& name )
+  {
+    boost::shared_ptr<T> comp = allocate_component<T>(name);
+    add_static_component( *comp );
+    return comp;
+  }
 
-  /// Create a (sub)component of this component automatically cast to the specified type
-  template < typename T >
-    typename T::Ptr create_static_component_ptr ( const std::string& name );
-
-  /// Create a (sub)component of this component automatically cast to the specified type
-  template < typename T >
-    T& create_static_component ( const std::string& name );
-
-  /// Add a dynamic (sub)component of this component
-  Component& add_component ( Ptr subcomp );
-
-  /// Add a dynamic (sub)component of this component
-  Component& add_component ( Component& subcomp );
+  /// Add the passed component as a subcomponent
+  Component& add_component ( const boost::shared_ptr<Component>& subcomp );
 
   /// Remove a (sub)component of this component
-  Ptr remove_component ( const std::string& name );
+  boost::shared_ptr<Component> remove_component ( const std::string& name );
 
   /// Remove a (sub)component of this component
-  Ptr remove_component ( Component& subcomp );
+  boost::shared_ptr<Component> remove_component ( Component& subcomp );
 
   /// Move this component to within another one
   /// @param to_parent will be the new parent of this component
@@ -298,36 +239,14 @@ public: // functions
   /// @return Returns a reference to the property list
   PropertyList& properties() { return m_properties; }
 
-  /// @return Returns a constant referent to the property list
+  /// @return Returns a constant reference to the property list
   const PropertyList& properties() const { return m_properties; }
 
-  /// @return Returns a reference to the property with a provided name
-  const boost::any& property(const std::string& optname ) const;
-
-  /// access to the property
-  boost::any& property(const std::string& optname );
-
-  /// @return Returns a reference to the option with a provided name
-  Option& option(const std::string& optname );
-
-  /// access to the property
-  const Option& option(const std::string& optname ) const;
-
-  /// @return Returns a reference to the property list
+  /// @return Returns a reference to the options list
   OptionList& options() { return m_options; }
 
-  /// @return Returns a constant referent to the property list
+  /// @return Returns a constant reference to the options list
   const OptionList& options() const { return m_options; }
-
-  /// Configure one property, and trigger its actions
-  /// @param [in] optname  The option name
-  /// @param [in] val      The new value assigned to the option
-  Component& configure_property(const std::string& optname, const boost::any& val);
-
-  /// Configure one option, and trigger its actions
-  /// @param [in] optname  The option name
-  /// @param [in] val      The new value assigned to the option
-  Component& configure_option(const std::string& optname, const boost::any& val);
 
   /// Configures one property recursevely through this component children,
   /// triggering its actions. If an option has the tag "norecurse" recursion is inhibited
@@ -362,16 +281,16 @@ public: // functions
   void signal_move_component ( SignalArgs& args );
 
   /// lists the sub components and puts them on the xml_tree
-  void signal_list_tree( SignalArgs& args );
+  void signal_list_tree( SignalArgs& args ) const;
 
   /// lists the properties of this component
-  void signal_list_properties ( SignalArgs& args );
+  void signal_list_properties ( SignalArgs& args ) const;
 
   /// lists the properties of this component
-  void signal_list_options ( SignalArgs& args );
+  void signal_list_options ( SignalArgs& args ) const;
 
   /// lists the signals of this component
-  void signal_list_signals ( SignalArgs& args );
+  void signal_list_signals ( SignalArgs& args ) const;
 
   ///  gets info on this component
   void signal_print_info ( SignalArgs& args );
@@ -410,29 +329,25 @@ public: // functions
   /// @param [in] recurse If true, recurse through all subcomponents.
   ///             If false, puts only direct children
   template<typename ComponentT>
-  void put_components(std::vector<typename ComponentT::Ptr>& vec, const bool recurse);
+  void put_components(std::vector< boost::shared_ptr<ComponentT> >& vec, const bool recurse);
 
   /// Put all subcomponents in a given vector, optionally recursive
   /// @param [out] vec  A vector of all (recursive) subcomponents
   /// @param [in] recurse If true, recurse through all subcomponents.
   ///             If false, puts only direct children
   template<typename ComponentT>
-  void put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
+  void put_components(std::vector< boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const;
 
 
 
 protected: // functions
-
   /// Add a static (sub)component of this component
-  Component& add_static_component ( Ptr subcomp );
-
-  /// Add a static (sub)component of this component
-  Component& add_static_component ( Component& subcomp );
+  Component& add_static_component ( const boost::shared_ptr<Component>& subcomp );
 
 private: // helper functions
 
   /// Modify the parent of this component
-  void change_parent ( Component* to_parent );
+  void change_parent(Handle<Component> to_parent);
 
   /// insures the sub component has a unique name within this component
   std::string ensure_unique_name ( Component& subcomp );
@@ -441,7 +356,7 @@ private: // helper functions
   /// @param node            xml node to write
   /// @param put_all_content If @c false, options and properties are not put
   /// in the node.
-  void write_xml_tree( XML::XmlNode& node, bool put_all_content );
+  void write_xml_tree( XML::XmlNode& node, bool put_all_content ) const;
 
   /// Triggered when the "ping" event is raised. Useful to find out what components still exist
   void on_ping_event( SignalArgs& args );
@@ -459,7 +374,7 @@ protected: // data
   /// lookup of the index of a component
   CompLookupT m_component_lookup;
   /// pointer to parent, naked pointer because of static components
-  Component * m_raw_parent;
+  Handle<Component> m_parent;
   /// is this a link component
   bool m_is_link;
 
@@ -467,107 +382,24 @@ protected: // functions
 
   /// raise event that the path has changed
   void raise_tree_updated_event();
-
+  
+  /// Friend declarations allow enable_shared_from_this to be private
+  template<class T> friend class boost::enable_shared_from_this;
+  template<class T> friend class boost::shared_ptr;
+  
 }; // Component
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename T::Ptr Component::create_component_ptr ( const std::string& name )
-{
-  typename T::Ptr comp = allocate_component<T>(name);
-  add_component( comp );
-  return comp ;
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-template < typename T >
-inline T& Component::create_component ( const std::string& name )
-{
-  return *create_component_ptr<T>(name);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename T::Ptr Component::create_static_component_ptr ( const std::string& name )
-{
-  typename T::Ptr comp = allocate_component<T>(name);
-  add_static_component( comp );
-  return comp ;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline T& Component::create_static_component ( const std::string& name )
-{
-  return *create_static_component_ptr<T>(name);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename boost::shared_ptr<T> Component::as_ptr()
-{
-  Component::Ptr me = self();
-  cf3_assert( is_not_null(me.get()) );
-  return boost::dynamic_pointer_cast<T>(me);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename boost::shared_ptr<T const> Component::as_ptr() const
-{
-  return boost::dynamic_pointer_cast<T const>(self());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename boost::shared_ptr<T> Component::as_ptr_checked()
-{
-  typename boost::shared_ptr<T> comp = as_ptr<T>();
-  if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast component " + uri().string() + " of type " + derived_type_name() + " to " + T::type_name() );
-  return comp;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-template < typename T >
-inline typename boost::shared_ptr<T const> Component::as_ptr_checked() const
-{
-  typename boost::shared_ptr<T const> comp = as_ptr<T>();
-  if( is_null(comp) )
-    throw CastingFailed( FromHere(), "Cannot cast const component " + uri().string() + " of type " + derived_type_name() + " to const " + T::type_name() );
-  return comp;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-inline Component::ConstPtr Component::as_const() const
-{
-  return boost::const_pointer_cast<Component const> ( self() );
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-inline Component::Ptr Component::as_non_const() const
-{
-  return boost::const_pointer_cast<Component> ( self() );
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-inline void Component::put_components(std::vector<typename ComponentT::Ptr >& vec, const bool recurse)
+inline void Component::put_components(std::vector< boost::shared_ptr< ComponentT > >& vec, const bool recurse)
 {
   for(CompStorageT::iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(typename ComponentT::Ptr p = boost::dynamic_pointer_cast<ComponentT>(*it))
+    boost::shared_ptr<ComponentT> p = boost::dynamic_pointer_cast<ComponentT>(*it);
+    if(is_not_null(p))
     {
       vec.push_back(p);
     }
@@ -579,11 +411,12 @@ inline void Component::put_components(std::vector<typename ComponentT::Ptr >& ve
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 template<typename ComponentT>
-void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >& vec, const bool recurse) const
+void Component::put_components(std::vector< boost::shared_ptr< const ComponentT > >& vec, const bool recurse) const
 {
   for(CompStorageT::const_iterator it=m_components.begin(); it!=m_components.end(); ++it)
   {
-    if(boost::shared_ptr<ComponentT const> p = boost::dynamic_pointer_cast<ComponentT const>(*it))
+    boost::shared_ptr<ComponentT> p = boost::dynamic_pointer_cast<ComponentT>(*it);
+    if(is_not_null(p))
     {
       vec.push_back(p);
     }
@@ -596,7 +429,7 @@ void Component::put_components(std::vector<boost::shared_ptr<ComponentT const> >
 
 // specialization avoiding the dynamic cast
 template<>
-inline void Component::put_components<Component>(std::vector<Component::Ptr>& vec, const bool recurse)
+inline void Component::put_components<Component>(std::vector< boost::shared_ptr<Component> >& vec, const bool recurse)
 {
   if(recurse)
   {
@@ -637,7 +470,7 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
 /// If builder does not exist, tries to auto-load based on the builder name.
 /// @param provider_name the registry string of the provider
 /// @name name to give to the created omponent
-Component::Ptr build_component(const std::string& builder_name,
+boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name);
 
 
@@ -648,7 +481,7 @@ Component::Ptr build_component(const std::string& builder_name,
 /// @param [in] provider_name the registry string of the provider
 /// @param [in] name name to give to the created component
 /// @param [in] factory_type_name name of the factory
-Component::Ptr build_component(const std::string& builder_name,
+boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name,
                                const std::string& factory_type_name);
 
@@ -659,7 +492,7 @@ Component::Ptr build_component(const std::string& builder_name,
 /// @param [in] provider_name the registry string of the provider
 /// @param [in] name name to give to the created component
 /// @param [in] factory_type_name name of the factory
-Component::Ptr build_component_reduced(const std::string& builder_name,
+boost::shared_ptr<Component> build_component_reduced(const std::string& builder_name,
                                        const std::string& name,
                                        const std::string& factory_type_name);
 
@@ -667,44 +500,34 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 /// @param provider_name the registry string of the provider of the concrete type
 /// @name name to give to the created omponent
 template < typename ATYPE >
-typename ATYPE::Ptr build_component_abstract_type(const std::string& builder_name,
+boost::shared_ptr<ATYPE> build_component_abstract_type(const std::string& builder_name,
                                                   const std::string& name )
 {
-  // create the component
+  boost::shared_ptr<ATYPE> comp = boost::dynamic_pointer_cast<ATYPE>(build_component(builder_name, name, ATYPE::type_name()));
 
-  Component::Ptr comp = build_component(builder_name, name, ATYPE::type_name());
-
-  // cast the component
-
-  typename ATYPE::Ptr ccomp = comp->as_ptr_checked<ATYPE>();
-  if ( is_null(ccomp) )
+  if ( is_null(comp) )
     throw CastingFailed(FromHere(),
                         "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
-  return ccomp;
+  return comp;
 }
 
 /// Create a component of a given abstract type using a reduced builder name
 /// @param buider_name the reduced builder name (name without namespace)
 /// @name name to give to the created omponent
 template < typename ATYPE >
-typename ATYPE::Ptr build_component_abstract_type_reduced(const std::string& builder_name,
+boost::shared_ptr<ATYPE> build_component_abstract_type_reduced(const std::string& builder_name,
                                                           const std::string& name )
 {
-  // create the component
+  boost::shared_ptr<ATYPE> comp = boost::dynamic_pointer_cast<ATYPE>(build_component_reduced(builder_name, name, ATYPE::type_name()));
 
-  Component::Ptr comp = build_component_reduced(builder_name, name, ATYPE::type_name());
-
-  // cast the component
-
-  typename ATYPE::Ptr ccomp = comp->as_ptr<ATYPE>();
-  if ( is_null(ccomp) )
+  if ( is_null(comp) )
     throw CastingFailed(FromHere(),
                         "Pointer created by Builder \'" + builder_name + "\'"
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
-  return ccomp;
+    return comp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

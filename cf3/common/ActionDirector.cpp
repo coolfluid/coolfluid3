@@ -47,27 +47,27 @@ ActionDirector::ActionDirector(const std::string& name): Action(name)
 
 void ActionDirector::execute()
 {
-  Option& actions_prop = option("action_order");
+  Option& actions_prop = options().option("action_order");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   BOOST_FOREACH(const std::string& action_name, actions)
   {
     // First check if the child exists
-    Component::Ptr child = get_child_ptr(action_name);
+    Handle<Component> child = get_child(action_name);
     if(is_null(child))
       throw SetupError(FromHere(), "No component with name " + action_name + " when executing actions in " + uri().string());
 
     // If it's a link, ensure the link is valid
-    Component::Ptr linked_child = child->follow();
+    Handle<Component> linked_child(follow_link(child));
     if(is_null(linked_child))
       throw SetupError(FromHere(), "Linked action " + action_name + " points to null in " + uri().string());
 
-    Action::Ptr action = boost::dynamic_pointer_cast<Action>(linked_child);
+    Handle<Action> action(linked_child);
     if(is_null(action))
       throw SetupError(FromHere(), "Component with name " + action_name + " is not an action in " + uri().string());
 
     CFdebug << "Executing action " << action->uri().string()
-      << (action->options().check("regions") ? (" over regions " + action->option("regions").value_str()) : "") << CFendl;
+      << (action->options().check("regions") ? (" over regions " + action->options().option("regions").value_str()) : "") << CFendl;
 
     action->execute();
   }
@@ -76,39 +76,63 @@ void ActionDirector::execute()
 
 ActionDirector& ActionDirector::append(Action& action)
 {
-  return append(action.as_ptr<Action>());
+  if(is_null(action.parent()))
+    throw SetupError(FromHere(), "Attempt to link to non-owned action " + action.name() + " in ActionDirector " + uri().path());
+  
+  Handle<Component> existing_child = get_child(action.name());
+  if(is_null(existing_child))
+  {
+    create_component<Link>(action.name())->link_to(action);
+    on_action_added(action);
+  }
+  else
+  {
+    // If a child with the given name existed, check that it corresponds to the supplied action
+    Handle<Action> existing_action(existing_child);
+
+    if(is_null(existing_action))
+      throw ValueExists(FromHere(), "A component named " + action.name() + " already exists in " + uri().string() + ", but it is not a Action");
+
+    if(existing_action.get() != &action)
+      throw ValueExists(FromHere(), "An action named " + action.name() + " already exists in " + uri().string() + ", but it is different from the appended action");
+  }
+
+  Option& actions_prop = options().option("action_order");
+  std::vector<std::string> actions; actions_prop.put_value(actions);
+
+  actions.push_back(action.name());
+  actions_prop.change_value(actions);
+
+  return *this;
 }
 
 
-ActionDirector& ActionDirector::append(const Action::Ptr& action)
+ActionDirector& ActionDirector::append(const Handle<Action>& action)
 {
-  Component::Ptr existing_child = get_child_ptr(action->name());
+  return append(*action);
+}
+
+ActionDirector& ActionDirector::append(const boost::shared_ptr< Action >& action)
+{
+  Handle<Component> existing_child = get_child(action->name());
   if(is_null(existing_child))
   {
-    if(action->has_parent())
-    {
-      Link& action_link = create_component<Link>(action->name());
-      action_link.link_to(action);
-    }
-    else
-    {
-      add_component(action);
-    }
+    add_component(action);
     on_action_added(*action);
   }
   else
   {
     // If a child with the given name existed, check that it corresponds to the supplied action
-    Action::Ptr existing_action = boost::dynamic_pointer_cast<Action>(existing_child);
+    Handle<Action> existing_action(existing_child);
 
     if(is_null(existing_action))
       throw ValueExists(FromHere(), "A component named " + action->name() + " already exists in " + uri().string() + ", but it is not a Action");
 
-    if(existing_action != action)
+    if(existing_action.get() != action.get())
       throw ValueExists(FromHere(), "An action named " + action->name() + " already exists in " + uri().string() + ", but it is different from the appended action");
   }
 
-  Option& actions_prop = option("action_order");
+  Option& actions_prop = options().option("action_order");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   actions.push_back(action->name());
@@ -117,9 +141,10 @@ ActionDirector& ActionDirector::append(const Action::Ptr& action)
   return *this;
 }
 
+
 void ActionDirector::disable_action(const std::string& name)
 {
-  Option& actions_prop = option("action_order");
+  Option& actions_prop = options().option("action_order");
   std::vector<std::string> actions; actions_prop.put_value(actions);
 
   const Uint nb_actions = actions.size();
@@ -156,12 +181,15 @@ ActionDirector& operator<<(ActionDirector& action_director, Action& action)
   return action_director.append(action);
 }
 
-ActionDirector& operator<<(ActionDirector& action_director, const Action::Ptr& action)
+ActionDirector& operator<<(ActionDirector& action_director, const Handle<Action>& action)
 {
   return action_director.append(action);
 }
 
-
+ActionDirector& operator<<(ActionDirector& action_director, const boost::shared_ptr<Action>& action)
+{
+  return action_director.append(action);
+}
 
 void ActionDirector::on_action_added(Action& action)
 {

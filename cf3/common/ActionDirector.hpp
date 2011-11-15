@@ -20,13 +20,8 @@ namespace common {
 
 /// Executes a series of actions, configured through a list of names for the actions to execute
 /// actions are passed through the "action_order" option and will be executed in the order they are listed
-class Common_API ActionDirector : public Action {
-
-public: // typedefs
-
-  typedef boost::shared_ptr<ActionDirector> Ptr;
-  typedef boost::shared_ptr<ActionDirector const> ConstPtr;
-
+class Common_API ActionDirector : public Action
+{
 public: // functions
 
   /// Contructor
@@ -40,14 +35,17 @@ public: // functions
   virtual void execute();
 
   /// Append an action to the back of the list, returning a reference to self (for chaining purposes)
-  /// The supplied action is added as a child if it had no parent, otherwise a link is created
+  /// A link to the supplied action is created
   /// If this ActionDirector already has a component or an action with the same name that is different from
   /// the supplied action, an error is raised
   /// If the supplied action was added before, its name is added to the execution list a second time
   ActionDirector& append(Action& action);
 
-  /// Overload taking a shared pointer
-  ActionDirector& append(const Action::Ptr& action);
+  /// Overload taking a handle, working the same way as from reference
+  ActionDirector& append(const Handle<Action>& action);
+  
+  /// Take ownership of the supplied action and add it to the list
+  ActionDirector& append(const boost::shared_ptr<Action>& action);
   
   /// Disable the action with the given name
   void disable_action(const std::string& name);
@@ -71,8 +69,11 @@ private:
 /// Same behavior as append.
 ActionDirector& operator<<(ActionDirector& action_director, Action& action);
 
-/// Overload for shared pointers
-ActionDirector& operator<<(ActionDirector& action_director, const Action::Ptr& action);
+/// Overload for handles
+ActionDirector& operator<<(ActionDirector& action_director, const Handle<Action>& action);
+
+/// Overload for shared_ptr
+ActionDirector& operator<<(ActionDirector& action_director, const boost::shared_ptr<Action>& action);
 
 /////////////////////////////////////////////////////////////////////////////////////
 

@@ -49,8 +49,6 @@ public: // typedef
   typedef boost::multi_array<T,1> Array_t;
   typedef T value_type;
 
-  typedef boost::shared_ptr<ListBufferT> Ptr;
-
 private:
 
   struct Buffer

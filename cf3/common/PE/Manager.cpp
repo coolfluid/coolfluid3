@@ -114,7 +114,7 @@ Manager::~Manager ()
 
 ////////////////////////////////////////////////////////////////////////////
 
-void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
+void Manager::new_signal ( const ::MPI::Intercomm&, boost::shared_ptr<XML::XmlDoc> sig)
 {
   if( Comm::instance().instance().get_parent() == MPI_COMM_NULL )
   {
@@ -142,7 +142,7 @@ void Manager::new_signal ( const ::MPI::Intercomm&, XML::XmlDoc::Ptr sig)
       std::string str;
       to_string( signal_frame.node, str);
 
-      Component::Ptr comp = access_component_ptr_checked( receiver );
+      Handle<Component> comp = access_component_checked( receiver );
 
       comp->call_signal(target, signal_frame);
 
@@ -228,9 +228,9 @@ void Manager::spawn_group ( const std::string & name,
   m_groups[name] = comm;
   m_listener->add_communicator( comm );
 
-  WorkerGroup & wg = create_component<WorkerGroup>(name);
-  wg.set_communicator(comm);
-  wg.mark_basic();
+  Handle<WorkerGroup> wg = create_component<WorkerGroup>(name);
+  wg->set_communicator(comm);
+  wg->mark_basic();
 
   Comm::instance().barrier( comm );
 
@@ -400,7 +400,7 @@ void Manager::signal_message ( SignalArgs & args )
 
 void Manager::mpi_forward ( SignalArgs & args )
 {
-  XmlDoc::Ptr doc = Protocol::create_doc();
+  boost::shared_ptr<XmlDoc> doc = Protocol::create_doc();
   XmlNode node = Protocol::goto_doc_node( *doc.get() );
   XmlNode sig_node = node.add_node( "tmp" );
 

@@ -8,6 +8,7 @@
 #define cf3_common_Handle_hpp
 
 #include <boost/type_traits/is_base_of.hpp>
+#include <boost/type_traits/remove_const.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include "common/Assertions.hpp"
@@ -40,6 +41,13 @@ public:
   explicit Handle(const Handle<Y>& other)
   {
     create_from_shared(other.m_weak_ptr.lock());
+  }
+  
+  /// Copy constructor also taking anon-const handle to create a const handle implicitely
+  Handle(const Handle<typename boost::remove_const<T>::type>& other) :
+    m_weak_ptr(other.m_weak_ptr),
+    m_cached_ptr(other.m_cached_ptr)
+  {
   }
 
   /// Raw pointer to the stored value, or null if there is none
@@ -164,6 +172,13 @@ template<typename T, typename U> inline bool operator!=(const U a, const Handle<
 template<typename T, typename U> inline bool operator<(const Handle<T>& a, const Handle<U>& b)
 {
   return a._internal_less(b);
+}
+
+/// Helper function to make a handle
+template<typename T>
+Handle<T> make_handle(const boost::shared_ptr<T>& p)
+{
+  return Handle<T>(p);
 }
 
 } // common

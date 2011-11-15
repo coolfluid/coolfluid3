@@ -46,8 +46,6 @@ class ArrayBufferT
 
 public: // typedef
 
-  typedef boost::shared_ptr<ArrayBufferT> Ptr;
-
   typedef boost::multi_array<T,2> Array_t;
   typedef T value_type;
 

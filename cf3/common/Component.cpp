@@ -47,7 +47,6 @@ namespace common {
 Component::Component ( const std::string& name ) :
     m_name (),
     m_options(),
-    m_raw_parent( nullptr ),
     m_is_link (false)
 {
   // accept name
@@ -156,18 +155,6 @@ Component::~Component()
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Component::Ptr Component::follow()
-{
-  return shared_from_this();
-}
-
-Component::ConstPtr Component::follow() const
-{
-  return shared_from_this();
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
 void Component::rename ( const std::string& name )
 {
   if(name.empty())
@@ -184,16 +171,16 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_tree_updated_event();
 
-  if(has_parent())
+  if(is_not_null(parent()))
   {
-    if(is_not_null(parent().get_child_ptr(name)))
+    if(is_not_null(parent()->get_child(name)))
       throw ValueExists(FromHere(), std::string("A component with name ") + this->name() + " already exists in " + uri().string());
 
     // Rename key in parent
-    CompLookupT::iterator lookup = parent().m_component_lookup.find(m_name);
+    CompLookupT::iterator lookup = parent()->m_component_lookup.find(m_name);
     const Uint idx = lookup->second;
-    parent().m_component_lookup.erase(lookup);
-    parent().m_component_lookup[name] = idx;
+    parent()->m_component_lookup.erase(lookup);
+    parent()->m_component_lookup[name] = idx;
   }
 
   m_name = name;
@@ -203,61 +190,45 @@ void Component::rename ( const std::string& name )
 
 URI Component::uri() const
 {
-  if(!has_parent())
+  if(is_null(parent()))
     return URI(std::string("/"), URI::Scheme::CPATH);
 
-  return parent().uri() / URI(name(), URI::Scheme::CPATH);
+  return parent()->uri() / URI(name(), URI::Scheme::CPATH);
+}
+
+const Handle<Component>& Component::parent() const
+{
+  return m_parent;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-bool Component::has_parent() const
+cf3::common::Handle< const Component > Component::root() const
 {
-  return is_not_null(m_raw_parent);
-}
+  Handle<Component const> result(handle());
+  while(is_not_null(result->parent()))
+    result = result->parent();
 
-Component& Component::parent() const
-{
-  if(is_null(m_raw_parent))
-    throw ValueNotFound(FromHere(), "No parent for component " + name());
-  return *m_raw_parent;
+  return result;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-const Component& Component::root() const
+Handle< Component > Component::root()
 {
-  bool parent_exists = has_parent();
-  const Component* result = this;
-  while(parent_exists)
-  {
-    result = &result->parent();
-    parent_exists = result->has_parent();
-  }
+  Handle<Component> result(handle());
+  while(is_not_null(result->parent()))
+    result = result->parent();
 
-  return *result;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::root()
-{
-  bool parent_exists = has_parent();
-  Component* result = this;
-  while(parent_exists)
-  {
-    result = &result->parent();
-    parent_exists = result->has_parent();
-  }
-
-  return *result;
+  return result;
 }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::add_component ( Component::Ptr subcomp )
+Component& Component::add_component ( const boost::shared_ptr<Component>& subcomp )
 {
+  cf3_always_assert(is_not_null(subcomp));
   const std::string name = subcomp->name();
 
   const std::string unique_name = ensure_unique_name(*subcomp);
@@ -270,11 +241,11 @@ Component& Component::add_component ( Component::Ptr subcomp )
   }
 
   m_component_lookup[unique_name] = m_components.size();
-  m_components.push_back(subcomp);           // add to all component list
+  m_components.push_back(subcomp);  // add to all component list
 
   cf3_assert(m_component_lookup.size() == m_components.size());
 
-  subcomp->change_parent( this );
+  subcomp->change_parent( handle() );
 
   raise_tree_updated_event();
 
@@ -283,14 +254,7 @@ Component& Component::add_component ( Component::Ptr subcomp )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::add_component ( Component& subcomp )
-{
-  return add_component(subcomp.self());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::add_static_component ( Component::Ptr subcomp )
+Component& Component::add_static_component ( const boost::shared_ptr< Component >& subcomp )
 {
   std::string unique_name = ensure_unique_name(*subcomp);
   cf3_always_assert_desc("static components must always have a unique name", unique_name == subcomp->name());
@@ -304,20 +268,6 @@ Component& Component::add_static_component ( Component::Ptr subcomp )
   subcomp->add_tag(Tags::static_component());
 
   return *subcomp;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::add_static_component ( Component& subcomp )
-{
-  return add_static_component(subcomp.self());
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-bool Component::is_child_static(const std::string& name) const
-{
-  return has_tag(Tags::static_component());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -338,7 +288,7 @@ std::string Component::ensure_unique_name ( Component& subcomp )
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Component::Ptr Component::remove_component ( const std::string& name )
+boost::shared_ptr<Component> Component::remove_component ( const std::string& name )
 {
   // find the component exists
   Component::CompLookupT::iterator itr = m_component_lookup.find(name);
@@ -346,13 +296,13 @@ Component::Ptr Component::remove_component ( const std::string& name )
   if ( itr != m_component_lookup.end() )         // if exists
   {
     const Uint comp_idx = itr->second;
-    Component::Ptr comp = m_components[comp_idx];             // get the component
+    boost::shared_ptr<Component> comp = m_components[comp_idx];             // get the component
     if(comp->has_tag(Tags::static_component()))
       throw BadValue(FromHere(), "Error removing component " + comp->uri().string() + ", it is static!");
 
     m_component_lookup.erase(itr);               // remove it from the lookup
 
-    comp->change_parent( NULL );                   // set parent to invalid
+    comp->change_parent( Handle<Component>() );                   // set parent to invalid
 
     // Create new storage to eliminate the removed component
     CompStorageT new_storage; new_storage.reserve(m_components.size() - 1);
@@ -383,7 +333,7 @@ Component::Ptr Component::remove_component ( const std::string& name )
 
 //////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::remove_component ( Component& subcomp )
+boost::shared_ptr<Component> Component::remove_component ( Component& subcomp )
 {
   return remove_component(subcomp.name());
 }
@@ -394,27 +344,37 @@ void Component::complete_path ( URI& path ) const
 {
   cf3_assert( path.scheme() == URI::Scheme::CPATH );
 
-  path = access_component(path).uri();
+  path = access_component(path)->uri();
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::get_child(const std::string& name) const
-{
-  return *get_child_ptr_checked(name);
-}
-
-Component::Ptr Component::get_child_ptr(const std::string& name) const
+Handle<Component const> Component::get_child(const std::string& name) const
 {
   const CompLookupT::const_iterator found = m_component_lookup.find(name);
   if(found != m_component_lookup.end())
-    return m_components[found->second];
-  return Ptr();
+    return Handle<Component const>(m_components[found->second]);
+  return Handle<Component const>();
 }
 
-Component::Ptr Component::get_child_ptr_checked(const std::string& name) const
+Handle<Component> Component::get_child(const std::string& name)
 {
-  Component::Ptr result = get_child_ptr(name);
+  const CompLookupT::iterator found = m_component_lookup.find(name);
+  if(found != m_component_lookup.end())
+    return Handle<Component>(m_components[found->second]);
+  return Handle<Component>();
+}
+
+Handle<Component const> Component::get_child_checked(const std::string& name) const
+{
+  Handle<Component const> result = get_child(name);
+  if(is_null(result))
+    throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
+
+  return result;
+}
+
+Handle<Component> Component::get_child_checked(const std::string& name)
+{
+  Handle<Component> result = get_child(name);
   if(is_null(result))
     throw ValueNotFound( FromHere(), "Component with name " + name + " was not found inside component " + uri().string() );
 
@@ -423,52 +383,28 @@ Component::Ptr Component::get_child_ptr_checked(const std::string& name) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::change_parent ( Component* new_parent )
+void Component::change_parent(Handle<Component> to_parent)
 {
   // modifiy the parent, may be NULL
-  m_raw_parent = new_parent;
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-boost::iterator_range<Component::iterator> Component::children()
-{
-  return boost::make_iterator_range(begin(),end());
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-boost::iterator_range<Component::const_iterator> Component::children() const
-{
-  return boost::make_iterator_range(begin(),end());
+  m_parent = to_parent;
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 void Component::move_to ( Component& new_parent )
 {
-  Component::Ptr this_ptr = parent().remove_component( *this );
+  boost::shared_ptr<Component> this_ptr = parent()->remove_component( *this );
   new_parent.add_component( this_ptr );
   raise_tree_updated_event();
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::access_component ( const URI& path ) const
-{
-  Component::Ptr comp = access_component_ptr_checked(path);
-  if (is_null(comp))
-    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
-  return *comp;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::access_component_ptr ( const URI& path ) const
+Handle<Component> Component::access_component(const URI& path)
 {
   // Return self for trivial path or at end of recursion.
   if(path.path() == "." || path.empty())
-    return boost::const_pointer_cast<Component>(self());
+    return handle();
 
   // If the path is absolute, make it relative and pass it to the root
   if(path.is_absolute())
@@ -481,11 +417,11 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
 
     if(new_path.empty())
     {
-      return boost::const_pointer_cast<Component>(root().self());
+      return root()->handle();
     }
 
     // Pass the rest to root
-    return root().access_component_ptr(URI(new_path, cf3::common::URI::Scheme::CPATH));
+    return root()->access_component(URI(new_path, cf3::common::URI::Scheme::CPATH));
   }
 
   // Relative path
@@ -505,26 +441,39 @@ Component::Ptr Component::access_component_ptr ( const URI& path ) const
 
   // Dispatch to self
   if(current_part == "." || current_part.empty())
-    return access_component_ptr(next_part);
+    return access_component(next_part);
 
   // Dispatch to parent
   if(current_part == "..")
-    return has_parent() ? parent().access_component_ptr(next_part) : Ptr();
+    return parent() ? parent()->access_component(next_part) : Handle<Component>();
 
   // Dispatch to child
-  Ptr child = get_child_ptr(current_part);
+  Handle<Component> child = get_child(current_part);
   if(is_not_null(child))
-    return child->access_component_ptr(next_part);
+    return child->access_component(next_part);
 
   // Return null if not found
-  return Ptr();
+  return Handle<Component>();
+}
+
+Handle<Component const> Component::access_component(const URI& path) const
+{
+  return const_cast<Component*>(this)->access_component(path);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr Component::access_component_ptr_checked (const cf3::common::URI& path) const
+Handle<Component> Component::access_component_checked (const cf3::common::URI& path)
 {
-  Component::Ptr comp = access_component_ptr(path);
+  Handle<Component> comp = access_component(path);
+  if (is_null(comp))
+    throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
+  return comp;
+}
+
+Handle<Component const> Component::access_component_checked (const cf3::common::URI& path) const
+{
+  Handle<Component const> comp = access_component(path);
   if (is_null(comp))
     throw InvalidURI (FromHere(), "Component with path " + path.path() + " was not found in " + uri().path());
   return comp;
@@ -532,11 +481,12 @@ Component::Ptr Component::access_component_ptr_checked (const cf3::common::URI& 
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::create_component (const std::string& name ,
+Handle< Component > Component::create_component (const std::string& name ,
                                         const std::string& builder_name )
 {
-  Component::Ptr comp = build_component(builder_name, name);
-  return add_component( comp );
+  boost::shared_ptr<Component> comp = build_component(builder_name, name);
+  add_component( comp );
+  return Handle<Component>(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -551,16 +501,16 @@ void Component::signal_create_component ( SignalArgs& args  )
 
   std::string builder_name = options.value<std::string>("type");
 
-  Component& comp = create_component( name, builder_name );
+  Handle<Component> comp = create_component( name, builder_name );
 
   if( options.check("basic_mode") )
   {
     if (options["basic_mode"].value<bool>())
-      comp.mark_basic();
+      comp->mark_basic();
   }
   else
   {
-    comp.mark_basic();
+    comp->mark_basic();
   }
 }
 
@@ -571,7 +521,7 @@ void Component::signal_delete_component ( SignalArgs& args  )
   // when goes out of scope it gets deleted
   // unless someone else shares it
 
-  parent().remove_component( *this );
+  parent()->remove_component( *this );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -584,7 +534,7 @@ void Component::signal_move_component ( SignalArgs& args  )
   if( path.scheme() != URI::Scheme::CPATH )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
-  this->move_to( access_component( path.path() ) );
+  this->move_to( *access_component( path.path() ) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -594,14 +544,14 @@ void Component::signal_print_info ( SignalArgs& args  )
   CFinfo << "Info on component \'" << uri().path() << "\'" << CFendl;
 
   CFinfo << "  sub components:" << CFendl;
-  BOOST_FOREACH( const Ptr& c, m_components )
+  BOOST_FOREACH( const Component& c, *this )
   {
-    if (c->has_tag(Tags::static_component()))
+    if (c.has_tag(Tags::static_component()))
       CFinfo << "  + [static]  ";
     else
       CFinfo << "  + [dynamic] ";
 
-    CFinfo << c->name() << " / " << c->derived_type_name() << CFendl;
+    CFinfo << c.name() << " / " << c.derived_type_name() << CFendl;
   }
 
   CFinfo << "  options:" << CFendl;
@@ -611,7 +561,7 @@ void Component::signal_print_info ( SignalArgs& args  )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::write_xml_tree( XmlNode& node, bool put_all_content )
+void Component::write_xml_tree( XmlNode& node, bool put_all_content ) const
 {
   cf3_assert( node.is_valid() );
 
@@ -631,9 +581,8 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
     this_node.set_attribute( "uuid", m_properties.value_str("uuid") );
 
-    Link::Ptr lnk = boost::dynamic_pointer_cast<Link>(shared_from_this());//this->as_ptr<Link>();
-
-    if( is_not_null(lnk.get()) ) // if it is a link, we put the target path as value
+    const Link* lnk = dynamic_cast<const Link*>(this);
+    if( is_not_null(lnk) ) // if it is a link, we put the target path as value
     {
       if ( lnk->is_linked() )
        this_node.content->value( this_node.content->document()->allocate_string( lnk->follow()->uri().string().c_str() ));
@@ -650,9 +599,9 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
         signal_list_options( sf );
       }
 
-      boost_foreach( const Ptr& c, m_components )
+      boost_foreach( const Component& c, *this )
       {
-        c->write_xml_tree( this_node, put_all_content );
+        c.write_xml_tree( this_node, put_all_content );
       }
     }
   }
@@ -660,7 +609,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_tree( SignalArgs& args )
+void Component::signal_list_tree( SignalArgs& args ) const
 {
   SignalFrame reply = args.create_reply( uri() );
 
@@ -676,14 +625,14 @@ std::string Component::tree(Uint level) const
     tree += "  ";
   tree += name() ;
 
-  if( is_link() && follow() )
-    tree += " -> " + follow()->uri().string();
+  if( is_not_null(dynamic_cast<Link const*>(this)) )
+    tree += " -> " + follow_link(*this)->uri().string();
 
   tree += "\n";
 
-  boost_foreach( const Ptr& c, m_components )
+  boost_foreach( const Component& c, *this )
   {
-    tree += c->tree(level+1);
+    tree += c.tree(level+1);
   }
   return tree;
 }
@@ -697,9 +646,9 @@ size_t Component::count_children() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_properties( SignalFrame& args )
+void Component::signal_list_properties( SignalFrame& args ) const
 {
-  PropertyList::PropertyStorage_t::iterator it = m_properties.store.begin();
+  PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
 
  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
@@ -730,7 +679,7 @@ void Component::signal_list_properties( SignalFrame& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_options ( SignalArgs& args )
+void Component::signal_list_options ( SignalArgs& args ) const
 {
   Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
   SignalOptions::add_to_map( options, m_options );
@@ -738,9 +687,9 @@ void Component::signal_list_options ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-void Component::signal_list_signals( SignalArgs& args )
+void Component::signal_list_signals( SignalArgs& args ) const
 {
-  SignalHandler::storage_t::iterator it = m_signals.begin();
+  SignalHandler::storage_t::const_iterator it = m_signals.begin();
 
   XmlNode value_node = args.main_map.content.add_node( Protocol::Tags::node_value() );
 
@@ -800,34 +749,6 @@ void Component::signal_configure ( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-const boost::any& Component::property( const std::string& optname ) const
-{
-  return m_properties.property(optname);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-boost::any& Component::property( const std::string& optname )
-{
-  return m_properties.property(optname);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
-const Option& Component::option( const std::string& optname ) const
-{
-  return options().option(optname);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Option& Component::option( const std::string& optname )
-{
-  return options().option(optname);
-}
-
-////////////////////////////////////////////////////////////////////////////////////////////
-
 void Component::signal_rename_component ( SignalArgs& args )
 {
   SignalOptions options( args );
@@ -848,7 +769,7 @@ void Component::signal_save_tree ( SignalArgs& args )
   if(filename.scheme() != URI::Scheme::FILE)
     throw InvalidURI(FromHere(), "A file was expected but got \'" + filename.string() + "\'");
 
-  XmlDoc::Ptr xmldoc = Protocol::create_doc();
+  boost::shared_ptr<XmlDoc> xmldoc = Protocol::create_doc();
   XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
 
   write_xml_tree(doc_node, true);
@@ -944,22 +865,6 @@ void Component::signature_move_component( SignalArgs& args )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Component& Component::configure_option(const std::string& optname, const boost::any& val)
-{
-  options().configure_option(optname,val);
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-Component& Component::configure_property(const std::string& optname, const boost::any& val)
-{
-  m_properties.configure_property(optname,val);
-  return *this;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 void Component::configure_option_recursively(const std::string& opt_name, const boost::any& val)
 {
 
@@ -967,13 +872,13 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 
   if (m_options.check(opt_name) && !m_options[opt_name].has_tag("norecurse"))
   {
-    configure_option(opt_name,val);
+    options().configure_option(opt_name,val);
   }
 
   foreach_container((std::string name) (boost::shared_ptr<Option> opt), options())
   {
     if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
-      configure_option(name,val);
+      options().configure_option(name,val);
   }
 
   // configure all child's options recursively
@@ -985,9 +890,9 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 
     // configure the option that matches the name
 
-    if (component.options().check(opt_name) && !component.option(opt_name).has_tag("norecurse"))
+    if (component.options().check(opt_name) && !component.options().option(opt_name).has_tag("norecurse"))
     {
-      component.configure_option(opt_name,val);
+      component.options().configure_option(opt_name,val);
     }
 
     // configure the options that matches the tags
@@ -995,7 +900,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
     foreach_container((std::string name) (boost::shared_ptr<Option> opt), component.options())
     {
       if (opt->has_tag(opt_name) && !opt->has_tag("norecurse"))
-        component.configure_option(name,val);
+        component.options().configure_option(name,val);
     }
 
   }
@@ -1139,17 +1044,17 @@ void Component::configure (const std::vector<std::string>& args)
                             "] not found in "+ uri().path());
 
       if      (type == "bool")
-        configure_option(name,from_str<bool>(value));
+        options().configure_option(name,from_str<bool>(value));
       else if (type == "unsigned")
-        configure_option(name,from_str<Uint>(value));
+        options().configure_option(name,from_str<Uint>(value));
       else if (type == "integer")
-        configure_option(name,from_str<int>(value));
+        options().configure_option(name,from_str<int>(value));
       else if (type == "real")
-        configure_option(name,from_str<Real>(value));
+        options().configure_option(name,from_str<Real>(value));
       else if (type == "string")
-        configure_option(name,value);
+        options().configure_option(name,value);
       else if (type == "uri")
-        configure_option(name,from_str<URI>(value));
+        options().configure_option(name,from_str<URI>(value));
       else if (type == "array")
       {
         std::vector<std::string> array;
@@ -1179,39 +1084,39 @@ void Component::configure (const std::vector<std::string>& args)
           std::vector<bool> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<bool>(str_val));
-          configure_option(name,vec);
+          options().configure_option(name,vec);
         }
         else if (subtype == "unsigned")
         {
           std::vector<Uint> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<Uint>(str_val));
-          configure_option(name,vec);
+          options().configure_option(name,vec);
         }
         else if (subtype == "integer")
         {
           std::vector<int> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<int>(str_val));
-          configure_option(name,vec);
+          options().configure_option(name,vec);
         }
         else if (subtype == "real")
         {
           std::vector<Real> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<Real>(str_val));
-          configure_option(name,vec);
+          options().configure_option(name,vec);
         }
         else if (subtype == "string")
         {
-          configure_option(name,array);
+          options().configure_option(name,array);
         }
         else if (subtype == "uri")
         {
           std::vector<URI> vec; vec.reserve(array.size());
           boost_foreach(const std::string& str_val,array)
             vec.push_back(from_str<URI>(str_val));
-          configure_option(name,vec);
+          options().configure_option(name,vec);
         }
 
       }
@@ -1234,23 +1139,23 @@ void Component::configure (const std::vector<std::string>& args)
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr build_component(const std::string& builder_name,
+boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name,
                                const std::string& factory_type_name )
 {
   // get the factories
 
-  Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
+  Handle<Component> factories = Core::instance().root().get_child("Factories");
   if ( is_null(factories) )
     throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
 
-  if ( is_null( factories->get_child_ptr( factory_type_name ) ) )
+  if ( is_null( factories->get_child( factory_type_name ) ) )
     Core::instance().libraries().autoload_library_with_builder( builder_name );
 
-  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
+  Handle<Component> factory = factories->get_child( factory_type_name );
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
@@ -1258,17 +1163,17 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // get the builder
 
-  if ( is_null( factory->get_child_ptr( builder_name ) ) )
+  if ( is_null( factory->get_child( builder_name ) ) )
     Core::instance().libraries().autoload_library_with_builder( builder_name );
 
-  Component::Ptr builder = factory->get_child_ptr( builder_name );
+  Handle<Builder> builder(factory->get_child( builder_name ));
   if ( is_null(builder) )
   {
     std::string msg =
         "Builder \'" + builder_name + "\' not found in factory \'"
         + factory_type_name + "\'. Probably forgot to load a library.\n"
         + "Possible builders:";
-    boost_foreach(Component& comp, factory->children())
+    boost_foreach(Component& comp, *factory)
         msg += "\n  -  "+comp.name();
 
     throw ValueNotFound( FromHere(), msg );
@@ -1276,7 +1181,7 @@ Component::Ptr build_component(const std::string& builder_name,
 
   // build the component
 
-  Component::Ptr comp = builder->as_type<Builder>().build ( name );
+  boost::shared_ptr<Component> comp = builder->build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
                            "Builder \'" + builder_name
@@ -1288,34 +1193,31 @@ Component::Ptr build_component(const std::string& builder_name,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr build_component_reduced(const std::string& builder_name,
+boost::shared_ptr<Component> build_component_reduced(const std::string& builder_name,
                                        const std::string& name,
                                        const std::string& factory_type_name )
 {
   // get the factories
 
-  Component::Ptr factories = Core::instance().root().get_child_ptr("Factories");
+  Handle<Component> factories = Core::instance().root().get_child("Factories");
   if ( is_null(factories) )
     throw ValueNotFound( FromHere(), "Factories \'Factories\' not found in "
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
 
-  Component::Ptr factory = factories->get_child_ptr( factory_type_name );
+  Handle<Factory> factory(factories->get_child( factory_type_name ));
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
-  Factory& cfactory = factory->as_type<Factory>();
-
   // get the builder
-
-  Component& cbuilder = cfactory.find_builder_with_reduced_name(builder_name);
+  Builder& cbuilder = factory->find_builder_with_reduced_name(builder_name);
 
   // build the component
 
-  Component::Ptr comp = cbuilder.as_type<Builder>().build ( name );
+  boost::shared_ptr<Component> comp = cbuilder.build ( name );
   if ( is_null(comp) )
     throw NotEnoughMemory ( FromHere(),
                            "Builder \'" + builder_name
@@ -1327,7 +1229,7 @@ Component::Ptr build_component_reduced(const std::string& builder_name,
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-Component::Ptr build_component(const std::string& builder_name,
+boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name )
 {
   std::string libnamespace = Builder::extract_namespace(builder_name);
@@ -1338,21 +1240,19 @@ Component::Ptr build_component(const std::string& builder_name,
 
 
 
-  Component::Ptr cbuilder = Core::instance().root().access_component_ptr( builder_path );
+  Handle<Builder> cbuilder(Core::instance().root().access_component( builder_path ));
 
   if( is_null(cbuilder) ) // try to load the library that contains the builder
   {
     Core::instance().libraries().autoload_library_with_builder( builder_name );
-    cbuilder = Core::instance().root().access_component_ptr( builder_path );
+    cbuilder = Handle<Builder>(Core::instance().root().access_component( builder_path ));
   }
 
   if( is_null(cbuilder) ) // if still fails, then give up
     throw ValueNotFound( FromHere(), "Could not find builder \'" + builder_name + "\'"
                                      " neither a plugin library that contains it." );
 
-  const Builder& builder = cbuilder->follow()->as_type<Builder const>();
-
-  Component::Ptr comp = builder.build( name );
+  boost::shared_ptr<Component> comp = cbuilder->build( name );
 
   return comp;
 }

@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_SUITE( Component_TestSuite )
 BOOST_AUTO_TEST_CASE( constructors )
 {
   // constructor with passed path
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
   BOOST_CHECK_EQUAL ( root->name() , "root" );
   BOOST_CHECK_EQUAL ( root->uri().base_path().string() , "cpath:/" );
@@ -46,14 +46,14 @@ BOOST_AUTO_TEST_CASE( constructors )
   BOOST_CHECK_EQUAL ( root->properties().check("description") , true );
 
   // constructor with empty path
-  Group::Ptr dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Group> dir1 = allocate_component<Group>( "dir1" );
 
   BOOST_CHECK_EQUAL ( dir1->name() , "dir1" );
   BOOST_CHECK_EQUAL ( dir1->uri().base_path().string() , "cpath:/" );
   BOOST_CHECK_EQUAL ( dir1->uri().string() , "cpath:/" );
 
   // constructor with passed path
-  Link::Ptr lnk = allocate_component<Link>( "lnk" );
+  boost::shared_ptr<Link> lnk = allocate_component<Link>( "lnk" );
 
   BOOST_CHECK_EQUAL ( lnk->name() , "lnk" );
   BOOST_CHECK_EQUAL ( lnk->uri().base_path().string() , "cpath:/" );
@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_CASE( constructors )
 
 BOOST_AUTO_TEST_CASE( add_component )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
+  boost::shared_ptr<Component> dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Component> dir2 = allocate_component<Group>( "dir2" );
 
   root->add_component( dir1 );
   dir1->add_component( dir2 );
@@ -79,26 +79,12 @@ BOOST_AUTO_TEST_CASE( add_component )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( is_link )
-{
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-
-  root->add_component( dir1 );
-
-  BOOST_CHECK ( ! root->is_link() );
-  BOOST_CHECK ( ! dir1->is_link() );
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_CASE( get )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr lnk1 = allocate_component<Link>( "lnk1" );
+  boost::shared_ptr<Component> dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Component> lnk1 = allocate_component<Link>( "lnk1" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -106,39 +92,31 @@ BOOST_AUTO_TEST_CASE( get )
 
   // point link to the dir1
   boost::shared_ptr<Link> p_lnk1 = boost::dynamic_pointer_cast<Link>(lnk1);
-  p_lnk1->link_to(dir1);
+  p_lnk1->link_to(*dir1);
 
   // check that the root returns himself
-  BOOST_CHECK_EQUAL ( root->follow()->name(), "root" );
-  BOOST_CHECK_EQUAL ( root->follow()->uri().string(), "cpath:/" );
+  BOOST_CHECK_EQUAL ( follow_link(*root)->name(), "root" );
+  BOOST_CHECK_EQUAL ( follow_link(*root)->uri().string(), "cpath:/" );
 
   // check that the link is sane
   BOOST_CHECK_EQUAL ( lnk1->name(), "lnk1" );
   BOOST_CHECK_EQUAL ( lnk1->uri().string(), "cpath:/lnk1" );
 
   // check that the link returns the dir1
-  BOOST_CHECK_EQUAL ( lnk1->follow()->name(), "dir1" );
-  BOOST_CHECK_EQUAL ( lnk1->follow()->uri().string(), "cpath:/dir1" );
+  BOOST_CHECK_EQUAL ( follow_link(*lnk1)->name(), "dir1" );
+  BOOST_CHECK_EQUAL ( follow_link(*lnk1)->uri().string(), "cpath:/dir1" );
 
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-BOOST_AUTO_TEST_CASE( as_const )
-{
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-  Component::ConstPtr const_root = root->as_const();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_CASE( complete_path )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
-  Component::Ptr dir3 = allocate_component<Group>( "dir3" );
+  boost::shared_ptr<Component> dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Component> dir2 = allocate_component<Group>( "dir2" );
+  boost::shared_ptr<Component> dir3 = allocate_component<Group>( "dir3" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -184,14 +162,14 @@ BOOST_AUTO_TEST_CASE( complete_path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-BOOST_AUTO_TEST_CASE( access_component_ptr )
+BOOST_AUTO_TEST_CASE( access_component )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
-  Component::Ptr dir21 = allocate_component<Group>( "dir21" );
-  Component::Ptr dir22 = allocate_component<Group>( "dir22" );
+  boost::shared_ptr<Component> dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Component> dir2 = allocate_component<Group>( "dir2" );
+  boost::shared_ptr<Component> dir21 = allocate_component<Group>( "dir21" );
+  boost::shared_ptr<Component> dir22 = allocate_component<Group>( "dir22" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -201,12 +179,12 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
 
   // test relative & complete path
   URI p0 ( "cpath:../dir21" );
-  Component::Ptr cp0 = dir22->access_component_ptr( p0 );
+  Handle<Component> cp0 = dir22->access_component( p0 );
   BOOST_CHECK_EQUAL ( cp0->uri().string(), "cpath:/dir1/dir2/dir21" );
 
   // test relative & complete path
   URI p1 ( "cpath:/dir1" );
-  Component::Ptr cp1 = dir22->access_component_ptr( p1 );
+  Handle<Component> cp1 = dir22->access_component( p1 );
   BOOST_CHECK_EQUAL ( cp1->uri().string(), "cpath:/dir1" );
 }
 
@@ -214,10 +192,10 @@ BOOST_AUTO_TEST_CASE( access_component_ptr )
 
 BOOST_AUTO_TEST_CASE( move_to )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
 
-  Component::Ptr dir1 = allocate_component<Group>( "dir1" );
-  Component::Ptr dir2 = allocate_component<Group>( "dir2" );
+  boost::shared_ptr<Component> dir1 = allocate_component<Group>( "dir1" );
+  boost::shared_ptr<Component> dir2 = allocate_component<Group>( "dir2" );
 
   // add child components to root
   root->add_component( dir1 );
@@ -235,9 +213,9 @@ BOOST_AUTO_TEST_CASE( move_to )
 
 BOOST_AUTO_TEST_CASE( problem )
 {
-  Component::Ptr root = allocate_component<Group> ( "Simulator" );
+  boost::shared_ptr<Component> root = allocate_component<Group> ( "Simulator" );
 
-  Component::Ptr proot = root->access_component_ptr("cpath:/");
+  Handle<Component> proot = root->access_component("cpath:/");
 
   BOOST_CHECK_EQUAL ( proot->uri().string(), "cpath:/" );
 
@@ -247,10 +225,10 @@ BOOST_AUTO_TEST_CASE( problem )
 
 BOOST_AUTO_TEST_CASE( create_subcomponents )
 {
-  Component::Ptr root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
-  Component::Ptr comp1 = root->create_component_ptr<Component>("comp1");
-  comp1->create_component_ptr<Component>("comp1_1");
-  comp1->create_component_ptr<Component>("comp1_2");
+  boost::shared_ptr<Component> root = boost::static_pointer_cast<Component>(allocate_component<Group>("root"));
+  Handle<Component> comp1 = root->create_component<Component>("comp1");
+  comp1->create_component<Component>("comp1_1");
+  comp1->create_component<Component>("comp1_2");
 
   BOOST_CHECK_EQUAL(find_component_with_name(*root, "comp1").name(),"comp1");
   BOOST_CHECK_EQUAL(find_component_recursively_with_name(*root, "comp1_1").name(),"comp1_1");
@@ -260,7 +238,7 @@ BOOST_AUTO_TEST_CASE( create_subcomponents )
 
 BOOST_AUTO_TEST_CASE( create_component_signal )
 {
-  Component::Ptr root = allocate_component<Group> ( "croot" );
+  boost::shared_ptr<Component> root = allocate_component<Group> ( "croot" );
 
   SignalFrame sf("Signal", "/", "/");
 
@@ -277,17 +255,17 @@ BOOST_AUTO_TEST_CASE( create_component_signal )
 
 BOOST_AUTO_TEST_CASE( rename )
 {
-  Component::Ptr root = allocate_component<Group> ( "Simulator" );
+  boost::shared_ptr<Component> root = allocate_component<Group> ( "Simulator" );
 
-  Component::Ptr c1 = root->create_component_ptr<Component>("c1");
+  Handle<Component> c1 = root->create_component<Component>("c1");
 
   BOOST_CHECK_EQUAL ( c1->name(), "c1" );
 
-  Component::Ptr c2 = root->create_component_ptr<Component>("c1");
+  Handle<Component> c2 = root->create_component<Component>("c1");
 
   BOOST_CHECK_EQUAL ( c2->name(), "c1_1" );
 
-  Component::Ptr c3 = root->create_component_ptr<Component>("c1");
+  Handle<Component> c3 = root->create_component<Component>("c1");
 
   BOOST_CHECK_EQUAL ( c3->name(), "c1_2" );
 
@@ -295,7 +273,7 @@ BOOST_AUTO_TEST_CASE( rename )
   ExceptionManager::instance().ExceptionDumps = false;
 
   BOOST_CHECK_NO_THROW (c2->rename("c1_3"));
-  BOOST_CHECK(is_not_null(root->get_child_ptr("c1_3")));
+  BOOST_CHECK(is_not_null(root->get_child("c1_3")));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

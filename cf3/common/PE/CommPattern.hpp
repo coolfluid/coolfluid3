@@ -45,11 +45,6 @@ public:
   /// @name TYPEDEFS
   //@{
 
-  /// pointer to this type
-  typedef boost::shared_ptr<CommPattern> Ptr;
-  /// const pointer to this type
-  typedef boost::shared_ptr<CommPattern const> ConstPtr;
-
   /// type of integer to use internally in commpattern, to avoid mess of changing type when mpi allows unsigned ints
   typedef int CPint;
   /// typedef for the temporary buffer
@@ -143,7 +138,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T*& data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename CommWrapperPtr<T>::Ptr ow = create_component_ptr< CommWrapperPtr<T> >(name);
+    Handle< CommWrapperPtr<T> > ow = create_component< CommWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -154,7 +149,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, T** data, const int size, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename CommWrapperPtr<T>::Ptr ow = create_component_ptr< CommWrapperPtr<T> >(name);
+    Handle< CommWrapperPtr<T> > ow = create_component< CommWrapperPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -164,7 +159,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>& data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename CommWrapperVector<T>::Ptr ow = create_component_ptr< CommWrapperVector<T> >(name);
+    Handle< CommWrapperVector<T> > ow = create_component< CommWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -176,8 +171,8 @@ public:
   void insert(const std::string& name, boost::multi_array<ValueT, NDims>& data, const bool needs_update=true)
   {
     typedef CommWrapperMArray<ValueT, NDims> CommWrapperT;
-    CommWrapperT& ow = create_component<CommWrapperT>(name);
-    ow.setup(data,needs_update);
+    Handle<CommWrapperT> ow = create_component<CommWrapperT>(name);
+    ow->setup(data,needs_update);
   }
 
   /// register data coming from pointer to std::vector
@@ -186,7 +181,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, std::vector<T>* data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename CommWrapperVector<T>::Ptr ow = create_component_ptr< CommWrapperVector<T> >(name);
+    Handle< CommWrapperVector<T> > ow = create_component< CommWrapperVector<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -196,7 +191,7 @@ public:
   /// @param stride number of array element grouping
   template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
   {
-    typename CommWrapperVectorWeakPtr<T>::Ptr ow = create_component_ptr< CommWrapperVectorWeakPtr<T> >(name);
+    Handle< CommWrapperVectorWeakPtr<T> > ow = create_component< CommWrapperVectorWeakPtr<T> >(name);
     ow->setup(data,stride,needs_update);
   }
 
@@ -218,7 +213,7 @@ public:
   /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
   /// @param gid CommWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
-  void setup(CommWrapper::Ptr gid, std::vector<Uint>& rank);
+  void setup(const Handle<CommWrapper>& gid, std::vector<Uint>& rank);
 
   /// build and/or modify communication pattern - add nodes
   /// this function sets actually up the communication pattern
@@ -226,7 +221,7 @@ public:
   /// this overload of setup is designed for making no callback functions, so all the registered data should match the size of current size + number of additions
   /// @param gid CommWrapper to a Uint tpye of data array
   /// @param rank vector of ranks where given global ids are updatable to add
-  void setup(CommWrapper::Ptr gid, boost::multi_array<Uint,1>& rank);
+  void setup(const Handle<CommWrapper>& gid, boost::multi_array<Uint,1>& rank);
 
   /// build and/or modify communication pattern - only incorporate actual buffers
   /// this function sets actually up the communication pattern
@@ -290,7 +285,7 @@ public:
 
   /// accessor to global indexing
   /// @return const CommWrapper pointer to the data
-  const CommWrapper::Ptr gid() const { return m_gid; }
+  const Handle<CommWrapper> gid() const { return m_gid; }
 
   /// accessor to the m_isUpdatable vector
   /// @return vector of bools
@@ -341,7 +336,7 @@ private:
   //@} END BUFFERS HOLDING TEMPORARY DATA
 
   /// explicit shared_ptr to the gid wrapper
-  CommWrapper::Ptr m_gid;
+  Handle<CommWrapper> m_gid;
 
   /// array holding the updatable info
   std::vector<bool> m_isUpdatable;

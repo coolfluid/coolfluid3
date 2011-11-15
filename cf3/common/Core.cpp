@@ -75,8 +75,8 @@ Core::Core()
   m_root = allocate_component<Group>( "Root" );
   m_root->mark_basic();
 
-  m_libraries = m_root->create_component_ptr<Libraries>("Libraries");
-  m_factories = m_root->create_component_ptr<Factories>("Factories");
+  m_libraries = m_root->create_component<Libraries>("Libraries");
+  m_factories = m_root->create_component<Factories>("Factories");
   libraries().mark_basic();
   factories().mark_basic();
 
@@ -85,7 +85,7 @@ Core::Core()
   /// @todo should these be static components?
   m_root->add_component( m_environment ).mark_basic();
 
-  Group::Ptr tools = m_root->create_component_ptr<Group>("Tools");
+  Handle<Group> tools = m_root->create_component<Group>("Tools");
   tools->mark_basic();
   tools->properties()["brief"] = std::string("Generic tools");
   tools->properties()["description"] = std::string("");
@@ -104,7 +104,7 @@ void Core::initiate ( int argc, char** argv )
   m_argc = argc;
   m_argv = argv;
 
-  if( environment().option("regist_signal_handlers").value<bool>() )
+  if( environment().options().option("regist_signal_handlers").value<bool>() )
     OSystem::instance().layer()->regist_os_signal_handlers();
 
   // initiate the logging facility
@@ -135,7 +135,7 @@ void Core::initiate ( int argc, char** argv )
 void Core::terminate()
 {
   // terminate all
-  if(!m_libraries.expired())
+  if(is_not_null(m_libraries))
     libraries().terminate_all_libraries();
 }
 
@@ -174,43 +174,41 @@ common::Environment& Core::environment() const
 
 common::Libraries&  Core::libraries() const
 {
-  cf3_assert(!m_libraries.expired());
-  return *m_libraries.lock();
+  cf3_assert(is_not_null(m_libraries));
+  return *m_libraries;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 common::Factories& Core::factories() const
 {
-  cf3_assert(!m_factories.expired());
-  return *m_factories.lock();
+  cf3_assert(is_not_null(m_factories));
+  return *m_factories;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 common::Group& Core::tools() const
 {
-  return root().get_child("Tools").as_type<Group>();
+  Handle<Group> t(root().get_child("Tools"));
+  cf3_assert(is_not_null(t));
+  return *t;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Core::set_profiler(const std::string & builder_name)
 {
-  CodeProfiler::Ptr profiler =
+  boost::shared_ptr<CodeProfiler> profiler =
     build_component_abstract_type<CodeProfiler>(builder_name, "Profiler");
   m_root->add_component( profiler );
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::shared_ptr<CodeProfiler> Core::profiler() const
+Handle<CodeProfiler> Core::profiler() const
 {
-  Component::Ptr profiler_comp = m_root->get_child_ptr("Profiler");
-  if(is_not_null(profiler_comp))
-    return profiler_comp->as_ptr<CodeProfiler>();
-
-  return CodeProfiler::Ptr();
+  return Handle<CodeProfiler>(m_root->get_child("Profiler"));
 }
 ////////////////////////////////////////////////////////////////////////////////
 

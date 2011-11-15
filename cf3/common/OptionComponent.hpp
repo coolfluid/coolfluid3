@@ -38,14 +38,14 @@ class Common_API OptionComponent : public OptionURI
 public:
 
   typedef URI value_type;
-  typedef boost::weak_ptr<T> data_t;
+  typedef Handle<T> data_t;
   typedef boost::shared_ptr<OptionComponent> Ptr;
   typedef boost::shared_ptr<OptionComponent const> ConstPtr;
 
   OptionComponent(const std::string & name, const URI & def)
     : OptionURI(name, def)
   {
-    Component::Ptr comp_ptr = Core::instance().root().access_component_ptr(def);
+    Handle<Component> comp_ptr = Core::instance().root().access_component(def);
     typename T::Ptr component = boost::dynamic_pointer_cast<T>(comp_ptr);
     m_default = data_t(component);
     m_value = m_default;
@@ -187,7 +187,7 @@ protected: // functions
         // finally try a URI
         try
         {
-          return data_t(Core::instance().root().access_component_ptr_checked(boost::any_cast<URI const>(value))->as_ptr_checked<T>() );
+          return data_t(Core::instance().root().access_component_checked(boost::any_cast<URI const>(value)));
         }
         catch(boost::bad_any_cast& e)
         {

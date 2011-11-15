@@ -34,6 +34,12 @@ struct ComponentPtr {
   typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, boost::shared_ptr<ComponentT const>, boost::shared_ptr<ComponentT> >::type type;
 };
 
+/// Handle to ComponentT, constness determined by the constness of ParentT
+template<typename ParentT, typename ComponentT=Component>
+struct ComponentHandle {
+  typedef typename boost::mpl::if_c<boost::is_const<ParentT>::value, Handle<ComponentT const>, Handle<ComponentT> >::type type;
+};
+
 /// Derive the correct range type based on the constness of ParentT, which should be the type of the parent component
 template<typename ParentT, typename ComponentT=Component>
 struct ComponentIteratorSelector {
@@ -99,8 +105,8 @@ public:
   IsComponentName () : m_name("undefined") {}
   IsComponentName (const std::string& name) : m_name(name) {}
 
-  bool operator()(Component::ConstPtr component) const
-  { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component); }
+  bool operator()(const Handle<Component const>& component) const
+  { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component.get()); }
 
   bool operator()(const Component& component) const
   { return boost::bind( std::equal_to<std::string>() , boost::bind(&Component::name , _1) , m_name )(component); }
@@ -115,8 +121,8 @@ public:
   IsComponentTag () : m_tag("Component") {}
   IsComponentTag (const std::string& tag) : m_tag(tag) {}
 
-  bool operator()(Component::ConstPtr component) const
-  { return boost::bind( &Component::has_tag , _1 , m_tag )(component); }
+  bool operator()(const Handle<Component const>& component) const
+  { return boost::bind( &Component::has_tag , _1 , m_tag )(component.get()); }
 
   bool operator()(const Component& component) const
   { return boost::bind( &Component::has_tag , _1 , m_tag )(component); }
@@ -129,11 +135,11 @@ class IsComponentType
 public:
   IsComponentType () {}
 
-  bool operator()(Component::ConstPtr component) const
-  { return is_not_null( component->as_ptr<CType>() ); }
+  bool operator()(const Handle<Component const>& component) const
+  { return operator()(*component); }
 
   bool operator()(const Component& component) const
-  { return is_not_null( component.as_ptr<CType>() ); }
+  { return is_not_null( dynamic_cast<CType const*>(&component) ); }
 
 };
 
@@ -642,32 +648,32 @@ find_component (ParentT& parent)
     return *r.begin();
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr (Component& parent)
 {
   ComponentIteratorRangeSelector<Component>::type r = find_components(parent);
-  typedef ComponentPtr<Component>::type ResultT;
+  typedef ComponentHandle<Component>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr (const Component& parent)
 {
   ComponentIteratorRangeSelector<Component const>::type r = find_components(parent);
-  typedef ComponentPtr<Component const>::type ResultT;
+  typedef ComponentHandle<Component const>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr (ParentT& parent)
 {
   typename ComponentIteratorRangeSelector<ParentT, ComponentT>::type r = find_components<ComponentT>(parent);
-  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  typedef typename ComponentHandle<ParentT, ComponentT>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
@@ -715,33 +721,33 @@ find_component_with_filter (ParentT& parent, const Predicate& pred)
 }
 
 template<typename Predicate>
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_with_filter (Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<Component, Component, Predicate>::type r = find_components_with_filter(parent, pred);
-  typedef ComponentPtr<Component>::type ResultT;
+  typedef ComponentHandle<Component>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename Predicate>
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_with_filter (const Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<Component const, Component, Predicate>::type r = find_components_with_filter(parent, pred);
-  typedef ComponentPtr<Component const>::type ResultT;
+  typedef ComponentHandle<Component const>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename ComponentT, typename ParentT, typename Predicate>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_with_filter (ParentT& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<ParentT, ComponentT, Predicate>::type r = find_components_with_filter<ComponentT>(parent, pred);
-  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  typedef typename ComponentHandle<ParentT, ComponentT>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
@@ -786,20 +792,20 @@ find_component_with_name (ParentT& parent, const std::string& name) {
   }
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_with_name (Component& parent, const std::string& name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_with_name (const Component& parent, const std::string& name)
 {
   return find_component_ptr_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_with_name (ParentT& parent, const std::string& name)
 {
   return find_component_ptr_with_filter<ComponentT>(parent,IsComponentName(name));
@@ -848,20 +854,20 @@ find_component_with_tag (ParentT& parent, const std::string& tag)
 
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_with_tag (Component& parent, const std::string& tag)
 {
   return find_component_ptr_with_filter(parent,IsComponentTag(tag));
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_with_tag (const Component& parent, const std::string& tag)
 {
   return find_component_ptr_with_filter(parent,IsComponentTag(tag));
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_with_tag (ParentT& parent, const std::string& tag)
 {
   return find_component_ptr_with_filter<ComponentT>(parent,IsComponentTag(tag));
@@ -906,32 +912,32 @@ find_component_recursively (ParentT& parent )
     return *r.begin();
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_recursively (Component& parent)
 {
   ComponentIteratorRangeSelector<Component>::type r = find_components_recursively(parent);
-  typedef ComponentPtr<Component>::type ResultT;
+  typedef ComponentHandle<Component>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_recursively (const Component& parent)
 {
   ComponentIteratorRangeSelector<Component const>::type r = find_components_recursively(parent);
-  typedef ComponentPtr<Component const>::type ResultT;
+  typedef ComponentHandle<Component const>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_recursively (ParentT& parent)
 {
   typename ComponentIteratorRangeSelector<ParentT, ComponentT>::type r = find_components_recursively<ComponentT>(parent);
-  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  typedef typename ComponentHandle<ParentT, ComponentT>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
@@ -979,33 +985,33 @@ find_component_recursively_with_filter(ParentT& parent, const Predicate& pred )
 }
 
 template<typename Predicate>
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_recursively_with_filter(Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<Component, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
-  typedef ComponentPtr<Component>::type ResultT;
+  typedef ComponentHandle<Component>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename Predicate>
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_recursively_with_filter(const Component& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<Component const, Component, Predicate>::type r = find_components_recursively_with_filter(parent, pred);
-  typedef ComponentPtr<Component const>::type ResultT;
+  typedef ComponentHandle<Component const>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
 }
 
 template<typename ComponentT, typename ParentT, typename Predicate>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_recursively_with_filter(ParentT& parent, const Predicate& pred)
 {
   typename ComponentIteratorRangeSelector<ParentT, ComponentT, Predicate>::type r = find_components_recursively_with_filter<ComponentT>(parent, pred);
-  typedef typename ComponentPtr<ParentT, ComponentT>::type ResultT;
+  typedef typename ComponentHandle<ParentT, ComponentT>::type ResultT;
   if(r.begin() == r.end() || count(r) > 1)
     return ResultT();
   return r.begin().base().get();
@@ -1053,20 +1059,20 @@ find_component_recursively_with_name(ParentT& parent, const std::string& name)
   }
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_recursively_with_name(Component& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_recursively_with_name(const Component& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentName(name));
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_recursively_with_name(ParentT& parent, const std::string& name)
 {
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentName(name));
@@ -1114,20 +1120,20 @@ find_component_recursively_with_tag(ParentT& parent, const std::string& tag)
   }
 }
 
-inline ComponentPtr<Component>::type
+inline ComponentHandle<Component>::type
 find_component_ptr_recursively_with_tag(Component& parent, const std::string& tag)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
-inline ComponentPtr<Component const>::type
+inline ComponentHandle<Component const>::type
 find_component_ptr_recursively_with_tag(const Component& parent, const std::string& tag)
 {
   return find_component_ptr_recursively_with_filter(parent,IsComponentTag(tag));
 }
 
 template<typename ComponentT, typename ParentT>
-inline typename ComponentPtr<ParentT, ComponentT>::type
+inline typename ComponentHandle<ParentT, ComponentT>::type
 find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
 {
   return find_component_ptr_recursively_with_filter<ComponentT>(parent,IsComponentTag(tag));
@@ -1141,7 +1147,7 @@ template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent = comp.parent().self() ;
+  typename ComponentHandle<ComponentT>::type parent = comp.parent().self() ;
   if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
   while (not_found)
@@ -1159,10 +1165,10 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
 }
 
 template <typename ParentT, typename ComponentT, typename Predicate>
-typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   bool not_found=true;
-  typename ComponentPtr<ComponentT>::type parent = comp.parent().self() ;
+  typename ComponentHandle<ComponentT>::type parent = comp.parent().self() ;
   if ( is_null(parent) )
     throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 
@@ -1187,7 +1193,7 @@ typename ComponentReference<ComponentT>::type find_parent_component_with_filter(
 }
 
 template <typename ComponentT, typename Predicate>
-typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   return find_parent_component_ptr_with_filter<Component>(comp,pred);
 }
@@ -1201,7 +1207,7 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component(Comp
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr(ComponentT& comp)
+typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr(ComponentT& comp)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTrue());
 }
@@ -1215,7 +1221,7 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentName(name));
 }
@@ -1227,7 +1233,7 @@ typename ComponentReference<ComponentT>::type find_parent_component_with_name(Co
 }
 
 template <typename ComponentT>
-typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
+typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentName(name));
 }
@@ -1241,7 +1247,7 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentPtr<ComponentT,ParentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
@@ -1253,7 +1259,7 @@ typename ComponentReference<ComponentT>::type find_parent_component_with_tag(Com
 }
 
 template <typename ComponentT>
-typename ComponentPtr<ComponentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentTag(tag));
 }

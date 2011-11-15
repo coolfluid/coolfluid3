@@ -184,7 +184,7 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     /// Constructor.
     /// View is only supported if sizeof(T)==cw.size_of() and sizeof(T)==1, otherwisw error is thrown.
     /// @param cw reference to the comwrapper class
-    CommWrapperView(CommWrapper::Ptr& cw)
+    CommWrapperView(const Handle<CommWrapper>& cw)
     {
       if (sizeof(T)==cw->size_of()) { m_size=cw->size()*cw->stride(); }
       else if (sizeof(T)==1)    { m_size=cw->size()*cw->stride()*cw->size_of(); }
@@ -223,7 +223,7 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
     int m_size;
 
     /// pointer to commwrapper
-    CommWrapper::Ptr m_cw;
+    Handle<CommWrapper> m_cw;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
