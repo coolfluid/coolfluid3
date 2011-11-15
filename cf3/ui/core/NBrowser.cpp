@@ -27,9 +27,9 @@ NBrowser::NBrowser()
 
 ////////////////////////////////////////////////////////////////////////////
 
-QString NBrowser::generate_name()
+std::string NBrowser::generate_name()
 {
- return QString("Browser_%1").arg(m_counter++);
+ return QString("Browser_%1").arg(m_counter++).toStdString();
 }
 
 ////////////////////////////////////////////////////////////////////////////

@@ -6,9 +6,6 @@
 
 #include <sstream>
 
-#include <boost/uuid/random_generator.hpp>
-#include <boost/uuid/uuid_io.hpp>
-
 #include "rapidxml/rapidxml.hpp"
 
 #include "common/Signal.hpp"
@@ -16,6 +13,7 @@
 
 #include "ui/uicommon/ComponentNames.hpp"
 
+#include "common/UUCount.hpp"
 #include "common/XML/Protocol.hpp"
 
 #include "ui/core/NBrowser.hpp"
@@ -38,7 +36,7 @@ namespace core {
 
 NJournalBrowser::NJournalBrowser(const XmlNode * rootNode, QObject *parent) :
     QAbstractItemModel(parent),
-    CNode(NBrowser::global()->generate_name().toStdString(), "NJournalBrowser", CNode::STANDARD_NODE)
+    CNode(NBrowser::global()->generate_name(), "NJournalBrowser", CNode::STANDARD_NODE)
 {
   set_root_node(rootNode);
 
@@ -245,7 +243,7 @@ void NJournalBrowser::send_exec_signal(const QModelIndex & index)
     frame.node.content->remove_attribute(clientIdAttr);
 
   // modify the frame UuiD
-  ss << boost::uuids::random_generator()();
+  ss << UUCount().string();
   frame.node.set_attribute( Protocol::Tags::attr_frameid(), ss.str());
 
   NetworkQueue::global()->send( frame );

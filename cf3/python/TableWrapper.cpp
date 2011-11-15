@@ -115,6 +115,16 @@ struct TableMethods
   {
     return wrapped.component< common::Table<ValueT> >().row_size();
   }
+  
+  static void resize(ComponentWrapper& wrapped, const Uint nb_rows)
+  {
+    wrapped.component< common::Table<ValueT> >().resize(nb_rows);
+  }
+  
+  static void set_row_size(ComponentWrapper& wrapped, const Uint nb_cols)
+  {
+    wrapped.component< common::Table<ValueT> >().set_row_size(nb_cols);
+  }
 };
 
 template<typename ValueT>
@@ -131,6 +141,8 @@ void add_ctable_methods(ComponentWrapper& wrapped, boost::python::api::object& p
     // Extra methods
     typedef TableMethods<ValueT> ExtraMethodsT;
     add_function(py_obj, ExtraMethodsT::row_size, "row_size", "Return the number of columns the table can hold");
+    add_function(py_obj, ExtraMethodsT::resize, "resize", "Set the size of the table, i.e. the number of rows");
+    add_function(py_obj, ExtraMethodsT::set_row_size, "set_row_size", "Set the size of a row, i.e. the number of columns in the table");
   }
 }
 

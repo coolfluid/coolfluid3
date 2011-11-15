@@ -11,7 +11,7 @@
 
 #include "common/OptionT.hpp"
 
-#include "ui/Graphics/GraphicalRestrictedList.hpp"
+#include "ui/graphics/GraphicalRestrictedList.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 

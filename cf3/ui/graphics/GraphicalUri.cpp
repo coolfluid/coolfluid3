@@ -14,7 +14,7 @@
 #include "ui/core/NTree.hpp"
 
 #include "ui/graphics/SelectPathDialog.hpp"
-#include "ui/graphics/NRemoteOpen.hpp"
+#include "ui/graphics/BrowserDialog.hpp"
 
 #include "ui/graphics/GraphicalUri.hpp"
 
@@ -148,13 +148,11 @@ void GraphicalUri::bt_browse_clicked()
   }
   else if(m_combo_schemes->currentText() == "file")
   {
-    NRemoteOpen::Ptr nro = NRemoteOpen::create();
-    bool canceled;
+    BrowserDialog browser;
+    QVariant filename;
 
-    QString filename = nro->show("", &canceled);
-
-    if(!canceled && !filename.isEmpty())
-      m_edit_path->setText(filename);
+    if( browser.show(false, filename) && !filename.toString().isEmpty())
+      m_edit_path->setText(filename.toString());
   }
 }
 

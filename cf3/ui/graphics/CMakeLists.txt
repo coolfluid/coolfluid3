@@ -11,6 +11,7 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   CentralPanel.hpp
   ModifiedOptionsDialog.hpp
   ConfirmCommitDialog.hpp
+  FavoritesModel.hpp
   FileFilter.hpp # needs to be added because base class emits signals
   FilteringModel.hpp # needs to be added because base class emits signals
   GraphicalArray.hpp
@@ -26,7 +27,6 @@ list( APPEND coolfluid_ui_graphics_moc_classes
   JournalBrowserDialog.hpp
   LoggingList.hpp
   MainWindow.hpp
-  NRemoteBrowser.hpp
   OptionLayout.hpp
   SignalManager.hpp
   SignalInspectorDialog.hpp
@@ -51,6 +51,8 @@ list( APPEND coolfluid_ui_graphics_files
   CentralPanel.hpp
   ConfirmCommitDialog.cpp
   ConfirmCommitDialog.hpp
+  FavoritesModel.cpp
+  FavoritesModel.hpp
   FileFilter.cpp
   FileFilter.hpp
   FilesListItem.cpp
@@ -89,10 +91,6 @@ list( APPEND coolfluid_ui_graphics_files
   ModifiedOptionsDialog.hpp
   OptionLayout.cpp
   OptionLayout.hpp
-  NRemoteBrowser.cpp
-  NRemoteBrowser.hpp
-  NRemoteOpen.cpp
-  NRemoteOpen.hpp
   SelectPathDialog.cpp
   SelectPathDialog.hpp
   SignalInspectorDialog.cpp

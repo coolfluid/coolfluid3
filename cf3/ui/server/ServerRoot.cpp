@@ -13,18 +13,11 @@
 #include "common/Log.hpp"
 #include "common/Group.hpp"
 #include "common/Core.hpp"
-#include "common/NotificationQueue.hpp"
 #include "common/PE/Manager.hpp"
-//#include "common/XML/SignalFrame.hpp"
 #include "common/XML/Protocol.hpp"
-
-#include "common/Table.hpp"
-
-#include "solver/CPlotter.hpp"
 
 #include "ui/uicommon/ComponentNames.hpp"
 
-#include "ui/server/Notifier.hpp"
 #include "ui/server/ProcessingThread.hpp"
 
 #include "ui/server/ServerRoot.hpp"
@@ -32,7 +25,6 @@
 using namespace cf3::common;
 using namespace cf3::common::PE;
 using namespace cf3::common::XML;
-using namespace cf3::solver;
 
 //////////////////////////////////////////////////////////////////////////////
 
@@ -43,64 +35,30 @@ namespace server {
 //////////////////////////////////////////////////////////////////////////////
 
 ServerRoot::ServerRoot()
-  : m_queue(nullptr),
-    m_notifier(nullptr),
-    m_thread(nullptr),
+  : m_thread(nullptr),
     m_root( Core::instance().root().self() ),
     m_core( new CCore() ),
-    m_journal( common::allocate_component<Journal>("Journal") ),
-    m_manager( common::allocate_component<Manager>("PEManager") ),
-    m_plotter( common::allocate_component<CPlotter>("Plotter") )
+    m_manager( common::allocate_component<Manager>("PEManager") )
 {
   m_root->add_component(m_core);
 
   Component::Ptr tools = m_root->get_child_ptr("Tools");
 
-  tools->add_component( m_journal );
   tools->add_component( m_manager );
-  tools->add_component( m_plotter );
 
-  m_local_components << URI( SERVER_core_PATH, URI::Scheme::CPATH );
+  m_local_components << URI( SERVER_CORE_PATH, URI::Scheme::CPATH );
 
   m_manager->mark_basic();
-  m_plotter->mark_basic();
 
-  Table<Real>::Ptr table = tools->create_component_ptr< Table<Real> >("MyTable");
-  table->set_row_size(8); // reserve 8 columns
-  Table<Real>::Buffer buffer = table->create_buffer(8000);
+  m_manager->signal("signal_to_forward")
+      ->connect( boost::bind(&ServerRoot::signal_to_forward, this, _1) );
 
-  table->mark_basic();
-  m_plotter->set_data_set( table->uri() );
-
-  // fill the table
-  std::vector<Real> row(8);
-
-  for(Real value = 0.0 ; value != 1000.0 ; value += 1.0 )
-  {
-    row[0] = value / 1000;          // x
-    row[1] = 0;                     // y
-    row[2] = (value / 1000) - 1;    // z
-    row[3] = std::sin(4 * row[0]);  // u
-    row[4] = 0;                     // v
-    row[5] = std::cos(4 * row[2]);  // w
-    row[6] = 1000;                  // p
-    row[7] = 278 * row[0];          // t
-
-    buffer.add_row( row );
-  }
-
-  m_manager->signal("signal_to_forward")->connect( boost::bind(&ServerRoot::signal_to_forward, this, _1) );
-
-  buffer.flush();
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 ServerRoot::~ServerRoot()
 {
-  delete m_queue;
-  delete m_notifier;
-
   if( is_not_null(m_thread) )
     m_thread->quit();
 
@@ -134,7 +92,6 @@ void ServerRoot::process_signal( const std::string & target,
 
       m_thread = new ProcessingThread(signal, target, receivingCompo);
       QObject::connect(m_thread, SIGNAL(finished()), this, SLOT(finished()));
-      journal()->add_signal( signal );
       m_thread->start();
     }
     else
@@ -150,14 +107,12 @@ void ServerRoot::process_signal( const std::string & target,
         if( comp->signal(target)->is_read_only() )
         {
           comp->call_signal(target, signal );
-          m_journal->add_signal(signal);
 
           SignalFrame reply = signal.get_reply();
 
           if( reply.node.is_valid() )
           {
-            m_core->sendSignal( *signal.xml_doc.get() );
-            m_journal->add_signal( reply );
+            m_core->send_signal( *signal.xml_doc.get() );
           }
 
           success = true;
@@ -179,7 +134,7 @@ void ServerRoot::process_signal( const std::string & target,
             target + "] on component [" + receiver.path() + "].";
       }
 
-      m_core->sendACK( clientid, frameid, success, message );
+      m_core->send_ack( clientid, frameid, success, message );
     }
   }
   else // the receiver is not a local component
@@ -190,25 +145,9 @@ void ServerRoot::process_signal( const std::string & target,
 
 //////////////////////////////////////////////////////////////////////////////
 
-void ServerRoot::listen_to_events ()
-{
-  if(m_queue == nullptr)
-  {
-    m_queue = new NotificationQueue();
-    m_notifier = new Notifier(m_queue);
-
-    m_notifier->listenToEvent("tree_updated", true);
-
-    QObject::connect(m_notifier, SIGNAL(eventOccured(std::string,cf3::common::URI)),
-                     m_core.get(), SLOT(newEvent(std::string,cf3::common::URI)));
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-
 void ServerRoot::signal_to_forward( common::SignalArgs & args )
 {
-  m_core->sendSignal( *args.xml_doc.get() );
+  m_core->send_signal( *args.xml_doc.get() );
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -227,8 +166,7 @@ void ServerRoot::finished ()
     rapidxml::xml_attribute<>* attr = reply.node.content->first_attribute("type");
     if( is_not_null(attr) && std::strcmp(attr->value(), Protocol::Tags::node_type_reply()) == 0)
     {
-      core()->sendSignal(*m_doc.get());
-      journal()->add_signal( reply );
+      m_core->send_signal(*m_doc.get());
     }
   }
 
@@ -239,9 +177,7 @@ void ServerRoot::finished ()
   m_doc.reset();
   m_mutex.unlock();
 
-  m_queue->flush();
-
-  m_core->sendACK( m_current_client_id, m_current_frame_id, success, message );
+  m_core->send_ack( m_current_client_id, m_current_frame_id, success, message );
   m_current_client_id.clear();
   m_current_frame_id.clear();
 }

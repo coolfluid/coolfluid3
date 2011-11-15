@@ -4,8 +4,10 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <QtXml>
+#include <QApplication>
+#include <QDateTime>
 #include <QHostInfo>
+#include <QSettings>
 
 #include "rapidxml/rapidxml.hpp"
 
@@ -25,7 +27,6 @@
 
 #include "ui/uicommon/ComponentNames.hpp"
 
-#include "ui/server/RemoteClientAppender.hpp"
 #include "ui/server/ServerNetworkComm.hpp"
 #include "ui/server/ServerRoot.hpp"
 
@@ -47,37 +48,46 @@ CCore::CCore()
   : Component(SERVER_CORE),
     DEFAULT_PATH("."),
     m_fileOpen(false),
-    m_simRunning(false),
+    m_sim_running(false),
     m_active(false)
 {
-
-
   TypeInfo::instance().regist<CCore>( type_name() );
 
   m_commServer = new ServerNetworkComm();
+  m_settings = new QSettings( "vki.ac.be", "coolfluid-server", this);
 
-  connect(m_commServer, SIGNAL(newClientConnected(std::string)),
-          this,  SLOT(newClient(std::string)));
+  m_favorite_directories = m_settings->value( "favorite_directories", QVariant(QStringList()) ).toStringList();
 
-  RemoteClientAppender * rca = new RemoteClientAppender();
-
-  Logger::instance().getStream(WARNING).addStringForwarder(rca);
-  Logger::instance().getStream(ERROR).addStringForwarder(rca);
-  Logger::instance().getStream(INFO).addStringForwarder(rca);
+  connect( m_commServer, SIGNAL(newClientConnected(std::string)),
+           this,  SLOT(new_client(std::string)) );
 
   Logger::instance().getStream(INFO).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(ERROR).setStamp(LogStream::STRING, "%type% ");
   Logger::instance().getStream(WARNING).setStamp(LogStream::STRING, "%type% ");
 
-  connect(rca, SIGNAL(newData(QString)), this, SLOT(message(QString)));
-
   regist_signal( "read_dir" )
     ->description("Read directory content")
     ->read_only(true)
     ->pretty_name("")->connect(boost::bind(&CCore::read_dir, this, _1));
+
+  regist_signal( "read_special_dir" )
+    ->description("Read special directory content")
+    ->read_only(true)
+    ->pretty_name("")->connect(boost::bind(&CCore::read_special_dir, this, _1));
+
   regist_signal( "shutdown" )
     ->description("Shutdown the server")
     ->pretty_name("")->connect(boost::bind(&CCore::shutdown, this, _1));
+
+  regist_signal("list_favorites")
+      ->description( "Lists the favorite directories for the remote browsing feature." )
+      ->read_only(true)
+      ->connect(boost::bind(&CCore::signal_list_favorites, this, _1));
+
+  regist_signal("set_favorites")
+      ->description( "Sets the favorite directories for the remote browsing feature." )
+      ->read_only(true)
+      ->connect(boost::bind(&CCore::signal_set_favorites, this, _1));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -89,41 +99,23 @@ CCore::~CCore()
 
 /////////////////////////////////////////////////////////////////////////////
 
-bool CCore::listenToPort(quint16 portNumber)
+bool CCore::listen_to_port(quint16 portNumber)
 {
   return m_commServer->openPort(portNumber);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::sendSignal( const XmlDoc & signal )
+void CCore::send_signal( const XmlDoc & signal )
 {
   m_commServer->sendSignalToClient(signal);
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::sendFrameRejected(const std::string & clientid,
-                              const std::string & frameid,
-                              const cf3::common::URI & sender,
-                              const QString & reason)
-{
-  m_commServer->sendFrameRejectedToClient(clientid, frameid, sender, reason);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::sendException(const char * what,
-                          const std::string & clientid)
-{
-  m_commServer->sendMessageToClient(what, LogMessage::EXCEPTION, clientid);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
 void CCore::forward_signal( SignalArgs & args )
 {
-  sendSignal( *args.xml_doc );
+  send_signal( *args.xml_doc );
 }
 
 /***************************************************************************
@@ -132,7 +124,7 @@ PRIVATE METHODS
 
 ***************************************************************************/
 
-bool CCore::getDirContent(const QString & directory,
+bool CCore::get_dir_content(const QString & directory,
                           const std::vector<std::string> & extensions,
                           bool includeFiles,
                           bool includeNoExtension,
@@ -188,7 +180,7 @@ bool CCore::getDirContent(const QString & directory,
         if(fileInfo.isDir())
         {
           content.dirs.push_back(filename.toStdString());
-          content.dirDates.push_back(modified.toStdString());
+          content.dir_dates.push_back(modified.toStdString());
         }
         else if(includeFiles)
         {
@@ -196,8 +188,8 @@ bool CCore::getDirContent(const QString & directory,
              (includeNoExtension && !filename.contains('.')) )
           {
             content.files.push_back(filename.toStdString());
-            content.fileDates.push_back(modified.toStdString());
-            content.fileSizes.push_back(fileInfo.size());
+            content.file_dates.push_back(modified.toStdString());
+            content.file_sizes.push_back(fileInfo.size());
           }
         }
       }
@@ -224,8 +216,6 @@ void CCore::read_dir(SignalArgs & args)
   DirContent content;
   QString directory;
   rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
-  std::string clientId( attr != nullptr ? attr->value() : "" );
-
 
   QString dirPath = options.value<std::string>("dirPath").c_str();
   bool includeFiles = options.value<bool>("includeFiles");
@@ -245,9 +235,9 @@ void CCore::read_dir(SignalArgs & args)
   if(directory != "/")
     content.dirs.push_back("..");
 
-  content.dirDates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+  content.dir_dates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
 
-  if(!this->getDirContent(directory, exts, includeFiles, includeNoExt, content))
+  if(!this->get_dir_content(directory, exts, includeFiles, includeNoExt, content))
   {
     throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
   }
@@ -260,9 +250,71 @@ void CCore::read_dir(SignalArgs & args)
     roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
     roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
     roptions.add_option<OptionArrayT<std::string> >("files", content.files);
-    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dirDates);
-    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.fileDates);
-    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.fileSizes);
+    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
+    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
+    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
+
+    roptions.flush();
+
+  }
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CCore::read_special_dir(SignalArgs & args)
+{
+  SignalOptions options( args );
+
+//  std::vector<std::string> dirList;
+//  std::vector<std::string> fileList;
+  DirContent content;
+  QString directory;
+  rapidxml::xml_attribute<>* attr = args.node.content->first_attribute( "clientid" );
+
+  QString dirPath = options.value<std::string>("dirPath").c_str();
+  bool includeFiles = options.value<bool>("includeFiles");
+  bool includeNoExt = options.value<bool>("includeNoExtensions");
+  std::vector<std::string> exts = options.array<std::string>("extensions");
+
+//  if(dirPath.isEmpty())
+//    directory = this->DEFAULT_PATH;
+//  else
+    directory = dirPath;
+
+  if( directory == "Home" )
+    directory = QDir::homePath();
+  else
+    throw ValueNotFound( FromHere(),
+                         "Unknown special directory [" + directory.toStdString() + "]." );
+
+//  directory = QDir(directory).absolutePath();
+//  directory = QDir::cleanPath(directory);
+
+  // if the directory is not the root
+  /// @todo test this on Windows!!!!
+  if(directory != "/")
+    content.dirs.push_back("..");
+
+  content.dir_dates.push_back( QFileInfo("..").lastModified().toString("yyyy-MM-dd hh:mm:ss").toStdString() );
+
+  if(!this->get_dir_content(directory, exts, includeFiles, includeNoExt, content))
+  {
+    throw FileSystemError(FromHere(), dirPath.toStdString() + ": no such direcrory");
+  }
+  else
+  {
+    // Build the reply
+    SignalFrame reply = args.create_reply( uri() );
+    SignalOptions roptions = reply.options();
+
+    reply.node.set_attribute( "target", "read_dir" );
+
+    roptions.add_option<OptionT<std::string> >("dirPath", directory.toStdString());
+    roptions.add_option<OptionArrayT<std::string> >("dirs", content.dirs);
+    roptions.add_option<OptionArrayT<std::string> >("files", content.files);
+    roptions.add_option<OptionArrayT<std::string> >("dirDates", content.dir_dates);
+    roptions.add_option<OptionArrayT<std::string> >("fileDates", content.file_dates);
+    roptions.add_option<OptionArrayT<Uint> >("fileSizes", content.file_sizes);
 
     roptions.flush();
 
@@ -280,7 +332,7 @@ void CCore::newEvent(const std::string & name, const URI & path)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::createDir(SignalArgs & node)
+void CCore::create_dir(SignalArgs & node)
 {
   m_commServer->sendMessageToClient("Cannot create a directory yet", LogMessage::ERROR);
 }
@@ -295,9 +347,41 @@ void CCore::shutdown(SignalArgs & node)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::saveConfig(SignalArgs & node)
+void CCore::save_config(SignalArgs & node)
 {
   m_commServer->sendMessageToClient("Cannot save the configuration yet", LogMessage::ERROR);
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CCore::signal_set_favorites(SignalArgs &node)
+{
+  std::vector<std::string> favs = node.get_array<std::string>("favorite_dirs");
+  std::vector<std::string>::iterator it = favs.begin();
+
+  m_favorite_directories.clear();
+
+  for(int i = 0 ; it != favs.end() ; ++it, ++i )
+    m_favorite_directories.append( QString::fromStdString(*it) );
+
+  m_favorite_directories.removeDuplicates();
+
+  m_settings->setValue( "favorite_directories", m_favorite_directories );
+  m_settings->sync();
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+void CCore::signal_list_favorites( SignalArgs &node )
+{
+  SignalArgs reply = node.create_reply();
+  QStringList::iterator it = m_favorite_directories.begin();
+  std::vector<std::string> vect( m_favorite_directories.size() );
+
+  for( int i = 0 ; it != m_favorite_directories.end() ; ++it, ++i )
+    vect[i] = it->toStdString();
+
+  reply.set_array<std::string>("favorite_dirs", vect, ";");
 }
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -306,7 +390,7 @@ void CCore::saveConfig(SignalArgs & node)
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-void CCore::newClient(const std::string & clientId)
+void CCore::new_client(const std::string & clientId)
 {
   // send a welcome message to the new client
   m_commServer->sendMessageToClient("Welcome to the Client-Server project!", LogMessage::INFO, clientId);
@@ -314,25 +398,7 @@ void CCore::newClient(const std::string & clientId)
 
 /////////////////////////////////////////////////////////////////////////////
 
-void CCore::message(const QString & message)
-{
-  QString typeStr = message.split(" ").first();
-  QString copy(message);
-  LogMessage::Type type = LogMessage::Convert::instance().to_enum(typeStr.toStdString());
-
-  m_commServer->sendMessageToClient(copy.remove(0, typeStr.length() + 1), type);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::error(const QString & message)
-{
-  m_commServer->sendMessageToClient(message, LogMessage::ERROR);
-}
-
-/////////////////////////////////////////////////////////////////////////////
-
-void CCore::sendACK( const std::string & clientid,
+void CCore::send_ack( const std::string & clientid,
                      const std::string & frameid,
                      bool success,
                      const std::string & message)

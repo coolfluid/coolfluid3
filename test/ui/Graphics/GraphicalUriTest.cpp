@@ -10,7 +10,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalUri.hpp"
+#include "ui/graphics/GraphicalUri.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 

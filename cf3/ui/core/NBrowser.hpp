@@ -43,7 +43,7 @@ namespace core {
     /// The name has the format "Browser_i" where "i" is the value of an
     /// internal counter, incremented each a name is generated.
     /// @return Returns the  generated name.
-    QString generate_name();
+    std::string generate_name();
 
     /// @brief Gives the text to put on a tool tip
     /// @return The name of the class.

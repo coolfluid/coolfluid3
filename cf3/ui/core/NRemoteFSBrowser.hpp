@@ -62,11 +62,15 @@ public:
 
   static std::string type_name() { return "NRemoteFSBrowser"; }
 
-  QStringListModel * completion_model() const;
+  QStringListModel * completion_model();
+
+  const QStringListModel * completion_model() const;
 
   QString current_path() const;
 
   void open_dir ( const QString & path );
+
+  void open_special_dir ( const QString & path );
 
   void set_extensions( const QStringList & list );
 
@@ -105,16 +109,24 @@ public:
 
   bool is_directory( const QModelIndex & index ) const;
 
+  void update_favorite_list() const;
+
+  void send_favorites( const QStringList & favs );
+
   /// @name Signals
   //@{
 
-  void signal_read_dir ( common::SignalArgs & node );
+  void reply_read_dir ( common::SignalArgs & node );
+
+  void reply_list_favorites ( common::SignalArgs & node );
 
   // @} END Signals
 
 signals:
 
   void current_path_changed( const QString & newPath );
+
+  void favorites_changed( const QStringList & list );
 
 private: // functions
 

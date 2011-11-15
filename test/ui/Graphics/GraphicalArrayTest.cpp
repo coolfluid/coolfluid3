@@ -12,7 +12,7 @@
 
 #include <QtTest>
 
-#include "ui/Graphics/GraphicalArray.hpp"
+#include "ui/graphics/GraphicalArray.hpp"
 
 #include "test/ui/ExceptionThrowHandler.hpp"
 

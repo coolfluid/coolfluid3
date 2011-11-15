@@ -38,7 +38,7 @@ QVariant FileFilter::data ( const QModelIndex &index, int role ) const
 
   if(index.isValid())
   {
-    if( role == Qt::DecorationRole )
+    if( role == Qt::DecorationRole && index.column() == 0 )
     {
       QModelIndex indexInModel = mapToSource(index);
 

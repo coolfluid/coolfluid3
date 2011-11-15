@@ -116,13 +116,11 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   if(client == nullptr)
   {
     QHash<QTcpSocket *, std::string>::iterator it = m_clients.begin();
-
     while(it != m_clients.end())
     {
       client = it.key();
       count += client->write(block);
       m_bytesSent += count;
-      client->flush();
       it++;
     }
   }
@@ -130,8 +128,6 @@ int ServerNetworkComm::send(QTcpSocket * client, const XmlDoc & signal)
   {
     count = client->write(block);
     m_bytesSent += count;
-
-    client->flush();
   }
 
   return count;
@@ -196,7 +192,7 @@ bool ServerNetworkComm::sendFrameRejected(QTcpSocket * clientId,
 bool ServerNetworkComm::sendMessage(QTcpSocket * client, const QString & message,
                                     LogMessage::Type type)
 {
-  SignalFrame frame("message", SERVER_core_PATH, CLIENT_LOG_PATH);
+  SignalFrame frame("message", SERVER_CORE_PATH, CLIENT_LOG_PATH);
   SignalOptions options( frame );
 
 
@@ -280,8 +276,6 @@ void ServerNetworkComm::newClient()
   connect(socket, SIGNAL(readyRead()), this, SLOT(newData()));
 
   std::cout << "A new client is connected" << std::endl;
-
-  ServerRoot::instance().listen_to_events();
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -384,7 +378,7 @@ void ServerNetworkComm::newData()
   }
 
   if(!errorMsg.isEmpty())
-    this->sendFrameRejected(socket, frameId, SERVER_core_PATH, errorMsg);
+    this->sendFrameRejected(socket, frameId, SERVER_CORE_PATH, errorMsg);
 
 }
 

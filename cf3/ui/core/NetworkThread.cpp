@@ -93,7 +93,7 @@ void NetworkThread::disconnect_from_server(bool shutServer)
   {
     if(shutServer)
     {
-      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_core_PATH);
+      SignalFrame frame("shutdown", CLIENT_ROOT_PATH, SERVER_CORE_PATH);
 
       this->send(frame);
     }
@@ -121,7 +121,7 @@ int NetworkThread::send(common::SignalArgs& signal)
 
   out.setVersion(QDataStream::Qt_4_6); // set stream version
 
-  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid() );
+  signal.node.set_attribute( "clientid", ThreadManager::instance().tree().get_uuid().string() );
 
   to_string(*signal.xml_doc, str);
 
@@ -151,30 +151,16 @@ void NetworkThread::new_data()
   while(!m_socket->atEnd())
   {
     in.readBytes(frame, m_block_size);
-    
-    std::string frame_str;
-    frame_str.reserve(m_block_size);
-    
-    char* frame_part = frame;
-    quint32 offset = frame_part - frame;
-
-    while(offset < m_block_size)
-    {
-      frame_str += frame_part;
-      frame_part += strlen(frame_part)+1;
-      offset = frame_part - frame;
-    }
-    cf3_assert(offset == m_block_size);
 
     if(NTree::global()->is_debug_mode_enabled())
-      CFinfo << frame_str << CFendl;
+      CFinfo << frame << CFendl;
 
     // parse the frame and call the boost signal
     try
     {
       if( m_block_size > 0 )
       {
-        XmlDoc::Ptr doc = XML::parse_string(frame_str);
+        XmlDoc::Ptr doc = XML::parse_cstring(frame, m_block_size-1);
         newSignal(doc);
       }
     }

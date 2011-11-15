@@ -16,16 +16,15 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QPushButton>
-#include <QListView>
 #include <QMessageBox>
 
-#include <cstdlib>      // for abs()
-
+#include "ui/core/NBrowser.hpp"
 #include "ui/core/NRemoteFSBrowser.hpp"
 #include "ui/core/ThreadManager.hpp"
 #include "ui/core/TreeThread.hpp"
 #include "ui/core/NLog.hpp"
 
+#include "ui/graphics/FavoritesModel.hpp"
 #include "ui/graphics/FileFilter.hpp"
 
 #include "ui/graphics/BrowserDialog.hpp"
@@ -45,99 +44,24 @@ BrowserDialog::BrowserDialog(QWidget *parent) :
   QDialog(parent),
   m_updating_completer(false)
 {
-  m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser("MyBrowser"));
-  m_filter_model = new FileFilter(m_model.get(), this);
-  m_view = new QListView( this );
-  m_favorites_view = new QListView( this );
-  m_lab_path = new QLabel("Path:");
-  m_lab_filter = new QLabel("Filter:");
-  m_edit_filter = new QLineEdit();
-  m_edit_path = new QLineEdit("/Users/qt/workspace/coolfluid3/Builds/Dev/src/ui/");
-  m_combo_filter = new QComboBox();
-  m_bt_add_fav = new QPushButton("Add");
-  m_bt_remove_fav = new QPushButton("Remove");
-  m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-  m_completer = new QCompleter(m_model->completion_model(), this);
+  m_model = NRemoteFSBrowser::Ptr(new NRemoteFSBrowser( NBrowser::global()->generate_name() ));
+  m_favorites_model = new FavoritesModel();
 
-  m_path_layout = new QHBoxLayout();
-  m_fav_buttons_layout = new QHBoxLayout();
-  m_filter_layout = new QHBoxLayout();
+  init_gui();
 
-  m_main_layout = new QGridLayout(this);
+  connect( m_model.get(), SIGNAL(favorites_changed(QStringList)),
+           m_favorites_model, SLOT(set_string_list(QStringList)) );
 
-  m_view->setModel( m_filter_model );
-  m_edit_path->setCompleter( m_completer );
-
-  m_filter_model->setDynamicSortFilter(true);
-
-  m_combo_filter->addItems( QStringList() << "Exact Match" << "Wildcards" << "Regular Expression");
-
-  m_main_layout->setSpacing(5);
-
-//  m_view->setSortingEnabled(true);
-//  m_view->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-//  m_view->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-  m_view->setAlternatingRowColors(true);
-//  m_view->setSelectionBehavior(QAbstractItemView::SelectRows);
-//  m_view->horizontalHeader()->setStretchLastSection(true);
-
-  m_lab_path->setBuddy(m_edit_path);
-  m_lab_filter->setBuddy(m_edit_filter);
-
-  m_path_layout->addWidget(m_lab_path);
-  m_path_layout->addWidget(m_edit_path);
-
-  m_fav_buttons_layout->addWidget(m_bt_add_fav);
-  m_fav_buttons_layout->addWidget(m_bt_remove_fav);
-
-  m_filter_layout->addWidget(m_lab_filter);
-  m_filter_layout->addWidget(m_edit_filter);
-  m_filter_layout->addWidget(m_combo_filter);
-
-  m_main_layout->addLayout(m_path_layout,        0, 0, 1, -1); // span: 1 row, all cols
-  m_main_layout->addWidget(m_favorites_view,     1, 0);
-  m_main_layout->addWidget(m_view,               1, 1, 2, -1); // span: 2 rows, all cols
-  m_main_layout->addLayout(m_fav_buttons_layout, 2, 0);
-  m_main_layout->addLayout(m_filter_layout,      3, 0, 1, 2);  // span: 1 row, 2 cols
-  m_main_layout->addWidget(m_buttons,            3, 3);
-
-  m_main_layout->setColumnStretch(0, 1);
-  m_main_layout->setColumnStretch(1, 2);
-  m_main_layout->setColumnStretch(2, 0);
-  m_main_layout->setColumnStretch(3, 2);
-
-  ThreadManager::instance().tree().root()->add_node(m_model);
-
-  connect(m_combo_filter, SIGNAL(currentIndexChanged(int)),
-          this, SLOT(filter_type_changed(int)));
-
-  connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
-          this, SLOT(double_clicked(QModelIndex)));
-
-  connect(m_model.get(), SIGNAL(current_path_changed(QString)),
-          this, SLOT(current_path_changed(QString)));
-
-  connect(m_completer, SIGNAL(activated(QString)),
-          this, SLOT(completer_activated(QString)));
-
-  connect(m_edit_path, SIGNAL(textEdited(QString)), this, SLOT(path_edited(QString)) );
-
-  connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
-
-  connect(m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
-
-//  this->resize(QSize(this->width() /** 1.25*/, this->height() /** 1.25*/) );
-  m_view->adjustSize();
-  this->adjustSize();
+  m_model->update_favorite_list();
   m_model->open_dir("");
-
 }
 
 ////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::filter_type_changed(int index)
+void BrowserDialog::filter_edited( const QString & new_text )
 {
-
+  QRegExp regex(new_text, Qt::CaseInsensitive, QRegExp::Wildcard);
+   m_filter_model->setFilterRegExp(regex);
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -157,12 +81,7 @@ void BrowserDialog::double_clicked(const QModelIndex &index)
 void BrowserDialog::current_path_changed( const QString & path )
 {
   if( !m_updating_completer )
-  {
     m_edit_path->setText( path );
-
-    if(m_edit_path->hasFocus())
-      m_completer->popup()->show();
-  }
   else
     m_updating_completer = false;
 }
@@ -192,7 +111,7 @@ void BrowserDialog::path_edited( const QString & text )
   // character (this may happen if user pasted a path or delete more than
   // one character at a time), the path to explore is the parent directory of
   // the path in the field
-  else if(m_old_path.endsWith("/") || std::abs(m_old_path.length() - text.length()) > 1)
+  else if(m_old_path.endsWith("/") || qAbs(m_old_path.length() - text.length()) > 1)
   {
     m_updating_completer = true;
     send = true;
@@ -234,11 +153,10 @@ void BrowserDialog::keyPressEvent(QKeyEvent * event)
   // Qt::Key_Return : return key
   if(pressed_key == Qt::Key_Enter || pressed_key == Qt::Key_Return)
   {
-//    if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
-//      this->btOkClicked();
-
-//    else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
-//      this->btCancelClicked();
+    if(m_buttons->button(QDialogButtonBox::Ok)->hasFocus())
+      accept();
+    else if(m_buttons->button(QDialogButtonBox::Cancel)->hasFocus())
+      reject();
   }
 
   else if(pressed_key == Qt::Key_Backspace)
@@ -322,7 +240,7 @@ bool BrowserDialog::show( bool multi_select, QVariant & selected )
 
 //////////////////////////////////////////////////////////////////////////////
 
-void BrowserDialog::message( const QString& message , LogMessage::Type type)
+void BrowserDialog::message( const QString& message , LogMessage::Type type )
 {
   if ( type == LogMessage::INFO )
     QMessageBox::information(this, "Info", message);
@@ -330,6 +248,143 @@ void BrowserDialog::message( const QString& message , LogMessage::Type type)
     QMessageBox::warning(this, "Warning", message);
   else
     QMessageBox::critical(this, "Error", message);
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::add_favorite()
+{
+  QString path = m_model->current_path();
+
+
+  path.remove(path.length() - 1, 1);
+
+  if( !m_favorites_model->add_string(path) )
+    QMessageBox::critical(this, "Error", "This favorite place already exists!");
+  else
+    m_model->send_favorites(m_favorites_model->string_list());
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::remove_favorite()
+{
+  QModelIndexList list = m_favorites_view->selectionModel()->selectedIndexes();
+  if( !list.isEmpty() )
+  {
+    if( !m_favorites_model->remove_string(list.at(0).row()) )
+      QMessageBox::critical(this, "Error", "You cannot remove this favorite place!");
+    else
+      m_model->send_favorites(m_favorites_model->string_list());
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::favorite_selected( const QModelIndex & index)
+{
+  if( index.isValid() )
+  {
+    QString path = m_favorites_model->full_path(index);
+
+    if( !m_favorites_model->is_special_dir(index) )
+      m_model->open_dir(path);
+    else
+      m_model->open_special_dir(path);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+
+void BrowserDialog::init_gui()
+{
+  // initiate graphical components
+  m_filter_model = new FileFilter(m_model.get(), this);
+  m_view = new QListView( this );
+  m_favorites_view = new QListView( this );
+  m_lab_path = new QLabel("Path:");
+  m_lab_filter = new QLabel("Filter (wildcards allowed):");
+  m_edit_filter = new QLineEdit();
+  m_edit_path = new QLineEdit();
+  m_bt_add_fav = new QPushButton("Add");
+  m_bt_remove_fav = new QPushButton("Remove");
+  m_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+  m_completer = new QCompleter(m_model->completion_model(), this);
+
+  // initiate layouts
+  m_path_layout = new QHBoxLayout();
+  m_fav_buttons_layout = new QHBoxLayout();
+  m_filter_layout = new QHBoxLayout();
+
+  m_main_layout = new QGridLayout(this);
+
+  // configure the graphical components
+  m_view->setModel( m_filter_model );
+  m_favorites_view->setModel( m_favorites_model );
+  m_edit_path->setCompleter( m_completer );
+  m_completer->setMaxVisibleItems(7);
+
+  m_filter_model->setDynamicSortFilter(true);
+
+  m_main_layout->setSpacing(5);
+
+  m_view->setAlternatingRowColors(true);
+
+  m_lab_path->setBuddy(m_edit_path);
+  m_lab_filter->setBuddy(m_edit_filter);
+
+  // add components to their layout
+  m_path_layout->addWidget(m_lab_path);
+  m_path_layout->addWidget(m_edit_path);
+
+  m_fav_buttons_layout->addWidget(m_bt_add_fav);
+  m_fav_buttons_layout->addWidget(m_bt_remove_fav);
+
+  m_filter_layout->addWidget(m_lab_filter);
+  m_filter_layout->addWidget(m_edit_filter);
+
+  m_main_layout->addLayout(m_path_layout,        0, 0, 1, -1); // span: 1 row, all cols
+  m_main_layout->addWidget(m_favorites_view,     1, 0);
+  m_main_layout->addWidget(m_view,               1, 1, 2, -1); // span: 2 rows, all cols
+  m_main_layout->addLayout(m_fav_buttons_layout, 2, 0);
+  m_main_layout->addLayout(m_filter_layout,      3, 0, 1, 2);  // span: 1 row, 2 cols
+  m_main_layout->addWidget(m_buttons,            3, 3);
+
+  m_main_layout->setColumnStretch(0, 1);
+  m_main_layout->setColumnStretch(1, 2);
+  m_main_layout->setColumnStretch(2, 0);
+  m_main_layout->setColumnStretch(3, 2);
+
+  ThreadManager::instance().tree().root()->add_node(m_model);
+
+  // connect useful signals
+  connect(m_view, SIGNAL(doubleClicked(QModelIndex)),
+          this, SLOT(double_clicked(QModelIndex)));
+
+  connect(m_model.get(), SIGNAL(current_path_changed(QString)),
+          this, SLOT(current_path_changed(QString)));
+
+  connect(m_completer, SIGNAL(activated(QString)),
+          this, SLOT(completer_activated(QString)));
+
+  connect(m_edit_filter, SIGNAL(textEdited(QString)),
+          this, SLOT(filter_edited(QString)));
+
+  connect(m_edit_path, SIGNAL(textEdited(QString)), this, SLOT(path_edited(QString)) );
+
+  connect(m_buttons, SIGNAL(accepted()), this, SLOT(accept()));
+
+  connect(m_buttons, SIGNAL(rejected()), this, SLOT(reject()));
+
+  connect(m_bt_add_fav, SIGNAL(clicked()), this, SLOT(add_favorite()));
+
+  connect(m_bt_remove_fav, SIGNAL(clicked()), this, SLOT(remove_favorite()));
+
+  connect(m_favorites_view, SIGNAL(pressed(QModelIndex)),
+          this, SLOT(favorite_selected(QModelIndex)));
+
+  m_view->adjustSize();
+  this->adjustSize();
 }
 
 //////////////////////////////////////////////////////////////////////////////
