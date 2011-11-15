@@ -176,19 +176,19 @@ struct ComponentIteratorRange : //public iterator_range<typename T::const_iterat
   bool operator==( const ComponentIteratorRange& rhs )  { return equal( rhs) ; }
   bool operator!=( const ComponentIteratorRange& rhs )  { return !equal( rhs) ; }
 
-  std::vector<boost::shared_ptr<T> > as_vector()
+  std::vector< Handle<T> > as_vector()
   {
-    std::vector<boost::shared_ptr<T> > result (0);
+    std::vector< Handle<T> > result (0);
     BOOST_FOREACH ( T& val, *this )
-      result.push_back(val.template as_ptr<T>());
+      result.push_back(Handle<T>(val.handle()));
     return result;
   }
 
-  std::vector<boost::shared_ptr<T const> > as_const_vector()
+  std::vector< Handle<T const> > as_const_vector()
   {
-    std::vector<boost::shared_ptr<T const> > result (0);
+    std::vector< Handle<T const> > result (0);
     BOOST_FOREACH ( const T& val, *this )
-      result.push_back(val.as_const()->template as_ptr<T>());
+      result.push_back(Handle<T const>(val.handle()));
     return result;
   }
 
@@ -350,40 +350,40 @@ Uint count(const RangeT& range) {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/// Create a vector of boost::shared_ptr of components, given an iterator_range
+/// Create a vector of handles of components, given an iterator_range
 template <typename T>
-inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_range<ComponentIterator<T> > range)
+inline std::vector< Handle<T> > range_to_vector( boost::iterator_range<ComponentIterator<T> > range)
 {
-  std::vector<boost::shared_ptr<T> > result (0);
+  std::vector< Handle<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_ptr<T>());
+    result.push_back(Handle<T>(val.handle()));
   return result;
 }
 
 template <typename T, typename Predicate>
-inline std::vector< boost::shared_ptr<T> > range_to_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
+inline std::vector< Handle<T> > range_to_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
 {
-  std::vector<boost::shared_ptr<T> > result (0);
+  std::vector< Handle<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.template as_ptr<T>());
+    result.push_back(Handle<T>(val.handle()));
   return result;
 }
 
 template <typename T>
-inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::iterator_range<ComponentIterator<T> > range)
+inline std::vector< Handle<const T> > range_to_const_vector( boost::iterator_range<ComponentIterator<T> > range)
 {
-  std::vector<boost::shared_ptr<const T> > result (0);
+  std::vector< Handle<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.as_const()->template as_ptr<T>());
+    result.push_back(Handle<T const>(val.handle()));
   return result;
 }
 
 template <typename T, typename Predicate>
-inline std::vector< boost::shared_ptr<const T> > range_to_const_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
+inline std::vector< Handle<const T> > range_to_const_vector( boost::iterator_range<boost::filter_iterator<Predicate, ComponentIterator<T> > > range)
 {
-  std::vector<boost::shared_ptr<const T> > result (0);
+  std::vector< Handle<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(val.as_const()->template as_ptr<T>());
+    result.push_back(Handle<T const>(val.handle()));
   return result;
 }
 
@@ -1146,44 +1146,31 @@ find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
 template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
-  bool not_found=true;
-  typename ComponentHandle<ComponentT>::type parent = comp.parent().self() ;
-  if ( is_null(parent) )
-    throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
-  while (not_found)
+  Handle<Component> parent = comp.parent();
+  while(is_not_null(parent))
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
-      not_found = false;
-    else
-    {
-      parent = parent->parent().self();
-      if ( is_null(parent) )
-        throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
-    }
+      return dynamic_cast<typename ComponentReference<ComponentT,ParentT>::type>(*parent);
+    
+    parent = parent->parent();
   }
-  return  *parent->template as_ptr<ParentT>();
+  
+  throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 }
 
 template <typename ParentT, typename ComponentT, typename Predicate>
 typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
-  bool not_found=true;
-  typename ComponentHandle<ComponentT>::type parent = comp.parent().self() ;
-  if ( is_null(parent) )
-    throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
-
-  while (not_found)
+  Handle<Component> parent = comp.parent();
+  while(is_not_null(parent))
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
-      not_found = false;
-    else
-    {
-      parent = parent->parent().self();
-      if ( is_null(parent) )
-        throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
-    }
+      return typename ComponentHandle<ComponentT,ParentT>::type(parent);
+    
+    parent = parent->parent();
   }
-  return  parent->template as_ptr<ParentT>();
+  
+  throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 }
 
 template <typename ComponentT, typename Predicate>

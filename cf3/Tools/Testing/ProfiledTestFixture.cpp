@@ -37,11 +37,11 @@ using namespace common;
 ProfiledTestFixture::ProfiledTestFixture() :
   m_process_profile(false) // don't run pprof by default
 {
-  if(!Core::instance().root().get_child_ptr("Profiler"))
+  if(!Core::instance().root().get_child("Profiler"))
   {
-    Core::instance().environment().configure_option("exception_aborts",false);
-    Core::instance().environment().configure_option("exception_backtrace",false);
-    Core::instance().environment().configure_option("exception_outputs",false);
+    Core::instance().environment().options().configure_option("exception_aborts",false);
+    Core::instance().environment().options().configure_option("exception_backtrace",false);
+    Core::instance().environment().options().configure_option("exception_outputs",false);
     const std::string prof_name ( "cf3.Tools.GooglePerfTools.GooglePerfProfiling" );
     try
     {

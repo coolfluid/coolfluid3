@@ -89,7 +89,7 @@ public:
     options()["VecInt"].attach_trigger ( boost::bind ( &MyC::config_vecint,this ) );
     options()["OptURI"].attach_trigger ( boost::bind ( &MyC::config_uri,   this ) );
 
-    std::vector<int> vi = option("VecInt").value< std::vector<int> >();
+    std::vector<int> vi = options().option("VecInt").value< std::vector<int> >();
 //    for (Uint i = 0; i < vi.size(); ++i)
 //      CFinfo << "vi[" << i << "] : " << vi[i] << "\n" << CFendl;
 
@@ -99,8 +99,7 @@ public:
     Option::Ptr opt2 (new OptionComponent<CConcrete1>("OptC2",Core::instance().root().uri()));
     opt2->description("component option");
     options().add_option(opt2)->link_to( &m_component )->mark_basic();
-     Option::Ptr opt3 = options().add_option
-       (OptionComponent<CConcrete1>::create("OptC3",&m_component));
+    Option::Ptr opt3 = options().add_option< OptionComponent<CConcrete1> >("OptC3",&m_component);
 
      opt3->description("component option");
 
