@@ -46,7 +46,7 @@ namespace GraphicsTest {
 
 void GraphicalValueTest::test_createFromOption()
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //
@@ -119,7 +119,7 @@ void GraphicalValueTest::test_createFromOption()
 
 void GraphicalValueTest::test_createFromOptionArray()
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
   const QValidator * validator;
 
@@ -255,7 +255,7 @@ void GraphicalValueTest::test_createFromOptionArray()
 
 void GraphicalValueTest::test_createFromOptionRestrValues()
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //
@@ -329,7 +329,7 @@ void GraphicalValueTest::test_createFromOptionRestrValues()
 
 void GraphicalValueTest::test_createFromOptionArrayRestrValues()
 {
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   GraphicalValue * value = nullptr;
 
   //

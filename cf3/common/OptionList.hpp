@@ -56,25 +56,25 @@ namespace common {
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
-    boost::shared_ptr<Option> add_option (const std::string& name,
+    Option& add_option (const std::string& name,
                             const typename OPTION_TYPE::value_type& def=typename OPTION_TYPE::value_type() )
     {
       cf3_assert_desc ( "Class has already property with same name",
                        this->store.find(name) == store.end() );
       boost::shared_ptr<Option> opt ( new OPTION_TYPE(name, def) );
       store.insert( std::make_pair(name, opt ) );
-      return opt;
+      return *opt;
     }
 
     /// adds an option to the list
     template < typename OPTION_TYPE >
-    boost::shared_ptr<Option> add_option (boost::shared_ptr<OPTION_TYPE> option)
+    Option& add_option (boost::shared_ptr<OPTION_TYPE> option)
     {
       cf3_assert_desc ( "Class has already property with name " + option->name(),
                        this->store.find(option->name()) == store.end() );
       boost::shared_ptr<Option> opt = boost::dynamic_pointer_cast<Option>(option);
       store.insert( std::make_pair(option->name(), opt ) );
-      return opt;
+      return *opt;
     }
 
 

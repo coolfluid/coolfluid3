@@ -46,12 +46,6 @@ public: // functions
 class CConcrete1 : public CAbstract
 {
 
-public: // typedefs
-
-  /// pointer to this type
-  typedef boost::shared_ptr<CConcrete1> Ptr;
-  typedef boost::shared_ptr<CConcrete1 const> ConstPtr;
-
 public: // functions
 
   /// Contructor
@@ -61,9 +55,9 @@ public: // functions
     // options
     URI def_path("cpath:/");
     options().add_option< OptionURI > ( "MyRelativeFriend", def_path  )
-        ->description("a path to another component");
+        .description("a path to another component");
     options().add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
-        ->description("a path to another component");
+        .description("a path to another component");
   }
 
   /// Virtual destructor
@@ -78,12 +72,6 @@ public: // functions
 
 class CConcrete2 : public CAbstract
 {
-
-public: // typedefs
-
-  /// pointer to this type
-  typedef boost::shared_ptr<CConcrete2> Ptr;
-  typedef boost::shared_ptr<CConcrete2 const> ConstPtr;
 
 public: // functions
 

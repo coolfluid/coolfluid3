@@ -421,17 +421,17 @@ void Manager::signature_spawn_group ( SignalArgs & args )
   SignalOptions options( args );
 
   options.add_option< OptionT<std::string> >("name", std::string())
-      ->pretty_name("Name")
-      ->description("Name of the new group");
+      .pretty_name("Name")
+      .description("Name of the new group");
 
   options.add_option< OptionT<Uint> >("count", Uint(1))
-      ->pretty_name("Workers Count")
-      ->description("Number of workers to spawn.");
+      .pretty_name("Workers Count")
+      .description("Number of workers to spawn.");
 
   options.add_option< OptionT<std::string> >("log_forwarding", std::string("None") )
-      ->pretty_name("Log Forwarding")
-      ->description("Defines the way the log is forwarded from the workers.")
-      ->restricted_list() += std::string("Only rank 0"), std::string("All ranks");
+      .pretty_name("Log Forwarding")
+      .description("Defines the way the log is forwarded from the workers.")
+      .restricted_list() += std::string("Only rank 0"), std::string("All ranks");
 
 }
 
@@ -450,9 +450,9 @@ void Manager::signature_kill_group ( SignalArgs & args )
     groups[i] = it->first;
 
   options.add_option< OptionT<std::string> >("group", m_groups.begin()->first )
-      ->pretty_name("Group to kill")
-      ->description("Processes belonging to the selected group will be exited.")
-      ->restricted_list() = groups;
+      .pretty_name("Group to kill")
+      .description("Processes belonging to the selected group will be exited.")
+      .restricted_list() = groups;
 }
 
 ////////////////////////////////////////////////////////////////////////////

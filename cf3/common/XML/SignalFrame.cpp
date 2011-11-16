@@ -449,13 +449,13 @@ std::string SignalFrame::to_script( int indentation ) const
 
   for (; it != opts.store.end() ; it++ )
   {
-    Option::ConstPtr option = it->second;
+    boost::shared_ptr<Option const> option = it->second;
 
     std::string opt = option->name() + ':';
     std::string tag = option->tag();
 
     if( tag == Protocol::Tags::node_array() )
-      tag += "[" + std::string(option->cast_to< OptionArray >()->elem_type()) + "]";
+      tag += "[" + option->element_type() + "]";
 
     tag += '=' + option->value_str();
 

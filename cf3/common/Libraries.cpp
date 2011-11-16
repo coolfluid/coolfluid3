@@ -193,8 +193,8 @@ void Libraries::signature_load_libraries ( SignalArgs& args )
 
   std::vector<URI> dummy;
 
-  options.add_option< OptionArrayT<URI> >("libs", dummy)
-      ->description("Libraries to load");
+  options.add_option< OptionArray<URI> >("libs", dummy)
+      .description("Libraries to load");
       //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 
 }
