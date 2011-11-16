@@ -46,8 +46,7 @@ namespace common {
 
 Component::Component ( const std::string& name ) :
     m_name (),
-    m_options(),
-    m_is_link (false)
+    m_options()
 {
   // accept name
 
@@ -138,9 +137,9 @@ Component::Component ( const std::string& name ) :
 
   // properties
 
-  m_properties.add_property("brief", std::string("No brief description available"));
-  m_properties.add_property("description", std::string("This component has not a long description"));
-  m_properties.add_property("uuid", UUCount());
+  properties().add_property("brief", std::string("No brief description available"));
+  properties().add_property("description", std::string("This component has not a long description"));
+  properties().add_property("uuid", UUCount());
 
   // events
   EventHandler::instance().connect_to_event("ping", this, &Component::on_ping_event);
@@ -586,7 +585,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content ) const
     this_node.set_attribute( "name", name() );
     this_node.set_attribute( "atype", type_name );
     this_node.set_attribute( "mode", has_tag("basic") ? "basic" : "adv");
-    this_node.set_attribute( "uuid", m_properties.value_str("uuid") );
+    this_node.set_attribute( "uuid", properties().value_str("uuid") );
 
     const Link* lnk = dynamic_cast<const Link*>(this);
     if( is_not_null(lnk) ) // if it is a link, we put the target path as value
@@ -598,7 +597,7 @@ void Component::write_xml_tree( XmlNode& node, bool put_all_content ) const
     }
     else
     {
-      if( put_all_content && !m_properties.store.empty() )
+      if( put_all_content && !properties().store.empty() )
       {
         // add properties if needed
         SignalFrame sf(this_node);
@@ -655,11 +654,11 @@ size_t Component::count_children() const
 
 void Component::signal_list_properties( SignalFrame& args ) const
 {
-  PropertyList::PropertyStorage_t::const_iterator it = m_properties.store.begin();
+  PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
 
  Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
 
- for( ; it != m_properties.store.end() ; it++)
+ for( ; it != properties().store.end() ; it++)
  {
    std::string name = it->first;
    boost::any value = it->second;
@@ -935,17 +934,17 @@ void Component::change_property(const std::string args)
    // CFinfo << name << ":" << type << (subtype.empty() ? std::string() : std::string("["+subtype+"]"))  << "=" << value << CFendl;
 
    if      (type == "bool")
-     m_properties[name]=from_str<bool>(value);
+     properties()[name]=from_str<bool>(value);
    else if (type == "unsigned")
-     m_properties[name]=from_str<Uint>(value);
+     properties()[name]=from_str<Uint>(value);
    else if (type == "integer")
-     m_properties[name]=from_str<int>(value);
+     properties()[name]=from_str<int>(value);
    else if (type == "real")
-     m_properties[name]=from_str<Real>(value);
+     properties()[name]=from_str<Real>(value);
    else if (type == "string")
-     m_properties[name]=value;
+     properties()[name]=value;
    else if (type == "uri")
-     m_properties[name]=from_str<URI>(value);
+     properties()[name]=from_str<URI>(value);
    else if (type == "array")
    {
      std::vector<std::string> array;
@@ -975,39 +974,39 @@ void Component::change_property(const std::string args)
        std::vector<bool> vec; vec.reserve(array.size());
        boost_foreach(const std::string& str_val,array)
            vec.push_back(from_str<bool>(str_val));
-       m_properties[name]=vec;
+       properties()[name]=vec;
      }
      else if (subtype == "unsigned")
      {
        std::vector<Uint> vec; vec.reserve(array.size());
        boost_foreach(const std::string& str_val,array)
            vec.push_back(from_str<Uint>(str_val));
-       m_properties[name]=vec;
+       properties()[name]=vec;
      }
      else if (subtype == "integer")
      {
        std::vector<int> vec; vec.reserve(array.size());
        boost_foreach(const std::string& str_val,array)
            vec.push_back(from_str<int>(str_val));
-       m_properties[name]=vec;
+       properties()[name]=vec;
      }
      else if (subtype == "real")
      {
        std::vector<Real> vec; vec.reserve(array.size());
        boost_foreach(const std::string& str_val,array)
            vec.push_back(from_str<Real>(str_val));
-       m_properties[name]=vec;
+       properties()[name]=vec;
      }
      else if (subtype == "string")
      {
-       m_properties[name]=array;
+       properties()[name]=array;
      }
      else if (subtype == "uri")
      {
        std::vector<URI> vec; vec.reserve(array.size());
        boost_foreach(const std::string& str_val,array)
            vec.push_back(from_str<URI>(str_val));
-       m_properties[name]=vec;
+       properties()[name]=vec;
      }
 
    }

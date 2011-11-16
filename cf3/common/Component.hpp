@@ -169,7 +169,7 @@ public: // functions
   /// Get a handle to the component
   Handle<Component> handle() { return Handle<Component>(shared_from_this()); }
   Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
-  
+
   /// @returns the handle to the parent component, which can be null if there is no parent
   const Handle<Component>& parent() const;
 
@@ -215,7 +215,7 @@ public: // functions
 
   /// Add the passed component as a subcomponent
   Component& add_component ( const boost::shared_ptr<Component>& subcomp );
-  
+
   /// Add a link to the passed component, as child. The name of the link will be the same as the
   /// name of the passed component.
   void add_link(Component& linked_component);
@@ -365,7 +365,7 @@ private: // helper functions
   /// Triggered when the "ping" event is raised. Useful to find out what components still exist
   void on_ping_event( SignalArgs& args );
 
-protected: // data
+private: // data
 
   /// component name (stored as path to ensure validity)
   std::string m_name;
@@ -379,18 +379,16 @@ protected: // data
   CompLookupT m_component_lookup;
   /// pointer to parent, naked pointer because of static components
   Handle<Component> m_parent;
-  /// is this a link component
-  bool m_is_link;
 
 protected: // functions
 
   /// raise event that the path has changed
   void raise_tree_updated_event();
-  
+
   /// Friend declarations allow enable_shared_from_this to be private
   template<class T> friend class boost::enable_shared_from_this;
   template<class T> friend class boost::shared_ptr;
-  
+
 }; // Component
 
 

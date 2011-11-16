@@ -24,8 +24,8 @@ common::ComponentBuilder < Environment, Component, LibCommon > Environment_Build
 Environment::Environment ( const std::string& name) : Component ( name )
 {
   // properties
-  m_properties["brief"] = std::string("Environment");
-  m_properties["description"] = std::string("Controls general behavior of coolfluid");
+  properties()["brief"] = std::string("Environment");
+  properties()["description"] = std::string("Controls general behavior of coolfluid");
 
   // options
   options().add_option< OptionT<bool> >("only_cpu0_writes", true)

@@ -35,8 +35,8 @@ Libraries::Libraries ( const std::string& name) : Component ( name )
 {
   TypeInfo::instance().regist<Libraries>(Libraries::type_name());
 
-  m_properties["brief"] = std::string("Library loader");
-  m_properties["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
+  properties()["brief"] = std::string("Library loader");
+  properties()["description"] = std::string("Loads external libraries, and holds links to all builders each library offers");
 
   // signals
   regist_signal( "load_libraries" )

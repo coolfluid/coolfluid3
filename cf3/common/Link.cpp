@@ -26,8 +26,6 @@ common::ComponentBuilder < Link, Component, LibCommon > Link_Builder;
 
 Link::Link ( const std::string& name) : Component ( name )
 {
-  m_is_link = true;
-
   regist_signal( "change_link" )
     ->connect( boost::bind( &Link::change_link, this, _1 ) )
     ->description("Change link path")
@@ -86,7 +84,7 @@ Handle< Component > follow_link(const Handle< Component >& link_or_comp)
   Handle<Link> l(link_or_comp);
   if(is_null(l))
     return link_or_comp;
-  
+
   return l->follow();
 }
 
@@ -95,7 +93,7 @@ Handle< const Component > follow_link(const Handle< const Component >& link_or_c
   Handle<Link const> l(link_or_comp);
   if(is_null(l))
     return link_or_comp;
-  
+
   return l->follow();
 }
 
