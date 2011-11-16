@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_SUITE( FactoryTest, FactoryFixture )
 
 BOOST_AUTO_TEST_CASE( get_factory )
 {
-  Factories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< Factories >();
+  Handle<Factories> factories(Core::instance().root().get_child("Factories"));
 
   BOOST_CHECK( factories->get_factory< CAbstract >() != nullptr );
 
@@ -54,13 +54,13 @@ BOOST_AUTO_TEST_CASE( component_builder )
   ComponentBuilder< CConcrete1, CAbstract, LibCommon > cc1;
   ComponentBuilder< CConcrete2, CAbstract, LibCommon > cc2;
 
-  Factories::Ptr factories = Core::instance().root().get_child_ptr("Factories")->as_ptr< Factories >();
+  Handle<Factories> factories(Core::instance().root().get_child("Factories"));
 
-  FactoryT<CAbstract>::Ptr cabstract_factory = factories->get_factory< CAbstract >();
+  Handle< FactoryT<CAbstract> > cabstract_factory = factories->get_factory< CAbstract >();
   BOOST_CHECK( cabstract_factory != nullptr );
   BOOST_CHECK_EQUAL( cabstract_factory->factory_type_name() , std::string("CAbstract") );
 
-  Builder::Ptr cconcrete1_builder = cabstract_factory->get_child_ptr( "cf3.common.CConcrete1" )->as_ptr< Builder >();
+  Handle<Builder> cconcrete1_builder(cabstract_factory->get_child( "cf3.common.CConcrete1" ));
   BOOST_CHECK( cconcrete1_builder != nullptr );
   BOOST_CHECK_EQUAL( cconcrete1_builder->builder_concrete_type_name() , std::string("CConcrete1") );
 }
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( LibraryName )
 {
   const std::string builder_name1 = "cf3.mesh.neu.Reader";
   BOOST_CHECK_EQUAL(Builder::extract_library_name(builder_name1), "coolfluid_mesh_neu");
-  
+
   const std::string builder_name2 = "cf3.UFEM.Test";
   BOOST_CHECK_EQUAL(Builder::extract_library_name(builder_name2), "coolfluid_ufem");
 }

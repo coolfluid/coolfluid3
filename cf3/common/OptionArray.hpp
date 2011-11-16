@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "common/Option.hpp"
+#include "common/StringConversion.hpp"
 #include "common/XML/Protocol.hpp"
 
 namespace cf3 {
@@ -46,7 +47,7 @@ public:
 
   /// @returns the xml tag for this option
   virtual const char * tag() const { return XML::Protocol::Tags::node_array(); }
-  
+
   virtual std::string value_str() const
   {
     return to_str( value<TYPE>() );
