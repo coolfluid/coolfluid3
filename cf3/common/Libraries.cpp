@@ -18,6 +18,7 @@
 #include "common/LibLoader.hpp"
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 #include "common/XML/SignalFrame.hpp"
@@ -193,7 +194,7 @@ void Libraries::signature_load_libraries ( SignalArgs& args )
 
   std::vector<URI> dummy;
 
-  options.add_option< OptionArray<URI> >("libs", dummy)
+  options.add_option("libs", dummy)
       .description("Libraries to load");
       //->cast_to<OptionURI>()->set_supported_protocols(schemes);
 

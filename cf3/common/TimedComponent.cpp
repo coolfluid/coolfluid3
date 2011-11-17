@@ -9,6 +9,7 @@
 #include "common/Component.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 #include "common/TimedComponent.hpp"
 
 #include "common/PE/Comm.hpp"

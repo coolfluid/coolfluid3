@@ -10,6 +10,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <deque>
+#include "common/BasicExceptions.hpp"
 #include "common/Component.hpp"
 #include "common/StringConversion.hpp"
 #include "common/Foreach.hpp"

@@ -15,6 +15,7 @@
 #include <boost/mpl/if.hpp>
 #include <boost/type_traits/is_const.hpp>
 
+#include "common/BasicExceptions.hpp"
 #include "common/Component.hpp"
 #include "common/ComponentIterator.hpp"
 #include "common/Foreach.hpp"
@@ -1151,10 +1152,10 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
       return dynamic_cast<typename ComponentReference<ComponentT,ParentT>::type>(*parent);
-    
+
     parent = parent->parent();
   }
-  
+
   throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 }
 
@@ -1166,10 +1167,10 @@ typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_wit
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
       return typename ComponentHandle<ComponentT,ParentT>::type(parent);
-    
+
     parent = parent->parent();
   }
-  
+
   throw ValueNotFound (FromHere(), "Parent of component ["+comp.uri().path()+"] with filter is not found recursively");
 }
 

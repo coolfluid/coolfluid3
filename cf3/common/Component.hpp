@@ -17,11 +17,11 @@
 
 #include "common/AllocatedComponent.hpp"
 #include "common/Assertions.hpp"
+#include "common/BasicExceptions.hpp"
 #include "common/ConnectionManager.hpp"
 #include "common/Handle.hpp"
-#include "common/PropertyList.hpp"
-#include "common/OptionList.hpp"
 #include "common/SignalHandler.hpp"
+#include "common/TaggedObject.hpp"
 #include "common/URI.hpp"
 
 namespace boost
@@ -29,12 +29,17 @@ namespace boost
   // forward declarations for iterator_range
   template<typename T>
   class iterator_range;
+  class any;
 }
 
 namespace cf3 {
 namespace common {
 
 template<class T> class ComponentIterator;
+class OptionList;
+class PropertyList;
+
+namespace XML { class XmlNode; }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -241,16 +246,16 @@ public: // functions
   virtual std::string derived_type_name() const = 0;
 
   /// @return Returns a reference to the property list
-  PropertyList& properties() { return m_properties; }
+  PropertyList& properties();
 
   /// @return Returns a constant reference to the property list
-  const PropertyList& properties() const { return m_properties; }
+  const PropertyList& properties() const;
 
   /// @return Returns a reference to the options list
-  OptionList& options() { return m_options; }
+  OptionList& options();
 
   /// @return Returns a constant reference to the options list
-  const OptionList& options() const { return m_options; }
+  const OptionList& options() const;
 
   /// Configures one property recursevely through this component children,
   /// triggering its actions. If an option has the tag "norecurse" recursion is inhibited
@@ -369,10 +374,10 @@ private: // data
 
   /// component name (stored as path to ensure validity)
   std::string m_name;
-  /// storage of the property list
-  PropertyList m_properties;
-  /// storage of the option list
-  OptionList m_options;
+  /// storage of the property list (pointer to avoid header include)
+  boost::shared_ptr<PropertyList> m_properties;
+  /// storage of the option list (pointer to avoid header include)
+  boost::shared_ptr<OptionList> m_options;
   /// list of sub-components
   CompStorageT m_components;
   /// lookup of the index of a component

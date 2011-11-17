@@ -169,7 +169,7 @@ void set_option_to_list( const std::string & name,
                          OptionList & options )
 {
   if( !options.check(name) )
-    options.add_option< OPTION_TYPE >(name, value);
+    options.add_option(name, value);
   else
     options[name].change_value( value );
 }
@@ -310,7 +310,7 @@ void OptionList::fill_from_vector( const std::vector<std::string> & args )
 //  const std::string& name, const typename SelectOptionType<T>::type::value_type & default_value)
 //{
 //  typedef typename OptionList::SelectOptionType<T>::type OptionType;
-//  return dynamic_cast<OptionType>(add_option<OptionType>(name, default_value));
+//  return dynamic_cast<OptionType>(add_option(name, default_value));
 //}
 
 //#define EXPLICIT_TEMPLATE_INSTANCIATION(T) \

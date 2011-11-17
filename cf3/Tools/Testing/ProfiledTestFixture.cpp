@@ -20,6 +20,7 @@
 #include "common/Builder.hpp"
 #include "common/Factories.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/PE/Comm.hpp"
 
 #include "Tools/Testing/ProfiledTestFixture.hpp"

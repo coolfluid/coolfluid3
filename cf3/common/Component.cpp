@@ -20,15 +20,16 @@
 #include "common/BasicExceptions.hpp"
 #include "common/EventHandler.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
+#include "common/PropertyList.hpp"
 #include "common/StringConversion.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Core.hpp"
 #include "common/OSystem.hpp"
 #include "common/LibLoader.hpp"
 #include "common/PropertyList.hpp"
-#include "common/OptionList.hpp"
 #include "common/ComponentIterator.hpp"
 #include "common/UUCount.hpp"
 
@@ -46,7 +47,8 @@ namespace common {
 
 Component::Component ( const std::string& name ) :
     m_name (),
-    m_options()
+    m_properties(new PropertyList()),
+    m_options(new OptionList())
 {
   // accept name
 
@@ -652,6 +654,35 @@ size_t Component::count_children() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+PropertyList& Component::properties()
+{
+  return *m_properties;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+const PropertyList& Component::properties() const
+{
+  return *m_properties;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+OptionList& Component::options()
+{
+  return *m_options;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
+const OptionList& Component::options() const
+{
+  return *m_options;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////
+
 void Component::signal_list_properties( SignalFrame& args ) const
 {
   PropertyList::PropertyStorage_t::const_iterator it = properties().store.begin();
@@ -688,7 +719,7 @@ void Component::signal_list_properties( SignalFrame& args ) const
 void Component::signal_list_options ( SignalArgs& args ) const
 {
   Map & options = args.map( Protocol::Tags::key_properties() ).main_map;
-  SignalOptions::add_to_map( options, m_options );
+  SignalOptions::add_to_map( options, *m_options );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -724,7 +755,7 @@ void Component::signal_configure ( SignalArgs& args )
  XmlNode opt_map = args.map( Protocol::Tags::key_options() ).main_map.content;
 
  // get the list of options
- OptionList::OptionStorage_t& options = m_options.store;
+ OptionList::OptionStorage_t& options = m_options->store;
 
  // loop on the param nodes
  for (xml_node<>* itr =  opt_map.content->first_node(); itr; itr = itr->next_sibling() )
@@ -840,11 +871,11 @@ void Component::signature_create_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("name", std::string("untitled") )
+  options.add_option("name", std::string("untitled") )
       .description("Name for created component.");
-  options.add_option< OptionT<std::string> >("type", std::string("cf3.common.Group") )
+  options.add_option("type", std::string("cf3.common.Group") )
       .description("Concrete type of the component.");
-  options.add_option< OptionT<bool> >("basic_mode", true )
+  options.add_option("basic_mode", true )
       .description("Component will be visible in basic mode.");
 }
 
@@ -854,7 +885,7 @@ void Component::signature_rename_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionT<std::string> >("name", std::string() )
+  options.add_option("name", std::string() )
       .description("Component new name.");
 }
 
@@ -864,7 +895,7 @@ void Component::signature_move_component( SignalArgs& args )
 {
   SignalOptions options( args );
 
-  options.add_option< OptionURI >("path")
+  options.add_option<URI>("path")
       .pretty_name("Path")
       .description("Path to the new component to which this one will move to.");
 }
@@ -876,7 +907,7 @@ void Component::configure_option_recursively(const std::string& opt_name, const 
 
 //  CFinfo << "+++ recurse config option [" << opt_name << "] from [" << uri().string() << "]" << CFendl;
 
-  if (m_options.check(opt_name) && !m_options[opt_name].has_tag("norecurse"))
+  if (m_options->check(opt_name) && !(*m_options)[opt_name].has_tag("norecurse"))
   {
     options().configure_option(opt_name,val);
   }

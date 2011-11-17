@@ -23,6 +23,7 @@
 #include "common/Environment.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 
 using namespace boost;
 

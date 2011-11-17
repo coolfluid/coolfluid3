@@ -20,6 +20,7 @@
 #include "common/Libraries.hpp"
 #include "common/Factories.hpp"
 #include "common/Environment.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/BuildInfo.hpp"
 #include "common/CodeProfiler.hpp"

@@ -6,6 +6,7 @@
 
 #include "common/Factories.hpp"
 #include "common/Signal.hpp"
+#include "common/PropertyList.hpp"
 
 namespace cf3 {
 namespace common {

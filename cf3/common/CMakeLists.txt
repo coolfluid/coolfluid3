@@ -104,6 +104,7 @@ list( APPEND coolfluid_common_files
     OptionT.cpp
     OptionList.cpp
     OptionList.hpp
+    OptionListDetail.hpp
     OptionURI.cpp
     OptionURI.hpp
     OptionComponent.hpp

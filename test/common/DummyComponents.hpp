@@ -6,6 +6,7 @@
 
 #include "common/LibCommon.hpp"
 #include "common/Component.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Builder.hpp"
 
@@ -54,9 +55,9 @@ public: // functions
   {
     // options
     URI def_path("cpath:/");
-    options().add_option< OptionURI > ( "MyRelativeFriend", def_path  )
+    options().add_option( "MyRelativeFriend", def_path  )
         .description("a path to another component");
-    options().add_option< OptionURI > ( "MyAbsoluteFriend", def_path  )
+    options().add_option( "MyAbsoluteFriend", def_path  )
         .description("a path to another component");
   }
 

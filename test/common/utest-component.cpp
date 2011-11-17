@@ -17,6 +17,8 @@
 #include "common/FindComponents.hpp"
 #include "common/Group.hpp"
 #include "common/Link.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/Protocol.hpp"
 #include "common/XML/SignalFrame.hpp"

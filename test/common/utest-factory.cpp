@@ -15,6 +15,7 @@
 
 #include "common/Factories.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 
 
 using namespace std;
