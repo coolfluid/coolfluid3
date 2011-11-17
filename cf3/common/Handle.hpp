@@ -42,13 +42,6 @@ public:
   {
     create_from_shared(other.m_weak_ptr.lock());
   }
-  
-  /// Copy constructor also taking anon-const handle to create a const handle implicitely
-  Handle(const Handle<typename boost::remove_const<T>::type>& other) :
-    m_weak_ptr(other.m_weak_ptr),
-    m_cached_ptr(other.m_cached_ptr)
-  {
-  }
 
   /// Raw pointer to the stored value, or null if there is none
   T* get() const
@@ -67,9 +60,19 @@ public:
   }
 
   /// Conversion to bool for null checking
-  operator bool () const
+  operator bool() const
   {
     return !m_weak_ptr.expired();
+  }
+
+  /// Explicit conversion to other handle type. This ony works for base classes and const/non const
+  template<typename Y>
+  operator Handle<Y>() const
+  {
+    Handle<Y> other;
+    other.m_cached_ptr = m_cached_ptr;
+    other.m_weak_ptr = m_weak_ptr;
+    return other;
   }
 
   bool operator! () const

@@ -98,6 +98,32 @@ BOOST_AUTO_TEST_CASE( Reassign )
   group_handle = Handle<Group>(group);
   BOOST_CHECK_EQUAL("group2", group_handle->name());
 }
+
+BOOST_AUTO_TEST_CASE( AssignToConst )
+{
+  boost::shared_ptr<Group> group = allocate_component<Group>("group");
+
+  Handle<Group> group_handle(group);
+  Handle<Group const> const_group_handle = group_handle;
+
+  BOOST_CHECK_EQUAL("group", const_group_handle->name());
+}
+
+BOOST_AUTO_TEST_CASE( AssignToBase )
+{
+  boost::shared_ptr<Group> group = allocate_component<Group>("group");
+
+  Handle<Group> group_handle(group);
+  Handle<Component> comp_handle = group_handle;
+  Handle<Component const> const_comp_handle = group_handle;
+
+  //Handle<Group> try_dynamic_cast = comp_handle; // Won't compile (and shouldn't!)
+  //Handle<Component> try_const_cast = const_comp_handle; // Won't compile (and shouldn't!)
+
+  BOOST_CHECK_EQUAL("group", comp_handle->name());
+  BOOST_CHECK_EQUAL("group", const_comp_handle->name());
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 BOOST_AUTO_TEST_SUITE_END()
