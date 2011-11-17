@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE( init )
 
 BOOST_AUTO_TEST_CASE( data_registration_related )
 {
-  CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
+  boost::shared_ptr<CommPattern> pecp_ptr = allocate_component<CommPattern>("CommPattern");
   CommPattern& pecp = *pecp_ptr;
   BOOST_CHECK_EQUAL( pecp.isUpToDate() , false );
 
@@ -116,8 +116,8 @@ BOOST_AUTO_TEST_CASE( data_registration_related )
   pecp.insert<double>("VectorWeakPtr2",d2,3,true);
 
   // these are just dummies to see the selective iteration
-  Component::Ptr dir1  ( allocate_component<Group> ( "dir1" ) );
-  Component::Ptr dir2  ( allocate_component<Group> ( "dir2" ) );
+  boost::shared_ptr<Component> dir1  ( allocate_component<Group> ( "dir1" ) );
+  boost::shared_ptr<Component> dir2  ( allocate_component<Group> ( "dir2" ) );
   pecp.add_component( dir1 );
   pecp.add_component( dir2 );
 
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   const int irank=PE::Comm::instance().rank();
 
   // commpattern
-  CommPattern::Ptr pecp_ptr = allocate_component<CommPattern>("CommPattern");
+  boost::shared_ptr<CommPattern> pecp_ptr = allocate_component<CommPattern>("CommPattern");
   CommPattern& pecp = *pecp_ptr;
 
   // setup gid & rank
@@ -183,7 +183,7 @@ BOOST_AUTO_TEST_CASE( commpattern_mainstream )
   pecp.insert("v2",v2,2,true);
 
   // initial setup
-  pecp.setup(pecp.get_child_ptr("gid")->as_ptr<CommWrapper>(),rank);
+  pecp.setup(Handle<CommWrapper>(pecp.get_child("gid")),rank);
 
   PECheckPoint(100,"Before");
   PEProcessSortedExecute(-1,PEDebugVector(gid,gid.size()));

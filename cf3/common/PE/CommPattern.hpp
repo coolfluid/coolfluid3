@@ -185,16 +185,6 @@ public:
     ow->setup(data,stride,needs_update);
   }
 
-  /// register data coming from std::vector wrapped into weak_ptr (also works with shared_ptr)
-  /// @param name the component will appear under this name
-  /// @param std::vector of data
-  /// @param stride number of array element grouping
-  template<typename T> void insert(const std::string& name, boost::weak_ptr< std::vector<T> > data, const unsigned int stride=1, const bool needs_update=true)
-  {
-    Handle< CommWrapperVectorWeakPtr<T> > ow = create_component< CommWrapperVectorWeakPtr<T> >(name);
-    ow->setup(data,stride,needs_update);
-  }
-
   /// removes data by name
   void clear( const std::string& name)
   {

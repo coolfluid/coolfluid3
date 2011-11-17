@@ -41,13 +41,6 @@ namespace PE  {
 /// Base wrapper class serving as interface.
 class Common_API CommWrapper : public Component {
 
-  public:
-
-    /// pointer to this type
-    typedef boost::shared_ptr<CommWrapper> Ptr;
-    /// const pointer to this type
-    typedef boost::shared_ptr<CommWrapper const> ConstPtr;
-
     /// making CommWrapperView as friend in order to access create_view and destroy_view
     template <typename T> friend class CommWrapperView;
 
@@ -230,14 +223,6 @@ template <typename T> class Common_API CommWrapperView : public boost::noncopyab
 
 /// Wrapper class for raw ptr arrays allocated by new[]/malloc/calloc.
 template<typename T> class CommWrapperPtr: public CommWrapper{
-
-  public:
-
-    /// pointer to this type
-    typedef boost::shared_ptr< CommWrapperPtr<T> > Ptr;
-    /// const pointer to this type
-    typedef boost::shared_ptr< CommWrapperPtr<T> const> ConstPtr;
-
   public:
 
     /// destructor
@@ -392,13 +377,6 @@ template<typename T> class CommWrapperVector: public CommWrapper{
 
   public:
 
-    /// pointer to this type
-    typedef boost::shared_ptr< CommWrapperVector<T> > Ptr;
-    /// const pointer to this type
-    typedef boost::shared_ptr< CommWrapperVector<T> const> ConstPtr;
-
-  public:
-
     /// constructor
     /// @param name the component will appear under this name
     CommWrapperVector(const std::string& name) : CommWrapper(name) {   }
@@ -532,155 +510,6 @@ template<typename T> class CommWrapperVector: public CommWrapper{
 
     /// pointer to std::vector
     std::vector<T>* m_data;
-
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Wrapper class for std::vectors via boost's weak pointer.
-template<typename T> class CommWrapperVectorWeakPtr: public CommWrapper{
-
-  public:
-
-    /// pointer to this type
-    typedef boost::shared_ptr< CommWrapperVectorWeakPtr<T> > Ptr;
-    /// const pointer to this type
-    typedef boost::shared_ptr< CommWrapperVectorWeakPtr<T> const> ConstPtr;
-
-  public:
-
-    /// constructor
-    /// @param name the component will appear under this name
-    CommWrapperVectorWeakPtr(const std::string& name) : CommWrapper(name) {   }
-
-    /// Get the class name
-    static std::string type_name () { return "CommWrapperVectorWeakPtr<"+common::class_name<T>()+">"; }
-
-    /// setup
-    /// @param std::vector of data
-    /// @param stride number of array element grouping
-    void setup(boost::weak_ptr< std::vector<T> > data, const unsigned int stride, const bool needs_update)
-    {
-      if (boost::is_pod<T>::value==false) throw cf3::common::BadValue(FromHere(),name()+": Data is not POD (plain old datatype).");
-      m_data=data;
-      m_stride=(int)stride;
-      boost::shared_ptr< std::vector<T> > sp=data.lock();
-      if (sp->size()%stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
-      m_needs_update=needs_update;
-    }
-
-    /// destructor
-    ~CommWrapperVectorWeakPtr() { /*delete m_data;*/ }
-
-    /// extraction of sub-data from data wrapped by the objectwrapper, pattern specified by map
-    /// if nullptr is passed (also default parameter), memory is allocated.
-    /// @param map vector of map
-    /// @return pointer to the newly allocated data which is of size size_of()*stride()*map.size()
-    const void* pack(std::vector<int>& map, void* buf=nullptr) const
-    {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      if (buf==nullptr) buf=new T[map.size()*m_stride+1];
-      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      std::vector<int>::iterator imap=map.begin();
-      for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
-          *ibuf++=(*sp)[*imap*m_stride + i];
-      return buf;
-    }
-
-    /// extraction of data from the wrapped object, returned memory is a copy, not a view
-    /// if nullptr is passed (also default parameter), memory is allocated.
-    /// @return pointer to the newly allocated data which is of size size_of()*stride()*size()
-    const void* pack(void* buf=nullptr) const
-    {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      if (buf==nullptr) buf=new T[sp->size()+1];
-      if ( buf == nullptr ) throw cf3::common::NotEnoughMemory(FromHere(),name()+": Could not allocate temporary buffer.");
-      T* data=&(*sp)[0];
-      T* ibuf=(T*)buf;
-      for (int i=0; i<(const int)sp->size(); i++)
-        *ibuf++=*data++;
-      return buf;
-    }
-
-    /// returning back values into the data wrapped by objectwrapper
-    /// @param map vector of map
-    /// @param pointer to the data to be committed back
-    void unpack(void* buf, std::vector<int>& map) const
-    {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      std::vector<int>::iterator imap=map.begin();
-      for (T* ibuf=(T*)buf; imap!=map.end(); imap++)
-        for (int i=0; i<(const int)m_stride; i++)
-          (*sp)[*imap*m_stride + i]=*ibuf++;
-    }
-
-    /// returning back values into the data wrapped by objectwrapper
-    /// @param pointer to the data to be committed back
-    void unpack(void* buf) const
-    {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      T* data=&(*sp)[0];
-      T* ibuf=(T*)buf;
-      for (int i=0; i<(const int)sp->size(); i++)
-        *data++=*ibuf++;
-    }
-
-    /// resizes the underlying wrapped object
-    /// @param size new dimension size
-    void resize(const int size)
-    {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      if (sp->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
-      sp->resize(size*m_stride);
-    }
-
-    /// acts like a sizeof() operator
-    /// @return size of the data members in bytes
-    int size_of() const { return sizeof(T); }
-
-    /// accessor to the size of the array (without divided by stride)
-    /// @return length of the array, if pointer is invalid then returns zero
-    int size() const {
-      if (m_data.expired()) throw cf3::common::BadPointer(FromHere(),name()+": Data expired.");
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      if (sp->size()%m_stride!=0) throw cf3::common::BadValue(FromHere(),name()+": Nonzero remainder of size()/stride().");
-      return sp->size()/m_stride;
-    }
-
-    /// accessor to the stride which tells how many array elements count as one  in the communication pattern
-    /// @return number of items to be treated as one
-    int stride() const { return m_stride; }
-
-    /// Check for Uint, necessary for cheking type of gid in commpattern
-    /// @return true or false depending if registered data's type was Uint or not
-    bool is_data_type_Uint() const { return boost::is_same<T,Uint>::value; }
-
-  private:
-
-    /// Create an access to the raw data inside the wrapped class.
-    /// @warning if underlying raw data is not linear, a copy is being made.
-    /// @return pointer to data
-    void* start_view()
-    {
-      boost::shared_ptr< std::vector<T> > sp=m_data.lock();
-      return (void*)&(*sp)[0];
-    }
-
-    /// Finalizes view to the raw data held by the class wrapped by the commwrapper.
-    /// @warning if the underlying data is not linear the data is copied back, therefore performance is degraded
-    /// @param data pointer to the data
-    void end_view(void* data) { return; }
-
-  private:
-
-    /// pointer to std::vector
-    boost::weak_ptr< std::vector<T> > m_data;
 
 };
 

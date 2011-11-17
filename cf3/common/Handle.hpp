@@ -53,9 +53,6 @@ public:
   /// Raw pointer to the stored value, or null if there is none
   T* get() const
   {
-    if(is_null(m_cached_ptr))
-      return nullptr;
-
     if(m_weak_ptr.expired())
       m_cached_ptr = nullptr;
 
