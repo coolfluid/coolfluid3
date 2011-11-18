@@ -34,7 +34,7 @@ Action::Action ( const std::string& name ) : Component(name)
 Action& Action::create_action(const std::string& action_provider,
                                       const std::string& name)
 {
-  Action::Ptr sub_action = build_component_abstract_type<Action>(action_provider,name);
+  boost::shared_ptr<Action> sub_action = build_component_abstract_type<Action>(action_provider,name);
   add_component(sub_action);
   return *sub_action;
 }

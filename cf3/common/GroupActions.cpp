@@ -26,9 +26,10 @@ void GroupActions::execute()
 {
   // call all actions and action links inside this component
 
-  boost_foreach(Component& child, children())
+  boost_foreach(Component& child, *this)
   {
-    if (Action::Ptr action = child.follow()->as_ptr<Action>())
+    Handle<Action> action(follow_link(child));
+    if(is_not_null(action))
       action->execute();
   }
 }

@@ -42,9 +42,9 @@ void LibLoader::load_library(const std::string& lib)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void LibLoader::unload_library( Library::Ptr lib )
+void LibLoader::unload_library( Library& lib )
 {
-  lib->terminate();
+  lib.terminate();
 
   /// @todo implement system_unload_library
   //  system_unload_library(lib);

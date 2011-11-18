@@ -139,7 +139,7 @@ void CNode::set_properties( const SignalArgs & options )
 
       if( is_not_null(attr) && from_str<bool>(attr->value()) ) // if it is an option
       {
-        Option::Ptr opt = SignalOptions::xml_to_option(curr_node);
+        boost::shared_ptr<Option> opt = SignalOptions::xml_to_option(curr_node);
         cf3_assert( opt.get() != nullptr );
         m_options.store[ opt->name() ] = opt;
       }

@@ -128,7 +128,7 @@ namespace XML {
 
     /// Creates a new XmlDoc.
     /// @return Returns a shared pointer with the new document.
-    static XmlDoc::Ptr create_doc ();
+    static boost::shared_ptr<XmlDoc> create_doc ();
 
   }; // Protocols
 

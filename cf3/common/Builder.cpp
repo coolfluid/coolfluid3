@@ -40,9 +40,9 @@ void Builder::signal_create_component ( SignalArgs& args )
 
   URI path ( params.get_option<URI>("path") );
 
-  Component::Ptr comp = build ( path.name() );
-  Component::Ptr parent = access_component_ptr_checked( path.base_path() );
-  parent->add_component( comp );
+  boost::shared_ptr<Component> comp = build ( path.name() );
+  Handle<Component> parent = access_component_checked( path.base_path() );
+  parent->add_component(comp);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

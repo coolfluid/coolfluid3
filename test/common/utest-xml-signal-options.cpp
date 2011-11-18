@@ -124,7 +124,7 @@ BOOST_AUTO_TEST_CASE ( contructors )
 BOOST_AUTO_TEST_CASE ( xml_to_option )
 {
   XmlDoc::Ptr xmldoc;
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   XmlNode node;
 
   //
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE ( xml_to_option )
 BOOST_AUTO_TEST_CASE( xml_to_option_types )
 {
   XmlDoc::Ptr xmldoc(new XmlDoc());
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
 
   Map map(xmldoc->add_node("map"));
 
@@ -308,7 +308,7 @@ BOOST_AUTO_TEST_CASE ( xml_to_option_restricted_lists )
 {
   XmlDoc::Ptr xmldoc(new XmlDoc());
   Map map(xmldoc->add_node("map"));
-  Option::Ptr option;
+  boost::shared_ptr<Option> option;
   std::vector<int> vectInt = list_of<int>(344646)(544684)(446454)
                                                         (878764)(646316);
 

@@ -230,9 +230,9 @@ BOOST_AUTO_TEST_CASE( list_node_options )
   //
   // 2. the list is not empty
   //
-  options.append( Option::Ptr(new OptionT<bool>("opt1", true)) );
-  options.append( Option::Ptr(new OptionT<int>("opt2", 42)) );
-  options.append( Option::Ptr(new OptionT<std::string>("opt3", std::string())) );
+  options.append( boost::shared_ptr<Option>(new OptionT<bool>("opt1", true)) );
+  options.append( boost::shared_ptr<Option>(new OptionT<int>("opt2", 42)) );
+  options.append( boost::shared_ptr<Option>(new OptionT<std::string>("opt3", std::string())) );
   t.list_node_options(QModelIndex(), options, &ok);
   BOOST_CHECK(!ok);
   BOOST_CHECK_EQUAL(options.count(), 0);

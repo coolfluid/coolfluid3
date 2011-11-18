@@ -23,6 +23,7 @@
 #include "common/Environment.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 
 using namespace boost;
 
@@ -69,7 +70,7 @@ Logger & Logger::instance()
 
 void Logger::initiate()
 {
-  bool rank0 = Core::instance().environment().option("only_cpu0_writes").value<bool>();
+  bool rank0 = Core::instance().environment().options().option("only_cpu0_writes").value<bool>();
 
   CFerror.setFilterRankZero( rank0 );
   CFwarn.setFilterRankZero( rank0 );

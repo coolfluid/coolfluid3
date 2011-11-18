@@ -22,13 +22,8 @@ namespace common {
 /// to the user this component only groups other components.
 /// A GUI could use this information to give this component a "folder" icon.
 /// @author Tiago Quintino
-class Common_API Group : public Component {
-
-public: // typedefs
-
-  /// pointer to this type
-  typedef boost::shared_ptr<Group> Ptr;
-  typedef boost::shared_ptr<Group const> ConstPtr;
+class Common_API Group : public Component
+{
 
 public: // functions
 

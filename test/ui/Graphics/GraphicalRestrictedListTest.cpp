@@ -43,7 +43,7 @@ void GraphicalRestrictedListTest::test_constructor()
 {
   GraphicalRestrictedList * value = new GraphicalRestrictedList();
   QComboBox * comboBox = findComboBox(value);
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
 
   // 1. empty option
   QVERIFY( is_not_null(comboBox) );
@@ -75,7 +75,7 @@ void GraphicalRestrictedListTest::test_constructor()
 
 void GraphicalRestrictedListTest::test_setValue()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -115,7 +115,7 @@ void GraphicalRestrictedListTest::test_setValue()
 
 void GraphicalRestrictedListTest::test_value()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -142,7 +142,7 @@ void GraphicalRestrictedListTest::test_value()
 
 void GraphicalRestrictedListTest::test_signalEmmitting()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -188,7 +188,7 @@ void GraphicalRestrictedListTest::test_signalEmmitting()
 
 void GraphicalRestrictedListTest::test_valueString()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -207,7 +207,7 @@ void GraphicalRestrictedListTest::test_valueString()
 
 void GraphicalRestrictedListTest::test_isModified()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 
@@ -234,7 +234,7 @@ void GraphicalRestrictedListTest::test_isModified()
 
 void GraphicalRestrictedListTest::test_setRestrictedList()
 {
-  Option::Ptr opt( new OptionT<std::string>("opt", std::string("Hello") ) );
+  boost::shared_ptr<Option> opt( new OptionT<std::string>("opt", std::string("Hello") ) );
   opt->restricted_list().push_back( std::string("World") );
   opt->restricted_list().push_back( std::string("Third restricted value") );
 

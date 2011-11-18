@@ -53,8 +53,8 @@ Journal::Journal (const std::string & name)
 
   signal("list_journal")->hidden(true);
 
-  options().add_option< OptionT<bool> >("RecordReplies", false)
-      ->description("If true, both signal and reply frames are recorded. If "
+  options().add_option("RecordReplies", false)
+      .description("If true, both signal and reply frames are recorded. If "
                         "false, only signal frames are recorded.\nRecording replies "
                         "will significantly increase the journal size and the memory used.");
 
@@ -83,10 +83,10 @@ Journal::~Journal()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Journal::Ptr Journal::create_from_file ( const std::string & name,
+boost::shared_ptr<Journal> Journal::create_from_file ( const std::string & name,
                                            const boost::filesystem::path & file_path )
 {
-  Journal::Ptr journal( allocate_component<Journal>(name) );
+  boost::shared_ptr<Journal> journal( allocate_component<Journal>(name) );
 
   journal->load_journal_file(file_path);
 
@@ -132,11 +132,6 @@ void Journal::add_signal ( const SignalArgs & signal_node )
 
 void Journal::execute_signals (const boost::filesystem::path & filename)
 {
-
-
-  if (!has_parent())
-    throw IllegalCall(FromHere(), "Component \'" + name() + "\' has no root");
-
   boost::shared_ptr<XmlDoc> xmldoc = XML::parse_file(filename);
   XmlNode doc_node = Protocol::goto_doc_node(*xmldoc.get());
 //  rapidxml::xml_node * signals_map = doc_node.content->first_node();
@@ -186,7 +181,7 @@ void Journal::execute_signals (const boost::filesystem::path & filename)
       try
       {
         SignalFrame sf(node);
-        root.access_component(receiver).call_signal(target, sf);
+        root.access_component(receiver)->call_signal(target, sf);
       }
       catch(Exception & e)
       {
