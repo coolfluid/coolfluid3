@@ -15,6 +15,7 @@
 
 #include <boost/any.hpp>
 
+#include "common/BoostAnyConversion.hpp"
 #include "common/CommonAPI.hpp"
 
 namespace cf3 {
@@ -68,7 +69,10 @@ namespace common {
 
     /// @returns the value of the option cast to TYPE
     template < typename TYPE >
-    TYPE value( const std::string & pname) const;
+    TYPE value( const std::string & pname) const
+    {
+      return any_to_value<TYPE>(property(pname));
+    }
 
     std::string value_str ( const std::string & pname ) const;
 
