@@ -25,7 +25,7 @@ common::ComponentBuilder < Connectivity , Component, LibMesh > Connectivity_Buil
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Connectivity::Connectivity ( const std::string& name ) : 
+Connectivity::Connectivity ( const std::string& name ) :
   common::Table<Uint>(name)
 {
 }
@@ -55,8 +55,8 @@ UnifiedData& Connectivity::create_lookup()
       remove_component(*m_lookup_link);
     }
   }
-
-  return *create_component_ptr<UnifiedData>("lookup");
+  set_lookup( create_component<UnifiedData>("lookup") );
+  return lookup();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
