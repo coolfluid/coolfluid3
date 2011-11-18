@@ -48,7 +48,8 @@ namespace common {
 Component::Component ( const std::string& name ) :
     m_name (),
     m_properties(new PropertyList()),
-    m_options(new OptionList())
+    m_options(new OptionList()),
+    m_parent(0)
 {
   // accept name
 
@@ -197,9 +198,12 @@ URI Component::uri() const
   return parent()->uri() / URI(name(), URI::Scheme::CPATH);
 }
 
-const Handle<Component>& Component::parent() const
+Handle<Component> Component::parent() const
 {
-  return m_parent;
+  if(m_parent)
+    return m_parent->handle();
+
+  return Handle<Component>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,7 +250,7 @@ Component& Component::add_component ( const boost::shared_ptr<Component>& subcom
 
   cf3_assert(m_component_lookup.size() == m_components.size());
 
-  subcomp->change_parent( handle() );
+  subcomp->m_parent = this;
 
   raise_tree_updated_event();
 
@@ -394,7 +398,7 @@ Handle<Component> Component::get_child_checked(const std::string& name)
 void Component::change_parent(Handle<Component> to_parent)
 {
   // modifiy the parent, may be NULL
-  m_parent = to_parent;
+  m_parent = to_parent.get();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

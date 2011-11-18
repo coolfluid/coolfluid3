@@ -29,14 +29,8 @@ using namespace cf3::common::XML;
 
 /// Mini component class for tesng
 /// @author Tiago Quintino
-class CSmall : public Component {
-
-public: // typedefs
-
-  /// pointer to this type
-  typedef boost::shared_ptr<CSmall> Ptr;
-  typedef boost::shared_ptr<CSmall const> ConstPtr;
-
+class CSmall : public Component
+{
 public: // functions
 
   /// Contructor
@@ -60,7 +54,7 @@ public: // functions
 
     SignalOptions options;
 
-    options.add_option< OptionT<int> >( "Counter", 10 );
+    options.add_option( "Counter", 10 );
 
     signal_frame = options.create_frame("Target", "/", "/");
 
@@ -113,10 +107,10 @@ BOOST_FIXTURE_TEST_SUITE( TestSignals_TestSuite, TestSignals_Fixture )
 
 BOOST_AUTO_TEST_CASE( simple_signal )
 {
-  Group::Ptr root = allocate_component<Group>("root");
+  boost::shared_ptr<Group> root = allocate_component<Group>("root");
 
-  CSmall::Ptr small_1  ( allocate_component<CSmall> ( "small-1" ) );
-  CSmall::Ptr small_2  ( allocate_component<CSmall> ( "small-2" ) );
+  boost::shared_ptr<CSmall> small_1  ( allocate_component<CSmall> ( "small-1" ) );
+  boost::shared_ptr<CSmall> small_2  ( allocate_component<CSmall> ( "small-2" ) );
 
   root->add_component(small_1);
   small_1->add_component(small_2);

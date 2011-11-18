@@ -176,7 +176,7 @@ public: // functions
   Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
 
   /// @returns the handle to the parent component, which can be null if there is no parent
-  const Handle<Component>& parent() const;
+  Handle<Component> parent() const;
 
   /// @returns the upper-most component in the tree, or self if there is no parent
   Handle<Component const> root() const;
@@ -214,8 +214,8 @@ public: // functions
   Handle<T> create_static_component ( const std::string& name )
   {
     boost::shared_ptr<T> comp = allocate_component<T>(name);
-    add_static_component( *comp );
-    return comp;
+    add_static_component( comp );
+    return Handle<T>(comp);
   }
 
   /// Add the passed component as a subcomponent
@@ -383,7 +383,7 @@ private: // data
   /// lookup of the index of a component
   CompLookupT m_component_lookup;
   /// pointer to parent, naked pointer because of static components
-  Handle<Component> m_parent;
+  Component* m_parent;
 
 protected: // functions
 
