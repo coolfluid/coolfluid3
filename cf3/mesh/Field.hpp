@@ -40,7 +40,13 @@ public: // typedefs
   typedef boost::shared_ptr<Field> Ptr;
   typedef boost::shared_ptr<Field const> ConstPtr;
 
+  typedef ArrayT::array_view<2>::type View;
+
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
+
+private: // typedefs
+
+  typedef boost::multi_array_types::index_range range;
 
 public: // functions
 
@@ -89,6 +95,17 @@ public: // functions
   SpaceFields& field_group() const;
 
   virtual void resize(const Uint size);
+
+  View view(const Uint start, const Uint size)
+  {
+    return array()[ boost::indices[range(start,start+size)][range()] ];
+  }
+
+  View view(common::Table<Uint>::ConstRow& indices)
+  {
+    return array()[ boost::indices[range(indices[0],indices[0]+indices.size())][range()] ];
+  }
+
 
   common::Table<Uint>::ConstRow indexes_for_element(const Entities& elements, const Uint idx) const;
 
