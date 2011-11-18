@@ -208,7 +208,7 @@ Handle<Component> Component::parent() const
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
-cf3::common::Handle< const Component > Component::root() const
+Handle< const Component > Component::root() const
 {
   Handle<Component const> result(handle());
   while(is_not_null(result->parent()))

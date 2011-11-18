@@ -29,6 +29,13 @@ struct SelectOptionType
   typedef OptionT<T> type;
 };
 
+/// Allow string constants without enclosing them in std::string()
+template<std::size_t N>
+struct SelectOptionType< char[N] >
+{
+  typedef OptionT<std::string> type;
+};
+
 /// Specialization for URI
 template<>
 struct SelectOptionType<URI>

@@ -40,12 +40,12 @@ VariableManager::~VariableManager()
 
 VariablesDescriptor& VariableManager::create_descriptor(const std::string& name, const std::string& description)
 {
-  VariablesDescriptor& result = create_component<VariablesDescriptor>(name);
-  result.add_tag(name);
+  Handle<VariablesDescriptor> result = create_component<VariablesDescriptor>(name);
+  result->add_tag(name);
 
-  result.set_variables(description);
+  result->set_variables(description);
 
-  return result;
+  return *result;
 }
 
 void VariableManager::signal_create_descriptor(SignalArgs& node)
@@ -60,13 +60,13 @@ void VariableManager::signature_create_descriptor(SignalArgs& node)
 {
   SignalOptions options(node);
 
-  options.add_option< OptionT<std::string> >("name")
-    ->description("Name for the created descriptor, also added to tags")
-    ->pretty_name("Name");
+  options.add_option<std::string>("name")
+    .description("Name for the created descriptor, also added to tags")
+    .pretty_name("Name");
 
-  options.add_option< OptionT<std::string> >("description")
-    ->description("String to parse into variables")
-    ->pretty_name("Description");
+  options.add_option<std::string>("description")
+    .description("String to parse into variables")
+    .pretty_name("Description");
 }
 
 

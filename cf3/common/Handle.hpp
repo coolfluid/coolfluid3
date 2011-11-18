@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
-namespace common {
 
 /// Safe pointer to an object. This is the supported method for referring to components.
 template<typename T>
@@ -195,7 +194,6 @@ Handle<T> make_handle(const boost::shared_ptr<T>& p)
   return Handle<T>(p);
 }
 
-} // common
 } // cf3
 
 #endif // cf3_common_Handle_hpp
