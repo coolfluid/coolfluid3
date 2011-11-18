@@ -98,16 +98,17 @@ function( coolfluid_add_test )
   set(_CONDITION_FILE "${CMAKE_CURRENT_BINARY_DIR}/set_${_TEST_NAME}_condition.cmake")
 
   # check for condition
-  set( _CONDITION TRUE )
   if( DEFINED _PAR_CONDITION )
-    FILE( WRITE  ${_CONDITION_FILE} "if(NOT (")
+    FILE( WRITE  ${_CONDITION_FILE} "if( ")
     foreach( expression_term ${_PAR_CONDITION} )
       FILE( APPEND ${_CONDITION_FILE} " ${expression_term}")
     endforeach()
-    FILE( APPEND ${_CONDITION_FILE} "))\n")
-    FILE( APPEND ${_CONDITION_FILE} "  set(_CONDITION FALSE)\n")
+    FILE( APPEND ${_CONDITION_FILE} " )\n")
+    FILE( APPEND ${_CONDITION_FILE} "  set(_CONDITION TRUE)\n")
     FILE( APPEND ${_CONDITION_FILE} "endif()")
     INCLUDE( ${_CONDITION_FILE} )
+  else() # default is to include
+    set( _CONDITION TRUE )
   endif()
 
   # check if mpirun needs to be called
