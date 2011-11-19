@@ -21,9 +21,9 @@ RegistTypeInfo<Builder,LibCommon> Builder_TypeRegistration();
 Builder::Builder ( const std::string& name) : Component ( name )
 {
   regist_signal( "create_component" )
-    ->connect( boost::bind( &Builder::signal_create_component, this, _1 ) )
-    ->description("builds a component")
-    ->pretty_name("Build component");
+    .connect( boost::bind( &Builder::signal_create_component, this, _1 ) )
+    .description("builds a component")
+    .pretty_name("Build component");
 
   signal("create_component")->
       signature(boost::bind(&Builder::signature_signal_create_component, this, _1));

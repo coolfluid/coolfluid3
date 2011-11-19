@@ -38,8 +38,8 @@ public: // functions
   CSmall ( const std::string& name ) : Component ( name )
   {
     this->regist_signal( "print_message" )
-    ->description("prints")
-    ->pretty_name("")->connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
+    .description("prints")
+    .pretty_name("").connect ( boost::bind ( &CSmall::print_message, this, _1 ) );
   }
 
   /// Virtual destructor

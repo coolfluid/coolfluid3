@@ -87,7 +87,7 @@ bool SignalHandler::signal_exists ( const SignalID& sname ) const
 }
 
 
-SignalPtr SignalHandler::regist_signal ( const SignalID& sname )
+Signal& SignalHandler::regist_signal ( const SignalID& sname )
 {
   // check sname complies with standard
   cf3_assert( boost::algorithm::all(sname,
@@ -104,10 +104,10 @@ SignalPtr SignalHandler::regist_signal ( const SignalID& sname )
 
 //    std::sort( m_signals.begin(), m_signals.end(), alphabetic_signal );
 
-    return psig;
+    return *psig;
   }
   else
-    return *itr;
+    return **itr;
 }
 
 

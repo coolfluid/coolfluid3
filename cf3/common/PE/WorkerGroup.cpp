@@ -32,8 +32,8 @@ WorkerGroup::WorkerGroup( const std::string & name )
     m_comm(MPI_COMM_NULL)
 {
   regist_signal( "solve" )
-    ->description("Runs a fake simulation")
-    ->pretty_name("Solve")->connect( boost::bind(&WorkerGroup::signal_solve, this, _1));
+    .description("Runs a fake simulation")
+    .pretty_name("Solve").connect( boost::bind(&WorkerGroup::signal_solve, this, _1));
 }
 
 ////////////////////////////////////////////////////////////////////////////////

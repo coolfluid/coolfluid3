@@ -25,9 +25,9 @@ Action::Action ( const std::string& name ) : Component(name)
   // signals
 
   regist_signal( "execute" )
-    ->connect( boost::bind( &Action::signal_execute, this, _1 ) )
-    ->description("Execute the action")
-    ->pretty_name("Execute");
+    .connect( boost::bind( &Action::signal_execute, this, _1 ) )
+    .description("Execute the action")
+    .pretty_name("Execute");
 }
 
 

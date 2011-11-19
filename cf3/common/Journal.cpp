@@ -40,16 +40,16 @@ Journal::Journal (const std::string & name)
     m_xmldoc(Protocol::create_doc())
 {
   regist_signal( "list_journal" )
-    ->description("Lists all journal entries")
-    ->pretty_name("List journal")->connect( boost::bind( &Journal::list_journal, this, _1) );
+    .description("Lists all journal entries")
+    .pretty_name("List journal").connect( boost::bind( &Journal::list_journal, this, _1) );
 
   regist_signal( "load_journal" )
-    ->description("Loads the journal entries from file")
-    ->pretty_name("Load journal")->connect( boost::bind( &Journal::load_journal, this, _1) );
+    .description("Loads the journal entries from file")
+    .pretty_name("Load journal").connect( boost::bind( &Journal::load_journal, this, _1) );
 
   regist_signal( "save_journal" )
-    ->description("Saves all journal entries")
-    ->pretty_name("Save journal")->connect( boost::bind( &Journal::save_journal, this, _1) );
+    .description("Saves all journal entries")
+    .pretty_name("Save journal").connect( boost::bind( &Journal::save_journal, this, _1) );
 
   signal("list_journal")->hidden(true);
 

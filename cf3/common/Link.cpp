@@ -27,9 +27,9 @@ common::ComponentBuilder < Link, Component, LibCommon > Link_Builder;
 Link::Link ( const std::string& name) : Component ( name )
 {
   regist_signal( "change_link" )
-    ->connect( boost::bind( &Link::change_link, this, _1 ) )
-    ->description("Change link path")
-    ->pretty_name("Change target");
+    .connect( boost::bind( &Link::change_link, this, _1 ) )
+    .description("Change link path")
+    .pretty_name("Change target");
 }
 
 

@@ -41,9 +41,9 @@ Libraries::Libraries ( const std::string& name) : Component ( name )
 
   // signals
   regist_signal( "load_libraries" )
-    ->connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
-    ->description("loads libraries")
-    ->pretty_name("Load Libraries");
+    .connect( boost::bind( &Libraries::signal_load_libraries, this, _1 ) )
+    .description("loads libraries")
+    .pretty_name("Load Libraries");
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);

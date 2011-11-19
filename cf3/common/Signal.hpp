@@ -62,24 +62,24 @@ public: // functions
   //@{
 
   /// sets the description of this signal
-  Signal* description( const std::string& desc );
+  Signal& description( const std::string& desc );
   /// sets the pretty name of this signal
-  Signal* pretty_name( const std::string& name );
+  Signal& pretty_name( const std::string& name );
 
   /// sets if it is read only signal
-  Signal* read_only( bool is );
+  Signal& read_only( bool is );
   /// sets if it is read only signal
-  Signal* hidden( bool is );
+  Signal& hidden( bool is );
 
   /// connects to a subscribing signature
-  Signal* signature(const Signal::slot_type& subscriber);
+  Signal& signature(const Signal::slot_type& subscriber);
 
   /// connects to a subscribing slot
-  Signal* connect(const Signal::slot_type& subscriber);
+  Signal& connect(const Signal::slot_type& subscriber);
 
   /// connects to a subscribing slot
   /// and saves the connection on a ConnectionManager
-  Signal* connect(const Signal::slot_type& subscriber, ConnectionManager* mng );
+  Signal& connect(const Signal::slot_type& subscriber, ConnectionManager* mng );
 
   //@} END MUTATORS
 

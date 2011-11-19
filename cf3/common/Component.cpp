@@ -60,82 +60,82 @@ Component::Component ( const std::string& name ) :
   // signals
 
   regist_signal( "create_component" )
-      ->connect( boost::bind( &Component::signal_create_component, this, _1 ) )
-      ->description("creates a component")
-      ->pretty_name("Create component")
-      ->signature( boost::bind(&Component::signature_create_component, this, _1) );
+      .connect( boost::bind( &Component::signal_create_component, this, _1 ) )
+      .description("creates a component")
+      .pretty_name("Create component")
+      .signature( boost::bind(&Component::signature_create_component, this, _1) );
 
   regist_signal( "list_tree" )
-      ->connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
-      ->hidden(true)
-      ->read_only(true)
-      ->description("lists the component tree inside this component")
-      ->pretty_name("List tree");
+      .connect( boost::bind( &Component::signal_list_tree, this, _1 ) )
+      .hidden(true)
+      .read_only(true)
+      .description("lists the component tree inside this component")
+      .pretty_name("List tree");
 
   regist_signal( "list_properties" )
-      ->connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the properties of this component")
-      ->pretty_name("List properties");
+      .connect( boost::bind( &Component::signal_list_properties, this, _1 ) )
+      .hidden(true)
+      .description("lists the properties of this component")
+      .pretty_name("List properties");
 
   regist_signal( "list_options" )
-      ->connect( boost::bind( &Component::signal_list_options, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the options of this component")
-      ->pretty_name("List options");
+      .connect( boost::bind( &Component::signal_list_options, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component")
+      .pretty_name("List options");
 
   regist_signal( "list_signals" )
-      ->connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
-      ->hidden(true)
-      ->description("lists the options of this component")
-      ->pretty_name("List signals");
+      .connect( boost::bind( &Component::signal_list_signals, this, _1 ) )
+      .hidden(true)
+      .description("lists the options of this component")
+      .pretty_name("List signals");
 
   regist_signal( "configure" )
-      ->connect( boost::bind( &Component::signal_configure, this, _1 ) )
-      ->hidden(true)
-      ->description("configures this component")
-      ->pretty_name("Configure");
+      .connect( boost::bind( &Component::signal_configure, this, _1 ) )
+      .hidden(true)
+      .description("configures this component")
+      .pretty_name("Configure");
 
   regist_signal( "print_info" )
-      ->connect( boost::bind( &Component::signal_print_info, this, _1 ) )
-      ->description("prints info on this component")
-      ->pretty_name("Info");
+      .connect( boost::bind( &Component::signal_print_info, this, _1 ) )
+      .description("prints info on this component")
+      .pretty_name("Info");
 
   regist_signal( "rename_component" )
-      ->connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
-      ->description("Renames this component")
-      ->pretty_name("Rename")
-      ->signature( boost::bind(&Component::signature_rename_component, this, _1) );
+      .connect( boost::bind( &Component::signal_rename_component, this, _1 ) )
+      .description("Renames this component")
+      .pretty_name("Rename")
+      .signature( boost::bind(&Component::signature_rename_component, this, _1) );
 
   regist_signal( "delete_component" )
-      ->connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
-      ->description("Deletes a component")
-      ->pretty_name("Delete");
+      .connect( boost::bind( &Component::signal_delete_component, this, _1 ) )
+      .description("Deletes a component")
+      .pretty_name("Delete");
 
   regist_signal( "move_component" )
-      ->connect( boost::bind( &Component::signal_move_component, this, _1 ) )
-      ->description("Moves a component to another component")
-      ->pretty_name("Move")
-      ->signature( boost::bind(&Component::signature_move_component, this, _1) );
+      .connect( boost::bind( &Component::signal_move_component, this, _1 ) )
+      .description("Moves a component to another component")
+      .pretty_name("Move")
+      .signature( boost::bind(&Component::signature_move_component, this, _1) );
 
   regist_signal( "save_tree" )
-      ->connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
-      ->hidden(true)
-      ->description("Saves the tree")
-      ->pretty_name("Save tree");
+      .connect( boost::bind( &Component::signal_save_tree, this, _1 ) )
+      .hidden(true)
+      .description("Saves the tree")
+      .pretty_name("Save tree");
 
   regist_signal( "list_content" )
-      ->connect( boost::bind( &Component::signal_list_content, this, _1 ) )
-      ->hidden(true)
-      ->read_only(true)
-      ->description("Lists component content")
-      ->pretty_name("List content");
+      .connect( boost::bind( &Component::signal_list_content, this, _1 ) )
+      .hidden(true)
+      .read_only(true)
+      .description("Lists component content")
+      .pretty_name("List content");
 
   regist_signal( "signal_signature" )
-      ->connect( boost::bind(&Component::signal_signature, this, _1))
-      ->hidden(true)
-      ->read_only(true)
-      ->description("Gives signature of a signal");
+      .connect( boost::bind(&Component::signal_signature, this, _1))
+      .hidden(true)
+      .read_only(true)
+      .description("Gives signature of a signal");
 
 
   // properties
