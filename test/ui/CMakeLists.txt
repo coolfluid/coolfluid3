@@ -8,8 +8,12 @@
   # Add useful macros and variables
   include(${QT_USE_FILE})
 
+#
+# uTests for coolfluid_ui_core library
+#
+
   coolfluid_add_test( UTEST      utest-ui-core-cnode
-                      CPP        utest-ui-core-cnode.cpp CoreApplication.hpp ExceptionThrowHandler.hpp
+                      CPP        utest-ui-core-cnode.cpp CoreApplication.hpp
                                  MyNode.cpp MyNode.hpp
                       LIBS       coolfluid_ui_core
                       CONDITION  coolfluid_ui_core_builds)
@@ -52,9 +56,61 @@
                       LIBS       coolfluid_ui_core
                       CONDITION  coolfluid_ui_core_builds)
 
+
   add_custom_command( TARGET utest-ui-core-cnode
                       POST_BUILD
                       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/tree.xml ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_CFG_INTDIR} )
+
+#
+# uTests for coolfluid_ui_graphics library
+#
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-restricted-list
+                      CPP        utest-ui-graphics-restricted-list.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-array
+                      CPP        utest-ui-graphics-array.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-bool
+                      CPP        utest-ui-graphics-bool.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-double
+                      CPP        utest-ui-graphics-double.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-int
+                      CPP        utest-ui-graphics-int.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-string
+                      CPP        utest-ui-graphics-string.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-uint
+                      CPP        utest-ui-graphics-uint.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-uri
+                      CPP        utest-ui-graphics-uri.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_add_test( UTEST      utest-ui-graphics-value
+                      CPP        utest-ui-graphics-value.cpp Application.hpp
+                      LIBS       coolfluid_ui_graphics
+                      CONDITION  coolfluid_ui_graphics_builds )
+
+  coolfluid_mark_not_orphan( ExceptionThrowHandler.hpp )
 
   add_subdirectory( Graphics )
 
