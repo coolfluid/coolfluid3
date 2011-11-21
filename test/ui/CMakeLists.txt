@@ -110,7 +110,3 @@
                       LIBS       coolfluid_ui_graphics
                       CONDITION  coolfluid_ui_graphics_builds )
 
-  coolfluid_mark_not_orphan( ExceptionThrowHandler.hpp )
-
-  add_subdirectory( Graphics )
-
