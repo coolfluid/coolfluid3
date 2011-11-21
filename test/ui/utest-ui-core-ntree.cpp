@@ -314,17 +314,22 @@ BOOST_AUTO_TEST_CASE( are_from_same_node )
 BOOST_AUTO_TEST_CASE( node_by_path )
 {
   NTree t;
-  CNode::Ptr logNode = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
+  CNode::Ptr log_node = t.node_by_path("cpath:/Path/That/Does/Not/Exist") ;
+  CNode::Ptr root = t.node_by_path("cpath:/");
 
-  BOOST_CHECK(logNode.get() == nullptr);
+  BOOST_CHECK(log_node.get() == nullptr);
 
-  logNode = t.node_by_path(CLIENT_LOG_PATH);
+  log_node = t.node_by_path(CLIENT_LOG_PATH);
 
-  BOOST_REQUIRE_EQUAL(logNode.get(), NLog::global().get());
+  BOOST_REQUIRE_EQUAL(log_node.get(), NLog::global().get());
 
-  // note: we can freely use logNode here, even if the previous BOOST_REQuiRE_EQUAL() failed,
-  // since a failing BOOST_REQuiRE_EQUAL() interrupts the test case execution
-  BOOST_CHECK_EQUAL(logNode->uri().path(), std::string(CLIENT_LOG_PATH));
+  // note: we can freely use logNode here, even if the previous BOOST_REQUIRE_EQUAL() failed,
+  // since a failing BOOST_REQUIRE_EQUAL() interrupts the test case execution
+  BOOST_CHECK_EQUAL(log_node->uri().path(), std::string(CLIENT_LOG_PATH));
+
+  // check the root
+  BOOST_REQUIRE_EQUAL(root.get(), ThreadManager::instance().tree().root().get());
+  BOOST_CHECK_EQUAL(root->uri().path(), std::string(CLIENT_ROOT_PATH));
 
 }
 

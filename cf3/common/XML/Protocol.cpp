@@ -37,11 +37,11 @@ namespace XML {
 
   const char * Protocol::Tags::attr_frameid() { return "frameid"; }
 
-const char * Protocol::Tags::attr_key() { return "key"; }
+  const char * Protocol::Tags::attr_key() { return "key"; }
 
-const char * Protocol::Tags::attr_pretty_name() { return "pretty_name"; }
+  const char * Protocol::Tags::attr_pretty_name() { return "pretty_name"; }
 
-const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"; }
+  const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"; }
 
   const char * Protocol::Tags::attr_uri_schemes() { return "schemes"; }
 
@@ -69,7 +69,7 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
   Common_API const char * Protocol::Tags::type<bool>() { return "bool"; }
 
   template<>
-  Common_API const char * Protocol::Tags::type<int>() { return "integer"; };
+  Common_API const char * Protocol::Tags::type<int>() { return "integer"; }
 
   template<>
   Common_API const char * Protocol::Tags::type<cf3::Uint>() { return "unsigned"; }
@@ -82,6 +82,9 @@ const char * Protocol::Tags::key_restricted_values() { return "restrictedValues"
 
   template<>
   Common_API const char * Protocol::Tags::type<URI>() { return "uri"; }
+
+  template<>
+  Common_API const char * Protocol::Tags::type<UUCount>() { return "uucount"; }
 
 /////////////////////////////////////////////////////////////////////////////////
 

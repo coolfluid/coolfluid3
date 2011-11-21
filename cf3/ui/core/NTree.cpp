@@ -248,17 +248,20 @@ CNode::ConstPtr NTree::node_by_path(const URI & path) const
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first().toStdString() == node->name())
-      comps.removeFirst();
-
-    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+    if( !comps.isEmpty() )
     {
-      Component::ConstPtr comp = node->get_child_ptr(it->toStdString());
+      if(comps.first().toStdString() == node->name())
+        comps.removeFirst();
 
-      if( is_not_null(comp.get()) )
-        node = comp->as_ptr_checked<CNode>();
-      else
-        node = CNode::ConstPtr();
+      for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+      {
+        Component::ConstPtr comp = node->get_child_ptr(it->toStdString());
+
+        if( is_not_null(comp.get()) )
+          node = comp->as_ptr_checked<CNode>();
+        else
+          node = CNode::ConstPtr();
+      }
     }
   }
 
@@ -282,17 +285,20 @@ CNode::Ptr NTree::node_by_path(const URI & path)
   {
     comps = pathStr.split(URI::separator().c_str(), QString::SkipEmptyParts);
 
-    if(comps.first().toStdString() == node->name())
-      comps.removeFirst();
-
-    for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+    if( !comps.isEmpty() )
     {
-      Component::Ptr comp = node->get_child_ptr(it->toStdString());
+      if(comps.first().toStdString() == node->name())
+        comps.removeFirst();
 
-      if( is_not_null(comp.get()) )
-        node = comp->as_ptr_checked<CNode>();
-      else
-        node = CNode::Ptr();
+      for(it = comps.begin() ; it != comps.end() && node.get() != nullptr ; it++)
+      {
+        Component::Ptr comp = node->get_child_ptr(it->toStdString());
+
+        if( is_not_null(comp.get()) )
+          node = comp->as_ptr_checked<CNode>();
+        else
+          node = CNode::Ptr();
+      }
     }
   }
 
