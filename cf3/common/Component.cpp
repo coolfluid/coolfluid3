@@ -722,6 +722,8 @@ void Component::signal_list_properties( SignalFrame& args )
      options.set_value<Real>( name, any_to_value<Real>(value) );
    else if(type == Protocol::Tags::type<URI>())
      options.set_value<URI>( name, any_to_value<URI>(value) );
+   else if(type == Protocol::Tags::type<UUCount>())
+     options.set_value<UUCount>( name, any_to_value<UUCount>(value) );
    else
      throw ShouldNotBeHere(FromHere(),
                            std::string("Don't know how the manage [" + type + "] type."));

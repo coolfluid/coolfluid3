@@ -15,6 +15,7 @@
 #include "common/Assertions.hpp"
 #include "common/BasicExceptions.hpp"
 #include "common/StringConversion.hpp"
+#include "common/UUCount.hpp"
 
 #include "common/XML/CastingFunctions.hpp"
 #include "common/XML/Protocol.hpp"
@@ -422,6 +423,7 @@ TEMPLATE_EXPLICIT_INSTANTIATION( std::string );
 TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Uint );
 TEMPLATE_EXPLICIT_INSTANTIATION( cf3::Real );
 TEMPLATE_EXPLICIT_INSTANTIATION( cf3::common::URI );
+TEMPLATE_EXPLICIT_INSTANTIATION( cf3::common::UUCount );
 
 /////////////////////////////////////////////////////////////////////////////////
 
