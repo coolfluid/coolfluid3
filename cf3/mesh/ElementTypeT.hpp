@@ -36,8 +36,8 @@ class ElementTypeT : public ElementType
 {
 public: // typedefs
 
-  typedef boost::shared_ptr< ElementTypeT >       Ptr;
-  typedef boost::shared_ptr< ElementTypeT const > ConstPtr;
+  
+  
 
 public: // functions
   /// @name Constructor / Destructor / Type name
@@ -188,7 +188,7 @@ public: // functions
   //@}
 
 private:
-  ShapeFunction::Ptr m_sf;
+  Handle< ShapeFunction > m_sf;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

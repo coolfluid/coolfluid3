@@ -7,6 +7,7 @@
 #include "common/Builder.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
@@ -44,35 +45,35 @@ SimpleMeshGenerator::SimpleMeshGenerator ( const std::string& name  ) :
 {
   mark_basic();
 
-  options().add_option<OptionArrayT<Uint> >("nb_cells", m_nb_cells)
-      ->description("Vector of number of cells in each direction")
-      ->pretty_name("Number of Cells")
-      ->link_to(&m_nb_cells)
-      ->mark_basic();
+  options().add_option("nb_cells", m_nb_cells)
+      .description("Vector of number of cells in each direction")
+      .pretty_name("Number of Cells")
+      .link_to(&m_nb_cells)
+      .mark_basic();
 
-  options().add_option<OptionArrayT<Real> >("offsets", m_offsets)
-      ->description("Vector of offsets in direction")
-      ->pretty_name("Offsets")
-      ->link_to(&m_offsets)
-      ->mark_basic();
+  options().add_option("offsets", m_offsets)
+      .description("Vector of offsets in direction")
+      .pretty_name("Offsets")
+      .link_to(&m_offsets)
+      .mark_basic();
 
-  options().add_option<OptionArrayT<Real> >("lengths", m_lengths)
-      ->description("Vector of lengths each direction")
-      ->pretty_name("Lengths")
-      ->link_to(&m_lengths)
-      ->mark_basic();
+  options().add_option("lengths", m_lengths)
+      .description("Vector of lengths each direction")
+      .pretty_name("Lengths")
+      .link_to(&m_lengths)
+      .mark_basic();
 
-  options().add_option(OptionT<Uint>::create("part", PE::Comm::instance().rank()))
-      ->description("Part number (e.g. rank of processors)")
-      ->pretty_name("Part");
+  options().add_option("part", PE::Comm::instance().rank())
+      .description("Part number (e.g. rank of processors)")
+      .pretty_name("Part");
 
-  options().add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
-      ->description("Total number of partitions (e.g. number of processors)")
-      ->pretty_name("Number of Partitions");
+  options().add_option("nb_parts", PE::Comm::instance().size())
+      .description("Total number of partitions (e.g. number of processors)")
+      .pretty_name("Number of Partitions");
 
-  options().add_option(OptionT<bool>::create("bdry", true))
-      ->description("Generate Boundary")
-      ->pretty_name("Boundary");
+  options().add_option("bdry", true)
+      .description("Generate Boundary")
+      .pretty_name("Boundary");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -85,7 +86,7 @@ SimpleMeshGenerator::~SimpleMeshGenerator()
 
 void SimpleMeshGenerator::execute()
 {
-  if ( m_mesh.expired() )
+  if ( is_null(m_mesh) )
     throw SetupError(FromHere(), "Mesh URI not set");
 
   if (m_nb_cells.size() == 1 && m_lengths.size() == 1)
@@ -108,31 +109,31 @@ void SimpleMeshGenerator::execute()
 
 void SimpleMeshGenerator::create_line()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   const Uint x_segments = m_nb_cells[XX];
   const Real x_len = m_lengths[XX];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
-  const Uint nb_parts = option("nb_parts").value<Uint>();
-  const bool bdry = option("bdry").value<bool>();
+  const Uint nb_parts = options().option("nb_parts").value<Uint>();
+  const bool bdry = options().option("bdry").value<bool>();
 
 
-  Uint part = option("part").value<Uint>();
+  Uint part = options().option("part").value<Uint>();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
-  MergedParallelDistribution::Ptr tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
+  boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
   MergedParallelDistribution& hash = *tmp_hash;
 
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = x_segments+1;
   num_obj[ELEMS] = x_segments;
-  hash.configure_option("nb_obj",num_obj);
-  hash.configure_option("nb_parts",nb_parts);
+  hash.options().configure_option("nb_obj",num_obj);
+  hash.options().configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("fluid");
   SpaceFields& nodes = mesh.geometry_fields();
   mesh.initialize_nodes(hash.subhash(ELEMS).nb_objects_in_part(part) + 1 , DIM_1D);
 
-  Cells& cells = region.create_component<Cells>("Line");
+  Cells& cells = *region.create_component<Cells>("Line");
   cells.initialize("cf3.mesh.LagrangeP1.Line1D",nodes);
   Connectivity& connectivity = cells.node_connectivity();
   connectivity.resize(hash.subhash(ELEMS).nb_objects_in_part(part));
@@ -182,7 +183,7 @@ void SimpleMeshGenerator::create_line()
   if (bdry)
   {
     // Left boundary point
-    Faces& xneg = mesh.topology().create_region("xneg").create_component<Faces>("Point");
+    Faces& xneg = *mesh.topology().create_region("xneg").create_component<Faces>("Point");
     xneg.initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
     if (part == 0)
     {
@@ -195,7 +196,7 @@ void SimpleMeshGenerator::create_line()
     }
 
     // right boundary point
-    Faces& xpos = mesh.topology().create_region("xpos").create_component<Faces>("Point");
+    Faces& xpos = *mesh.topology().create_region("xpos").create_component<Faces>("Point");
     xpos.initialize("cf3.mesh.LagrangeP0.Point1D", nodes);
     if(part == nb_parts-1)
     {
@@ -213,27 +214,27 @@ void SimpleMeshGenerator::create_line()
 
 void SimpleMeshGenerator::create_rectangle()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   const Uint x_segments = m_nb_cells[XX];
   const Uint y_segments = m_nb_cells[YY];
   const Real x_len = m_lengths[XX];
   const Real y_len = m_lengths[YY];
   const Real x_offset = (m_offsets.empty() ? 0. : m_offsets[XX]);
   const Real y_offset = (m_offsets.empty() ? 0. : m_offsets[YY]);
-  const Uint nb_parts = option("nb_parts").value<Uint>();
-  const bool bdry = option("bdry").value<bool>();
+  const Uint nb_parts = options().option("nb_parts").value<Uint>();
+  const bool bdry = options().option("bdry").value<bool>();
 
 
-  Uint part = option("part").value<Uint>();
+  Uint part = options().option("part").value<Uint>();
   enum HashType { NODES=0, ELEMS=1 };
   // Create a hash
-  MergedParallelDistribution::Ptr tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
+  boost::shared_ptr<MergedParallelDistribution> tmp_hash = allocate_component<MergedParallelDistribution>("tmp_hash");
   MergedParallelDistribution& hash = *tmp_hash;
   std::vector<Uint> num_obj(2);
   num_obj[NODES] = (x_segments+1)*(y_segments+1);
   num_obj[ELEMS] = x_segments*y_segments;
-  hash.configure_option("nb_obj",num_obj);
-  hash.configure_option("nb_parts",nb_parts);
+  hash.options().configure_option("nb_obj",num_obj);
+  hash.options().configure_option("nb_parts",nb_parts);
 
   Region& region = mesh.topology().create_region("region");
   SpaceFields& nodes = mesh.geometry_fields();
@@ -314,7 +315,7 @@ void SimpleMeshGenerator::create_rectangle()
     row[YY] = static_cast<Real>(j) * y_step + y_offset;
     nodes.rank()[loc_ghost_node_idx]=hash.subhash(NODES).proc_of_obj(glb_ghost_node_idx);
   }
-  Cells::Ptr cells = region.create_component_ptr<Cells>("Quad");
+  Handle<Cells> cells = region.create_component<Cells>("Quad");
   cells->initialize("cf3.mesh.LagrangeP1.Quad2D",nodes);
 
   Connectivity& connectivity = cells->node_connectivity();
@@ -368,7 +369,7 @@ void SimpleMeshGenerator::create_rectangle()
   if (bdry)
   {
     std::vector<Real> line_nodes(2);
-    Faces::Ptr left = mesh.topology().create_region("left").create_component_ptr<Faces>("Line");
+    Handle<Faces> left = mesh.topology().create_region("left").create_component<Faces>("Line");
     left->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer left_connectivity = left->node_connectivity().create_buffer();
     common::List<Uint>::Buffer left_rank = left->rank().create_buffer();
@@ -393,7 +394,7 @@ void SimpleMeshGenerator::create_rectangle()
       }
     }
 
-    Faces::Ptr right = mesh.topology().create_region("right").create_component_ptr<Faces>("Line");
+    Handle<Faces> right = mesh.topology().create_region("right").create_component<Faces>("Line");
     right->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer right_connectivity = right->node_connectivity().create_buffer();
     common::List<Uint>::Buffer right_rank = right->rank().create_buffer();
@@ -419,7 +420,7 @@ void SimpleMeshGenerator::create_rectangle()
       }
     }
 
-    Faces::Ptr bottom = mesh.topology().create_region("bottom").create_component_ptr<Faces>("Line");
+    Handle<Faces> bottom = mesh.topology().create_region("bottom").create_component<Faces>("Line");
     bottom->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer bottom_connectivity = bottom->node_connectivity().create_buffer();
     common::List<Uint>::Buffer bottom_rank = bottom->rank().create_buffer();
@@ -445,7 +446,7 @@ void SimpleMeshGenerator::create_rectangle()
       }
     }
 
-    Faces::Ptr top = mesh.topology().create_region("top").create_component_ptr<Faces>("Line");
+    Handle<Faces> top = mesh.topology().create_region("top").create_component<Faces>("Line");
     top->initialize("cf3.mesh.LagrangeP1.Line2D", nodes);
     Connectivity::Buffer top_connectivity = top->node_connectivity().create_buffer();
     common::List<Uint>::Buffer top_rank = top->rank().create_buffer();

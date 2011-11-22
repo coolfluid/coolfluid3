@@ -65,7 +65,7 @@ std::string BuildArea::help() const
 void BuildArea::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   SpaceFields& faces_P0 = mesh.create_space_and_field_group("faces_P0",SpaceFields::Basis::FACE_BASED,"cf3.mesh.LagrangeP0");
   Field& area = faces_P0.create_field(mesh::Tags::area());

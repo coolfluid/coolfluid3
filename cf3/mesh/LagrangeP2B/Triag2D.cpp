@@ -45,7 +45,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Triag2D::faces()
 
 const cf3::mesh::ElementType& Triag2D::face_type(const cf3::Uint face)
 {
-  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<LagrangeP2::Line2D> >(LagrangeP2::Line2D::type_name()) );
+  static const Handle< ElementType > facetype( common::allocate_component<ElementTypeT<LagrangeP2::Line2D> >(LagrangeP2::Line2D::type_name()) );
   return *facetype;
 }
 

@@ -89,7 +89,7 @@ std::string GlobalConnectivity::help() const
 
 void GlobalConnectivity::execute()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   SpaceFields& nodes = mesh.geometry_fields();
   common::List<Uint>& nodes_glb_idx = nodes.glb_idx();
@@ -111,7 +111,7 @@ void GlobalConnectivity::execute()
     node_glb2loc[glb_node_idx]=loc_node_idx++;
 
   //2)
-  NodeElementConnectivity& node2elem = *mesh.geometry_fields().create_component_ptr<NodeElementConnectivity>("node2elem");
+  NodeElementConnectivity& node2elem = *mesh.geometry_fields().create_component<NodeElementConnectivity>("node2elem");
   node2elem.setup(mesh.topology());
 
   // 3)
@@ -124,7 +124,7 @@ void GlobalConnectivity::execute()
   std::vector<Uint> ghostnode_glb_elem_connectivity;
   std::vector<Uint> ghostnode_glb_elem_connectivity_start(nb_ghost+1);
   ghostnode_glb_elem_connectivity_start[0]=0;
-  Component::Ptr elem_comp;
+  Handle< Component > elem_comp;
   Uint elem_idx;
 
   Uint cnt(0);
@@ -138,7 +138,7 @@ void GlobalConnectivity::execute()
       boost_foreach(const Uint e, elems)
       {
         boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-        ghostnode_glb_elem_connectivity.push_back(elem_comp->as_type<Elements>().glb_idx()[elem_idx]);
+        ghostnode_glb_elem_connectivity.push_back(dynamic_cast<Elements&>(*elem_comp).glb_idx()[elem_idx]);
       }
       ghostnode_glb_elem_connectivity_start[cnt+1] = ghostnode_glb_elem_connectivity_start[cnt] + elems.size();
 
@@ -194,7 +194,7 @@ void GlobalConnectivity::execute()
     boost_foreach(const Uint e, elems)
     {
       boost::tie(elem_comp,elem_idx) = node2elem.elements().location(e);
-      nodes_glb_elem_connectivity[i][cnt++] = elem_comp->as_type<Elements>().glb_idx()[elem_idx];
+      nodes_glb_elem_connectivity[i][cnt++] = dynamic_cast<Elements&>(*elem_comp).glb_idx()[elem_idx];
     }
     for (Uint j=0; j<glb_elem_connectivity[i].size(); ++j)
     {

@@ -135,11 +135,11 @@ void create_block_mesh_3d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Create connectivity data
-  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_ptr<CNodeConnectivity>("node_connectivity");
+  Handle<CNodeConnectivity> node_connectivity = block_mesh_region.create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively<Elements>(block_mesh_region));
   BOOST_FOREACH(Elements& celements, find_components_recursively<Elements>(block_mesh_region))
   {
-    celements.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 }
 
@@ -194,11 +194,11 @@ void create_block_mesh_2d(const BlockData& block_data, Mesh& mesh, std::map<std:
   }
 
   // Create connectivity data
-  CNodeConnectivity::Ptr node_connectivity = block_mesh_region.create_component_ptr<CNodeConnectivity>("node_connectivity");
+  Handle<CNodeConnectivity> node_connectivity = block_mesh_region.create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively<Elements>(block_mesh_region));
   BOOST_FOREACH(Elements& celements, find_components_recursively<Elements>(block_mesh_region))
   {
-    celements.create_component_ptr<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
+    celements.create_component<CFaceConnectivity>("face_connectivity")->initialize(*node_connectivity);
   }
 }
 
@@ -1342,10 +1342,10 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   if(overlap != 0 && PE::Comm::instance().size() > 1)
   {
-    MeshTransformer& global_conn = mesh.create_component("GlobalConnectivity", "cf3.mesh.actions.GlobalConnectivity").as_type<MeshTransformer>();
+    MeshTransformer& global_conn = mesh.create_component("GlobalConnectivity", *Handle<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity").handle());
     global_conn.transform(mesh);
 
-    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", "cf3.mesh.actions.GrowOverlap").as_type<MeshTransformer>();
+    MeshTransformer& grow_overlap = mesh.create_component("GrowOverlap", *Handle<MeshTransformer>("cf3.mesh.actions.GrowOverlap").handle());
     for(Uint i = 0; i != overlap; ++i)
       grow_overlap.transform(mesh);
 
@@ -1354,7 +1354,7 @@ void build_mesh(BlockData& block_data, Mesh& mesh, const Uint overlap)
 
   // Raise an event to indicate that a mesh was loaded happened
   XML::SignalOptions options;
-  options.add_option< OptionURI >("mesh_uri", mesh.uri());
+  options.add_option("mesh_uri", mesh.uri());
 
   XML::SignalFrame f= options.create_frame();
   Core::instance().event_handler().raise_event( "mesh_loaded", f );
@@ -1440,7 +1440,7 @@ void partition_blocks_3d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY] * blocks_in.block_subdivisions[block][ZZ];
 
-  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  boost::shared_ptr<BlockData> blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
   blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data
@@ -1738,7 +1738,7 @@ void partition_blocks_2d(const BlockData& blocks_in, Mesh& block_mesh, const Uin
   for(Uint block = 0; block != nb_blocks; ++block)
     global_nb_elements += blocks_in.block_subdivisions[block][XX] * blocks_in.block_subdivisions[block][YY];
 
-  BlockData::Ptr blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
+  boost::shared_ptr<BlockData> blocks_to_partition = allocate_component<BlockData>("tmp_blocks"); //copy, so we can shrink partially-partitioned blocks
   blocks_in.copy_to(*blocks_to_partition);
 
   // Init output data

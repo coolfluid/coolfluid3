@@ -37,8 +37,8 @@ class ShapeFunctionT : public ShapeFunction
 {
 public: // typedefs
 
-  typedef boost::shared_ptr< ShapeFunctionT >        Ptr;
-  typedef boost::shared_ptr< ShapeFunctionT const > ConstPtr;
+  
+  
 
 public:
   /// @name Constructor / Destructor / Type name

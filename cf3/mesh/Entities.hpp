@@ -34,8 +34,8 @@ class Mesh_API Entities : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Entities> Ptr;
-  typedef boost::shared_ptr<Entities const> ConstPtr;
+
+
 
 public: // functions
 
@@ -65,7 +65,7 @@ public: // functions
   ElementType& element_type() const;
 
   /// Const access to the coordinates
-  SpaceFields& geometry_fields() const { cf3_assert(!m_geometry_fields.expired()); return *m_geometry_fields.lock(); }
+  SpaceFields& geometry_fields() const { cf3_assert(is_not_null(m_geometry_fields)); return *m_geometry_fields; }
 
   /// Mutable access to the list of nodes
   common::List<Uint>& glb_idx() { return *m_global_numbering; }
@@ -89,7 +89,7 @@ public: // functions
 
   Space& create_space(const std::string& space_name, const std::string& shape_function_builder_name);
 
-  Space& geometry_space() const { cf3_assert(!m_geometry_space.expired()); return *m_geometry_space.lock(); }
+  Space& geometry_space() const { cf3_assert(is_not_null(m_geometry_space)); return *m_geometry_space; }
 
   bool exists_space(const std::string& space_name) const;
 
@@ -105,17 +105,17 @@ public: // functions
 
 protected: // data
 
-  boost::shared_ptr<ElementType> m_element_type;
+  Handle<ElementType> m_element_type;
 
-  boost::weak_ptr<SpaceFields> m_geometry_fields;
+  Handle<SpaceFields> m_geometry_fields;
 
-  boost::weak_ptr<Space> m_geometry_space;
+  Handle<Space> m_geometry_space;
 
-  boost::shared_ptr<common::List<Uint> > m_global_numbering;
+  Handle<common::List<Uint> > m_global_numbering;
 
-  boost::shared_ptr<common::Group> m_spaces_group;
+  Handle<common::Group> m_spaces_group;
 
-  boost::shared_ptr<common::List<Uint> > m_rank;
+  Handle<common::List<Uint> > m_rank;
 
 };
 
@@ -130,15 +130,14 @@ public:
   Entity() : comp(NULL), idx(0) {}
   Entity(const Entity& other) : comp(other.comp), idx(other.idx) {}
 
-  template <typename ComponentT>
-  Entity(const ComponentT& component, const Uint index=0) :
-    comp( dynamic_cast<Entities const*>(&component) ),
+  Entity(Entities& entities, const Uint index=0) :
+    comp( &entities ),
     idx(index)
   {
     cf3_assert(idx<comp->size());
   }
 
-  Entities const* comp;
+  Entities* comp;
   Uint idx;
 
 
@@ -175,7 +174,7 @@ class IsElementsVolume
 public:
   IsElementsVolume () {}
 
-  bool operator()(const Entities::Ptr& component);
+  bool operator()(const Handle< Entities >& component);
   bool operator()(const Entities& component);
 };
 
@@ -184,7 +183,7 @@ class IsElementsSurface
 public:
   IsElementsSurface () {}
 
-  bool operator()(const Entities::Ptr& component);
+  bool operator()(const Handle< Entities >& component);
   bool operator()(const Entities& component);
 };
 

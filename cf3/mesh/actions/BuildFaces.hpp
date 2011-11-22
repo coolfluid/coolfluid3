@@ -32,8 +32,8 @@ class mesh_actions_API BuildFaces : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<BuildFaces> Ptr;
-    typedef boost::shared_ptr<BuildFaces const> ConstPtr;
+    
+    
 
 public: // functions
   
@@ -60,7 +60,7 @@ private: // functions
 
   void build_face_elements(Region& in_region, FaceCellConnectivity& from_face_to_cell, const bool inner);
     
-  boost::shared_ptr<FaceCellConnectivity> match_faces(Region& region1, Region& region2);
+  Handle<FaceCellConnectivity> match_faces(Region& region1, Region& region2);
   void match_boundary(Region& bdry_region, Region& region2);
 
   void build_cell_face_connectivity(Component& parent);

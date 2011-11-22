@@ -32,8 +32,8 @@ class neu_API Writer : public MeshWriter, public Shared
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Writer> Ptr;
-  typedef boost::shared_ptr<Writer const> ConstPtr;
+  
+  
 
 private : // typedefs
 
@@ -69,7 +69,7 @@ private: // functions
 private: // data
 
   /// implementation detail, raw pointers are safe as keys
-  std::map<Elements::ConstPtr,Uint> m_global_start_idx;
+  std::map<Handle< Elements >,Uint> m_global_start_idx;
 
   std::string m_fileBasename;
 

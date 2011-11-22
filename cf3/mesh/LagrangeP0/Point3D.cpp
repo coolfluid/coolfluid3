@@ -41,7 +41,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Point3D::faces()
 const cf3::mesh::ElementType& Point3D::face_type(const cf3::Uint face)
 {
   throw common::NotImplemented(FromHere(), "LagrangeP0::Point3D Does not have a face type");
-  static const ElementType::ConstPtr facetype( common::allocate_component<ElementTypeT<Point3D> >(Point3D::type_name()) );
+  static const Handle< ElementType > facetype( common::allocate_component<ElementTypeT<Point3D> >(Point3D::type_name()) );
   return *facetype;
 }
 

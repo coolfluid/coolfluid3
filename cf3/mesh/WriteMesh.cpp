@@ -12,10 +12,12 @@
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
 #include "common/OptionURI.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Core.hpp"
 #include "common/Foreach.hpp"
 
@@ -46,35 +48,36 @@ WriteMesh::WriteMesh ( const std::string& name  ) :
 {
   // properties
 
-  m_properties["brief"] = std::string("Write meshes, guessing automatically the format from the file extension");
+  properties()["brief"] = std::string("Write meshes, guessing automatically the format from the file extension");
   mark_basic();
 
 
-  options().add_option( OptionComponent<Mesh>::create("mesh", &m_mesh) )
-      ->description("Mesh to write")
-      ->pretty_name("Mesh")
-      ->mark_basic();
+  options().add_option( "mesh", m_mesh)
+      .description("Mesh to write")
+      .pretty_name("Mesh")
+      .mark_basic();
 
-  options().add_option( OptionURI::create("file", m_file, URI::Scheme::FILE) )
-      ->description("File to write")
-      ->pretty_name("File")
-      ->mark_basic()
-      ->link_to(&m_file);
+  options().add_option("file", m_file)
+      .supported_protocol(URI::Scheme::FILE)
+      .description("File to write")
+      .pretty_name("File")
+      .mark_basic()
+      .link_to(&m_file);
 
-  options().add_option( OptionArrayT<URI>::create("fields", m_fields) )
-      ->description("Fields to write")
-      ->pretty_name("Fields")
-      ->mark_basic()
-      ->link_to(&m_fields);
+  options().add_option("fields", m_fields)
+      .description("Fields to write")
+      .pretty_name("Fields")
+      .mark_basic()
+      .link_to(&m_fields);
 
 
   // signals
 
   regist_signal ( "write_mesh" )
-      ->description( "Write mesh, guessing automatically the format" )
-      ->pretty_name("Write Mesh" )
-      ->connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) )
-      ->signature(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
+      .description( "Write mesh, guessing automatically the format" )
+      .pretty_name("Write Mesh" )
+      .connect ( boost::bind ( &WriteMesh::signal_write_mesh, this, _1 ) )
+      .signature(boost::bind(&WriteMesh::signature_write_mesh, this, _1));
 
   signal("create_component")->hidden(true);
   signal("rename_component")->hidden(true);
@@ -93,7 +96,7 @@ WriteMesh::~WriteMesh()
 
 void WriteMesh::update_list_of_available_writers()
 {
-  Factory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
+  Handle< Factory > meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
 
   if ( is_null(meshwriter_factory) )
     throw ValueNotFound ( FromHere() , "Could not find factory for MeshWriter" );
@@ -102,29 +105,23 @@ void WriteMesh::update_list_of_available_writers()
 
   boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshwriter_factory ) )
   {
-    MeshWriter::Ptr writer;
+    Handle< MeshWriter > writer(get_child(bdr.name()));
+    boost::shared_ptr<Component> new_writer;
 
-    Component::Ptr comp = get_child_ptr(bdr.name());
-    if( is_null(comp) )
-      comp = bdr.build(bdr.name());
-
-    if( is_not_null(comp) ) // convert to writer
+    if( is_null(writer) )
     {
-      writer = comp->as_ptr_checked<MeshWriter>();
+      new_writer = bdr.build(bdr.name());
+      writer = Handle<MeshWriter>(new_writer);
     }
-    else
+
+    if( is_null(writer) ) // Check result
       throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh writer" );
 
-    if ( is_not_null(writer) )
-    {
-      boost_foreach(const std::string& extension, writer->get_extensions())
-        m_extensions_to_writers[extension].push_back(writer);
+    if(is_not_null(new_writer)) // add new writer, if any
+      add_component(new_writer);
 
-      if ( is_null(get_child_ptr(writer->name())))
-        add_component(writer);
-    }
-    else
-      throw SetupError(FromHere(), "Component with name \'" + bdr.name() + "\' is not a Mesh Reader" );
+    boost_foreach(const std::string& extension, writer->get_extensions())
+      m_extensions_to_writers[extension].push_back(writer);
   }
 }
 
@@ -132,13 +129,13 @@ void WriteMesh::update_list_of_available_writers()
 
 void WriteMesh::execute()
 {
-  if (m_mesh.expired())
+  if (is_null(m_mesh))
     throw SetupError (FromHere(), "mesh not set");
 
   if(m_fields.empty())
-    write_mesh( *m_mesh.lock(), m_file ); // writes all fields
+    write_mesh( *m_mesh, m_file ); // writes all fields
   else
-    write_mesh( *m_mesh.lock(), m_file, m_fields);
+    write_mesh( *m_mesh, m_file, m_fields);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -179,7 +176,7 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
      std::string msg;
      msg = filepath.string() + " has ambiguous extension " + extension + "\n"
        +  "Possible writers for this extension are: \n";
-     boost_foreach(const MeshWriter::Ptr writer , m_extensions_to_writers[extension])
+     boost_foreach(const Handle< MeshWriter > writer , m_extensions_to_writers[extension])
        msg += " - " + writer->name() + "\n";
      throw FileFormatError( FromHere(), msg);
    }
@@ -229,8 +226,8 @@ void WriteMesh::write_mesh( const Mesh& mesh, const URI& file, const std::vector
 
   // get the correct writer based on the extension
 
-  MeshWriter::Ptr writer = m_extensions_to_writers[extension][0];
-  writer->configure_option("fields",fields);
+  Handle< MeshWriter > writer = m_extensions_to_writers[extension][0];
+  writer->options().configure_option("fields",fields);
 
   // write the mesh and notify output
 
@@ -251,7 +248,7 @@ void WriteMesh::signal_write_mesh ( common::SignalArgs& node )
   URI mesh_uri = options.value<URI>("mesh");
 
   // get the mesh
-  const Mesh& mesh = access_component( mesh_uri ).as_type<Mesh>();
+  const Mesh& mesh = *Handle<Mesh>(access_component(mesh_uri));
 
   const URI file = options.value<URI>("file");
 
@@ -266,7 +263,7 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
 {
   SignalOptions options( node );
 
-  Factory::Ptr meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
+  Handle< Factory > meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
   std::vector<boost::any> writers;
 
   // build the restricted list
@@ -275,17 +272,17 @@ void WriteMesh::signature_write_mesh ( common::SignalArgs& node)
     writers.push_back(bdr.name());
   }
 
-  options.add_option<OptionURI>("mesh", URI() )
-      ->description("Path to the mesh")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+  options.add_option("mesh", URI() )
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Path to the mesh");
 
   // create the value and add the restricted list
-  options.add_option< OptionT<std::string> >( "Available writers", std::string() )
-      ->description("Available writers")
-      ->restricted_list() = writers;
+  options.add_option( "Available writers", std::string() )
+      .description("Available writers")
+      .restricted_list() = writers;
 
-  options.add_option< OptionT<std::string> >("file", std::string() )
-      ->description("File to write");
+  options.add_option("file", std::string() )
+      .description("File to write");
 }
 
 ////////////////////////////////////////////////////////////////////////////////

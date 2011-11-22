@@ -34,8 +34,8 @@ class Mesh_API MeshWriter : public common::Action {
 public: // typedefs
 
   /// pointer to this type
-  typedef boost::shared_ptr<MeshWriter> Ptr;
-  typedef boost::shared_ptr<MeshWriter const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -63,7 +63,7 @@ public: // functions
 
   virtual void execute();
 
-  void set_fields(const std::vector<boost::shared_ptr<Field> >& fields);
+  void set_fields(const std::vector<Handle<Field> >& fields);
 
 private: // functions
 
@@ -88,7 +88,7 @@ protected:
   // TODO: remove this
   const Mesh* m_mesh;
 
-  std::vector<boost::weak_ptr<Field> > m_fields;
+  std::vector<Handle<Field> > m_fields;
 
 };
 

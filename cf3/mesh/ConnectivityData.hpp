@@ -26,11 +26,11 @@ class Mesh_API CNodeConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<CNodeConnectivity> Ptr;
-  typedef boost::shared_ptr<CNodeConnectivity const> ConstPtr;
+  
+  
 
   /// Storage for a list of elements
-  typedef std::vector<Elements::ConstPtr> ElementsT;
+  typedef std::vector<Handle< Elements > > ElementsT;
 
   /// Storage for counted numbers
   typedef std::vector<Uint> CountsT;
@@ -94,8 +94,8 @@ class Mesh_API CFaceConnectivity : public common::Component
 {
 public:
 
-  typedef boost::shared_ptr<CFaceConnectivity> Ptr;
-  typedef boost::shared_ptr<CFaceConnectivity const> ConstPtr;
+  
+  
 
   /// Storage for a list of elements
   typedef CNodeConnectivity::ElementsT ElementsT;

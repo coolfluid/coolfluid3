@@ -32,8 +32,8 @@ class Mesh_API ShapeFunction : public common::Component {
 
 public: // typedefs
 
-  typedef boost::shared_ptr< ShapeFunction > Ptr;
-  typedef boost::shared_ptr< ShapeFunction const> ConstPtr;
+  
+  
 
 public: // functions
 

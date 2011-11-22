@@ -91,7 +91,7 @@ std::string Info::help() const
 void Info::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   CFinfo << "Element distribution:" << CFendl;
   boost_foreach( const Region& region, find_components_with_filter<Region>(mesh,IsComponentTrue()))

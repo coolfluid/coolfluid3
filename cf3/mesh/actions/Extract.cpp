@@ -52,9 +52,9 @@ common::ComponentBuilder < mesh::actions::Extract, mesh::MeshTransformer, mesh::
 Extract::Extract( const std::string& name )
 : MeshTransformer(name)
 {
-  options().add_option<OptionArrayT<std::string> >("Regions", std::vector<std::string>())
-      ->description("Regions to extract, can be regular expression matched with the full path")
-      ->mark_basic();
+  options().add_option("Regions", std::vector<std::string>())
+      .description("Regions to extract, can be regular expression matched with the full path")
+      .mark_basic();
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -98,7 +98,7 @@ std::string Extract::help() const
 void Extract::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
 
   // Storage of regions to keep

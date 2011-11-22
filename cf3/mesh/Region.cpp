@@ -46,7 +46,7 @@ Region::~Region()
 
 Region& Region::create_region( const std::string& name )
 {
-  return create_component<Region>(name);
+  return *create_component<Region>(name);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +55,7 @@ Elements& Region::create_elements(const std::string& element_type_name, SpaceFie
 {
   std::string name = "elements_" + element_type_name;
 
-  Component::Ptr celems = get_child_ptr(name);
+  Handle< Component > celems = get_child(name);
   if ( is_null(celems) )
   {
     Elements& elements = create_elements(element_type_name);
@@ -63,23 +63,23 @@ Elements& Region::create_elements(const std::string& element_type_name, SpaceFie
     return elements;
   }
   else
-    return celems->as_type<Elements>();
+    return dynamic_cast<Elements&>(*celems);
 }
 
 Elements& Region::create_elements(const std::string& element_type_name)
 {
   std::string name = "elements_" + element_type_name;
 
-  Component::Ptr celems = get_child_ptr(name);
+  Handle< Component > celems = get_child(name);
   if ( is_null(celems) )
   {
-    Elements::Ptr elements = create_component_ptr<Elements>(name);
+    Handle<Elements> elements = create_component<Elements>(name);
     elements->add_tag("SpaceFieldsElements");
     elements->initialize(element_type_name);
     return *elements;
   }
   else
-    return celems->as_type<Elements>();
+    return dynamic_cast<Elements&>(*celems);
 }
 
 //////////////////////////////////////////////////////////////////////////////

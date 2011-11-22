@@ -57,7 +57,7 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<Mesh>().get();
+  m_mesh = Handle<Mesh>(mesh.handle()).get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
@@ -151,9 +151,9 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   if(!m_fields.empty())
     file << "\nPOINT_DATA " << npoints << "\n";
 
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    const Field& field = *field_ptr.lock();
+    const Field& field = *field_ptr;
 
     // must be point based
     if(field.basis() != SpaceFields::Basis::POINT_BASED)

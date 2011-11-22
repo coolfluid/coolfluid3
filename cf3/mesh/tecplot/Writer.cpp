@@ -9,6 +9,7 @@
 #include "common/BoostFilesystem.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/Builder.hpp"
@@ -44,8 +45,8 @@ Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
 
-  options().add_option<OptionT<bool> >("cell_centred",false)
-    ->description("True if discontinuous fields are to be plotted as cell-centred fields");
+  options().add_option("cell_centred",false)
+    .description("True if discontinuous fields are to be plotted as cell-centred fields");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -62,7 +63,7 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
 
-  m_mesh = mesh.as_ptr<Mesh>().get();
+  m_mesh = Handle<Mesh>(mesh.handle()).get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
@@ -102,9 +103,9 @@ void Writer::write_file(std::fstream& file)
 
   std::vector<Uint> cell_centered_var_ids;
   Uint zone_var_id(dimension);
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    Field& field = *field_ptr.lock();
+    Field& field = *field_ptr;
     for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
     {
       Field::VarType var_type = field.var_length(iVar);
@@ -134,7 +135,7 @@ void Writer::write_file(std::fstream& file)
 
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  std::map<Component::ConstPtr,Uint> zone_id;
+  std::map<Handle< Component >,Uint> zone_id;
   Uint zone_idx=0;
   boost_foreach (const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
   {
@@ -198,9 +199,9 @@ void Writer::write_file(std::fstream& file)
     file << "\n";
 
 
-    boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+    boost_foreach(Handle<Field> field_ptr, m_fields)
     {
-      Field& field = *field_ptr.lock();
+      Field& field = *field_ptr;
       Uint var_idx(0);
       for (Uint iVar=0; iVar<field.nb_vars(); ++iVar)
       {
@@ -281,7 +282,7 @@ void Writer::write_file(std::fstream& file)
 
               if (option("cell_centred").value<bool>())
               {
-                ShapeFunction::Ptr P0_cell_centred = build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func")->as_ptr<ShapeFunction>();
+                Handle< ShapeFunction > P0_cell_centred = Handle<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {

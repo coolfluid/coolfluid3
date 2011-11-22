@@ -13,8 +13,11 @@
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Link.hpp"
 
 #include "math/Consts.hpp"
@@ -50,25 +53,25 @@ LinearInterpolator::LinearInterpolator( const std::string& name )
 {
 
 
-  options().add_option< OptionT<Uint> >( "ApproximateNbElementsPerCell", 1 )
-      ->description("The approximate amount of elements that are stored in a structured");
+  options().add_option( "ApproximateNbElementsPerCell", 1 )
+      .description("The approximate amount of elements that are stored in a structured");
 
   std::vector<Uint> dummy;
-  options().add_option< OptionArrayT<Uint> > ( "Divisions", dummy)
-      ->description("The number of divisions in each direction of the comb. "
+  options().add_option( "Divisions", dummy)
+      .description("The number of divisions in each direction of the comb. "
                         "Takes precedence over \"ApproximateNbElementsPerCell\". ");
 
-  m_elements = create_component_ptr<UnifiedData>("elements");
+  m_elements = create_component<UnifiedData>("elements");
 
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
-void LinearInterpolator::construct_internal_storage(const Mesh& source)
+void LinearInterpolator::construct_internal_storage(Mesh& source)
 {
-  if (m_source_mesh != source.as_ptr<Mesh>())
+  if (m_source_mesh != Handle<Mesh>(source.handle()))
   {
-    m_source_mesh = source.as_ptr<Mesh>();
+    m_source_mesh = Handle<Mesh>(source.handle());
     create_bounding_box();
     create_octtree();
   }
@@ -79,7 +82,7 @@ void LinearInterpolator::construct_internal_storage(const Mesh& source)
 void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& target)
 {
   // Allocations
-  Elements::ConstPtr s_elements;
+  Handle< Elements const > s_elements;
   Uint s_elm_idx;
   RealVector t_node(m_dim); t_node.setZero();
 
@@ -119,7 +122,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     const Field& target_coords = target.coordinates();
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes(0);
-    Component::ConstPtr component;
+    Handle< Component > component;
     for (Uint t_node_idx=0; t_node_idx<target.size(); ++t_node_idx)
     {
       to_vector(t_node,target_coords[t_node_idx]);
@@ -131,7 +134,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
         boost_foreach(const Uint glb_elem_idx, m_element_cloud)
         {
           boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
-          Elements const& elements = component->as_type<Elements const>();
+          Elements const& elements = dynamic_cast<Elements const&>(*component);
           RealMatrix space_coords = source.space(elements).compute_coordinates(s_elm_idx);
           boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
           {
@@ -215,7 +218,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
     RealMatrix elem_coordinates;
     std::vector<Uint> s_field_indexes(0);
     std::vector<RealVector> s_nodes;
-    Component::ConstPtr component;
+    Handle< Component > component;
     boost_foreach( Elements& t_elements, find_components_recursively<Elements>(target.topology()) )
     {
       Space& t_space = target.space(t_elements);
@@ -240,7 +243,7 @@ void LinearInterpolator::interpolate_field_from_to(const Field& source, Field& t
             boost_foreach(const Uint glb_elem_idx, m_element_cloud)
             {
               boost::tie(component,s_elm_idx)=m_elements->location(glb_elem_idx);
-              Elements const& elements = component->as_type<Elements const>();
+              Elements const& elements = dynamic_cast<Elements const&>(*component);
               RealMatrix space_coords = source.space(elements).get_coordinates(s_elm_idx);
               boost_foreach ( const Uint state_idx, source.indexes_for_element(elements,s_elm_idx) )
               {
@@ -312,16 +315,16 @@ void LinearInterpolator::create_octtree()
 
   m_nb_elems = m_source_mesh->properties().value<Uint>("nb_cells");
 
-  if (option("Divisions").value<std::vector<Uint> >().size() > 0)
+  if (options().option("Divisions").value<std::vector<Uint> >().size() > 0)
   {
-    m_N = option("Divisions").value<std::vector<Uint> >();
+    m_N = options().option("Divisions").value<std::vector<Uint> >();
     for (Uint d=0; d<m_dim; ++d)
       m_D[d] = (L[d])/static_cast<Real>(m_N[d]);
   }
   else
   {
     Real V1 = V/m_nb_elems;
-    Real D1 = std::pow(V1,1./m_dim)*option("ApproximateNbElementsPerCell").value<Uint>();
+    Real D1 = std::pow(V1,1./m_dim)*options().option("ApproximateNbElementsPerCell").value<Uint>();
 
     for (Uint d=0; d<m_dim; ++d)
     {
@@ -341,7 +344,7 @@ void LinearInterpolator::create_octtree()
   // initialize the honeycomb
   m_honeycomb.resize(boost::extents[std::max(Uint(1),m_N[0])][std::max(Uint(1),m_N[1])][std::max(Uint(1),m_N[2])]);
 
-  boost_foreach(const Elements& elements, find_components_recursively_with_filter<Elements>(*m_source_mesh,IsElementsVolume()))
+  boost_foreach(Elements& elements, find_components_recursively_with_filter<Elements>(*m_source_mesh,IsElementsVolume()))
     m_elements->add(elements);
 
   Uint glb_elem_idx=0;
@@ -488,26 +491,26 @@ void LinearInterpolator::find_pointcloud(Uint nb_points)
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Elements::ConstPtr,Uint> LinearInterpolator::find_element(const RealVector& target_coord)
+boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(const RealVector& target_coord)
 {
   if (find_point_in_octtree(target_coord,m_point_idx))
   {
     find_pointcloud(1);
 
-    Component::ConstPtr component;
+    Handle< Component > component;
     Uint elem_idx;
     boost_foreach(const Uint glb_elem_idx, m_element_cloud)
     {
       boost::tie(component,elem_idx)=m_elements->location(glb_elem_idx);
-      const Elements& elements = component->as_type<Elements>();
+      Elements const& elements = dynamic_cast<Elements const&>(*component);
       RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(elements.as_ptr<Elements>(),elem_idx);
+        return boost::make_tuple(Handle<Elements const>(elements.handle()),elem_idx);
       }
     }
   }
-  return boost::make_tuple(Elements::ConstPtr(), 0u);
+  return boost::make_tuple(Handle< Elements >(), 0u);
 }
 
 //////////////////////////////////////////////////////////////////////

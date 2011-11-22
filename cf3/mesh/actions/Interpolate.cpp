@@ -48,21 +48,21 @@ Interpolate::Interpolate( const std::string& name )
     "Shapefunction/Space of the source-field is used to interpolate to the target";
   properties()["description"] = desc;
 
-  options().add_option(OptionComponent<Field const>::create("source", &m_source))
-      ->description("Field to interpolate from")
-      ->pretty_name("Source Field")
-      ->mark_basic();
+  options().add_option("source", m_source)
+      .description("Field to interpolate from")
+      .pretty_name("Source Field")
+      .mark_basic();
 
-  options().add_option(OptionComponent<Field>::create("target", &m_target))
-      ->description("Field to interpolate to")
-      ->pretty_name("TargetField")
-      ->mark_basic();
+  options().add_option("target", m_target)
+      .description("Field to interpolate to")
+      .pretty_name("TargetField")
+      .mark_basic();
 
   regist_signal ( "interpolate" )
-      ->description( "Interpolate to given coordinates, not mesh-related" )
-      ->pretty_name("Interpolate" )
-      ->connect   ( boost::bind ( &Interpolate::signal_interpolate,    this, _1 ) )
-      ->signature ( boost::bind ( &Interpolate::signature_interpolate, this, _1 ) );
+      .description( "Interpolate to given coordinates, not mesh-related" )
+      .pretty_name("Interpolate" )
+      .connect   ( boost::bind ( &Interpolate::signal_interpolate,    this, _1 ) )
+      .signature ( boost::bind ( &Interpolate::signature_interpolate, this, _1 ) );
 
 }
 
@@ -70,14 +70,14 @@ Interpolate::Interpolate( const std::string& name )
 
 void Interpolate::execute()
 {
-  if (m_source.expired())
+  if (is_null(m_source))
     throw SetupError(FromHere(),uri().string()+": Source field not configured");
 
-  if (m_target.expired())
+  if (is_null(m_target))
     throw SetupError(FromHere(),uri().string()+": Target field not configured");
 
-  const Field& source = *m_source.lock();
-  Field& target = *m_target.lock();
+  const Field& source = *m_source;
+  Field& target = *m_target;
 
   if (source.row_size() != target.row_size())
     throw BadValue(FromHere(),"Field "+source.uri().string()+" has "+to_str(source.row_size())+" variables.\n"
@@ -138,7 +138,7 @@ void Interpolate::execute()
 void Interpolate::interpolate(const Field& source, const common::Table<Real>& coordinates, common::Table<Real>& target)
 {
 
-  if (Field::Ptr target_field = target.as_ptr<Field>())
+  if (Handle< Field > target_field = Handle<Field>(target.handle()))
   {
     if (source.row_size() != target_field->row_size())
       throw BadValue(FromHere(),"Field "+source.uri().string()+" has "+to_str(source.row_size())+" variables.\n"
@@ -155,7 +155,7 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   const Mesh& source_mesh = find_parent_component<Mesh>(source);
 
   if ( is_null(m_octtree) )
-    m_octtree = create_component_ptr<Octtree>("octtree");
+    m_octtree = create_component<Octtree>("octtree");
 
   if ( m_octtree->option("mesh").value<URI>().string() != source_mesh.uri().string() )
   {
@@ -165,9 +165,9 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   const Uint dimension = source_mesh.dimension();
   const Uint nb_vars = source.row_size();
   m_source_space = source.field_group().space();
-  m_source = source.as_ptr<Field>();
+  m_source = Handle<Field>(source.handle());
 
-  Elements::ConstPtr element_component;
+  Handle< Elements > element_component;
   Uint element_idx;
   std::deque<Uint> missing_cells;
 
@@ -314,8 +314,8 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
 
 void Interpolate::interpolate_coordinate(const RealVector& target_coord, const Elements& element_component, const Uint element_idx, Field::Row target_row)
 {
-  cf3_assert(m_source.expired() == false);
-  const Field& source = *m_source.lock();
+  cf3_assert(is_null(m_source) == false);
+  const Field& source = *m_source;
   const Space& source_space = element_component.space(m_source_space);
   const ShapeFunction& sf = source_space.shape_function();
 
@@ -347,17 +347,17 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   URI target_uri = options.value<URI>("target");
   URI coordinates_uri = options.value<URI>("coordinates");
 
-  Field& source = access_component(source_uri).as_type<Field>();
-  common::Table<Real>& target = access_component(target_uri).as_type< common::Table<Real> >();
+  Field& source = *Handle<Field>(access_component(source_uri).handle());
+  common::Table<Real>& target = *Handle< common::Table<Real> >(access_component(target_uri).handle());
 
-  common::Table<Real>::Ptr coordinates;
+  Handle< common::Table<Real> > coordinates;
   if (coordinates_uri.string() == URI().string())
   {
-    if ( Field::Ptr target_field = target.as_ptr<Field>() )
+    if ( Handle< Field > target_field = Handle<Field>(target.handle()) )
     {
       if (target_field->field_group().has_coordinates() == false)
         target_field->field_group().create_coordinates();
-      coordinates = target_field->field_group().coordinates().as_ptr< common::Table<Real> >();
+      coordinates = Handle< common::Table<Real> >(target_field->field_group().coordinates().handle());
     }
     else
     {
@@ -366,7 +366,7 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   }
   else
   {
-    coordinates = access_component(coordinates_uri).as_ptr< common::Table<Real> >();
+    coordinates = Handle< common::Table<Real> >(access_component(coordinates_uri).handle());
   }
 
   interpolate(source,*coordinates,target);
@@ -379,17 +379,17 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
 {
   common::XML::SignalOptions options( node );
 
-  options.add_option< OptionURI >("source",URI())
-      ->description("Source field")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+  options.add_option("source",URI())
+      .description("Source field")
+      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
-  options.add_option< OptionURI >("target",URI())
-      ->description("Target field or table")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+  options.add_option("target",URI())
+      .description("Target field or table")
+      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
-  options.add_option< OptionURI >("coordinates",URI())
-      ->description("Table of coordinates if target is not a field")
-      ->cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+  options.add_option("coordinates",URI())
+      .description("Table of coordinates if target is not a field")
+      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
 
 }
 

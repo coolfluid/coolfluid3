@@ -37,8 +37,8 @@ class Mesh_API Field : public common::Table<Real> {
 
 public: // typedefs
 
-  typedef boost::shared_ptr<Field> Ptr;
-  typedef boost::shared_ptr<Field const> ConstPtr;
+
+
 
   enum VarType { SCALAR=1, VECTOR_2D=2, VECTOR_3D=3, TENSOR_2D=4, TENSOR_3D=9};
 
@@ -104,9 +104,9 @@ public: // functions
 
   Space& space(const Entities& entities) const { return entities.space(field_group().space()); }
 
-  boost::iterator_range< common::ComponentIterator<Entities> > entities_range();
+  std::vector< Handle<Entities> > entities_range();
 
-  boost::iterator_range< common::ComponentIterator<Elements> > elements_range();
+  std::vector< Handle<Elements> > elements_range();
 
   Field& coordinates() const { return field_group().coordinates(); }
 
@@ -118,7 +118,7 @@ public: // functions
 
   UnifiedData& elements_lookup() const { return field_group().elements_lookup(); }
 
-  math::VariablesDescriptor& descriptor() const { return *m_descriptor.lock(); }
+  math::VariablesDescriptor& descriptor() const { return *m_descriptor; }
 
   void set_descriptor(math::VariablesDescriptor& descriptor);
 
@@ -305,12 +305,12 @@ private:
   void config_var_types();
 
   SpaceFields::Basis::Type m_basis;
-  boost::weak_ptr<Region> m_topology;
-  boost::weak_ptr<SpaceFields> m_field_group;
+  Handle<Region> m_topology;
+  Handle<SpaceFields> m_field_group;
 
-  boost::weak_ptr< common::PE::CommPattern > m_comm_pattern;
+  Handle< common::PE::CommPattern > m_comm_pattern;
 
-  boost::weak_ptr< math::VariablesDescriptor > m_descriptor;
+  Handle< math::VariablesDescriptor > m_descriptor;
 };
 
 ////////////////////////////////////////////////////////////////////////////////////////////

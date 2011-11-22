@@ -29,8 +29,8 @@ class gmsh_API Writer : public MeshWriter
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<Writer> Ptr;
-    typedef boost::shared_ptr<Writer const> ConstPtr;
+    
+    
 
 public: // functions
 
@@ -68,7 +68,7 @@ private: // data
 
   std::map<Entities const*,Uint> m_element_start_idx;
 
-  boost::shared_ptr< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
+  Handle< common::Map<Uint,Uint> > m_cf_2_gmsh_node;
 }; // end Writer
 
 

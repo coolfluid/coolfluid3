@@ -79,7 +79,7 @@ std::string BuildFaceNormals::help() const
 void BuildFaceNormals::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   const Uint dimension = mesh.geometry_fields().coordinates().row_size();
 
@@ -87,11 +87,11 @@ void BuildFaceNormals::execute()
   Field& face_normals = faces_P0.create_field(mesh::Tags::normal(),std::string(mesh::Tags::normal())+"[vector]");
   face_normals.add_tag(mesh::Tags::normal());
 
-  Component::Ptr component;
+  Handle< Component > component;
   Uint cell_idx(0);
   boost_foreach( Entities& faces, face_normals.entities_range() )
   {
-    FaceCellConnectivity::Ptr face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
+    Handle< FaceCellConnectivity > face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
     {
       FaceCellConnectivity& face2cell = *face2cell_ptr;

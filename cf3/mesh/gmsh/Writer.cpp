@@ -75,7 +75,7 @@ Writer::Writer( const std::string& name )
   m_elementTypes["cf3.mesh.LagrangeP3.Quad2D"] = 36;
   m_elementTypes["cf3.mesh.LagrangeP3.Quad3D"] = 36;
 
-  m_cf_2_gmsh_node = create_static_component_ptr<Map<Uint,Uint> >("to_gmsh_node");
+  m_cf_2_gmsh_node = create_static_component<Map<Uint,Uint> >("to_gmsh_node");
 
 }
 
@@ -94,7 +94,7 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
 
-  m_mesh = mesh.as_ptr<Mesh>().get();
+  m_mesh = Handle<Mesh>(mesh.handle()).get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
@@ -270,10 +270,10 @@ void Writer::write_elem_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    cf3_assert(field_ptr.expired() == false);
-    Field& field = *field_ptr.lock();
+    cf3_assert(is_null(field_ptr) == false);
+    Field& field = *field_ptr;
 //    if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
 //        field.basis() == SpaceFields::Basis::CELL_BASED    ||
 //        field.basis() == SpaceFields::Basis::FACE_BASED    )
@@ -429,9 +429,9 @@ void Writer::write_nodal_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    Field& field = *field_ptr.lock();
+    Field& field = *field_ptr;
 
     if (field.basis() == SpaceFields::Basis::POINT_BASED)
     {
@@ -544,9 +544,9 @@ void Writer::write_element_data(std::fstream& file)
   Uint prec = file.precision();
   file.precision(8);
 
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    Field& field = *field_ptr.lock();
+    Field& field = *field_ptr;
     if (field.basis() == SpaceFields::Basis::ELEMENT_BASED ||
         field.basis() == SpaceFields::Basis::CELL_BASED    ||
         field.basis() == SpaceFields::Basis::FACE_BASED    )

@@ -54,7 +54,7 @@ LoadBalance::LoadBalance( const std::string& name )
 void LoadBalance::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   // balance if parallel run with multiple processors
   if( Comm::instance().is_active() && Comm::instance().size() > 1 )

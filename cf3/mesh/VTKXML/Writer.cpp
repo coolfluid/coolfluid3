@@ -19,6 +19,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/PE/Comm.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
@@ -202,9 +203,9 @@ common::ComponentBuilder < VTKXML::Writer, MeshWriter, LibVTKXML> aVTKXMLWriter_
 Writer::Writer( const std::string& name )
 : MeshWriter(name)
 {
-    options().add_option< OptionT<bool> >("distributed_files", false)
-    ->pretty_name("Distributed Files")
-    ->description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
+    options().add_option("distributed_files", false)
+    .pretty_name("Distributed Files")
+    .description("Indicate if the filesystem is local to each note. When true, the pvtu file is written on each node.");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -361,9 +362,9 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   std::stringstream data_header( std::ios_base::in | std::ios_base::out | std::ios_base::binary );
 
   std::set<std::string> added_fields;
-  boost_foreach(boost::weak_ptr<Field> field_ptr, m_fields)
+  boost_foreach(Handle<Field> field_ptr, m_fields)
   {
-    const Field& field = *field_ptr.lock();
+    const Field& field = *field_ptr;
 
     if(!added_fields.insert(field.uri().string()).second)
       continue;

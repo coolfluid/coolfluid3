@@ -9,6 +9,7 @@
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
 #include "common/Signal.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/PE/Comm.hpp"
@@ -44,27 +45,27 @@ MeshPartitioner::MeshPartitioner ( const std::string& name ) :
     m_base(0),
     m_nb_parts(PE::Comm::instance().size())
 {
-  options().add_option<OptionT <Uint> >("nb_parts", m_nb_parts)
-      ->description("Total number of partitions (e.g. number of processors)")
-      ->pretty_name("Number of Partitions")
-      ->link_to(&m_nb_parts)
-      ->mark_basic();
+  options().add_option("nb_parts", m_nb_parts)
+      .description("Total number of partitions (e.g. number of processors)")
+      .pretty_name("Number of Partitions")
+      .link_to(&m_nb_parts)
+      .mark_basic();
 
-  m_global_to_local = create_static_component_ptr<common::Map<Uint,Uint> >("global_to_local");
-  m_lookup = create_static_component_ptr<UnifiedData >("lookup");
+  m_global_to_local = create_static_component<common::Map<Uint,Uint> >("global_to_local");
+  m_lookup = create_static_component<UnifiedData >("lookup");
 
   regist_signal( "load_balance" )
-    ->description("Partitions and migrates elements between processors")
-    ->pretty_name("Load Balance")
-    ->connect ( boost::bind ( &MeshPartitioner::load_balance,this, _1 ) )
-    ->signature ( boost::bind ( &MeshPartitioner::load_balance_signature, this, _1));
+    .description("Partitions and migrates elements between processors")
+    .pretty_name("Load Balance")
+    .connect ( boost::bind ( &MeshPartitioner::load_balance,this, _1 ) )
+    .signature ( boost::bind ( &MeshPartitioner::load_balance_signature, this, _1));
 }
 
 //////////////////////////////////////////////////////////////////////////////
 
 void MeshPartitioner::execute()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   initialize(mesh);
   partition_graph();
   //show_changes();
@@ -83,7 +84,7 @@ void MeshPartitioner::load_balance( SignalArgs& node  )
     throw ProtocolError( FromHere(), "Wrong protocol to access the Domain component, expecting a \'cpath\' but got \'" + path.string() +"\'");
 
   // get the domain
-  Mesh::Ptr mesh = access_component_ptr( path.path() )->as_ptr<Mesh>();
+  Handle<Mesh> mesh(access_component(path));
   if ( is_null(mesh) )
     throw CastingFailed( FromHere(), "Component in path \'" + path.string() + "\' is not a valid Mesh." );
 
@@ -99,15 +100,15 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option<OptionURI>("mesh", URI())
-      ->description("Mesh to load balance");
+  options.add_option("mesh", URI())
+      .description("Mesh to load balance");
 }
 
 //////////////////////////////////////////////////////////////////////
 
 void MeshPartitioner::initialize(Mesh& mesh)
 {
-  m_mesh = mesh.as_ptr<Mesh>();
+  m_mesh = Handle<Mesh>(mesh.handle());
 
   SpaceFields& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
@@ -254,7 +255,7 @@ void MeshPartitioner::show_changes()
       }
       for (Uint comp=0; comp<m_elements_to_export.size(); ++comp)
       {
-        std::string elements = m_lookup->components()[comp+1].lock()->uri().path();
+        std::string elements = m_lookup->components()[comp+1]->uri().path();
         for (Uint to_part=0; to_part<m_elements_to_export[comp].size(); ++to_part)
         {
           std::cout << "[" << PE::Comm::instance().rank() << "] export " << elements << " to part " << to_part << ":  ";
@@ -285,7 +286,7 @@ boost::tuple<Uint,Uint> MeshPartitioner::location_idx(const Uint glb_obj) const
 
 //////////////////////////////////////////////////////////////////////////////
 
-boost::tuple<Component::Ptr,Uint> MeshPartitioner::location(const Uint glb_obj) const
+boost::tuple<Handle< Component >,Uint> MeshPartitioner::location(const Uint glb_obj) const
 {
   return m_lookup->location( (*m_global_to_local)[glb_obj] );
 }
@@ -439,7 +440,7 @@ void MeshPartitioner::migrate()
     return;
 
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   SpaceFields& nodes = mesh.geometry_fields();
 
   // ----------------------------------------------------------------------------
@@ -482,7 +483,7 @@ void MeshPartitioner::migrate()
   const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -495,7 +496,7 @@ void MeshPartitioner::migrate()
   // -----------------------------------------------------------------------------
   // SEND ELEMENTS AND NODES FROM PARTITIONING ALGORITHM
 
-  std::vector< boost::weak_ptr<Component> > mesh_element_comps = mesh.elements().components();
+  std::vector< Handle<Component> > mesh_element_comps = mesh.elements().components();
 
   PE::Buffer send_to_proc;  std::vector<int> send_strides(PE::Comm::instance().size());
   PE::Buffer recv_from_all; std::vector<int> recv_strides(PE::Comm::instance().size());
@@ -503,7 +504,7 @@ void MeshPartitioner::migrate()
   // Move elements
   for(Uint i=0; i<mesh_element_comps.size(); ++i)
   {
-    Elements& elements = mesh_element_comps[i].lock()->as_type<Elements>();
+    Elements& elements = dynamic_cast<Elements&>(*mesh_element_comps[i]);
 
     send_to_proc.reset();
     recv_from_all.reset();
@@ -676,7 +677,7 @@ void MeshPartitioner::migrate()
   }
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, elements.as_type<Elements>().node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {

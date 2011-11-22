@@ -13,6 +13,9 @@
 #include <boost/functional/hash.hpp>
 
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/Builder.hpp"
@@ -46,6 +49,10 @@
 
 #include "math/Consts.hpp"
 #define UNKNOWN math::Consts::uint_max()
+
+#include "common/OptionList.hpp"
+
+#include "common/OptionList.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -94,36 +101,36 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
   mark_basic();
 
   // Option "topology"
-  options().add_option< OptionURI >("topology",URI("cpath:"))
-      ->description("The region these fields apply to")
-      ->attach_trigger( boost::bind( &SpaceFields::config_topology, this) )
-      ->mark_basic();
+  options().add_option("topology",URI("cpath:"))
+      .description("The region these fields apply to")
+      .attach_trigger( boost::bind( &SpaceFields::config_topology, this) )
+      .mark_basic();
 
   // Option "type"
-  options().add_option< OptionT<std::string> >("type", Basis::to_str(m_basis))
-      ->description("The type of the field")
-      ->attach_trigger ( boost::bind ( &SpaceFields::config_type,   this ) )
-      ->mark_basic();
-  option("type").restricted_list() =  list_of
+  options().add_option("type", Basis::to_str(m_basis))
+      .description("The type of the field")
+      .attach_trigger ( boost::bind ( &SpaceFields::config_type,   this ) )
+      .mark_basic()
+      .restricted_list() =  list_of
       (Basis::to_str(Basis::POINT_BASED))
       (Basis::to_str(Basis::ELEMENT_BASED))
       (Basis::to_str(Basis::CELL_BASED))
       (Basis::to_str(Basis::FACE_BASED));
 
   // Option "space
-  options().add_option< OptionT<std::string> >("space", m_space)
-    ->description("The space of the field is based on")
-    ->attach_trigger ( boost::bind ( &SpaceFields::config_space,   this ) )
-    ->mark_basic();
+  options().add_option("space", m_space)
+    .description("The space of the field is based on")
+    .attach_trigger ( boost::bind ( &SpaceFields::config_space,   this ) )
+    .mark_basic();
 
   // Static components
-  m_topology = create_static_component_ptr<Link>("topology");
-  m_elements_lookup = create_static_component_ptr<UnifiedData>("elements_lookup");
+  m_topology = create_static_component<Link>("topology");
+  m_elements_lookup = create_static_component<UnifiedData>("elements_lookup");
 
-  m_rank = create_static_component_ptr< common::List<Uint> >("rank");
+  m_rank = create_static_component< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
-  m_glb_idx = create_static_component_ptr< common::List<Uint> >(mesh::Tags::global_indices());
+  m_glb_idx = create_static_component< common::List<Uint> >(mesh::Tags::global_indices());
   m_glb_idx->add_tag(mesh::Tags::global_indices());
 
 
@@ -133,10 +140,10 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
 
   // Signals
   regist_signal ( "create_field" )
-      ->description( "Create Field" )
-      ->pretty_name("Create Field" )
-      ->connect   ( boost::bind ( &SpaceFields::signal_create_field,    this, _1 ) )
-      ->signature ( boost::bind ( &SpaceFields::signature_create_field, this, _1 ) );
+      .description( "Create Field" )
+      .pretty_name("Create Field" )
+      .connect   ( boost::bind ( &SpaceFields::signal_create_field,    this, _1 ) )
+      .signature ( boost::bind ( &SpaceFields::signature_create_field, this, _1 ) );
 
 
 }
@@ -145,12 +152,11 @@ SpaceFields::SpaceFields ( const std::string& name  ) :
 
 void SpaceFields::config_topology()
 {
-  URI topology_uri;
-  option("topology").put_value(topology_uri);
-  Region::Ptr topology = access_component(topology_uri).as_ptr<Region>();
+  const URI topology_uri = options().option("topology").value<URI>();
+  Handle< Region > topology = Handle<Region>(access_component(topology_uri));
   if ( is_null(topology) )
     throw CastingFailed (FromHere(), "Topology must be of a Region or derived type");
-  m_topology->link_to(topology);
+  m_topology->link_to(*topology);
 
   if (m_basis != Basis::INVALID && m_space != "invalid")
     update();
@@ -160,7 +166,7 @@ void SpaceFields::config_topology()
 
 void SpaceFields::config_type()
 {
-  m_basis = Basis::to_enum( option("type").value<std::string>() );
+  m_basis = Basis::to_enum( options().option("type").value<std::string>() );
 
   if (m_topology->is_linked() && m_space != "invalid")
     update();
@@ -171,7 +177,7 @@ void SpaceFields::config_type()
 
 void SpaceFields::config_space()
 {
-  m_space = option("space").value<std::string>();
+  m_space = options().option("space").value<std::string>();
 
   if (m_topology->is_linked() && m_basis != Basis::INVALID)
     update();
@@ -201,15 +207,15 @@ void SpaceFields::resize(const Uint size)
 
 CommPattern& SpaceFields::comm_pattern()
 {
-  if(m_comm_pattern.expired())
+  if(is_null(m_comm_pattern))
   {
-    PE::CommPattern& comm_pattern = create_component<PE::CommPattern>("CommPattern");
+    PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
     comm_pattern.insert("gid",glb_idx().array(),false);
-    comm_pattern.setup(comm_pattern.get_child("gid").as_ptr<PE::CommWrapper>(),rank().array());
-    m_comm_pattern = comm_pattern.as_ptr<common::PE::CommPattern>();
+    comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),rank().array());
+    m_comm_pattern = Handle<common::PE::CommPattern>(comm_pattern.handle());
   }
 
-  return *m_comm_pattern.lock();
+  return *m_comm_pattern;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -226,7 +232,7 @@ bool SpaceFields::is_ghost(const Uint idx) const
 
 Region& SpaceFields::topology() const
 {
-  return *m_topology->follow()->as_ptr<Region>();
+  return *Handle<Region>(m_topology->follow());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -241,15 +247,15 @@ Space& SpaceFields::space(const Entities& entities) const
 Field& SpaceFields::create_field(const std::string &name, const std::string& variables_description)
 {
 
-  Field& field = create_component<Field>(name);
+  Field& field = *create_component<Field>(name);
   field.set_field_group(*this);
   field.set_topology(topology());
   field.set_basis(m_basis);
 
   if (variables_description == "scalar_same_name")
-    field.create_descriptor(name+"[scalar]",parent().as_type<Mesh>().dimension());
+    field.create_descriptor(name+"[scalar]",Handle<Mesh>(parent())->dimension());
   else
-    field.create_descriptor(variables_description,parent().as_type<Mesh>().dimension());
+    field.create_descriptor(variables_description,Handle<Mesh>(parent())->dimension());
 
   field.resize(m_size);
   return field;
@@ -259,13 +265,13 @@ Field& SpaceFields::create_field(const std::string &name, const std::string& var
 
 Field& SpaceFields::create_field(const std::string &name, math::VariablesDescriptor& variables_descriptor)
 {
-  Field& field = create_component<Field>(name);
+  Field& field = *create_component<Field>(name);
   field.set_field_group(*this);
   field.set_topology(topology());
   field.set_basis(m_basis);
   field.set_descriptor(variables_descriptor);
-  if (variables_descriptor.option(common::Tags::dimension()).value<Uint>() == 0)
-    field.descriptor().configure_option(common::Tags::dimension(),parent().as_type<Mesh>().dimension());
+  if (variables_descriptor.options().option(common::Tags::dimension()).value<Uint>() == 0)
+    field.descriptor().options().configure_option(common::Tags::dimension(),Handle<Mesh>(parent())->dimension());
   field.resize(m_size);
   return field;
 }
@@ -289,35 +295,31 @@ void SpaceFields::check_sanity()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<Entities> > SpaceFields::entities_range()
+std::vector< Handle< Entities > > SpaceFields::entities_range()
 {
-  std::vector<Entities::Ptr> elements_vec(elements_lookup().components().size());
+  std::vector<Handle< Entities > > elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Entities>();
+    elements_vec[c] = Handle<Entities>(elements_lookup().components()[c]);
 
-  ComponentIterator<Entities> begin_iter(elements_vec,0);
-  ComponentIterator<Entities> end_iter(elements_vec,elements_vec.size());
-  return boost::make_iterator_range(begin_iter,end_iter);
+  return elements_vec;;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-boost::iterator_range< common::ComponentIterator<Elements> > SpaceFields::elements_range()
+std::vector< Handle< Elements > > SpaceFields::elements_range()
 {
-  std::vector<Elements::Ptr> elements_vec(elements_lookup().components().size());
+  std::vector<Handle< Elements > > elements_vec(elements_lookup().components().size());
   for (Uint c=0; c<elements_vec.size(); ++c)
-    elements_vec[c] = elements_lookup().components()[c].lock()->as_ptr<Elements>();
+    elements_vec[c] = Handle<Elements>(elements_lookup().components()[c]);
 
-  ComponentIterator<Elements> begin_iter(elements_vec,0);
-  ComponentIterator<Elements> end_iter(elements_vec,elements_vec.size());
-  return boost::make_iterator_range(begin_iter,end_iter);
+  return elements_vec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Field& SpaceFields::field(const std::string& name) const
+Field& SpaceFields::field(const std::string& name)
 {
-  return get_child(name).as_type<Field>();
+  return *Handle<Field>(get_child(name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -332,9 +334,9 @@ void SpaceFields::on_mesh_changed_event( SignalArgs& args )
   {
     throw InvalidURI(FromHere(),"URI "+to_str(mesh_uri)+" should be absolute");
   }
-  Mesh& mesh_arg = access_component(mesh_uri).as_type<Mesh>();
+  Mesh& mesh_arg = *Handle<Mesh>(access_component(mesh_uri));
 
-  Mesh& this_mesh = parent().as_type<Mesh>();
+  Mesh& this_mesh = *Handle<Mesh>(parent());
 
   if (&this_mesh == &mesh_arg)
   {
@@ -409,8 +411,8 @@ void SpaceFields::bind_space()
     create_connectivity_in_space();
   // else the connectivity must be manually created by mesh reader or mesh transformer
 
-  boost_foreach(Entities& entities, entities_range())
-    entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
+  boost_foreach(const Handle<Entities>& entities, entities_range())
+    Handle<Link>(entities->space(m_space).get_child("fields"))->link_to(*this);
 }
 
 std::size_t hash_value(const RealMatrix& coords)
@@ -517,8 +519,9 @@ void SpaceFields::create_connectivity_in_space()
 
     // step 1: collect nodes in a set
     // ------------------------------
-    boost_foreach(Entities& entities, elements_range())
+    boost_foreach(const Handle<Entities>& entities_handle, elements_range())
     {
+      Entities& entities = *entities_handle;
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       for (Uint elem=0; elem<entities.size(); ++elem)
       {
@@ -536,18 +539,19 @@ void SpaceFields::create_connectivity_in_space()
     // step 3: resize
     // --------------
     resize(points.size());
-    m_coordinates = coordinates.as_ptr<Field>();
+    m_coordinates = Handle<Field>(coordinates.handle());
     for (Uint i=0; i<size(); ++i)
       rank()[i] = UNKNOWN;
 
     // step 2: collect nodes in a set
     // ------------------------------
-    boost_foreach(Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       SpaceFields& geometry = entities.geometry_fields();
       Connectivity& geometry_node_connectivity = entities.geometry_space().connectivity();
       common::List<Uint>& geometry_rank = entities.geometry_fields().rank();
-      entities.space(m_space).get_child("fields").as_type<Link>().link_to(*this);
+      Handle<Link>(entities.space(m_space).get_child("fields"))->link_to(*this);
       const ShapeFunction& shape_function = entities.space(m_space).shape_function();
       Connectivity& connectivity = entities.space(m_space).connectivity();
       connectivity.set_row_size(shape_function.nb_nodes());
@@ -570,8 +574,8 @@ void SpaceFields::create_connectivity_in_space()
 
     // step 4: add lookup to connectivity tables
     // -----------------------------------------
-    boost_foreach(Entities& entities, entities_range())
-        entities.space(m_space).connectivity().create_lookup().add(*this);
+    boost_foreach(const Handle<Entities>& entities, entities_range())
+        entities->space(m_space).connectivity().create_lookup().add(*this);
 
     // step 5: fix unknown ranks
     // -------------------------
@@ -579,8 +583,9 @@ void SpaceFields::create_connectivity_in_space()
     cf3_assert(size() == m_glb_idx->size());
     cf3_assert(size() == m_coordinates->size());
 
-    boost_foreach(Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       Space& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -733,27 +738,28 @@ void SpaceFields::create_connectivity_in_space()
   else // If Element-based
   {
     // Check if this space is not already bound to another field_group
-    boost_foreach(Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities, entities_range())
     {
-      if (entities.space(m_space).is_bound_to_fields() > 0)
-        throw SetupError(FromHere(), "Space ["+entities.space(m_space).uri().string()+"] is already bound to\n"
-                         "fields ["+entities.space(m_space).fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
+      if (entities->space(m_space).is_bound_to_fields() > 0)
+        throw SetupError(FromHere(), "Space ["+entities->space(m_space).uri().string()+"] is already bound to\n"
+                         "fields ["+entities->space(m_space).fields().uri().string()+"]\nCreate a new space for field_group ["+uri().string()+"]");
     }
 
     // Assign the space connectivity table
     Uint field_idx = 0;
-    boost_foreach(Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities, entities_range())
     {
-      Space& space = entities.space(m_space);
-      space.get_child("fields").as_type<Link>().link_to(*this);
+      Space& space = entities->space(m_space);
+      Handle<Link>(space.get_child("fields"))->link_to(*this);
       space.make_proxy(field_idx);
-      field_idx += entities.size()*space.nb_states();
+      field_idx += entities->size()*space.nb_states();
     }
 
     resize(field_idx);
 
-    boost_foreach(Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       cf3_assert_desc("mesh not properly constructed",entities.rank().size() == entities.size());
       Space& space = entities.space(m_space);
       space.connectivity().create_lookup().add(*this);
@@ -773,8 +779,9 @@ void SpaceFields::create_connectivity_in_space()
     std::map<size_t,Uint>::iterator hash_not_found = hash_to_elem_idx.end();
 
     Uint nb_owned(0);
-    boost_foreach(const Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       Uint nb_states_per_cell = entities.space(m_space).nb_states();
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -794,8 +801,9 @@ void SpaceFields::create_connectivity_in_space()
     }
 
     Uint id = start_id_per_proc[Comm::instance().rank()];
-    boost_foreach(const Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       Space& space = entities.space(m_space);
       for (Uint e=0; e<entities.size(); ++e)
       {
@@ -812,8 +820,9 @@ void SpaceFields::create_connectivity_in_space()
       }
     }
 
-    boost_foreach(const Entities& entities, entities_range())
+    boost_foreach(const Handle<Entities>& entities_handle, entities_range())
     {
+      Entities& entities = *entities_handle;
       const Space& space = entities.space(m_space);
       Uint nb_states_per_elem = space.nb_states();
       std::deque<Uint> ghosts;
@@ -906,10 +915,10 @@ common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Entities& e
 
 common::Table<Uint>::ConstRow SpaceFields::indexes_for_element(const Uint unified_idx) const
 {
-  Component::Ptr component;
+  Handle< Component > component;
   Uint elem_idx;
   boost::tie(component,elem_idx) = elements_lookup().location(unified_idx);
-  return indexes_for_element(component->as_type<Entities>(),elem_idx);
+  return indexes_for_element(dynamic_cast<Entities&>(*component),elem_idx);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -925,7 +934,7 @@ Field& SpaceFields::coordinates()
 {
   if (is_null(m_coordinates))
   {
-    if (Field::Ptr found = find_component_ptr_with_tag<Field>(*this,mesh::Tags::coordinates()))
+    if (Handle< Field > found = find_component_ptr_with_tag<Field>(*this,mesh::Tags::coordinates()))
     {
       m_coordinates = found;
     }
@@ -954,8 +963,9 @@ Field& SpaceFields::create_coordinates()
     throw ValueExists(FromHere(),"coordinates cannot be created, they already exist");
 
   Field& coordinates = create_field("coordinates","coords[vector]");
-  boost_foreach(Entities& entities, entities_range())
+  boost_foreach(const Handle<Entities>& entities_handle, entities_range())
   {
+    Entities& entities = *entities_handle;
     Space& geometry_space = entities.geometry_space();
     const ShapeFunction& geom_sf = geometry_space.shape_function();
     RealMatrix geom_nodes;
@@ -987,7 +997,7 @@ Field& SpaceFields::create_coordinates()
     }
   }
 
-  m_coordinates = coordinates.as_ptr<Field>();
+  m_coordinates = Handle<Field>(coordinates.handle());
   return coordinates;
 }
 
@@ -997,7 +1007,7 @@ DynTable<Uint>& SpaceFields::glb_elem_connectivity()
 {
   if (is_null(m_glb_elem_connectivity))
   {
-    m_glb_elem_connectivity = create_static_component_ptr< DynTable<Uint> >("glb_elem_connectivity");
+    m_glb_elem_connectivity = create_static_component< DynTable<Uint> >("glb_elem_connectivity");
     m_glb_elem_connectivity->add_tag("glb_elem_connectivity");
     m_glb_elem_connectivity->resize(size());
   }
@@ -1012,11 +1022,11 @@ void SpaceFields::signature_create_field( SignalArgs& node )
 {
   SignalOptions options( node );
 
-  options.add_option< OptionT<std::string> >("name")
-      ->description("Name of the field" );
+  options.add_option<std::string>("name")
+      .description("Name of the field" );
 
-  options.add_option< OptionT<std::string> >("variables")
-      ->description("Variables description of the field" );
+  options.add_option<std::string>("variables")
+      .description("Variables description of the field" );
 
 }
 

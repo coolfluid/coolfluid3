@@ -42,19 +42,19 @@ void LibMesh::terminate()
 
 void LibMesh::initiate_impl()
 {
-  m_load_mesh = Core::instance().tools().create_component_ptr<mesh::LoadMesh>( "LoadMesh" );
-  m_load_mesh.lock()->mark_basic();
+  m_load_mesh = Core::instance().tools().create_component<mesh::LoadMesh>( "LoadMesh" );
+  m_load_mesh->mark_basic();
 
-  m_write_mesh =  Core::instance().tools().create_component_ptr<mesh::WriteMesh>( "WriteMesh" );
-  m_write_mesh.lock()->mark_basic();
+  m_write_mesh =  Core::instance().tools().create_component<mesh::WriteMesh>( "WriteMesh" );
+  m_write_mesh->mark_basic();
 }
 
 void LibMesh::terminate_impl()
 {
-  if(!m_load_mesh.expired())
+  if(is_not_null(m_load_mesh))
     Core::instance().tools().remove_component("LoadMesh");
 
-  if(!m_write_mesh.expired())
+  if(is_not_null(m_write_mesh))
     Core::instance().tools().remove_component("WriteMesh");
 }
 

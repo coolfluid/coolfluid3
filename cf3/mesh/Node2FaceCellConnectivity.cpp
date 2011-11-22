@@ -25,10 +25,10 @@ common::ComponentBuilder < Node2FaceCellConnectivity , Component, LibMesh > Node
 Node2FaceCellConnectivity::Node2FaceCellConnectivity ( const std::string& name ) :
   Component(name)
 {
-  m_used_components = create_static_component_ptr<Group>("used_components");
+  m_used_components = create_static_component<Group>("used_components");
 
-  m_nodes = create_static_component_ptr<common::Link>(mesh::Tags::nodes());
-  m_connectivity = create_static_component_ptr<DynTable<Face2Cell> >(mesh::Tags::connectivity_table());
+  m_nodes = create_static_component<common::Link>(mesh::Tags::nodes());
+  m_connectivity = create_static_component<DynTable<Face2Cell> >(mesh::Tags::connectivity_table());
   mark_basic();
 }
 
@@ -44,32 +44,32 @@ void Node2FaceCellConnectivity::setup(Region& region)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-std::vector<FaceCellConnectivity::Ptr> Node2FaceCellConnectivity::used()
+std::vector<Handle< FaceCellConnectivity > > Node2FaceCellConnectivity::used()
 {
-  std::vector<FaceCellConnectivity::Ptr> vec;
+  std::vector<Handle< FaceCellConnectivity > > vec;
   boost_foreach( Link& link, find_components<Link>(*m_used_components) )
   {
-    vec.push_back(link.follow()->as_ptr<FaceCellConnectivity>());
+    vec.push_back(Handle<FaceCellConnectivity>(follow_link(link)));
   }
   return vec;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Node2FaceCellConnectivity::add_used (const FaceCellConnectivity& used_comp)
+void Node2FaceCellConnectivity::add_used (FaceCellConnectivity& used_comp)
 {
   bool found = false;
-  std::vector<FaceCellConnectivity::Ptr> used_components = used();
-  boost_foreach( FaceCellConnectivity::Ptr comp, used_components )
+  std::vector<Handle< FaceCellConnectivity > > used_components = used();
+  boost_foreach( Handle< FaceCellConnectivity > comp, used_components )
   {
-    if (comp->as_ptr<Component>() == used_comp.follow())
+    if (comp->handle() == follow_link(used_comp))
     {
       found = true;
       break;
     }
   }
   if (found == false)
-    m_used_components->create_component_ptr<Link>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
+    m_used_components->create_component<Link>("used_component["+to_str(used_components.size())+"]")->link_to(used_comp);
 
 }
 
@@ -77,7 +77,7 @@ void Node2FaceCellConnectivity::add_used (const FaceCellConnectivity& used_comp)
 
 void Node2FaceCellConnectivity::set_nodes(SpaceFields& nodes)
 {
-  m_nodes->link_to(nodes.self());
+  m_nodes->link_to(nodes);
   m_connectivity->resize(nodes.size());
 }
 
@@ -85,11 +85,11 @@ void Node2FaceCellConnectivity::set_nodes(SpaceFields& nodes)
 
 void Node2FaceCellConnectivity::build_connectivity()
 {
-  SpaceFields const& nodes = *m_nodes->follow()->as_ptr<SpaceFields>();
+  SpaceFields const& nodes = *Handle<SpaceFields>(m_nodes->follow());
 
   // Reserve memory in m_connectivity->array()
   std::vector<Uint> connectivity_sizes(nodes.size());
-  boost_foreach(FaceCellConnectivity::Ptr face_cell_connectivity_comp, used() )
+  boost_foreach(Handle< FaceCellConnectivity > face_cell_connectivity_comp, used() )
   {
     FaceCellConnectivity& face_cell_connectivity = *face_cell_connectivity_comp;
 
@@ -112,7 +112,7 @@ void Node2FaceCellConnectivity::build_connectivity()
   }
 
   // fill m_connectivity->array()
-  boost_foreach(FaceCellConnectivity::Ptr face_cell_connectivity_comp, used() )
+  boost_foreach(Handle< FaceCellConnectivity > face_cell_connectivity_comp, used() )
   {
     FaceCellConnectivity& face_cell_connectivity = *face_cell_connectivity_comp;
 

@@ -58,8 +58,8 @@ MatchNodes::MatchNodes( const std::string& name )
   m_properties["description"] = desc;
 
 
-  options().add_option< OptionArrayT<URI> >("Regions", std::vector<URI>())
-      ->description("Regions to match nodes of");
+  options().add_option("Regions", std::vector<URI>())
+      .description("Regions to match nodes of");
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -81,7 +81,7 @@ std::string MatchNodes::help() const
 
 void MatchNodes::execute()
 {
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   std::map<std::size_t,Uint> hash_to_node_idx;
 
@@ -90,8 +90,8 @@ void MatchNodes::execute()
 
   std::vector<URI> region_paths = option("Regions").value<std::vector<URI> >();
 
-  Region& region_1 = *mesh.access_component_ptr(region_paths[0])->as_ptr<Region>();
-  Region& region_2 = *mesh.access_component_ptr(region_paths[1])->as_ptr<Region>();
+  Region& region_1 = *Handle<Region>(mesh.access_component(region_paths[0]));
+  Region& region_2 = *Handle<Region>(mesh.access_component(region_paths[1]));
   common::List<Uint>& used_nodes_region_1 = Entities::used_nodes(region_1);
   common::List<Uint>& used_nodes_region_2 = Entities::used_nodes(region_2);
 

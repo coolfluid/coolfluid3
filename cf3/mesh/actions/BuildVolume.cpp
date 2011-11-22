@@ -65,7 +65,7 @@ std::string BuildVolume::help() const
 void BuildVolume::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   SpaceFields& cells_P0 = mesh.create_space_and_field_group("cells_P0",SpaceFields::Basis::CELL_BASED,"cf3.mesh.LagrangeP0");
   Field& volume = cells_P0.create_field(mesh::Tags::volume());

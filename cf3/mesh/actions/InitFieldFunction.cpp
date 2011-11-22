@@ -46,16 +46,16 @@ InitFieldFunction::InitFieldFunction( const std::string& name )
     "  Usage: InitFieldFunction vectorial function \n";
   properties()["description"] = desc;
 
-  options().add_option(OptionComponent<Field>::create("field", &m_field))
-      ->description("Field to initialize")
-      ->pretty_name("Field")
-      ->mark_basic();
+  options().add_option("field", m_field)
+      .description("Field to initialize")
+      .pretty_name("Field")
+      .mark_basic();
 
-  options().add_option< OptionArrayT<std::string> > ("functions", std::vector<std::string>())
-      ->description("math function applied as initial field (vars x,y,z)")
-      ->pretty_name("Functions definition")
-      ->attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
-      ->mark_basic();
+  options().add_option("functions", std::vector<std::string>())
+      .description("math function applied as initial field (vars x,y,z)")
+      .pretty_name("Functions definition")
+      .attach_trigger ( boost::bind ( &InitFieldFunction::config_function, this ) )
+      .mark_basic();
 
   m_function.variables("x,y,z");
 
@@ -79,10 +79,10 @@ void InitFieldFunction::config_function()
 
 void InitFieldFunction::execute()
 {
-  if (m_field.expired())
+  if (is_null(m_field))
     throw SetupError(FromHere(), "Option [field] was not set in ["+uri().path()+"]");
 
-  Field& field = *m_field.lock();
+  Field& field = *m_field;
 
   std::vector<Real> vars(3,0.);
 

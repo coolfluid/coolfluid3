@@ -188,10 +188,10 @@ GrowOverlap::GrowOverlap( const std::string& name )
 void GrowOverlap::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
   SpaceFields& nodes = mesh.geometry_fields();
 
-  const std::vector< boost::weak_ptr<Component> >& mesh_elements = mesh.elements().components();
+  const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
 
   FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
@@ -215,11 +215,11 @@ void GrowOverlap::execute()
   std::map<Uint,Uint>::iterator glb_elem_not_found = glb_elem_2_loc_elem.end();
   for (Uint e=0; e<mesh.elements().size(); ++e)
   {
-    Component::Ptr comp;
+    Handle< Component > comp;
     Uint idx;
 
     boost::tie(comp,idx) = mesh.elements().location(e);
-    if ( Elements::Ptr elements = comp->as_ptr<Elements>() )
+    if ( Handle< Elements > elements = Handle<Elements>(comp) )
     {
       if ( glb_elem_2_loc_elem.find(elements->glb_idx()[idx]) == glb_elem_not_found )
       {
@@ -302,7 +302,7 @@ void GrowOverlap::execute()
               Uint elem_idx;
               boost::tie(elem_comp_idx,elem_idx) = mesh.elements().location_idx(unif_elem_idx);
 
-              if (mesh_elements[elem_comp_idx].lock()->as_type<Elements>().is_ghost(elem_idx) == false)
+              if (dynamic_cast<Elements&>(*mesh_elements[elem_comp_idx]).is_ghost(elem_idx) == false)
               {
                 elem_ids_to_send[elem_comp_idx][proc].insert(elem_idx);
               }
@@ -322,7 +322,7 @@ void GrowOverlap::execute()
 
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
+    if (Handle< Elements > elements_ptr = Handle<Elements>(mesh_elements[comp_idx]))
     {
       Elements& elements = *elements_ptr;
       PackUnpackElements copy(elements);
@@ -464,7 +464,7 @@ void GrowOverlap::execute()
   }
   for (Uint comp_idx=0; comp_idx<mesh_elements.size(); ++comp_idx)
   {
-    if (Elements::Ptr elements_ptr = mesh_elements[comp_idx].lock()->as_ptr<Elements>())
+    if (Handle< Elements > elements_ptr = Handle<Elements>(mesh_elements[comp_idx]))
     {
       Elements& elements = *elements_ptr;
 

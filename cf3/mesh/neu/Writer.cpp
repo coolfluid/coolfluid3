@@ -64,7 +64,7 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-  m_mesh = mesh.as_ptr<Mesh>().get();
+  m_mesh = Handle<Mesh>(mesh.handle()).get();
 
   // if the file is present open it
   boost::filesystem::fstream file;
@@ -197,7 +197,7 @@ void Writer::write_connectivity(std::fstream& file)
       Uint nb_nodes;
       elm_type = m_CFelement_to_neuElement[elementregion.element_type().shape()];
       nb_nodes = elementregion.element_type().nb_nodes();
-      m_global_start_idx[elementregion.as_ptr<Elements>()]=elm_number;
+      Handle<Elements>(m_global_start_idx[elementregion.handle())]=elm_number;
 
       // write the nodes for each element of this region
       boost_foreach(const Connectivity::ConstRow& cf_element , elementregion.node_connectivity().array())
@@ -262,7 +262,7 @@ void Writer::write_groups(std::fstream& file)
       Uint line_counter=0;
       boost_foreach(const Elements& elementregion, find_components_recursively <Elements>(group))
       {
-        Uint elm_global_start_idx = m_global_start_idx[elementregion.as_ptr<Elements>()]+1;
+        Uint elm_global_start_idx = Handle<Elements>(m_global_start_idx[elementregion.handle())]+1;
         Uint elm_global_end_idx = elementregion.node_connectivity().size() + elm_global_start_idx;
 
         for (Uint elm=elm_global_start_idx; elm<elm_global_end_idx; elm++, line_counter++)
@@ -286,22 +286,22 @@ void Writer::write_groups(std::fstream& file)
 void Writer::write_boundaries(std::fstream& file)
 {
   // Add node connectivity data at the mesh level
-  CNodeConnectivity::Ptr node_connectivity = create_component_ptr<CNodeConnectivity>("node_connectivity");
+  Handle<CNodeConnectivity> node_connectivity = create_component<CNodeConnectivity>("node_connectivity");
   node_connectivity->initialize(find_components_recursively_with_filter<Elements>(*m_mesh->as_const(), IsElementsVolume()));
 
-  std::map<Elements::ConstPtr,CFaceConnectivity::Ptr> element_2_face_connecitivity;
+  std::map<Handle< Elements >,Handle< CFaceConnectivity > > element_2_face_connecitivity;
   boost_foreach(const Elements& elementregion, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsSurface()))
   {
-    element_2_face_connecitivity[elementregion.as_ptr<Elements>()] = allocate_component<CFaceConnectivity>("face_connectivity");
-    element_2_face_connecitivity[elementregion.as_ptr<Elements>()]->initialize(elementregion,*node_connectivity);
+    boost::shared_ptr<Elements>(element_2_face_connecitivity[elementregion.handle())] = allocate_component<CFaceConnectivity>("face_connectivity");
+    Handle<Elements>(element_2_face_connecitivity[elementregion.handle())]->initialize(elementregion,*node_connectivity);
   }
 
   // Find total number of boundary elements and store all bc groups
   Uint total_nbElements=0;
-  std::set<Region::ConstPtr> bc_regions;
+  std::set<Handle< Region > > bc_regions;
   boost_foreach(const Elements& elementregion, find_components_recursively_with_filter<Elements>(*m_mesh,IsElementsSurface()))
   {
-    bc_regions.insert(elementregion.parent().as_ptr<Region const>());
+    Handle<Region const>(bc_regions.insert(elementregion.parent().handle()));
     total_nbElements += elementregion.node_connectivity().size();
   }
 
@@ -310,7 +310,7 @@ void Writer::write_boundaries(std::fstream& file)
     /// @todo pass a CFLogStream to progress_display instead of std::cout
     boost::progress_display progress(total_nbElements,std::cout,"writing boundary conditions\n");
 
-    boost_foreach(Region::ConstPtr group, bc_regions) // For each boundary condition
+    boost_foreach(Handle< Region > group, bc_regions) // For each boundary condition
     {
       file << " BOUNDARY CONDITIONS 2.3.16\n";
       file << std::setw(32) << group->name() << std::setw(8) << 1 << std::setw(8) << group->recursive_elements_count() << std::setw(8) << 0 << std::setw(8) << 6 << std::endl;
@@ -318,7 +318,7 @@ void Writer::write_boundaries(std::fstream& file)
       boost_foreach(const Elements& elementregion, find_components_recursively<Elements>(*group))  // for each element type in this BC
       {
         const Connectivity& table = elementregion.node_connectivity();
-        const CFaceConnectivity& face_connectivity = *element_2_face_connecitivity[elementregion.as_ptr<Elements>()];
+        const CFaceConnectivity& face_connectivity = *Handle<Elements>(element_2_face_connecitivity[elementregion.handle())];
 
         const Uint nb_elems = table.size();
         const Uint nb_faces = elementregion.element_type().nb_faces();
@@ -330,7 +330,7 @@ void Writer::write_boundaries(std::fstream& file)
             {
               CFaceConnectivity::ElementReferenceT connected = face_connectivity.adjacent_element(elem, face);
 
-              Elements::ConstPtr connected_region = connected.first->as_ptr<Elements>();
+              Handle< Elements > connected_region = Handle<Elements>(connected.first);
               Uint connected_region_start_idx = m_global_start_idx[connected_region];
 
               Uint elm_local_idx = connected.second;

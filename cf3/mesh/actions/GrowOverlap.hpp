@@ -33,8 +33,8 @@ class mesh_actions_API GrowOverlap : public MeshTransformer
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<GrowOverlap> Ptr;
-    typedef boost::shared_ptr<GrowOverlap const> ConstPtr;
+    
+    
 
 public: // functions
 

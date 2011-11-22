@@ -12,9 +12,11 @@
 #include "common/Link.hpp"
 #include "common/FindComponents.hpp"
 #include "common/StringConversion.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/Signal.hpp"
 #include "common/List.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 #include "common/PE/Comm.hpp"
@@ -42,26 +44,26 @@ Entities::Entities ( const std::string& name ) :
   properties()["description"] = std::string("Container component that stores the element to node connectivity,\n")
   +std::string("a link to node storage, a list of used nodes, and global numbering unique over all processors");
 
-  options().add_option(OptionT<std::string>::create("element_type", std::string("")))
-      ->description("Element type")
-      ->pretty_name("Element type")
-      ->attach_trigger(boost::bind(&Entities::configure_element_type, this));
+  options().add_option("element_type", "")
+      .description("Element type")
+      .pretty_name("Element type")
+      .attach_trigger(boost::bind(&Entities::configure_element_type, this));
 
-  m_global_numbering = create_static_component_ptr<common::List<Uint> >(mesh::Tags::global_elem_indices());
+  m_global_numbering = create_static_component<common::List<Uint> >(mesh::Tags::global_elem_indices());
   m_global_numbering->add_tag(mesh::Tags::global_elem_indices());
   m_global_numbering->properties()["brief"] = std::string("The global element indices (inter processor)");
 
-  m_spaces_group = create_static_component_ptr<Group>("spaces");
+  m_spaces_group = create_static_component<Group>("spaces");
   m_spaces_group->mark_basic();
 
-  m_rank = create_static_component_ptr< common::List<Uint> >("rank");
+  m_rank = create_static_component< common::List<Uint> >("rank");
   m_rank->add_tag("rank");
 
   regist_signal ( "create_space" )
-      ->connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
-      ->description( "Create space for other interpretations of fields (e.g. high order)" )
-      ->pretty_name( "Create space" )
-      ->signature(boost::bind(&Entities::signature_create_space, this, _1));
+      .connect ( boost::bind ( &Entities::signal_create_space, this, _1 ) )
+      .description( "Create space for other interpretations of fields (e.g. high order)" )
+      .pretty_name( "Create space" )
+      .signature(boost::bind(&Entities::signature_create_space, this, _1));
 
 }
 
@@ -75,7 +77,7 @@ Entities::~Entities()
 
 void Entities::initialize(const std::string& element_type_name)
 {
-  configure_option("element_type",element_type_name);
+  options().configure_option("element_type",element_type_name);
   cf3_assert(is_not_null(m_element_type));
 }
 
@@ -87,31 +89,30 @@ void Entities::initialize(const std::string& element_type_name, SpaceFields& geo
 
 void Entities::assign_geometry(SpaceFields& geometry)
 {
-  m_geometry_fields = geometry.as_ptr<SpaceFields>();
+  m_geometry_fields = Handle<SpaceFields>(geometry.handle());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void Entities::configure_element_type()
 {
-  const std::string etype_name = option("element_type").value<std::string>();
+  const std::string etype_name = options().option("element_type").value<std::string>();
   if (is_not_null(m_element_type))
   {
     remove_component(m_element_type->name());
   }
-  m_element_type = build_component_abstract_type<ElementType>( etype_name, etype_name );
+  m_element_type = Handle<ElementType>(create_component( etype_name, etype_name ) );
   m_element_type->rename(m_element_type->derived_type_name());
-  add_component( m_element_type );
 
   if ( exists_space(mesh::Tags::geometry()) )
   {
-    space(mesh::Tags::geometry()).configure_option("shape_function",m_element_type->shape_function().derived_type_name());
+    space(mesh::Tags::geometry()).options().configure_option("shape_function",m_element_type->shape_function().derived_type_name());
   }
   else
   {
     Space& geometry_space = create_space(mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
     geometry_space.add_tag(mesh::Tags::geometry());
-    m_geometry_space = geometry_space.as_ptr<Space>();
+    m_geometry_space = Handle<Space>(geometry_space.handle());
   }
 }
 
@@ -127,7 +128,7 @@ ElementType& Entities::element_type() const
 
 common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 {
-  common::List<Uint>::Ptr used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
+  Handle< common::List<Uint> > used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
   if (rebuild && is_not_null(used_nodes))
   {
     parent.remove_component(*used_nodes);
@@ -136,14 +137,14 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component_ptr<common::List<Uint> >(mesh::Tags::nodes_used());
+    used_nodes = parent.create_component<common::List<Uint> >(mesh::Tags::nodes_used());
     used_nodes->add_tag(mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
 
     // Assemble all unique node numbers in a set
     std::set<Uint> node_set;
 
-    if ( Entities::Ptr elements = parent.as_ptr<Entities>() )
+    if ( Handle< Entities > elements = Handle<Entities>(parent.handle()) )
     {
       const Uint nb_elems = elements->size();
       for (Uint idx=0; idx<nb_elems; ++idx)
@@ -199,8 +200,8 @@ common::Table<Uint>::ConstRow Entities::get_nodes(const Uint elem_idx) const
 
 Space& Entities::create_space( const std::string& name, const std::string& shape_function_builder_name )
 {
-  Space::Ptr space = m_spaces_group->create_component_ptr<Space>(name);
-  space->configure_option("shape_function",shape_function_builder_name);
+  Handle<Space> space = m_spaces_group->create_component<Space>(name);
+  space->options().configure_option("shape_function",shape_function_builder_name);
   space->set_support(*this);
   return *space;
 }
@@ -209,14 +210,14 @@ Space& Entities::create_space( const std::string& name, const std::string& shape
 
 Space& Entities::space (const std::string& space_name) const
 {
-  return m_spaces_group->get_child(space_name).as_type<Space>();
+  return *Handle<Space>(m_spaces_group->get_child(space_name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 bool Entities::exists_space(const std::string& name) const
 {
-  return is_not_null(m_spaces_group->get_child_ptr(name));
+  return is_not_null(m_spaces_group->get_child(name));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -246,11 +247,11 @@ void Entities::allocate_coordinates(RealMatrix& coords) const
 void Entities::signature_create_space ( SignalArgs& node)
 {
   XML::SignalOptions options( node );
-  options.add_option< OptionT<std::string> >("name" , std::string("new_space") )
-      ->description("Name to add to space");
+  options.add_option("name" , std::string("new_space") )
+      .description("Name to add to space");
 
-  options.add_option< OptionT<std::string> >("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
-      ->description("Shape Function to add as space");
+  options.add_option("shape_function" , std::string("cf3.mesh.LagrangeP0.Line") )
+      .description("Shape Function to add as space");
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -294,7 +295,7 @@ std::ostream& operator<<(std::ostream& os, const Entity& entity)
 }
 
 
-bool IsElementsVolume::operator()(const Entities::Ptr& component)
+bool IsElementsVolume::operator()(const Handle< Entities >& component)
 {
   return component->element_type().dimension() == component->element_type().dimensionality();
 }
@@ -304,7 +305,7 @@ bool IsElementsVolume::operator()(const Entities& component)
   return component.element_type().dimension() == component.element_type().dimensionality();
 }
 
-bool IsElementsSurface::operator()(const Entities::Ptr& component)
+bool IsElementsSurface::operator()(const Handle< Entities >& component)
 {
   return component->element_type().dimension() == component->element_type().dimensionality() + 1;
 }

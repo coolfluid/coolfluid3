@@ -12,6 +12,7 @@
 #include "common/EventHandler.hpp"
 #include "common/Log.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 #include "common/XML/SignalFrame.hpp"
 #include "common/XML/SignalOptions.hpp"
@@ -35,48 +36,48 @@ ComponentBuilder < ChannelGenerator, Component, LibBlockMesh > ChannelGenerator_
 ChannelGenerator::ChannelGenerator(const std::string& name): MeshGenerator(name)
 {
   options().add_option(OptionT<Uint>::create("nb_parts", PE::Comm::instance().size()))
-    ->description("Total number of partitions (e.g. number of processors)")
-    ->pretty_name("Number of Partitions");
+    .description("Total number of partitions (e.g. number of processors)")
+    .pretty_name("Number of Partitions");
 
   options().add_option(OptionT<Uint>::create("cell_overlap", PE::Comm::instance().size()))
-    ->description("Cell overlap between two adjacent processors")
-    ->pretty_name("Cell Overlap");
+    .description("Cell overlap between two adjacent processors")
+    .pretty_name("Cell Overlap");
 
   options().add_option(OptionT<Uint>::create("x_segments", 10))
-    ->description("Number of segments in the X direction")
-    ->pretty_name("X segments");
+    .description("Number of segments in the X direction")
+    .pretty_name("X segments");
 
   options().add_option(OptionT<Uint>::create("y_segments_half", 10))
-    ->description("Number of segments in the Y direction for one half of the channel")
-    ->pretty_name("Y segments half");
+    .description("Number of segments in the Y direction for one half of the channel")
+    .pretty_name("Y segments half");
 
   options().add_option(OptionT<Uint>::create("z_segments", 10))
-    ->description("Number of segments in the Z direction")
-    ->pretty_name("Z segments");
+    .description("Number of segments in the Z direction")
+    .pretty_name("Z segments");
 
   options().add_option(OptionT<Real>::create("length", 10.))
-    ->description("Length in the X direction")
-    ->pretty_name("Length");
+    .description("Length in the X direction")
+    .pretty_name("Length");
 
   options().add_option(OptionT<Real>::create("half_height", 0.5))
-    ->description("Channel half height, in the Y-direction")
-    ->pretty_name("Half Height");
+    .description("Channel half height, in the Y-direction")
+    .pretty_name("Half Height");
 
   options().add_option(OptionT<Real>::create("width", 10.))
-    ->description("Channel witdh in the Z-direction")
-    ->pretty_name("Width");
+    .description("Channel witdh in the Z-direction")
+    .pretty_name("Width");
 
   options().add_option(OptionT<Real>::create("grading", 0.2))
-    ->description("Grading ratio. Values smaller than one refine towards the wall")
-    ->pretty_name("Grading Ratio");
+    .description("Grading ratio. Values smaller than one refine towards the wall")
+    .pretty_name("Grading Ratio");
 }
 
 void ChannelGenerator::execute()
 {
-  if(is_not_null(get_child_ptr("BlockData")))
+  if(is_not_null(get_child("BlockData")))
     remove_component("BlockData");
 
-  if(is_not_null(get_child_ptr("ParallelBlocks")))
+  if(is_not_null(get_child("ParallelBlocks")))
     remove_component("ParallelBlocks");
 
   const Uint x_segs = option("x_segments").value<Uint>();
@@ -125,7 +126,7 @@ void ChannelGenerator::execute()
 
   const Uint nb_parts = option("nb_parts").value<Uint>();
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   if(PE::Comm::instance().is_active() && nb_parts > 1)
   {

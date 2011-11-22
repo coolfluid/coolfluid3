@@ -10,6 +10,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
+#include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -46,7 +47,7 @@ CreateSpaceP0::CreateSpaceP0( const std::string& name )
 void CreateSpaceP0::execute()
 {
 
-  Mesh& mesh = *m_mesh.lock();
+  Mesh& mesh = *m_mesh;
 
   boost_foreach(Entities& entities, find_components_recursively<Entities>(mesh))
   {
