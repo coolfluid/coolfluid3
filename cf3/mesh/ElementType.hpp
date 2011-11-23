@@ -108,13 +108,20 @@ public: // functions
   /// @param [in]  nodes         coordinates of the element nodes (nb_nodes x dimension)
   /// @param [out] mapped_coord  result
   virtual void compute_mapped_coordinate(const RealVector& coord, const RealMatrix& nodes, RealVector& mapped_coord) const = 0;
-  /// Compute the determinant of the jacobian
+
+  /// Compute the determinant of the jacobian dX/dKSI
   /// @param [in] mapped_coord  coordinates in mapped space (dimensionality x 1)
   /// @param [in] nodes         coordinates of the element nodes (nb_nodes x dimension)
   /// @return jacobian determinant
   virtual Real jacobian_determinant(const RealVector& mapped_coord, const RealMatrix& nodes) const = 0;
 
-  /// Compute the jacobian of the transformation
+  /// Compute the jacobian of the transformation dX/dKSI
+  /// @warning This convention is transposed of usual definition. Here used is:
+  /// \f{eqnarray*}{
+  ///   \frac{\partial x}{\partial \xi  } & \frac{\partial y}{\partial \xi  } & \frac{\partial z}{\partial \xi  } \\
+  ///   \frac{\partial x}{\partial \eta } & \frac{\partial y}{\partial \eta } & \frac{\partial z}{\partial \eta } \\
+  ///   \frac{\partial x}{\partial \zeta} & \frac{\partial y}{\partial \zeta} & \frac{\partial z}{\partial \zeta}
+  /// \f}
   /// @param [in]  mapped_coord   coordinates in mapped space (dimensionality x 1)
   /// @param [in]  nodes          coordinates of the element nodes (nb_nodes x dimension)
   /// @param [out] jacobian       jacobian (size = dimensionality x dimension)
