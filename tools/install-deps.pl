@@ -79,7 +79,7 @@ my %packages = (  #  version   default install priority      function
     "mpich"      => [ "1.2.7p1",  'off',   'off', $priority++,  \&install_mpich ],
     "mpich2"     => [ "1.3.2p1",  'off',   'off', $priority++,  \&install_mpich2 ],
     "boost-jam"  => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
-    "boost"      => [ "1_46_1",   'on' ,   'off', $priority++,  \&install_boost ],
+    "boost"      => [ "1_48_0",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.2.0",    'off',   'off', $priority++,  \&install_parmetis ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
@@ -1127,7 +1127,18 @@ sub install_boost()
 
     my $boost_arch = boost_arch();
 
-    if ($bjampath eq "" and -d "tools/build/v2/engine/src" ) # newer builds of boost >= 1.45
+    if ($bjampath eq "" and -e "tools/build/v2/engine/build.sh" ) # newer builds of boost >= 1.48
+    {
+      print "building tools/build/v2/engine\n";
+
+      safe_chdir("tools/build/v2/engine");
+
+      run_command_or_die("sh build.sh $toolset");
+
+      $bjampath="$opt_tmp_dir/$pack/tools/build/v2/engine/bin.$boost_arch/bjam";
+      if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
+    }
+    elsif ($bjampath eq "" and -d "tools/build/v2/engine/src" ) # newer builds of boost >= 1.45
     {
       print "building tools/build/v2/engine/src\n";
 
@@ -1138,8 +1149,7 @@ sub install_boost()
       $bjampath="$opt_tmp_dir/$pack/tools/build/v2/engine/src/bin.$boost_arch/bjam";
       if ( not -e $bjampath ) { die "Cannot find bjam in $bjampath" }
     }
-
-    if ($bjampath eq "" and -d "tools/jam/src" ) # older builds of boost <= 1.44
+	elsif ($bjampath eq "" and -d "tools/jam/src" ) # older builds of boost <= 1.44
     {
       print "building tools/jam/src\n";
 
@@ -1187,7 +1197,7 @@ using mpi : $opt_mpi_dir/bin/mpicxx ;
 ZZZ
       close (USERCONFIGJAM); 
     }
-    run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options --with-python $boostmpiopt toolset=$toolset threading=multi variant=release stage install");
+    run_command_or_die("$bjampath --user-config=$bjamcfg --prefix=$opt_install_dir --with-test --with-thread --with-iostreams --with-filesystem --with-system --with-regex --with-date_time --with-program_options --with-python $boostmpiopt toolset=$toolset threading=multi variant=release stage install $opt_makeopts");
   }
 }
 
