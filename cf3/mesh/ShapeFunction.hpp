@@ -57,22 +57,28 @@ public: // functions
   //@{
 
   /// @return shape as string
-  std::string shape_name() const { return mesh::GeoShape::Convert::instance().to_str( m_shape ); }
+  std::string shape_name() const { return mesh::GeoShape::Convert::instance().to_str( shape() ); }
 
   /// @return shape as enumerator
-  GeoShape::Type shape() const  {  return m_shape; }
+  virtual GeoShape::Type shape() const = 0;
 
   /// @return number of nodes
-  Uint nb_nodes() const  { return m_nb_nodes; }
+  virtual Uint nb_nodes() const = 0;
 
-  /// @return order
-  Uint order() const { return m_order; }
+  /// @return Number of faces of the shape function
+  virtual Uint nb_faces() const = 0;
+
+  /// @return Order of the shape function
+  virtual Uint order() const = 0;
 
   /// @return dimensionality (e.g. shell in 3D world: dimensionality = 2)
-  Uint dimensionality() const { return m_dimensionality; }
+  virtual Uint dimensionality() const = 0;
 
   /// @return a matrix with all local coordinates where the shape function is defined
   virtual const RealMatrix& local_coordinates() const = 0;
+
+  /// @return a matrix with all face normals for every face as rows in local coordinates
+  virtual const RealMatrix& face_normals() const = 0;
 
   //@}
 
@@ -101,17 +107,6 @@ public: // functions
   virtual void compute_gradient(const RealVector& local_coordinate, RealMatrix& gradient) const = 0;
 
   //@}
-
-protected: // data
-
-  /// the GeoShape::Type corresponding to the shape
-  GeoShape::Type m_shape;
-  /// the number of nodes used in this shape function
-  Uint m_nb_nodes;
-  /// the order of this shape function
-  Uint m_order;
-  /// the dimensionality of the element
-  Uint m_dimensionality;
 
 }; // ShapeFunction
 

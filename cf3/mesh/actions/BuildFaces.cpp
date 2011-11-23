@@ -223,14 +223,6 @@ void BuildFaces::build_faces_bottom_up(Component& parent)
       boost_foreach(Elements& elements, find_components_with_filter<Elements>(region,IsElementsVolume()))
       {
         elements.move_to(cells);
-
-        if (m_store_cell2face)
-        {
-          Connectivity& c2f = elements.create_component<Connectivity>("face_connectivity");
-          c2f.set_lookup(m_mesh.lock()->elements());
-          c2f.resize(elements.size());
-          c2f.set_row_size(elements.element_type().nb_faces());
-        }
       }
 
       //std::cout << PERank << "create inner faces" << std::endl;
@@ -509,10 +501,10 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
       std::map<Face2Cell,Uint,FaceCompare> found_faces;
       std::map<Face2Cell,Uint,FaceCompare>::iterator not_found = found_faces.end();
 
-//      std::cout << "    searching for match for " << bdry_entity << "  ( ";
-//      boost_foreach(const Uint bdry_face_node, bdry_face_nodes)
-//          std::cout << bdry_face_node << " " ;
-//      std::cout << ")"<< std::endl;
+      //      std::cout << "    searching for match for " << bdry_entity << "  ( ";
+      //      boost_foreach(const Uint bdry_face_node, bdry_face_nodes)
+      //          std::cout << bdry_face_node << " " ;
+      //      std::cout << ")"<< std::endl;
       bool match_found = false;
       boost_foreach(const Uint bdry_face_node, bdry_face_nodes)
       {
@@ -634,6 +626,21 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
 
 void BuildFaces::build_cell_face_connectivity(Component& parent)
 {
+
+  boost_foreach(Cells& elements, find_components_recursively<Cells>(parent))
+  {
+    Connectivity& c2f = elements.create_component<Connectivity>("face_connectivity");
+    CFLogVar(c2f.uri());
+    UnifiedData& lookup = c2f.create_lookup();
+    boost_foreach(const Entities& entities, find_components_recursively<Entities>(parent))
+    {
+      lookup.add(entities);
+      cf3_assert(c2f.lookup().contains(entities));
+    }
+    c2f.resize(elements.size());
+    c2f.set_row_size(elements.element_type().nb_faces());
+  }
+
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
     //std::cout << PERank << face_elements.uri().path() << std::endl;
@@ -648,12 +655,12 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
       //std::cout << PERank << "        --->  cell["<<cell_idx<<"]"<< std::endl;
       Entity left_cell = face.cells()[LEFT];
       Connectivity& left_c2f = left_cell.comp->get_child("face_connectivity").as_type<Connectivity>();
-      left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = left_c2f.lookup().unified_idx(*face.comp,face.idx);
+      left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = left_c2f.lookup().unified_idx(face_elements,face.idx);
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
         Connectivity& right_c2f = right_cell.comp->get_child("face_connectivity").as_type<Connectivity>();
-        right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = right_c2f.lookup().unified_idx(*face.comp,face.idx);
+        right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = right_c2f.lookup().unified_idx(face_elements,face.idx);
         //std::cout << PERank << "        --->  cell[" << cell_idx<<"]"<< std::endl;
       }
     }

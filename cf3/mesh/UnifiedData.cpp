@@ -34,6 +34,7 @@ UnifiedData::UnifiedData ( const std::string& name ) : common::Component(name)
 
 Uint UnifiedData::unified_idx(const common::Component& component, const Uint local_idx) const
 {
+  cf3_assert(contains(component));
   std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(&component);
   return it->second +local_idx;
 }
@@ -42,7 +43,9 @@ Uint UnifiedData::unified_idx(const common::Component& component, const Uint loc
 
 Uint UnifiedData::unified_idx(const boost::tuple<common::Component::Ptr,Uint>& loc) const
 {
+  cf3_assert(contains(*boost::get<0>(loc)));
   std::map<common::Component const*,Uint>::const_iterator it = m_start_idx.find(boost::get<0>(loc).get());
+  cf3_assert(it!=m_start_idx.end());
   return it->second + boost::get<1>(loc);
 }
 
