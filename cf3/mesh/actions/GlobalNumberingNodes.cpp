@@ -22,6 +22,7 @@
 #include "common/OptionArray.hpp"
 #include "common/CreateComponentDataType.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
@@ -64,11 +65,11 @@ GlobalNumberingNodes::GlobalNumberingNodes( const std::string& name )
   m_debug(false)
 {
 
-  m_properties["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
+  properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
   std::string desc;
   desc =
     "  Usage: GlobalNumberingNodes Regions:array[uri]=region1,region2\n\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
   options().add_option("debug", m_debug)
       .description("Perform checks on validity")
@@ -107,7 +108,7 @@ void GlobalNumberingNodes::execute()
     mesh.geometry_fields().create_component<CVector_size_t>("glb_node_hash");
 
   CVector_size_t& glb_node_hash =
-      *Handle<CVector_size_t>(mesh.geometry_fields().get_child("glb_node_hash").handle());
+      *Handle<CVector_size_t>(mesh.geometry_fields().get_child("glb_node_hash"));
 
   glb_node_hash.data().resize(coordinates.size());
 

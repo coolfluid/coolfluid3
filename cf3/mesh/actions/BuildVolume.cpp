@@ -9,6 +9,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildVolume.hpp"
 #include "mesh/Cells.hpp"
@@ -71,8 +72,9 @@ void BuildVolume::execute()
   Field& volume = cells_P0.create_field(mesh::Tags::volume());
   volume.add_tag(mesh::Tags::volume());
 
-  boost_foreach( Elements& elements, volume.elements_range() )
+  boost_foreach( const Handle<Elements>& elements_handle, volume.elements_range() )
   {
+    Elements& elements = *elements_handle;
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)

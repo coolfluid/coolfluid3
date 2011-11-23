@@ -10,6 +10,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
@@ -89,8 +90,9 @@ void BuildFaceNormals::execute()
 
   Handle< Component > component;
   Uint cell_idx(0);
-  boost_foreach( Entities& faces, face_normals.entities_range() )
+  boost_foreach( const Handle<Entities>& faces_handle, face_normals.entities_range() )
   {
+    Entities& faces = *faces_handle;
     Handle< FaceCellConnectivity > face2cell_ptr = find_component_ptr<FaceCellConnectivity>(faces);
     if (is_not_null(face2cell_ptr))
     {

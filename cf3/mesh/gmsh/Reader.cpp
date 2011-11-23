@@ -68,7 +68,7 @@ Reader::Reader( const std::string& name )
 
   // properties
 
-  m_properties["brief"] = std::string("Gmsh file reader component");
+  properties()["brief"] = std::string("Gmsh file reader component");
 
   std::string desc;
   desc += "This component can read in parallel.\n";
@@ -76,7 +76,7 @@ Reader::Reader( const std::string& name )
   desc += "Available coolfluid-element types are:\n";
   BOOST_FOREACH(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 }
 
 //////////////////////////////////////////////////////////////////////////////

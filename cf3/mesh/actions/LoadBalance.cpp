@@ -8,6 +8,8 @@
 
 #include "common/Builder.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/PE/Comm.hpp"
 
@@ -30,8 +32,13 @@ common::ComponentBuilder < LoadBalance, MeshTransformer, mesh::actions::LibActio
 
 //////////////////////////////////////////////////////////////////////////////
 
-LoadBalance::LoadBalance( const std::string& name )
-: MeshTransformer(name)
+LoadBalance::LoadBalance( const std::string& name ) :
+  MeshTransformer(name),
+#if defined (CF3_HAVE_PTSCOTCH)
+  m_partitioner(create_component("partitioner", "cf3.mesh.ptscotch.Partitioner"))
+#elif defined (CF3_HAVE_ZOLTAN)
+  m_partitioner(create_component("partitioner", "cf3.mesh.zoltan.Partitioner"))
+#endif
 {
 
   properties()["brief"] = std::string("Construct global node and element numbering based on coordinates hash values");
@@ -40,13 +47,9 @@ LoadBalance::LoadBalance( const std::string& name )
     "  Usage: LoadBalance Regions:array[uri]=region1,region2\n\n";
   properties()["description"] = desc;
 
-#if defined (CF3_HAVE_PTSCOTCH)
-  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.ptscotch.Partitioner","partitioner");
-#elif defined (CF3_HAVE_ZOLTAN)
-  m_partitioner = build_component_abstract_type<MeshTransformer>("cf3.mesh.zoltan.Partitioner","partitioner");
-  m_partitioner->configure_option("graph_package", std::string("PHG"));
+#ifdef CF3_HAVE_ZOLTAN
+  m_partitioner->options().configure_option("graph_package", std::string("PHG"));
 #endif
-  add_static_component(*m_partitioner);
 }
 
 /////////////////////////////////////////////////////////////////////////////

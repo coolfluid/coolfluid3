@@ -9,6 +9,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StringConversion.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Elements.hpp"
 #include "mesh/Region.hpp"

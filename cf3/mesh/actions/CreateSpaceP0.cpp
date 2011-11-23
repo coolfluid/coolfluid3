@@ -11,6 +11,7 @@
 #include "common/Foreach.hpp"
 #include "common/Builder.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 
 #include "mesh/Mesh.hpp"

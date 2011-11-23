@@ -34,8 +34,8 @@ class Mesh_API MeshWriter : public common::Action {
 public: // typedefs
 
   /// pointer to this type
-  
-  
+
+
 
 public: // functions
 
@@ -84,9 +84,6 @@ protected: // classes
   }; // IsGroup
 
 protected:
-
-  // TODO: remove this
-  const Mesh* m_mesh;
 
   std::vector<Handle<Field> > m_fields;
 

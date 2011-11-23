@@ -19,6 +19,7 @@
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/Mesh.hpp"
 #include "mesh/Region.hpp"
@@ -66,14 +67,14 @@ Reader::Reader( const std::string& name )
       .description("Read the surface elements for the boundary")
       .pretty_name("Read Boundaries");
 
-  m_properties["brief"] = std::string("neutral file mesh reader component");
+  properties()["brief"] = std::string("neutral file mesh reader component");
 
   std::string desc;
   desc += "This component can read in parallel.\n";
   desc += "Available coolfluid-element types are:\n";
   boost_foreach(const std::string& supported_type, m_supported_types)
   desc += "  - " + supported_type + "\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -120,7 +121,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   std::vector<Uint> num_obj(2);
   num_obj[0] = m_headerData.NUMNP;
   num_obj[1] = m_headerData.NELEM;
-  m_hash->configure_option("nb_obj",num_obj);
+  m_hash->options().configure_option("nb_obj",num_obj);
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
@@ -131,10 +132,10 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   find_ghost_nodes();
   read_coordinates();
   read_connectivity();
-  if (option("read_boundaries").value<bool>())
+  if (options().option("read_boundaries").value<bool>())
     read_boundaries();
 
-  if (option("read_groups").value<bool>())
+  if (options().option("read_groups").value<bool>())
     read_groups();
 
   // clean-up
@@ -146,7 +147,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
   {
     elements.rank().resize(elements.size());
-    Uint my_rank = option("part").value<Uint>();
+    Uint my_rank = options().option("part").value<Uint>();
     for (Uint e=0; e<elements.size(); ++e)
     {
       elements.rank()[e] = my_rank;
@@ -236,7 +237,7 @@ void Reader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (option("nb_parts").value<Uint>() > 1)
+  if (options().option("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_cells_position,std::ios::beg);
     // skip next line
@@ -350,7 +351,7 @@ void Reader::read_connectivity()
   m_file.seekg(m_elements_cells_position,std::ios::beg);
 
   std::map<std::string,Handle< Elements > > elements = create_cells_in_region(*m_tmp,nodes,m_supported_types);
-  std::map<std::string,Handle< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
+  std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
 
   // skip next line
   std::string line;
@@ -486,7 +487,7 @@ void Reader::read_groups()
     //CFinfo << "region " << region.uri().string() << " created" << CFendl;
     // Create regions for each element type in each group-region
     std::map<std::string,Handle< Elements > > elements = create_cells_in_region(region,nodes,m_supported_types);
-    std::map<std::string,Handle< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
+    std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap(elements);
 
     // Copy elements from tmp_region in the correct region
     boost_foreach(Uint global_element, group.ELEM)
@@ -497,7 +498,7 @@ void Reader::read_groups()
 
       Uint idx = buffer[etype]->add_row(tmp_elems->node_connectivity().array()[local_element]);
       std::string new_elems_name = tmp_elems->name();
-      m_global_to_tmp[global_element] = Handle<Elements>(std::make_pair(region.get_child(new_elems_name)),idx);
+      m_global_to_tmp[global_element] = std::make_pair(Handle<Elements>(region.get_child(new_elems_name)),idx);
     }
   }
 
@@ -537,7 +538,7 @@ void Reader::read_boundaries()
 
     // create all kind of element type regions
     std::map<std::string,Handle< Elements > > elements = create_faces_in_region (bc_region,nodes,m_supported_types);
-    std::map<std::string,Handle< Connectivity::Buffer > > buffer = create_connectivity_buffermap (elements);
+    std::map<std::string,boost::shared_ptr< Connectivity::Buffer > > buffer = create_connectivity_buffermap (elements);
 
     // read boundary elements connectivity
     for (int i=0; i<NENTRY; ++i)

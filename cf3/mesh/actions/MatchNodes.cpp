@@ -15,6 +15,8 @@
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/actions/MatchNodes.hpp"
 #include "mesh/CellFaces.hpp"
@@ -51,11 +53,11 @@ MatchNodes::MatchNodes( const std::string& name )
 : MeshTransformer(name)
 {
 
-  m_properties["brief"] = std::string("Match nodes in given regions");
+  properties()["brief"] = std::string("Match nodes in given regions");
   std::string desc;
   desc =
     "  Usage: MatchNodes Regions:array[uri]=region1,region2\n\n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
 
   options().add_option("Regions", std::vector<URI>())
@@ -88,7 +90,7 @@ void MatchNodes::execute()
   CFinfo << mesh.tree() << CFendl;
   const Uint m_dim = mesh.geometry_fields().coordinates().row_size();
 
-  std::vector<URI> region_paths = option("Regions").value<std::vector<URI> >();
+  std::vector<URI> region_paths = options().option("Regions").value<std::vector<URI> >();
 
   Region& region_1 = *Handle<Region>(mesh.access_component(region_paths[0]));
   Region& region_2 = *Handle<Region>(mesh.access_component(region_paths[1]));

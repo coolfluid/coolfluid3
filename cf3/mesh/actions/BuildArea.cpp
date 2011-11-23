@@ -9,6 +9,7 @@
 
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/actions/BuildArea.hpp"
 #include "mesh/Cells.hpp"
@@ -71,8 +72,9 @@ void BuildArea::execute()
   Field& area = faces_P0.create_field(mesh::Tags::area());
   area.add_tag(mesh::Tags::area());
 
-  boost_foreach(Entities& elements, area.entities_range() )
+  boost_foreach(const Handle<Entities>& elements_handle, area.entities_range() )
   {
+    Entities& elements = *elements_handle;
     RealMatrix coordinates;  elements.allocate_coordinates(coordinates);
 
     for (Uint cell_idx = 0; cell_idx<elements.size(); ++cell_idx)

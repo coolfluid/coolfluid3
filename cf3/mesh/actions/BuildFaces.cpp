@@ -16,7 +16,10 @@
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "math/Functions.hpp"
 
@@ -68,15 +71,15 @@ BuildFaces::BuildFaces( const std::string& name )
   m_store_cell2face(false)
 {
 
-  m_properties["brief"] = std::string("Print information of the mesh");
+  properties()["brief"] = std::string("Print information of the mesh");
   std::string desc;
   desc =
   "  Usage: Info \n\n"
   "          Information given: internal mesh hierarchy,\n"
   "      element distribution for each region, and element type";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
-  options().add_option( OptionT<bool>::create("store_cell2face", m_store_cell2face) )
+  options().add_option("store_cell2face", m_store_cell2face)
       .description("Optionally store Cell to Face connectivity")
       .pretty_name("Store Cell to Face")
       .mark_basic()
@@ -123,7 +126,7 @@ void BuildFaces::execute()
 void BuildFaces::make_interfaces(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
 
   Handle< Elements > comp;
 //  std::cout << PERank << "make interfaces for " << parent.name() << std::endl;
@@ -158,11 +161,11 @@ void BuildFaces::make_interfaces(Component& parent)
       }
       else
       {
-        Region& interface = parent.create_component<Region>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
+        Region& interface = *parent.create_component<Region>("interface_"+regions[i]->name()+"_to_"+regions[j]->name());
         interface.add_tag( mesh::Tags::interface() );
 
 //        std::cout << PERank << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << std::endl;
-        Handle< FaceCellConnectivity > f2c = match_faces(*regions[i],*regions[j]);
+        boost::shared_ptr< FaceCellConnectivity > f2c = match_faces(*regions[i],*regions[j]);
 
         build_face_elements(interface,*f2c,true);
 
@@ -177,7 +180,7 @@ void BuildFaces::make_interfaces(Component& parent)
 void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
 
   Handle< Cells > comp;
 
@@ -189,7 +192,7 @@ void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
     {
 //      std::cout << PERank << "building face_cell connectivity for region " << region.uri().path() << std::endl;
       Handle<FaceCellConnectivity> face_to_cell = region.create_component<FaceCellConnectivity>("face_to_cell");
-      face_to_cell->configure_option("face_building_algorithm",true);
+      face_to_cell->options().configure_option("face_building_algorithm",true);
       face_to_cell->add_tag(mesh::Tags::inner_faces());
       face_to_cell->setup(region);
     }
@@ -205,7 +208,7 @@ void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 void BuildFaces::build_faces_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
 
   Handle< Elements > comp;
 
@@ -220,14 +223,14 @@ void BuildFaces::build_faces_bottom_up(Component& parent)
       FaceCellConnectivity& face_to_cell = find_component<FaceCellConnectivity>(region);
 
       //std::cout << PERank << "create cells" << std::endl;
-      Region& cells = region.create_component<Region>("cells");
+      Region& cells = *region.create_component<Region>("cells");
       boost_foreach(Elements& elements, find_components_with_filter<Elements>(region,IsElementsVolume()))
       {
         elements.move_to(cells);
 
         if (m_store_cell2face)
         {
-          Connectivity& c2f = elements.create_component<Connectivity>("face_connectivity");
+          Connectivity& c2f = *elements.create_component<Connectivity>("face_connectivity");
           c2f.set_lookup(m_mesh->elements());
           c2f.resize(elements.size());
           c2f.set_row_size(elements.element_type().nb_faces());
@@ -260,9 +263,9 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
 {
   Mesh& mesh = *m_mesh;
   std::set<std::string> face_types;
-  std::map<std::string,Handle< ElementConnectivity::Buffer > > f2c_buffer_map;
-  std::map<std::string,Handle< common::Table<Uint>::Buffer > > fnb_buffer_map;
-  std::map<std::string,Handle< common::List<bool>::Buffer > > bdry_buffer_map;
+  std::map<std::string,boost::shared_ptr< ElementConnectivity::Buffer > > f2c_buffer_map;
+  std::map<std::string,boost::shared_ptr< common::Table<Uint>::Buffer > > fnb_buffer_map;
+  std::map<std::string,boost::shared_ptr< common::List<bool>::Buffer > > bdry_buffer_map;
 
   Handle< Component > elem_comp;
   Uint elem_idx;
@@ -336,17 +339,17 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     faces.rank().resize(faces.size());
     faces.glb_idx().resize(faces.size());
     FaceCellConnectivity&  f2c  = faces.cell_connectivity();
-    common::Table<Uint>&           fnb  = f2c.get_child("face_number" *Handle< common::Table<Uint> >().handle());
-    common::List<bool>&            bdry = *Handle< common::List<bool> >(f2c.get_child("is_bdry_face").handle());
-    cf3_assert(f2c.size() == fnb.size());
-    cf3_assert(fnb.size() == faces.size());
-    cf3_assert(bdry.size() == faces.size());
+    Handle< common::Table<Uint> >          fnb(f2c.get_child("face_number"));
+    Handle< common::List<bool> >           bdry(f2c.get_child("is_bdry_face"));
+    cf3_assert(f2c.size() == fnb->size());
+    cf3_assert(fnb->size() == faces.size());
+    cf3_assert(bdry->size() == faces.size());
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Handle< FaceCellConnectivity > BuildFaces::match_faces(Region& region1, Region& region2)
+boost::shared_ptr< FaceCellConnectivity > BuildFaces::match_faces(Region& region1, Region& region2)
 {
 
 //  std::cout << "matching faces between regions " << region1.uri().path() << "  and  " << region2.uri().path() << std::endl;
@@ -354,25 +357,25 @@ Handle< FaceCellConnectivity > BuildFaces::match_faces(Region& region1, Region& 
   Mesh& mesh = *m_mesh;
   // interface connectivity
   boost::shared_ptr<FaceCellConnectivity> interface = allocate_component<FaceCellConnectivity>("interface_connectivity");
-  interface->configure_option("face_building_algorithm",true);
+  interface->options().configure_option("face_building_algorithm",true);
   ElementConnectivity::Buffer i2c = find_component_with_name<ElementConnectivity>(*interface,mesh::Tags::connectivity_table()).create_buffer();
   common::Table<Uint>::Buffer fnb = find_component_with_name<common::Table<Uint> >(*interface,"face_number").create_buffer();
   common::List<bool>::Buffer bdry = find_component_with_name<common::List<bool> >(*interface,"is_bdry_face").create_buffer();
 
 
   // create buffers for each sub-face_cell_connectivity
-  std::map<FaceCellConnectivity*,Handle<common::Table<Uint>::Buffer> > buf_fnb;
-  std::map<FaceCellConnectivity*,Handle<common::List<bool>::Buffer> >  buf_bdry;
-  std::map<FaceCellConnectivity*,Handle<ElementConnectivity::Buffer> > buf_f2c;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> > buf_fnb;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::List<bool>::Buffer> >  buf_bdry;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<ElementConnectivity::Buffer> > buf_f2c;
 
   // Build a node to face connectivity matching faces2
   boost::shared_ptr<Node2FaceCellConnectivity> node2faces2_ptr = allocate_component<Node2FaceCellConnectivity>("node2faces");
   Node2FaceCellConnectivity& node2faces2 = *node2faces2_ptr;
   boost_foreach(FaceCellConnectivity& faces2, find_components_recursively_with_tag<FaceCellConnectivity>(region2,mesh::Tags::inner_faces()))
   {
-    buf_fnb [&faces2] = Handle<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces2.face_number().create_buffer()));
-    buf_bdry[&faces2] = Handle<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces2.is_bdry_face().create_buffer()));
-    buf_f2c [&faces2] = Handle<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces2.connectivity().create_buffer()));
+    buf_fnb [&faces2] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces2.face_number().create_buffer()));
+    buf_bdry[&faces2] = boost::shared_ptr<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces2.is_bdry_face().create_buffer()));
+    buf_f2c [&faces2] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces2.connectivity().create_buffer()));
     node2faces2.add_used(faces2); // it is assumed this is only face types
   }
   node2faces2.set_nodes(mesh.geometry_fields());
@@ -382,9 +385,9 @@ Handle< FaceCellConnectivity > BuildFaces::match_faces(Region& region1, Region& 
   Uint faces1_idx(0);
   boost_foreach(FaceCellConnectivity& faces1, find_components_recursively_with_tag<FaceCellConnectivity>(region1,mesh::Tags::inner_faces()))
   {
-    buf_fnb [&faces1] = Handle<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces1.face_number().create_buffer()));
-    buf_bdry[&faces1] = Handle<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces1.is_bdry_face().create_buffer()));
-    buf_f2c [&faces1] = Handle<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces1.connectivity().create_buffer()));
+    buf_fnb [&faces1] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(faces1.face_number().create_buffer()));
+    buf_bdry[&faces1] = boost::shared_ptr<common::List<bool>::Buffer> ( new common::List<bool>::Buffer(faces1.is_bdry_face().create_buffer()));
+    buf_f2c [&faces1] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(faces1.connectivity().create_buffer()));
 
 
     std::vector<Uint> face_nodes;
@@ -459,18 +462,18 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
   Mesh& mesh = *m_mesh;
 
   // create buffers for each face_cell_connectivity of unified_inner_faces_to_cells
-  std::map<FaceCellConnectivity*,Handle<common::Table<Uint>::Buffer> >  buf_inner_face_nb;
-  std::map<FaceCellConnectivity*,Handle<common::List<bool>::Buffer> >   buf_inner_face_is_bdry;
-  std::map<FaceCellConnectivity*,Handle<ElementConnectivity::Buffer> >  buf_inner_face_connectivity;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::Table<Uint>::Buffer> >  buf_inner_face_nb;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<common::List<bool>::Buffer> >   buf_inner_face_is_bdry;
+  std::map<FaceCellConnectivity*,boost::shared_ptr<ElementConnectivity::Buffer> >  buf_inner_face_connectivity;
 
   // Build a node to face connectivity matching faces2
   boost::shared_ptr<Node2FaceCellConnectivity> nodes_to_inner_faces_ptr = allocate_component<Node2FaceCellConnectivity>("node2faces");
   Node2FaceCellConnectivity& nodes_to_inner_faces = *nodes_to_inner_faces_ptr;
   boost_foreach(FaceCellConnectivity& f2c, find_components_recursively_with_tag<FaceCellConnectivity>(inner_region,mesh::Tags::inner_faces()))
   {
-    buf_inner_face_nb          [&f2c] = Handle<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(f2c.face_number().create_buffer()));
-    buf_inner_face_is_bdry     [&f2c] = Handle<common::List<bool>::Buffer>  ( new common::List<bool>::Buffer(f2c.is_bdry_face().create_buffer()));
-    buf_inner_face_connectivity[&f2c] = Handle<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(f2c.connectivity().create_buffer()));
+    buf_inner_face_nb          [&f2c] = boost::shared_ptr<common::Table<Uint>::Buffer> ( new common::Table<Uint>::Buffer(f2c.face_number().create_buffer()));
+    buf_inner_face_is_bdry     [&f2c] = boost::shared_ptr<common::List<bool>::Buffer>  ( new common::List<bool>::Buffer(f2c.is_bdry_face().create_buffer()));
+    buf_inner_face_connectivity[&f2c] = boost::shared_ptr<ElementConnectivity::Buffer> ( new ElementConnectivity::Buffer(f2c.connectivity().create_buffer()));
     nodes_to_inner_faces.add_used(f2c);
   }
   nodes_to_inner_faces.set_nodes(mesh.geometry_fields());
@@ -482,7 +485,7 @@ void BuildFaces::match_boundary(Region& bdry_region, Region& inner_region)
     if (is_null(bdry_face_to_cell))
     {
       bdry_face_to_cell = bdry_faces.create_component<FaceCellConnectivity>("cell_connectivity");
-      bdry_face_to_cell->configure_option("face_building_algorithm",true);
+      bdry_face_to_cell->options().configure_option("face_building_algorithm",true);
     }
 
     ElementConnectivity& bdry_face_connectivity = bdry_face_to_cell->connectivity();
@@ -638,7 +641,7 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
   boost_foreach(Entities& face_elements, find_components_recursively_with_tag<Entities>(parent,mesh::Tags::face_entity()) )
   {
     //std::cout << PERank << face_elements.uri().path() << std::endl;
-    FaceCellConnectivity& f2c = *Handle<FaceCellConnectivity>(face_elements.get_child("cell_connectivity").handle());
+    FaceCellConnectivity& f2c = *Handle<FaceCellConnectivity>(face_elements.get_child("cell_connectivity"));
     const ElementConnectivity& connectivity = f2c.connectivity();
     const common::List<bool>& is_bdry       = f2c.is_bdry_face();
     const common::Table<Uint>& face_nb      = f2c.face_number();
@@ -648,12 +651,12 @@ void BuildFaces::build_cell_face_connectivity(Component& parent)
       //std::cout << PERank << "    face["<<face_idx<<"]" << std::endl;;
       //std::cout << PERank << "        --->  cell["<<cell_idx<<"]"<< std::endl;
       Entity left_cell = face.cells()[LEFT];
-      Connectivity& left_c2f = *Handle<Connectivity>(left_cell.comp->get_child("face_connectivity").handle());
+      Connectivity& left_c2f = *Handle<Connectivity>(left_cell.comp->get_child("face_connectivity"));
       left_c2f[left_cell.idx][face.face_nb_in_cells()[LEFT]] = left_c2f.lookup().unified_idx(*face.comp,face.idx);
       if (face.is_bdry() == false)
       {
         Entity right_cell = face.cells()[RIGHT];
-        Connectivity& right_c2f = *Handle<Connectivity>(right_cell.comp->get_child("face_connectivity").handle());
+        Connectivity& right_c2f = *Handle<Connectivity>(right_cell.comp->get_child("face_connectivity"));
         right_c2f[right_cell.idx][face.face_nb_in_cells()[RIGHT]] = right_c2f.lookup().unified_idx(*face.comp,face.idx);
         //std::cout << PERank << "        --->  cell[" << cell_idx<<"]"<< std::endl;
       }

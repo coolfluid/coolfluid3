@@ -32,8 +32,8 @@ class neu_API Writer : public MeshWriter, public Shared
 
 public: // typedefs
 
-  
-  
+
+
 
 private : // typedefs
 
@@ -54,22 +54,22 @@ public: // functions
 
 private: // functions
 
-  void write_headerData(std::fstream& file);
+  void write_headerData(std::fstream& file, const Mesh& mesh);
 
-  void write_coordinates(std::fstream& file);
+  void write_coordinates(std::fstream& file, const Mesh& mesh);
 
-  void write_connectivity(std::fstream& file);
+  void write_connectivity(std::fstream& file, const Mesh& mesh);
 
-  void write_groups(std::fstream& file);
+  void write_groups(std::fstream& file, const Mesh& mesh);
 
-  void write_boundaries(std::fstream& file);
+  void write_boundaries(std::fstream& file, const Mesh& mesh);
 
-  void create_nodes_to_element_connectivity();
+  void create_nodes_to_element_connectivity(const Mesh& mesh);
 
 private: // data
 
   /// implementation detail, raw pointers are safe as keys
-  std::map<Handle< Elements >,Uint> m_global_start_idx;
+  std::map<Handle< Elements const >,Uint> m_global_start_idx;
 
   std::string m_fileBasename;
 

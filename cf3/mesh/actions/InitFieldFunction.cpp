@@ -14,6 +14,8 @@
 #include "common/Foreach.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 #include "mesh/actions/InitFieldFunction.hpp"
 #include "mesh/Elements.hpp"
@@ -107,8 +109,9 @@ void InitFieldFunction::execute()
   }
   else
   {
-    boost_foreach( Entities& elements, field.entities_range() )
+    boost_foreach( const Handle<Entities>& elements_handle, field.entities_range() )
     {
+      Entities& elements = *elements_handle;
       Space& space = field.space(elements);
       RealMatrix coordinates;
       space.allocate_coordinates(coordinates);

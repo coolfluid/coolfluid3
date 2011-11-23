@@ -14,6 +14,8 @@
 #include "common/Foreach.hpp"
 #include "common/DynTable.hpp"
 #include "common/List.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 
 
 #include "common/PE/Comm.hpp"
@@ -193,7 +195,7 @@ void GrowOverlap::execute()
 
   const std::vector< Handle<Component> >& mesh_elements = mesh.elements().components();
 
-  FaceCellConnectivity& face2cell = mesh.create_component<FaceCellConnectivity>("face2cell");
+  FaceCellConnectivity& face2cell = *mesh.create_component<FaceCellConnectivity>("face2cell");
   face2cell.setup(mesh.topology());
 
 

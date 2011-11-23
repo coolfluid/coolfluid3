@@ -6,6 +6,8 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Signal.hpp"
 
 #include "common/PE/Comm.hpp"
@@ -87,8 +89,9 @@ void Interpolate::execute()
   if(find_parent_component_ptr<Mesh>(source) == find_parent_component_ptr<Mesh>(target))
   {
     /// Loop over Regions
-    boost_foreach(Entities& elements, target.entities_range())
+    boost_foreach(const Handle<Entities>& elements_handle, target.entities_range())
     {
+      Entities& elements = *elements_handle;
       if (source.elements_lookup().contains(elements) == false)
         continue;
       //      throw BadValue(FromHere(),"Source field "+source.uri().string()+" is not defined in elements "+elements.uri().string());
@@ -157,15 +160,15 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   if ( is_null(m_octtree) )
     m_octtree = create_component<Octtree>("octtree");
 
-  if ( m_octtree->option("mesh").value<URI>().string() != source_mesh.uri().string() )
+  if ( m_octtree->options().option("mesh").value<URI>().string() != source_mesh.uri().string() )
   {
-    m_octtree->configure_option("mesh",source_mesh.uri());
+    m_octtree->options().configure_option("mesh",source_mesh.uri());
     m_octtree->create_octtree();
   }
   const Uint dimension = source_mesh.dimension();
   const Uint nb_vars = source.row_size();
   m_source_space = source.field_group().space();
-  m_source = Handle<Field>(source.handle());
+  m_source = Handle<Field const>(source.handle());
 
   Handle< Elements > element_component;
   Uint element_idx;
@@ -347,8 +350,8 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   URI target_uri = options.value<URI>("target");
   URI coordinates_uri = options.value<URI>("coordinates");
 
-  Field& source = *Handle<Field>(access_component(source_uri).handle());
-  common::Table<Real>& target = *Handle< common::Table<Real> >(access_component(target_uri).handle());
+  Field& source = *Handle<Field>(access_component(source_uri));
+  common::Table<Real>& target = *Handle< common::Table<Real> >(access_component(target_uri));
 
   Handle< common::Table<Real> > coordinates;
   if (coordinates_uri.string() == URI().string())
@@ -366,7 +369,7 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   }
   else
   {
-    coordinates = Handle< common::Table<Real> >(access_component(coordinates_uri).handle());
+    coordinates = Handle< common::Table<Real> >(access_component(coordinates_uri));
   }
 
   interpolate(source,*coordinates,target);
@@ -380,16 +383,16 @@ void Interpolate::signature_interpolate ( common::SignalArgs& node)
   common::XML::SignalOptions options( node );
 
   options.add_option("source",URI())
-      .description("Source field")
-      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Source field");
 
   options.add_option("target",URI())
-      .description("Target field or table")
-      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Target field or table");
 
   options.add_option("coordinates",URI())
-      .description("Table of coordinates if target is not a field")
-      .cast_to<OptionURI>()->supported_protocol( URI::Scheme::CPATH );
+      .supported_protocol( URI::Scheme::CPATH )
+      .description("Table of coordinates if target is not a field");
 
 }
 

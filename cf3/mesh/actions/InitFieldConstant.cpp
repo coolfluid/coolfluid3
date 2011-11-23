@@ -10,6 +10,7 @@
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/OptionT.hpp"
 #include "common/OptionComponent.hpp"
 
@@ -38,10 +39,10 @@ InitFieldConstant::InitFieldConstant( const std::string& name )
   m_constant(0.)
 {
 
-  m_properties["brief"] = std::string("Initialize a field with a constant value");
+  properties()["brief"] = std::string("Initialize a field with a constant value");
   std::string desc;
   desc = "  Usage: InitFieldConstant constant \n";
-  m_properties["description"] = desc;
+  properties()["description"] = desc;
 
   options().add_option("field", m_field)
       .description("Field to initialize")

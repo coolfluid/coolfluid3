@@ -16,6 +16,7 @@
 #include "common/StringConversion.hpp"
 #include "common/OptionArray.hpp"
 #include "common/CreateComponentDataType.hpp"
+#include "common/PropertyList.hpp"
 
 #include "common/PE/Comm.hpp"
 #include "common/PE/debug.hpp"
