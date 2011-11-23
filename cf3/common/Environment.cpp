@@ -95,7 +95,7 @@ Environment::Environment ( const std::string& name) : Component ( name )
       ->description("The log level for exceptions")
       ->mark_basic();
 
-  options().add_option< OptionT<Uint> >("log_level", 3)
+  options().add_option< OptionT<Uint> >("log_level", 3u)
       ->pretty_name("Log Level")
       ->description("The log level [SILENT=0, ERROR=1, WARNING=2, INFO=3, DEBUG=4, TRACE=5, VERBOSE=10")
       ->mark_basic()
@@ -174,7 +174,8 @@ void Environment::trigger_exception_aborts()
 
 void Environment::trigger_log_level()
 {
-  Logger::instance().set_log_level(option("log_level").value<Uint>());
+  Uint log_level = boost::any_cast<Uint>(option("log_level").value());
+  Logger::instance().set_log_level(log_level);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
