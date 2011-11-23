@@ -171,6 +171,8 @@ void CNode::set_properties( const SignalArgs & options )
                 configure_property(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
                 configure_property(key_val, from_str<URI>(value));
+              else if( typ_val == Protocol::Tags::type<UUCount>() )
+                configure_property(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
@@ -189,6 +191,8 @@ void CNode::set_properties( const SignalArgs & options )
                 m_properties.add_property(key_val, std::string(value));
               else if( typ_val == Protocol::Tags::type<URI>() )
                 m_properties.add_property(key_val, from_str<URI>(value));
+              else if( typ_val == Protocol::Tags::type<UUCount>() )
+                configure_property(key_val, from_str<UUCount>(value));
               else
                 throw ShouldNotBeHere(FromHere(), typ_val + ": Unknown type.");
             }
