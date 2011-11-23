@@ -72,7 +72,7 @@ OSystem::OSystem() :
     cf3_assert ( is_not_null( m_layer ) );
     cf3_assert ( is_not_null( m_lib_loader   ) );
   
-  std::vector< URI > default_paths(1, URI(CF3_BUILD_DIR) / URI("dso"));
+  std::vector< URI > default_paths(1, URI(CF3_BUILD_DIR,URI::Scheme::FILE) / URI("dso"));
   m_lib_loader->set_search_paths(default_paths);
 }
 

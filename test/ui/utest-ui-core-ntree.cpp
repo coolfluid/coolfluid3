@@ -42,7 +42,7 @@ Q_DECLARE_METATYPE(QModelIndex)
 
 NRoot::Ptr makeTreeFromFile()
 {
-  static XmlDoc::Ptr doc = XML::parse_file(URI("./tree.xml"));
+  static XmlDoc::Ptr doc = XML::parse_file(URI("./tree.xml",URI::Scheme::FILE));
 
   static NRoot::Ptr root = CNode::create_from_xml(doc->content->first_node("node"))->castTo<NRoot>();
   return root;
