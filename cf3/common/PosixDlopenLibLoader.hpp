@@ -8,6 +8,7 @@
 #define cf3_common_PosixDlopenLibLoader_hpp
 
 #include "common/LibLoader.hpp"
+#include "common/URI.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -34,16 +35,16 @@ public: // functions
 
   /// class interface to add paths to search for libraries
   ///
-  virtual void set_search_paths(const std::vector< boost::filesystem::path >& paths);
+  virtual void set_search_paths(const std::vector< URI >& paths);
 
   protected:
 
-  void* call_dlopen(const boost::filesystem::path& fpath);
+  void* call_dlopen(const URI& fpath);
 
   private: // data
 
     /// paths where to search for the libraries to load
-    std::vector< boost::filesystem::path > m_search_paths;
+    std::vector< URI > m_search_paths;
 
 }; // PosixDlopenLibLoader
 

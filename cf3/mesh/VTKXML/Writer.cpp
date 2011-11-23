@@ -222,9 +222,9 @@ std::vector<std::string> Writer::get_extensions()
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
   // Path for the file written by the current node
-  boost::filesystem::path my_path(file_path.path());
-  const boost::filesystem::path my_dir = my_path.parent_path();
-  const std::string basename = boost::filesystem::basename(my_path);
+  URI my_path(file_path.path());
+  const URI my_dir = my_path.base_path();
+  const std::string basename = my_path.base_name();
   my_path = my_dir / (basename + "_P" + to_str(PE::Comm::instance().rank()) + ".vtu");
 
   XmlDoc doc("1.0", "ISO-8859-1");
@@ -449,7 +449,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
   // Write to file, inserting the binary data at the end
-  boost::filesystem::fstream fout(my_path, std::ios_base::out | std::ios_base::binary);
+  boost::filesystem::fstream fout(my_path.string(), std::ios_base::out | std::ios_base::binary);
 
   // Remove the closing tag
   std::string xml_string;
@@ -470,7 +470,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   // Write the parallel header, if needed
   if(PE::Comm::instance().rank() == 0 || option("distributed_files").value<bool>())
   {
-    boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
+    URI pvtu_path = my_dir / (basename + ".pvtu");
 
     XmlDoc pvtu_doc("1.0", "ISO-8859-1");
 

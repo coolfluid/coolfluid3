@@ -50,7 +50,7 @@ namespace XML { class XmlDoc; }
     /// @throw FileSystemError if the file does not exist.
     /// @throw InvalidPath if @c name is not a valid component name.
     static Ptr create_from_file ( const std::string & name,
-                                  const boost::filesystem::path & file_path );
+                                  const URI& file_path );
 
     /// Get the class name
     static std::string type_name() { return "Journal"; }
@@ -58,19 +58,19 @@ namespace XML { class XmlDoc; }
     /// Loads journal contents from a file.
     /// The journal is cleared before loading.
     /// @param file_path The file with the new journal contents.
-    void load_journal_file ( const boost::filesystem::path & file_path );
+    void load_journal_file ( const URI& file_path );
 
     /// Dumps the journal contents to a file.
     /// If the file already exists, it is overwritten.
     /// @param file_path The file to where the journal is saved.
     /// @throw FileSystemError if the file can not be open with write access.
-    void dump_journal_to ( const boost::filesystem::path & file_path ) const;
+    void dump_journal_to ( const URI& file_path ) const;
 
     /// Adds a signal to the journal.
     /// @param signal_node Signal to add.
     void add_signal ( const SignalArgs & signal_node );
 
-    void execute_signals (const boost::filesystem::path & filename);
+    void execute_signals (const URI& filename);
 
     /// @name SIGNALS
     // @{

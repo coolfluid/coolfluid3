@@ -83,8 +83,8 @@ Journal::~Journal()
 
 ////////////////////////////////////////////////////////////////////////////////
 
-Journal::Ptr Journal::create_from_file ( const std::string & name,
-                                           const boost::filesystem::path & file_path )
+Journal::Ptr Journal::create_from_file ( const std::string& name,
+                                         const URI& file_path )
 {
   Journal::Ptr journal( allocate_component<Journal>(name) );
 
@@ -95,7 +95,7 @@ Journal::Ptr Journal::create_from_file ( const std::string & name,
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::load_journal_file ( const boost::filesystem::path & file_path )
+void Journal::load_journal_file ( const URI& file_path )
 {
   /// @todo handle m_info_node and m_signals_map
 
@@ -105,7 +105,7 @@ void Journal::load_journal_file ( const boost::filesystem::path & file_path )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::dump_journal_to ( const boost::filesystem::path & file_path ) const
+void Journal::dump_journal_to ( const URI& file_path ) const
 {
   XML::to_file( *m_xmldoc, file_path );
 
@@ -130,7 +130,7 @@ void Journal::add_signal ( const SignalArgs & signal_node )
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void Journal::execute_signals (const boost::filesystem::path & filename)
+void Journal::execute_signals (const URI& filename)
 {
 
 
@@ -219,11 +219,9 @@ void Journal::load_journal ( SignalArgs & args )
 void Journal::save_journal ( SignalArgs & args )
 {
   URI file_path("./server-journal.xml", URI::Scheme::FILE);
-  boost::filesystem::path path(file_path.path());
+  XML::to_file( *m_xmldoc, file_path );
 
-  XML::to_file( *m_xmldoc, file_path.path() );
-
-  CFinfo << "Journal dumped to '" << path.canonize().string() << "'" << CFendl;
+  CFinfo << "Journal dumped to '" << file_path.string() << "'" << CFendl;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

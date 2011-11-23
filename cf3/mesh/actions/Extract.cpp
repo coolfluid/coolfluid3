@@ -143,10 +143,9 @@ void Extract::execute()
 
   // Parse the list into individual regions that will not be removed
   std::set<std::string> keep_region;
-  BOOST_FOREACH(const boost::filesystem::path& region_path, keep_region_paths)
+  BOOST_FOREACH(const URI& region_path, keep_region_paths)
   {
-    BOOST_FOREACH(const std::string& region_name, region_path)
-      keep_region.insert(region_name);
+    keep_region.insert(region_path.name());
   }
 
   // Remove regions whose name doesn't appear in the parsed list "keep_region"

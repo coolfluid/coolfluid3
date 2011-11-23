@@ -60,7 +60,7 @@ XmlDoc::Ptr parse_cstring ( const char* str, std::size_t length )
 }
 
 
-XmlDoc::Ptr parse_file ( const boost::filesystem::path& path )
+XmlDoc::Ptr parse_file ( const URI& path )
 {
   using namespace rapidxml;
 
@@ -100,7 +100,7 @@ XmlDoc::Ptr parse_file ( const boost::filesystem::path& path )
 
 /////////////////////////////////////////////////////////////////////////////////
 
-void to_file ( const XmlNode& node, const boost::filesystem::path& fpath )
+void to_file ( const XmlNode& node, const URI& fpath )
 {
   std::ofstream fout ( fpath.string().c_str() );
 

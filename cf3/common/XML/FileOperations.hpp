@@ -9,8 +9,7 @@
 
 ////////////////////////////////////////////////////////////////////////////
 
-#include "common/BoostFilesystem.hpp"
-
+#include "common/URI.hpp"
 #include "common/XML/XmlDoc.hpp"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +27,7 @@ XmlDoc::Ptr parse_string ( const std::string& str );
 /// @param fpath Path to file with xml contents
 /// @return Returns a shared pointer with the built XML document.
 /// @throw FileSystemError If the file cannot be read.
-XmlDoc::Ptr parse_file ( const boost::filesystem::path& path );
+XmlDoc::Ptr parse_file ( const URI& path );
 
 /// Parses a XML C-string
 /// @param str String with the XML contents, cannot be null.
@@ -40,7 +39,7 @@ XmlDoc::Ptr parse_cstring ( const char * str, std::size_t length = 0 );
 /// Writes the provided XML node to a file.
 /// @param node The node to write.
 /// @param fpath The file path to which the node has to be written.
-void to_file ( const XmlNode& node, const boost::filesystem::path& fpath);
+void to_file ( const XmlNode& node, const URI& fpath);
 
 /// Writes the provided XML node to a string.
 /// @param str The string to which the node has to be written.

@@ -56,7 +56,7 @@ ProfiledTestFixture::ProfiledTestFixture() :
 
   boost::filesystem::path command_path(argv[0]);
   boost::char_separator<char> separator(".");
-  boost::tokenizer<boost::char_separator<char> > tokenizer(command_path.leaf(), separator);
+  boost::tokenizer<boost::char_separator<char> > tokenizer(command_path.leaf().string(), separator);
   m_prefix = *tokenizer.begin();
   m_profile_dir = command_path.parent_path();
   m_command = std::string(argv[0]);
@@ -113,13 +113,13 @@ void ProfiledTestFixture::test_unit_finish( boost::unit_test::test_unit const& u
         // note: graph output is too heavy for the dashboard
         //std::string pprof_line(pprof_command + " --dot " + m_command + " " + infile.file_string() + " > " + outfile.file_string() + ".dot");
         //std::string dot_line(std::string(CF3_DOT_COMMAND) + " -Tpng " + outfile.file_string() + ".dot > " + outfile.file_string() + ".png");
-        std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.file_string() + " | head -n 10 > " + outfile.file_string() + ".txt");
+        std::string pprof_line(pprof_command + " --text " + m_command + " " + infile.string() + " | head -n 10 > " + outfile.string() + ".txt");
         OSystem::instance().layer()->execute_command(pprof_line);
         //OSystem::instance().execute_command(dot_line);
 
         // Read the output text file for dasboard output
         std::string profile; // We will read the contents here.
-        std::fstream file((outfile.file_string() + ".txt").c_str());
+        std::fstream file((outfile.string() + ".txt").c_str());
         file.unsetf(std::ios::skipws); // No white space skipping!
         std::copy(
             std::istream_iterator<char>(file),
