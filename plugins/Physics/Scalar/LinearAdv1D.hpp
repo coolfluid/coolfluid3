@@ -50,6 +50,10 @@ public: // functions
                                    const GM& grad_vars,
                                    MODEL::Properties& p )
   {
+    cf3_assert(coord.size()==MODEL::_ndim);
+    cf3_assert(sol.size()==MODEL::_neqs);
+    cf3_assert(grad_vars.rows()==MODEL::_ndim);
+    cf3_assert(grad_vars.cols()==MODEL::_neqs);
     p.coords    = coord;       // cache the coordiantes locally
     p.vars      = sol;         // cache the variables locally
     p.grad_vars = grad_vars;   // cache the gradient of variables locally
