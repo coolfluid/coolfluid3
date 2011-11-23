@@ -99,7 +99,7 @@ BOOST_AUTO_TEST_CASE( init_mpi )
 
 BOOST_AUTO_TEST_CASE( solver_test )
 {
-  Core::instance().environment().configure_option("log_level", (Uint)INFO);
+  Core::instance().environment().configure_option("log_level", (Uint)DEBUG);
 
   //////////////////////////////////////////////////////////////////////////////
   // create and configure SFD - LinEuler 2D model
@@ -123,7 +123,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
   Mesh& mesh = domain.create_component<Mesh>("mesh");
 
   Uint res = 20;
-  Uint order = 3;
+  Uint order = 2;
   std::vector<Uint> nb_cells = list_of( res  )( res );
   std::vector<Real> lengths  = list_of(  1.  )(  1. );
   std::vector<Real> offsets  = list_of( -0.5 )( -0.5 );
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE( solver_test )
 
   // Time stepping
   solver.time_stepping().time().configure_option("time_step",100.);
-  solver.time_stepping().time().configure_option("end_time" ,0.01); // instead of 0.3
+  solver.time_stepping().time().configure_option("end_time" ,0.03); // instead of 0.3
   solver.time_stepping().configure_option_recursively("cfl" , 0.3);
   solver.time_stepping().configure_option_recursively("milestone_dt" , 0.3);
 

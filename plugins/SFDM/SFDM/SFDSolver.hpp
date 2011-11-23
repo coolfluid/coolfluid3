@@ -21,7 +21,7 @@ namespace cf3 {
 
 namespace common    { class Group; }
 namespace solver    { namespace actions { class CSynchronizeFields; } }
-
+namespace RiemannSolvers { class RiemannSolver; }
 namespace SFDM {
 
 // Forward declarations
@@ -86,10 +86,14 @@ public: // functions
 
   mesh::Mesh& mesh() { return *m_mesh.lock(); }
 
+  RiemannSolvers::RiemannSolver& riemann_solver() { return *m_riemann_solver; }
+
 private: // functions
 
   /// Triggered when physical model is configured
   void config_physics();
+
+  void build_riemann_solver();
 
   /// Triggered when the mesh is configured
   void config_mesh();
@@ -105,14 +109,16 @@ private: // data
   boost::shared_ptr<common::Group>          m_fields;                ///< the group of fields
 
   boost::weak_ptr<physics::PhysModel>        m_physical_model;        ///< physical model
-  boost::weak_ptr<mesh::Mesh>               m_mesh;                  ///< mesh which this solver operates
+  boost::weak_ptr<mesh::Mesh>                m_mesh;                  ///< mesh which this solver operates
 
   boost::shared_ptr<PrepareMesh>             m_prepare_mesh;          ///< subcomponent that setups the fields
   boost::shared_ptr<TimeStepping>            m_time_stepping;         ///< subcomponent for time stepping
   boost::shared_ptr<IterativeSolver>         m_iterative_solver;      ///< subcomponent for non linear iterative steps
   boost::shared_ptr<DomainDiscretization>    m_domain_discretization; ///< subcomponent for domain terms
   boost::shared_ptr<InitialConditions>       m_initial_conditions;    ///< subcomponent for initial conditions
-//  boost::shared_ptr<BoundaryConditions>   m_boundary_conditions;   ///< subcomponent for boundary conditions
+//  boost::shared_ptr<BoundaryConditions>      m_boundary_conditions;   ///< subcomponent for boundary conditions
+
+  boost::shared_ptr<RiemannSolvers::RiemannSolver> m_riemann_solver;  ///< Riemann solver
 
 };
 

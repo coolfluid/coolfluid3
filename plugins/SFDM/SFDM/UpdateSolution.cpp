@@ -48,6 +48,11 @@ UpdateSolution::UpdateSolution ( const std::string& name ) :
   options().add_option(OptionComponent<Field>::create(SFDM::Tags::residual(), &m_residual))
      ->description("Residual")
      ->pretty_name("Residual");
+
+  options().add_option(OptionComponent<Field>::create(SFDM::Tags::jacob_det(), &m_jacobian_determinant))
+     ->description("Jacobian determinant")
+     ->pretty_name("Jacobian Determinant");
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -59,6 +64,7 @@ void UpdateSolution::execute()
   Field& solution     = *m_solution.lock();
   Field& residual     = *m_residual.lock();
   Field& update_coeff = *m_update_coeff.lock();
+  Field& jacobian_determinant = *m_jacobian_determinant.lock();
 
   for (Uint i=0; i<solution.size(); ++i)
   {
@@ -93,6 +99,14 @@ void UpdateSolution::link_fields()
         .get_child( SFDM::Tags::residual() ).follow()->as_ptr_checked<Field>();
     configure_option( SFDM::Tags::residual(), m_residual.lock()->uri() );
   }
+
+  if( is_null( m_jacobian_determinant.lock() ) )
+  {
+    m_jacobian_determinant = solver().field_manager()
+        .get_child( SFDM::Tags::jacob_det() ).follow()->as_ptr_checked<Field>();
+    configure_option( SFDM::Tags::jacob_det(), m_jacobian_determinant.lock()->uri() );
+  }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////

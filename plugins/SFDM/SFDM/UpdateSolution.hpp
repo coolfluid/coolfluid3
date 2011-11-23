@@ -46,6 +46,7 @@ private: // data
 
   boost::weak_ptr<mesh::Field> m_solution;
   boost::weak_ptr<mesh::Field> m_residual;
+  boost::weak_ptr<mesh::Field> m_jacobian_determinant;
   boost::weak_ptr<mesh::Field> m_update_coeff;
 };
 

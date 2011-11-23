@@ -30,6 +30,8 @@ struct SFDM_API Tags : public solver::Tags
   static const char * update_coeff();
   static const char * residual();
   static const char * jacob_det();
+  static const char * plane_jacob_normal();
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

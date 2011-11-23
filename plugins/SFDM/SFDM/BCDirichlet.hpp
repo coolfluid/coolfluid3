@@ -4,19 +4,22 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#ifndef CF_SFDM_CreateSpace_hpp
-#define CF_SFDM_CreateSpace_hpp
+#ifndef cf3_SFDM_BCDirichlet_hpp
+#define cf3_SFDM_BCDirichlet_hpp
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "mesh/MeshTransformer.hpp"
-#include "SFDM/LibSFDM.hpp"
+#include "math/VectorialFunction.hpp"
+
+#include "SFDM/Term.hpp"
 
 ////////////////////////////////////////////////////////////////////////////////
 
 namespace cf3 {
+namespace RiemannSolvers { class RiemannSolver; }
+namespace physics        { class Variables; }
 namespace SFDM {
-  
+
 //////////////////////////////////////////////////////////////////////////////
 
 /// This class defines an action that creates a space in the mesh
@@ -24,31 +27,43 @@ namespace SFDM {
 /// Default polynomial order = 0.
 /// that returns information about the mesh
 /// @author Willem Deconinck
-class SFDM_API CreateSpace : public mesh::MeshTransformer
+class SFDM_API BCDirichlet : public Term
 {
 public: // typedefs
 
-    typedef boost::shared_ptr<CreateSpace> Ptr;
-    typedef boost::shared_ptr<CreateSpace const> ConstPtr;
+    typedef boost::shared_ptr<BCDirichlet> Ptr;
+    typedef boost::shared_ptr<BCDirichlet const> ConstPtr;
 
 public: // functions
-  
+
   /// constructor
-  CreateSpace( const std::string& name );
-  
+  BCDirichlet( const std::string& name );
+
   /// Gets the Class name
-  static std::string type_name() { return "CreateSpace"; }
+  static std::string type_name() { return "BCDirichlet"; }
 
   virtual void execute();
 
-}; // end CreateSpace
+private:
+
+  void config_function();
+
+  boost::weak_ptr<physics::Variables> m_input_vars;  ///< access to the input variables
+
+  math::VectorialFunction  m_function;    ///< function parser for the math formula
+
+  RealVector sol_in_flx_pt;
+  RealVector flx_in_flx_pt;
+  Real wave_speed_in_flx_pt;
+
+}; // end BCDirichlet
 
 
 ////////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
-} // CF
+} // cf3
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif // CF_SFDM_CreateSpace_hpp
+#endif // cf3_SFDM_BCDirichlet_hpp

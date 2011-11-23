@@ -21,6 +21,8 @@
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
 
+#include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
+
 #include "solver/actions/CSynchronizeFields.hpp"
 
 #include "SFDM/Tags.hpp"
@@ -69,6 +71,12 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
       ->pretty_name("Mesh")
       ->attach_trigger ( boost::bind ( &SFDSolver::config_mesh,   this ) )
       ->mark_basic();
+
+  options().add_option( OptionT<std::string>::create("riemann_solver", "cf3.RiemannSolvers.Roe") )
+    ->description("The component to solve the Rieman Problem on cell-faces")
+    ->pretty_name("Riemann Solver")
+    ->mark_basic()
+    ->attach_trigger ( boost::bind ( &SFDSolver::build_riemann_solver, this) );
 
   option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
@@ -158,6 +166,8 @@ void SFDSolver::config_physics()
       child.configure_option_recursively( SFDM::Tags::physical_model(), pm.uri() );
       child.configure_option_recursively( SFDM::Tags::solver(), this->uri() );
     }
+
+    build_riemann_solver();
   }
   catch(SetupError&)
   {
@@ -199,6 +209,16 @@ void SFDSolver::on_mesh_changed_event( SignalArgs& args )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
+
+void SFDSolver::build_riemann_solver()
+{
+  if (is_not_null(m_riemann_solver))
+    remove_component(*m_riemann_solver);
+  m_riemann_solver = create_component("riemann_solver",option("riemann_solver").value<std::string>()).as_ptr<RiemannSolvers::RiemannSolver>();
+  m_riemann_solver->configure_option("physical_model",physics().uri());
+}
+
+/////////////////////////////////////////////////////////////////////////////
 
 } // SFDM
 } // cf3
