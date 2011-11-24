@@ -5,7 +5,6 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include <ios>
-#include <set>
 
 #include <boost/assign/list_of.hpp>
 
@@ -26,6 +25,7 @@
 #include "mesh/ElementType.hpp"
 #include "mesh/Space.hpp"
 #include "mesh/Entities.hpp"
+#include "mesh/Field.hpp"
 
 namespace cf3 {
 namespace mesh {
@@ -126,6 +126,69 @@ ElementType& Entities::element_type() const
 
 ////////////////////////////////////////////////////////////////////////////////
 
+boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& node_user)
+{
+  boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
+
+  std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively<Entities>(node_user));
+  Handle<Entities const> self_entities(node_user.handle());
+  if(is_not_null(self_entities))
+    entities_vector.push_back(self_entities);
+
+  // No entities found, so the list of nodes is empty
+  if(entities_vector.empty())
+    return used_nodes;
+
+  const Uint coords_size = entities_vector.front()->geometry_space().fields().coordinates().size();
+
+  std::vector<bool> node_is_used(coords_size, false);
+
+  // First count the number of unique nodes
+  Uint nb_nodes = 0;
+  BOOST_FOREACH(const Handle<Entities const>& entities_handle, entities_vector)
+  {
+    const Entities& elements = *entities_handle;
+    const Uint nb_elems = elements.size();
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      boost_foreach(const Uint node, elements.get_nodes(idx))
+      {
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          ++nb_nodes;
+        }
+      }
+    }
+  }
+
+  // reserve space for all unique nodes
+  used_nodes->resize(nb_nodes);
+  common::List<Uint>::ListT& nodes_array = used_nodes->array();
+
+  // Add the unique node indices
+  node_is_used.assign(coords_size, false);
+  Uint back = 0;
+  BOOST_FOREACH(const Handle<Entities const>& entities_handle, entities_vector)
+  {
+    const Entities& elements = *entities_handle;
+    const Uint nb_elems = elements.size();
+    for (Uint idx=0; idx<nb_elems; ++idx)
+    {
+      boost_foreach(const Uint node, elements.get_nodes(idx))
+      {
+        if(!node_is_used[node])
+        {
+          node_is_used[node] = true;
+          nodes_array[back++] = node;
+        }
+      }
+    }
+  }
+
+  return used_nodes;
+}
+
 common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 {
   Handle< common::List<Uint> > used_nodes = find_component_ptr_with_tag<common::List<Uint> >(parent,mesh::Tags::nodes_used());
@@ -137,50 +200,13 @@ common::List<Uint>& Entities::used_nodes(Component& parent, const bool rebuild)
 
   if (is_null(used_nodes))
   {
-    used_nodes = parent.create_component<common::List<Uint> >(mesh::Tags::nodes_used());
+    boost::shared_ptr< List<Uint> > used_nodes_shr = Entities::create_used_nodes(parent);
+    used_nodes = Handle< List<Uint> >(used_nodes_shr);
+    parent.add_component(used_nodes_shr);
     used_nodes->add_tag(mesh::Tags::nodes_used());
     used_nodes->properties()["brief"] = std::string("The local node indices used by the parent component");
-
-    // Assemble all unique node numbers in a set
-    std::set<Uint> node_set;
-
-    if ( Handle< Entities > elements = Handle<Entities>(parent.handle()) )
-    {
-      const Uint nb_elems = elements->size();
-      for (Uint idx=0; idx<nb_elems; ++idx)
-      {
-        boost_foreach(const Uint node, elements->get_nodes(idx))
-        {
-          node_set.insert(node);
-        }
-      }
-    }
-    else
-    {
-      boost_foreach(Entities& elements, find_components_recursively<Entities>(parent))
-      {
-        const Uint nb_elems = elements.size();
-        for (Uint idx=0; idx<nb_elems; ++idx)
-        {
-          boost_foreach(const Uint node, elements.get_nodes(idx))
-          {
-            node_set.insert(node);
-          }
-        }
-      }
-    }
-
-    // Copy the set to the node_list
-
-    used_nodes->resize(node_set.size());
-
-    common::List<Uint>::ListT& nodes_array = used_nodes->array();
-    Uint cnt=0;
-    boost_foreach(const Uint node, node_set)
-      nodes_array[cnt++] = node;
-
-
   }
+
   return *used_nodes;
 }
 

@@ -81,6 +81,7 @@ public: // functions
   /// return the number of elements
   virtual Uint size() const;
 
+  static boost::shared_ptr< common::List<Uint> > create_used_nodes(const Component& node_user);
   static common::List<Uint>& used_nodes(Component& parent, const bool rebuild=false);
 
   virtual common::TableConstRow<Uint>::type get_nodes(const Uint elem_idx) const;
