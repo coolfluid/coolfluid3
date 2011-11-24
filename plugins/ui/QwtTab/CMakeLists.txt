@@ -9,7 +9,6 @@
     ColorSelector.hpp
     Graph.hpp
     GraphOption.hpp
-    NPlotXY.hpp
    )
 
   # Create the moc files

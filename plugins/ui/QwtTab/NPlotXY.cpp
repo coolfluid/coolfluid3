@@ -6,6 +6,8 @@
 
 // header
 #include <boost/multi_array/storage_order.hpp>
+#include "common/BoostArray.hpp"
+
 #include "common/Signal.hpp"
 #include "common/XML/Protocol.hpp"
 #include "common/XML/MultiArray.hpp"
