@@ -62,23 +62,26 @@ void LoadBalance::execute()
 
     CFinfo << "loadbalancing mesh:" << CFendl;
 
+    Comm::instance().barrier();
     CFinfo << "  + building joint node & element global numbering" << CFendl;
 
     // build global numbering and connectivity of nodes and elements (necessary for partitioning)
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalNumbering","glb_numbering")->transform(mesh);
 
+    Comm::instance().barrier();
     CFinfo << "  + building global node-element connectivity" << CFendl;
 
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GlobalConnectivity","glb_connectivity")->transform(mesh);
 
-
+    Comm::instance().barrier();
     CFinfo << "  + partitioning and migrating" << CFendl;
     m_partitioner->transform(mesh);
 
+    Comm::instance().barrier();
     CFinfo << "  + growing overlap layer" << CFendl;
     build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.GrowOverlap","grow_overlap")->transform(mesh);
 
-
+    Comm::instance().barrier();
     CFinfo << "  + deallocating unused connectivity" << CFendl;
 
     /// @todo check that this actually frees the memory

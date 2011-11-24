@@ -66,8 +66,12 @@ void MeshPartitioner::execute()
 {
   Mesh& mesh = *m_mesh.lock();
   initialize(mesh);
+  Comm::instance().barrier();
+  CFdebug << "    -partitioning" << CFendl;
   partition_graph();
   //show_changes();
+  Comm::instance().barrier();
+  CFdebug << "    -migrating" << CFendl;
   migrate();
 }
 
@@ -400,6 +404,8 @@ void MeshPartitioner::migrate()
     /// @todo mechanism not to flush element_manipulation until during real migration
   }
 
+  Comm::instance().barrier();
+  CFdebug << "        * removed ghost elements and ghost nodes" << CFendl;
 
   // -----------------------------------------------------------------------------
   // SET NODE CONNECTIVITY TO GLOBAL NUMBERS BEFORE PARTITIONING
@@ -498,6 +504,8 @@ void MeshPartitioner::migrate()
   // ELEMENTS AND NODES HAVE BEEN MOVED
   // -----------------------------------------------------------------------------
 
+   Comm::instance().barrier();
+   CFdebug << "        * elements and nodes migrated, request ghost nodes" << CFendl;
 
   // -----------------------------------------------------------------------------
   // COLLECT GHOST-NODES TO LOOK FOR ON OTHER PROCESSORS
@@ -533,7 +541,6 @@ void MeshPartitioner::migrate()
 
   std::vector<std::vector<Uint> > recv_request_nodes;
   Comm::instance().all_gather(request_nodes,recv_request_nodes);
-
 
   PackUnpackNodes copy_node(nodes);
   std::vector<PE::Buffer> nodes_to_send(Comm::instance().size());
@@ -587,6 +594,8 @@ void MeshPartitioner::migrate()
   // REQUESTED GHOST-NODES HAVE NOW BEEN ADDED
   // -----------------------------------------------------------------------------
 
+  Comm::instance().barrier();
+  CFdebug << "        * requested ghost nodes added" << CFendl;
 
   // -----------------------------------------------------------------------------
   // FIX NODE CONNECTIVITY
@@ -617,6 +626,10 @@ void MeshPartitioner::migrate()
   mesh.update_statistics();
   mesh.elements().reset();
   mesh.elements().update();
+
+  Comm::instance().barrier();
+  CFdebug << "        * migration complete" << CFendl;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////
