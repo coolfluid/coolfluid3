@@ -452,7 +452,6 @@ void all_gather(const Communicator& comm, const std::vector<T>& send, std::vecto
   }
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace PE

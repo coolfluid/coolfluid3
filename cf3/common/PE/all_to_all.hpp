@@ -429,7 +429,7 @@ void all_to_all(const Communicator& comm, const std::vector<std::vector<T> >& se
   for (Uint i=1; i<send.size(); ++i)
     recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
 
-  std::vector<Uint> recv_linear(recv_displs.back()+recv_strides.back());
+  std::vector<T> recv_linear(recv_displs.back()+recv_strides.back());
   MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<T>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<T>(), comm));
 
   recv.resize(recv_strides.size());

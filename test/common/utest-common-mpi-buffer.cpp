@@ -181,6 +181,31 @@ BOOST_AUTO_TEST_CASE( test_broadcast )
 
 ////////////////////////////////////////////////////////////////////////////////
 
+BOOST_AUTO_TEST_CASE( test_all_gather )
+{
+
+  // Initialize some data, different for every processor
+
+  std::string str = "from_proc_" + to_str(Comm::instance().rank());
+
+  // ----------------------------------
+
+  // Create a buffer
+  common::PE::Buffer buffer;
+  buffer << str;
+
+  common::PE::Buffer out_buf;
+  buffer.all_gather(out_buf);
+
+  while (out_buf.more_to_unpack())
+  {
+    out_buf >> str;
+    CFinfo << str << CFendl;
+  }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
 BOOST_AUTO_TEST_CASE( finalize_mpi )
 {
   Comm::instance().finalize();

@@ -201,6 +201,13 @@ public:
   /// with the buffer from the broadcasting rank.
   /// @param [in] root  The broadcasting rank
   void broadcast(const Uint root);
+
+  /// @brief Broadcast the buffer from the root process
+  /// The buffer on all receiving ranks gets resized and overwritten
+  /// with the buffer from the broadcasting rank.
+  /// @param [out] recv output buffer
+  inline void all_gather(Buffer& recv);
+
   //@}
 
 private:
@@ -404,7 +411,7 @@ inline void Buffer::broadcast(const Uint root)
 {
   // broadcast buffer size
   int p = m_packed_size;
-  MPI_Bcast( &p, 1, get_mpi_datatype(p), root, Comm::instance().communicator() );
+  MPI_Bcast( &p, 1, get_mpi_datatype(p), root, PE::Comm::instance().communicator() );
 
   // resize the buffer on receiving ranks
   if (Comm::instance().rank()!=root)
@@ -414,7 +421,34 @@ inline void Buffer::broadcast(const Uint root)
   }
 
   // broadcast buffer as MPI_PACKED
-  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, Comm::instance().communicator() );
+  MPI_Bcast( m_buffer, m_packed_size, MPI_PACKED, root, PE::Comm::instance().communicator() );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+
+inline void Buffer::all_gather(Buffer& recv)
+{
+  std::vector<int> strides;
+  Comm::instance().all_gather((int)packed_size(),strides);
+  std::vector<int> displs(strides.size());
+  if (strides.size())
+  {
+    int sum_strides = strides[0];
+    displs[0] = 0;
+    for (Uint i=1; i<strides.size(); ++i)
+    {
+      displs[i] = displs[i-1] + strides[i-1];
+      sum_strides += strides[i];
+    }
+    recv.reset();
+    recv.resize(displs.back()+strides.back());
+    MPI_CHECK_RESULT(MPI_Allgatherv, (buffer(), packed_size(), MPI_PACKED, recv.buffer(), &strides[0], &displs[0], MPI_PACKED, Comm::instance().communicator()));
+    recv.packed_size()=(displs.back()+strides.back());
+  }
+  else
+  {
+    recv.reset();
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
