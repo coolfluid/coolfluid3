@@ -469,7 +469,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   fout.close();
 
   // Write the parallel header, if needed
-  if(PE::Comm::instance().rank() == 0 || option("distributed_files").value<bool>())
+  if(PE::Comm::instance().rank() == 0 || options().option("distributed_files").value<bool>())
   {
     boost::filesystem::path pvtu_path = my_dir / (basename + ".pvtu");
 

@@ -29,8 +29,8 @@ class tecplot_API Writer : public MeshWriter
 {
 public: // typedefs
 
-    
-    
+
+
 
 public: // functions
 
@@ -48,7 +48,7 @@ public: // functions
 
 private: // functions
 
-  void write_file(std::fstream& file);
+  void write_file(std::fstream& file, const Mesh& mesh);
 
   std::string zone_type(const ElementType& etype) const;
 

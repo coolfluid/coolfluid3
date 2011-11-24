@@ -27,9 +27,9 @@ class mesh_zoltan_API Partitioner : public MeshPartitioner {
 public: // typedefs
 
   /// type of pointer to Component
-  
+
   /// type of pointer to constant Component
-  
+
 
 public: // functions
 
@@ -94,7 +94,7 @@ private: // data
   int *exportProcs;
   int *exportToPart;
 
-  Handle<Zoltan> m_zz;
+  boost::shared_ptr<Zoltan> m_zz;
   Real m_zoltan_version;
 };
 

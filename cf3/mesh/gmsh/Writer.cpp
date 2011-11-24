@@ -93,9 +93,6 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-
-  m_mesh = Handle<Mesh>(mesh.handle()).get();
-
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path (file_path.path());
@@ -112,12 +109,11 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
   // must be in correct order!
-  write_header(file);
+  write_header(file, mesh);
   m_cf_2_gmsh_node->clear();
-  m_cf_2_gmsh_node->reserve(Elements::used_nodes(*m_mesh->topology().as_non_const()).size());
-  write_coordinates(file);
-  write_connectivity(file);
-  write_elem_nodal_data(file);
+  write_coordinates(file, mesh);
+  write_connectivity(file, mesh);
+  write_elem_nodal_data(file, mesh);
   //write_nodal_data(file);
   //write_element_data(file);
   file.close();
@@ -125,7 +121,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_header(std::fstream& file)
+void Writer::write_header(std::fstream& file, const Mesh& mesh)
 {
   std::string version = "2";
   Uint file_type = 0; // ASCII
@@ -140,7 +136,7 @@ void Writer::write_header(std::fstream& file)
 
   // physical names
   Uint phys_name_counter(0);
-  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(*m_mesh,IsGroup()))
+  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
   {
     ++phys_name_counter;
   }
@@ -149,10 +145,10 @@ void Writer::write_header(std::fstream& file)
   file << phys_name_counter << "\n";
 
   phys_name_counter=0;
-  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(*m_mesh,IsGroup()))
+  boost_foreach(const Region& groupRegion, find_components_recursively_with_filter<Region>(mesh,IsGroup()))
   {
     std::string name = groupRegion.uri().path();
-    boost::algorithm::replace_first(name,m_mesh->topology().uri().path()+"/","");
+    boost::algorithm::replace_first(name,mesh.topology().uri().path()+"/","");
     m_groupnumber[groupRegion.uri().path()] = ++phys_name_counter;
 
     Uint group_dimensionality(0);
@@ -167,21 +163,23 @@ void Writer::write_header(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_coordinates(std::fstream& file)
+void Writer::write_coordinates(std::fstream& file, const Mesh& mesh)
 {
   // set precision for Real
   Uint prec = file.precision();
   file.precision(8);
 
-  const common::List<Uint>& used_nodes = Elements::used_nodes(*m_mesh->topology().as_non_const(),true);
+  const boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Elements::create_used_nodes(mesh.topology());
+  const common::List<Uint>& used_nodes = *used_nodes_ptr;
   const Uint nb_nodes = used_nodes.size();
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
+  to_gmsh_node.reserve(nb_nodes);
 
   file << "$Nodes\n";
   file << nb_nodes << "\n";
 
   Uint node_number=0;
-  const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
+  const common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
   Uint gmsh_node = 1;
   boost_foreach( const Uint node, used_nodes.array())
   {
@@ -190,7 +188,7 @@ void Writer::write_coordinates(std::fstream& file)
     file << ++node_number << " ";
     for (Uint d=0; d<3; d++)
     {
-      if (d<m_mesh->dimension())
+      if (d<mesh.dimension())
         file << coord[d] << " ";
       else
         file << 0 << " ";
@@ -205,14 +203,14 @@ void Writer::write_coordinates(std::fstream& file)
 
 //////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_connectivity(std::fstream& file)
+void Writer::write_connectivity(std::fstream& file, const Mesh& mesh)
 {
 
   // file << "$Elements                                                               \n";
   // file << "number-of-elements                                                      \n";
   // file << "elm-number elm-type number-of-tags < tag > ... node-number-list ...     \n";
   // file << "$EndElements\n";
-  Uint nbElems = m_mesh->topology().recursive_elements_count();
+  Uint nbElems = mesh.topology().recursive_elements_count();
   Map<Uint,Uint>& to_gmsh_node = *m_cf_2_gmsh_node;
 
   file << "$Elements\n";
@@ -224,9 +222,9 @@ void Writer::write_connectivity(std::fstream& file)
   Uint elm_number=0;
   Uint partition_number = PE::Comm::instance().rank();
 
-  boost_foreach(const Entities& elements, m_mesh->topology().elements_range())
+  boost_foreach(const Entities& elements, mesh.topology().elements_range())
   {
-    group_name = elements.parent().uri().path();
+    group_name = elements.parent()->uri().path();
     group_number = m_groupnumber[group_name];
 
     m_element_start_idx[&elements]=elm_number;
@@ -250,7 +248,7 @@ void Writer::write_connectivity(std::fstream& file)
 //////////////////////////////////////////////////////////////////////
 
 
-void Writer::write_elem_nodal_data(std::fstream& file)
+void Writer::write_elem_nodal_data(std::fstream& file, const Mesh& mesh)
 {
 //  $ElementNodeData
 //  number-of-string-tags
@@ -283,7 +281,7 @@ void Writer::write_elem_nodal_data(std::fstream& file)
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
       const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
-      boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
+      boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(Entities& elements, find_components_recursively<Entities>(field.topology()))
       {
@@ -437,7 +435,7 @@ void Writer::write_nodal_data(std::fstream& file)
     {
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
-      boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
+      boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
       const Real field_time = field.option("time").value<Real>();
       const Uint field_iter = field.option("iteration").value<Uint>();
       // data_header
@@ -556,7 +554,7 @@ void Writer::write_element_data(std::fstream& file)
       const std::string field_name = field.name();
       std::string field_topology = field.topology().uri().path();
       const std::string field_basis = SpaceFields::Basis::Convert::instance().to_str(field.basis());
-      boost::algorithm::replace_first(field_topology,m_mesh->topology().uri().path(),"");
+      boost::algorithm::replace_first(field_topology,mesh.topology().uri().path(),"");
       Uint nb_elements = 0;
       boost_foreach(Entities& field_elements, find_components_recursively<Entities>(field.topology()))
       {

@@ -12,6 +12,7 @@
 #include "common/FindComponents.hpp"
 #include "common/OptionList.hpp"
 #include "common/OptionT.hpp"
+#include "common/PropertyList.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/StringConversion.hpp"
 
@@ -127,7 +128,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   read_connectivity();
 
-  if (option("read_fields").value<bool>())
+  if (options().option("read_fields").value<bool>())
   {
     read_element_data();
 
@@ -141,7 +142,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   boost_foreach(Elements& elements, find_components_recursively<Elements>(m_mesh->topology()))
   {
     elements.rank().resize(elements.size());
-    Uint my_rank = option("part").value<Uint>();
+    Uint my_rank = options().option("part").value<Uint>();
     for (Uint e=0; e<elements.size(); ++e)
     {
       elements.rank()[e] = my_rank;
@@ -222,7 +223,7 @@ void Reader::get_file_positions()
       std::vector<Uint> num_obj(2);
       num_obj[0] = m_total_nb_nodes;
       num_obj[1] = m_total_nb_elements;
-      m_hash->configure_option("nb_obj",num_obj);
+      m_hash->options().configure_option("nb_obj",num_obj);
 
 
       Uint elem_idx, elem_type, nb_tags, phys_tag;
@@ -300,7 +301,7 @@ Handle< Region > Reader::create_region(std::string const& relative_path)
     std::string name = *tok_iter;
     Handle< Component > new_region = region->get_child(name);
     if (is_null(new_region))  region->create_component<Region>(name);
-    region = Handle<Region>(region->get_child(name).handle());
+    region = Handle<Region>(region->get_child(name));
   }
   return region;
 }
@@ -312,7 +313,7 @@ void Reader::find_ghost_nodes()
   m_ghost_nodes.clear();
 
   // Only find ghost nodes if the domain is split up
-  if (option("nb_parts").value<Uint>() > 1)
+  if (options().option("nb_parts").value<Uint>() > 1)
   {
     m_file.seekg(m_elements_position,std::ios::beg);
     // skip next line
@@ -383,7 +384,7 @@ void Reader::read_coordinates()
 
   SpaceFields& nodes = m_mesh->geometry_fields();
 
-  Uint part = option("part").value<Uint>();
+  Uint part = options().option("part").value<Uint>();
   Uint nodes_start_idx = nodes.size();
   nodes.resize(nodes_start_idx + m_hash->subhash(NODES).nb_objects_in_part(part) + m_ghost_nodes.size());
 
@@ -476,7 +477,7 @@ void Reader::read_connectivity()
   SpaceFields& nodes = m_mesh->geometry_fields();
 
 
-  Uint part = option("part").value<Uint>();
+  Uint part = options().option("part").value<Uint>();
 
   //Each entry of this vector holds a map (gmsh_type_idx, pointer to connectivity table of this gmsh type).
  //Each row corresponds to one region of the mesh
@@ -513,8 +514,8 @@ void Reader::read_connectivity()
      {
        const std::string cf_elem_name = Shared::gmsh_name_to_cf_name(m_mesh_dimension,etype);
 
-       Handle< ElementType > allocated_type = build_component_abstract_type<ElementType>(cf_elem_name,"tmp");
-       Handle< Entities > elements;
+       boost::shared_ptr< ElementType > allocated_type = build_component_abstract_type<ElementType>(cf_elem_name,"tmp");
+       boost::shared_ptr< Entities > elements;
        if (allocated_type->dimensionality() == allocated_type->dimension()-1)
          elements = build_component_abstract_type<Entities>("cf3.mesh.Faces",allocated_type->shape_name());
        else if(allocated_type->dimensionality() == allocated_type->dimension())
@@ -593,7 +594,7 @@ void Reader::read_connectivity()
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
-      Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second);
+      Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle());
       Connectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
 
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);
@@ -667,8 +668,8 @@ void Reader::read_element_data()
       if (gmsh_field.basis == "PointBased") gmsh_field.basis = "ElementBased";
 
       mesh::Field& field = field_group.create_field(gmsh_field.name);
-      field.configure_option("var_names",gmsh_field.var_names);
-      field.configure_option("var_types",var_types_str);
+      field.options().configure_option("var_names",gmsh_field.var_names);
+      field.options().configure_option("var_types",var_types_str);
 
       for (Uint i=0; i<field.nb_vars(); ++i)
       {
@@ -744,8 +745,8 @@ void Reader::read_node_data()
       var_types_str.push_back(var_type_gmsh_to_cf(var_type));
 
     mesh::Field& field = m_mesh->geometry_fields().create_field(gmsh_field.name);
-    field.configure_option("var_names",gmsh_field.var_names);
-    field.configure_option("var_types",var_types_str);
+    field.options().configure_option("var_names",gmsh_field.var_names);
+    field.options().configure_option("var_types",var_types_str);
     field.resize(gmsh_field.nb_entries);
 
     for (Uint i=0; i<field.nb_vars(); ++i)

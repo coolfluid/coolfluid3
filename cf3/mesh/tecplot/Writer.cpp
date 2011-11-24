@@ -62,9 +62,6 @@ std::vector<std::string> Writer::get_extensions()
 
 void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 {
-
-  m_mesh = Handle<Mesh>(mesh.handle()).get();
-
   // if the file is present open it
   boost::filesystem::fstream file;
   boost::filesystem::path path(file_path.path());
@@ -81,7 +78,7 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
   }
 
 
-  write_file(file);
+  write_file(file, mesh);
 
 
   file.close();
@@ -89,12 +86,12 @@ void Writer::write_from_to(const Mesh& mesh, const URI& file_path)
 }
 /////////////////////////////////////////////////////////////////////////////
 
-void Writer::write_file(std::fstream& file)
+void Writer::write_file(std::fstream& file, const Mesh& mesh)
 {
   file << "TITLE      = COOLFluiD Mesh Data" << "\n";
   file << "VARIABLES  = ";
 
-  Uint dimension = m_mesh->geometry_fields().coordinates().row_size();
+  Uint dimension = mesh.geometry_fields().coordinates().row_size();
   // write the coordinate variable names
   for (Uint i = 0; i < dimension ; ++i)
   {
@@ -135,9 +132,9 @@ void Writer::write_file(std::fstream& file)
 
   // loop over the element types
   // and create a zone in the tecplot file for each element type
-  std::map<Handle< Component >,Uint> zone_id;
+  std::map<Handle<Component const>,Uint> zone_id;
   Uint zone_idx=0;
-  boost_foreach (const Elements& elements, find_components_recursively<Elements>(m_mesh->topology()) )
+  boost_foreach (const Elements& elements, find_components_recursively<Elements>(mesh.topology()) )
   {
     const ElementType& etype = elements.element_type();
     if (etype.shape() == GeoShape::POINT)
@@ -147,9 +144,10 @@ void Writer::write_file(std::fstream& file)
     if (elements.size() == 0)
       continue;
 
-    zone_id[elements.self()] = zone_idx++;
+    zone_id[elements.handle()] = zone_idx++;
 
-    common::List<Uint>& used_nodes = Entities::used_nodes(*elements.as_non_const(),true); // VERY DIRTY HACK to remove constness!!!
+    boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements);
+    common::List<Uint>& used_nodes = *used_nodes_ptr;
     std::map<Uint,Uint> zone_node_idx;
     for (Uint n=0; n<used_nodes.size(); ++n)
       zone_node_idx[ used_nodes[n] ] = n+1;
@@ -166,7 +164,7 @@ void Writer::write_file(std::fstream& file)
          << ", E=" << elements.size()
          << ", DATAPACKING=BLOCK"
          << ", ZONETYPE=" << zone_type(etype);
-    if (cell_centered_var_ids.size() && option("cell_centred").value<bool>())
+    if (cell_centered_var_ids.size() && options().option("cell_centred").value<bool>())
     {
       file << ",VARLOCATION=(["<<cell_centered_var_ids[0];
       for (Uint i=1; i<cell_centered_var_ids.size(); ++i)
@@ -185,7 +183,7 @@ void Writer::write_file(std::fstream& file)
     file.precision(12);
 
     // loop over coordinates
-    const common::Table<Real>& coordinates = m_mesh->geometry_fields().coordinates();
+    const common::Table<Real>& coordinates = mesh.geometry_fields().coordinates();
     for (Uint d = 0; d < dimension; ++d)
     {
       file << "\n### variable x" << d << "\n\n"; // var name in comment
@@ -213,7 +211,7 @@ void Writer::write_file(std::fstream& file)
         {
           if (field.basis() == SpaceFields::Basis::POINT_BASED)
           {
-            if ( &field.field_group() == &m_mesh->geometry_fields() )
+            if ( &field.field_group() == &mesh.geometry_fields() )
             {
               boost_foreach(Uint n, used_nodes.array())
               {
@@ -280,7 +278,7 @@ void Writer::write_file(std::fstream& file)
               Space& field_space = field.space(elements);
               RealVector field_data (field_space.nb_states());
 
-              if (option("cell_centred").value<bool>())
+              if (options().option("cell_centred").value<bool>())
               {
                 Handle< ShapeFunction > P0_cell_centred = Handle<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
@@ -358,7 +356,7 @@ void Writer::write_file(std::fstream& file)
             else
             {
               // field not defined for this zone, so write zeros
-              if (option("cell_centred").value<bool>())
+              if (options().option("cell_centred").value<bool>())
                 file << elements.size() << "*" << 0.;
               else
                 file << used_nodes.size() << "*" << 0.;
