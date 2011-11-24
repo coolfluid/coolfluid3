@@ -11,11 +11,14 @@
 
 #include "common/Log.hpp"
 #include "common/Builder.hpp"
-#include "common/PE/debug.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Foreach.hpp"
 #include "common/StreamHelpers.hpp"
 #include "common/OptionT.hpp"
+
+#include "common/PE/debug.hpp"
+#include "common/PE/Comm.hpp"
+#include "common/PE/Buffer.hpp"
 
 #include "math/Functions.hpp"
 
@@ -107,11 +110,11 @@ void BuildFaces::execute()
   Mesh& mesh = *m_mesh.lock();
   PE::Comm::instance().barrier();
   build_face_cell_connectivity_bottom_up(mesh);
-  PECheckArrivePoint(100,"face-cell-connectivity built");
+  //PECheckArrivePoint(100,"face-cell-connectivity built");
 
-  PECheckArrivePoint(100,"building faces");
+  //PECheckArrivePoint(100,"building faces");
   build_faces_bottom_up(mesh);
-  PECheckArrivePoint(100,"all faces built");
+  //PECheckArrivePoint(100,"all faces built");
   // Add the new faces to the registry of mesh elements
   mesh.elements().update();
 
@@ -129,7 +132,7 @@ void BuildFaces::make_interfaces(Component& parent)
     is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<Region>() ) );
 
   Elements::Ptr comp;
-  PECheckArrivePoint(100,"make interfaces for " << parent.name())
+  //PECheckArrivePoint(100,"make interfaces for " << parent.name())
   std::vector<Region::Ptr> regions = range_to_vector(find_components<Region>(parent));
   const Uint n=regions.size();
   if (n>1)
@@ -165,15 +168,15 @@ void BuildFaces::make_interfaces(Component& parent)
 
         CFdebug << PERank << "creating face to cell for interfaces for " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
         FaceCellConnectivity::Ptr f2c = match_faces(*regions[i],*regions[j]);
-        PECheckArrivePoint(100,"finished matching faces for "<< regions[i]->name() << " to " << regions[j]->name());
+        //PECheckArrivePoint(100,"finished matching faces for "<< regions[i]->name() << " to " << regions[j]->name());
         CFdebug << PERank << "creating face elements inside " << regions[i]->name() << " to " << regions[j]->name() << CFendl;
         build_face_elements(interface,*f2c,true);
-        PECheckArrivePoint(100,"finished creating face elements inside "<< regions[i]->name() << " to " << regions[j]->name());
+        //PECheckArrivePoint(100,"finished creating face elements inside "<< regions[i]->name() << " to " << regions[j]->name());
       }
 
     }
   }
-  PECheckPoint(100,"finished making interfaces for " << parent.name())
+  //PECheckPoint(100,"finished making interfaces for " << parent.name())
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -208,7 +211,7 @@ void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 
 void BuildFaces::build_faces_bottom_up(Component& parent)
 {
-  PECheckArrivePoint(100,"building faces inside region " << parent.uri())
+  //PECheckArrivePoint(100,"building faces inside region " << parent.uri())
   cf3_assert_desc("parent must be a Region or Mesh",
     is_not_null( parent.as_ptr<Mesh>() ) || is_not_null( parent.as_ptr<Region>() ) );
 
@@ -249,7 +252,7 @@ void BuildFaces::build_faces_bottom_up(Component& parent)
       // this region is connected to another region
     }
   }
-  PECheckPoint(100,"finished building faces inside region " << parent.uri())
+  //PECheckPoint(100,"finished building faces inside region " << parent.uri())
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -273,14 +276,25 @@ void BuildFaces::build_face_elements(Region& region, FaceCellConnectivity& face_
     face_types.insert( face.element_type().derived_type_name()  );
   }
 
-//  std::vector<std::string> face_types_vec; face_types_vec.reserve(face_types.size());
-//  boost_foreach(const std::string& ftype, face_types)
-//    face_types_vec.push_back(ftype);
-
-//  std::vector< std::vector<std::string> > glb_face_types(PE::Comm::instance().size());
-//  PE::Comm::instance().all_gather()
   if (PE::Comm::instance().is_active())
   {
+    PE::Buffer face_types_send;
+    PE::Buffer face_types_recv;
+
+    boost_foreach(const std::string& ftype, face_types)
+      face_types_send << ftype;
+
+    //PECheckPoint(100,"check_start");
+    face_types_send.all_gather(face_types_recv);
+    //PECheckPoint(100,"check_stop");
+    face_types.clear();
+    std::string dummy;
+    while (face_types_recv.more_to_unpack())
+    {
+      face_types_recv >> dummy;
+      face_types.insert(dummy);
+    }
+
     // for debug
     Uint loc_nb_face_types = face_types.size();
     Uint glb_nb_face_types(0);
