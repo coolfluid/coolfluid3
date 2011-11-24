@@ -129,7 +129,7 @@ void TimeStepping::execute()
 
     // raise event of time_step done
 
-    //raise_timestep_done();
+    raise_timestep_done();
 
     CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]" << CFendl;
 
