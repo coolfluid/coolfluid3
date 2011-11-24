@@ -419,6 +419,40 @@ all_gather(const Communicator& comm, const std::vector<T>& in_values, const int 
   detail::all_gathervm_impl(comm, (T*)(&in_values[0]), in_n, &in_map[0], (T*)(&out_values[0]), &out_n[0], &out_map[0], stride);
 }
 
+template <typename T>
+void all_gather(const Communicator& comm, const std::vector<T>& send, std::vector<std::vector<T> >& recv)
+{
+  std::vector<int> strides;
+  all_gather(comm,(int)send.size(),strides);
+  std::vector<int> displs(strides.size());
+  if (strides.size())
+  {
+    int sum_strides = strides[0];
+    displs[0] = 0;
+    for (Uint i=1; i<strides.size(); ++i)
+    {
+      displs[i] = displs[i-1] + strides[i-1];
+      sum_strides += strides[i];
+    }
+    std::vector<T> recv_linear(sum_strides);
+    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), comm));
+    recv.resize(strides.size());
+    for (Uint i=0; i<strides.size(); ++i)
+    {
+      recv[i].resize(strides[i]);
+      for (Uint j=0; j<strides[i]; ++j)
+      {
+        recv[i][j]=recv_linear[displs[i]+j];
+      }
+    }
+  }
+  else
+  {
+    recv.resize(0);
+  }
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 
 } // namespace PE
