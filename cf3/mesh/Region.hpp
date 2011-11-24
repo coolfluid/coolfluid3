@@ -71,6 +71,11 @@ public: // functions
   Uint recursive_elements_count() const;
 
   /// @return the number of elements stored in this region, including any subregions
+  ///         summed over all processors
+  /// @todo remove ghost nodes from the count
+  Uint global_elements_count() const;
+
+  /// @return the number of elements stored in this region, including any subregions
   template <typename Predicate>
     Uint recursive_filtered_elements_count(const Predicate& pred) const;
 
