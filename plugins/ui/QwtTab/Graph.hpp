@@ -58,10 +58,14 @@ public: //function
   /// Graph's destructor
   ~Graph();
 
+  /// @warning nasty fix !! resolves compilation with Boost 1.48.
+  /// should be removed Qt's moc tool will be fixed.
+#ifndef Q_MOC_RUN
   /// Erase existing data and put the new one on the current graph.
   /// @param fcts The new data in a 2d vector.
   /// @param fct_label Label of each data set.
   void set_xy_data(NPlotXY::PlotDataPtr fcts, std::vector<QString> & fct_label);
+#endif
 
 private: //function
 
