@@ -22,8 +22,6 @@
 
 #include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
-#include "Physics/Variables.hpp"
-
 #include "SFDM/Tags.hpp"
 #include "SFDM/Term.hpp"
 #include "SFDM/SFDSolver.hpp"
