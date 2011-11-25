@@ -231,8 +231,8 @@ BOOST_AUTO_TEST_CASE( LineIntegral )
   const Uint segments = 10000;
 
   // complete circle
-  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
-  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
+  Handle< Table<Real> > coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Handle< Table<Uint> > connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_helix(*coordinates, *connectivity, radius, height, tours, segments);
 
   // Check the length, using the line integral of one times the norm of the tangent vector

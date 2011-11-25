@@ -14,6 +14,7 @@
 #include "common/Core.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Link.hpp"
 
@@ -80,29 +81,29 @@ BOOST_AUTO_TEST_CASE( init )
 BOOST_AUTO_TEST_CASE( Octtree_creation )
 {
   // create meshreader
-  MeshGenerator::Ptr mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
+  boost::shared_ptr< MeshGenerator > mesh_generator = build_component_abstract_type<MeshGenerator>("cf3.mesh.SimpleMeshGenerator","mesh_generator");
   Core::instance().root().add_component(mesh_generator);
-  mesh_generator->configure_option("mesh",Core::instance().root().uri()/"mesh");
-  mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->configure_option("part",0u);
-  mesh_generator->configure_option("nb_parts",1u);
+  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"mesh");
+  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().configure_option("part",0u);
+  mesh_generator->options().configure_option("nb_parts",1u);
 
   Mesh& mesh = mesh_generator->generate();
 
-  Octtree& octtree = mesh.create_component<Octtree>("octtree");
+  Octtree& octtree = *mesh.create_component<Octtree>("octtree");
 
   // Create and configure interpolator.
-  octtree.configure_option("nb_elems_per_cell", 1u );
-  octtree.configure_option("mesh", mesh.uri() );
+  octtree.options().configure_option("nb_elems_per_cell", 1u );
+  octtree.options().configure_option("mesh", mesh.uri() );
 
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree.configure_option("nb_cells", nb_cells );
+  octtree.options().configure_option("nb_cells", nb_cells );
 
   BOOST_CHECK(true);
 
-  Elements::ConstPtr elements;
+  Handle< Elements > elements;
   Uint idx(0);
   RealVector2 coord;
 
@@ -119,23 +120,23 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
   BOOST_CHECK_EQUAL(idx,5u);
 
 
-  StencilComputerOcttree::Ptr stencil_computer = Core::instance().root().create_component_ptr<StencilComputerOcttree>("stencilcomputer");
-  stencil_computer->configure_option("mesh", find_component<Mesh>(Core::instance().root()).uri() );
+  Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");
+  stencil_computer->options().configure_option("mesh", find_component<Mesh>(Core::instance().root()).uri() );
 
   std::vector<Uint> stencil;
-  stencil_computer->configure_option("stencil_size", 1u );
+  stencil_computer->options().configure_option("stencil_size", 1u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 1u);
 
-  stencil_computer->configure_option("stencil_size", 2u );
+  stencil_computer->options().configure_option("stencil_size", 2u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 9u);
 
-  stencil_computer->configure_option("stencil_size", 10u );
+  stencil_computer->options().configure_option("stencil_size", 10u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 20u);
 
-  stencil_computer->configure_option("stencil_size", 21u );
+  stencil_computer->options().configure_option("stencil_size", 21u );
   stencil_computer->compute_stencil(7, stencil);
   BOOST_CHECK_EQUAL(stencil.size(), 25u); // mesh size
 
@@ -147,24 +148,24 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 BOOST_AUTO_TEST_CASE( Octtree_parallel )
 {
-  MeshGenerator::Ptr mesh_generator = Core::instance().root().get_child("mesh_generator").as_ptr<MeshGenerator>();
-  mesh_generator->configure_option("mesh",Core::instance().root().uri()/"parallel_mesh");
-  mesh_generator->configure_option("lengths",std::vector<Real>(2,10.));
-  mesh_generator->configure_option("nb_cells",std::vector<Uint>(2,5));
-  mesh_generator->configure_option("part",PE::Comm::instance().rank());
-  mesh_generator->configure_option("nb_parts",PE::Comm::instance().size());
+  Handle< MeshGenerator > mesh_generator(Core::instance().root().get_child("mesh_generator"));
+  mesh_generator->options().configure_option("mesh",Core::instance().root().uri()/"parallel_mesh");
+  mesh_generator->options().configure_option("lengths",std::vector<Real>(2,10.));
+  mesh_generator->options().configure_option("nb_cells",std::vector<Uint>(2,5));
+  mesh_generator->options().configure_option("part",PE::Comm::instance().rank());
+  mesh_generator->options().configure_option("nb_parts",PE::Comm::instance().size());
   Mesh& mesh = mesh_generator->generate();
 
-  Octtree& octtree = mesh.create_component<Octtree>("octtree");
+  Octtree& octtree = *mesh.create_component<Octtree>("octtree");
 
   // Create and configure interpolator.
-  octtree.configure_option("nb_elems_per_cell", 1u );
-  octtree.configure_option("mesh", mesh.uri() );
+  octtree.options().configure_option("nb_elems_per_cell", 1u );
+  octtree.options().configure_option("mesh", mesh.uri() );
   octtree.create_octtree();
 
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
-  octtree.configure_option("nb_cells", nb_cells );
+  octtree.options().configure_option("nb_cells", nb_cells );
 
   boost::multi_array<Real,2> coordinates;
   coordinates.resize(boost::extents[2][2]);

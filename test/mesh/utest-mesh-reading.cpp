@@ -14,6 +14,7 @@
 
 #include "common/OptionT.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 #include "common/OptionArray.hpp"
 #include "common/OptionURI.hpp"
@@ -53,7 +54,7 @@ struct MeshReading_Fixture
 
     root = allocate_component<Group>("Root");
     reader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","MyReader");
-    domain = root->create_component_ptr<Domain>("MyDom");
+    domain = root->create_component<Domain>("MyDom");
 
     root->add_component( reader );
 
@@ -67,9 +68,9 @@ struct MeshReading_Fixture
   }
 
   /// possibly common functions used on the tests below
-  Component::Ptr root;
-  MeshReader::Ptr reader;
-  Domain::Ptr domain;
+  boost::shared_ptr< Component > root;
+  boost::shared_ptr< MeshReader > reader;
+  Handle< Domain > domain;
 
   /// common values accessed by all tests goes here
   int    m_argc;
@@ -85,15 +86,15 @@ BOOST_FIXTURE_TEST_SUITE( MeshReading_TestSuite, MeshReading_Fixture )
 
 BOOST_AUTO_TEST_CASE( Constructors )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
   BOOST_CHECK_EQUAL(meshreader->name(),"meshreader");
   BOOST_CHECK_EQUAL(meshreader->get_format(),"neu");
 
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->name(),"meshwriter");
   BOOST_CHECK_EQUAL(meshwriter->get_format(),"Gmsh");
 
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->name(),"meshwriter");
   BOOST_CHECK_EQUAL(neu_writer->get_format(),"neu");
 
@@ -103,19 +104,19 @@ BOOST_AUTO_TEST_CASE( Constructors )
 
 BOOST_AUTO_TEST_CASE( quadtriag_readneu_writeGmsh_writeneu )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the mesh to store in
-  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag" );
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "quadtriag" );
 
   meshreader->read_mesh_into("../../resources/quadtriag.neu",mesh);
 
   BOOST_CHECK(true);
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"quadtriag.msh");
   BOOST_CHECK(true);
 
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"quadtriag_write.neu");
   BOOST_CHECK(true);
 
@@ -127,11 +128,11 @@ BOOST_AUTO_TEST_CASE( quadtriag_readneu_writeGmsh_writeneu )
 
 BOOST_AUTO_TEST_CASE( quadtriag_read_Newneu_writeGmsh )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   // the mesh to store in
-  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "quadtriag_write" );
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "quadtriag_write" );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_mesh_into("quadtriag_write.neu",mesh);
@@ -141,7 +142,7 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_Newneu_writeGmsh )
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 16);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 28);
 
-//  MeshTransformer::Ptr meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
+//  boost::shared_ptr< MeshTransformer > meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
 }
 
@@ -149,16 +150,16 @@ BOOST_AUTO_TEST_CASE( quadtriag_read_Newneu_writeGmsh )
 
 BOOST_AUTO_TEST_CASE( hextet_readneu_writeGmsh_writeneu )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the mesh to store in
-  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextet" );
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "hextet" );
 
   meshreader->read_mesh_into("../../resources/hextet.neu",mesh);
 
-  MeshWriter::Ptr gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > gmsh_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
   gmsh_writer->write_from_to(mesh,"hextet.msh");
-  MeshWriter::Ptr neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > neu_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.neu.Writer","meshwriter");
   neu_writer->write_from_to(mesh,"hextet_write.neu");
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
@@ -168,11 +169,11 @@ BOOST_AUTO_TEST_CASE( hextet_readneu_writeGmsh_writeneu )
 
 BOOST_AUTO_TEST_CASE( hextet_read_Newneu_writeGmsh )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   // the mesh to store in
-  Mesh& mesh = Core::instance().root().create_component<Mesh>  ( "hextest_write" );
+  Mesh& mesh = *Core::instance().root().create_component<Mesh>  ( "hextest_write" );
 
   //CFinfo << "ready to read" << CFendl;
   meshreader->read_mesh_into("hextet_write.neu",mesh);
@@ -182,20 +183,20 @@ BOOST_AUTO_TEST_CASE( hextet_read_Newneu_writeGmsh )
   BOOST_CHECK_EQUAL(mesh.topology().recursive_nodes_count(), (Uint) 35);
   BOOST_CHECK_EQUAL(mesh.topology().recursive_elements_count(), (Uint) 44);
 
-//  MeshTransformer::Ptr meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
+//  boost::shared_ptr< MeshTransformer > meshinfo = build_component_abstract_type<MeshTransformer>("Info","meshinfo");
 //  meshinfo->transform(mesh);
 
 }
 /*
 BOOST_AUTO_TEST_CASE( read_multiple )
 {
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   // the file to read from
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  Mesh::Ptr mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
   for (Uint count=1; count<=4; ++count)
   {
@@ -203,7 +204,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
     BOOST_CHECK_EQUAL(mesh->domain().recursive_elements_count(), count*28);
   }
 
-  MeshTransformer::Ptr info  = build_component_abstract_type<MeshTransformer>("Info","info");
+  boost::shared_ptr< MeshTransformer > info  = build_component_abstract_type<MeshTransformer>("Info","info");
   info->transform(mesh);
 }*/
 
@@ -215,7 +216,7 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_2 )
   SignalOptions options;
 
   // URI with a wrong protocol
-  options.add_option<OptionURI>("location", URI("file:/"));
+  options.add_option("location", URI("file:/"));
 
   frame = options.create_frame("Target", "/", "/");
   BOOST_CHECK_THROW( reader->signal_read(frame), ProtocolError );
@@ -229,8 +230,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_4 )
 
   // no file (no error and the domain should be still empty afterwards)
   std::vector<URI> files;
-  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
-  options.add_option<OptionArrayT<URI> >("files", files);
+  options.add_option("location", URI("cpath:/MyDom"));
+  options.add_option("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -251,8 +252,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_5 )
   std::vector<URI> files;
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
-  options.add_option<OptionArrayT<URI> >("files", files);
+  options.add_option("location", URI("cpath:/MyDom"));
+  options.add_option("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -270,8 +271,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_6 )
   files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "http://www.google.com" );
   files.push_back( "file:../../resources/hextet.neu" );
-  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
-  options.add_option<OptionArrayT<URI> >("files", files);
+  options.add_option("location", URI("cpath:/MyDom"));
+  options.add_option("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 
@@ -288,8 +289,8 @@ BOOST_AUTO_TEST_CASE( read_mesh_signal_7 )
   std::vector<URI> files;
   files.push_back( "file:../../resources/hextet.neu" );
   files.push_back( "file:../../resources/quadtriag.neu" );
-  options.add_option<OptionURI>("location", URI("cpath:/MyDom"));
-  options.add_option<OptionArrayT<URI> >("files", files);
+  options.add_option("location", URI("cpath:/MyDom"));
+  options.add_option("files", files);
 
   frame = options.create_frame("Target", "/", "/");
 

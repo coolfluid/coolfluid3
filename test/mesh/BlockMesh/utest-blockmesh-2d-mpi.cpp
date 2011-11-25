@@ -45,9 +45,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint nb_procs = PE::Comm::instance().size();
   const Uint rank = PE::Comm::instance().rank();
 
-  MeshWriter::Ptr writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
+  boost::shared_ptr< MeshWriter > writer =  build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer");
 
-  Domain& domain = Core::instance().root().create_component<Domain>("domain");
+  Domain& domain = *Core::instance().root().create_component<Domain>("domain");
   domain.add_component(writer);
 
   const Real length = 1.;
@@ -56,7 +56,7 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   const Uint x_segs = 12;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = domain.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockData& blocks = *domain.create_component<BlockMesh::BlockData>("blocks");
 
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
@@ -85,19 +85,20 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   blocks.block_distribution += 0, 2;
 
   // Test block partitioning
-  BlockMesh::BlockData& parallel_blocks = domain.create_component<BlockMesh::BlockData>("parallel_blocks");
+  BlockMesh::BlockData& parallel_blocks = *domain.create_component<BlockMesh::BlockData>("parallel_blocks");
   BlockMesh::partition_blocks(blocks, nb_procs, XX, parallel_blocks);
 
   // Build the mesh
-  Mesh& mesh = domain.create_component<Mesh>("mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("mesh");
   BlockMesh::build_mesh(parallel_blocks, mesh);
 
   // Store element ranks
   SpaceFields& elems_P0 = mesh.create_space_and_field_group("elems_P0",SpaceFields::Basis::ELEMENT_BASED,"cf3.mesh.LagrangeP0");
   Field& elem_rank = elems_P0.create_field("elem_rank");
 
-  boost_foreach(Elements& elements , elems_P0.elements_range())
+  boost_foreach(const Handle<Elements>& elements_handle, elems_P0.elements_range())
   {
+    Elements& elements = *elements_handle;
     Space& space = elems_P0.space(elements);
     for (Uint elem=0; elem<elements.size(); ++elem)
     {
@@ -107,9 +108,9 @@ BOOST_AUTO_TEST_CASE( Grid2D )
   }
 
   // Write to disk
-  std::vector<Field::Ptr> fields;
-  fields.push_back(mesh.geometry_fields().coordinates().as_ptr<Field>());
-  fields.push_back(elem_rank.as_ptr<Field>());
+  std::vector<Handle< Field > > fields;
+  fields.push_back(make_handle<Field>(mesh.geometry_fields().coordinates()));
+  fields.push_back(make_handle<Field>(elem_rank));
   writer->set_fields(fields);
   writer->write_from_to(mesh, URI("utest-blockmesh-2d-mpi_output.pvtu"));
 }

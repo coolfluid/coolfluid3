@@ -355,8 +355,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
   const Real height = 3.;
 
   // complete circle
-  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
-  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
+  Handle< Table<Real> > coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Handle< Table<Uint> > connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Check the area
@@ -374,8 +374,8 @@ BOOST_AUTO_TEST_CASE( SurfaceIntegral )
 BOOST_AUTO_TEST_CASE( ArcIntegral )
 {
   // half cylinder arc
-  Table<Real>::Ptr arc_coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
-  Table<Uint>::Ptr arc_connectivity(common::allocate_component< Table<Uint> >("connectivity"));
+  Handle< Table<Real> > arc_coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Handle< Table<Uint> > arc_connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*arc_coordinates, *arc_connectivity, 1., 100, 24, 3., 0., Consts::pi());
   Real arc_flux = 0.;
   const ETYPE::CoordsT y_vector(0., 1., 0.);
@@ -393,8 +393,8 @@ BOOST_AUTO_TEST_CASE( RotatingCylinder )
   const Real height = 3.;
 
   // complete cylinder
-  Table<Real>::Ptr coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
-  Table<Uint>::Ptr connectivity(common::allocate_component< Table<Uint> >("connectivity"));
+  Handle< Table<Real> > coordinates(common::allocate_component< Table<Real> >(mesh::Tags::coordinates()));
+  Handle< Table<Uint> > connectivity(common::allocate_component< Table<Uint> >("connectivity"));
   create_cylinder(*coordinates, *connectivity, radius, u_segments, v_segments, height);
 
   // Rotating cylinder in uniform flow

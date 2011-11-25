@@ -173,16 +173,16 @@ void Component::rename ( const std::string& name )
   // notification should be done before the real renaming since the path changes
   raise_tree_updated_event();
 
-  if(is_not_null(parent()))
+  if(is_not_null(m_parent))
   {
-    if(is_not_null(parent()->get_child(name)))
+    if(is_not_null(m_parent->get_child(name)))
       throw ValueExists(FromHere(), std::string("A component with name ") + this->name() + " already exists in " + uri().string());
 
     // Rename key in parent
-    CompLookupT::iterator lookup = parent()->m_component_lookup.find(m_name);
+    CompLookupT::iterator lookup = m_parent->m_component_lookup.find(m_name);
     const Uint idx = lookup->second;
-    parent()->m_component_lookup.erase(lookup);
-    parent()->m_component_lookup[name] = idx;
+    m_parent->m_component_lookup.erase(lookup);
+    m_parent->m_component_lookup[name] = idx;
   }
 
   m_name = name;
@@ -192,10 +192,10 @@ void Component::rename ( const std::string& name )
 
 URI Component::uri() const
 {
-  if(is_null(parent()))
+  if(is_null(m_parent))
     return URI(std::string("/"), URI::Scheme::CPATH);
 
-  return parent()->uri() / URI(name(), URI::Scheme::CPATH);
+  return m_parent->uri() / URI(name(), URI::Scheme::CPATH);
 }
 
 Handle<Component> Component::parent() const
@@ -211,7 +211,7 @@ Handle<Component> Component::parent() const
 Handle< const Component > Component::root() const
 {
   Handle<Component const> result(handle());
-  while(is_not_null(result->parent()))
+  while(is_not_null(result->m_parent))
     result = result->parent();
 
   return result;
@@ -222,7 +222,7 @@ Handle< const Component > Component::root() const
 Handle< Component > Component::root()
 {
   Handle<Component> result(handle());
-  while(is_not_null(result->parent()))
+  while(is_not_null(result->m_parent))
     result = result->parent();
 
   return result;
@@ -405,7 +405,8 @@ void Component::change_parent(Handle<Component> to_parent)
 
 void Component::move_to ( Component& new_parent )
 {
-  boost::shared_ptr<Component> this_ptr = parent()->remove_component( *this );
+  cf3_assert(m_parent);
+  boost::shared_ptr<Component> this_ptr = m_parent->remove_component( *this );
   new_parent.add_component( this_ptr );
   raise_tree_updated_event();
 }
@@ -457,7 +458,7 @@ Handle<Component> Component::access_component(const URI& path)
 
   // Dispatch to parent
   if(current_part == "..")
-    return parent() ? parent()->access_component(next_part) : Handle<Component>();
+    return m_parent ? m_parent->access_component(next_part) : Handle<Component>();
 
   // Dispatch to child
   Handle<Component> child = get_child(current_part);
@@ -530,10 +531,8 @@ void Component::signal_create_component ( SignalArgs& args  )
 
 void Component::signal_delete_component ( SignalArgs& args  )
 {
-  // when goes out of scope it gets deleted
-  // unless someone else shares it
-
-  parent()->remove_component( *this );
+  cf3_assert(m_parent);
+  m_parent->remove_component( *this );
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////
@@ -1286,7 +1285,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
   if( is_null(cbuilder) ) // try to load the library that contains the builder
   {
     Core::instance().libraries().autoload_library_with_builder( builder_name );
-    cbuilder = Handle<Builder>(Core::instance().root().access_component( builder_path ));
+    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
   if( is_null(cbuilder) ) // if still fails, then give up

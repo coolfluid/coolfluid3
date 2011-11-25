@@ -263,6 +263,10 @@ coolfluid_add_test( UTEST utest-mesh-deletion
                     CPP   utest-mesh-deletion.cpp
                     LIBS  coolfluid_mesh coolfluid_mesh_generation )
 
+coolfluid_add_test( UTEST utest-mesh-init
+                    CPP   utest-mesh-init.cpp
+                    LIBS  coolfluid_common )
+
 ##########################################################################
 # test actions
 add_subdirectory( actions )

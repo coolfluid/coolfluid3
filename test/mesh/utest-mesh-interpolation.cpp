@@ -14,6 +14,7 @@
 #include "common/OptionArray.hpp"
 #include "common/Foreach.hpp"
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Core.hpp"
 
 #include "common/FindComponents.hpp"
@@ -71,7 +72,7 @@ BOOST_FIXTURE_TEST_SUITE( MeshInterpolation_TestSuite, MeshInterpolation_Fixture
 
 BOOST_AUTO_TEST_CASE( Constructors)
 {
-  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
+  boost::shared_ptr< Interpolator > interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
   BOOST_CHECK_EQUAL(interpolator->name(),"interpolator");
 }
 
@@ -82,33 +83,33 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK( true );
 
   // create meshreader
-  MeshReader::Ptr meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
+  boost::shared_ptr< MeshReader > meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.neu.Reader","meshreader");
 
   BOOST_CHECK( true );
 
-  Mesh& source = Core::instance().root().create_component<Mesh>("hextet");
+  Mesh& source = *Core::instance().root().create_component<Mesh>("hextet");
   meshreader->read_mesh_into("../../resources/hextet.neu",source);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(source);
 
   BOOST_CHECK_EQUAL( source.geometry_fields().coordinates().row_size() , (Uint)DIM_3D );
 
-  Mesh& target = Core::instance().root().create_component<Mesh>("quadtriag");
+  Mesh& target = *Core::instance().root().create_component<Mesh>("quadtriag");
   meshreader->read_mesh_into("../../resources/quadtriag.neu",target);
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(target);
 
   BOOST_CHECK_EQUAL( target.geometry_fields().coordinates().row_size() , (Uint)DIM_2D );
 
   //  boost::filesystem::path fp_target ("grid_c.cgns");
-//	MeshReader::Ptr cgns_meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","cgns_meshreader");
-//  Mesh::Ptr target = cgns_meshreader->create_mesh_from(fp_target);
+//	boost::shared_ptr< MeshReader > cgns_meshreader = build_component_abstract_type<MeshReader>("cf3.mesh.CGNS.Reader","cgns_meshreader");
+//  Handle< Mesh > target = cgns_meshreader->create_mesh_from(fp_target);
 
 
   // Create and configure interpolator.
-  Interpolator::Ptr interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
-  interpolator->configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
+  boost::shared_ptr< Interpolator > interpolator = build_component_abstract_type<Interpolator>("cf3.mesh.LinearInterpolator","interpolator");
+  interpolator->options().configure_option("ApproximateNbElementsPerCell", (Uint) 1 );
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> divisions = boost::assign::list_of(3)(2)(2);
-  //interpolator->configure_option("Divisions", divisions );
+  //interpolator->options().configure_option("Divisions", divisions );
 
   // Create the honeycomb
   interpolator->construct_internal_storage(source);
@@ -196,13 +197,13 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
   // Write the fields to file.
-  MeshWriter::Ptr meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
+  boost::shared_ptr< MeshWriter > meshwriter = build_component_abstract_type<MeshWriter>("cf3.mesh.gmsh.Writer","meshwriter");
 
   BOOST_CHECK(true);
 
-  std::vector<Field::Ptr> s_fields;
+  std::vector<Handle< Field > > s_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(source))
-    s_fields.push_back(field.as_ptr<Field>());
+    s_fields.push_back(Handle<Field>(field.handle()));
 
   meshwriter->set_fields(s_fields);
 
@@ -211,9 +212,9 @@ BOOST_AUTO_TEST_CASE( Interpolation )
   BOOST_CHECK(true);
 
 
-  std::vector<Field::Ptr> t_fields;
+  std::vector<Handle< Field > > t_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(target))
-    t_fields.push_back(field.as_ptr<Field>());
+    t_fields.push_back(Handle<Field>(field.handle()));
 
   meshwriter->set_fields(t_fields);
   meshwriter->write_from_to(target,"interpolated.msh");

@@ -393,7 +393,8 @@ protected: // functions
   /// Friend declarations allow enable_shared_from_this to be private
   template<class T> friend class boost::enable_shared_from_this;
   template<class T> friend class boost::shared_ptr;
-
+  template<class Y> friend Handle<Y> make_handle(Component&);
+  template<class Y> friend Handle<Y> make_handle(const Component&);
 }; // Component
 
 
@@ -535,6 +536,16 @@ boost::shared_ptr<ATYPE> build_component_abstract_type_reduced(const std::string
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
     return comp;
+}
+
+template<typename Y> Handle<Y> make_handle(Component& c)
+{
+  return Handle<Y>(c.shared_from_this());
+}
+
+template<typename Y> Handle<Y> make_handle(const Component& c)
+{
+  return Handle<Y>(c.shared_from_this());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

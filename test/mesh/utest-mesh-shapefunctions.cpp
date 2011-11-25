@@ -9,6 +9,7 @@
 
 #include <boost/test/unit_test.hpp>
 #include "common/Log.hpp"
+#include "common/OptionList.hpp"
 #include "common/Component.hpp"
 #include "common/Core.hpp"
 #include "common/Environment.hpp"
@@ -69,7 +70,7 @@ BOOST_AUTO_TEST_CASE( sf_dynamic_version )
 {
   RealVector mapped_coord = (RealVector(2) << 0, 0).finished();
 
-  ShapeFunction::Ptr sf = allocate_component< ShapeFunctionT<LagrangeP0::Triag> >("sf");
+  boost::shared_ptr<ShapeFunction> sf = allocate_component< ShapeFunctionT<LagrangeP0::Triag> >("sf");
 
   RealRowVector     values(1);//       = sf->value(mapped_coord);
   const RealMatrix& local_coords = sf->local_coordinates();
@@ -107,18 +108,18 @@ BOOST_AUTO_TEST_CASE( etype_dynamic_version )
                       ).finished();
   RealVector centroid(2);
 
-  ElementType::Ptr etype = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Triag2D","etype");
+  boost::shared_ptr< ElementType > etype = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Triag2D","etype");
   etype->compute_centroid(nodes,centroid);
   std::cout << "dynamic: centroid = " << centroid.transpose() << std::endl;
 
   // Check if compute_normal throws, as it is not implemented in the static implementation
-  Core::instance().environment().configure_option("exception_outputs",false);
-  Core::instance().environment().configure_option("exception_backtrace",false);
+  Core::instance().environment().options().configure_option("exception_outputs",false);
+  Core::instance().environment().options().configure_option("exception_backtrace",false);
   BOOST_CHECK_THROW(etype->compute_normal(nodes,centroid),common::NotImplemented);
-  Core::instance().environment().configure_option("exception_outputs",true);
-  Core::instance().environment().configure_option("exception_backtrace",true);
+  Core::instance().environment().options().configure_option("exception_outputs",true);
+  Core::instance().environment().options().configure_option("exception_backtrace",true);
 
-  ElementType::Ptr quad_face = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Quad3D","etype");
+  boost::shared_ptr< ElementType > quad_face = build_component_abstract_type<ElementType>("cf3.mesh.LagrangeP1.Quad3D","etype");
 
   RealMatrix quad_face_nodes = (RealMatrix(4,3) <<
                       0, 0, 0,
