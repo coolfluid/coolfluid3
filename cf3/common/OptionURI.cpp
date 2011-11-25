@@ -46,6 +46,8 @@ OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 {
   if(std::find(m_protocols.begin(), m_protocols.end(), protocol) == m_protocols.end())
     m_protocols.push_back(protocol);
+
+  return *this;
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -53,7 +55,7 @@ OptionURI& OptionURI::supported_protocol(URI::Scheme::Type protocol)
 void OptionURI::change_value(const boost::any& value)
 {
   const URI val = boost::any_cast<URI>(value);
-  
+
   if(std::count(m_protocols.begin(), m_protocols.end(), val.scheme() == 0))
   {
     std::stringstream error_str;
@@ -64,7 +66,7 @@ void OptionURI::change_value(const boost::any& value)
     }
     throw BadValue(FromHere(), error_str.str());
   }
-  
+
   Option::change_value(value);
 }
 
