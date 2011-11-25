@@ -118,6 +118,18 @@ public: // functions
     flux(2,XX) = p.rhou * p.H;        // rho.u.H
   }
 
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    const Real rhoum = p.rhou * direction[XX];
+
+    flux[0] = rhoum;
+    flux[1] = rhoum * p.u + p.P*direction[XX];
+    flux[2] = rhoum * p.H;
+  }
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >
   static void flux_jacobian_eigen_values(const MODEL::Properties& p,

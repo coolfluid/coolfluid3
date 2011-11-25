@@ -12,7 +12,7 @@
 
 #include "common/Log.hpp"
 #include "common/Core.hpp"
-
+#include "common/Environment.hpp"
 #include "common/FindComponents.hpp"
 
 #include "mesh/actions/CreateSpaceP0.hpp"
@@ -73,6 +73,7 @@ BOOST_AUTO_TEST_CASE( Constructors)
 {
   BuildFaces::Ptr facebuilder = allocate_component<BuildFaces>("facebuilder");
   BOOST_CHECK_EQUAL(facebuilder->name(),"facebuilder");
+  Core::instance().environment().configure_option("log_level",(Uint)INFO);
 }
 
 BOOST_AUTO_TEST_CASE( build_faceconnectivity )
@@ -235,14 +236,14 @@ BOOST_AUTO_TEST_CASE( build_faceconnectivity )
 
 //  for (Face2Cell face(f2c); face.idx<f2c.size(); ++face.idx)
 //  {
-//    std::cout << face.idx << "  : " << face.cells()[0];
+//    CFinfo << face.idx << "  : " << face.cells()[0];
 //    if (face.is_bdry())
-//      std::cout << std::endl;
+//      CFinfo << CFendl;
 //    else
-//      std::cout << "   <-->   " << face.cells()[1] << std::endl;
+//      CFinfo << "   <-->   " << face.cells()[1] << CFendl;
 //  }
 
-//  std::cout << mesh->tree() << std::endl<<std::endl;
+//  CFinfo << mesh->tree() << CFendl<<CFendl;
 
 }
 
@@ -267,12 +268,13 @@ BOOST_AUTO_TEST_CASE( build_faces )
   Uint cell_idx(0);
 
   CFinfo << "\n\nCHECKING wall connectivity"<<CFendl;
+  BOOST_CHECK_EQUAL(f2c.size(),6u);
   for (Face2Cell face(f2c); face.idx<f2c.size(); ++face.idx)
   {
     CFinfo << wall_faces.parent().name()<<"/"<<wall_faces.name() << "["<<face.idx<<"] <--> ";
 
     Entity cell = face.cells()[0];
-    CFinfo << cell.comp->parent().parent().name()<<"/"<<cell.comp->name() << "["<<cell.idx<<"]" << CFendl;
+    CFinfo << cell << CFendl;
     RealMatrix cell_coordinates = cell.get_coordinates();
     RealVector face_coordinates = wall_faces.get_coordinates(face.idx).row(0);
     bool match_found = false;
@@ -291,7 +293,7 @@ BOOST_AUTO_TEST_CASE( build_faces )
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-
+#if 0
 BOOST_AUTO_TEST_CASE( build_face_normals )
 {
   allocate_component<CreateSpaceP0>("create_space_P0")->transform(mesh);
@@ -381,9 +383,8 @@ BOOST_AUTO_TEST_CASE( build_faces_rectangle )
 
   }
 }
-
+#endif
 //////////////////////////////////////////////////////////////////////////////
-
 BOOST_AUTO_TEST_SUITE_END()
 
 ////////////////////////////////////////////////////////////////////////////////

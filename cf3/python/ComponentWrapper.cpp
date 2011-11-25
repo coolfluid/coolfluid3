@@ -4,8 +4,7 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/python.hpp>
-#include <boost/python/raw_function.hpp>
+#include "python/BoostPython.hpp"
 
 #include <boost/algorithm/string.hpp>
 

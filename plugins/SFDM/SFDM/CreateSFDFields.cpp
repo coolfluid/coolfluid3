@@ -87,6 +87,7 @@ void CreateSFDFields::execute()
     Field& residual   = solution_space.create_field(SFDM::Tags::residual(), solution.descriptor().description());
     residual.descriptor().prefix_variable_names("rhs_");
     solver().field_manager().create_component<Link>(SFDM::Tags::residual()).link_to(residual);
+    residual.properties()[SFDM::Tags::L2norm()]=0.;
 
     Field& wave_speed = solution_space.create_field(SFDM::Tags::wave_speed(), "ws[1]");
     solver().field_manager().create_component<Link>(SFDM::Tags::wave_speed()).link_to(wave_speed);

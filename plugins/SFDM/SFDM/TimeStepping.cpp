@@ -11,7 +11,7 @@
 #include "common/OptionArray.hpp"
 #include "common/EventHandler.hpp"
 #include "common/FindComponents.hpp"
-
+#include "common/Group.hpp"
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/Mesh.hpp"
@@ -24,6 +24,7 @@
 
 #include "SFDM/TimeStepping.hpp"
 #include "SFDM/Tags.hpp"
+#include "SFDM/SFDSolver.hpp"
 
 using namespace cf3::common;
 using namespace cf3::common::XML;
@@ -131,7 +132,8 @@ void TimeStepping::execute()
 
     //raise_timestep_done();
 
-    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]" << CFendl;
+    Real norm = boost::any_cast<Real>(solver().as_type<SFDSolver>().actions().get_child(Tags::L2norm()).property("norm"));
+    CFinfo << "iteration [" << k << "]  time [" << m_time->current_time() << "]  time step ["<<m_time->dt()<<"]  L2(rhs) ["<<norm<<"]" << CFendl;
 
   }
 }

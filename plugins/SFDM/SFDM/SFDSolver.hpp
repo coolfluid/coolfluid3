@@ -81,8 +81,6 @@ public: // functions
   PrepareMesh&          prepare_mesh()           { return *m_prepare_mesh; }
   /// @returns the group of shared actions
   common::Group&       actions()                { return *m_actions; }
-  /// @returns the group of shared fields
-  common::Group&       fields()                 { return *m_fields; }
 
   mesh::Mesh& mesh() { return *m_mesh.lock(); }
 

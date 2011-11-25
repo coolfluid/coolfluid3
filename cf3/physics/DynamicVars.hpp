@@ -65,6 +65,13 @@ public: // functions
     /// @todo to be implemented in the .cpp
   }
 
+  virtual void flux (const physics::Properties& p,
+                     const RealVector& direction,
+                     RealVector& flux)
+  {
+    /// @todo to be implemented in the .cpp
+  }
+
   /// compute the eigen values of the flux jacobians
   virtual void flux_jacobian_eigen_values (const physics::Properties& p,
                                            const RealVector& direction,

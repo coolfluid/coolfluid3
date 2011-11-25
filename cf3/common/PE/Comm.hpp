@@ -149,6 +149,10 @@ public:
   {
            PE::all_to_all(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
   }
+  template<typename T> inline void all_to_all( const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
+  {
+           PE::all_to_all(communicator(), send, recv);
+  }
 
   //@}
 
@@ -212,6 +216,10 @@ public:
   template<typename T> inline void all_gather(const std::vector<T>& in_values, const int in_n, const std::vector<int>& in_map, std::vector<T>& out_values, std::vector<int>& out_n, const std::vector<int>& out_map, const int stride=1)
   {
            PE::all_gather(communicator(), in_values, in_n, in_map, out_values, out_n, out_map, stride);
+  }
+  template<typename T> inline void all_gather(const std::vector<T>& send, std::vector< std::vector<T> >& recv)
+  {
+           PE::all_gather(communicator(), send, recv);
   }
 
   //@}

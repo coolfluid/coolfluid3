@@ -93,8 +93,9 @@ void Node2FaceCellConnectivity::build_connectivity()
   {
     FaceCellConnectivity& face_cell_connectivity = *face_cell_connectivity_comp;
 
-    for (Face2Cell face(face_cell_connectivity); face.idx<face_cell_connectivity.size(); ++face.idx)
+    for (Uint idx=0; idx<face_cell_connectivity.size(); ++idx)
     {
+      Face2Cell face(face_cell_connectivity,idx);
       if (face.is_bdry())
       {
         boost_foreach (const Uint node_idx, face.nodes())
@@ -116,8 +117,9 @@ void Node2FaceCellConnectivity::build_connectivity()
   {
     FaceCellConnectivity& face_cell_connectivity = *face_cell_connectivity_comp;
 
-    for (Face2Cell face(face_cell_connectivity); face.idx<face_cell_connectivity.size(); ++face.idx)
+    for (Uint idx=0; idx<face_cell_connectivity.size(); ++idx)
     {
+      Face2Cell face(face_cell_connectivity,idx);
       if (face.is_bdry())
       {
         boost_foreach (const Uint node_idx, face.nodes())

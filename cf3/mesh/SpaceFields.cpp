@@ -425,79 +425,6 @@ std::size_t hash_value(const RealMatrix& coords)
   return seed;
 }
 
-// copy of MeshPartitioner.cpp::flex_all_gather
-template <typename T>
-void hash_all_gather(const std::vector<T>& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> strides;
-  PE::Comm::instance().all_gather((int)send.size(),strides);
-  std::vector<int> displs(strides.size());
-  if (strides.size())
-  {
-    int sum_strides = strides[0];
-    displs[0] = 0;
-    for (Uint i=1; i<strides.size(); ++i)
-    {
-      displs[i] = displs[i-1] + strides[i-1];
-      sum_strides += strides[i];
-    }
-    std::vector<T> recv_linear(sum_strides);
-    MPI_CHECK_RESULT(MPI_Allgatherv, ((void*)&send[0], (int)send.size(), get_mpi_datatype<T>(), &recv_linear[0], &strides[0], &displs[0], get_mpi_datatype<T>(), PE::Comm::instance().communicator()));
-    recv.resize(strides.size());
-    for (Uint i=0; i<strides.size(); ++i)
-    {
-      recv[i].resize(strides[i]);
-      for (Uint j=0; j<strides[i]; ++j)
-      {
-        recv[i][j]=recv_linear[displs[i]+j];
-      }
-    }
-  }
-  else
-  {
-    recv.resize(0);
-  }
-}
-
-// copy of MeshPartitioner.cpp::flex_all_to_all
-template <typename T>
-void hash_all_to_all(const std::vector<std::vector<T> >& send, std::vector<std::vector<T> >& recv)
-{
-  std::vector<int> send_strides(send.size());
-  std::vector<int> send_displs(send.size());
-  for (Uint i=0; i<send.size(); ++i)
-    send_strides[i] = send[i].size();
-
-  send_displs[0] = 0;
-  for (Uint i=1; i<send.size(); ++i)
-    send_displs[i] = send_displs[i-1] + send_strides[i-1];
-
-  std::vector<T> send_linear(send_displs.back()+send_strides.back());
-  for (Uint i=0; i<send.size(); ++i)
-    for (Uint j=0; j<send[i].size(); ++j)
-      send_linear[send_displs[i]+j] = send[i][j];
-
-  std::vector<int> recv_strides(PE::Comm::instance().size());
-  std::vector<int> recv_displs(PE::Comm::instance().size());
-  PE::Comm::instance().all_to_all(send_strides,recv_strides);
-  recv_displs[0] = 0;
-  for (Uint i=1; i<PE::Comm::instance().size(); ++i)
-    recv_displs[i] = recv_displs[i-1] + recv_strides[i-1];
-
-  std::vector<T> recv_linear(recv_displs.back()+recv_strides.back());
-  MPI_CHECK_RESULT(MPI_Alltoallv, (&send_linear[0], &send_strides[0], &send_displs[0], PE::get_mpi_datatype<Uint>(), &recv_linear[0], &recv_strides[0], &recv_displs[0], get_mpi_datatype<Uint>(), PE::Comm::instance().communicator()));
-
-  recv.resize(recv_strides.size());
-  for (Uint i=0; i<recv_strides.size(); ++i)
-  {
-    recv[i].resize(recv_strides[i]);
-    for (Uint j=0; j<recv_strides[i]; ++j)
-    {
-      recv[i][j]=recv_linear[recv_displs[i]+j];
-    }
-  }
-}
-
 
 void SpaceFields::create_connectivity_in_space()
 {
@@ -609,7 +536,7 @@ void SpaceFields::create_connectivity_in_space()
     // - Communicate unknown ranks to all processes
     std::vector< std::vector<size_t> > recv_hash(Comm::instance().size());
     if (Comm::instance().is_active())
-      hash_all_gather(coord_hash,recv_hash);
+      Comm::instance().all_gather(coord_hash,recv_hash);
     else
       recv_hash[0] = coord_hash;
 
@@ -634,7 +561,7 @@ void SpaceFields::create_connectivity_in_space()
     // - Communicate which processes found the missing ranks
     std::vector< std::vector<Uint> > recv_found_on_rank(Comm::instance().size());
     if (Comm::instance().is_active())
-      hash_all_to_all(send_found_on_rank,recv_found_on_rank);
+      Comm::instance().all_to_all(send_found_on_rank,recv_found_on_rank);
     else
       recv_found_on_rank[0] = send_found_on_rank[0];
 
@@ -694,7 +621,7 @@ void SpaceFields::create_connectivity_in_space()
 
     std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
     if (Comm::instance().is_active())
-      hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+      Comm::instance().all_gather(ghosts_hashed,recv_ghosts_hashed);
     else
       recv_ghosts_hashed[0] = ghosts_hashed;
 
@@ -719,7 +646,7 @@ void SpaceFields::create_connectivity_in_space()
     // - Communicate which processes found the missing ghosts
     std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
     if (Comm::instance().is_active())
-      hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+      Comm::instance().all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
     else
       recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
 
@@ -848,7 +775,7 @@ void SpaceFields::create_connectivity_in_space()
 
       std::vector< std::vector<size_t> > recv_ghosts_hashed(Comm::instance().size());
       if (Comm::instance().is_active())
-        hash_all_gather(ghosts_hashed,recv_ghosts_hashed);
+        Comm::instance().all_gather(ghosts_hashed,recv_ghosts_hashed);
       else
         recv_ghosts_hashed[0] = ghosts_hashed;
 
@@ -875,7 +802,7 @@ void SpaceFields::create_connectivity_in_space()
       // - Communicate which processes found the missing ghosts
       std::vector< std::vector<Uint> > recv_glb_idx_on_rank(Comm::instance().size());
       if (Comm::instance().is_active())
-        hash_all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
+        Comm::instance().all_to_all(send_glb_idx_on_rank,recv_glb_idx_on_rank);
       else
         recv_glb_idx_on_rank[0] = send_glb_idx_on_rank[0];
 

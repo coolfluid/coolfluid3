@@ -102,51 +102,52 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 
   // options
 
-  options().add_option< OptionT<bool> >("Scale", true)
+  options().add_option< OptionT<bool> >("scale", true)
       ->description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  options().add_option< OptionT<Uint> >("Order", 2u)
+  options().add_option< OptionT<Uint> >("order", 2u)
       ->description("Order of the p-norm, zero if L-inf");
 
-  options().add_option(OptionComponent<Field>::create("Field", &m_field))
+  options().add_option< OptionURI >("field",URI())
       ->description("Field for which to compute the norm");
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////
 
-void CComputeLNorm::execute()
+Real CComputeLNorm::compute_norm(mesh::Field& field) const
 {
-  if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
+  const Uint nb_rows = field.size();
 
-  Table<Real>& table = *m_field.lock();
-  Table<Real>::ArrayT& array =  m_field.lock()->array();
-
-  const Uint nbrows = table.size();
-
-  if ( !nbrows ) throw SetupError(FromHere(), "Field has empty table");
+  if ( !nb_rows ) throw SetupError(FromHere(), "Field has empty table");
 
   Real norm = 0.;
 
-  const Uint order = options().option("Order").value<Uint>();
+  const Uint order = options().option("order").value<Uint>();
 
   // sum of all processors
 
   switch(order) {
 
-  case 2:  compute_L2( array, norm );    break;
+  case 2:  compute_L2( field.array(), norm );    break;
 
-  case 1:  compute_L1( array, norm );    break;
+  case 1:  compute_L1( field.array(), norm );    break;
 
-  case 0:  compute_Linf( array, norm );  break; // consider order 0 as Linf
+  case 0:  compute_Linf( field.array(), norm );  break; // consider order 0 as Linf
 
-  default: compute_Lp( array, norm, order );    break;
+  default: compute_Lp( field.array(), norm, order );    break;
 
   }
 
+  if( options().option("scale").value<bool>() && order )
+    norm /= nb_rows;
 
-  if( options().option("Scale").value<bool>() && order )
-    norm /= nbrows;
+  return norm;
+}
 
-  configure_property("norm", norm);
+void CComputeLNorm::execute()
+{
+  Field& field = access_component(option("field").value<URI>()).follow()->as_type<Field>();
+  configure_property("norm", compute_norm(field) );
 }
 
 ////////////////////////////////////////////////////////////////////////////////

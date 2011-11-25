@@ -4,13 +4,13 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include <boost/python.hpp>
 #include <boost/weak_ptr.hpp>
 
 #include "common/BasicExceptions.hpp"
 
 #include "math/MatrixTypes.hpp"
 #include "python/MatrixWrappers.hpp"
+#include "python/BoostPython.hpp"
 
 namespace cf3 {
 namespace python {

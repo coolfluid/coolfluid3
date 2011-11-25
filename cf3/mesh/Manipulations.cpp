@@ -253,7 +253,7 @@ void PackUnpackNodes::unpack(PE::Buffer& buf)
   cf3_always_assert(coordinates.add_row(coordinates_data) == idx);
   cf3_always_assert(connected_elements.add_row(connected_elems_data) == idx);
 
-  //std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << coordinates_data << "\t    connected_elem = " << connected_elems_data << std::endl;
+//  std::cout << PERank << "added node    glb_idx = " << glb_idx_data << "\t    rank = " << rank_data << "\t    coords = " << to_str(coordinates_data) << "\t    connected_elem = " << to_str(connected_elems_data) << std::endl;
   m_idx = uint_max();
 }
 
