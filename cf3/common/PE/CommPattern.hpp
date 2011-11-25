@@ -315,7 +315,7 @@ private:
   /// flag telling if communication pattern is up-to-date (there are no items )
   bool m_isUpToDate;
 
-  /// flag telling if communication pattern is up-to-date (there are no items )
+  /// flag telling if pattern are set not to be allowed to change
   bool m_isFreeze;
 
   //@} END PROPERTIES
