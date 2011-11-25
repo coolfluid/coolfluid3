@@ -81,6 +81,7 @@ my %packages = (  #  version   default install priority      function
     "boost-jam"  => [ "3.1.18",   'off',   'off', $priority++,  \&install_boost_jam ],
     "boost"      => [ "1_48_0",   'on' ,   'off', $priority++,  \&install_boost ],
     "parmetis"   => [ "3.2.0",    'off',   'off', $priority++,  \&install_parmetis ],
+    "qt"         => [ "4.7.4",    'off',   'off', $priority++,  \&install_qt ],
     "paraview"   => [ "3.10.1",   'off',   'off', $priority++,  \&install_paraview ], # must be installed *BEFORE* hdf5
     "hdf5"       => [ "1.8.7",    'off',   'off', $priority++,  \&install_hdf5 ],
     "trilinos"   => [ "10.8.2",   'off',   'off', $priority++,  \&install_trilinos ],
@@ -1339,6 +1340,35 @@ sub install_superlu() {
     run_command_or_die("make $opt_makeopts");
     run_command_or_die("make install");
   }
+}
+
+#==========================================================================
+
+sub install_qt() {
+  my $lib = "qt";
+  my $version = $packages{$lib}[$vrs];
+
+  print my_colored("Installing $lib-everywhere-opensource-src-$version\n",$HIGHLIGHTCOLOR);
+
+  safe_chdir($opt_tmp_dir);
+  download_src("$lib-everywhere-opensource-src-$version");
+
+  unless ($opt_fetchonly)
+  {
+    rmtree "$opt_tmp_dir/$lib-everywhere-opensource-src-$version";
+    untar_src("$lib-everywhere-opensource-src-$version");
+    safe_chdir("$opt_tmp_dir/$lib-everywhere-opensource-src-$version/");
+
+    # -make libs => compile libraries
+    # -make tools => compile tools (uic, rcc,...)
+    # -opensource => compile with LGPL license
+    # -fast => configure step is faster (do not generate Makefiles for what will not be compiled)
+    #  echo "y" => accept the licence automatically
+    run_command_or_die ("echo \"y\" | ./configure -prefix $opt_install_dir -make libs -make tools --no-qt3support -opensource -fast");
+    run_command_or_die ("make $opt_makeopts");
+    run_command_or_die ("make install");
+  }
+    
 }
 
 #==========================================================================
