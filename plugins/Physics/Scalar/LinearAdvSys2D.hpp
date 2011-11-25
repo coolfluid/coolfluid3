@@ -85,6 +85,15 @@ public: // functions
     flux.row(U1)  = p.v.row(U1) * p.vars[U0];
   }
 
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    throw common::NotImplemented(FromHere(), "directional flux not implemented for LinearAdvSys2D");
+  }
+
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >
   static void flux_jacobian_eigen_values(const MODEL::Properties& p,

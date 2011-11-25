@@ -119,6 +119,24 @@ public: // functions
     flux(3,YY) = p.u0[YY]*p.p + p.v*p.gamma*p.P0;
   }
 
+  /// compute the physical flux
+  template < typename FM , typename GV>
+  static void flux( const MODEL::Properties& p,
+                    const GV& direction,
+                    FM& flux)
+  {
+    const Real u0n = p.u0[XX] * direction[XX] +
+                     p.u0[YY] * direction[YY];
+
+    const Real un = p.u * direction[XX] +
+                    p.v * direction[YY];
+
+    flux[0] = u0n*p.rho+p.rho0*un;
+    flux[1] = p.rho0*u0n*p.u+p.p*direction[XX];
+    flux[2] = p.rho0*u0n*p.v+p.p*direction[YY];
+    flux[3] = u0n*p.p+un*p.gamma*p.P0;
+  }
+
   /// compute the eigen values of the flux jacobians
   template < typename GV, typename EV >
   static void flux_jacobian_eigen_values(const MODEL::Properties& p,
