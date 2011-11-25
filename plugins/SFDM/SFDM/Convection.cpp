@@ -128,17 +128,18 @@ void Convection::compute_interior_flx_pts_contribution()
 void Convection::compute_face_flx_pts_contribution()
 {
   /// Faces loop
+  std::vector< boost::shared_ptr<Flyweight> > fly(2);
+
   boost_foreach(Region::Ptr region, m_loop_regions)
   boost_foreach(Entities& faces, find_components_recursively_with_tag<Entities>(*region,mesh::Tags::inner_faces()))
   {
     FaceCellConnectivity& cell_connectivity = faces.get_child("cell_connectivity").as_type<FaceCellConnectivity>();
-
     /// For every face
     for (Face2Cell face(cell_connectivity); face.idx<cell_connectivity.size(); ++face.idx)
     {
-      std::vector<Flyweight> fly = create_flyweight(face);
-      const Uint nb_face_pts = fly[LEFT].sf.face_flx_pts(face.face_nb_in_cells()[LEFT]).size();
-      cf3_assert(nb_face_pts == fly[RIGHT].sf.face_flx_pts(face.face_nb_in_cells()[RIGHT]).size());
+      fly = create_flyweight(face);
+      const Uint nb_face_pts = fly[LEFT]->sf.face_flx_pts(face.face_nb_in_cells()[LEFT]).size();
+      cf3_assert(nb_face_pts == fly[RIGHT]->sf.face_flx_pts(face.face_nb_in_cells()[RIGHT]).size());
 
       /// For every face flux point
       for (Uint face_pt=0; face_pt<nb_face_pts; ++face_pt)
@@ -147,23 +148,23 @@ void Convection::compute_face_flx_pts_contribution()
         for (Uint side=0; side<2; ++side)
         {
           face_at_side[side] = face.face_nb_in_cells()[side];
-          flx_pt_at_side[side] = fly[side].sf.face_flx_pts(face_at_side[side])[face_pt];
-          fly[side].reconstruct_solution_in_flx_pt(flx_pt_at_side[side],sol_at_side[side]);
+          flx_pt_at_side[side] = fly[side]->sf.face_flx_pts(face_at_side[side])[face_pt];
+          fly[side]->reconstruct_solution_in_flx_pt(flx_pt_at_side[side],sol_at_side[side]);
         }
 
         /// 2) compute numerical flux in this point
-        fly[LEFT].compute_numerical_flux(flx_pt_at_side[LEFT],sol_at_side[LEFT],sol_at_side[RIGHT],
+        fly[LEFT]->compute_numerical_flux(flx_pt_at_side[LEFT],sol_at_side[LEFT],sol_at_side[RIGHT],
                                          flx_in_flx_pt,wave_speed_in_flx_pt);
 
         for (Uint side=0; side<2; ++side)
         {
           /// 3) add contribution of this flux-point to solution points for the
           ///    gradient of the flux
-          fly[side].add_flx_pt_gradient_contribution_to_residual(flx_pt_at_side[side],flx_in_flx_pt);
+          fly[side]->add_flx_pt_gradient_contribution_to_residual(flx_pt_at_side[side],flx_in_flx_pt);
 
           /// 4) add contribution of this flux-point to solution points for the
           ///    interpolation of the wave_speed
-          fly[side].add_flx_pt_contribution_to_wave_speed(flx_pt_at_side[side],wave_speed_in_flx_pt);
+          fly[side]->add_flx_pt_contribution_to_wave_speed(flx_pt_at_side[side],wave_speed_in_flx_pt);
         }
       }
       // end face_pt loop

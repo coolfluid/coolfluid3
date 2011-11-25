@@ -140,7 +140,7 @@ protected:
 
   Flyweight create_flyweight(const mesh::Entities& entities, const Uint element_idx=0);
   Flyweight create_flyweight(const mesh::Entity& entity);
-  std::vector<Flyweight> create_flyweight(const mesh::Face2Cell& face);
+  std::vector< boost::shared_ptr<Flyweight> > create_flyweight(const mesh::Face2Cell& face);
 
 protected: // data
 
