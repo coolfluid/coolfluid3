@@ -13,6 +13,7 @@
 #include "common/OptionComponent.hpp"
 #include "common/ActionDirector.hpp"
 #include "common/FindComponents.hpp"
+#include "common/Group.hpp"
 
 #include "math/VariablesDescriptor.hpp"
 
@@ -21,6 +22,7 @@
 
 #include "solver/actions/CCriterion.hpp"
 #include "solver/actions/CCriterionMaxIterations.hpp"
+#include "solver/actions/CComputeLNorm.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/FieldManager.hpp"
@@ -55,9 +57,9 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
 
   // static components
 
-  m_pre_update = create_static_component_ptr<ActionDirector>("PreUpdate");
+  m_pre_update = create_static_component_ptr<common::ActionDirector>("PreUpdate");
 
-  m_post_update = create_static_component_ptr<ActionDirector>("PostUpdate");
+  m_post_update = create_static_component_ptr<common::ActionDirector>("PostUpdate");
 
   options().add_option< OptionT<Uint> >("rk_order", 1u)
       ->description("Order of the Runge-Kutta integration")
@@ -101,6 +103,12 @@ IterativeSolver::IterativeSolver ( const std::string& name ) :
       ->pretty_name("Time");
 
   config_rk_order();
+
+
+  CComputeLNorm& cnorm = create_static_component<CComputeLNorm>( "ComputeNorm" );
+  cnorm.configure_option("order",2u);
+  cnorm.configure_option("scale",true);
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -245,6 +253,7 @@ void IterativeSolver::execute()
     // - R
     // - H
     // - time.dt()
+
     // Runge-Kutta UPDATE
     const Real one_minus_alpha = 1. - alpha[stage];
     boost_foreach(const Entities& elements, U.entities_range())

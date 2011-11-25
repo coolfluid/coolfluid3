@@ -17,6 +17,7 @@
 #include "common/FindComponents.hpp"
 
 #include "mesh/Mesh.hpp"
+#include "mesh/FieldManager.hpp"
 
 #include "physics/PhysModel.hpp"
 #include "physics/Variables.hpp"
@@ -24,6 +25,7 @@
 #include "RiemannSolvers/RiemannSolvers/RiemannSolver.hpp"
 
 #include "solver/actions/CSynchronizeFields.hpp"
+#include "solver/actions/CComputeLNorm.hpp"
 
 #include "SFDM/Tags.hpp"
 #include "SFDM/SFDSolver.hpp"
@@ -80,11 +82,12 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
 
   option(SFDM::Tags::physical_model()).attach_trigger ( boost::bind ( &SFDSolver::config_physics, this ) );
 
-  // for storing links to fields
-  m_fields  = create_static_component_ptr< Group >( SFDM::Tags::fields()  );
-
   // Shared actions by the solver
   m_actions = create_static_component_ptr< Group >( SFDM::Tags::actions() );
+  CComputeLNorm& L2norm = m_actions->create_static_component<CComputeLNorm>(SFDM::Tags::L2norm());
+  L2norm.configure_option("order",2u);
+  L2norm.configure_option("scale",true);
+  L2norm.configure_option("field",URI("../../FieldManager/")/Tags::residual());
 
   // create the parallel synchronization action
   CSynchronizeFields& synchronize = m_actions->create_component<CSynchronizeFields>("Synchronize");
@@ -105,6 +108,7 @@ SFDSolver::SFDSolver ( const std::string& name  ) :
   m_time_stepping->post_actions().append(conditional);
   conditional->create_component("milestone_dt","cf3.solver.actions.CCriterionMilestoneTime");
   conditional->create_component("write_mesh","cf3.mesh.WriteMesh");
+  m_time_stepping->post_actions().append(L2norm);
 
   m_domain_discretization= create_static_component_ptr< DomainDiscretization > ( DomainDiscretization::type_name() );
   m_iterative_solver->pre_update().append(m_domain_discretization);
