@@ -127,14 +127,12 @@ void Roe::compute_interface_flux(const RealVector& left, const RealVector& right
   abs_jacobian *= left_eigenvectors;
 
   // Compute left and right fluxes
-  sol_vars.flux(*p_left , f_left);
-  sol_vars.flux(*p_right, f_right);
+  sol_vars.flux(*p_left , normal, f_left);
+  sol_vars.flux(*p_right, normal, f_right);
 
   // Compute flux at interface composed of central part and upwind part
-  cf3_assert_desc("f_left.cols(){"+to_str((Uint)f_left.cols())+"} != normal.size() {"+to_str((Uint)normal.size())+"}",f_left.cols() == normal.size());
-
-  central_flux  = f_left*normal;
-  central_flux += f_right*normal;
+  central_flux  = f_left;
+  central_flux += f_right;
   central_flux *= 0.5;
 
   upwind_flux  = abs_jacobian*(right-left);
