@@ -212,7 +212,7 @@ CommPattern& SpaceFields::comm_pattern()
     PE::CommPattern& comm_pattern = *create_component<PE::CommPattern>("CommPattern");
     comm_pattern.insert("gid",glb_idx().array(),false);
     comm_pattern.setup(Handle<PE::CommWrapper>(comm_pattern.get_child("gid")),rank().array());
-    m_comm_pattern = Handle<common::PE::CommPattern>(comm_pattern.handle());
+    m_comm_pattern = Handle<common::PE::CommPattern>(comm_pattern.handle<Component>());
   }
 
   return *m_comm_pattern;
@@ -539,7 +539,7 @@ void SpaceFields::create_connectivity_in_space()
     // step 3: resize
     // --------------
     resize(points.size());
-    m_coordinates = Handle<Field>(coordinates.handle());
+    m_coordinates = Handle<Field>(coordinates.handle<Component>());
     for (Uint i=0; i<size(); ++i)
       rank()[i] = UNKNOWN;
 
@@ -997,7 +997,7 @@ Field& SpaceFields::create_coordinates()
     }
   }
 
-  m_coordinates = Handle<Field>(coordinates.handle());
+  m_coordinates = Handle<Field>(coordinates.handle<Component>());
   return coordinates;
 }
 

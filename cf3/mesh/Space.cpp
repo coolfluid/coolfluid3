@@ -71,7 +71,7 @@ const ShapeFunction& Space::shape_function() const
 
 void Space::set_support(Entities& support)
 {
-  m_support = Handle<Entities>(support.handle());
+  m_support = Handle<Entities>(support.handle<Component>());
 }
 
 Entities& Space::support()

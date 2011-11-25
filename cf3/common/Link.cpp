@@ -56,10 +56,10 @@ bool Link::is_linked () const
 
 Link& Link::link_to ( Component& lnkto )
 {
-  if (is_not_null(Handle<Link>(lnkto.handle())))
+  if (is_not_null(Handle<Link>(lnkto.handle<Component>())))
     throw SetupError(FromHere(), "Cannot link a Link to another Link");
 
-  m_link_component = lnkto.handle();
+  m_link_component = lnkto.handle<Component>();
   return *this;
 }
 
@@ -99,12 +99,12 @@ Handle< const Component > follow_link(const Handle< const Component >& link_or_c
 
 Handle< Component > follow_link(Component& link_or_comp)
 {
-  return follow_link(link_or_comp.handle());
+  return follow_link(link_or_comp.handle<Component>());
 }
 
 Handle< const Component > follow_link(const Component& link_or_comp)
 {
-  return follow_link(link_or_comp.handle());
+  return follow_link(link_or_comp.handle<Component>());
 }
 
 

@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE( ComponentOption )
   Component& root = Core::instance().root();
   const Handle<Component> referred = root.create_component<Component>("ReferredComponent");
 
-  OptionComponent<Component>& opt = root.options().add_option("test_component_option", root.handle());
+  OptionComponent<Component>& opt = root.options().add_option("test_component_option", root.handle<Component>());
   BOOST_CHECK(root.uri() == root.options().option("test_component_option").value< Handle<Component> >()->uri());
   BOOST_CHECK(root.name() == opt.value< Handle<Component> >()->name());
 

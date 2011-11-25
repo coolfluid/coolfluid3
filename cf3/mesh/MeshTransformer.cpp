@@ -53,7 +53,7 @@ void MeshTransformer::set_mesh(Handle< Mesh > mesh)
 
 void MeshTransformer::set_mesh(Mesh& mesh)
 {
-  m_mesh=Handle<Mesh>(mesh.handle());
+  m_mesh=Handle<Mesh>(mesh.handle<Component>());
   boost_foreach(MeshTransformer& meshtransformer, find_components<MeshTransformer>(*this))
     meshtransformer.set_mesh(mesh);
 

@@ -144,7 +144,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
     if (elements.size() == 0)
       continue;
 
-    zone_id[elements.handle()] = zone_idx++;
+    zone_id[elements.handle<Component>()] = zone_idx++;
 
     boost::shared_ptr< common::List<Uint> > used_nodes_ptr = Entities::create_used_nodes(elements);
     common::List<Uint>& used_nodes = *used_nodes_ptr;

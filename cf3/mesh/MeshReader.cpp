@@ -119,7 +119,7 @@ void MeshReader::read_mesh_into(const URI& path, Mesh& mesh)
 //Handle< Mesh > MeshReader::create_mesh_from(const URI& file)
 //{
 //  // Create the mesh
-//  Handle< Mesh > mesh ( allocate_component<Mesh>("mesh") );
+//  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>("mesh") );
 
 //  // Call implementation
 //  do_read_mesh_into(file,*mesh);
@@ -142,7 +142,7 @@ std::map<std::string,Handle< Elements > >
     {
       Cells& etype_cells = *parent_region.create_component<Cells>(element_type->shape_name());
       etype_cells.initialize(etype,nodes);
-      cells_map[etype] = Handle<Elements>(etype_cells.handle());
+      cells_map[etype] = Handle<Elements>(etype_cells.handle<Component>());
     }
   }
   return cells_map;
@@ -162,7 +162,7 @@ std::map<std::string,Handle< Elements > >
     {
       Faces& etype_faces = *parent_region.create_component<Faces>(element_type->shape_name());
       etype_faces.initialize(etype,nodes);
-      faces_map[etype] = Handle<Elements>(etype_faces.handle());
+      faces_map[etype] = Handle<Elements>(etype_faces.handle<Component>());
     }
   }
   return faces_map;

@@ -117,7 +117,7 @@ private: // data
 template <typename DATA>
 inline void UnifiedData::add(DATA& data)
 {
-  Handle<DATA> actual_data = Handle<DATA>(data.handle());
+  Handle<DATA> actual_data = Handle<DATA>(data.handle<Component>());
 
   // if it is not added yet, add
   if (m_start_idx.find(actual_data.get()) == m_start_idx.end())

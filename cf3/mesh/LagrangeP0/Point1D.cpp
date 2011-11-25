@@ -41,7 +41,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Point1D::faces()
 const cf3::mesh::ElementType& Point1D::face_type(const cf3::Uint face)
 {
   throw common::NotImplemented(FromHere(), "LagrangeP0::Point1D Does not have a face type");
-  static const Handle< ElementType > facetype( common::allocate_component<ElementTypeT<Point1D> >(Point1D::type_name()) );
+  static const boost::shared_ptr< ElementType > facetype( common::allocate_component<ElementTypeT<Point1D> >(Point1D::type_name()) );
   return *facetype;
 }
 

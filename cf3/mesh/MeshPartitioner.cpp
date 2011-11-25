@@ -108,7 +108,7 @@ void MeshPartitioner::load_balance_signature ( common::SignalArgs& node )
 
 void MeshPartitioner::initialize(Mesh& mesh)
 {
-  m_mesh = Handle<Mesh>(mesh.handle());
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   SpaceFields& nodes = mesh.geometry_fields();
   Uint tot_nb_owned_nodes(0);
@@ -483,7 +483,7 @@ void MeshPartitioner::migrate()
   const common::List<Uint>& global_node_indices = mesh.geometry_fields().glb_idx();
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle())->node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {
@@ -677,7 +677,7 @@ void MeshPartitioner::migrate()
   }
   boost_foreach (Entities& elements, mesh.topology().elements_range())
   {
-    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle())->node_connectivity().array() )
+    boost_foreach ( common::Table<Uint>::Row nodes, Handle<Elements>(elements.handle<Component>())->node_connectivity().array() )
     {
       boost_foreach ( Uint& node, nodes )
       {

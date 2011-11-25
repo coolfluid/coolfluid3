@@ -56,7 +56,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Triag3D::faces()
 
 const cf3::mesh::ElementType& Triag3D::face_type(const cf3::Uint face)
 {
-  static const Handle< ElementType > facetype( common::allocate_component<ElementTypeT<Triag3D> >(Triag3D::type_name()) );
+  static const boost::shared_ptr< ElementType > facetype( common::allocate_component<ElementTypeT<Triag3D> >(Triag3D::type_name()) );
   return *facetype;
 }
 

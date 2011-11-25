@@ -78,14 +78,14 @@ BOOST_AUTO_TEST_CASE( Conversion )
   BOOST_CHECK(is_null(e));
 
   // Successful dynamic cast
-  Handle<Group> f = make_handle<Group>(*b);
+  Handle<Group> f = b->handle<Group>();
   BOOST_CHECK(is_not_null(f));
   BOOST_CHECK_EQUAL(f->name(), "group");
 
   // Bad dynamic cast
-  Handle<Link> g = make_handle<Link>(*b);
+  Handle<Link> g = b->handle<Link>();
   BOOST_CHECK(is_null(g));
-  
+
   // Construction from const
   boost::shared_ptr<Group const> const_shared(group);
   Handle<Group const> const_handle(const_shared);

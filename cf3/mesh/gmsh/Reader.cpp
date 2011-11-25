@@ -109,11 +109,11 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   m_file_basename = boost::filesystem::basename(fp);
 
   // set the internal mesh pointer
-  m_mesh = Handle<Mesh>(mesh.handle());
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   // Create a region component inside the mesh with a generic mesh name
   // NOTE: since gmsh contains several 'physical entities' in one mesh, we create one region per physical entity
-  m_region = Handle<Region>(m_mesh->topology().handle());
+  m_region = Handle<Region>(m_mesh->topology().handle<Component>());
 
   // Read file once and store positions
   get_file_positions();
@@ -594,7 +594,7 @@ void Reader::read_connectivity()
       elem_table_iter = conn_table_idx[phys_tag-1].find(gmsh_element_type);
       const Uint row_idx = (m_nb_gmsh_elem_in_region[phys_tag-1])[gmsh_element_type];
 
-      Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle());
+      Handle< Elements > elements_region = Handle<Elements>(elem_table_iter->second->handle<Component>());
       Connectivity::Row element_nodes = elements_region->node_connectivity()[row_idx];
 
       m_elem_idx_gmsh_to_cf[element_number] = boost::make_tuple( elements_region , row_idx);

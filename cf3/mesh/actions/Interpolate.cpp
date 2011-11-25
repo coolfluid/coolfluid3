@@ -141,7 +141,7 @@ void Interpolate::execute()
 void Interpolate::interpolate(const Field& source, const common::Table<Real>& coordinates, common::Table<Real>& target)
 {
 
-  if (Handle< Field > target_field = Handle<Field>(target.handle()))
+  if (Handle< Field > target_field = Handle<Field>(target.handle<Component>()))
   {
     if (source.row_size() != target_field->row_size())
       throw BadValue(FromHere(),"Field "+source.uri().string()+" has "+to_str(source.row_size())+" variables.\n"
@@ -168,7 +168,7 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
   const Uint dimension = source_mesh.dimension();
   const Uint nb_vars = source.row_size();
   m_source_space = source.field_group().space();
-  m_source = Handle<Field const>(source.handle());
+  m_source = Handle<Field const>(source.handle<Component>());
 
   Handle< Elements > element_component;
   Uint element_idx;
@@ -356,11 +356,11 @@ void Interpolate::signal_interpolate ( common::SignalArgs& node )
   Handle< common::Table<Real> > coordinates;
   if (coordinates_uri.string() == URI().string())
   {
-    if ( Handle< Field > target_field = Handle<Field>(target.handle()) )
+    if ( Handle< Field > target_field = Handle<Field>(target.handle<Component>()) )
     {
       if (target_field->field_group().has_coordinates() == false)
         target_field->field_group().create_coordinates();
-      coordinates = Handle< common::Table<Real> >(target_field->field_group().coordinates().handle());
+      coordinates = Handle< common::Table<Real> >(target_field->field_group().coordinates().handle<Component>());
     }
     else
     {

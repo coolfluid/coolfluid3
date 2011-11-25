@@ -181,7 +181,7 @@ struct ComponentIteratorRange : //public iterator_range<typename T::const_iterat
   {
     std::vector< Handle<T> > result (0);
     BOOST_FOREACH ( T& val, *this )
-      result.push_back(Handle<T>(val.handle()));
+      result.push_back(val.template handle<T>());
     return result;
   }
 
@@ -189,7 +189,7 @@ struct ComponentIteratorRange : //public iterator_range<typename T::const_iterat
   {
     std::vector< Handle<T const> > result (0);
     BOOST_FOREACH ( const T& val, *this )
-      result.push_back(Handle<T const>(val.handle()));
+      result.push_back(val.template handle<T>());
     return result;
   }
 
@@ -357,7 +357,7 @@ inline std::vector< Handle<T> > range_to_vector( boost::iterator_range<Component
 {
   std::vector< Handle<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(Handle<T>(val.handle()));
+    result.push_back(val.template handle<T>());
   return result;
 }
 
@@ -366,7 +366,7 @@ inline std::vector< Handle<T> > range_to_vector( boost::iterator_range<boost::fi
 {
   std::vector< Handle<T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(Handle<T>(val.handle()));
+    result.push_back(val.template handle<T>());
   return result;
 }
 
@@ -375,7 +375,7 @@ inline std::vector< Handle<const T> > range_to_const_vector( boost::iterator_ran
 {
   std::vector< Handle<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(Handle<T const>(val.handle()));
+    result.push_back(val.template handle<T>());
   return result;
 }
 
@@ -384,7 +384,7 @@ inline std::vector< Handle<const T> > range_to_const_vector( boost::iterator_ran
 {
   std::vector< Handle<const T> > result (0);
   BOOST_FOREACH ( T& val, range)
-    result.push_back(Handle<T const>(val.handle()));
+    result.push_back(val.template handle<T const>());
   return result;
 }
 

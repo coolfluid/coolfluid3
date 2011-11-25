@@ -89,7 +89,7 @@ void Entities::initialize(const std::string& element_type_name, SpaceFields& geo
 
 void Entities::assign_geometry(SpaceFields& geometry)
 {
-  m_geometry_fields = Handle<SpaceFields>(geometry.handle());
+  m_geometry_fields = Handle<SpaceFields>(geometry.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ void Entities::configure_element_type()
   {
     Space& geometry_space = create_space(mesh::Tags::geometry(),element_type().shape_function().derived_type_name());
     geometry_space.add_tag(mesh::Tags::geometry());
-    m_geometry_space = Handle<Space>(geometry_space.handle());
+    m_geometry_space = Handle<Space>(geometry_space.handle<Component>());
   }
 }
 
@@ -131,7 +131,7 @@ boost::shared_ptr< List< Uint > > Entities::create_used_nodes(const Component& n
   boost::shared_ptr< List< Uint > > used_nodes = allocate_component< List< Uint > >(mesh::Tags::nodes_used());
 
   std::vector< Handle<Entities const> > entities_vector = range_to_const_vector(find_components_recursively<Entities>(node_user));
-  Handle<Entities const> self_entities(node_user.handle());
+  Handle<Entities const> self_entities(node_user.handle<Component>());
   if(is_not_null(self_entities))
     entities_vector.push_back(self_entities);
 

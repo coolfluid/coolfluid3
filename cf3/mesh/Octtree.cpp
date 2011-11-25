@@ -440,7 +440,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        element_component = Handle<Elements>(elements.handle());
+        element_component = Handle<Elements>(elements.handle<Component>());
         element_idx = elem_idx;
         cf3_assert(is_not_null(element_component));
         return true;
@@ -458,7 +458,7 @@ bool Octtree::find_element(const RealVector& target_coord, Handle< Elements >& e
       const RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        element_component = Handle<Elements>(elements.handle());
+        element_component = Handle<Elements>(elements.handle<Component>());
         element_idx = elem_idx;
         cf3_assert(is_not_null(element_component));
         return true;

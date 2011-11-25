@@ -69,9 +69,9 @@ LinearInterpolator::LinearInterpolator( const std::string& name )
 
 void LinearInterpolator::construct_internal_storage(Mesh& source)
 {
-  if (m_source_mesh != Handle<Mesh>(source.handle()))
+  if (m_source_mesh != Handle<Mesh>(source.handle<Component>()))
   {
-    m_source_mesh = Handle<Mesh>(source.handle());
+    m_source_mesh = Handle<Mesh>(source.handle<Component>());
     create_bounding_box();
     create_octtree();
   }
@@ -506,7 +506,7 @@ boost::tuple<Handle< Elements const >,Uint> LinearInterpolator::find_element(con
       RealMatrix elem_coordinates = elements.get_coordinates(elem_idx);
       if (elements.element_type().is_coord_in_element(target_coord,elem_coordinates))
       {
-        return boost::make_tuple(Handle<Elements const>(elements.handle()),elem_idx);
+        return boost::make_tuple(Handle<Elements const>(elements.handle<Component>()),elem_idx);
       }
     }
   }

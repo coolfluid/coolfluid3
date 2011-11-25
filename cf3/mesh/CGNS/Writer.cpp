@@ -188,7 +188,7 @@ void Writer::write_zone(const Region& region)
   GroupsMapType grouped_elements_map;
   BOOST_FOREACH(const Elements& elements, find_components_recursively<Elements>(region))
   {
-    Handle<Elements const>(grouped_elements_map[elements.parent().uri().path()].push_back(elements.handle()));
+    Handle<Elements const>(grouped_elements_map[elements.parent().uri().path()].push_back(elements.handle<Component>()));
   }
 
   m_section.elemStartIdx = 0;
@@ -214,7 +214,7 @@ void Writer::write_section(const GroupedElements& grouped_elements)
 
 
 
-  Handle< Region > section_region = Handle<Region const>(grouped_elements[0]->parent().handle());
+  Handle< Region > section_region = Handle<Region const>(grouped_elements[0]->parent().handle<Component>());
 
   m_section.name = section_region->name();
   m_section.type = grouped_elements.size() != 1 ? MIXED : m_elemtype_CF3_to_CGNS[builder_name[grouped_elements[0]->element_type().derived_type_name()]];

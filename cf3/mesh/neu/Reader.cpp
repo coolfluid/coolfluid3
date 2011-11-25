@@ -104,7 +104,7 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
   }
 
   // set the internal mesh pointer
-  m_mesh = Handle<Mesh>(mesh.handle());
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   // Read file once and store positions
   get_file_positions();
@@ -125,9 +125,9 @@ void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 
   // Create a region component inside the mesh with the name mesh_name
   //if (option("new_api").value<bool>())
-    m_region = Handle<Region>(m_mesh->topology().create_region(m_headerData.mesh_name).handle());
+    m_region = Handle<Region>(m_mesh->topology().create_region(m_headerData.mesh_name).handle<Component>());
   //else
-  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Handle<Region>(Merge").value<bool>()).handle());
+  //  m_region = m_mesh->create_region(m_headerData.mesh_name,!option("Serial Handle<Region>(Merge").value<bool>()).handle<Component>());
 
   find_ghost_nodes();
   read_coordinates();
@@ -345,7 +345,7 @@ void Reader::read_coordinates()
 void Reader::read_connectivity()
 {
   SpaceFields& nodes = m_mesh->geometry_fields();
-  m_tmp = Handle<Region>(m_region->create_region("main").handle());
+  m_tmp = Handle<Region>(m_region->create_region("main").handle<Component>());
 
   m_global_to_tmp.clear();
   m_file.seekg(m_elements_cells_position,std::ios::beg);

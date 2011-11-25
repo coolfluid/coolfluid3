@@ -63,7 +63,7 @@ std::vector<std::string> Reader::get_extensions()
 void Reader::do_read_mesh_into(const URI& file, Mesh& mesh)
 {
   // Set the internal mesh pointer
-  m_mesh = Handle<Mesh>(mesh.handle());
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
 
   // open file in read mode
   CALL_CGNS(cg_open(file.path().c_str(),CG_MODE_READ,&m_file.idx));
@@ -639,7 +639,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
       Handle< Elements > last_elements = m_global_to_region[boco_elems[1]-1].first;
       if (&first_elements->parent() == &last_elements->parent())
       {
-        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle());
+        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle<Component>());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[1]-boco_elems[0]+1))
         {
@@ -688,7 +688,7 @@ void Reader::read_boco_unstructured(Region& parent_region)
       Handle< Elements > last_elements = m_global_to_region[boco_elems[m_boco.nBC_elem-1]-1].first;
       if (&first_elements->parent() == &last_elements->parent())
       {
-        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle());
+        Handle< Region > group_region = Handle<Region>(first_elements->parent().handle<Component>());
         Uint prev_elm_count = group_region->properties().check("previous_elem_count") ? group_region->properties().value<Uint>("previous_elem_count") : 0;
         if (group_region->recursive_elements_count() == prev_elm_count + Uint(boco_elems[m_boco.nBC_elem-1]-boco_elems[0]+1))
         {

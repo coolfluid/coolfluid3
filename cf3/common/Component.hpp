@@ -172,8 +172,10 @@ public: // functions
   Handle<Component const> access_component_checked ( const URI& path ) const;
 
   /// Get a handle to the component
-  Handle<Component> handle() { return Handle<Component>(shared_from_this()); }
-  Handle<Component const> handle() const { return Handle<Component const>(shared_from_this()); }
+  template<typename ComponentT>
+  Handle<ComponentT> handle() { return Handle<ComponentT>(shared_from_this()); }
+  template<typename ComponentT>
+  Handle<ComponentT const> handle() const { return Handle<ComponentT const>(shared_from_this()); }
 
   /// @returns the handle to the parent component, which can be null if there is no parent
   Handle<Component> parent() const;
@@ -393,8 +395,6 @@ protected: // functions
   /// Friend declarations allow enable_shared_from_this to be private
   template<class T> friend class boost::enable_shared_from_this;
   template<class T> friend class boost::shared_ptr;
-  template<class Y> friend Handle<Y> make_handle(Component&);
-  template<class Y> friend Handle<Y> make_handle(const Component&);
 }; // Component
 
 
@@ -536,16 +536,6 @@ boost::shared_ptr<ATYPE> build_component_abstract_type_reduced(const std::string
                         +" could not be casted to \'" + ATYPE::type_name() + "\' pointer" );
 
     return comp;
-}
-
-template<typename Y> Handle<Y> make_handle(Component& c)
-{
-  return Handle<Y>(c.shared_from_this());
-}
-
-template<typename Y> Handle<Y> make_handle(const Component& c)
-{
-  return Handle<Y>(c.shared_from_this());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

@@ -85,7 +85,7 @@ void Field::config_var_names()
 
 void Field::set_topology(Region& region)
 {
-  m_topology = Handle<Region>(region.handle());
+  m_topology = Handle<Region>(region.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ Region& Field::topology() const
 
 void Field::set_field_group(SpaceFields& field_group)
 {
-  m_field_group = Handle<SpaceFields>(field_group.handle());
+  m_field_group = Handle<SpaceFields>(field_group.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -200,7 +200,7 @@ std::vector< Handle<Elements> > Field::elements_range()
 
 CommPattern& Field::parallelize_with(CommPattern& comm_pattern)
 {
-  m_comm_pattern = Handle<CommPattern>(comm_pattern.handle());
+  m_comm_pattern = Handle<CommPattern>(comm_pattern.handle<Component>());
   comm_pattern.insert(name(), array(), true);
   return comm_pattern;
 }
@@ -230,7 +230,7 @@ void Field::set_descriptor(math::VariablesDescriptor& descriptor)
 {
   if (Handle< math::VariablesDescriptor > old_descriptor = find_component_ptr<math::VariablesDescriptor>(*this))
     remove_component(*old_descriptor);
-  m_descriptor = Handle<math::VariablesDescriptor>(descriptor.handle());
+  m_descriptor = Handle<math::VariablesDescriptor>(descriptor.handle<Component>());
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////

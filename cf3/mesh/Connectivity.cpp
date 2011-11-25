@@ -71,7 +71,7 @@ void Connectivity::set_lookup(UnifiedData& lookup)
       remove_component(*m_lookup);
     }
   }
-  m_lookup = Handle<UnifiedData>(lookup.handle());
+  m_lookup = Handle<UnifiedData>(lookup.handle<Component>());
   m_lookup_link = create_component<Link>("lookup");
   m_lookup_link->link_to(lookup);
 }

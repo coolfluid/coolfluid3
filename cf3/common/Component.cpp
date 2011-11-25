@@ -201,7 +201,7 @@ URI Component::uri() const
 Handle<Component> Component::parent() const
 {
   if(m_parent)
-    return m_parent->handle();
+    return m_parent->handle<Component>();
 
   return Handle<Component>();
 }
@@ -210,7 +210,7 @@ Handle<Component> Component::parent() const
 
 Handle< const Component > Component::root() const
 {
-  Handle<Component const> result(handle());
+  Handle<Component const> result(handle<Component>());
   while(is_not_null(result->m_parent))
     result = result->parent();
 
@@ -221,7 +221,7 @@ Handle< const Component > Component::root() const
 
 Handle< Component > Component::root()
 {
-  Handle<Component> result(handle());
+  Handle<Component> result(handle<Component>());
   while(is_not_null(result->m_parent))
     result = result->parent();
 
@@ -417,7 +417,7 @@ Handle<Component> Component::access_component(const URI& path)
 {
   // Return self for trivial path or at end of recursion.
   if(path.path() == "." || path.empty())
-    return handle();
+    return handle<Component>();
 
   // If the path is absolute, make it relative and pass it to the root
   if(path.is_absolute())
@@ -430,7 +430,7 @@ Handle<Component> Component::access_component(const URI& path)
 
     if(new_path.empty())
     {
-      return root()->handle();
+      return root()->handle<Component>();
     }
 
     // Pass the rest to root

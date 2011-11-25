@@ -63,7 +63,7 @@ void StencilComputer::configure_mesh()
 
 void StencilComputer::set_mesh(Mesh& mesh)
 {
-  m_mesh = Handle<Mesh>(mesh.handle());
+  m_mesh = Handle<Mesh>(mesh.handle<Component>());
   configure_mesh();
 }
 

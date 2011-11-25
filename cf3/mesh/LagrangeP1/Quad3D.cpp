@@ -40,7 +40,7 @@ const cf3::mesh::ElementType::FaceConnectivity& Quad3D::faces()
 
 const cf3::mesh::ElementType& Quad3D::face_type(const cf3::Uint face)
 {
-  static const Handle< ElementType > facetype( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
+  static const boost::shared_ptr< ElementType > facetype( common::allocate_component<ElementTypeT<LagrangeP1::Quad3D> >(LagrangeP1::Quad3D::type_name()) );
   return *facetype;
 }
 

@@ -62,7 +62,7 @@ void Node2FaceCellConnectivity::add_used (FaceCellConnectivity& used_comp)
   std::vector<Handle< FaceCellConnectivity > > used_components = used();
   boost_foreach( Handle< FaceCellConnectivity > comp, used_components )
   {
-    if (comp->handle() == follow_link(used_comp))
+    if (comp->handle<Component>() == follow_link(used_comp))
     {
       found = true;
       break;

@@ -126,7 +126,7 @@ void BuildFaces::execute()
 void BuildFaces::make_interfaces(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle<Component>()) ) || is_not_null( Handle<Region>(parent.handle<Component>()) ) );
 
   Handle< Elements > comp;
 //  std::cout << PERank << "make interfaces for " << parent.name() << std::endl;
@@ -180,7 +180,7 @@ void BuildFaces::make_interfaces(Component& parent)
 void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle<Component>()) ) || is_not_null( Handle<Region>(parent.handle<Component>()) ) );
 
   Handle< Cells > comp;
 
@@ -208,7 +208,7 @@ void BuildFaces::build_face_cell_connectivity_bottom_up(Component& parent)
 void BuildFaces::build_faces_bottom_up(Component& parent)
 {
   cf3_assert_desc("parent must be a Region or Mesh",
-    is_not_null( Handle<Mesh>(parent.handle()) ) || is_not_null( Handle<Region>(parent.handle()) ) );
+    is_not_null( Handle<Mesh>(parent.handle<Component>()) ) || is_not_null( Handle<Region>(parent.handle<Component>()) ) );
 
   Handle< Elements > comp;
 
