@@ -53,7 +53,7 @@ LinearInterpolator::LinearInterpolator( const std::string& name )
 {
 
 
-  options().add_option( "ApproximateNbElementsPerCell", 1 )
+  options().add_option( "ApproximateNbElementsPerCell", 1u)
       .description("The approximate amount of elements that are stored in a structured");
 
   std::vector<Uint> dummy;

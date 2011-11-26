@@ -95,7 +95,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
   // Create and configure interpolator.
   octtree.options().configure_option("nb_elems_per_cell", 1u );
-  octtree.options().configure_option("mesh", mesh.uri() );
+  octtree.options().configure_option("mesh", mesh.handle<Mesh>());
 
   // Following configuration option has priority over the the previous one.
   std::vector<Uint> nb_cells = boost::assign::list_of(5)(5);
@@ -121,7 +121,7 @@ BOOST_AUTO_TEST_CASE( Octtree_creation )
 
 
   Handle<StencilComputerOcttree> stencil_computer = Core::instance().root().create_component<StencilComputerOcttree>("stencilcomputer");
-  stencil_computer->options().configure_option("mesh", find_component<Mesh>(Core::instance().root()).uri() );
+  stencil_computer->options().configure_option("mesh", find_component<Mesh>(Core::instance().root()).handle<Mesh>() );
 
   std::vector<Uint> stencil;
   stencil_computer->options().configure_option("stencil_size", 1u );
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE( Octtree_parallel )
 
   // Create and configure interpolator.
   octtree.options().configure_option("nb_elems_per_cell", 1u );
-  octtree.options().configure_option("mesh", mesh.uri() );
+  octtree.options().configure_option("mesh", mesh.handle<Mesh>() );
   octtree.create_octtree();
 
   // Following configuration option has priority over the the previous one.

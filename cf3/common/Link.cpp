@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <iostream>
+
 #include "common/BasicExceptions.hpp"
 #include "common/Builder.hpp"
 #include "common/Signal.hpp"
@@ -104,6 +106,7 @@ Handle< Component > follow_link(Component& link_or_comp)
 
 Handle< const Component > follow_link(const Component& link_or_comp)
 {
+  std::cout << "checking link on " << link_or_comp.uri() << std::endl;
   return follow_link(link_or_comp.handle<Component>());
 }
 

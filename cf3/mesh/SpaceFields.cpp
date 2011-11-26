@@ -24,7 +24,6 @@
 #include "common/Core.hpp"
 #include "common/EventHandler.hpp"
 #include "common/StringConversion.hpp"
-#include "common/Link.hpp"
 #include "common/Tags.hpp"
 #include "common/DynTable.hpp"
 #include "common/XML/SignalOptions.hpp"

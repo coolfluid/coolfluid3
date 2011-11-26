@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE( WriteGrid )
 
   boost::shared_ptr< MeshWriter > vtk_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer","meshwriter");
 
-  std::vector<Handle< Field > > fields; fields.push_back(make_handle<Field>(mesh->geometry_fields().coordinates()));
+  std::vector<Handle< Field > > fields; fields.push_back(mesh->geometry_fields().coordinates().handle<Field>());
   vtk_writer->set_fields(fields);
 
   vtk_writer->write_from_to(*mesh,"grid.vtu");

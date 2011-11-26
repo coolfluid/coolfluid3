@@ -36,7 +36,8 @@ StencilComputer::StencilComputer( const std::string& name )
       .description("Mesh to create octtree from")
       .pretty_name("Mesh")
       .attach_trigger(boost::bind(&StencilComputer::configure_mesh,this))
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_mesh);
 
   m_elements = create_component<UnifiedData>("elements");
 

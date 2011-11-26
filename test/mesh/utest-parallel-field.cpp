@@ -185,18 +185,18 @@ build_component_abstract_type<MeshTransformer>("cf3.mesh.actions.LoadBalance","l
   Field& P1_node_rank = mesh.geometry_fields().create_field("P1_node_rank");
 
   Handle<Action> interpolator(mesh.create_component("interpolator","cf3.mesh.actions.Interpolate"));
-  interpolator->options().configure_option("source",nodes_P1_node_rank.uri());
-  interpolator->options().configure_option("target",P1_node_rank.uri());
+  interpolator->options().configure_option("source",nodes_P1_node_rank.handle<Field const>());
+  interpolator->options().configure_option("target",P1_node_rank.handle<Field>());
   interpolator->execute();
 
   // Write the mesh with the fields
 
   std::vector<Handle< Field > > fields;
-  fields.push_back(make_handle<Field>(field));
-  fields.push_back(make_handle<Field>(P1_node_rank));
-  fields.push_back(make_handle<Field>(glb_elem_idx));
-  fields.push_back(make_handle<Field>(elem_rank));
-  fields.push_back(make_handle<Field>(glb_node_idx));
+  fields.push_back(field.handle<Field>());
+  fields.push_back(P1_node_rank.handle<Field>());
+  fields.push_back(glb_elem_idx.handle<Field>());
+  fields.push_back(elem_rank.handle<Field>());
+  fields.push_back(glb_node_idx.handle<Field>());
 
   boost::shared_ptr< MeshWriter > tec_writer =
       build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","tec_writer");

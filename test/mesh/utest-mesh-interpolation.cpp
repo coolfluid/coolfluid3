@@ -203,7 +203,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   std::vector<Handle< Field > > s_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(source))
-    s_fields.push_back(Handle<Field>(field.handle()));
+    s_fields.push_back(Handle<Field>(field.handle<Component>()));
 
   meshwriter->set_fields(s_fields);
 
@@ -214,7 +214,7 @@ BOOST_AUTO_TEST_CASE( Interpolation )
 
   std::vector<Handle< Field > > t_fields;
   boost_foreach(Field& field, find_components_recursively<Field>(target))
-    t_fields.push_back(Handle<Field>(field.handle()));
+    t_fields.push_back(Handle<Field>(field.handle<Component>()));
 
   meshwriter->set_fields(t_fields);
   meshwriter->write_from_to(target,"interpolated.msh");

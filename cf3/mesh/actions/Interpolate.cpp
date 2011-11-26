@@ -53,12 +53,14 @@ Interpolate::Interpolate( const std::string& name )
   options().add_option("source", m_source)
       .description("Field to interpolate from")
       .pretty_name("Source Field")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_source);
 
   options().add_option("target", m_target)
       .description("Field to interpolate to")
       .pretty_name("TargetField")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_target);
 
   regist_signal ( "interpolate" )
       .description( "Interpolate to given coordinates, not mesh-related" )
@@ -155,14 +157,14 @@ void Interpolate::interpolate(const Field& source, const common::Table<Real>& co
     target.resize(coordinates.size());
   }
 
-  const Mesh& source_mesh = find_parent_component<Mesh>(source);
+  Mesh& source_mesh = find_parent_component<Mesh>(source);
 
   if ( is_null(m_octtree) )
     m_octtree = create_component<Octtree>("octtree");
 
-  if ( m_octtree->options().option("mesh").value<URI>().string() != source_mesh.uri().string() )
+  if ( m_octtree->options().option("mesh").value< Handle<Mesh> >() != source_mesh.handle<Mesh>() )
   {
-    m_octtree->options().configure_option("mesh",source_mesh.uri());
+    m_octtree->options().configure_option("mesh",source_mesh.handle<Mesh>());
     m_octtree->create_octtree();
   }
   const Uint dimension = source_mesh.dimension();

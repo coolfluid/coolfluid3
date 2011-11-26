@@ -55,9 +55,10 @@ Octtree::Octtree( const std::string& name )
   options().add_option("mesh", m_mesh)
       .description("Mesh to create octtree from")
       .pretty_name("Mesh")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_mesh);
 
-  options().add_option( "nb_elems_per_cell", 1 )
+  options().add_option( "nb_elems_per_cell", 1u )
       .description("The approximate amount of elements that are stored in a structured cell of the octtree")
       .pretty_name("Number of Elements per Octtree Cell");
 
@@ -101,6 +102,7 @@ void Octtree::create_bounding_box()
 void Octtree::create_octtree()
 {
   create_bounding_box();
+
   if (is_null(m_mesh))
     throw SetupError(FromHere(), "Option \"mesh\" has not been configured");
 

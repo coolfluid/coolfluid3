@@ -109,9 +109,9 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh )
 
 
   std::vector<Handle< Field > > fields;
-  fields.push_back(make_handle<Field>(nodal));
-  fields.push_back(make_handle<Field>(cell_centred));
-  fields.push_back(make_handle<Field>(nodesP2));
+  fields.push_back(nodal.handle<Field>());
+  fields.push_back(cell_centred.handle<Field>());
+  fields.push_back(nodesP2.handle<Field>());
   boost::shared_ptr< MeshWriter > tec_writer = build_component_abstract_type<MeshWriter>("cf3.mesh.tecplot.Writer","meshwriter");
   tec_writer->options().configure_option("cell_centred",true);
   tec_writer->set_fields(fields);
@@ -137,7 +137,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   boost::filesystem::path fp_in ("../../resources/hextet.neu");
 
   // the mesh to store in
-  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);

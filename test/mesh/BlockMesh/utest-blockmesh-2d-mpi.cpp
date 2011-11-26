@@ -109,8 +109,8 @@ BOOST_AUTO_TEST_CASE( Grid2D )
 
   // Write to disk
   std::vector<Handle< Field > > fields;
-  fields.push_back(make_handle<Field>(mesh.geometry_fields().coordinates()));
-  fields.push_back(make_handle<Field>(elem_rank));
+  fields.push_back(mesh.geometry_fields().coordinates().handle<Field>());
+  fields.push_back(elem_rank.handle<Field>());
   writer->set_fields(fields);
   writer->write_from_to(mesh, URI("utest-blockmesh-2d-mpi_output.pvtu"));
 }

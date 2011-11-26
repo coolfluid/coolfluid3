@@ -120,7 +120,7 @@ BOOST_AUTO_TEST_CASE( threeD_test )
   boost::filesystem::path fp_in ("../../resources/hextet.neu");
 
   // the mesh to store in
-  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);
@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE( read_multiple_2D )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
 
   CFinfo.setFilterRankZero(false);

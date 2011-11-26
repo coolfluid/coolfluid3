@@ -1145,13 +1145,13 @@ find_component_ptr_recursively_with_tag(ParentT& parent, const std::string& tag)
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT, typename Predicate>
-typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
+ParentT& find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
   Handle<Component> parent = comp.parent();
   while(is_not_null(parent))
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
-      return dynamic_cast<typename ComponentReference<ComponentT,ParentT>::type>(*parent);
+      return dynamic_cast<ParentT&>(*parent);
 
     parent = parent->parent();
   }
@@ -1160,13 +1160,13 @@ typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with
 }
 
 template <typename ParentT, typename ComponentT, typename Predicate>
-typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+Handle<ParentT> find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   Handle<Component> parent = comp.parent();
   while(is_not_null(parent))
   {
     if ( pred(parent) && IsComponentType<ParentT>()(parent) )
-      return typename ComponentHandle<ComponentT,ParentT>::type(parent);
+      return Handle<ParentT>(parent);
 
     parent = parent->parent();
   }
@@ -1175,13 +1175,13 @@ typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_wit
 }
 
 template <typename ComponentT, typename Predicate>
-typename ComponentReference<ComponentT>::type find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
+Component& find_parent_component_with_filter(ComponentT& comp, const Predicate& pred)
 {
   return find_parent_component_with_filter<Component>(comp,pred);
 }
 
 template <typename ComponentT, typename Predicate>
-typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
+Handle<Component> find_parent_component_ptr_with_filter(ComponentT& comp, const Predicate& pred)
 {
   return find_parent_component_ptr_with_filter<Component>(comp,pred);
 }
@@ -1189,13 +1189,13 @@ typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_filter
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
-typename ComponentReference<ComponentT,ParentT>::type find_parent_component(ComponentT& comp)
+ParentT& find_parent_component(ComponentT& comp)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentTrue());
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr(ComponentT& comp)
+Handle<ParentT> find_parent_component_ptr(ComponentT& comp)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTrue());
 }
@@ -1203,25 +1203,25 @@ typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr(Com
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
-typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+ParentT& find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentName(name));
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+Handle<ParentT> find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentName(name));
 }
 
 template <typename ComponentT>
-typename ComponentReference<ComponentT>::type find_parent_component_with_name(ComponentT& comp, const std::string& name)
+Component& find_parent_component_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_with_filter(comp,IsComponentName(name));
 }
 
 template <typename ComponentT>
-typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
+Handle<Component> find_parent_component_ptr_with_name(ComponentT& comp, const std::string& name)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentName(name));
 }
@@ -1229,25 +1229,25 @@ typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_name(C
 ////////////////////////////////////////////////////////////////////////////////
 
 template <typename ParentT, typename ComponentT>
-typename ComponentReference<ComponentT,ParentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+ParentT& find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
 
 template <typename ParentT, typename ComponentT>
-typename ComponentHandle<ComponentT,ParentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+Handle<ParentT> find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_ptr_with_filter<ParentT>(comp,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
-typename ComponentReference<ComponentT>::type find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
+Component& find_parent_component_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_with_filter(comp,IsComponentTag(tag));
 }
 
 template <typename ComponentT>
-typename ComponentHandle<ComponentT>::type find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
+Handle<Component> find_parent_component_ptr_with_tag(ComponentT& comp, const std::string& tag)
 {
   return find_parent_component_ptr_with_filter(comp,IsComponentTag(tag));
 }

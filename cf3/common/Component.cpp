@@ -637,7 +637,10 @@ std::string Component::tree(Uint level) const
   tree += name() ;
 
   if( is_not_null(dynamic_cast<Link const*>(this)) )
-    tree += " -> " + follow_link(*this)->uri().string();
+  {
+    Handle<Component const> linked = follow_link(*this);
+    tree += " -> " + (is_null(linked) ? "": linked->uri().string());
+  }
 
   tree += "\n";
 

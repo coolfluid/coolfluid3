@@ -35,12 +35,14 @@ Interpolator::Interpolator ( const std::string& name  ) :
   options().add_option("source", m_source)
       .description("Field to interpolate from")
       .pretty_name("Source Field")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_source);
 
   options().add_option("target", m_target)
       .description("Field to interpolate to")
       .pretty_name("TargetField")
-      .mark_basic();
+      .mark_basic()
+      .link_to(&m_target);
 
   options().add_option("store", true)
       .description("Flag to store weights and stencils used for faster interpolation")

@@ -105,8 +105,8 @@ BOOST_AUTO_TEST_CASE( build )
   }
 
   Interpolate& interpolator = *Core::instance().root().create_component<Interpolate>("interpolator");
-  interpolator.options().configure_option("source",source.uri());
-  interpolator.options().configure_option("target",target.uri());
+  interpolator.options().configure_option("source",source.handle<Field const>());
+  interpolator.options().configure_option("target",target.handle<Field>());
   interpolator.execute();
 
 

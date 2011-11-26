@@ -30,8 +30,8 @@ class Mesh_API Octtree : public common::Component
 {
 public: // typedefs
 
-  
-  
+
+
 
 private: // typedefs
 
@@ -91,8 +91,6 @@ private: //functions
 
 private: // data
 
-  Handle<Mesh> m_mesh;
-
   ArrayT m_octtree;
 
   Uint m_dim;
@@ -102,6 +100,7 @@ private: // data
   std::vector<Real> m_D;
 
   Handle<UnifiedData> m_elements;
+  Handle<Mesh> m_mesh;
 
   std::vector<Uint> m_octtree_idx;
 

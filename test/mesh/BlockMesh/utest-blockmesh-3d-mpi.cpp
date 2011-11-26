@@ -67,7 +67,7 @@ struct BockMesh3DFixture :
 
     if(!domain().get_child("writer"))
     {
-      m_writer = make_handle<MeshWriter>(domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")));
+      m_writer = domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
     }
     else
     {
@@ -230,8 +230,8 @@ BOOST_AUTO_TEST_CASE( RankField )
 
   // setup fields to write
   std::vector<Handle< Field > > fields;
-  fields.push_back(make_handle<Field>(mesh().geometry_fields().coordinates()));
-  fields.push_back(make_handle<Field>(elem_rank));
+  fields.push_back(mesh().geometry_fields().coordinates().handle<Field>());
+  fields.push_back(elem_rank.handle<Field>());
   writer().set_fields(fields);
 }
 

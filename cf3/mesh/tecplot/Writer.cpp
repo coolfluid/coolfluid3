@@ -280,7 +280,7 @@ void Writer::write_file(std::fstream& file, const Mesh& mesh)
 
               if (options().option("cell_centred").value<bool>())
               {
-                Handle< ShapeFunction > P0_cell_centred = Handle<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
+                boost::shared_ptr< ShapeFunction > P0_cell_centred = boost::dynamic_pointer_cast<ShapeFunction>(build_component("cf3.mesh.LagrangeP1."+to_str(elements.element_type().shape_name()),"tmp_shape_func"));
 
                 for (Uint e=0; e<elements.size(); ++e)
                 {

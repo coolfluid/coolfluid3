@@ -49,7 +49,8 @@ struct FieldManager::Implementation
   {
     m_component.options().add_option("variable_manager", m_variable_manager)
               .pretty_name("Variable Manager")
-              .description("Variable manager that is scanned for the tags");
+              .description("Variable manager that is scanned for the tags")
+              .link_to(&m_variable_manager);
   }
 
   // Checked access to the variable manager

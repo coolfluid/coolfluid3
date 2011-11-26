@@ -265,8 +265,8 @@ BOOST_AUTO_TEST_CASE( read_2d_mesh_mix_p1_out )
   }
 
   std::vector<Handle< Field > > fields;
-  fields.push_back(Handle<Field>(nodal.handle()));
-  fields.push_back(Handle<Field>(cell_centred.handle()));
+  fields.push_back(Handle<Field>(nodal.handle<Component>()));
+  fields.push_back(Handle<Field>(cell_centred.handle<Component>()));
 
 
   boost::shared_ptr< MeshWriter > mesh_writer =

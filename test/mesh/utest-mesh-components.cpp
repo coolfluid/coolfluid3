@@ -115,7 +115,7 @@ BOOST_AUTO_TEST_CASE( MeshComponentTest )
 BOOST_AUTO_TEST_CASE( AddRemoveTest )
 {
   // create table
-  Handle< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE( AddRemoveTest )
 BOOST_AUTO_TEST_CASE( FlushTest )
 {
   // create table
-  Handle< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);
@@ -305,7 +305,7 @@ BOOST_AUTO_TEST_CASE( Table_Uint_Test )
 BOOST_AUTO_TEST_CASE( Table_Real_Test )
 {
   // Create a Elements component
-  Handle< Table<Real> > coordinates (allocate_component< Table<Real> >("coords")) ;
+  boost::shared_ptr< Table<Real> > coordinates (allocate_component< Table<Real> >("coords")) ;
 
   // initialize the array
   Uint dim = 2;
@@ -370,16 +370,16 @@ BOOST_AUTO_TEST_CASE( List_tests )
   List<bool>& bool_list = *root.create_component< List<bool> >("bool_list");
   BOOST_CHECK_EQUAL(bool_list.type_name(),"List<bool>");
 
-  Handle< List<int> > integer_list (allocate_component< List<int> >("integer_list"));
+  boost::shared_ptr< List<int> > integer_list (allocate_component< List<int> >("integer_list"));
   BOOST_CHECK_EQUAL(integer_list->type_name(),"List<integer>");
 
-  Handle< List<Uint> > unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
+  boost::shared_ptr< List<Uint> > unsigned_list (allocate_component< List<Uint> >("unsigned_list"));
   BOOST_CHECK_EQUAL(unsigned_list->type_name(),"List<unsigned>");
 
-  Handle< List<Real> > real_list (allocate_component< List<Real> >("real_list"));
+  boost::shared_ptr< List<Real> > real_list (allocate_component< List<Real> >("real_list"));
   BOOST_CHECK_EQUAL(real_list->type_name(),"List<real>");
 
-  Handle< List<std::string> > string_list (allocate_component< List<std::string> >("string_list"));
+  boost::shared_ptr< List<std::string> > string_list (allocate_component< List<std::string> >("string_list"));
   BOOST_CHECK_EQUAL(string_list->type_name(),"List<string>");
 
   bool_list.resize(10);
@@ -422,7 +422,7 @@ BOOST_AUTO_TEST_CASE( List_tests )
 BOOST_AUTO_TEST_CASE( ListAddRemoveTest )
 {
   // create table
-  Handle< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
+  boost::shared_ptr< Table<Uint> > table (allocate_component< Table<Uint> >("table"));
   // initialize with number of columns
   Uint nbCols = 3;
   table->set_row_size(nbCols);

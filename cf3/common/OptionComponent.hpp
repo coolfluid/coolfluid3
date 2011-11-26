@@ -83,6 +83,9 @@ private:
 
   virtual void copy_to_linked_params(std::vector< boost::any >& linked_params)
   {
+    if(linked_params.empty())
+      return;
+
     value_type val = this->template value<value_type>();
     BOOST_FOREACH ( boost::any& v, linked_params )
     {

@@ -44,7 +44,7 @@ Partitioner::Partitioner ( const std::string& name ) :
       .pretty_name("Graph Package")
       .mark_basic();
 
-  options().add_option("debug_level", 0)
+  options().add_option("debug_level", 0u)
       .description("Internal zoltan debug level (0 to 10)")
       .pretty_name("Debug Level");
 

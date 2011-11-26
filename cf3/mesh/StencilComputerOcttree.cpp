@@ -55,7 +55,7 @@ void StencilComputerOcttree::configure_mesh()
   m_nb_elems_in_mesh = m_mesh->topology().recursive_filtered_elements_count(IsElementsVolume());
   m_dim = m_mesh->geometry_fields().coordinates().row_size();
 
-  m_octtree->options().configure_option("mesh",m_mesh->uri());
+  m_octtree->options().configure_option("mesh",m_mesh);
   m_octtree->create_octtree();
 }
 

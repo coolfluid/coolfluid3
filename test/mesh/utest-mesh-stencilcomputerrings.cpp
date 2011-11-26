@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( StencilComputerRings_creation )
   Mesh& mesh = mesh_generator->generate();
 
   Handle<StencilComputerRings> stencil_computer = Core::instance().root().create_component<StencilComputerRings>("stencilcomputer");
-  stencil_computer->options().configure_option("mesh", mesh.uri() );
+  stencil_computer->options().configure_option("mesh", mesh.handle<Mesh>() );
 
   std::vector<Uint> stencil;
 //  stencil_computer->options().configure_option("stencil_size", 10u );

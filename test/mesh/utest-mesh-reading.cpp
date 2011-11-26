@@ -196,7 +196,7 @@ BOOST_AUTO_TEST_CASE( read_multiple )
   boost::filesystem::path fp_in ("quadtriag.neu");
 
   // the mesh to store in
-  Handle< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
+  boost::shared_ptr< Mesh > mesh ( allocate_component<Mesh>  ( "mesh" ) );
 
   for (Uint count=1; count<=4; ++count)
   {

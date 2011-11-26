@@ -874,7 +874,7 @@ BOOST_CHECK(true);
   std::vector<Handle< Field > > fields_to_output;
 //  fields_to_output.push_back(glb_node.as_ptr<Field>());
 //  fields_to_output.push_back(glb_elem.as_ptr<Field>());
-  fields_to_output.push_back(Handle<Field>(elem_rank.handle()));
+  fields_to_output.push_back(Handle<Field>(elem_rank.handle<Component>()));
 BOOST_CHECK(true);
   tec_writer->set_fields(fields_to_output);
   tec_writer->write_from_to(mesh,"parallel_overlap"+tec_writer->get_extensions()[0]);
