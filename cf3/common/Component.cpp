@@ -1283,7 +1283,7 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
 
 
-  Handle<Builder> cbuilder(Core::instance().root().access_component( builder_path ));
+  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
 
   if( is_null(cbuilder) ) // try to load the library that contains the builder
   {

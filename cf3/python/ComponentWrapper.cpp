@@ -134,7 +134,7 @@ struct OptionCreator
     if(extracted_value.check())
     {
       m_found = true;
-      m_options.add_option< common::OptionT<T> >(m_name, extracted_value());
+      m_options.add_option(m_name, extracted_value());
     }
   }
 
@@ -147,7 +147,7 @@ struct OptionCreator
     if(extracted_value.check())
     {
       m_found = true;
-      m_options.add_option< common::OptionURI >(m_name, extracted_value());
+      m_options.add_option(m_name, extracted_value());
     }
   }
 
@@ -273,8 +273,8 @@ struct SignalWrapper
 
 struct ComponentWrapper::Implementation
 {
-  Implementation(common::Component& component) :
-    m_component(component.as_ptr<common::Component>()),
+  Implementation(const Handle<common::Component>& component) :
+    m_component(component),
     m_list_interface(0)
   {
   }
@@ -285,16 +285,16 @@ struct ComponentWrapper::Implementation
       delete m_list_interface;
   }
 
-  boost::weak_ptr<common::Component> m_component;
+  Handle<common::Component> m_component;
   std::vector<SignalWrapper> m_wrapped_signals;
   PythonListInterface* m_list_interface;
 };
 
-ComponentWrapper::ComponentWrapper(common::Component& component) :
+ComponentWrapper::ComponentWrapper(const Handle< common::Component >& component) :
   m_implementation(new Implementation(component))
 {
   // Add the signals
-  boost_foreach(common::SignalPtr signal, component.signal_list())
+  boost_foreach(common::SignalPtr signal, component->signal_list())
   {
     if(signal->name() != "create_component")
       wrap_signal(signal);
@@ -307,10 +307,10 @@ ComponentWrapper::~ComponentWrapper()
 
 common::Component& ComponentWrapper::component()
 {
-  if(m_implementation->m_component.expired())
+  if(is_null(m_implementation->m_component))
     throw common::BadPointer(FromHere(), "Wrapped object was deleted");
 
-  return *m_implementation->m_component.lock();
+  return *m_implementation->m_component;
 }
 
 void ComponentWrapper::bind_signals(object& python_object)
@@ -327,7 +327,7 @@ void ComponentWrapper::wrap_signal(common::SignalPtr signal)
   m_implementation->m_wrapped_signals.push_back(SignalWrapper(signal));
 }
 
-object wrap_component(common::Component& component)
+object wrap_component(const Handle<common::Component>& component)
 {
   object result = object(ComponentWrapper(component));
   ComponentWrapper& wrapped = extract<ComponentWrapper&>(result);
@@ -361,9 +361,9 @@ std::string name(ComponentWrapper& self)
 
 object create_component(ComponentWrapper& self, const std::string& name, const std::string& builder_name)
 {
-  common::Component::Ptr built_comp = common::build_component(builder_name, name);
+  boost::shared_ptr< common::Component > built_comp = common::build_component(builder_name, name);
   self.component().add_component(built_comp);
-  return wrap_component(*built_comp);
+  return wrap_component(built_comp->handle<common::Component>());
 }
 
 object get_child(ComponentWrapper& self, const std::string& name)
@@ -374,17 +374,6 @@ object get_child(ComponentWrapper& self, const std::string& name)
 object access_component(ComponentWrapper& self, const std::string& uri)
 {
   return wrap_component(self.component().access_component(uri));
-}
-
-void configure_option(ComponentWrapper& self, const std::string& optname, const object& val)
-{
-  common::Option& option = self.component().option(optname);
-  option.change_value(python_to_any(val, option.type()));
-}
-
-std::string option_value_str(ComponentWrapper& self, const std::string& optname)
-{
-  return self.component().option(optname).value_str();
 }
 
 common::URI uri(ComponentWrapper& self)
@@ -433,6 +422,46 @@ std::string to_str(ComponentWrapper& self)
   return self.get_list_interface()->to_str();
 }
 
+// class OptionListWrapper
+// {
+// public:
+//   OptionListWrapper(common::OptionList& option_list) : m_option_list(option_list)
+//   {
+//   }
+//   
+//   OptionList& wrapped()
+//   {
+//     return m_option_list;
+//   }
+//   
+// private:
+//   
+//   common::OptionList* m_option_list;
+// };
+
+
+//////////////////// OptionList ///////////////////////////////////////////////////////////////
+
+common::OptionList* options(ComponentWrapper& self)
+{
+  return &self.component().options();
+}
+
+void configure_option(common::OptionList* self, const std::string& optname, const object& val)
+{
+  cf3_assert(is_not_null(self));
+  common::Option& option = self->option(optname);
+  option.change_value(python_to_any(val, option.type()));
+}
+
+std::string value_str(const common::OptionList* self, const std::string& optname)
+{
+  cf3_assert(is_not_null(self));
+  return self->option(optname).value_str();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+
 void def_component()
 {
   class_<ComponentWrapper>("Component", no_init)
@@ -440,14 +469,17 @@ void def_component()
     .def("create_component", create_component, "Create a new component, named after the first argument and built using the builder name in the second argument")
     .def("get_child", get_child)
     .def("access_component", access_component)
-    .def("configure_option", configure_option)
-    .def("option_value_str", option_value_str)
     .def("print_timing_tree", print_timing_tree)
+    .def("options", options, return_value_policy<reference_existing_object>())
     .def("uri", uri)
     .def("__len__", get_len)
     .def("__getitem__", get_item)
     .def("__setitem__", set_item)
     .def("__str__", to_str);
+    
+  class_<common::OptionList>("OptionList", no_init)
+    .def("configure_option", configure_option, "Configure an option. First argument is the name of the option, second argument the value to set.")
+    .def("value_str", value_str, "String value for an option");
 }
 
 } // python

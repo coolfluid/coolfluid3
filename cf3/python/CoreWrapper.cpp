@@ -23,12 +23,12 @@ struct CoreWrapper
 {
   static object root()
   {
-    return wrap_component(common::Core::instance().root());
+    return wrap_component(common::Core::instance().root().handle<common::Component>());
   }
 
   static object environment()
   {
-    return wrap_component(common::Core::instance().environment());
+    return wrap_component(common::Core::instance().environment().handle<common::Component>());
   }
 
   static void initiate(list arglist)
