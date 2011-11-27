@@ -34,8 +34,9 @@ CWorker::CWorker ( const std::string & name ) :
   Component(name)
 {
   regist_signal( "solve" )
-    ->description("Runs a fake simulation")
-    ->pretty_name("Solve")->connect( boost::bind(&CWorker::signal_solve, this, _1));
+    .description("Runs a fake simulation")
+    .pretty_name("Solve")
+    .connect( boost::bind(&CWorker::signal_solve, this, _1));
 
   signal("solve")->hidden(true);
 }

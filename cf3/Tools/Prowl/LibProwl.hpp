@@ -47,8 +47,8 @@ class Tools_Prowl_API LibProwl : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibProwl> Ptr;
-  typedef boost::shared_ptr<LibProwl const> ConstPtr;
+  
+  
 
   /// Constructor
   LibProwl ( const std::string& name) : common::Library(name) {   }

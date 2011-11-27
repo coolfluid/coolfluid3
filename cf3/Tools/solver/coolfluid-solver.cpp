@@ -35,9 +35,9 @@ using namespace cf3::Tools::solver;
 
 void setup_tree()
 {
-  Component::Ptr tools = Core::instance().root().get_child_ptr("Tools");
-  CPlotter & plotter = tools->create_component< CPlotter >("Plotter");
-  Table<Real> & table = tools->create_component< Table<Real> >("MyTable");
+  Handle< Component > tools = Core::instance().root().get_child("Tools");
+  CPlotter & plotter = *tools->create_component< CPlotter >("Plotter");
+  Table<Real> & table = *tools->create_component< Table<Real> >("MyTable");
   tools->create_component< Journal >("Journal");
 
   table.set_row_size(8); // reserve 8 columns
@@ -92,10 +92,10 @@ int main(int argc, char ** argv)
   setup_tree();
 
   // create the PE manager
-  Manager::Ptr mgr = Core::instance().root().get_child_ptr("Tools")->
-      create_component_ptr<Manager>("PEManager");
+  Handle< Manager > mgr = Core::instance().root().get_child("Tools")->
+      create_component<Manager>("PEManager");
 
-  Core::instance().root().create_component_ptr<CWorker>("Worker");
+  Core::instance().root().create_component<CWorker>("Worker");
 
   // Make sure the python ScriptEngine gets created, if it exists
   try

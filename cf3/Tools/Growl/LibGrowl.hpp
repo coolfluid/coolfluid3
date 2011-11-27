@@ -45,8 +45,8 @@ class Tools_Growl_API LibGrowl : public common::Library
 {
 public:
 
-  typedef boost::shared_ptr<LibGrowl> Ptr;
-  typedef boost::shared_ptr<LibGrowl const> ConstPtr;
+  
+  
 
   /// Constructor
   LibGrowl ( const std::string& name) : common::Library(name) {   }
