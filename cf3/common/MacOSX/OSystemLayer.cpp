@@ -95,15 +95,14 @@ std::string OSystemLayer::dump_back_trace ()
 		{
 			trace = std::string(what[4].first,what[4].second);
 			size_t maxName = 1024;
-			int demangleStatus;
-
-			char* demangledName = (char*) malloc(maxName);
+			int demangleStatus;  // will be assigned in abi::__cxa_demangle
+			char* demangledName; // will be allocated in abi::__cxa_demangle
 			if ((demangledName = abi::__cxa_demangle(trace.c_str(), demangledName, &maxName,
 																							 &demangleStatus)) && demangleStatus == 0)
 			{
 				trace = demangledName; // the demangled name is now in our trace string
 			}
-			free(demangledName);
+			delete_ptr_array(demangledName);
 		}
 		oss << trace << "\n";
 	}
@@ -113,7 +112,6 @@ std::string OSystemLayer::dump_back_trace ()
 #endif
 
   free(strings);
-
   #undef BUFFER_SIZE
 
   oss << "\nexit dumping backtrace ...";
