@@ -6,6 +6,7 @@
 
 #include <iomanip>
 
+#include <boost/assign/list_of.hpp>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string/replace.hpp>
 
@@ -96,32 +97,31 @@ WriteMesh::~WriteMesh()
 
 void WriteMesh::update_list_of_available_writers()
 {
-  Handle< Factory > meshwriter_factory = Core::instance().factories().get_factory<MeshWriter>();
-
-  if ( is_null(meshwriter_factory) )
-    throw ValueNotFound ( FromHere() , "Could not find factory for MeshWriter" );
-
   m_extensions_to_writers.clear();
+  
+  // TODO proper way to find the list of potential writers
+  const std::vector<std::string> known_writers = boost::assign::list_of
+    ("cf3.mesh.CGNS.Writer")
+    ("cf3.mesh.gmsh.Writer")
+    ("cf3.mesh.neu.Writer")
+    ("cf3.mesh.tecplot.Writer")
+    ("cf3.mesh.VTKLegacy.Writer")
+    ("cf3.mesh.VTKXML.Writer");
 
-  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshwriter_factory ) )
+  boost_foreach(const std::string& writer_name, known_writers)
   {
-    Handle< MeshWriter > writer(get_child(bdr.name()));
-    boost::shared_ptr<Component> new_writer;
-
-    if( is_null(writer) )
-    {
-      new_writer = bdr.build(bdr.name());
-      writer = Handle<MeshWriter>(new_writer);
-    }
-
-    if( is_null(writer) ) // Check result
-      throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh writer" );
-
-    if(is_not_null(new_writer)) // add new writer, if any
-      add_component(new_writer);
-
+    if(is_not_null(get_child(writer_name)))
+      remove_component(writer_name);
+    
+    boost::shared_ptr<MeshWriter> writer = boost::dynamic_pointer_cast<MeshWriter>(build_component_nothrow(writer_name, writer_name));
+    
+    if(is_null(writer))
+      continue;
+    
+    add_component(writer);
+  
     boost_foreach(const std::string& extension, writer->get_extensions())
-      m_extensions_to_writers[extension].push_back(writer);
+      m_extensions_to_writers[extension].push_back(writer->handle<MeshWriter>());
   }
 }
 

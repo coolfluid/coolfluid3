@@ -17,8 +17,6 @@
 #include "common/OptionURI.hpp"
 #include "common/PropertyList.hpp"
 
-#include "common/LibLoader.hpp"
-
 #include "common/XML/SignalOptions.hpp"
 
 #include "mesh/MeshReader.hpp"
@@ -79,22 +77,16 @@ void LoadMesh::update_list_of_available_readers()
   {
     if(is_not_null(get_child(reader_name)))
       remove_component(reader_name);
+  
+    boost::shared_ptr<MeshReader> reader = boost::dynamic_pointer_cast<MeshReader>(build_component_nothrow(reader_name, reader_name));
     
-    try
-    {
-      boost::shared_ptr<MeshReader> reader = boost::dynamic_pointer_cast<MeshReader>(build_component_nothrow(reader_name, reader_name));
-      
-      if(is_null(reader))
-        continue;
-      
-      add_component(reader);
+    if(is_null(reader))
+      continue;
     
-      boost_foreach(const std::string& extension, reader->get_extensions())
-        m_extensions_to_readers[extension].push_back(reader->handle<MeshReader>());
-    }
-    catch(LibLoadingError& e)
-    {
-    }
+    add_component(reader);
+  
+    boost_foreach(const std::string& extension, reader->get_extensions())
+      m_extensions_to_readers[extension].push_back(reader->handle<MeshReader>());
   }
 }
 
