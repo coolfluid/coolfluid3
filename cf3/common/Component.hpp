@@ -481,6 +481,10 @@ inline void Component::put_components<Component>(std::vector<boost::shared_ptr<C
 boost::shared_ptr<Component> build_component(const std::string& builder_name,
                                const std::string& name);
 
+/// Same as before, but will not throw and return null if something went wrong
+boost::shared_ptr<Component> build_component_nothrow(const std::string& builder_name,
+                               const std::string& name);
+
 
 /// Create a component by providing the name of its builder.
 /// If factory does not exist, tries to auto-load based on the factory name.

@@ -498,7 +498,9 @@ Handle< Component > Component::create_component (const std::string& name ,
                                         const std::string& builder_name )
 {
   boost::shared_ptr<Component> comp = build_component(builder_name, name);
-  add_component( comp );
+  if(is_not_null(comp))
+    add_component( comp );
+  
   return Handle<Component>(comp);
 }
 
@@ -1194,21 +1196,23 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
                         + Core::instance().root().uri().string() );
 
   // get the factory holding the builder
-
-  if ( is_null( factories->get_child( factory_type_name ) ) )
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
-
   Handle<Component> factory = factories->get_child( factory_type_name );
+  
+    
+  if ( is_null( factory ) || is_null( factory->get_child( builder_name ) ) )
+  {
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
+  }
+
+  factory = factories->get_child( factory_type_name );
+  
   if ( is_null(factory) )
     throw ValueNotFound( FromHere(),
                         "Factory \'" + factory_type_name
                         + "\' not found in " + factories->uri().string() + "." );
 
   // get the builder
-
-  if ( is_null( factory->get_child( builder_name ) ) )
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
-
   Handle<Builder> builder(factory->get_child( builder_name ));
   if ( is_null(builder) )
   {
@@ -1287,7 +1291,9 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   if( is_null(cbuilder) ) // try to load the library that contains the builder
   {
-    Core::instance().libraries().autoload_library_with_builder( builder_name );
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      throw ValueNotFound(FromHere(), "Library for builder " + builder_name + " could not be autoloaded");
+      
     cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
   }
 
@@ -1299,6 +1305,33 @@ boost::shared_ptr<Component> build_component(const std::string& builder_name,
 
   return comp;
 }
+
+boost::shared_ptr< Component > build_component_nothrow(const std::string& builder_name, const std::string& name)
+{
+  std::string libnamespace = Builder::extract_namespace(builder_name);
+
+  URI builder_path = Core::instance().libraries().uri()
+                   / URI(libnamespace)
+                   / URI(builder_name);
+
+  Handle<Builder> cbuilder( follow_link(Core::instance().root().access_component( builder_path )) );
+
+  if( is_null(cbuilder) ) // try to load the library that contains the builder
+  {
+    if(is_null(Core::instance().libraries().autoload_library_with_builder( builder_name )))
+      return boost::shared_ptr<Component>();
+      
+    cbuilder = Handle<Builder>(follow_link(Core::instance().root().access_component( builder_path )));
+  }
+
+  if( is_null(cbuilder) ) // if still fails, then give up
+    return boost::shared_ptr<Component>();
+
+  boost::shared_ptr<Component> comp = cbuilder->build( name );
+
+  return comp;
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 

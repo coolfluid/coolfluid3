@@ -21,16 +21,12 @@ class Library;
 
 ////////////////////////////////////////////////////////////////////////////////
 
-class Common_API LibLoadingError : public common::Exception {
+/// Not deriving from common::Exception to avoid the automatic error output
+class Common_API LibLoadingError : public std::runtime_error {
 public:
-
   /// Constructor
-  LibLoadingError ( const common::CodeLocation& where, const std::string& what) :
-    common::Exception(where, what, "LibLoadingError") {}
-
-  /// Copy constructor
-  LibLoadingError ( const LibLoadingError& e) throw () : Exception(e) {}
-
+  LibLoadingError ( const std::string& what) :
+    std::runtime_error(what) {}
 }; // LibLoadingError
 
 

@@ -4,6 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
+#include <boost/assign/list_of.hpp>
+
 #include "common/Signal.hpp"
 #include "common/FindComponents.hpp"
 #include "common/Builder.hpp"
@@ -14,6 +16,8 @@
 #include "common/OptionT.hpp"
 #include "common/OptionURI.hpp"
 #include "common/PropertyList.hpp"
+
+#include "common/LibLoader.hpp"
 
 #include "common/XML/SignalOptions.hpp"
 
@@ -63,31 +67,34 @@ LoadMesh::~LoadMesh() {}
 
 void LoadMesh::update_list_of_available_readers()
 {
-  Handle< Factory > meshreader_factory = Core::instance().factories().get_factory<MeshReader>();
-
-  if ( is_null(meshreader_factory) )
-    throw ValueNotFound ( FromHere() , "Could not find factory for MeshReader" );
-
   m_extensions_to_readers.clear();
+  
+  // TODO proper way to find the list of potential readers
+  const std::vector<std::string> known_readers = boost::assign::list_of
+    ("cf3.mesh.CGNS.Reader")
+    ("cf3.mesh.gmsh.Reader")
+    ("cf3.mesh.neu.Reader");
 
-  boost_foreach(Builder& bdr, find_components_recursively<Builder>( *meshreader_factory ) )
+  boost_foreach(const std::string& reader_name, known_readers)
   {
-    Handle< MeshReader > reader(get_child(bdr.name()));
-    boost::shared_ptr<Component> new_reader;
-
-    if( is_null(reader) )
+    if(is_not_null(get_child(reader_name)))
+      remove_component(reader_name);
+    
+    try
     {
-      new_reader = bdr.build(bdr.name());
-      reader = Handle<MeshReader>(new_reader);
+      boost::shared_ptr<MeshReader> reader = boost::dynamic_pointer_cast<MeshReader>(build_component_nothrow(reader_name, reader_name));
+      
+      if(is_null(reader))
+        continue;
+      
+      add_component(reader);
+    
+      boost_foreach(const std::string& extension, reader->get_extensions())
+        m_extensions_to_readers[extension].push_back(reader->handle<MeshReader>());
     }
-
-    if( is_null(reader) )
-      throw SetupError(FromHere(), "Builder \'" + bdr.name() + "\' failed to build the mesh reader" );
-
-    if(is_not_null(new_reader))
-      add_component(new_reader);
-    boost_foreach(const std::string& extension, reader->get_extensions())
-      m_extensions_to_readers[extension].push_back(reader);
+    catch(LibLoadingError& e)
+    {
+    }
   }
 }
 
