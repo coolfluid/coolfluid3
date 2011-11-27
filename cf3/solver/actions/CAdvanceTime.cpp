@@ -5,6 +5,8 @@
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
 #include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Builder.hpp"
 #include "common/FindComponents.hpp"
 
@@ -38,10 +40,11 @@ CAdvanceTime::CAdvanceTime( const std::string& name  ) :
   properties()["brief"] = std::string("Time advancing object");
   properties()["description"] = std::string( "This object handles time advancing\n" );
 
-  options().add_option( OptionComponent<CTime>::create(solver::Tags::time(), &m_time))
-      ->description("Time tracking component")
-      ->pretty_name("Time")
-      ->mark_basic();
+  options().add_option(solver::Tags::time(), m_time)
+      .description("Time tracking component")
+      .pretty_name("Time")
+      .mark_basic()
+      .link_to(&m_time);
 }
 
 
@@ -51,7 +54,7 @@ CAdvanceTime::~CAdvanceTime()  {}
 
 CTime& CAdvanceTime::time()
 {
-  CTime::Ptr t = m_time.lock();
+  Handle< CTime > t = m_time;
   if( is_null(t) )
     throw common::SetupError( FromHere(),
                               "Time not yet set for component " + uri().string() );

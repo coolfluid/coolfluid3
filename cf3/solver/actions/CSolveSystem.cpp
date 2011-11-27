@@ -4,7 +4,8 @@
 // GNU Lesser General Public License version 3 (LGPLv3).
 // See doc/lgpl.txt and doc/gpl.txt for the license text.
 
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Builder.hpp"
 
 #include "math/LSS/System.hpp"
@@ -32,20 +33,21 @@ CSolveSystem::CSolveSystem( const std::string& name  ) :
     "This object executes a linear system solver\n";
   properties()["description"] = description;
 
-  options().add_option( OptionComponent<LSS::System>::create("lss", &m_lss))
-      ->description("Linear System solver that gets executed")
-      ->pretty_name("LSS")
-      ->mark_basic();
+  options().add_option("lss", &m_lss)
+      .description("Linear System solver that gets executed")
+      .pretty_name("LSS")
+      .mark_basic()
+      .link_to(&m_lss);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CSolveSystem::execute ()
 {
-  if(m_lss.expired())
+  if(is_null(m_lss))
     throw SetupError(FromHere(), "LSS not set for component " + uri().string());
 
-  LSS::System& lss = *m_lss.lock();
+  LSS::System& lss = *m_lss;
 
   if(!lss.is_created())
     throw SetupError(FromHere(), "LSS at " + lss.uri().string() + " is not created!");

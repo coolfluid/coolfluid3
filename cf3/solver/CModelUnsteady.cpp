@@ -12,6 +12,7 @@
 #include "common/Foreach.hpp"
 #include "common/FindComponents.hpp"
 #include "common/XML/SignalFrame.hpp"
+#include "common/PropertyList.hpp"
 
 #include "math/Consts.hpp"
 
@@ -41,7 +42,7 @@ struct CModelUnsteady::Implementation
   }
 
   Component& m_component;
-  boost::weak_ptr<CTime> m_time;
+  Handle<CTime> m_time;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -50,7 +51,7 @@ CModelUnsteady::CModelUnsteady( const std::string& name  ) :
   CModel ( name ),
   m_implementation(new Implementation(*this))
 {
-  m_properties["steady"] = bool(false);
+  properties()["steady"] = bool(false);
 
   properties()["brief"] = std::string("Unsteady simulator object");
   std::string description =
@@ -77,13 +78,13 @@ void CModelUnsteady::setup(const std::string& solver_builder_name, const std::st
 void CModelUnsteady::simulate ()
 {
   CModel::simulate();
-//  time().configure_option("time", time().current_time() );
+//  time().options().configure_option("time", time().current_time() );
 }
 
 
 CTime& CModelUnsteady::create_time(const std::string& name)
 {
-  CTime::Ptr time = create_component_ptr<CTime>(name);
+  Handle<CTime> time = create_component<CTime>(name);
   m_implementation->m_time = time;
 
   configure_option_recursively(Tags::time(), time->uri());
@@ -100,10 +101,10 @@ void CModelUnsteady::signal_create_time(SignalArgs node)
 
 CTime& CModelUnsteady::time()
 {
-  if(m_implementation->m_time.expired())
+  if(is_null(m_implementation->m_time))
     throw SetupError(FromHere(), "Time is not configured for model " + uri().string());
 
-  return *m_implementation->m_time.lock();
+  return *m_implementation->m_time;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

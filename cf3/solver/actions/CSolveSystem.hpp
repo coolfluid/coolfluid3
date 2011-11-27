@@ -27,8 +27,8 @@ class solver_actions_API CSolveSystem : public common::Action
 
 public: // typedefs
 
-  typedef boost::shared_ptr<CSolveSystem> Ptr;
-  typedef boost::shared_ptr<CSolveSystem const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -43,7 +43,7 @@ public: // functions
   void execute();
   
 private:
-  boost::weak_ptr<math::LSS::System> m_lss;
+  Handle<math::LSS::System> m_lss;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -81,8 +81,8 @@ class solver_actions_API CForAllElementsT : public CLoop
 
 public: // typedefs
 
-  typedef boost::shared_ptr< CForAllElementsT > Ptr;
-  typedef boost::shared_ptr< CForAllElementsT const > ConstPtr;
+  
+  
 
 public: // functions
 
@@ -105,19 +105,19 @@ public: // functions
   /// const access to the LoopOperation
   virtual const CLoopOperation& action(const std::string& name = ActionT::type_name()) const
   {
-    return *m_action->as_ptr<CLoopOperation>();
+    return *m_action->handle<CLoopOperation>();
   }
 
   /// non-const access to the LoopOperation
   virtual CLoopOperation& action(const std::string& name = ActionT::type_name())
   {
-    return *m_action->as_ptr<CLoopOperation>();
+    return *m_action->handle<CLoopOperation>();
   }
 
   /// Execute the loop for all elements
   virtual void execute()
   {
-    boost_foreach(mesh::Region::Ptr& region, m_loop_regions)
+    boost_foreach(Handle< mesh::Region >& region, m_loop_regions)
     {
       CFinfo << region->uri().string() << CFendl;
 
@@ -129,7 +129,7 @@ public: // functions
 private: // data
 
   /// Operation to perform
-  typename ActionT::Ptr m_action;
+  typename Handle< ActionT > m_action;
 
 };
 

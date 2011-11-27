@@ -59,10 +59,10 @@ LSS::System::System(const std::string& name) :
   options().add_option( "solver" , "Trilinos" );
 
   regist_signal("print_system")
-    ->connect(boost::bind( &System::signal_print, this, _1 ))
-    ->description("Write the system to disk as a tecplot file, for debugging purposes.")
-    ->pretty_name("Print System")
-    ->signature(boost::bind( &System::signature_print, this, _1 ));
+    .connect(boost::bind( &System::signal_print, this, _1 ))
+    .description("Write the system to disk as a tecplot file, for debugging purposes.")
+    .pretty_name("Print System")
+    .signature(boost::bind( &System::signature_print, this, _1 ));
 
   m_mat.reset();
   m_sol.reset();

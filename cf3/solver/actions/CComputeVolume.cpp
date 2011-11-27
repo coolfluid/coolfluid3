@@ -8,7 +8,7 @@
 #include <boost/function.hpp>
 
 #include "common/Builder.hpp"
-#include "common/OptionURI.hpp"
+#include "common/OptionList.hpp"
 
 #include "mesh/Field.hpp"
 #include "mesh/Space.hpp"
@@ -38,11 +38,12 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 {
   // options
   /// @todo make this option a OptionComponent
-  options().add_option(OptionURI::create("volume", URI("cpath:"), URI::Scheme::CPATH))
-      ->description("Field to set")
-      ->mark_basic()
-      ->attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
-      ->add_tag(mesh::Tags::volume());
+  options().add_option("volume", URI())
+      .supported_protocol(URI::Scheme::CPATH)
+      .description("Field to set")
+      .mark_basic()
+      .attach_trigger ( boost::bind ( &CComputeVolume::config_field,   this ) )
+      .add_tag(mesh::Tags::volume());
 
   options()["elements"].attach_trigger ( boost::bind ( &CComputeVolume::trigger_elements,   this ) );
 
@@ -52,20 +53,19 @@ CComputeVolume::CComputeVolume ( const std::string& name ) :
 
 void CComputeVolume::config_field()
 {
-  URI uri;
-  option("volume").put_value(uri);
-  m_volume = Core::instance().root().access_component_ptr(uri)->as_ptr<Field>();
+  URI uri = options().option("volume").value<URI>();
+  m_volume = Core::instance().root().access_component(uri)->handle<Field>();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
 void CComputeVolume::trigger_elements()
 {
-  m_can_start_loop = m_volume.lock()->elements_lookup().contains(elements());
+  m_can_start_loop = m_volume->elements_lookup().contains(elements());
   if (m_can_start_loop)
   {
     elements().allocate_coordinates(m_coordinates);
-    m_volume_field_space = m_volume.lock()->space(elements()).as_ptr<Space>();
+    m_volume_field_space = m_volume->space(elements()).handle<Space>();
   }
 }
 
@@ -73,8 +73,8 @@ void CComputeVolume::trigger_elements()
 
 void CComputeVolume::execute()
 {
-  Space& space = *m_volume_field_space.lock();
-  Field& volume = *m_volume.lock();
+  Space& space = *m_volume_field_space;
+  Field& volume = *m_volume;
 
   elements().put_coordinates(m_coordinates,idx());
   volume[space.indexes_for_element(idx())[0]][0] = elements().element_type().volume( m_coordinates );

@@ -10,7 +10,8 @@
 
 #include "common/Builder.hpp"
 #include "common/OptionT.hpp"
-#include "common/OptionComponent.hpp"
+#include "common/OptionList.hpp"
+#include "common/PropertyList.hpp"
 #include "common/Foreach.hpp"
 
 #include "mesh/Field.hpp"
@@ -98,27 +99,28 @@ CComputeLNorm::CComputeLNorm ( const std::string& name ) : Action(name)
 
   // properties
 
-  m_properties.add_property("norm", Real(0.) );
+  properties().add_property("norm", Real(0.) );
 
   // options
 
-  options().add_option< OptionT<bool> >("Scale", true)
-      ->description("Scales (divides) the norm by the number of entries (ignored if order zero)");
+  options().add_option("Scale", true)
+      .description("Scales (divides) the norm by the number of entries (ignored if order zero)");
 
-  options().add_option< OptionT<Uint> >("Order", 2u)
-      ->description("Order of the p-norm, zero if L-inf");
+  options().add_option("Order", 2u)
+      .description("Order of the p-norm, zero if L-inf");
 
-  options().add_option(OptionComponent<Field>::create("Field", &m_field))
-      ->description("Field for which to compute the norm");
+  options().add_option("Field", m_field)
+      .description("Field for which to compute the norm")
+      .link_to(&m_field);
 }
 
 
 void CComputeLNorm::execute()
 {
-  if ( m_field.expired() ) 	throw SetupError(FromHere(), "Field was not set");
+  if ( is_null(m_field) ) 	throw SetupError(FromHere(), "Field was not set");
 
-  Table<Real>& table = *m_field.lock();
-  Table<Real>::ArrayT& array =  m_field.lock()->array();
+  Table<Real>& table = *m_field;
+  Table<Real>::ArrayT& array =  m_field->array();
 
   const Uint nbrows = table.size();
 
@@ -146,7 +148,7 @@ void CComputeLNorm::execute()
   if( options().option("Scale").value<bool>() && order )
     norm /= nbrows;
 
-  configure_property("norm", norm);
+  properties().configure_property("norm", norm);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

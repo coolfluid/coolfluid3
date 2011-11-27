@@ -23,8 +23,8 @@ class solver_actions_API CPrintIterationSummary : public common::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CPrintIterationSummary> Ptr;
-  typedef boost::shared_ptr<CPrintIterationSummary const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -42,8 +42,8 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Component> my_norm;
-  boost::weak_ptr<Component> my_iter;
+  Handle<Component> my_norm;
+  Handle<Component> my_iter;
 
 };
 

@@ -31,8 +31,8 @@ class solver_actions_API CLoop : public solver::Action
 public: // typedefs
 
   /// provider
-  typedef boost::shared_ptr< CLoop > Ptr;
-  typedef boost::shared_ptr< CLoop const > ConstPtr;
+  
+  
 
 public: // functions
 

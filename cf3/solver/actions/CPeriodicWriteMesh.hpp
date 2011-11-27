@@ -22,8 +22,8 @@ class solver_actions_API CPeriodicWriteMesh : public solver::Action {
 public: // typedefs
 
   /// pointers
-  typedef boost::shared_ptr<CPeriodicWriteMesh> Ptr;
-  typedef boost::shared_ptr<CPeriodicWriteMesh const> ConstPtr;
+  
+  
 
 public: // functions
   /// Contructor
@@ -41,7 +41,7 @@ public: // functions
 
 private: // data
 
-  boost::weak_ptr<Component> m_iterator;  ///< component that holds the iteration
+  Handle<Component> m_iterator;  ///< component that holds the iteration
 
   mesh::WriteMesh& m_writer; ///< mesh writer
 

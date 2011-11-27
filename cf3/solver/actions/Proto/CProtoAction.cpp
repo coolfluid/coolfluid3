@@ -34,23 +34,23 @@ ComponentBuilder < CProtoAction, common::Action, LibSolver > CProtoAction_Builde
 
 struct CProtoAction::Implementation
 {
-  Implementation(Component& comp, const boost::weak_ptr<PhysModel>& physical_model) :
+  Implementation(Component& comp, const Handle<PhysModel>& physical_model) :
     m_component(comp),
     m_physical_model(physical_model)
   {
-    m_component.option(Tags::physical_model()).attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
+    m_component.options().option(Tags::physical_model()).attach_trigger(boost::bind(&Implementation::trigger_physical_model, this));
   }
 
   void trigger_physical_model()
   {
-    if(m_expression && !m_physical_model.expired())
-      m_expression->register_variables(*m_physical_model.lock());
+    if(m_expression && is_not_null(m_physical_model))
+      m_expression->register_variables(*m_physical_model);
   }
 
-  Expression::Ptr m_expression;
+  boost::shared_ptr< Expression > m_expression;
   Component& m_component;
 
-  const boost::weak_ptr<PhysModel>& m_physical_model;
+  const Handle<PhysModel>& m_physical_model;
 };
 
 CProtoAction::CProtoAction(const std::string& name) :
@@ -68,7 +68,7 @@ void CProtoAction::execute()
   if(m_loop_regions.empty())
     CFwarn << "No regions to loop over for action " << uri().string() << CFendl;
 
-  boost_foreach(const Region::Ptr& region, m_loop_regions)
+  boost_foreach(const Handle< Region >& region, m_loop_regions)
   {
     m_implementation->m_expression->loop(*region);
   }
@@ -87,9 +87,9 @@ void CProtoAction::insert_tags(std::set< std::string >& tags) const
 }
 
 
-CProtoAction::Ptr create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression)
+boost::shared_ptr< CProtoAction > create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression)
 {
-  CProtoAction::Ptr action = allocate_component<CProtoAction>(name);
+  boost::shared_ptr<CProtoAction> action = allocate_component<CProtoAction>(name);
   action->set_expression(expression);
 
   return action;
