@@ -52,7 +52,7 @@ private:
 };
 
 /// Create a new CProtoAction, immediatly setting the expression
-boost::shared_ptr< CProtoAction > create_proto_action();
+boost::shared_ptr< CProtoAction > create_proto_action(const std::string& name, const boost::shared_ptr< Expression >& expression);
 
 } // namespace Proto
 } // namespace actions

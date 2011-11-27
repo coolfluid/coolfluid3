@@ -51,10 +51,10 @@ public:
   /// Return the wrapped component
   ComponentT& component()
   {
-    if(m_component->expired())
+    if(is_null(m_component))
       throw common::SetupError(FromHere(), "ComponentWrapperImpl points to a null component");
 
-    return *(m_component->lock());
+    return **m_component;
   }
 
 private:

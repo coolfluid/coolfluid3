@@ -183,7 +183,7 @@ physics::PhysModel& CModel::create_physics( const std::string& builder )
   add_component(pm);
   m_implementation->m_physics = Handle<physics::PhysModel>(pm);
 
-  configure_option_recursively(Tags::physical_model(), pm->uri());
+  configure_option_recursively(Tags::physical_model(), m_implementation->m_physics);
 
   return *pm;
 }
@@ -211,7 +211,7 @@ CSolver& CModel::create_solver( const std::string& builder)
   add_component(solver);
 
   if(is_not_null(m_implementation->m_physics))
-    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics->uri());
+    solver->configure_option_recursively(Tags::physical_model(), m_implementation->m_physics);
 
   return *solver;
 }

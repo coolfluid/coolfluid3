@@ -68,12 +68,12 @@ BOOST_AUTO_TEST_SUITE( ProtoOperatorsSuite )
 BOOST_AUTO_TEST_CASE( ProtoElementField )
 {
   // Setup a model
-  CModel& model = Core::instance().root().create_component<CModel>("Model");
+  CModel& model = *Core::instance().root().create_component<CModel>("Model");
   physics::PhysModel& phys_model = model.create_physics("cf3.physics.DynamicModel");
   Domain& dom = model.create_domain("Domain");
   CSolver& solver = model.create_solver("cf3.solver.CSimpleSolver");
 
-  Mesh& mesh = dom.create_component<Mesh>("mesh");
+  Mesh& mesh = *dom.create_component<Mesh>("mesh");
 
   // Simple graded mesh (to get non-constant volume)
   const Real length = 20.;
@@ -82,7 +82,7 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   const Uint x_segs = 10;
   const Uint y_segs = 10;
 
-  BlockMesh::BlockData& blocks = dom.create_component<BlockMesh::BlockData>("blocks");
+  BlockMesh::BlockData& blocks = *dom.create_component<BlockMesh::BlockData>("blocks");
 
   blocks.dimension = 2;
   blocks.scaling_factor = 1.;
@@ -141,9 +141,9 @@ BOOST_AUTO_TEST_CASE( ProtoElementField )
   BOOST_CHECK_SMALL(total_error, 1e-12);
 
   // Write mesh
-  MeshWriter& writer = model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).as_type<MeshWriter>();
-  std::vector<Field::Ptr> fields;
-  fields.push_back(elems_P0.get_child("volumes").as_ptr<Field>());
+  MeshWriter& writer = *model.domain().add_component(build_component_abstract_type<MeshWriter>("cf3.mesh.VTKXML.Writer", "writer")).handle<MeshWriter>();
+  std::vector<Handle< Field > > fields;
+  fields.push_back(Handle<Field>(elems_P0.get_child("volumes")));
   writer.set_fields(fields);
   writer.write_from_to(mesh, "utest-proto-elements_output.pvtu");
 }

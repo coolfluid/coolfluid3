@@ -184,7 +184,7 @@ private:
 
       if(is_null(result))
       {
-        result = *&m_physical_model.variable_manager().template create_component<math::VariablesDescriptor>(tag);
+        result = m_physical_model.variable_manager().template create_component<math::VariablesDescriptor>(tag).get();
         result->add_tag(tag);
       }
 

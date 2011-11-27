@@ -90,10 +90,9 @@ public: // functions
   /// @param name of the component
   CForAllElementsT ( const std::string& name ) :
     CLoop(name),
-    m_action( common::allocate_component<ActionT>(ActionT::type_name()) )
+    m_action( create_static_component<ActionT>(ActionT::type_name()) )
   {
     regist_typeinfo(this);
-    add_static_component ( m_action );
   }
 
   /// Virtual destructor
@@ -129,7 +128,7 @@ public: // functions
 private: // data
 
   /// Operation to perform
-  typename Handle< ActionT > m_action;
+  Handle< ActionT > m_action;
 
 };
 
