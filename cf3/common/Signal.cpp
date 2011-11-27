@@ -35,6 +35,10 @@ Signal::Signal( const std::string& name ) :
 {
 }
 
+Signal::~Signal()
+{
+}
+
 Signal* Signal::description( const std::string& desc )
 {
   m_description = desc;
