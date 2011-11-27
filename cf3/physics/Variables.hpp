@@ -39,8 +39,8 @@ class physics_API Variables : public common::Component {
 
 public: //typedefs
 
-  typedef boost::shared_ptr<Variables> Ptr;
-  typedef boost::shared_ptr<Variables const> ConstPtr;
+  
+  
 
 public: // functions
 

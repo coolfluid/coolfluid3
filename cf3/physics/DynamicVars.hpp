@@ -21,8 +21,8 @@ public: // functions
 
   typedef DynamicModel     MODEL;
 
-  typedef boost::shared_ptr<DynamicVars> Ptr;
-  typedef boost::shared_ptr<DynamicVars const> ConstPtr;
+  
+  
 
 public: // functions
 
@@ -104,7 +104,7 @@ public: // functions
   virtual math::VariablesDescriptor& description()
   {
     throw common::NotSupported(FromHere(),"querying description not supported for DynamicVars, see VariableManager");
-    static math::VariablesDescriptor::Ptr desc (common::allocate_component<math::VariablesDescriptor>("desc"));
+    static boost::shared_ptr< math::VariablesDescriptor > desc (common::allocate_component<math::VariablesDescriptor>("desc"));
     return *desc;
   }
   //@} END INTERFACE
