@@ -25,7 +25,7 @@ public:
   typedef boost::shared_ptr<TCPConnection> Ptr;
   typedef boost::shared_ptr<TCPConnection const> ConstPtr;
 
-  static Ptr create(asio::io_service& ios) // (1)
+  static Ptr create(asio::io_service& ios)
   {
     return Ptr(new TCPConnection(ios));
   }
@@ -46,7 +46,7 @@ public:
   }
 
 private:
-  TCPConnection(asio::io_service& io_service) // (3)
+  TCPConnection(asio::io_service& io_service)
     : m_socket(io_service)
   {
   }
@@ -73,7 +73,7 @@ private:
 class TCPClient
 {
 public:
-  TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint) // (1)
+  TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint)
     :m_io_service (io_service)
   {
     // Try to connect to the server
@@ -93,7 +93,7 @@ private:
                          );
   }
 
-  void handle_connect(TCPConnection::Ptr new_connection, const system::error_code& error) // (4)
+  void handle_connect(TCPConnection::Ptr new_connection, const system::error_code& error)
   {
     if (!error)
     {
