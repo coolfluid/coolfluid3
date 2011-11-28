@@ -9,71 +9,20 @@
 #include <boost/asio/io_service.hpp> // main I/O service
 #include <boost/asio/ip/tcp.hpp>     // TCP services
 #include <boost/asio/placeholders.hpp>
-#include <boost/asio/read.hpp>
 #include <boost/bind/bind.hpp>
 #include <boost/enable_shared_from_this.hpp>
+
+#include "boost-asio/TCPConnection.hpp"
 
 using namespace boost;
 using namespace boost::asio::ip;
 
 //////////////////////////////////////////////////////////////////////////////
 
-/// Manages the communication with the server.
-class TCPConnection : public boost::enable_shared_from_this<TCPConnection>
-{
-public:
-  typedef boost::shared_ptr<TCPConnection> Ptr;
-  typedef boost::shared_ptr<TCPConnection const> ConstPtr;
-
-  static Ptr create(asio::io_service& ios) // (1)
-  {
-    return Ptr(new TCPConnection(ios));
-  }
-
-  tcp::socket& socket()
-  {
-    return m_socket;
-  }
-
-  void read()
-  {
-    asio::async_read(m_socket, asio::buffer(m_network_buffer),
-                     asio::transfer_at_least(20),
-                     bind(&TCPConnection::handle_frame_read, shared_from_this(),
-                          asio::placeholders::error,
-                          asio::placeholders::bytes_transferred)
-                     );
-  }
-
-private:
-  TCPConnection(asio::io_service& io_service) // (3)
-    : m_socket(io_service)
-  {
-  }
-
-  void handle_frame_read(const boost::system::error_code& error, size_t n)
-  {
-    if (!error)
-    {
-      std::cout.write(&m_network_buffer[0], n );
-      read();
-    }
-    else {
-      std::cout << error.message() ;
-    }
-  }
-
-  tcp::socket m_socket;
-  boost::array<char, 128> m_network_buffer;
-};
-
-
-//////////////////////////////////////////////////////////////////////////////
-
 class TCPClient
 {
 public:
-  TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint) // (1)
+  TCPClient( asio::io_service& io_service, tcp::endpoint& endpoint)
     :m_io_service (io_service)
   {
     // Try to connect to the server
@@ -93,14 +42,13 @@ private:
                          );
   }
 
-  void handle_connect(TCPConnection::Ptr new_connection, const system::error_code& error) // (4)
+  void handle_connect(TCPConnection::Ptr new_connection, const system::error_code& error)
   {
     if (!error)
     {
       new_connection->read();
     }
   }
-
 
   asio::io_service & m_io_service;
 };
