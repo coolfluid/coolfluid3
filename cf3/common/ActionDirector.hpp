@@ -58,6 +58,19 @@ ActionDirector& operator<<(ActionDirector& action_director, const Handle<ActionT
 /// Take ownership of the passed action, adding it as a child
 ActionDirector& operator<<(ActionDirector& action_director, const boost::shared_ptr<Action>& action);
 
+/// Add a link to the passed action as a child
+const boost::shared_ptr<ActionDirector>& operator<<(const boost::shared_ptr<ActionDirector>& action_director, Action& action);
+
+/// Add a link to the passed action as a child
+template<typename ActionT>
+const boost::shared_ptr<ActionDirector>& operator<<(const boost::shared_ptr<ActionDirector>& action_director, const Handle<ActionT>& action)
+{
+  return action_director << *action;
+}
+
+/// Take ownership of the passed action, adding it as a child
+const boost::shared_ptr<ActionDirector>& operator<<(const boost::shared_ptr<ActionDirector>& action_director, const boost::shared_ptr<Action>& action);
+
 /////////////////////////////////////////////////////////////////////////////////////
 
 } // common

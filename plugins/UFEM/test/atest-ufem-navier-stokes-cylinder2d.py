@@ -25,7 +25,7 @@ domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 # lss setup
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.options().configure_option('solver', 'Trilinos')
-solver.options().configure_option('lss', lss.uri())
+solver.options().configure_option('lss', lss)
 lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2])
 
 u_in = [2., 0.]
@@ -37,7 +37,7 @@ solver.options().configure_option('initial_velocity', u_in)
 solver.options().configure_option('reference_velocity', u_in[0])
 
 # Boundary conditions
-bc = solver.get_child('BoundaryConditions')
+bc = solver.get_child('TimeLoop').get_child('BoundaryConditions')
 bc.add_constant_bc(region_name = 'in', variable_name = 'Velocity')
 bc.add_constant_bc(region_name = 'symm', variable_name = 'Velocity')
 bc.add_constant_bc(region_name = 'wall', variable_name = 'Velocity')
@@ -51,9 +51,6 @@ bc.get_child('BCoutPressure').options().configure_option('value', 0.)
 time = model.get_child('Time')
 time.options().configure_option('time_step', 0.1)
 
-# dummy writer (to load the library)
-domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer')
-
 # Setup a time series write
 final_end_time = 10.
 save_interval = 1.
@@ -66,11 +63,7 @@ while current_end_time < final_end_time:
   domain.write_mesh(cf.URI('atest-ufem-navier-stokes-cylinder2d_output-' +str(iteration) + '.pvtu'))
   iteration += 1
   if iteration == 1:
-    solver.disable_action('InitializePressure')
-    solver.disable_action('InitializeVelocity')
-    solver.disable_action('InitializeU1')
-    solver.disable_action('InitializeU2')
-    solver.disable_action('InitializeU3')
+    solver.options().configure_option('disabled_actions', ['InitializePressure', 'InitializeVelocity', 'InitializeU1', 'InitializeU2', 'InitializeU3'])
 
 # print timings
 model.print_timing_tree()

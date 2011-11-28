@@ -13,8 +13,8 @@ endforeach()
 
 
 
-coolfluid_add_test( UTEST utest-solver-solvesystem
-                    CPP   utest-solver-solvesystem.cpp
+coolfluid_add_test( UTEST utest-solver-solvelss
+                    CPP   utest-solver-solvelss.cpp
                     LIBS  coolfluid_mesh coolfluid_solver_actions coolfluid_mesh_lagrangep1 coolfluid_mesh_lagrangep2 coolfluid_mesh_lagrangep3 coolfluid_mesh_generation coolfluid_solver coolfluid_math_lss
                     MPI   1 )
 

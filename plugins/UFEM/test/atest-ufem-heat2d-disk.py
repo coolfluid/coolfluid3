@@ -24,7 +24,7 @@ domain.load_mesh(file = cf.URI(sys.argv[1]), name = 'Mesh')
 # lss setup
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.options().configure_option('solver', 'Trilinos');
-solver.options().configure_option('lss', lss.uri())
+solver.options().configure_option('lss', lss)
 lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[2]);
 
 # Boundary conditions
@@ -38,5 +38,4 @@ bc.get_child('BCouterTemperature').options().configure_option('value', 35)
 model.simulate()
 
 # Write result
-domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer');
-domain.write_mesh(cf.URI('atest-ufem-heat-steady-output-py.pvtu'))
+domain.write_mesh(cf.URI('atest-ufem-heat2d-disk.pvtu'))

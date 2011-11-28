@@ -28,7 +28,7 @@ generator.execute()
 # lss setup
 lss = model.create_component('LSS', 'cf3.math.LSS.System')
 lss.options().configure_option('solver', 'Trilinos');
-solver.options().configure_option('lss', lss.uri())
+solver.options().configure_option('lss', lss)
 lss.get_child('Matrix').options().configure_option('settings_file', sys.argv[1]);
 
 # Boundary conditions
@@ -45,5 +45,4 @@ model.simulate()
 model.print_timing_tree()
 
 # Write result
-domain.create_component('VTKwriter', 'cf3.mesh.VTKXML.Writer');
 domain.write_mesh(cf.URI('atest-ufem-heat3d-channel_output.pvtu'))

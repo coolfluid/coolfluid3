@@ -22,8 +22,8 @@ class UFEM_API NavierStokes : public LinearSolverUnsteady
 {
 public: // typedefs
 
-  typedef boost::shared_ptr<NavierStokes> Ptr;
-  typedef boost::shared_ptr<NavierStokes const> ConstPtr;
+  
+  
 
 public: // functions
 

@@ -25,6 +25,8 @@
 #include "UFEM/LinearSolverUnsteady.hpp"
 #include "UFEM/TimeLoop.hpp"
 #include "UFEM/Tags.hpp"
+#include "solver/actions/ZeroLSS.hpp"
+#include "solver/actions/SolveLSS.hpp"
 
 using namespace cf3;
 using namespace cf3::solver;
@@ -59,28 +61,31 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   const boost::proto::literal<RealVector> alpha(RealVector2(1., 2.));
 
   // Setup a model
-  CModelUnsteady& model = Core::instance().root().create_component<CModelUnsteady>("Model");
+  CModelUnsteady& model = *Core::instance().root().create_component<CModelUnsteady>("Model");
   Domain& domain = model.create_domain("Domain");
-  UFEM::LinearSolverUnsteady& solver = model.create_component<UFEM::LinearSolverUnsteady>("Solver");
+  UFEM::LinearSolverUnsteady& solver = *model.create_component<UFEM::LinearSolverUnsteady>("Solver");
 
   // Linear system setup (TODO: sane default config for this, so this can be skipped)
-  math::LSS::System& lss = model.create_component<math::LSS::System>("LSS");
-  lss.configure_option("solver", std::string("Trilinos"));
-  solver.configure_option("lss", lss.uri());
+  math::LSS::System& lss = *model.create_component<math::LSS::System>("LSS");
+  lss.options().configure_option("solver", std::string("Trilinos"));
+  solver.options().configure_option("lss", lss.handle<math::LSS::System>());
 
   // Proto placeholders
   MeshTerm<0, VectorField> v("VectorVariable", UFEM::Tags::solution());
 
   // Allowed elements (reducing this list improves compile times)
   boost::mpl::vector1<mesh::LagrangeP1::Quad2D> allowed_elements;
+  
+  // BCs
+  boost::shared_ptr<UFEM::BoundaryConditions> bc = allocate_component<UFEM::BoundaryConditions>("BoundaryConditions");
 
   // build up the solver out of different actions
   solver
     << create_proto_action("Initialize", nodes_expression(v = initial_temp))
     <<
     (
-      solver.create_component<UFEM::TimeLoop>("TimeLoop")
-      << solver.zero_action()
+      allocate_component<UFEM::TimeLoop>("TimeLoop")
+      << allocate_component<solver::actions::ZeroLSS>("ZeroLSS")
       << create_proto_action
       (
         "Assembly",
@@ -100,8 +105,8 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
           )
         )
       )
-      << solver.boundary_conditions()
-      << solver.solve_action()
+      << bc
+      << allocate_component<solver::actions::SolveLSS>("SolveLSS")
       << create_proto_action("Increment", nodes_expression(v += solver.solution(v)))
     );
 
@@ -109,20 +114,20 @@ BOOST_AUTO_TEST_CASE( ProtoSystem )
   model.create_physics("cf3.physics.DynamicModel");
 
   // Setup mesh
-  Mesh& mesh = domain.create_component<Mesh>("Mesh");
+  Mesh& mesh = *domain.create_component<Mesh>("Mesh");
   Tools::MeshGeneration::create_rectangle(mesh, length, 0.5*length, 2*nb_segments, nb_segments);
 
-  lss.matrix()->configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
+  lss.matrix()->options().configure_option("settings_file", std::string(boost::unit_test::framework::master_test_suite().argv[1]));
 
-  solver.boundary_conditions().add_constant_bc("left", "VectorVariable", outside_temp);
-  solver.boundary_conditions().add_constant_bc("right", "VectorVariable", outside_temp);
-  solver.boundary_conditions().add_constant_bc("bottom", "VectorVariable", outside_temp);
-  solver.boundary_conditions().add_constant_bc("top", "VectorVariable", outside_temp);
+  bc->add_constant_bc("left", "VectorVariable", outside_temp);
+  bc->add_constant_bc("right", "VectorVariable", outside_temp);
+  bc->add_constant_bc("bottom", "VectorVariable", outside_temp);
+  bc->add_constant_bc("top", "VectorVariable", outside_temp);
 
   // Configure timings
   CTime& time = model.create_time();
-  time.configure_option("time_step", dt);
-  time.configure_option("end_time", end_time);
+  time.options().configure_option("time_step", dt);
+  time.options().configure_option("end_time", end_time);
 
   // Run the solver
   model.simulate();

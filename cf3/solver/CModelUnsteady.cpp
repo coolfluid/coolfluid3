@@ -87,7 +87,7 @@ CTime& CModelUnsteady::create_time(const std::string& name)
   Handle<CTime> time = create_component<CTime>(name);
   m_implementation->m_time = time;
 
-  configure_option_recursively(Tags::time(), time->uri());
+  configure_option_recursively(Tags::time(), time);
 
   return *time;
 }
